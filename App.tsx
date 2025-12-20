@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
+import ReadingModeSelector from './components/ReadingModeSelector';
 import SpreadSelector from './components/SpreadSelector';
 import ActiveReading from './components/ActiveReading';
 import AuthModal from './components/AuthModal';
@@ -15,13 +16,30 @@ const App: React.FC = () => {
   const { user, isLoading, language } = useApp();
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
+  const [readingMode, setReadingMode] = useState<string | null>(null);
 
-  const handleAuthSuccess = useCallback(() => setCurrentView('home'), []);
+  const handleAuthSuccess = useCallback(() => {
+    setCurrentView('home');
+    setReadingMode(null);
+  }, []);
 
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
     setCurrentView('home');
+    setReadingMode(null);
   }, []);
+
+  const handleReadingModeSelect = (mode: string) => {
+    setReadingMode(mode);
+  };
+
+  const handleNavigate = (view: string) => {
+    setCurrentView(view);
+    if (view === 'home') {
+      setReadingMode(null);
+      setSelectedSpread(null);
+    }
+  }
 
   const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
     if (user && user.credits >= spread.cost) {
@@ -107,9 +125,24 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Spread Selector (Only if logged in) */}
-        {user && (
+        {/* Reading Mode Selector (Only if logged in) */}
+        {user && currentView === 'home' && !readingMode && (
+           <ReadingModeSelector onSelect={handleReadingModeSelect} />
+        )}
+
+        {/* Tarot Spread Selector */}
+        {user && currentView === 'home' && readingMode === 'tarot' && (
            <SpreadSelector onSelect={handleSpreadSelect} />
+        )}
+        
+        {/* Horoscope Placeholder */}
+        {user && currentView === 'home' && readingMode === 'horoscope' && (
+           <div className="text-center p-8">Horoscope Reading Coming Soon...</div>
+        )}
+
+        {/* Oracle Placeholder */}
+        {user && currentView === 'home' && readingMode === 'oracle' && (
+           <div className="text-center p-8">Oracle Reading Coming Soon...</div>
         )}
       </div>
     );
@@ -129,7 +162,7 @@ const App: React.FC = () => {
          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}></div>
       </div>
 
-      <Header onNavigate={setCurrentView} currentView={currentView} />
+      <Header onNavigate={handleNavigate} currentView={currentView} />
       <main className="relative z-10">
         <ErrorBoundary>
           {renderContent()}
