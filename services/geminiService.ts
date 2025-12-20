@@ -217,7 +217,7 @@ Tone: Mystical, supportive, insightful, and clear.
   try {
     const ai = getClient();
 
-    const response = await withRetry(() =>
+    const result = await withRetry(() =>
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
@@ -232,7 +232,8 @@ Tone: Mystical, supportive, insightful, and clear.
       )
     );
 
-    return response.text || ERROR_MESSAGES[language].silentSpirits;
+    const response = result.response;
+    return response.text() || ERROR_MESSAGES[language].silentSpirits;
   } catch (error) {
     console.error("Gemini API Error:", error);
 
@@ -277,7 +278,7 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
   try {
     const ai = getClient();
 
-    const response = await withRetry(() =>
+    const result = await withRetry(() =>
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
@@ -292,7 +293,8 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
       )
     );
 
-    return response.text || ERROR_MESSAGES[language].unclearPath;
+    const response = result.response;
+    return response.text() || ERROR_MESSAGES[language].unclearPath;
   } catch (error) {
     console.error("Gemini API Error (FollowUp):", error);
     return ERROR_MESSAGES[language].connectionLost;
@@ -320,7 +322,7 @@ Tone: Uplifting, insightful, and slightly mystical.
   try {
     const ai = getClient();
 
-    const response = await withRetry(() =>
+    const result = await withRetry(() =>
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
@@ -335,7 +337,8 @@ Tone: Uplifting, insightful, and slightly mystical.
       )
     );
 
-    return response.text || `The stars are quiet for ${sign} today.`;
+    const response = result.response;
+    return response.text() || `The stars are quiet for ${sign} today.`;
   } catch (error) {
     console.error(`Gemini API Error (Horoscope for ${sign}):`, error);
 
