@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import type { ChatCompletion } from 'openai/resources/chat/completions';
 import { InterpretationStyle, Language, SpreadConfig, TarotCard } from '../types';
 
 // Configuration
@@ -8,7 +9,6 @@ const CONFIG = {
   baseDelayMs: 1000,
   timeoutMs: 30000,
   temperature: 0.7,
-  topK: 40,
   topP: 0.95,
 } as const;
 
@@ -227,14 +227,13 @@ Tone: Mystical, supportive, insightful, and clear.
           model: CONFIG.model,
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
-          top_k: CONFIG.topK, // OpenRouter uses top_k
           top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
-    );
+    ) as ChatCompletion;
 
-    return result.choices[0].message.content || ERROR_MESSAGES[language].silentSpirits;
+    return result.choices[0]?.message?.content || ERROR_MESSAGES[language].silentSpirits;
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Request timeout') {
@@ -285,14 +284,13 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
           model: CONFIG.model,
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
-          top_k: CONFIG.topK, // OpenRouter uses top_k
           top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
-    );
+    ) as ChatCompletion;
 
-    return result.choices[0].message.content || ERROR_MESSAGES[language].unclearPath;
+    return result.choices[0]?.message?.content || ERROR_MESSAGES[language].unclearPath;
   } catch (error) {
     console.error("OpenRouter API Error (FollowUp):", error);
     if (error instanceof Error) {
@@ -329,14 +327,13 @@ Tone: Uplifting, insightful, and slightly mystical.
           model: CONFIG.model,
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
-          top_k: CONFIG.topK, // OpenRouter uses top_k
           top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
-    );
+    ) as ChatCompletion;
 
-    return result.choices[0].message.content || `The stars are quiet for ${sign} today.`;
+    return result.choices[0]?.message?.content || `The stars are quiet for ${sign} today.`;
   } catch (error) {
     console.error(`OpenRouter API Error (Horoscope for ${sign}):`, error);
 
