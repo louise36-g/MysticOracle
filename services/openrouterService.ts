@@ -35,15 +35,14 @@ let clientInstance: OpenAI | null = null;
 const getClient = (): OpenAI => {
   if (clientInstance) return clientInstance;
 
-  // WARNING: This API key is temporarily hardcoded for debugging purposes as per user request.
-  // In a production environment, this should ALWAYS be loaded from a secure environment variable.
-  const apiKey = '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'; // process.env.API_KEY; // This will be the OpenRouter API key
+  const apiKey = process.env.API_KEY; // This will be the OpenRouter API key
   if (!apiKey) {
     throw new Error("API_KEY is not defined");
   }
   clientInstance = new OpenAI({
     apiKey: apiKey,
     baseURL: "https://openrouter.ai/api/v1", // OpenRouter API base URL
+    dangerouslyAllowBrowser: true,
   });
   return clientInstance;
 };
@@ -296,9 +295,6 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
     return result.choices[0].message.content || ERROR_MESSAGES[language].unclearPath;
   } catch (error) {
     console.error("OpenRouter API Error (FollowUp):", error);
-    if (error instanceof Error) {
-      return `[Debug] OpenRouter API Error (FollowUp): ${error.message}`; // Keep debug message here for now
-    }
     return ERROR_MESSAGES[language].connectionLost;
   }
 };
@@ -341,12 +337,10 @@ Tone: Uplifting, insightful, and slightly mystical.
   } catch (error) {
     console.error(`OpenRouter API Error (Horoscope for ${sign}):`, error);
 
-    if (error instanceof Error) {
-      if (error.message === 'Request timeout') {
-        return ERROR_MESSAGES[language].timeout;
-      }
-      return `[Debug] OpenRouter API Error (Horoscope): ${error.message}`; // Keep debug message here for now
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return ERROR_MESSAGES[language].timeout;
     }
+
     return ERROR_MESSAGES[language].apiError;
   }
 };
