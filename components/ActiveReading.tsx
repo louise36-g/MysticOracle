@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
-import { generateTarotReading, generateFollowUpReading } from '../services/geminiService';
+import { generateTarotReading, generateFollowUpReading } from '../services/openrouterService';
 import { shuffleDeck } from '../utils/shuffle';
 import Card from './Card';
 import Button from './Button';

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { generateHoroscope } from '../services/geminiService';
+import { generateHoroscope } from '../services/openrouterService';
 import Button from './Button';
 
 const zodiacSigns = [
