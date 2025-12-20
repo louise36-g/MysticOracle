@@ -1,7 +1,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Globe, LogIn } from 'lucide-react';
+import { Moon, Menu, X, LogIn } from 'lucide-react';
+import FlagFR from './icons/FlagFR';
+import FlagEN from './icons/FlagEN';
 import Button from './Button';
 
 interface HeaderProps {
@@ -91,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors"
             title="Switch Language"
           >
-            <Globe className="w-5 h-5" />
+            {language === 'en' ? <FlagEN className="w-5 h-5" /> : <FlagFR className="w-5 h-5" />}
           </button>
 
           {user ? (
@@ -152,10 +154,20 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           )}
 
           <button
-            className="block w-full text-left py-2 text-slate-300"
+            className="flex items-center gap-2 w-full text-left py-2 text-slate-300"
             onClick={handleMobileLanguage}
           >
-             {language === 'en' ? 'Switch to French' : 'Passer en Anglais'}
+             {language === 'en' ? (
+                <>
+                   <FlagFR className="w-5 h-5" />
+                   <span>Switch to French</span>
+                </>
+             ) : (
+                <>
+                   <FlagEN className="w-5 h-5" />
+                   <span>Passer en Anglais</span>
+                </>
+             )}
           </button>
           {user ? (
              <Button className="w-full" variant="outline" onClick={handleMobileLogout}>
