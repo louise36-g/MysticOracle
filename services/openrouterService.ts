@@ -35,7 +35,7 @@ let clientInstance: OpenAI | null = null;
 const getClient = (): OpenAI => {
   if (clientInstance) return clientInstance;
 
-  const apiKey = process.env.API_KEY; // This will be the OpenRouter API key
+  const apiKey = import.meta.env.VITE_API_KEY; // This will be the OpenRouter API key
   if (!apiKey) {
     throw new Error("API_KEY is not defined");
   }
