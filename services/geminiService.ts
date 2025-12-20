@@ -1,9 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from 'openai';
 import { InterpretationStyle, Language, SpreadConfig, TarotCard } from '../types';
 
 // Configuration
 const CONFIG = {
-  model: 'gemini-2.5-flash-preview-05-20',
+  model: 'openai/gpt-oss-20b:free',
   maxRetries: 3,
   baseDelayMs: 1000,
   timeoutMs: 30000,
@@ -30,16 +30,21 @@ const ERROR_MESSAGES = {
   },
 } as const;
 
-let clientInstance: GoogleGenAI | null = null;
+let clientInstance: OpenAI | null = null;
 
-const getClient = (): GoogleGenAI => {
+const getClient = (): OpenAI => {
   if (clientInstance) return clientInstance;
 
-  const apiKey = process.env.API_KEY;
+  // WARNING: This API key is temporarily hardcoded for debugging purposes as per user request.
+  // In a production environment, this should ALWAYS be loaded from a secure environment variable.
+  const apiKey = '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'; // process.env.API_KEY; // This will be the OpenRouter API key
   if (!apiKey) {
     throw new Error("API_KEY is not defined");
   }
-  clientInstance = new GoogleGenAI({ apiKey });
+  clientInstance = new OpenAI({
+    apiKey: apiKey,
+    baseURL: "https://openrouter.ai/api/v1", // OpenRouter API base URL
+  });
   return clientInstance;
 };
 
@@ -219,23 +224,20 @@ Tone: Mystical, supportive, insightful, and clear.
 
     const result = await withRetry(() =>
       withTimeout(
-        ai.models.generateContent({
+        ai.chat.completions.create({
           model: CONFIG.model,
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            temperature: CONFIG.temperature,
-            topK: CONFIG.topK,
-            topP: CONFIG.topP,
-          }
+          messages: [{ role: "user", content: prompt }],
+          temperature: CONFIG.temperature,
+          top_k: CONFIG.topK, // OpenRouter uses top_k
+          top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
     );
 
-    const response = result.response;
-    return response.text() || ERROR_MESSAGES[language].silentSpirits;
+    return result.choices[0].message.content || ERROR_MESSAGES[language].silentSpirits;
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("OpenRouter API Error:", error);
 
     if (error instanceof Error && error.message === 'Request timeout') {
       return ERROR_MESSAGES[language].timeout;
@@ -280,23 +282,23 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
 
     const result = await withRetry(() =>
       withTimeout(
-        ai.models.generateContent({
+        ai.chat.completions.create({
           model: CONFIG.model,
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            temperature: CONFIG.temperature,
-            topK: CONFIG.topK,
-            topP: CONFIG.topP,
-          }
+          messages: [{ role: "user", content: prompt }],
+          temperature: CONFIG.temperature,
+          top_k: CONFIG.topK, // OpenRouter uses top_k
+          top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
     );
 
-    const response = result.response;
-    return response.text() || ERROR_MESSAGES[language].unclearPath;
+    return result.choices[0].message.content || ERROR_MESSAGES[language].unclearPath;
   } catch (error) {
-    console.error("Gemini API Error (FollowUp):", error);
+    console.error("OpenRouter API Error (FollowUp):", error);
+    if (error instanceof Error) {
+      return `[Debug] OpenRouter API Error (FollowUp): ${error.message}`; // Keep debug message here for now
+    }
     return ERROR_MESSAGES[language].connectionLost;
   }
 };
@@ -324,28 +326,27 @@ Tone: Uplifting, insightful, and slightly mystical.
 
     const result = await withRetry(() =>
       withTimeout(
-        ai.models.generateContent({
+        ai.chat.completions.create({
           model: CONFIG.model,
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            temperature: CONFIG.temperature,
-            topK: CONFIG.topK,
-            topP: CONFIG.topP,
-          }
+          messages: [{ role: "user", content: prompt }],
+          temperature: CONFIG.temperature,
+          top_k: CONFIG.topK, // OpenRouter uses top_k
+          top_p: CONFIG.topP,
         }),
         CONFIG.timeoutMs
       )
     );
 
-    const response = result.response;
-    return response.text() || `The stars are quiet for ${sign} today.`;
+    return result.choices[0].message.content || `The stars are quiet for ${sign} today.`;
   } catch (error) {
-    console.error(`Gemini API Error (Horoscope for ${sign}):`, error);
+    console.error(`OpenRouter API Error (Horoscope for ${sign}):`, error);
 
-    if (error instanceof Error && error.message === 'Request timeout') {
-      return ERROR_MESSAGES[language].timeout;
+    if (error instanceof Error) {
+      if (error.message === 'Request timeout') {
+        return ERROR_MESSAGES[language].timeout;
+      }
+      return `[Debug] OpenRouter API Error (Horoscope): ${error.message}`; // Keep debug message here for now
     }
-
     return ERROR_MESSAGES[language].apiError;
   }
 };
