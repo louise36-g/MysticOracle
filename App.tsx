@@ -5,6 +5,7 @@ import ReadingModeSelector from './components/ReadingModeSelector';
 import SpreadSelector from './components/SpreadSelector';
 import ActiveReading from './components/ActiveReading';
 import AuthModal from './components/AuthModal';
+import HoroscopeReading from './components/HoroscopeReading';
 import UserProfile from './components/UserProfile';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { useApp } from './context/AppContext';
@@ -135,9 +136,9 @@ const App: React.FC = () => {
            <SpreadSelector onSelect={handleSpreadSelect} />
         )}
         
-        {/* Horoscope Placeholder */}
+        {/* Horoscope Reading */}
         {user && currentView === 'home' && readingMode === 'horoscope' && (
-           <div className="text-center p-8">Horoscope Reading Coming Soon...</div>
+           <HoroscopeReading />
         )}
 
         {/* Oracle Placeholder */}

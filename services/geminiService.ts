@@ -298,3 +298,52 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
     return ERROR_MESSAGES[language].connectionLost;
   }
 };
+
+export const generateHoroscope = async (sign: string, language: Language = 'en'): Promise<string> => {
+  const langName = language === 'en' ? 'English' : 'French';
+  
+  const prompt = `
+You are an expert astrologer with a mystical and positive tone.
+
+Task: Write a daily horoscope.
+Language: ${langName}
+Zodiac Sign: ${sign}
+
+Structure your response with Markdown:
+1.  **Headline**: A catchy, positive summary for the day.
+2.  **Full Reading**: A 2-3 paragraph detailed reading covering love, career, and personal growth.
+3.  **Lucky Charm**: A simple, tangible object or concept for the day (e.g., "A silver coin," "The color blue," "The scent of lavender").
+
+Tone: Uplifting, insightful, and slightly mystical.
+`;
+
+  try {
+    const ai = getClient();
+
+    const response = await withRetry(() =>
+      withTimeout(
+        ai.models.generateContent({
+          model: CONFIG.model,
+          contents: prompt,
+          config: {
+            temperature: CONFIG.temperature,
+            topK: CONFIG.topK,
+            topP: CONFIG.topP,
+          }
+        }),
+        CONFIG.timeoutMs
+      )
+    );
+
+    return response.text || `The stars are quiet for ${sign} today.`;
+  } catch (error) {
+    console.error(`Gemini API Error (Horoscope for ${sign}):`, error);
+
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return ERROR_MESSAGES[language].timeout;
+    }
+
+    return ERROR_MESSAGES[language].apiError;
+  }
+};
+
