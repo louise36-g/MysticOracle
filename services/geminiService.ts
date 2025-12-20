@@ -221,7 +221,7 @@ Tone: Mystical, supportive, insightful, and clear.
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
-          contents: prompt,
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             temperature: CONFIG.temperature,
             topK: CONFIG.topK,
@@ -281,7 +281,7 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
-          contents: prompt,
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             temperature: CONFIG.temperature,
             topK: CONFIG.topK,
@@ -324,7 +324,7 @@ Tone: Uplifting, insightful, and slightly mystical.
       withTimeout(
         ai.models.generateContent({
           model: CONFIG.model,
-          contents: prompt,
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             temperature: CONFIG.temperature,
             topK: CONFIG.topK,
