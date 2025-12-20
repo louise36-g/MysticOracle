@@ -236,12 +236,12 @@ Tone: Mystical, supportive, insightful, and clear.
 
     return result.choices[0].message.content || ERROR_MESSAGES[language].silentSpirits;
   } catch (error) {
-    console.error("OpenRouter API Error:", error);
-
-    if (error instanceof Error && error.message === 'Request timeout') {
-      return ERROR_MESSAGES[language].timeout;
+    if (error instanceof Error) {
+      if (error.message === 'Request timeout') {
+        return ERROR_MESSAGES[language].timeout;
+      }
+      return `[Debug] OpenRouter API Error: ${error.message}`;
     }
-
     return ERROR_MESSAGES[language].apiError;
   }
 };
@@ -295,6 +295,9 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
     return result.choices[0].message.content || ERROR_MESSAGES[language].unclearPath;
   } catch (error) {
     console.error("OpenRouter API Error (FollowUp):", error);
+    if (error instanceof Error) {
+      return `[Debug] OpenRouter API Error (FollowUp): ${error.message}`;
+    }
     return ERROR_MESSAGES[language].connectionLost;
   }
 };
@@ -337,10 +340,12 @@ Tone: Uplifting, insightful, and slightly mystical.
   } catch (error) {
     console.error(`OpenRouter API Error (Horoscope for ${sign}):`, error);
 
-    if (error instanceof Error && error.message === 'Request timeout') {
-      return ERROR_MESSAGES[language].timeout;
+    if (error instanceof Error) {
+      if (error.message === 'Request timeout') {
+        return ERROR_MESSAGES[language].timeout;
+      }
+      return `[Debug] OpenRouter API Error (Horoscope): ${error.message}`;
     }
-
     return ERROR_MESSAGES[language].apiError;
   }
 };
