@@ -46,7 +46,7 @@ const LOADING_MESSAGES = {
 };
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
-  const { language, user, deductCredits, incrementQuestionsAsked, addToHistory } = useApp();
+  const { language, user, deductCredits, incrementQuestionsAsked, addToHistory, checkAchievements } = useApp();
 
   // Phase state
   const [phase, setPhase] = useState<ReadingPhase>('intro');
@@ -57,6 +57,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
   // Reading state
   const [readingText, setReadingText] = useState<string>('');
+  const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [question, setQuestion] = useState('');
   const [questionError, setQuestionError] = useState(false);
@@ -81,6 +82,35 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   useEffect(() => {
     setDeck(shuffleDeck(FULL_DECK));
   }, []);
+
+  // Regenerate reading when language changes (if one is already displayed)
+  useEffect(() => {
+    if (phase === 'reading' && readingText && readingLanguage !== language && !isGenerating) {
+      regenerateReading();
+    }
+  }, [language]);
+
+  const regenerateReading = async () => {
+    setIsGenerating(true);
+
+    const cardsWithPosition = drawnCards.map((item, idx) => ({
+      card: item.card,
+      isReversed: item.isReversed,
+      positionIndex: idx
+    }));
+
+    const result = await generateTarotReading({
+      spread,
+      style: isAdvanced ? selectedStyles : [InterpretationStyle.CLASSIC],
+      cards: cardsWithPosition,
+      question,
+      language
+    });
+
+    setReadingText(result);
+    setReadingLanguage(language);
+    setIsGenerating(false);
+  };
 
   // Cycle loading messages
   useEffect(() => {
@@ -131,14 +161,15 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       return;
     }
 
-    if (user && user.credits < totalCost) {
-      setValidationMessage(
-        language === 'en'
-          ? `Insufficient credits. You need ${totalCost} credits.`
-          : `Crédits insuffisants. Vous avez besoin de ${totalCost} crédits.`
-      );
-      return;
-    }
+    // DEV MODE: Credit check disabled
+    // if (user && user.credits < totalCost) {
+    //   setValidationMessage(
+    //     language === 'en'
+    //       ? `Insufficient credits. You need ${totalCost} credits.`
+    //       : `Crédits insuffisants. Vous avez besoin de ${totalCost} crédits.`
+    //   );
+    //   return;
+    // }
 
     setValidationMessage(null);
 
@@ -184,6 +215,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     });
 
     setReadingText(result);
+    setReadingLanguage(language);
     setIsGenerating(false);
 
     addToHistory({
@@ -191,9 +223,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       date: new Date().toISOString(),
       spreadType: spread.id,
       cards: drawnCards.map(c => c.card.id),
-      interpretation: result
+      interpretation: result,
+      question
     });
-  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory]);
+
+    // Check for achievements after reading completes
+    checkAchievements(spread.id);
+  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, checkAchievements]);
 
   const getQuestionCost = useCallback(() => {
     if (sessionQuestionCount === 0) return 0;

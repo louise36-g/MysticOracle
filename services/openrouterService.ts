@@ -4,10 +4,10 @@ import { InterpretationStyle, Language, SpreadConfig, TarotCard } from '../types
 
 // Configuration
 const CONFIG = {
-  model: 'openai/gpt-oss-20b:free',
+  model: 'google/gemini-2.0-flash-exp:free',
   maxRetries: 3,
   baseDelayMs: 1000,
-  timeoutMs: 30000,
+  timeoutMs: 60000, // Increased timeout for detailed prompts
   temperature: 0.7,
   topP: 0.95,
 } as const;
@@ -35,9 +35,9 @@ let clientInstance: OpenAI | null = null;
 const getClient = (): OpenAI => {
   if (clientInstance) return clientInstance;
 
-  const apiKey = import.meta.env.VITE_API_KEY; // This will be the OpenRouter API key
+  const apiKey = import.meta.env.VITE_API_KEY;
   if (!apiKey) {
-    throw new Error("API_KEY is not defined");
+    throw new Error("VITE_API_KEY is not configured. Please add your OpenRouter API key to a .env file (VITE_API_KEY=your_key) and restart the dev server.");
   }
   clientInstance = new OpenAI({
     apiKey: apiKey,
@@ -209,13 +209,21 @@ ${cardsDescription}
 
 Important: If a card is marked as (Reversed) or (Renversée), interpret its reversed meaning, which often implies internalization, blockage, or the opposite energy of the upright card.
 
-Structure your response with Markdown:
-1. **Introduction**: Brief connection to the user's question or energy.
-2. **Card Analysis**: Go through each card, explaining its meaning in its specific position, integrating the selected focus areas.
-3. **Synthesis**: How the cards interact with each other.
-4. **Conclusion/Advice**: Actionable guidance.
+Structure your response naturally with these sections:
+1. Introduction - Brief connection to the user's question or energy.
+2. Card Analysis - Go through each card, explaining its meaning in its specific position.
+3. Synthesis - How the cards interact with each other.
+4. Conclusion - Actionable guidance and advice.
 
-Tone: Mystical, supportive, insightful, and clear.
+IMPORTANT FORMATTING RULES:
+- Write in flowing, natural prose paragraphs
+- Use **bold** only for card names and section headings
+- DO NOT use tables, grids, or any | pipe | formatting
+- DO NOT use emojis or icons
+- DO NOT use bullet point lists for the main reading content
+- Write as a mystical oracle would speak, not as an AI assistant
+
+Tone: Mystical, supportive, insightful, warm, and conversational.
 `;
 
   try {
@@ -273,6 +281,8 @@ Current Question: "${newQuestion}"
 
 Language: ${langName}
 Task: Answer the seeker's follow-up question based *only* on the cards and insights from the original reading. Do not draw new cards. Keep the mystical tone. Be concise but insightful.
+
+IMPORTANT: Write naturally without tables, emojis, or icons. Speak as a wise oracle would.
 `;
 
   try {
@@ -300,22 +310,113 @@ Task: Answer the seeker's follow-up question based *only* on the cards and insig
   }
 };
 
+interface HoroscopeFollowUpParams {
+  horoscope: string;
+  sign: string;
+  history: { role: 'user' | 'model'; content: string }[];
+  newQuestion: string;
+  language: Language;
+}
+
+export const generateHoroscopeFollowUp = async ({
+  horoscope,
+  sign,
+  history,
+  newQuestion,
+  language
+}: HoroscopeFollowUpParams): Promise<string> => {
+  const langName = language === 'en' ? 'English' : 'French';
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const prompt = `
+You are an expert astrologer in the warm, accessible style of Russell Grant, continuing a conversation about a horoscope reading.
+
+Today's Date: ${today}
+Zodiac Sign: ${sign}
+
+Original Horoscope Reading:
+${horoscope}
+
+Conversation History:
+${history.map(h => `${h.role === 'user' ? 'Seeker' : 'Astrologer'}: ${h.content}`).join('\n')}
+
+Current Question: "${newQuestion}"
+
+Language: ${langName}
+
+Task: Answer the seeker's astrological question with warmth and expertise. Draw upon:
+- The planetary positions and transits mentioned in the original reading
+- Current lunar phases and their significance
+- Solstices and equinoxes if relevant to the timing
+- The specific characteristics of ${sign} and how they interact with current cosmic energies
+- Practical, grounded advice tied to astrological influences
+
+Be informative and educational - explain the "why" behind astrological influences. If asked about specific transits, explain what they mean and how long they typically last.
+
+IMPORTANT: Write naturally in flowing prose. No tables, emojis, or icons. Keep the Russell Grant style - warm, knowledgeable, and encouraging.
+`;
+
+  try {
+    const ai = getClient();
+
+    const result = await withRetry(() =>
+      withTimeout(
+        ai.chat.completions.create({
+          model: CONFIG.model,
+          messages: [{ role: "user", content: prompt }],
+          temperature: CONFIG.temperature,
+          top_p: CONFIG.topP,
+        }),
+        CONFIG.timeoutMs
+      )
+    ) as ChatCompletion;
+
+    return result.choices[0]?.message?.content || ERROR_MESSAGES[language].unclearPath;
+  } catch (error) {
+    console.error("OpenRouter API Error (Horoscope FollowUp):", error);
+    if (error instanceof Error) {
+      return `[Debug] OpenRouter API Error: ${error.message}`;
+    }
+    return ERROR_MESSAGES[language].connectionLost;
+  }
+};
+
 export const generateHoroscope = async (sign: string, language: Language = 'en'): Promise<string> => {
   const langName = language === 'en' ? 'English' : 'French';
   
   const prompt = `
-You are an expert astrologer with a mystical and positive tone.
+You are an expert astrologer in the warm, accessible style of Russell Grant - knowledgeable, encouraging, and detailed about planetary influences.
 
-Task: Write a daily horoscope.
+Task: Write a detailed daily horoscope.
 Language: ${langName}
 Zodiac Sign: ${sign}
+Today's Date: ${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
 
-Structure your response with Markdown:
-1.  **Headline**: A catchy, positive summary for the day.
-2.  **Full Reading**: A 2-3 paragraph detailed reading covering love, career, and personal growth.
-3.  **Lucky Charm**: A simple, tangible object or concept for the day (e.g., "A silver coin," "The color blue," "The scent of lavender").
+Structure your horoscope with these sections (use **bold** for section headings):
 
-Tone: Uplifting, insightful, and slightly mystical.
+**Overall Energy**
+Begin with the key planetary influences affecting ${sign} today. Reference specific planetary movements, aspects, or transits (e.g., "With Venus now transiting through your fifth house..." or "As Mercury forms a trine with Jupiter..."). Explain how these cosmic energies will manifest in their daily experience.
+
+**Personal & Relationships**
+Discuss love, family, friendships, and emotional wellbeing. Connect feelings and experiences to planetary positions. For example: "Since Venus moved into Aquarius, you may have been feeling more detached in matters of the heart..." or "The Moon's position in your seventh house suggests..."
+
+**Career & Finances**
+Cover professional life, work relationships, money matters, and ambitions. Reference relevant planetary influences on their career sector.
+
+**Wellbeing & Advice**
+Offer practical guidance for the day ahead, tying it back to the astrological influences mentioned.
+
+IMPORTANT FORMATTING RULES:
+- Write in warm, flowing prose - like a friendly conversation
+- Reference specific planetary positions, transits, and aspects throughout
+- Explain WHY the stars are influencing them this way
+- Be encouraging and constructive, even with challenges
+- DO NOT include a lucky charm, lucky number, or lucky colour
+- DO NOT use tables, emojis, or icons
+- DO NOT use bullet points
+- Write as Russell Grant would - knowledgeable but accessible, warm but informative
+
+Tone: Warm, detailed, astrologically informed, encouraging, and personally engaging.
 `;
 
   try {

@@ -90,6 +90,33 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     positionMeaningsEn: ["The Past", "The Present", "The Future"],
     positionMeaningsFr: ["Le Passé", "Le Présent", "Le Futur"]
   },
+  [SpreadType.LOVE]: {
+    id: SpreadType.LOVE,
+    nameEn: "Love & Relationships",
+    nameFr: "Amour & Relations",
+    cost: 5,
+    positions: 5,
+    positionMeaningsEn: ["Your Heart", "Their Heart", "The Connection", "Challenges", "Potential"],
+    positionMeaningsFr: ["Votre Cœur", "Son Cœur", "La Connexion", "Défis", "Potentiel"]
+  },
+  [SpreadType.CAREER]: {
+    id: SpreadType.CAREER,
+    nameEn: "Career Path",
+    nameFr: "Chemin de Carrière",
+    cost: 5,
+    positions: 5,
+    positionMeaningsEn: ["Current Position", "Obstacles", "Hidden Factors", "Action to Take", "Outcome"],
+    positionMeaningsFr: ["Position Actuelle", "Obstacles", "Facteurs Cachés", "Action à Prendre", "Résultat"]
+  },
+  [SpreadType.WEEK_AHEAD]: {
+    id: SpreadType.WEEK_AHEAD,
+    nameEn: "Week Ahead",
+    nameFr: "Semaine à Venir",
+    cost: 7,
+    positions: 7,
+    positionMeaningsEn: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    positionMeaningsFr: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+  },
   [SpreadType.CELTIC_CROSS]: {
     id: SpreadType.CELTIC_CROSS,
     nameEn: "Celtic Cross",

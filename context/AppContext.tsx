@@ -1,12 +1,32 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { User, Language, ReadingHistoryItem, AccountStatus } from '../types';
+import { User, Language, ReadingHistoryItem, AccountStatus, ACHIEVEMENTS, SpreadType } from '../types';
 import { storageService } from '../services/storageService';
 import { generateSecureToken, generateReferralCode, hashPassword, verifyPassword, generateVerificationToken } from '../utils/crypto';
 import { isFreeEmailProvider } from '../utils/validation';
 
+/**
+ * DEV MODE for client Mooks - Set to false for production
+ * When true:
+ * - Unlimited readings (no credit deduction)
+ * - Auto-verified email (no token required)
+ * - No verification gates
+ * - All features unlocked
+ */
+const DEV_MODE = true;
+
+// All spread types for achievement tracking
+const ALL_SPREAD_TYPES = Object.values(SpreadType);
+
 interface AuthResponse {
   success: boolean;
   message?: string;
+}
+
+interface AchievementNotification {
+  id: string;
+  nameEn: string;
+  nameFr: string;
+  reward: number;
 }
 
 interface AppContextType {
@@ -29,9 +49,14 @@ interface AppContextType {
   deductCredits: (amount: number) => { success: boolean; message?: string };
   incrementQuestionsAsked: () => void;
 
-  // History
+  // History & Achievements
   history: ReadingHistoryItem[];
   addToHistory: (item: ReadingHistoryItem) => void;
+  checkAchievements: (spreadType?: SpreadType) => AchievementNotification[];
+  claimDailyBonus: () => { success: boolean; amount: number };
+  shareReading: () => { success: boolean; credits: number };
+  achievementNotifications: AchievementNotification[];
+  clearAchievementNotifications: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -41,6 +66,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
+  const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
 
   // Update user in both state and storage
   const updateUser = useCallback((updatedUser: User) => {
@@ -189,17 +215,20 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       passwordHash,
       credits: initialCredits,
       totalQuestionsAsked: 0,
+      totalReadings: 0,
       referralCode: generateReferralCode(username),
       referredBy: referrerId,
       joinDate: new Date().toISOString(),
       lastLoginDate: new Date().toISOString(),
       loginStreak: 1,
       language: language,
-      emailVerified: false,
+      emailVerified: DEV_MODE ? true : false, // DEV MODE: Auto-verify emails
       accountStatus: accountStatus,
-      verificationToken: verification.token,
-      verificationTokenExpires: verification.expiresAt,
-      verificationAttempts: 0
+      verificationToken: DEV_MODE ? undefined : verification.token,
+      verificationTokenExpires: DEV_MODE ? undefined : verification.expiresAt,
+      verificationAttempts: 0,
+      achievements: [],
+      spreadsUsed: []
     };
 
     // Save
@@ -369,9 +398,14 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   }, [user, updateUser]);
 
   const deductCredits = useCallback((amount: number): { success: boolean; message?: string } => {
+    // DEV MODE: Bypass all credit and verification checks
+    if (DEV_MODE) {
+      return { success: true };
+    }
+
     if (!user) return { success: false, message: "User not found" };
 
-    // Gating: Unverified users
+    // Gating: Unverified users (skipped in DEV_MODE above)
     if (!user.emailVerified) {
       if (history.length >= 1) {
         return {
@@ -406,7 +440,166 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     const itemWithUser = { ...item, userId: user.id };
     storageService.addReading(itemWithUser);
     setHistory(prev => [item, ...prev]);
-  }, [user]);
+
+    // Update total readings count and spreads used
+    const newSpreadsUsed = user.spreadsUsed.includes(item.spreadType)
+      ? user.spreadsUsed
+      : [...user.spreadsUsed, item.spreadType];
+
+    const updatedUser = {
+      ...user,
+      totalReadings: (user.totalReadings || 0) + 1,
+      spreadsUsed: newSpreadsUsed
+    };
+    updateUser(updatedUser);
+  }, [user, updateUser]);
+
+  // Check and award achievements
+  const checkAchievements = useCallback((spreadType?: SpreadType): AchievementNotification[] => {
+    if (!user) return [];
+
+    const newAchievements: AchievementNotification[] = [];
+    const userAchievements = user.achievements || [];
+    let totalCreditsEarned = 0;
+    const achievementsToAdd: string[] = [];
+
+    // First reading
+    if (!userAchievements.includes('first_reading') && (user.totalReadings || 0) >= 1) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'first_reading');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('first_reading');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // 5 readings
+    if (!userAchievements.includes('five_readings') && (user.totalReadings || 0) >= 5) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'five_readings');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('five_readings');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // 10 readings
+    if (!userAchievements.includes('ten_readings') && (user.totalReadings || 0) >= 10) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'ten_readings');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('ten_readings');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // Celtic Cross master
+    if (!userAchievements.includes('celtic_master') && spreadType === SpreadType.CELTIC_CROSS) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'celtic_master');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('celtic_master');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // All spreads explorer
+    const spreadsUsed = user.spreadsUsed || [];
+    if (!userAchievements.includes('all_spreads') && ALL_SPREAD_TYPES.every(s => spreadsUsed.includes(s))) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'all_spreads');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('all_spreads');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // Week streak
+    if (!userAchievements.includes('week_streak') && user.loginStreak >= 7) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'week_streak');
+      if (achievement) {
+        newAchievements.push({ ...achievement, reward: achievement.reward });
+        achievementsToAdd.push('week_streak');
+        totalCreditsEarned += achievement.reward;
+      }
+    }
+
+    // Update user with new achievements and credits
+    if (achievementsToAdd.length > 0) {
+      const updatedUser = {
+        ...user,
+        achievements: [...userAchievements, ...achievementsToAdd],
+        credits: user.credits + totalCreditsEarned
+      };
+      updateUser(updatedUser);
+      setAchievementNotifications(prev => [...prev, ...newAchievements]);
+    }
+
+    return newAchievements;
+  }, [user, updateUser]);
+
+  // Claim daily bonus (can be called explicitly)
+  const claimDailyBonus = useCallback((): { success: boolean; amount: number } => {
+    if (!user) return { success: false, amount: 0 };
+
+    const today = new Date().toDateString();
+    const lastLogin = new Date(user.lastLoginDate).toDateString();
+
+    if (today === lastLogin) {
+      return { success: false, amount: 0 }; // Already claimed today
+    }
+
+    let bonusCredits = 2;
+    if (user.loginStreak % 7 === 0) bonusCredits += 5;
+
+    const updatedUser = {
+      ...user,
+      credits: user.credits + bonusCredits,
+      lastLoginDate: new Date().toISOString()
+    };
+    updateUser(updatedUser);
+
+    return { success: true, amount: bonusCredits };
+  }, [user, updateUser]);
+
+  // Share reading for bonus credits
+  const shareReading = useCallback((): { success: boolean; credits: number } => {
+    if (!user) return { success: false, credits: 0 };
+
+    const userAchievements = user.achievements || [];
+
+    // First time sharing gives achievement bonus
+    if (!userAchievements.includes('share_reading')) {
+      const achievement = ACHIEVEMENTS.find(a => a.id === 'share_reading');
+      const reward = achievement?.reward || 3;
+
+      const updatedUser = {
+        ...user,
+        credits: user.credits + reward,
+        achievements: [...userAchievements, 'share_reading']
+      };
+      updateUser(updatedUser);
+
+      if (achievement) {
+        setAchievementNotifications(prev => [...prev, { ...achievement, reward }]);
+      }
+
+      return { success: true, credits: reward };
+    }
+
+    // Subsequent shares give 1 credit (max once per day could be added)
+    const updatedUser = {
+      ...user,
+      credits: user.credits + 1
+    };
+    updateUser(updatedUser);
+
+    return { success: true, credits: 1 };
+  }, [user, updateUser]);
+
+  const clearAchievementNotifications = useCallback(() => {
+    setAchievementNotifications([]);
+  }, []);
 
   return (
     <AppContext.Provider value={{
@@ -425,7 +618,12 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       deductCredits,
       incrementQuestionsAsked,
       history,
-      addToHistory
+      addToHistory,
+      checkAchievements,
+      claimDailyBonus,
+      shareReading,
+      achievementNotifications,
+      clearAchievementNotifications
     }}>
       {children}
     </AppContext.Provider>

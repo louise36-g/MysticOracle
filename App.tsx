@@ -53,7 +53,7 @@ const App: React.FC = () => {
 
   const handleLoginClick = useCallback(() => setCurrentView('login'), []);
 
-  if (isLoading) return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">Loading...</div>;
+  if (isLoading) return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
 
   const renderContent = () => {
     // 1. Login View
@@ -110,18 +110,30 @@ const App: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 mb-20">
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Star /></div>
-               <h3 className="text-xl font-heading text-purple-200 mb-2">AI Powered Insights</h3>
-               <p className="text-slate-400 text-sm">Deep, context-aware interpretations powered by Gemini.</p>
+               <h3 className="text-xl font-heading text-purple-200 mb-2">
+                 {language === 'en' ? 'AI Powered Insights' : 'Insights par IA'}
+               </h3>
+               <p className="text-slate-400 text-sm">
+                 {language === 'en' ? 'Deep, context-aware interpretations powered by AI.' : 'Interprétations profondes et contextuelles alimentées par l\'IA.'}
+               </p>
             </div>
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Shield /></div>
-               <h3 className="text-xl font-heading text-purple-200 mb-2">Private & Secure</h3>
-               <p className="text-slate-400 text-sm">Your spiritual journey is personal. We respect your privacy.</p>
+               <h3 className="text-xl font-heading text-purple-200 mb-2">
+                 {language === 'en' ? 'Private & Secure' : 'Privé & Sécurisé'}
+               </h3>
+               <p className="text-slate-400 text-sm">
+                 {language === 'en' ? 'Your spiritual journey is personal. We respect your privacy.' : 'Votre voyage spirituel est personnel. Nous respectons votre vie privée.'}
+               </p>
             </div>
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Zap /></div>
-               <h3 className="text-xl font-heading text-purple-200 mb-2">Instant Clarity</h3>
-               <p className="text-slate-400 text-sm">Get answers to life's pressing questions in seconds.</p>
+               <h3 className="text-xl font-heading text-purple-200 mb-2">
+                 {language === 'en' ? 'Instant Clarity' : 'Clarté Instantanée'}
+               </h3>
+               <p className="text-slate-400 text-sm">
+                 {language === 'en' ? 'Get answers to life\'s pressing questions in seconds.' : 'Obtenez des réponses à vos questions en quelques secondes.'}
+               </p>
             </div>
           </div>
         )}
@@ -143,7 +155,9 @@ const App: React.FC = () => {
 
         {/* Oracle Placeholder */}
         {user && currentView === 'home' && readingMode === 'oracle' && (
-           <div className="text-center p-8">Oracle Reading Coming Soon...</div>
+           <div className="text-center p-8 text-purple-300">
+             {language === 'en' ? 'Oracle Reading Coming Soon...' : 'Lecture Oracle Bientôt Disponible...'}
+           </div>
         )}
       </div>
     );

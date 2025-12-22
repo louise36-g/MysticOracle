@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
-import { User, Flame, Calendar, Coins, Share2, Copy, LogOut, Edit2, Shield, User as UserIcon, AlertTriangle, CheckCircle } from 'lucide-react';
+import { User, Flame, Calendar, Coins, Share2, Copy, LogOut, Edit2, Shield, User as UserIcon, AlertTriangle, CheckCircle, Award, History, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ACHIEVEMENTS, SpreadType } from '../types';
+import { SPREADS } from '../constants';
 
 const UserProfile: React.FC = () => {
-    const { user, language, logout, updateProfile, verifyEmail, resendVerification } = useApp();
+    const { user, language, logout, updateProfile, verifyEmail, resendVerification, history, shareReading } = useApp();
     const [isEditing, setIsEditing] = useState(false);
     const [editUsername, setEditUsername] = useState(user?.username || '');
     const [editEmail, setEditEmail] = useState(user?.email || '');
@@ -230,6 +232,104 @@ const UserProfile: React.FC = () => {
                          </div>
                     </div>
                 </motion.div>
+            </div>
+
+            {/* Achievements Section */}
+            <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-6 mb-8">
+                <h2 className="text-xl font-heading text-purple-200 mb-4 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-amber-400" />
+                    {language === 'en' ? 'Achievements' : 'Réalisations'}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {ACHIEVEMENTS.map(achievement => {
+                        const isUnlocked = user.achievements?.includes(achievement.id);
+                        return (
+                            <div
+                                key={achievement.id}
+                                className={`p-3 rounded-lg border text-center transition-all ${
+                                    isUnlocked
+                                        ? 'bg-amber-900/20 border-amber-500/30'
+                                        : 'bg-slate-800/30 border-slate-700/30 opacity-50'
+                                }`}
+                            >
+                                <Star className={`w-6 h-6 mx-auto mb-2 ${isUnlocked ? 'text-amber-400' : 'text-slate-600'}`} />
+                                <p className={`text-sm font-medium ${isUnlocked ? 'text-amber-100' : 'text-slate-500'}`}>
+                                    {language === 'en' ? achievement.nameEn : achievement.nameFr}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">
+                                    {language === 'en' ? achievement.descriptionEn : achievement.descriptionFr}
+                                </p>
+                                <p className={`text-xs mt-2 ${isUnlocked ? 'text-green-400' : 'text-amber-500'}`}>
+                                    {isUnlocked ? (language === 'en' ? 'Unlocked!' : 'Débloqué!') : `+${achievement.reward} ${language === 'en' ? 'credits' : 'crédits'}`}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Reading History Section */}
+            <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-6 mb-8">
+                <h2 className="text-xl font-heading text-purple-200 mb-4 flex items-center gap-2">
+                    <History className="w-5 h-5 text-purple-400" />
+                    {language === 'en' ? 'Reading History' : 'Historique des Lectures'}
+                    <span className="text-sm text-slate-400 ml-auto">
+                        {user.totalReadings || 0} {language === 'en' ? 'total readings' : 'lectures au total'}
+                    </span>
+                </h2>
+                {history.length === 0 ? (
+                    <p className="text-slate-400 text-center py-8">
+                        {language === 'en' ? 'No readings yet. Start your journey!' : 'Pas encore de lectures. Commencez votre voyage!'}
+                    </p>
+                ) : (
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                        {history.slice(0, 10).map((reading, index) => {
+                            const spread = SPREADS[reading.spreadType as SpreadType];
+                            return (
+                                <motion.div
+                                    key={reading.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-purple-200 font-medium">
+                                                {spread ? (language === 'en' ? spread.nameEn : spread.nameFr) : reading.spreadType}
+                                            </h3>
+                                            {reading.question && (
+                                                <p className="text-sm text-slate-400 italic mt-1">"{reading.question}"</p>
+                                            )}
+                                        </div>
+                                        <span className="text-xs text-slate-500">
+                                            {new Date(reading.date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-3">
+                                        <span className="text-xs text-slate-500">
+                                            {reading.cards.length} {language === 'en' ? 'cards' : 'cartes'}
+                                        </span>
+                                        <button
+                                            onClick={() => {
+                                                const result = shareReading();
+                                                if (result.success) {
+                                                    alert(language === 'en'
+                                                        ? `Shared! +${result.credits} credits`
+                                                        : `Partagé! +${result.credits} crédits`);
+                                                }
+                                            }}
+                                            className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 ml-auto"
+                                        >
+                                            <Share2 className="w-3 h-3" />
+                                            {language === 'en' ? 'Share' : 'Partager'}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             {/* Account Actions */}

@@ -58,13 +58,14 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                {spread.positions > 5 && <span className="text-slate-600 self-end">...</span>}
             </div>
 
-            {user && user.credits < spread.cost && (
+            {/* DEV MODE: Insufficient credits overlay disabled */}
+            {/* {user && user.credits < spread.cost && (
               <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center backdrop-blur-sm z-10">
                  <span className="text-red-400 font-medium">
                    {language === 'en' ? 'Insufficient Credits' : 'Crédits Insuffisants'}
                  </span>
               </div>
-            )}
+            )} */}
           </motion.div>
         ))}
       </div>

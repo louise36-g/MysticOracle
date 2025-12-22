@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useApp } from '../context/AppContext';
 import { TarotCard } from '../types';
 
 interface CardProps {
@@ -12,15 +13,16 @@ interface CardProps {
   className?: string;
 }
 
-const Card: React.FC<CardProps> = ({ 
-  card, 
-  isRevealed, 
+const Card: React.FC<CardProps> = ({
+  card,
+  isRevealed,
   isReversed = false,
-  onClick, 
+  onClick,
   width = 180,
   height = 300,
   className = ''
 }) => {
+  const { language } = useApp();
   
   const isPlaceholder = card?.image?.startsWith('placeholder:');
   const placeholderIcon = isPlaceholder ? card?.image.split(':')[1] : '';
@@ -72,10 +74,10 @@ const Card: React.FC<CardProps> = ({
               {card ? (
                 <>
                   {!isPlaceholder ? (
-                    <img 
-                      src={card.image} 
-                      alt={card.nameEn} 
-                      className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110" 
+                    <img
+                      src={card.image}
+                      alt={language === 'en' ? card.nameEn : card.nameFr}
+                      className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 relative overflow-hidden group-hover:bg-slate-750 transition-colors">
@@ -90,17 +92,17 @@ const Card: React.FC<CardProps> = ({
                         </div>
                         
                         {/* Suit Name Decoration */}
-                        <div className="absolute top-2 left-2 text-xs text-amber-500/50 uppercase tracking-widest">{card.keywordsEn[0]}</div>
-                        <div className="absolute bottom-2 right-2 text-xs text-amber-500/50 uppercase tracking-widest rotate-180">{card.keywordsEn[0]}</div>
+                        <div className="absolute top-2 left-2 text-xs text-amber-500/50 uppercase tracking-widest">{language === 'en' ? card.keywordsEn[0] : card.keywordsFr[0]}</div>
+                        <div className="absolute bottom-2 right-2 text-xs text-amber-500/50 uppercase tracking-widest rotate-180">{language === 'en' ? card.keywordsEn[0] : card.keywordsFr[0]}</div>
                     </div>
                   )}
 
                   <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 pt-12 text-center ${isPlaceholder ? '' : ''}`}>
                      <h3 className="text-amber-100 font-heading text-sm md:text-base font-bold tracking-wide drop-shadow-md leading-tight">
-                        {card.nameEn}
+                        {language === 'en' ? card.nameEn : card.nameFr}
                      </h3>
                      <p className="text-[10px] text-amber-400/80 uppercase tracking-widest mt-1">
-                        {card.keywordsEn[0]}
+                        {language === 'en' ? card.keywordsEn[0] : card.keywordsFr[0]}
                      </p>
                   </div>
                 </>
