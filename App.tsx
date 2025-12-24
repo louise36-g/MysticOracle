@@ -1,10 +1,9 @@
-
 import React, { useState, useCallback } from 'react';
+import { useUser, SignInButton } from '@clerk/clerk-react';
 import Header from './components/Header';
 import ReadingModeSelector from './components/ReadingModeSelector';
 import SpreadSelector from './components/SpreadSelector';
 import ActiveReading from './components/ActiveReading';
-import AuthModal from './components/AuthModal';
 import HoroscopeReading from './components/HoroscopeReading';
 import UserProfile from './components/UserProfile';
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -19,9 +18,13 @@ import { Star, Shield, Zap } from 'lucide-react';
 
 const App: React.FC = () => {
   const { user, isLoading, language } = useApp();
+  const { isSignedIn, isLoaded: clerkLoaded } = useUser();
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
   const [readingMode, setReadingMode] = useState<string | null>(null);
+
+  // Check if user is admin (from AppContext or default false)
+  const isAdmin = user?.isAdmin || false;
 
   const handleAuthSuccess = useCallback(() => {
     setCurrentView('home');
@@ -57,25 +60,19 @@ const App: React.FC = () => {
 
   const handleLoginClick = useCallback(() => setCurrentView('login'), []);
 
-  if (isLoading) return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
+  // Show loading while Clerk initializes
+  if (!clerkLoaded || isLoading) {
+    return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
+  }
 
   const renderContent = () => {
-    // 1. Login View
-    if (!user && currentView === 'login') {
-      return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 relative z-10 py-10">
-          <AuthModal onSuccess={handleAuthSuccess} />
-        </div>
-      );
-    }
-
-    // 2. Profile View
-    if (user && currentView === 'profile') {
+    // 1. Profile View (requires Clerk sign-in)
+    if (isSignedIn && currentView === 'profile') {
         return <UserProfile />;
     }
 
-    // 3. Admin View (only for admin users)
-    if (user?.isAdmin && currentView === 'admin') {
+    // 2. Admin View (requires sign-in + admin flag)
+    if (isSignedIn && isAdmin && currentView === 'admin') {
         return <AdminDashboard />;
     }
 

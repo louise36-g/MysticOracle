@@ -1,7 +1,7 @@
-
 import React, { useState, useCallback } from 'react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, LogIn, Shield } from 'lucide-react';
+import { Moon, Menu, X, Shield, User } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -13,7 +13,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const { user, language, setLanguage, logout } = useApp();
+  const { user: clerkUser, isSignedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Use Clerk user data if AppContext user not synced yet
+  const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
+  const userCredits = user?.credits ?? 10; // Default 10 credits for new users
+  const isAdmin = user?.isAdmin || false;
 
   const toggleLanguage = useCallback(() => {
     setLanguage(language === 'en' ? 'fr' : 'en');
@@ -87,14 +93,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             {language === 'en' ? 'Home' : 'Accueil'}
           </button>
           
-          {user && (
+          {isSignedIn && (
              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/30">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                <span className="text-sm font-bold text-purple-100">{user.credits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
+                <span className="text-sm font-bold text-purple-100">{userCredits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
              </div>
           )}
 
-          {user?.isAdmin && (
+          {isAdmin && (
             <button
               onClick={navigateAdmin}
               className={`flex items-center gap-1 text-sm font-medium transition-colors ${currentView === 'admin' ? 'text-amber-400' : 'text-slate-300 hover:text-white'}`}
@@ -112,24 +118,32 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             {language === 'en' ? <FlagEN className="w-5 h-5" /> : <FlagFR className="w-5 h-5" />}
           </button>
 
-          {user ? (
+          {/* Clerk Auth Components */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="primary" size="sm">
+                {language === 'en' ? 'Sign In' : 'Connexion'}
+              </Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
             <div className="flex items-center gap-4">
-               <button
-                 onClick={navigateProfile}
-                 className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
-               >
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xs text-white font-bold">
-                      {user.username.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-sm">{user.username}</span>
-               </button>
+              <button
+                onClick={navigateProfile}
+                className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'}`}
+              >
+                <User className="w-4 h-4" />
+                <span className="text-sm">{displayName}</span>
+              </button>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-8 h-8'
+                  }
+                }}
+              />
             </div>
-          ) : (
-             <Button variant="primary" size="sm" onClick={navigateLogin}>
-                <LogIn className="w-4 h-4 mr-2" />
-                {language === 'en' ? 'Login' : 'Connexion'}
-             </Button>
-          )}
+          </SignedIn>
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -144,13 +158,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-slate-900 border-b border-white/10 p-4 space-y-4">
-           {user && (
+           {isSignedIn && (
              <div
                 className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg cursor-pointer"
                 onClick={handleMobileProfile}
              >
-                <span className="text-slate-300 font-bold">{user.username}</span>
-                <span className="font-bold text-amber-400">{user.credits} Credits</span>
+                <span className="text-slate-300 font-bold">{displayName}</span>
+                <span className="font-bold text-amber-400">{userCredits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
              </div>
           )}
           <button
@@ -160,16 +174,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             {language === 'en' ? 'Home' : 'Accueil'}
           </button>
 
-          {user && (
+          {isSignedIn && (
               <button
                 className="block w-full text-left py-2 text-slate-300"
                 onClick={handleMobileProfile}
               >
-                {language === 'en' ? 'My Profile' : 'Mon Profil'}
+                {language === 'en' ? 'My Account' : 'Mon Compte'}
               </button>
           )}
 
-          {user?.isAdmin && (
+          {isAdmin && (
               <button
                 className="flex items-center gap-2 w-full text-left py-2 text-amber-400"
                 onClick={handleMobileAdmin}
@@ -195,15 +209,24 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                 </>
              )}
           </button>
-          {user ? (
-             <Button className="w-full" variant="outline" onClick={handleMobileLogout}>
-               Logout
-             </Button>
-          ) : (
-            <Button className="w-full" variant="primary" onClick={handleMobileLogin}>
-               Login
-             </Button>
-          )}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button className="w-full" variant="primary">
+                {language === 'en' ? 'Sign In' : 'Connexion'}
+              </Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <div className="flex items-center justify-center py-2">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-10 h-10'
+                  }
+                }}
+              />
+            </div>
+          </SignedIn>
         </div>
       )}
     </header>
