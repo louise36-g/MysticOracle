@@ -374,7 +374,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
                       {[
                         { id: InterpretationStyle.SPIRITUAL, labelEn: 'Spiritual', labelFr: 'Spirituel' },
                         { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Émotionnel' },
-                        { id: InterpretationStyle.METAPHYSICAL, labelEn: 'Metaphysical', labelFr: 'Métaphysique' },
+                        { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numérologie' },
                         { id: InterpretationStyle.ELEMENTAL, labelEn: 'Suits & Elements', labelFr: 'Signes & Éléments' }
                       ].map((option) => (
                         <div

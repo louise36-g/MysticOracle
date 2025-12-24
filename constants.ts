@@ -108,14 +108,14 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     positionMeaningsEn: ["Current Position", "Obstacles", "Hidden Factors", "Action to Take", "Outcome"],
     positionMeaningsFr: ["Position Actuelle", "Obstacles", "Facteurs Cachés", "Action à Prendre", "Résultat"]
   },
-  [SpreadType.WEEK_AHEAD]: {
-    id: SpreadType.WEEK_AHEAD,
-    nameEn: "Week Ahead",
-    nameFr: "Semaine à Venir",
+  [SpreadType.HORSESHOE]: {
+    id: SpreadType.HORSESHOE,
+    nameEn: "Horseshoe Spread",
+    nameFr: "Tirage en Fer à Cheval",
     cost: 7,
     positions: 7,
-    positionMeaningsEn: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-    positionMeaningsFr: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    positionMeaningsEn: ["Past", "Present", "Hidden Influences", "Obstacles", "External Influences", "Advice", "Outcome"],
+    positionMeaningsFr: ["Passé", "Présent", "Influences Cachées", "Obstacles", "Influences Externes", "Conseil", "Résultat"]
   },
   [SpreadType.CELTIC_CROSS]: {
     id: SpreadType.CELTIC_CROSS,

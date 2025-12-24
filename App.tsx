@@ -7,6 +7,10 @@ import ActiveReading from './components/ActiveReading';
 import AuthModal from './components/AuthModal';
 import HoroscopeReading from './components/HoroscopeReading';
 import UserProfile from './components/UserProfile';
+import AdminDashboard from './components/admin/AdminDashboard';
+import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import Footer from './components/Footer';
+import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
@@ -70,7 +74,17 @@ const App: React.FC = () => {
         return <UserProfile />;
     }
 
-    // 3. Active Reading View
+    // 3. Admin View (only for admin users)
+    if (user?.isAdmin && currentView === 'admin') {
+        return <AdminDashboard />;
+    }
+
+    // 4. Legal Pages (accessible to all)
+    if (currentView === 'privacy') {
+        return <PrivacyPolicy />;
+    }
+
+    // 5. Active Reading View
     if (currentView === 'reading' && selectedSpread) {
       return (
         <ActiveReading
@@ -81,7 +95,7 @@ const App: React.FC = () => {
       );
     }
 
-    // 4. Home / Dashboard View
+    // 6. Home / Dashboard View
     return (
       <div className="pb-20 relative z-10">
         {/* Hero Section */}
@@ -164,7 +178,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0c29] text-slate-200 selection:bg-purple-500/30 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0f0c29] text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
       {/* Dynamic Background */}
       <div className="fixed inset-0 z-0">
          {/* Deep Midnight Blue Base */}
@@ -178,11 +192,13 @@ const App: React.FC = () => {
       </div>
 
       <Header onNavigate={handleNavigate} currentView={currentView} />
-      <main className="relative z-10">
+      <main className="relative z-10 flex-grow">
         <ErrorBoundary>
           {renderContent()}
         </ErrorBoundary>
       </main>
+      <Footer onNavigate={handleNavigate} />
+      <CookieConsent />
     </div>
   );
 };

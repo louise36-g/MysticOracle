@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, LogIn } from 'lucide-react';
+import { Moon, Menu, X, LogIn, Shield } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -30,6 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const navigateHome = useCallback(() => onNavigate('home'), [onNavigate]);
   const navigateProfile = useCallback(() => onNavigate('profile'), [onNavigate]);
   const navigateLogin = useCallback(() => onNavigate('login'), [onNavigate]);
+  const navigateAdmin = useCallback(() => onNavigate('admin'), [onNavigate]);
 
   const handleMobileHome = useCallback(() => {
     onNavigate('home');
@@ -53,6 +54,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
 
   const handleMobileLogin = useCallback(() => {
     onNavigate('login');
+    setIsMobileMenuOpen(false);
+  }, [onNavigate]);
+
+  const handleMobileAdmin = useCallback(() => {
+    onNavigate('admin');
     setIsMobileMenuOpen(false);
   }, [onNavigate]);
 
@@ -86,6 +92,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 <span className="text-sm font-bold text-purple-100">{user.credits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
              </div>
+          )}
+
+          {user?.isAdmin && (
+            <button
+              onClick={navigateAdmin}
+              className={`flex items-center gap-1 text-sm font-medium transition-colors ${currentView === 'admin' ? 'text-amber-400' : 'text-slate-300 hover:text-white'}`}
+            >
+              <Shield className="w-4 h-4" />
+              Admin
+            </button>
           )}
 
           <button
@@ -150,6 +166,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                 onClick={handleMobileProfile}
               >
                 {language === 'en' ? 'My Profile' : 'Mon Profil'}
+              </button>
+          )}
+
+          {user?.isAdmin && (
+              <button
+                className="flex items-center gap-2 w-full text-left py-2 text-amber-400"
+                onClick={handleMobileAdmin}
+              >
+                <Shield className="w-4 h-4" />
+                Admin
               </button>
           )}
 

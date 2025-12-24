@@ -15,7 +15,7 @@ export enum SpreadType {
   THREE_CARD = 'three_card',
   LOVE = 'love',
   CAREER = 'career',
-  WEEK_AHEAD = 'week_ahead',
+  HORSESHOE = 'horseshoe',
   CELTIC_CROSS = 'celtic_cross'
 }
 
@@ -23,7 +23,7 @@ export enum InterpretationStyle {
   CLASSIC = 'classic',
   SPIRITUAL = 'spiritual',
   PSYCHO_EMOTIONAL = 'psycho_emotional',
-  METAPHYSICAL = 'metaphysical',
+  NUMEROLOGY = 'numerology',
   ELEMENTAL = 'elemental'
 }
 
@@ -64,6 +64,9 @@ export interface User {
   // Achievements & Progress
   achievements: string[]; // IDs of unlocked achievements
   spreadsUsed: string[]; // SpreadTypes used (for "all spreads" achievement)
+
+  // Admin
+  isAdmin?: boolean;
 
   language: Language;
 }

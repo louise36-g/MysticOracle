@@ -1,4 +1,4 @@
-import { User, ReadingHistoryItem } from '../types';
+import { User, ReadingHistoryItem, AccountStatus } from '../types';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -137,3 +137,160 @@ class StorageService {
 
 export const storageService = new StorageService();
 export { STORAGE_KEYS };
+
+// Horoscope caching functions
+const getHoroscopeCacheKey = (sign: string, language: string): string => {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  return `horoscope_${sign}_${language}_${today}`;
+};
+
+export const getCachedHoroscope = (sign: string, language: string): string | null => {
+  const key = getHoroscopeCacheKey(sign, language);
+  return localStorage.getItem(key);
+};
+
+export const cacheHoroscope = (sign: string, language: string, horoscope: string): void => {
+  const key = getHoroscopeCacheKey(sign, language);
+  localStorage.setItem(key, horoscope);
+};
+
+// Horoscope follow-up Q&A caching
+interface CachedQA {
+  question: string;
+  answer: string;
+}
+
+const getHoroscopeQACacheKey = (sign: string, language: string): string => {
+  const today = new Date().toISOString().split('T')[0];
+  return `horoscope_qa_${sign}_${language}_${today}`;
+};
+
+export const getCachedHoroscopeQA = (sign: string, language: string): CachedQA[] => {
+  const key = getHoroscopeQACacheKey(sign, language);
+  try {
+    const cached = localStorage.getItem(key);
+    return cached ? JSON.parse(cached) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const findCachedAnswer = (sign: string, language: string, question: string): string | null => {
+  const cached = getCachedHoroscopeQA(sign, language);
+  const normalizedQuestion = question.trim().toLowerCase();
+  const match = cached.find(qa => qa.question.trim().toLowerCase() === normalizedQuestion);
+  return match?.answer || null;
+};
+
+export const cacheHoroscopeQA = (sign: string, language: string, question: string, answer: string): void => {
+  const key = getHoroscopeQACacheKey(sign, language);
+  const cached = getCachedHoroscopeQA(sign, language);
+  cached.push({ question: question.trim(), answer });
+  localStorage.setItem(key, JSON.stringify(cached));
+};
+
+// Horoscope question counter for billing (2 questions = 1 credit)
+const getHoroscopeQuestionCountKey = (): string => {
+  const today = new Date().toISOString().split('T')[0];
+  return `horoscope_question_count_${today}`;
+};
+
+export const getHoroscopeQuestionCount = (): number => {
+  const key = getHoroscopeQuestionCountKey();
+  const count = localStorage.getItem(key);
+  return count ? parseInt(count, 10) : 0;
+};
+
+export const incrementHoroscopeQuestionCount = (): number => {
+  const key = getHoroscopeQuestionCountKey();
+  const newCount = getHoroscopeQuestionCount() + 1;
+  localStorage.setItem(key, newCount.toString());
+  return newCount;
+};
+
+// Check if next question will cost a credit (every 2nd question costs 1 credit)
+export const willNextQuestionCostCredit = (): boolean => {
+  const count = getHoroscopeQuestionCount();
+  // Questions 2, 4, 6, 8... cost a credit (when count+1 is even)
+  return (count + 1) % 2 === 0;
+};
+
+// Admin functions
+export const getAllUsers = (): User[] => {
+  return storageService.getUsers();
+};
+
+export const getAllReadings = (): ReadingHistoryItem[] => {
+  return storageService.getReadings();
+};
+
+export const updateUserStatus = (userId: string, status: AccountStatus): boolean => {
+  const users = storageService.getUsers();
+  const userIndex = users.findIndex(u => u.id === userId);
+  if (userIndex === -1) return false;
+
+  users[userIndex].accountStatus = status;
+  storageService.saveUsers(users);
+  return true;
+};
+
+export const adjustUserCredits = (userId: string, amount: number): boolean => {
+  const users = storageService.getUsers();
+  const userIndex = users.findIndex(u => u.id === userId);
+  if (userIndex === -1) return false;
+
+  users[userIndex].credits = Math.max(0, users[userIndex].credits + amount);
+  storageService.saveUsers(users);
+  return true;
+};
+
+export const setUserAdmin = (userId: string, isAdmin: boolean): boolean => {
+  const users = storageService.getUsers();
+  const userIndex = users.findIndex(u => u.id === userId);
+  if (userIndex === -1) return false;
+
+  users[userIndex].isAdmin = isAdmin;
+  storageService.saveUsers(users);
+  return true;
+};
+
+export const getAdminStats = () => {
+  const users = storageService.getUsers();
+  const readings = storageService.getReadings();
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const weekMs = 7 * dayMs;
+
+  const activeUsers = users.filter(u => {
+    const lastLogin = new Date(u.lastLoginDate).getTime();
+    return now - lastLogin < weekMs;
+  });
+
+  const newUsersToday = users.filter(u => {
+    const joinDate = new Date(u.joinDate).getTime();
+    return now - joinDate < dayMs;
+  });
+
+  const newUsersThisWeek = users.filter(u => {
+    const joinDate = new Date(u.joinDate).getTime();
+    return now - joinDate < weekMs;
+  });
+
+  const totalCredits = users.reduce((sum, u) => sum + u.credits, 0);
+  const totalReadings = readings.length;
+
+  const readingsBySpread: Record<string, number> = {};
+  readings.forEach(r => {
+    readingsBySpread[r.spreadType] = (readingsBySpread[r.spreadType] || 0) + 1;
+  });
+
+  return {
+    totalUsers: users.length,
+    activeUsers: activeUsers.length,
+    newUsersToday: newUsersToday.length,
+    newUsersThisWeek: newUsersThisWeek.length,
+    totalCredits,
+    totalReadings,
+    readingsBySpread
+  };
+};

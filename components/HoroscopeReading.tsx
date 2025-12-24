@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ReactMarkdown from 'react-markdown';
 import { useApp } from '../context/AppContext';
 import { generateHoroscope, generateHoroscopeFollowUp } from '../services/openrouterService';
+import { getCachedHoroscope, cacheHoroscope, findCachedAnswer, cacheHoroscopeQA, willNextQuestionCostCredit, incrementHoroscopeQuestionCount } from '../services/storageService';
 import Button from './Button';
 import { Send } from 'lucide-react';
 
@@ -193,7 +194,7 @@ interface ChatMessage {
 }
 
 const HoroscopeReading: React.FC = () => {
-  const { language } = useApp();
+  const { language, deductCredits, user } = useApp();
   const [selectedSign, setSelectedSign] = useState<string | null>(null);
   const [selectedSignIndex, setSelectedSignIndex] = useState<number | null>(null);
   const [horoscope, setHoroscope] = useState<string | null>(null);
@@ -207,6 +208,12 @@ const HoroscopeReading: React.FC = () => {
   const [userQuestion, setUserQuestion] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Cached question confirmation state
+  const [pendingCachedQuestion, setPendingCachedQuestion] = useState<{ question: string; answer: string } | null>(null);
+
+  // Track if next question costs credit (for UI updates)
+  const [nextQuestionCostsCredit, setNextQuestionCostsCredit] = useState(willNextQuestionCostCredit());
 
   const currentLoadingPhrases = useMemo(() => loadingPhrases[language], [language]);
   const currentZodiacSigns = useMemo(() => zodiacSigns[language], [language]);
@@ -235,8 +242,40 @@ const HoroscopeReading: React.FC = () => {
   }, [chatHistory]);
 
   // Handle asking a question
-  const handleAskQuestion = useCallback(async (question: string) => {
+  const handleAskQuestion = useCallback(async (question: string, bypassCache: boolean = false) => {
     if (!question.trim() || !horoscope || !selectedSign || isChatLoading) return;
+
+    // Check cache first (unless bypassing)
+    if (!bypassCache) {
+      const cachedAnswer = findCachedAnswer(selectedSign, language, question);
+      if (cachedAnswer) {
+        // Show confirmation dialog - no credit cost for cached answers
+        setPendingCachedQuestion({ question, answer: cachedAnswer });
+        setUserQuestion('');
+        return;
+      }
+    }
+
+    // Check if this question will cost a credit (every 2nd new question costs 1 credit)
+    const willCost = willNextQuestionCostCredit();
+    if (willCost) {
+      const result = deductCredits(1);
+      if (!result.success) {
+        // Not enough credits
+        setChatHistory(prev => [
+          ...prev,
+          { role: 'user', content: question },
+          {
+            role: 'model',
+            content: language === 'en'
+              ? "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars."
+              : "Vous avez utilisé votre question gratuite pour cette paire. Chaque crédit débloque 2 questions - gagnez plus de crédits via les connexions quotidiennes, les succès ou les parrainages pour continuer à explorer les étoiles."
+          }
+        ]);
+        setUserQuestion('');
+        return;
+      }
+    }
 
     setUserQuestion('');
     setIsChatLoading(true);
@@ -255,6 +294,11 @@ const HoroscopeReading: React.FC = () => {
       });
 
       setChatHistory([...updatedHistory, { role: 'model', content: response }]);
+      // Cache the Q&A and increment question count
+      cacheHoroscopeQA(selectedSign, language, question, response);
+      incrementHoroscopeQuestionCount();
+      // Update credit indicator
+      setNextQuestionCostsCredit(willNextQuestionCostCredit());
     } catch (error) {
       console.error('Error generating follow-up:', error);
       setChatHistory([
@@ -269,7 +313,25 @@ const HoroscopeReading: React.FC = () => {
     } finally {
       setIsChatLoading(false);
     }
-  }, [horoscope, selectedSign, chatHistory, language, isChatLoading]);
+  }, [horoscope, selectedSign, chatHistory, language, isChatLoading, deductCredits]);
+
+  // Handle showing cached answer
+  const handleShowCachedAnswer = useCallback(() => {
+    if (!pendingCachedQuestion) return;
+
+    const updatedHistory: ChatMessage[] = [
+      ...chatHistory,
+      { role: 'user', content: pendingCachedQuestion.question },
+      { role: 'model', content: pendingCachedQuestion.answer }
+    ];
+    setChatHistory(updatedHistory);
+    setPendingCachedQuestion(null);
+  }, [pendingCachedQuestion, chatHistory]);
+
+  // Handle dismissing the cache prompt
+  const handleDismissCachePrompt = useCallback(() => {
+    setPendingCachedQuestion(null);
+  }, []);
 
   const handleSuggestedQuestion = (question: string) => {
     handleAskQuestion(question);
@@ -283,12 +345,22 @@ const HoroscopeReading: React.FC = () => {
   };
 
   const regenerateHoroscope = async (sign: string) => {
+    // Check cache first for the new language
+    const cached = getCachedHoroscope(sign, language);
+    if (cached) {
+      setHoroscope(cached);
+      setHoroscopeLanguage(language);
+      return;
+    }
+
     setIsLoading(true);
     setHoroscope(null);
     try {
       const reading = await generateHoroscope(sign, language);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
+      // Cache the new reading for today
+      cacheHoroscope(sign, language, reading);
     } catch (error) {
       console.error('Error generating horoscope:', error);
       setHoroscope(language === 'en'
@@ -312,12 +384,24 @@ const HoroscopeReading: React.FC = () => {
   const handleSignSelect = useCallback(async (sign: string, index: number) => {
     setSelectedSign(sign);
     setSelectedSignIndex(index);
+
+    // Check cache first - return cached reading if available for today
+    const cached = getCachedHoroscope(sign, language);
+    if (cached) {
+      setHoroscope(cached);
+      setHoroscopeLanguage(language);
+      return;
+    }
+
+    // No cache - generate new reading
     setIsLoading(true);
     setHoroscope(null);
     try {
       const reading = await generateHoroscope(sign, language);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
+      // Cache the new reading for today
+      cacheHoroscope(sign, language, reading);
     } catch (error) {
       console.error('Error generating horoscope:', error);
       setHoroscope(language === 'en'
@@ -336,6 +420,7 @@ const HoroscopeReading: React.FC = () => {
     setChatHistory([]);
     setSuggestedQuestions([]);
     setUserQuestion('');
+    setPendingCachedQuestion(null);
   }
 
   // Get the display name for the selected sign in current language
@@ -451,6 +536,42 @@ const HoroscopeReading: React.FC = () => {
             </div>
           )}
 
+          {/* Cached Question Confirmation */}
+          {pendingCachedQuestion && (
+            <div className="mb-4 p-4 bg-amber-900/30 rounded-lg border border-amber-500/30">
+              <p className="text-amber-200 text-sm mb-3">
+                {language === 'en'
+                  ? 'You have already asked this question today. Would you like to see the previous answer?'
+                  : 'Vous avez déjà posé cette question aujourd\'hui. Voulez-vous revoir la réponse précédente?'}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleShowCachedAnswer}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded-lg transition-colors duration-200"
+                >
+                  {language === 'en' ? 'Show answer' : 'Afficher la réponse'}
+                </button>
+                <button
+                  onClick={handleDismissCachePrompt}
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition-colors duration-200"
+                >
+                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Credit cost indicator */}
+          <p className="text-xs text-purple-300/60 mb-2 text-center">
+            {nextQuestionCostsCredit
+              ? (language === 'en'
+                  ? `Next question costs 1 credit (${user?.credits ?? 0} available)`
+                  : `La prochaine question coûte 1 crédit (${user?.credits ?? 0} disponibles)`)
+              : (language === 'en'
+                  ? 'Next question is free'
+                  : 'La prochaine question est gratuite')}
+          </p>
+
           {/* Question Input */}
           <form onSubmit={handleSubmitQuestion} className="flex gap-2">
             <input
@@ -458,12 +579,12 @@ const HoroscopeReading: React.FC = () => {
               value={userQuestion}
               onChange={(e) => setUserQuestion(e.target.value)}
               placeholder={language === 'en' ? 'Ask about planetary influences, moon phases, or your forecast...' : 'Posez une question sur les influences planétaires, les phases lunaires...'}
-              disabled={isChatLoading}
+              disabled={isChatLoading || pendingCachedQuestion !== null}
               className="flex-1 px-4 py-3 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50 disabled:opacity-50"
             />
             <button
               type="submit"
-              disabled={isChatLoading || !userQuestion.trim()}
+              disabled={isChatLoading || !userQuestion.trim() || pendingCachedQuestion !== null}
               className="px-4 py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:opacity-50 rounded-lg transition-colors duration-200"
             >
               <Send className="w-5 h-5 text-white" />

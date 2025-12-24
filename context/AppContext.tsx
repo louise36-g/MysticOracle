@@ -228,7 +228,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       verificationTokenExpires: DEV_MODE ? undefined : verification.expiresAt,
       verificationAttempts: 0,
       achievements: [],
-      spreadsUsed: []
+      spreadsUsed: [],
+      isAdmin: username.toLowerCase() === 'mooks' // Auto-admin for Mooks
     };
 
     // Save
@@ -265,8 +266,13 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       checkDailyBonus(foundUser);
 
       // Refresh user from storage after bonus check
-      const refreshedUser = storageService.getUserById(foundUser.id);
+      let refreshedUser = storageService.getUserById(foundUser.id);
       if (refreshedUser) {
+        // Auto-upgrade Mooks to admin if not already
+        if (refreshedUser.username.toLowerCase() === 'mooks' && !refreshedUser.isAdmin) {
+          refreshedUser = { ...refreshedUser, isAdmin: true };
+          storageService.updateUser(refreshedUser);
+        }
         setUser(refreshedUser);
         storageService.setActiveSession(refreshedUser);
       }

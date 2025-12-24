@@ -1,0 +1,246 @@
+// Prisma Schema for MysticOracle
+// Database: PostgreSQL on Render (Frankfurt EU)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION (synced with Clerk)
+// ============================================
+
+model User {
+  id                String   @id // Clerk user ID
+  email             String   @unique
+  username          String   @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Profile
+  language          String   @default("en") // 'en' | 'fr'
+
+  // Credits & Economy
+  credits           Int      @default(10)
+  totalCreditsEarned Int     @default(10)
+  totalCreditsSpent  Int     @default(0)
+
+  // Engagement
+  totalReadings     Int      @default(0)
+  totalQuestions    Int      @default(0)
+  loginStreak       Int      @default(1)
+  lastLoginDate     DateTime @default(now())
+
+  // Referral System
+  referralCode      String   @unique
+  referredById      String?
+  referredBy        User?    @relation("Referrals", fields: [referredById], references: [id])
+  referrals         User[]   @relation("Referrals")
+
+  // Admin
+  isAdmin           Boolean  @default(false)
+  accountStatus     AccountStatus @default(ACTIVE)
+
+  // Relations
+  readings          Reading[]
+  transactions      Transaction[]
+  achievements      UserAchievement[]
+  horoscopeCache    HoroscopeCache[]
+
+  @@index([email])
+  @@index([referralCode])
+}
+
+enum AccountStatus {
+  ACTIVE
+  FLAGGED
+  SUSPENDED
+}
+
+// ============================================
+// TAROT READINGS
+// ============================================
+
+model Reading {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Reading Details
+  spreadType      SpreadType
+  interpretationStyle InterpretationStyle
+  question        String?
+
+  // Cards (stored as JSON)
+  cards           Json     // Array of { cardId, position, isReversed }
+
+  // AI Response
+  interpretation  String   @db.Text
+
+  // Metadata
+  creditCost      Int
+  createdAt       DateTime @default(now())
+
+  // Follow-up questions
+  followUps       FollowUpQuestion[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model FollowUpQuestion {
+  id          String   @id @default(cuid())
+  readingId   String
+  reading     Reading  @relation(fields: [readingId], references: [id], onDelete: Cascade)
+
+  question    String
+  answer      String   @db.Text
+  creditCost  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([readingId])
+}
+
+enum SpreadType {
+  SINGLE
+  THREE_CARD
+  CELTIC_CROSS
+  HORSESHOE
+}
+
+enum InterpretationStyle {
+  CLASSIC
+  SPIRITUAL
+  PSYCHO_EMOTIONAL
+  NUMEROLOGY
+  ELEMENTAL
+}
+
+// ============================================
+// HOROSCOPE CACHING
+// ============================================
+
+model HoroscopeCache {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sign        String   // zodiac sign
+  language    String   // 'en' | 'fr'
+  date        DateTime @db.Date // The date this horoscope is for
+
+  // Content
+  horoscope   String   @db.Text
+
+  // Q&A Cache
+  questions   HoroscopeQA[]
+
+  createdAt   DateTime @default(now())
+
+  @@unique([sign, language, date])
+  @@index([sign, date])
+}
+
+model HoroscopeQA {
+  id              String   @id @default(cuid())
+  horoscopeCacheId String
+  horoscopeCache  HoroscopeCache @relation(fields: [horoscopeCacheId], references: [id], onDelete: Cascade)
+
+  question        String
+  answer          String   @db.Text
+  createdAt       DateTime @default(now())
+
+  @@index([horoscopeCacheId])
+}
+
+// ============================================
+// TRANSACTIONS & PAYMENTS
+// ============================================
+
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Transaction Details
+  type            TransactionType
+  amount          Int      // Credits amount (positive for purchases, negative for spending)
+  description     String
+
+  // Payment Info (for purchases)
+  paymentProvider PaymentProvider?
+  paymentId       String?  // Stripe/PayPal transaction ID
+  paymentAmount   Decimal? @db.Decimal(10, 2) // Actual money amount
+  currency        String?  @default("EUR")
+  paymentStatus   PaymentStatus?
+
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([paymentId])
+  @@index([createdAt])
+}
+
+enum TransactionType {
+  PURCHASE        // Bought credits
+  READING         // Spent on reading
+  QUESTION        // Spent on follow-up question
+  DAILY_BONUS     // Daily login reward
+  ACHIEVEMENT     // Achievement reward
+  REFERRAL_BONUS  // Referral reward
+  REFUND          // Refunded credits
+}
+
+enum PaymentProvider {
+  STRIPE
+  STRIPE_LINK
+  PAYPAL
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// ACHIEVEMENTS & GAMIFICATION
+// ============================================
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  achievementId String   // e.g., 'first_reading', 'week_streak'
+  unlockedAt    DateTime @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+// ============================================
+// EMAIL & MARKETING (Brevo integration)
+// ============================================
+
+model EmailSubscription {
+  id          String   @id @default(cuid())
+  email       String   @unique
+
+  // Consent
+  newsletter  Boolean  @default(false)
+  marketing   Boolean  @default(false)
+
+  // Brevo sync
+  brevoContactId String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+}

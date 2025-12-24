@@ -148,8 +148,8 @@ function buildStyleInstructions(styles: InterpretationStyle[]): string[] {
   if (styles.includes(InterpretationStyle.PSYCHO_EMOTIONAL)) {
     instructions.push("- Psycho-Emotional: Focus on subconscious patterns, emotional blocks, and healing.");
   }
-  if (styles.includes(InterpretationStyle.METAPHYSICAL)) {
-    instructions.push("- Metaphysical: Focus on energy flow, chakras, and universal laws.");
+  if (styles.includes(InterpretationStyle.NUMEROLOGY)) {
+    instructions.push("- Numerology: Analyze the numerological significance of the cards (card numbers, life path connections, and numerical patterns in the spread).");
   }
   if (styles.includes(InterpretationStyle.ELEMENTAL)) {
     instructions.push("- Elemental: Analyze the balance of elements (Fire/Wands, Water/Cups, Air/Swords, Earth/Pentacles).");
@@ -192,6 +192,11 @@ export const generateTarotReading = async ({
   const cardsDescription = buildCardsDescription(cards, spread, language);
   const styleInstructions = buildStyleInstructions(style);
 
+  // Build position guide for the spread
+  const positionGuide = (language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr)
+    .map((meaning, i) => `${i + 1} - ${meaning}`)
+    .join(', ');
+
   const prompt = `
 You are a mystical, wise, and empathetic Tarot Reader.
 
@@ -207,13 +212,23 @@ User's Question: "${question || (language === 'en' ? "General guidance" : "Guida
 Cards Drawn:
 ${cardsDescription}
 
-Important: If a card is marked as (Reversed) or (Renversée), interpret its reversed meaning, which often implies internalization, blockage, or the opposite energy of the upright card.
+Important Guidelines:
+- If a card is marked as (Reversed) or (Renversée), interpret its reversed meaning, which often implies internalization, blockage, or the opposite energy of the upright card.
+- Consider how a card's POSITION modifies its traditional meaning. For example, a typically positive card in the "Obstacles" position may indicate that its energy is being blocked or misused. A challenging card in the "Advice" position may suggest confronting difficult truths.
+- Interpret cards in CONTEXT of surrounding cards. Note how adjacent cards influence, reinforce, or contrast with each other. Look for patterns, elemental relationships, and narrative flow across the spread.
 
 Structure your response naturally with these sections:
-1. Introduction - Brief connection to the user's question or energy.
-2. Card Analysis - Go through each card, explaining its meaning in its specific position.
-3. Synthesis - How the cards interact with each other.
-4. Conclusion - Actionable guidance and advice.
+
+1. **The Spread Layout** - Begin with a brief explanation of the positions in this spread: ${positionGuide}. Explain what each position represents so the seeker understands the framework of the reading.
+
+2. **Card Analysis** - Go through each card, explaining:
+   - The card's traditional meaning
+   - How its position in the spread shapes or modifies this meaning
+   - How it relates to neighbouring cards and the overall narrative
+
+3. **Synthesis** - How the cards interact with each other as a whole. Identify any themes, progressions, or tensions across the spread.
+
+4. **Conclusion** - Actionable guidance and advice drawn from the reading.
 
 IMPORTANT FORMATTING RULES:
 - Write in flowing, natural prose paragraphs
@@ -329,7 +344,7 @@ export const generateHoroscopeFollowUp = async ({
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   const prompt = `
-You are an expert astrologer in the warm, accessible style of Russell Grant, continuing a conversation about a horoscope reading.
+You are an expert astrologer continuing a conversation about a horoscope reading.
 
 Today's Date: ${today}
 Zodiac Sign: ${sign}
@@ -344,16 +359,19 @@ Current Question: "${newQuestion}"
 
 Language: ${langName}
 
-Task: Answer the seeker's astrological question with warmth and expertise. Draw upon:
+Task: Answer the question concisely and informatively. Draw upon:
 - The planetary positions and transits mentioned in the original reading
 - Current lunar phases and their significance
-- Solstices and equinoxes if relevant to the timing
 - The specific characteristics of ${sign} and how they interact with current cosmic energies
-- Practical, grounded advice tied to astrological influences
+- Practical advice tied to astrological influences
 
-Be informative and educational - explain the "why" behind astrological influences. If asked about specific transits, explain what they mean and how long they typically last.
+Explain astrological concepts when relevant, but assume the reader is an intelligent adult - never be patronizing or overly simplistic.
 
-IMPORTANT: Write naturally in flowing prose. No tables, emojis, or icons. Keep the Russell Grant style - warm, knowledgeable, and encouraging.
+IMPORTANT STYLE RULES:
+- Be concise and direct
+- DO NOT use phrases like "my dear", "well now", "as you know"
+- No tables, emojis, or icons
+- Write in flowing prose
 `;
 
   try {
@@ -383,11 +401,11 @@ IMPORTANT: Write naturally in flowing prose. No tables, emojis, or icons. Keep t
 
 export const generateHoroscope = async (sign: string, language: Language = 'en'): Promise<string> => {
   const langName = language === 'en' ? 'English' : 'French';
-  
-  const prompt = `
-You are an expert astrologer in the warm, accessible style of Russell Grant - knowledgeable, encouraging, and detailed about planetary influences.
 
-Task: Write a detailed daily horoscope.
+  const prompt = `
+You are an expert astrologer providing a daily horoscope reading.
+
+Task: Write a concise daily horoscope.
 Language: ${langName}
 Zodiac Sign: ${sign}
 Today's Date: ${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -395,28 +413,29 @@ Today's Date: ${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '
 Structure your horoscope with these sections (use **bold** for section headings):
 
 **Overall Energy**
-Begin with the key planetary influences affecting ${sign} today. Reference specific planetary movements, aspects, or transits (e.g., "With Venus now transiting through your fifth house..." or "As Mercury forms a trine with Jupiter..."). Explain how these cosmic energies will manifest in their daily experience.
+The key planetary influences affecting ${sign} today. Reference specific transits and aspects concisely.
 
 **Personal & Relationships**
-Discuss love, family, friendships, and emotional wellbeing. Connect feelings and experiences to planetary positions. For example: "Since Venus moved into Aquarius, you may have been feeling more detached in matters of the heart..." or "The Moon's position in your seventh house suggests..."
+Love, family, friendships, and emotional wellbeing. Connect to relevant planetary positions.
 
 **Career & Finances**
-Cover professional life, work relationships, money matters, and ambitions. Reference relevant planetary influences on their career sector.
+Professional life, money matters, and ambitions. Reference relevant planetary influences.
 
 **Wellbeing & Advice**
-Offer practical guidance for the day ahead, tying it back to the astrological influences mentioned.
+Practical guidance for the day, tied to the astrological influences mentioned.
 
-IMPORTANT FORMATTING RULES:
-- Write in warm, flowing prose - like a friendly conversation
-- Reference specific planetary positions, transits, and aspects throughout
-- Explain WHY the stars are influencing them this way
-- Be encouraging and constructive, even with challenges
-- DO NOT include a lucky charm, lucky number, or lucky colour
+IMPORTANT STYLE RULES:
+- Be CONCISE - get to the point without padding or filler
+- Write for intelligent adults who are new to astrology - explain astrological terms when needed, but never be condescending or overly simplistic
+- DO NOT use overly familiar phrases like "my dear ${sign}", "well now", "as you know", or similar patronizing language
+- DO NOT over-explain basic concepts (e.g., don't explain what the Sun or Moon are)
+- Reference planetary positions and transits naturally without excessive preamble
+- Be direct and informative, not chatty
+- DO NOT include lucky charms, lucky numbers, or lucky colours
 - DO NOT use tables, emojis, or icons
 - DO NOT use bullet points
-- Write as Russell Grant would - knowledgeable but accessible, warm but informative
 
-Tone: Warm, detailed, astrologically informed, encouraging, and personally engaging.
+Tone: Professional, informative, respectful, and direct.
 `;
 
   try {
