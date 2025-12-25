@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createClerkClient } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/backend';
 
 // Extend Express Request type
 declare global {
@@ -18,7 +18,7 @@ const clerk = createClerkClient({
 });
 
 /**
- * Middleware to verify Clerk session token
+ * Middleware to verify Clerk JWT token
  */
 export async function requireAuth(
   req: Request,
@@ -34,20 +34,19 @@ export async function requireAuth(
 
     const token = authHeader.split(' ')[1];
 
-    // Verify the session token with Clerk
-    const session = await clerk.sessions.verifySession(
-      req.headers['x-clerk-session-id'] as string || '',
-      token
-    );
+    // Verify the JWT token with Clerk
+    const payload = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY!,
+    });
 
-    if (!session || session.status !== 'active') {
-      return res.status(401).json({ error: 'Invalid or expired session' });
+    if (!payload || !payload.sub) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
     // Attach auth info to request
     req.auth = {
-      userId: session.userId,
-      sessionId: session.id
+      userId: payload.sub,
+      sessionId: payload.sid as string || ''
     };
 
     next();
@@ -70,17 +69,16 @@ export async function optionalAuth(
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const sessionId = req.headers['x-clerk-session-id'] as string;
 
-      if (sessionId) {
-        const session = await clerk.sessions.verifySession(sessionId, token);
+      const payload = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
+      });
 
-        if (session && session.status === 'active') {
-          req.auth = {
-            userId: session.userId,
-            sessionId: session.id
-          };
-        }
+      if (payload && payload.sub) {
+        req.auth = {
+          userId: payload.sub,
+          sessionId: payload.sid as string || ''
+        };
       }
     }
 
@@ -108,12 +106,13 @@ export async function requireAdmin(
     }
 
     const token = authHeader.split(' ')[1];
-    const sessionId = req.headers['x-clerk-session-id'] as string;
 
-    const session = await clerk.sessions.verifySession(sessionId, token);
+    const payload = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY!,
+    });
 
-    if (!session || session.status !== 'active') {
-      return res.status(401).json({ error: 'Invalid or expired session' });
+    if (!payload || !payload.sub) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
     // Check if user is admin in our database
@@ -121,7 +120,7 @@ export async function requireAdmin(
     const prisma = new PrismaClient();
 
     const user = await prisma.user.findUnique({
-      where: { id: session.userId },
+      where: { id: payload.sub },
       select: { isAdmin: true }
     });
 
@@ -130,8 +129,8 @@ export async function requireAdmin(
     }
 
     req.auth = {
-      userId: session.userId,
-      sessionId: session.id
+      userId: payload.sub,
+      sessionId: payload.sid as string || ''
     };
 
     next();
