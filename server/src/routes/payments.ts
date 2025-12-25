@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
+import { createClerkClient } from '@clerk/backend';
 import {
   Client,
   Environment,
@@ -13,6 +14,46 @@ import {
 } from '@paypal/paypal-server-sdk';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+
+// Initialize Clerk client for fetching user info
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY!
+});
+
+// Helper to get or create user in database
+async function getOrCreateUser(userId: string) {
+  let user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, credits: true }
+  });
+
+  if (!user) {
+    // User doesn't exist in our DB yet - fetch from Clerk and create
+    try {
+      const clerkUser = await clerk.users.getUser(userId);
+      const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+      const username = clerkUser.username || clerkUser.firstName || 'User';
+
+      user = await prisma.user.create({
+        data: {
+          id: userId,
+          email,
+          username,
+          credits: 10, // Starting credits
+          language: 'en',
+          referralCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
+        },
+        select: { id: true, email: true, credits: true }
+      });
+      console.log(`Created user ${userId} from Clerk data`);
+    } catch (error) {
+      console.error('Failed to create user from Clerk:', error);
+      return null;
+    }
+  }
+
+  return user;
+}
 
 const router = Router();
 
@@ -137,14 +178,10 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Invalid package' });
     }
 
-    // Get user email for Stripe
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true }
-    });
-
+    // Get or create user
+    const user = await getOrCreateUser(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found - please try signing out and back in' });
     }
 
     // Create checkout session
@@ -239,6 +276,12 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
     const creditPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
     if (!creditPackage) {
       return res.status(400).json({ error: 'Invalid package' });
+    }
+
+    // Ensure user exists in database
+    const user = await getOrCreateUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found - please try signing out and back in' });
     }
 
     // Create PayPal order
