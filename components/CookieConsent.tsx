@@ -13,7 +13,11 @@ interface ConsentSettings {
 const CONSENT_KEY = 'mysticoracle_cookie_consent';
 const CONSENT_VERSION = 1; // Increment when policy changes
 
-const CookieConsent: React.FC = () => {
+interface CookieConsentProps {
+  onNavigate?: (view: string) => void;
+}
+
+const CookieConsent: React.FC<CookieConsentProps> = ({ onNavigate }) => {
   const { language } = useApp();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -119,17 +123,19 @@ const CookieConsent: React.FC = () => {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 pointer-events-none">
-      {/* Backdrop for settings modal */}
+    <>
+      {/* Backdrop for settings modal - separate from banner */}
       {showSettings && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm pointer-events-auto"
+          className="fixed inset-0 z-[99] bg-black/50 pointer-events-auto"
           onClick={() => setShowSettings(false)}
         />
       )}
 
-      {/* Main Banner */}
-      <div className="w-full max-w-2xl pointer-events-auto">
+      {/* Banner container */}
+      <div className="fixed inset-x-0 bottom-0 z-[100] flex items-end justify-center p-4 pointer-events-none">
+        {/* Main Banner */}
+        <div className="w-full max-w-2xl pointer-events-auto">
         {showSettings ? (
           // Detailed Settings View
           <div className="bg-slate-900 border border-purple-500/30 rounded-xl shadow-2xl shadow-purple-500/10 p-6 animate-fade-in">
@@ -228,9 +234,17 @@ const CookieConsent: React.FC = () => {
                 </p>
                 <p className="text-slate-400 text-xs mb-4">
                   {t.moreInfo}{' '}
-                  <a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = 'privacy'; }} className="text-purple-400 hover:text-purple-300 underline">
+                  <button
+                    onClick={() => {
+                      if (onNavigate) {
+                        onNavigate('privacy');
+                        setShowBanner(false);
+                      }
+                    }}
+                    className="text-purple-400 hover:text-purple-300 underline"
+                  >
                     {t.privacyLink}
-                  </a>
+                  </button>
                 </p>
                 {/* CNIL Requirement: Accept and Reject buttons must have EQUAL prominence */}
                 <div className="flex flex-wrap gap-2">
@@ -282,7 +296,8 @@ const CookieConsent: React.FC = () => {
           animation: fade-in 0.2s ease-out;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
 

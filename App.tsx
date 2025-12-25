@@ -71,16 +71,16 @@ const App: React.FC = () => {
 
   const handleLoginClick = useCallback(() => setCurrentView('login'), []);
 
-  // Show loading while Clerk initializes
-  if (!clerkLoaded || isLoading) {
-    return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
-  }
-
-  // Navigate and clear URL path
+  // Navigate and clear URL path - MUST be before early return to follow Rules of Hooks
   const handlePaymentNavigate = useCallback((view: string) => {
     window.history.pushState({}, '', '/');
     setCurrentView(view);
   }, []);
+
+  // Show loading while Clerk initializes
+  if (!clerkLoaded || isLoading) {
+    return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
+  }
 
   const renderContent = () => {
     // 1. Payment Result Pages
@@ -220,7 +220,7 @@ const App: React.FC = () => {
         </ErrorBoundary>
       </main>
       <Footer onNavigate={handleNavigate} />
-      <CookieConsent />
+      <CookieConsent onNavigate={handleNavigate} />
     </div>
   );
 };

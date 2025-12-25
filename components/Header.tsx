@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Shield, User } from 'lucide-react';
+import { Moon, Menu, X, Shield, User, Coins } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
+import CreditShop from './CreditShop';
 
 interface HeaderProps {
   onNavigate: (view: string) => void;
@@ -15,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const { user, language, setLanguage, logout } = useApp();
   const { user: clerkUser, isSignedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showCreditShop, setShowCreditShop] = useState(false);
 
   // Use Clerk user data if AppContext user not synced yet
   const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
@@ -94,10 +96,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           </button>
           
           {isSignedIn && (
-             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/30">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+             <button
+                onClick={() => setShowCreditShop(true)}
+                className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
+             >
+                <Coins className="w-4 h-4 text-amber-400" />
                 <span className="text-sm font-bold text-purple-100">{userCredits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
-             </div>
+             </button>
           )}
 
           {isAdmin && (
@@ -159,12 +164,17 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-slate-900 border-b border-white/10 p-4 space-y-4">
            {isSignedIn && (
-             <div
-                className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg cursor-pointer"
-                onClick={handleMobileProfile}
-             >
-                <span className="text-slate-300 font-bold">{displayName}</span>
-                <span className="font-bold text-amber-400">{userCredits} {language === 'en' ? 'Credits' : 'Crédits'}</span>
+             <div className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg">
+                <button onClick={handleMobileProfile} className="text-slate-300 font-bold hover:text-white transition-colors">
+                  {displayName}
+                </button>
+                <button
+                  onClick={() => { setShowCreditShop(true); setIsMobileMenuOpen(false); }}
+                  className="flex items-center gap-2 font-bold text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  <Coins className="w-4 h-4" />
+                  {userCredits} {language === 'en' ? 'Credits' : 'Crédits'}
+                </button>
              </div>
           )}
           <button
@@ -229,6 +239,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           </SignedIn>
         </div>
       )}
+
+      {/* Credit Shop Modal */}
+      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
     </header>
   );
 };
