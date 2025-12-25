@@ -2,6 +2,7 @@ import { Router, raw } from 'express';
 import Stripe from 'stripe';
 import { Webhook } from 'svix';
 import prisma from '../db/prisma.js';
+import { sendWelcomeEmail, sendPurchaseConfirmation } from '../services/email.js';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.post('/stripe', raw({ type: 'application/json' }), async (req, res) => {
         if (userId && credits > 0) {
           try {
             // Update user credits and transaction
-            await prisma.$transaction([
+            const [updatedUser] = await prisma.$transaction([
               prisma.user.update({
                 where: { id: userId },
                 data: {
@@ -57,6 +58,17 @@ router.post('/stripe', raw({ type: 'application/json' }), async (req, res) => {
             ]);
 
             console.log(`✅ Credits added: ${credits} for user ${userId}`);
+
+            // Send purchase confirmation email (non-blocking)
+            const amount = (session.amount_total || 0) / 100; // Convert from cents
+            sendPurchaseConfirmation(
+              updatedUser.email,
+              updatedUser.username,
+              credits,
+              amount,
+              updatedUser.credits,
+              (updatedUser.language as 'en' | 'fr') || 'en'
+            ).catch(err => console.error('Failed to send purchase email:', err));
           } catch (error) {
             console.error('Error processing payment:', error);
           }
@@ -184,6 +196,15 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
         });
 
         console.log(`✅ User created: ${data.id}`);
+
+        // Send welcome email (non-blocking)
+        const email = data.email_addresses[0]?.email_address;
+        const username = data.username || data.first_name || 'User';
+        if (email) {
+          sendWelcomeEmail(email, username, 'en').catch(err =>
+            console.error('Failed to send welcome email:', err)
+          );
+        }
       } catch (error) {
         console.error('Error creating user:', error);
       }

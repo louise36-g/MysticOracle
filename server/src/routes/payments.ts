@@ -14,6 +14,7 @@ import {
 } from '@paypal/paypal-server-sdk';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendWelcomeEmail } from '../services/email.js';
 
 // Initialize Clerk client for fetching user info
 const clerk = createClerkClient({
@@ -46,6 +47,11 @@ async function getOrCreateUser(userId: string) {
         select: { id: true, email: true, credits: true }
       });
       console.log(`Created user ${userId} from Clerk data`);
+
+      // Send welcome email (non-blocking)
+      sendWelcomeEmail(email, username, 'en').catch(err =>
+        console.error('Failed to send welcome email:', err)
+      );
     } catch (error) {
       console.error('Failed to create user from Clerk:', error);
       return null;
