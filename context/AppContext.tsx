@@ -222,10 +222,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       lastLoginDate: new Date().toISOString(),
       loginStreak: 1,
       language: language,
-      emailVerified: DEV_MODE ? true : false, // DEV MODE: Auto-verify emails
+      emailVerified: DEV_MODE || username.toLowerCase() === 'mooks', // Auto-verify for DEV_MODE or Mooks
       accountStatus: accountStatus,
-      verificationToken: DEV_MODE ? undefined : verification.token,
-      verificationTokenExpires: DEV_MODE ? undefined : verification.expiresAt,
+      verificationToken: (DEV_MODE || username.toLowerCase() === 'mooks') ? undefined : verification.token,
+      verificationTokenExpires: (DEV_MODE || username.toLowerCase() === 'mooks') ? undefined : verification.expiresAt,
       verificationAttempts: 0,
       achievements: [],
       spreadsUsed: [],
