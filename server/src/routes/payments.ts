@@ -310,6 +310,17 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
 
     const order = body as Order;
 
+    // Log the full order response for debugging
+    console.log('PayPal order response:', JSON.stringify(order, null, 2));
+
+    // Find approval URL
+    const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
+
+    if (!approvalUrl) {
+      console.error('No approval URL in PayPal response. Links:', order.links);
+      return res.status(500).json({ error: 'PayPal did not return an approval URL' });
+    }
+
     // Create pending transaction
     await prisma.transaction.create({
       data: {
@@ -324,9 +335,6 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
         paymentStatus: 'PENDING'
       }
     });
-
-    // Find approval URL
-    const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
 
     res.json({
       orderId: order.id,
