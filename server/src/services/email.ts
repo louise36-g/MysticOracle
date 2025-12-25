@@ -12,17 +12,14 @@ if (!apiKey) {
   console.warn('⚠️ BREVO_API_KEY not configured - emails will not be sent');
 }
 
-// Create API instances
+// Create API instances with API key
 const transactionalApi = new Brevo.TransactionalEmailsApi();
 const contactsApi = new Brevo.ContactsApi();
 
-// Set API key authentication
+// Set API key using the SDK method
 if (apiKey) {
-  const apiKeyAuth = transactionalApi.authentications['apiKey'];
-  apiKeyAuth.apiKey = apiKey;
-
-  const contactsApiKeyAuth = contactsApi.authentications['apiKey'];
-  contactsApiKeyAuth.apiKey = apiKey;
+  transactionalApi.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+  contactsApi.setApiKey(Brevo.ContactsApiApiKeys.apiKey, apiKey);
 }
 
 // ============================================

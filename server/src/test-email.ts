@@ -6,10 +6,9 @@
 // Must load env BEFORE any other imports
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Load .env from server directory
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 console.log('BREVO_API_KEY loaded:', process.env.BREVO_API_KEY ? 'Yes (starts with ' + process.env.BREVO_API_KEY.slice(0,10) + '...)' : 'No');
 

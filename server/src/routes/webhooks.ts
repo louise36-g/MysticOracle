@@ -172,16 +172,18 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
     case 'user.created': {
       // Create user in our database when they sign up via Clerk
       try {
-        const referralCode = generateReferralCode(data.username || data.id);
+        // Use username, or first_name, or fallback to user_id
+        const username = data.username || data.first_name || `user_${data.id.slice(-8)}`;
+        const referralCode = generateReferralCode(username);
 
         await prisma.user.create({
           data: {
             id: data.id,
             email: data.email_addresses[0]?.email_address || '',
-            username: data.username || `user_${data.id.slice(-8)}`,
+            username,
             referralCode,
             credits: 10, // Welcome bonus
-            isAdmin: (data.username?.toLowerCase() === 'mooks') // Auto-admin for Mooks
+            isAdmin: (username.toLowerCase() === 'mooks') // Auto-admin for Mooks
           }
         });
 
@@ -199,7 +201,6 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
 
         // Send welcome email (non-blocking)
         const email = data.email_addresses[0]?.email_address;
-        const username = data.username || data.first_name || 'User';
         if (email) {
           sendWelcomeEmail(email, username, 'en').catch(err =>
             console.error('Failed to send welcome email:', err)
