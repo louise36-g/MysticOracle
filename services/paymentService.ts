@@ -1,4 +1,7 @@
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api';
+// VITE_API_URL should be base URL without /api (e.g., http://localhost:3001)
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Remove trailing /api if present to avoid duplication
+const API_BASE = baseUrl.replace(/\/api$/, '') + '/api';
 
 export interface CreditPackage {
   id: string;

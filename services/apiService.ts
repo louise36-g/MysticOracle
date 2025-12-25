@@ -3,7 +3,10 @@
  * Uses Clerk for authentication tokens
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// VITE_API_URL should be base URL (e.g., http://localhost:3001)
+// Remove trailing /api if present to avoid duplication with endpoint paths
+const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = rawUrl.replace(/\/api$/, '');
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
