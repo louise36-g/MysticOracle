@@ -308,10 +308,11 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
       },
     });
 
-    const order = body as Order;
+    // PayPal SDK returns body as JSON string, need to parse it
+    const order: Order = typeof body === 'string' ? JSON.parse(body) : body;
 
     // Log the full order response for debugging
-    console.log('PayPal order response:', JSON.stringify(order, null, 2));
+    console.log('PayPal order response:', order);
 
     // Find approval URL
     const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
@@ -369,7 +370,8 @@ router.post('/paypal/capture', requireAuth, async (req, res) => {
       id: orderId,
     });
 
-    const captureData = body as Order;
+    // PayPal SDK returns body as JSON string, need to parse it
+    const captureData: Order = typeof body === 'string' ? JSON.parse(body) : body;
 
     if (captureData.status === 'COMPLETED') {
       // Parse custom data to get credits
