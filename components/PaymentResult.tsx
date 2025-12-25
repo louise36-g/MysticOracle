@@ -44,7 +44,8 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           const stripeResult = await verifyStripePayment(sessionId, token);
           setResult(stripeResult);
         } else {
-          setResult({ success: true, credits: 0 });
+          // No payment to verify - redirect home
+          setResult({ success: false, error: 'no_payment' });
         }
       } catch (error) {
         console.error('Payment verification error:', error);
@@ -56,6 +57,13 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
 
     verifyPayment();
   }, [type, getToken]);
+
+  // If no payment session found, redirect home
+  useEffect(() => {
+    if (result?.error === 'no_payment') {
+      onNavigate('home');
+    }
+  }, [result, onNavigate]);
 
   if (loading) {
     return (
@@ -71,6 +79,11 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
         </p>
       </div>
     );
+  }
+
+  // Don't render anything if redirecting
+  if (result?.error === 'no_payment') {
+    return null;
   }
 
   if (type === 'cancelled') {

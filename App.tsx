@@ -14,6 +14,7 @@ import PaymentResult from './components/PaymentResult';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import WelcomeModal from './components/WelcomeModal';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -233,6 +234,7 @@ const App: React.FC = () => {
       </main>
       <Footer onNavigate={handleNavigate} />
       <CookieConsent onNavigate={handleNavigate} />
+      <WelcomeModal />
     </div>
   );
 };
