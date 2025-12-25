@@ -108,12 +108,18 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Calculate savings for larger packages
-  const getSavingsPercent = (pkg: CreditPackage) => {
-    const baseRate = packages[0]?.priceEur / packages[0]?.credits || 0.299;
-    const pkgRate = pkg.priceEur / pkg.credits;
-    const savings = ((baseRate - pkgRate) / baseRate) * 100;
-    return Math.round(savings);
+  // Get badge color based on type
+  const getBadgeStyles = (badge: string | null) => {
+    switch (badge) {
+      case 'popular':
+        return 'bg-gradient-to-r from-amber-500 to-orange-500';
+      case 'value':
+        return 'bg-gradient-to-r from-green-500 to-emerald-500';
+      case 'premium':
+        return 'bg-gradient-to-r from-purple-500 to-pink-500';
+      default:
+        return 'bg-slate-600';
+    }
   };
 
   if (!isOpen) return null;
@@ -167,49 +173,69 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
             )}
 
             {/* Package Selection */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {packages.map((pkg) => {
-                const savings = getSavingsPercent(pkg);
                 const isSelected = selectedPackage?.id === pkg.id;
-                const isBestValue = pkg.id === 'pack_50';
+                const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
+                const name = language === 'en' ? pkg.nameEn : pkg.nameFr;
 
                 return (
                   <motion.button
                     key={pkg.id}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedPackage(pkg)}
-                    className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                    className={`relative p-5 rounded-xl border-2 transition-all text-left ${
                       isSelected
-                        ? 'border-amber-400 bg-amber-900/20'
+                        ? 'border-amber-400 bg-amber-900/20 shadow-lg shadow-amber-500/20'
+                        : pkg.badge
+                        ? 'border-purple-500/50 bg-slate-800/70 hover:border-purple-400/70'
                         : 'border-white/10 bg-slate-800/50 hover:border-purple-500/30'
                     }`}
                   >
-                    {isBestValue && (
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full text-xs font-bold text-white">
-                        {language === 'en' ? 'Best Value' : 'Meilleur Prix'}
+                    {/* Badge label */}
+                    {pkg.badge && (
+                      <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 ${getBadgeStyles(pkg.badge)} rounded-full text-xs font-bold text-white whitespace-nowrap shadow-lg`}>
+                        {label}
                       </div>
                     )}
 
-                    {savings > 0 && (
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                        -{savings}%
+                    {/* Discount badge */}
+                    {pkg.discount > 0 && (
+                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                        -{pkg.discount}%
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2 mb-2">
-                      <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
-                      <span className="text-2xl font-bold text-white">{pkg.credits}</span>
+                    {/* Package name */}
+                    <p className="text-sm font-medium text-slate-400 mb-1">{name}</p>
+
+                    {/* Credits */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
+                      <span className="text-3xl font-bold text-white">{pkg.credits}</span>
+                      <span className="text-sm text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
                     </div>
 
-                    <p className="text-lg font-bold text-amber-400">€{pkg.priceEur.toFixed(2)}</p>
-                    <p className="text-xs text-slate-400">
-                      €{(pkg.priceEur / pkg.credits).toFixed(3)}/{language === 'en' ? 'credit' : 'crédit'}
-                    </p>
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold text-amber-400">€{pkg.priceEur.toFixed(2)}</p>
+                      <p className="text-xs text-slate-500">
+                        (€{(pkg.priceEur / pkg.credits).toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'})
+                      </p>
+                    </div>
 
+                    {/* Non-badge label */}
+                    {!pkg.badge && (
+                      <p className="text-xs text-slate-500 mt-2">{label}</p>
+                    )}
+
+                    {/* Selected check */}
                     {isSelected && (
-                      <div className="absolute top-2 right-2">
-                        <Check className="w-5 h-5 text-amber-400" />
+                      <div className="absolute top-3 right-3">
+                        <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-slate-900" />
+                        </div>
                       </div>
                     )}
                   </motion.button>
