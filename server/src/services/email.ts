@@ -5,13 +5,25 @@
 
 import * as Brevo from '@getbrevo/brevo';
 
-// Initialize Brevo API clients
+// Initialize Brevo API clients with authentication
+const apiKey = process.env.BREVO_API_KEY;
+
+if (!apiKey) {
+  console.warn('⚠️ BREVO_API_KEY not configured - emails will not be sent');
+}
+
+// Create API instances
 const transactionalApi = new Brevo.TransactionalEmailsApi();
 const contactsApi = new Brevo.ContactsApi();
 
-// Set API key
-transactionalApi.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY!);
-contactsApi.setApiKey(Brevo.ContactsApiApiKeys.apiKey, process.env.BREVO_API_KEY!);
+// Set API key authentication
+if (apiKey) {
+  const apiKeyAuth = transactionalApi.authentications['apiKey'];
+  apiKeyAuth.apiKey = apiKey;
+
+  const contactsApiKeyAuth = contactsApi.authentications['apiKey'];
+  contactsApiKeyAuth.apiKey = apiKey;
+}
 
 // ============================================
 // EMAIL TEMPLATES
@@ -132,7 +144,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 
     sendSmtpEmail.sender = {
       name: 'MysticOracle',
-      email: 'noreply@mysticoracle.com' // Update with your verified domain
+      email: 'louise.charlotte.griffin@gmail.com' // Update with your verified domain
     };
 
     sendSmtpEmail.to = [{
