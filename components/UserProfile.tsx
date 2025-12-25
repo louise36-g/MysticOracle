@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
+import CreditShop from './CreditShop';
 import { User, Flame, Calendar, Coins, Share2, Copy, LogOut, Edit2, Shield, User as UserIcon, AlertTriangle, CheckCircle, Award, History, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
@@ -30,6 +31,7 @@ const UserProfile: React.FC = () => {
     const [editUsername, setEditUsername] = useState(displayUser.username);
     const [editEmail, setEditEmail] = useState(displayUser.email);
     const [isCopied, setIsCopied] = useState(false);
+    const [isShopOpen, setIsShopOpen] = useState(false);
 
     // Verification state
     const [verificationCode, setVerificationCode] = useState('');
@@ -184,11 +186,12 @@ const UserProfile: React.FC = () => {
                                 {displayUser.credits} <Coins className="w-5 h-5" />
                             </p>
                         </div>
-                        <Button 
-                            size="sm" 
-                            variant="secondary" 
-                            disabled={!displayUser.emailVerified} 
+                        <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={!displayUser.emailVerified}
                             title={!displayUser.emailVerified ? "Verify email to purchase" : ""}
+                            onClick={() => setIsShopOpen(true)}
                         >
                              {language === 'en' ? 'Get Credits' : 'Acheter Crédits'}
                         </Button>
@@ -361,6 +364,9 @@ const UserProfile: React.FC = () => {
                      {language === 'en' ? 'Log Out' : 'Déconnexion'}
                  </Button>
             </div>
+
+            {/* Credit Shop Modal */}
+            <CreditShop isOpen={isShopOpen} onClose={() => setIsShopOpen(false)} />
         </div>
     );
 };

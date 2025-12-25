@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useUser, SignInButton } from '@clerk/clerk-react';
 import Header from './components/Header';
 import ReadingModeSelector from './components/ReadingModeSelector';
@@ -8,6 +8,7 @@ import HoroscopeReading from './components/HoroscopeReading';
 import UserProfile from './components/UserProfile';
 import AdminDashboard from './components/admin/AdminDashboard';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import PaymentResult from './components/PaymentResult';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
@@ -25,6 +26,16 @@ const App: React.FC = () => {
 
   // Check if user is admin (from AppContext or default false)
   const isAdmin = user?.isAdmin || false;
+
+  // Handle payment callback URLs
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/payment/success') {
+      setCurrentView('payment-success');
+    } else if (path === '/payment/cancelled') {
+      setCurrentView('payment-cancelled');
+    }
+  }, []);
 
   const handleAuthSuccess = useCallback(() => {
     setCurrentView('home');
@@ -65,13 +76,27 @@ const App: React.FC = () => {
     return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
   }
 
+  // Navigate and clear URL path
+  const handlePaymentNavigate = useCallback((view: string) => {
+    window.history.pushState({}, '', '/');
+    setCurrentView(view);
+  }, []);
+
   const renderContent = () => {
-    // 1. Profile View (requires Clerk sign-in)
+    // 1. Payment Result Pages
+    if (currentView === 'payment-success') {
+      return <PaymentResult type="success" onNavigate={handlePaymentNavigate} />;
+    }
+    if (currentView === 'payment-cancelled') {
+      return <PaymentResult type="cancelled" onNavigate={handlePaymentNavigate} />;
+    }
+
+    // 2. Profile View (requires Clerk sign-in)
     if (isSignedIn && currentView === 'profile') {
         return <UserProfile />;
     }
 
-    // 2. Admin View (requires sign-in + admin flag)
+    // 3. Admin View (requires sign-in + admin flag)
     if (isSignedIn && isAdmin && currentView === 'admin') {
         return <AdminDashboard />;
     }

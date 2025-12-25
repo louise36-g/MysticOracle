@@ -1,5 +1,16 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
+import {
+  Client,
+  Environment,
+  OrdersController,
+  LogLevel,
+  ApiError,
+  CheckoutPaymentIntent,
+  OrderApplicationContextLandingPage,
+  OrderApplicationContextUserAction,
+  Order,
+} from '@paypal/paypal-server-sdk';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -10,12 +21,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16'
 });
 
+// Initialize PayPal
+const paypalClient = new Client({
+  clientCredentialsAuthCredentials: {
+    oAuthClientId: process.env.PAYPAL_CLIENT_ID || '',
+    oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+  },
+  environment: process.env.PAYPAL_MODE === 'live'
+    ? Environment.Production
+    : Environment.Sandbox,
+  logging: {
+    logLevel: LogLevel.Info,
+    logRequest: { logBody: true },
+    logResponse: { logBody: true },
+  },
+});
+
+const ordersController = new OrdersController(paypalClient);
+
 // Credit packages
-const CREDIT_PACKAGES = [
-  { id: 'pack_10', credits: 10, priceEur: 2.99, name: '10 Credits' },
-  { id: 'pack_25', credits: 25, priceEur: 5.99, name: '25 Credits' },
-  { id: 'pack_50', credits: 50, priceEur: 9.99, name: '50 Credits' },
-  { id: 'pack_100', credits: 100, priceEur: 17.99, name: '100 Credits' },
+export const CREDIT_PACKAGES = [
+  { id: 'pack_10', credits: 10, priceEur: 2.99, name: '10 Credits', nameEn: '10 Credits', nameFr: '10 Crédits' },
+  { id: 'pack_25', credits: 25, priceEur: 5.99, name: '25 Credits', nameEn: '25 Credits', nameFr: '25 Crédits' },
+  { id: 'pack_50', credits: 50, priceEur: 9.99, name: '50 Credits', nameEn: '50 Credits', nameFr: '50 Crédits' },
+  { id: 'pack_100', credits: 100, priceEur: 17.99, name: '100 Credits', nameEn: '100 Credits', nameFr: '100 Crédits' },
 ];
 
 // Get available credit packages
@@ -130,11 +159,31 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Invalid package' });
     }
 
-    // PayPal API call would go here
-    // For now, return a placeholder
-    // You'll need to integrate the PayPal SDK
+    // Create PayPal order
+    const { body } = await ordersController.createOrder({
+      body: {
+        intent: CheckoutPaymentIntent.Capture,
+        purchaseUnits: [
+          {
+            amount: {
+              currencyCode: 'EUR',
+              value: creditPackage.priceEur.toFixed(2),
+            },
+            description: `${creditPackage.credits} credits for MysticOracle`,
+            customId: JSON.stringify({ userId, packageId: creditPackage.id, credits: creditPackage.credits }),
+          },
+        ],
+        applicationContext: {
+          brandName: 'MysticOracle',
+          landingPage: OrderApplicationContextLandingPage.Login,
+          userAction: OrderApplicationContextUserAction.PayNow,
+          returnUrl: `${process.env.FRONTEND_URL}/payment/success?provider=paypal`,
+          cancelUrl: `${process.env.FRONTEND_URL}/payment/cancelled`,
+        },
+      },
+    });
 
-    const paypalOrderId = `PP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const order = body as Order;
 
     // Create pending transaction
     await prisma.transaction.create({
@@ -144,21 +193,95 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
         amount: creditPackage.credits,
         description: `Purchase: ${creditPackage.name}`,
         paymentProvider: 'PAYPAL',
-        paymentId: paypalOrderId,
+        paymentId: order.id!,
         paymentAmount: creditPackage.priceEur,
         currency: 'EUR',
         paymentStatus: 'PENDING'
       }
     });
 
+    // Find approval URL
+    const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
+
     res.json({
-      orderId: paypalOrderId,
-      // Include PayPal approval URL here
-      message: 'PayPal integration requires PayPal SDK setup'
+      orderId: order.id,
+      approvalUrl,
     });
   } catch (error) {
     console.error('Error creating PayPal order:', error);
-    res.status(500).json({ error: 'Failed to create PayPal order' });
+    if (error instanceof ApiError) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Failed to create PayPal order' });
+    }
+  }
+});
+
+// Capture PayPal order (after user approves)
+router.post('/paypal/capture', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID required' });
+    }
+
+    // Capture the order
+    const { body } = await ordersController.captureOrder({
+      id: orderId,
+    });
+
+    const captureData = body as Order;
+
+    if (captureData.status === 'COMPLETED') {
+      // Parse custom data to get credits
+      const customId = (captureData.purchaseUnits?.[0] as any)?.payments?.captures?.[0]?.customId
+        || captureData.purchaseUnits?.[0]?.customId;
+
+      let credits = 0;
+      if (customId) {
+        try {
+          const customData = JSON.parse(customId);
+          credits = customData.credits || 0;
+        } catch {
+          console.error('Failed to parse customId');
+        }
+      }
+
+      // Update user credits and transaction
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: userId },
+          data: {
+            credits: { increment: credits },
+            totalCreditsEarned: { increment: credits }
+          }
+        }),
+        prisma.transaction.updateMany({
+          where: { paymentId: orderId },
+          data: { paymentStatus: 'COMPLETED' }
+        })
+      ]);
+
+      res.json({
+        success: true,
+        credits,
+        captureId: captureData.id,
+      });
+    } else {
+      res.json({
+        success: false,
+        status: captureData.status,
+      });
+    }
+  } catch (error) {
+    console.error('Error capturing PayPal order:', error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Failed to capture PayPal order' });
+    }
   }
 });
 
