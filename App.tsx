@@ -8,6 +8,8 @@ import HoroscopeReading from './components/HoroscopeReading';
 import UserProfile from './components/UserProfile';
 import AdminDashboard from './components/admin/AdminDashboard';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import TermsOfService from './components/legal/TermsOfService';
+import CookiePolicy from './components/legal/CookiePolicy';
 import PaymentResult from './components/PaymentResult';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
@@ -54,6 +56,8 @@ const App: React.FC = () => {
 
   const handleNavigate = (view: string) => {
     setCurrentView(view);
+    // Scroll to top when navigating to a new view
+    window.scrollTo(0, 0);
     if (view === 'home') {
       setReadingMode(null);
       setSelectedSpread(null);
@@ -104,6 +108,12 @@ const App: React.FC = () => {
     // 4. Legal Pages (accessible to all)
     if (currentView === 'privacy') {
         return <PrivacyPolicy />;
+    }
+    if (currentView === 'terms') {
+        return <TermsOfService />;
+    }
+    if (currentView === 'cookies') {
+        return <CookiePolicy />;
     }
 
     // 5. Active Reading View

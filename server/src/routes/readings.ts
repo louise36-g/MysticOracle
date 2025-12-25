@@ -233,4 +233,39 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
   }
 });
 
+// Deduct credits (generic endpoint for frontend)
+router.post('/deduct-credits', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { amount, description = 'Credit usage' } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.credits < amount) {
+      return res.status(400).json({ error: 'Insufficient credits' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        credits: { decrement: amount },
+        totalCreditsSpent: { increment: amount }
+      },
+      select: { credits: true }
+    });
+
+    res.json({ success: true, newBalance: updatedUser.credits });
+  } catch (error) {
+    console.error('Error deducting credits:', error);
+    res.status(500).json({ error: 'Failed to deduct credits' });
+  }
+});
+
 export default router;

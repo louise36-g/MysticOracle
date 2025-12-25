@@ -2,131 +2,205 @@
 
 ## Overview
 
-MysticOracle is a mystical tarot reading web application built with React and TypeScript. It provides AI-powered tarot card readings and horoscope interpretations using the OpenRouter API.
+MysticOracle is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma.
 
 ## Tech Stack
 
-- **Frontend**: React 19 with TypeScript
+### Frontend
+- **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS (inline classes)
+- **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **AI Integration**: OpenRouter API (OpenAI SDK)
-- **State Management**: React Context API
+- **Auth**: Clerk (@clerk/clerk-react)
+- **State**: React Context API
+
+### Backend
+- **Server**: Express.js with TypeScript
+- **Database**: PostgreSQL on Render
+- **ORM**: Prisma
+- **Payments**: Stripe + PayPal
+- **Email**: Brevo (SendInBlue)
+- **Hosting**: Render
 
 ## Project Structure
 
 ```
 MysticOracle/
-├── App.tsx                 # Main application component
-├── index.tsx               # React entry point
-├── index.html              # HTML entry point
-├── types.ts                # TypeScript type definitions
-├── constants.ts            # Tarot cards data, spread configurations
+├── App.tsx                    # Main React application
+├── index.tsx                  # React entry point
+├── index.html                 # HTML template
+├── types.ts                   # TypeScript type definitions
+├── constants.ts               # Tarot cards data, spread configs
+├── CLAUDE.md                  # This file
+│
 ├── components/
-│   ├── ActiveReading.tsx   # Main tarot reading flow component
-│   ├── AuthModal.tsx       # Login/Register modal
-│   ├── Header.tsx          # Navigation header
-│   ├── SpreadSelector.tsx  # Spread type selection
-│   ├── Card.tsx            # Tarot card display component
-│   ├── Button.tsx          # Reusable button component
-│   ├── UserProfile.tsx     # User profile page
-│   ├── HoroscopeReading.tsx# Horoscope display
-│   ├── ReadingModeSelector.tsx # Reading mode selection
-│   ├── reading/
-│   │   ├── OracleChat.tsx  # Chat interface for follow-up questions
-│   │   └── ReadingShufflePhase.tsx # Card shuffle animation
-│   ├── ui/
-│   │   ├── ErrorBoundary.tsx # Error boundary wrapper
-│   │   └── FormInput.tsx   # Reusable form input
-│   └── icons/
-│       ├── FlagEN.tsx      # English flag SVG
-│       └── FlagFR.tsx      # French flag SVG
+│   ├── Header.tsx             # Navigation with CreditShop trigger
+│   ├── Footer.tsx             # Footer with legal links
+│   ├── CreditShop.tsx         # Credit purchase modal
+│   ├── CookieConsent.tsx      # GDPR cookie banner
+│   ├── ActiveReading.tsx      # Tarot reading flow
+│   ├── SpreadSelector.tsx     # Spread type selection
+│   ├── HoroscopeReading.tsx   # Daily horoscope
+│   ├── UserProfile.tsx        # User account page
+│   ├── PaymentResult.tsx      # Payment success/cancel pages
+│   ├── legal/
+│   │   ├── PrivacyPolicy.tsx  # GDPR privacy policy
+│   │   ├── TermsOfService.tsx # Terms of service
+│   │   └── CookiePolicy.tsx   # Cookie policy
+│   └── admin/
+│       └── AdminDashboard.tsx # Admin panel
+│
 ├── context/
-│   └── AppContext.tsx      # Global state (user, language, readings)
+│   └── AppContext.tsx         # Global state (localStorage-based)
+│
 ├── services/
-│   ├── openrouterService.ts # OpenRouter API integration
-│   └── storageService.ts   # LocalStorage wrapper
+│   ├── openrouterService.ts   # OpenRouter AI integration
+│   ├── paymentService.ts      # Frontend payment helpers
+│   └── storageService.ts      # LocalStorage wrapper
+│
 ├── utils/
-│   ├── crypto.ts           # Secure token generation, password hashing
-│   ├── shuffle.ts          # Fisher-Yates shuffle algorithm
-│   ├── translations.ts     # i18n helper functions
-│   └── validation.ts       # Input validation utilities
-└── vite.config.ts          # Vite configuration
+│   ├── crypto.ts              # Token generation, password hashing
+│   ├── shuffle.ts             # Fisher-Yates shuffle
+│   └── validation.ts          # Input validation
+│
+└── server/                    # Express Backend
+    ├── prisma/
+    │   └── schema.prisma      # Database schema
+    ├── src/
+    │   ├── index.ts           # Express server entry
+    │   ├── db/
+    │   │   └── prisma.ts      # Prisma client instance
+    │   ├── middleware/
+    │   │   └── auth.ts        # Clerk JWT verification
+    │   ├── routes/
+    │   │   ├── health.ts      # Health check endpoint
+    │   │   ├── users.ts       # User profile, credits, history
+    │   │   ├── readings.ts    # Tarot reading CRUD
+    │   │   ├── payments.ts    # Stripe + PayPal checkout
+    │   │   └── webhooks.ts    # Stripe + Clerk webhooks
+    │   └── services/
+    │       └── email.ts       # Brevo email templates
+    └── .env.example           # Environment template
 ```
 
-## Key Concepts
+## Database Schema (Prisma)
 
-### Language Support
-The app supports English (en) and French (fr). Use the `language` state from `useApp()` context.
+Key models:
+- **User**: Synced with Clerk, stores credits, referrals, admin flag
+- **Reading**: Tarot readings with cards (JSON), interpretation
+- **Transaction**: Credit purchases, spending, bonuses, refunds
+- **UserAchievement**: Gamification achievements
+- **HoroscopeCache**: Daily horoscope caching
+- **EmailSubscription**: Newsletter preferences
 
-### Tarot Spreads
-Three spread types defined in `SpreadType` enum:
-- `SINGLE` - Single card reading
-- `THREE_CARD` - Past/Present/Future
-- `CELTIC_CROSS` - Full 10-card spread
+## API Endpoints
 
-### Interpretation Styles
-Defined in `InterpretationStyle` enum:
-- `CLASSIC` - Traditional divination
-- `SPIRITUAL` - Soul lessons, karma
-- `PSYCHO_EMOTIONAL` - Subconscious patterns
-- `METAPHYSICAL` - Energy, chakras
-- `ELEMENTAL` - Element balance
+### Users (`/api/users`)
+- `GET /me` - Get current user profile
+- `PATCH /me` - Update preferences
+- `GET /me/credits` - Get credit balance
+- `GET /me/readings` - Reading history
+- `GET /me/transactions` - Transaction history
+- `POST /me/daily-bonus` - Claim daily login bonus
 
-### User Credits System
-Users have credits that are consumed when requesting readings. Different spreads have different costs.
+### Payments (`/api/payments`)
+- `GET /packages` - List credit packages
+- `POST /stripe/checkout` - Create Stripe session
+- `GET /stripe/verify/:sessionId` - Verify payment
+- `POST /paypal/order` - Create PayPal order
+- `POST /paypal/capture` - Capture PayPal payment
+- `GET /history` - Purchase history
 
-## Commands
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm build
-
-# Preview production build
-npm run preview
-
-# Type check
-npx tsc --noEmit
-```
+### Webhooks (`/api/webhooks`)
+- `POST /stripe` - Stripe payment events
+- `POST /clerk` - Clerk user events (create/update/delete)
 
 ## Environment Variables
 
-Create a `.env.local` file with:
+### Frontend (.env.local)
 ```
-VITE_API_KEY=your_openrouter_api_key
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+VITE_API_URL=http://localhost:3001
+VITE_API_KEY=sk-or-xxxxx  # OpenRouter
 ```
 
-## Code Conventions
+### Backend (server/.env)
+```
+# Server
+PORT=3001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 
-- Use `useCallback` for event handlers passed to child components
-- Use `useMemo` for expensive computations
-- All text should support bilingual display (check `language` from context)
-- Use Tailwind CSS classes for styling
-- Prefer functional components with hooks
+# Database
+DATABASE_URL=postgresql://...
 
-## State Management
+# Clerk
+CLERK_SECRET_KEY=sk_test_xxxxx
+CLERK_WEBHOOK_SECRET=whsec_xxxxx
 
-The `AppContext` provides:
-- `user` - Current logged-in user
-- `language` - Current language ('en' | 'fr')
-- `setLanguage()` - Change language
-- `login()` / `logout()` - Authentication
-- `register()` - User registration
-- `addReading()` - Save a reading
-- `updateCredits()` - Modify user credits
+# Stripe
+STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
-## API Integration
+# PayPal
+PAYPAL_CLIENT_ID=xxxxx
+PAYPAL_CLIENT_SECRET=xxxxx
+PAYPAL_MODE=sandbox
 
-The `openrouterService.ts` handles AI interactions:
-- `generateTarotReading()` - Get a tarot interpretation
-- `generateFollowUpReading()` - Answer follow-up questions
-- `generateHoroscope()` - Get daily horoscope
+# Brevo Email
+BREVO_API_KEY=xkeysib-xxxxx
+```
 
-Features retry logic with exponential backoff and timeout handling.
+## Commands
+
+### Frontend
+```bash
+npm install          # Install dependencies
+npm run dev          # Start dev server (port 5173)
+npm run build        # Production build
+npx tsc --noEmit     # Type check
+```
+
+### Backend
+```bash
+cd server
+npm install          # Install dependencies
+npm run dev          # Start dev server (port 3001)
+npm run build        # Compile TypeScript
+npx prisma generate  # Generate Prisma client
+npx prisma db push   # Push schema to database
+npx prisma studio    # Open Prisma Studio
+```
+
+## Key Features
+
+### Authentication
+- Clerk handles auth (sign in, sign up, SSO)
+- Clerk webhooks sync users to our database
+- JWT verification on backend routes
+
+### Credits System
+- New users get 10 free credits
+- Daily login bonus (2 credits, +5 for 7-day streak)
+- Purchases via Stripe or PayPal
+- Referral bonuses
+
+### Tarot Readings
+- Single card, 3-card, Celtic Cross spreads
+- AI interpretations via OpenRouter
+- Follow-up questions
+- Reading history saved
+
+### Legal Compliance
+- GDPR-compliant privacy policy
+- Cookie consent banner (CNIL compliant)
+- Terms of service
+- Data stored in EU (Render Frankfurt)
+
+## Development Notes
+
+- DEV_MODE in AppContext.tsx bypasses credit checks
+- Username "Mooks" is auto-admin
+- Frontend currently uses localStorage (needs migration to backend)
+- Payment webhooks handle credit fulfillment
