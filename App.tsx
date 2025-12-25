@@ -145,9 +145,11 @@ const App: React.FC = () => {
           </p>
           
           {!user && (
-            <Button size="lg" onClick={handleLoginClick}>
-              {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
-            </Button>
+            <SignInButton mode="modal">
+              <Button size="lg">
+                {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
+              </Button>
+            </SignInButton>
           )}
         </div>
 
