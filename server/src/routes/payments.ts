@@ -16,28 +16,42 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16'
-});
+// Check for required environment variables
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const PAYPAL_ID = process.env.PAYPAL_CLIENT_ID;
+const PAYPAL_SECRET = process.env.PAYPAL_CLIENT_SECRET;
 
-// Initialize PayPal
-const paypalClient = new Client({
-  clientCredentialsAuthCredentials: {
-    oAuthClientId: process.env.PAYPAL_CLIENT_ID || '',
-    oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
-  },
-  environment: process.env.PAYPAL_MODE === 'live'
-    ? Environment.Production
-    : Environment.Sandbox,
-  logging: {
-    logLevel: LogLevel.Info,
-    logRequest: { logBody: true },
-    logResponse: { logBody: true },
-  },
-});
+if (!STRIPE_KEY) {
+  console.warn('⚠️ STRIPE_SECRET_KEY not configured - Stripe payments will fail');
+}
+if (!PAYPAL_ID || !PAYPAL_SECRET) {
+  console.warn('⚠️ PayPal credentials not configured - PayPal payments will fail');
+}
 
-const ordersController = new OrdersController(paypalClient);
+// Initialize Stripe (only if key exists)
+const stripe = STRIPE_KEY
+  ? new Stripe(STRIPE_KEY, { apiVersion: '2023-10-16' })
+  : null;
+
+// Initialize PayPal (only if credentials exist)
+const paypalClient = (PAYPAL_ID && PAYPAL_SECRET)
+  ? new Client({
+      clientCredentialsAuthCredentials: {
+        oAuthClientId: PAYPAL_ID,
+        oAuthClientSecret: PAYPAL_SECRET,
+      },
+      environment: process.env.PAYPAL_MODE === 'live'
+        ? Environment.Production
+        : Environment.Sandbox,
+      logging: {
+        logLevel: LogLevel.Info,
+        logRequest: { logBody: true },
+        logResponse: { logBody: true },
+      },
+    })
+  : null;
+
+const ordersController = paypalClient ? new OrdersController(paypalClient) : null;
 
 // Credit packages
 export const CREDIT_PACKAGES = [
@@ -111,6 +125,10 @@ router.get('/packages', (req, res) => {
 // Create Stripe checkout session
 router.post('/stripe/checkout', requireAuth, async (req, res) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe payments not configured' });
+    }
+
     const userId = req.auth.userId;
     const { packageId, useStripeLink = false } = req.body;
 
@@ -183,6 +201,10 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
 // Verify Stripe payment
 router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe payments not configured' });
+    }
+
     const { sessionId } = req.params;
 
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -207,6 +229,10 @@ router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
 // Create PayPal order
 router.post('/paypal/order', requireAuth, async (req, res) => {
   try {
+    if (!ordersController) {
+      return res.status(503).json({ error: 'PayPal payments not configured' });
+    }
+
     const userId = req.auth.userId;
     const { packageId } = req.body;
 
@@ -276,6 +302,10 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
 // Capture PayPal order (after user approves)
 router.post('/paypal/capture', requireAuth, async (req, res) => {
   try {
+    if (!ordersController) {
+      return res.status(503).json({ error: 'PayPal payments not configured' });
+    }
+
     const userId = req.auth.userId;
     const { orderId } = req.body;
 

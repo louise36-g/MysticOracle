@@ -90,7 +90,15 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       }
     } catch (err) {
       console.error('Stripe checkout error:', err);
-      setError(err instanceof Error ? err.message : 'Payment failed');
+      const message = err instanceof Error ? err.message : 'Payment failed';
+      // Provide more helpful error for network failures
+      if (message === 'Failed to fetch') {
+        setError(language === 'en'
+          ? 'Unable to connect to payment server. Please check your connection and try again.'
+          : 'Impossible de se connecter au serveur de paiement. Veuillez vérifier votre connexion et réessayer.');
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
       setPaymentMethod(null);
@@ -117,7 +125,14 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       }
     } catch (err) {
       console.error('PayPal checkout error:', err);
-      setError(err instanceof Error ? err.message : 'Payment failed');
+      const message = err instanceof Error ? err.message : 'Payment failed';
+      if (message === 'Failed to fetch') {
+        setError(language === 'en'
+          ? 'Unable to connect to payment server. Please check your connection and try again.'
+          : 'Impossible de se connecter au serveur de paiement. Veuillez vérifier votre connexion et réessayer.');
+      } else {
+        setError(message);
+      }
       setLoading(false);
       setPaymentMethod(null);
     }
@@ -179,14 +194,25 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
             </button>
           </div>
 
+          {/* Error message - sticky at top */}
+          {error && (
+            <div className="sticky top-[73px] z-10 mx-6 mt-4 p-4 bg-red-900/90 border border-red-500/50 rounded-lg text-red-200 text-sm backdrop-blur-sm shadow-lg">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500/30 flex items-center justify-center">
+                  <X className="w-3 h-3 text-red-300" />
+                </div>
+                <div>
+                  <p className="font-medium text-red-100">
+                    {language === 'en' ? 'Payment Error' : 'Erreur de Paiement'}
+                  </p>
+                  <p className="mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Content */}
           <div className="p-6">
-            {/* Error message */}
-            {error && (
-              <div className="mb-4 p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-red-300 text-sm">
-                {error}
-              </div>
-            )}
 
             {/* Package Selection */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
