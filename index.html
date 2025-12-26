@@ -6,20 +6,245 @@
     <title>MysticOracle Tarot</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              mystic: {
+                bg: '#0f0c29',
+                'bg-elevated': '#1a1635',
+                'bg-card': '#241f47',
+                purple: {
+                  DEFAULT: '#8b5cf6',
+                  dark: '#581c87',
+                  light: '#a78bfa',
+                  glow: 'rgba(139, 92, 246, 0.5)',
+                },
+                amber: {
+                  DEFAULT: '#fbbf24',
+                  dark: '#d97706',
+                  light: '#fcd34d',
+                  glow: 'rgba(251, 191, 36, 0.5)',
+                },
+                cosmic: {
+                  blue: '#312e81',
+                  indigo: '#4338ca',
+                  violet: '#7c3aed',
+                },
+              },
+            },
+            fontFamily: {
+              heading: ['Cinzel', 'serif'],
+              body: ['Lato', 'sans-serif'],
+            },
+            animation: {
+              'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+              'float': 'float 6s ease-in-out infinite',
+              'shimmer': 'shimmer 2s linear infinite',
+              'sparkle': 'sparkle 1.5s ease-in-out infinite',
+              'card-flip': 'card-flip 0.8s ease-out forwards',
+              'reveal-up': 'reveal-up 0.5s ease-out forwards',
+              'credit-fly': 'credit-fly 1s ease-out forwards',
+              'confetti': 'confetti 1s ease-out forwards',
+              'streak-fire': 'streak-fire 0.5s ease-out',
+            },
+            keyframes: {
+              'glow-pulse': {
+                '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+                '50%': { opacity: '1', transform: 'scale(1.05)' },
+              },
+              'float': {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              'shimmer': {
+                '0%': { backgroundPosition: '-200% 0' },
+                '100%': { backgroundPosition: '200% 0' },
+              },
+              'sparkle': {
+                '0%, 100%': { opacity: '0', transform: 'scale(0) rotate(0deg)' },
+                '50%': { opacity: '1', transform: 'scale(1) rotate(180deg)' },
+              },
+              'card-flip': {
+                '0%': { transform: 'rotateY(180deg)' },
+                '100%': { transform: 'rotateY(0deg)' },
+              },
+              'reveal-up': {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'credit-fly': {
+                '0%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                '50%': { opacity: '1', transform: 'translateY(-30px) scale(1.2)' },
+                '100%': { opacity: '0', transform: 'translateY(-60px) scale(0.8)' },
+              },
+              'confetti': {
+                '0%': { transform: 'translateY(0) rotate(0deg)', opacity: '1' },
+                '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' },
+              },
+              'streak-fire': {
+                '0%': { transform: 'scale(1)', filter: 'brightness(1)' },
+                '50%': { transform: 'scale(1.2)', filter: 'brightness(1.5)' },
+                '100%': { transform: 'scale(1)', filter: 'brightness(1)' },
+              },
+            },
+            boxShadow: {
+              'glow-purple': '0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)',
+              'glow-amber': '0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2)',
+              'glow-green': '0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)',
+              'card': '0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.1)',
+              'card-hover': '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.2)',
+            },
+            backgroundImage: {
+              'shimmer-gradient': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+              'cosmic-gradient': 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+              'aurora': 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(251, 191, 36, 0.05) 50%, rgba(139, 92, 246, 0.1) 100%)',
+            },
+          },
+        },
+      }
+    </script>
     <style>
+      /* Base Styles */
+      :root {
+        /* Timing */
+        --timing-fast: 150ms;
+        --timing-normal: 300ms;
+        --timing-slow: 500ms;
+        --timing-dramatic: 800ms;
+
+        /* Easing */
+        --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        --ease-dramatic: cubic-bezier(0.16, 1, 0.3, 1);
+
+        /* Spacing */
+        --space-xs: 0.25rem;
+        --space-sm: 0.5rem;
+        --space-md: 1rem;
+        --space-lg: 1.5rem;
+        --space-xl: 2rem;
+        --space-2xl: 3rem;
+      }
+
       body {
         font-family: 'Lato', sans-serif;
         background-color: #0f0c29;
       }
+
       h1, h2, h3, h4, h5, h6, .font-heading {
         font-family: 'Cinzel', serif;
       }
+
+      /* Scrollbar Hide */
       .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+        display: none;
       }
       .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Premium Glass Effect */
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .glass-purple {
+        background: rgba(139, 92, 246, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+      }
+
+      /* Glow Effects */
+      .glow-text-purple {
+        text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+      }
+
+      .glow-text-amber {
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.3);
+      }
+
+      /* Shimmer Effect */
+      .shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 2s linear infinite;
+      }
+
+      /* Premium Button Press Effect */
+      .btn-press {
+        transition: transform var(--timing-fast) var(--ease-bounce), box-shadow var(--timing-fast);
+      }
+      .btn-press:active {
+        transform: scale(0.97);
+      }
+
+      /* Card 3D Perspective */
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+
+      .preserve-3d {
+        transform-style: preserve-3d;
+      }
+
+      .backface-hidden {
+        backface-visibility: hidden;
+      }
+
+      /* Stars Background Pattern */
+      .stars-bg {
+        background-image:
+          radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+          radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+          radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+          radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.2), transparent),
+          radial-gradient(1px 1px at 160px 20px, rgba(255,255,255,0.3), transparent);
+        background-size: 200px 100px;
+      }
+
+      /* Reduced Motion Support */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+
+        .animate-glow-pulse,
+        .animate-float,
+        .animate-shimmer,
+        .animate-sparkle {
+          animation: none !important;
+        }
+      }
+
+      /* Touch-friendly tap highlight */
+      @media (hover: none) {
+        button, a, [role="button"] {
+          -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+        }
+      }
+
+      /* Focus visible for keyboard users */
+      :focus-visible {
+        outline: 2px solid rgba(139, 92, 246, 0.8);
+        outline-offset: 2px;
+      }
+
+      /* Selection color */
+      ::selection {
+        background-color: rgba(139, 92, 246, 0.3);
+        color: white;
       }
     </style>
   </head>
