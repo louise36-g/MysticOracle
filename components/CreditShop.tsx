@@ -394,8 +394,8 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
               </motion.div>
             )}
 
-            {/* Package Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {/* Package Selection - Clean layout with no overlapping elements */}
+            <div className="space-y-3 mb-6">
               {packages.map((pkg) => {
                 const isSelected = selectedPackage?.id === pkg.id;
                 const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
@@ -403,94 +403,71 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                 const isBestValue = pkg.id === bestValuePackageId;
                 const bonusCredits = getFirstPurchaseBonus(pkg.credits);
                 const totalCredits = pkg.credits + bonusCredits;
+                const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
 
                 return (
                   <motion.button
                     key={pkg.id}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => setSelectedPackage(pkg)}
-                    className={`relative p-5 rounded-xl border-2 transition-all text-left ${
+                    className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
                       isSelected
-                        ? 'border-amber-400 bg-amber-900/20 shadow-lg shadow-amber-500/20'
-                        : isBestValue
-                        ? 'border-green-500/60 bg-green-900/20 hover:border-green-400/80'
-                        : pkg.badge
-                        ? 'border-purple-500/50 bg-slate-800/70 hover:border-purple-400/70'
-                        : 'border-white/10 bg-slate-800/50 hover:border-purple-500/30'
+                        ? 'border-amber-400 bg-gradient-to-r from-amber-900/30 to-amber-800/20 shadow-lg shadow-amber-500/20'
+                        : 'border-slate-700 bg-slate-800/50 hover:border-purple-500/50 hover:bg-slate-800/80'
                     }`}
                   >
-                    {/* Best Value badge - takes priority */}
-                    {isBestValue && !pkg.badge && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white whitespace-nowrap shadow-lg flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        {language === 'en' ? 'Best Value' : 'Meilleur Rapport'}
-                      </div>
-                    )}
-
-                    {/* Original badge label */}
-                    {pkg.badge && (
-                      <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 ${getBadgeStyles(pkg.badge)} rounded-full text-xs font-bold text-white whitespace-nowrap shadow-lg`}>
-                        {label}
-                      </div>
-                    )}
-
-                    {/* Discount badge - positioned to not overlap with selection */}
-                    {pkg.discount > 0 && (
-                      <div className="absolute -top-2 right-3 px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white shadow-lg">
-                        -{pkg.discount}%
-                      </div>
-                    )}
-
-                    {/* Package name */}
-                    <p className="text-sm font-medium text-slate-400 mb-1">{name}</p>
-
-                    {/* Credits */}
-                    <div className="flex items-center gap-2 mb-1">
-                      <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-purple-400'}`} />
-                      <span className="text-3xl font-bold text-white">{pkg.credits}</span>
-                      <span className="text-sm text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
+                    {/* Selection indicator */}
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      isSelected
+                        ? 'border-amber-400 bg-amber-400'
+                        : 'border-slate-500'
+                    }`}>
+                      {isSelected && <Check className="w-3 h-3 text-slate-900" />}
                     </div>
 
-                    {/* First purchase bonus display */}
-                    {isFirstPurchase && bonusCredits > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-1.5 mb-2 ml-8"
-                      >
-                        <Gift className="w-4 h-4 text-amber-400" />
+                    {/* Credits display */}
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
+                      <span className="text-2xl font-bold text-white">{pkg.credits}</span>
+                      {isFirstPurchase && bonusCredits > 0 && (
                         <span className="text-sm font-medium text-amber-400">+{bonusCredits}</span>
-                        <span className="text-xs text-amber-400/70">
-                          {language === 'en' ? 'bonus' : 'bonus'}
-                        </span>
-                        <span className="text-xs text-slate-500 ml-1">
-                          = {totalCredits} {language === 'en' ? 'total' : 'total'}
-                        </span>
-                      </motion.div>
-                    )}
+                      )}
+                    </div>
+
+                    {/* Package info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm text-slate-300">{name}</span>
+                        {/* Badges inline */}
+                        {pkg.badge && (
+                          <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
+                            {label}
+                          </span>
+                        )}
+                        {isBestValue && !pkg.badge && (
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded text-xs font-bold text-white flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" />
+                            {language === 'en' ? 'Best' : 'Top'}
+                          </span>
+                        )}
+                        {pkg.discount > 0 && (
+                          <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/40 rounded text-xs font-medium text-green-400">
+                            -{pkg.discount}%
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-slate-500">
+                        €{pricePerCredit.toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'}
+                      </span>
+                    </div>
 
                     {/* Price */}
-                    <div className={`flex items-baseline gap-2 ${isFirstPurchase ? '' : 'mt-2'}`}>
-                      <p className={`text-2xl font-bold ${isBestValue ? 'text-green-400' : 'text-amber-400'}`}>€{pkg.priceEur.toFixed(2)}</p>
-                      <p className="text-xs text-slate-500">
-                        (€{(pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits)).toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'})
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-xl font-bold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
+                        €{pkg.priceEur.toFixed(2)}
                       </p>
                     </div>
-
-                    {/* Non-badge label */}
-                    {!pkg.badge && !isBestValue && (
-                      <p className="text-xs text-slate-500 mt-2">{label}</p>
-                    )}
-
-                    {/* Selected indicator - bottom right to avoid badge overlap */}
-                    {isSelected && (
-                      <div className="absolute bottom-3 right-3">
-                        <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center shadow-lg shadow-amber-400/30">
-                          <Check className="w-4 h-4 text-slate-900" />
-                        </div>
-                      </div>
-                    )}
                   </motion.button>
                 );
               })}
