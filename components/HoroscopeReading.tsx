@@ -259,7 +259,7 @@ const HoroscopeReading: React.FC = () => {
     // Check if this question will cost a credit (every 2nd new question costs 1 credit)
     const willCost = willNextQuestionCostCredit();
     if (willCost) {
-      const result = deductCredits(1);
+      const result = await deductCredits(1);
       if (!result.success) {
         // Not enough credits
         setChatHistory(prev => [

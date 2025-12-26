@@ -46,7 +46,7 @@ const LOADING_MESSAGES = {
 };
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
-  const { language, user, deductCredits, incrementQuestionsAsked, addToHistory, checkAchievements } = useApp();
+  const { language, user, deductCredits, addToHistory } = useApp();
 
   // Phase state
   const [phase, setPhase] = useState<ReadingPhase>('intro');
@@ -150,7 +150,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     }
   }, []);
 
-  const startShuffleAnimation = useCallback(() => {
+  const startShuffleAnimation = useCallback(async () => {
     if (!question.trim()) {
       setQuestionError(true);
       setValidationMessage(
@@ -161,19 +161,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       return;
     }
 
-    // DEV MODE: Credit check disabled
-    // if (user && user.credits < totalCost) {
-    //   setValidationMessage(
-    //     language === 'en'
-    //       ? `Insufficient credits. You need ${totalCost} credits.`
-    //       : `Crédits insuffisants. Vous avez besoin de ${totalCost} crédits.`
-    //   );
-    //   return;
-    // }
-
     setValidationMessage(null);
 
-    const result = deductCredits(totalCost);
+    const result = await deductCredits(totalCost);
     if (!result.success) {
       setValidationMessage(result.message || (language === 'en' ? "Transaction failed." : "La transaction a échoué."));
       return;
@@ -181,7 +171,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     setPhase('animating_shuffle');
     setTimeout(() => setPhase('drawing'), 2500);
-  }, [question, user, totalCost, deductCredits, language]);
+  }, [question, totalCost, deductCredits, language]);
 
   const handleCardDraw = useCallback(() => {
     if (drawnCards.length >= spread.positions) return;
@@ -226,10 +216,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       interpretation: result,
       question
     });
-
-    // Check for achievements after reading completes
-    checkAchievements(spread.id);
-  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, checkAchievements]);
+  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory]);
 
   const getQuestionCost = useCallback(() => {
     if (sessionQuestionCount === 0) return 0;
@@ -244,7 +231,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     const cost = getQuestionCost();
     if (cost > 0) {
-      const result = deductCredits(cost);
+      const result = await deductCredits(cost);
       if (!result.success) {
         alert(result.message || (language === 'en' ? "Insufficient credits!" : "Crédits insuffisants!"));
         return;
@@ -257,7 +244,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     setIsChatLoading(true);
 
     setSessionQuestionCount(prev => prev + 1);
-    incrementQuestionsAsked();
 
     const response = await generateFollowUpReading({
       context: readingText,
@@ -268,7 +254,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     setChatHistory(prev => [...prev, { role: 'model', content: response }]);
     setIsChatLoading(false);
-  }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, incrementQuestionsAsked, readingText, chatHistory]);
+  }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, readingText, chatHistory]);
 
   const handleChatInputChange = useCallback((value: string) => {
     setChatInput(value);

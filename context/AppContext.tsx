@@ -4,10 +4,10 @@ import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/apiService';
 
 /**
- * DEV MODE - Set to false for production
- * When true: Unlimited readings (no credit deduction)
+ * DEV MODE - Controls credit bypass for development
+ * Set via VITE_DEV_MODE environment variable
  */
-const DEV_MODE = true;
+const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
 
 interface User {
   id: string;

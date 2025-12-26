@@ -40,11 +40,6 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleAuthSuccess = useCallback(() => {
-    setCurrentView('home');
-    setReadingMode(null);
-  }, []);
-
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
     setCurrentView('home');
@@ -73,8 +68,6 @@ const App: React.FC = () => {
       alert(language === 'en' ? 'Not enough credits!' : 'Pas assez de crédits!');
     }
   }, [user, language]);
-
-  const handleLoginClick = useCallback(() => setCurrentView('login'), []);
 
   // Navigate and clear URL path - MUST be before early return to follow Rules of Hooks
   const handlePaymentNavigate = useCallback((view: string) => {
