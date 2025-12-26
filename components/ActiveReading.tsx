@@ -178,8 +178,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     }
 
     setPhase('animating_shuffle');
-    setTimeout(() => setPhase('drawing'), 2500);
+    // User controls when to stop shuffling via ReadingShufflePhase
   }, [question, totalCost, deductCredits, language]);
+
+  // Handle shuffle stop - transitions to drawing phase
+  const handleShuffleStop = useCallback(() => {
+    setPhase('drawing');
+  }, []);
 
   const handleCardDraw = useCallback(() => {
     if (drawnCards.length >= spread.positions) return;
@@ -279,7 +284,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
   // Render based on phase
   if (phase === 'animating_shuffle') {
-    return <ReadingShufflePhase language={language} />;
+    return <ReadingShufflePhase language={language} onStop={handleShuffleStop} />;
   }
 
   if (phase === 'intro') {
