@@ -200,7 +200,44 @@ npx prisma studio    # Open Prisma Studio
 
 ## Development Notes
 
-- DEV_MODE in AppContext.tsx bypasses credit checks
+- Set `VITE_DEV_MODE=true` in `.env.local` to bypass credit checks during development
 - Username "Mooks" is auto-admin
-- Frontend currently uses localStorage (needs migration to backend)
 - Payment webhooks handle credit fulfillment
+- Brevo emails use `{{params.variableName}}` placeholder syntax
+
+## Future Improvements (TODO)
+
+### Admin Dashboard
+The admin dashboard exists but is incomplete:
+- `components/admin/AdminDashboard.tsx` - Just a stub showing title
+- `components/admin/AdminOverview.tsx` - Exists but not wired up
+- `components/admin/AdminAnalytics.tsx` - Exists but not wired up
+- `components/admin/AdminUsers.tsx` - Exists but not wired up
+
+**TODO:** Connect these components to display real data from the backend.
+
+### Backend Validation (Zod)
+API routes don't validate incoming request data. Zod is installed but not used.
+
+**TODO:** Add Zod schemas to validate request bodies in:
+- `server/src/routes/payments.ts`
+- `server/src/routes/readings.ts`
+- `server/src/routes/users.ts`
+
+### Rate Limiting
+No rate limiting on API endpoints. Payment and webhook routes are exposed.
+
+**TODO:** Add `express-rate-limit` middleware to protect sensitive endpoints.
+
+### Type Sharing
+Types are duplicated between frontend (`types.ts`) and backend (Prisma schema).
+
+**TODO:** Consider using `prisma-zod-generator` or a shared types package to keep them in sync.
+
+### localStorage Usage
+Some features still use localStorage instead of backend:
+- `CookieConsent` - Cookie preferences
+- `HoroscopeReading` - Daily horoscope caching
+- `WelcomeModal` - "Welcome seen" flag
+
+**TODO:** Migrate to backend storage for consistency across devices.
