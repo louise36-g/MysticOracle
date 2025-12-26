@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useSpendingLimits } from '../context/SpendingLimitsContext';
@@ -17,7 +17,9 @@ import {
   Loader2,
   AlertTriangle,
   Coffee,
-  Settings,
+  Gift,
+  Star,
+  TrendingUp,
 } from 'lucide-react';
 import {
   CreditPackage,
@@ -42,14 +44,34 @@ const StripeLinkIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// First-purchase bonus configuration
+const FIRST_PURCHASE_BONUS_PERCENT = 25; // 25% bonus on first purchase
+const FIRST_PURCHASE_STORAGE_KEY = 'mysticoracle_first_purchase_';
+
+// Low balance threshold
+const LOW_BALANCE_THRESHOLD = 5;
+
+// Helper to check if user has made first purchase
+const hasCompletedFirstPurchase = (userId: string | undefined): boolean => {
+  if (!userId) return false;
+  return localStorage.getItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`) === 'true';
+};
+
+// Helper to mark first purchase as complete
+const markFirstPurchaseComplete = (userId: string | undefined): void => {
+  if (!userId) return;
+  localStorage.setItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`, 'true');
+};
+
 interface CreditShopProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
-  const { language } = useApp();
+  const { language, user } = useApp();
   const { getToken } = useAuth();
+  const { user: clerkUser } = useUser();
   const {
     canSpend,
     recordPurchase,
@@ -67,6 +89,32 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const [showSpendingLimits, setShowSpendingLimits] = useState(false);
   const [showBreakReminder, setShowBreakReminder] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState<{ method: 'stripe' | 'stripe_link' | 'paypal' } | null>(null);
+
+  // First-purchase bonus tracking
+  const isFirstPurchase = useMemo(() => {
+    return !hasCompletedFirstPurchase(clerkUser?.id);
+  }, [clerkUser?.id]);
+
+  // Low balance detection
+  const hasLowBalance = useMemo(() => {
+    return (user?.credits ?? 0) <= LOW_BALANCE_THRESHOLD;
+  }, [user?.credits]);
+
+  // Calculate best value package (lowest price per credit)
+  const bestValuePackageId = useMemo(() => {
+    if (packages.length === 0) return null;
+    return packages.reduce((best, pkg) => {
+      const bestPricePerCredit = best.priceEur / best.credits;
+      const currentPricePerCredit = pkg.priceEur / pkg.credits;
+      return currentPricePerCredit < bestPricePerCredit ? pkg : best;
+    }, packages[0]).id;
+  }, [packages]);
+
+  // Calculate bonus credits for first purchase
+  const getFirstPurchaseBonus = useCallback((credits: number): number => {
+    if (!isFirstPurchase) return 0;
+    return Math.floor(credits * (FIRST_PURCHASE_BONUS_PERCENT / 100));
+  }, [isFirstPurchase]);
 
   // Load packages on mount
   useEffect(() => {
@@ -127,6 +175,11 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt (will be finalized by webhook)
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
+      // Mark first purchase complete (optimistic - webhook will add bonus credits)
+      if (isFirstPurchase) {
+        markFirstPurchaseComplete(clerkUser?.id);
+      }
+
       const { url } = await createStripeCheckout(selectedPackage.id, token, useLink);
       if (url) {
         redirectToStripeCheckout(url);
@@ -148,7 +201,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase, isFirstPurchase, clerkUser?.id]);
 
   // Handle PayPal checkout
   const handlePayPalCheckout = useCallback(async () => {
@@ -170,6 +223,11 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
+      // Mark first purchase complete (optimistic - webhook will add bonus credits)
+      if (isFirstPurchase) {
+        markFirstPurchaseComplete(clerkUser?.id);
+      }
+
       const { approvalUrl } = await createPayPalOrder(selectedPackage.id, token);
       if (approvalUrl) {
         window.location.href = approvalUrl;
@@ -189,7 +247,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase, isFirstPurchase, clerkUser?.id]);
 
   // Get badge color based on type
   const getBadgeStyles = (badge: string | null) => {
@@ -297,12 +355,69 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
           {/* Content */}
           <div className="p-6">
 
+            {/* First Purchase Bonus Banner */}
+            {isFirstPurchase && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-gradient-to-r from-amber-900/40 via-yellow-900/40 to-amber-900/40 border border-amber-500/50 rounded-xl relative overflow-hidden"
+              >
+                {/* Animated glow */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent"
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                />
+                <div className="relative flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Gift className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-heading font-bold text-amber-200 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-amber-400" />
+                      {language === 'en' ? 'First Purchase Bonus!' : 'Bonus Premier Achat !'}
+                    </h3>
+                    <p className="text-sm text-amber-100/80">
+                      {language === 'en'
+                        ? `Get ${FIRST_PURCHASE_BONUS_PERCENT}% extra credits on your first purchase!`
+                        : `Obtenez ${FIRST_PURCHASE_BONUS_PERCENT}% de crédits supplémentaires sur votre premier achat !`}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Low Balance Nudge */}
+            {hasLowBalance && !isFirstPurchase && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-slate-800/50 border border-purple-500/30 rounded-xl"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-slate-300">
+                      {language === 'en'
+                        ? `You have ${user?.credits ?? 0} credits remaining. Top up to continue your mystical journey!`
+                        : `Il vous reste ${user?.credits ?? 0} crédits. Rechargez pour continuer votre voyage mystique !`}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Package Selection */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {packages.map((pkg) => {
                 const isSelected = selectedPackage?.id === pkg.id;
                 const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
                 const name = language === 'en' ? pkg.nameEn : pkg.nameFr;
+                const isBestValue = pkg.id === bestValuePackageId;
+                const bonusCredits = getFirstPurchaseBonus(pkg.credits);
+                const totalCredits = pkg.credits + bonusCredits;
 
                 return (
                   <motion.button
@@ -313,12 +428,22 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                     className={`relative p-5 rounded-xl border-2 transition-all text-left ${
                       isSelected
                         ? 'border-amber-400 bg-amber-900/20 shadow-lg shadow-amber-500/20'
+                        : isBestValue
+                        ? 'border-green-500/60 bg-green-900/20 hover:border-green-400/80'
                         : pkg.badge
                         ? 'border-purple-500/50 bg-slate-800/70 hover:border-purple-400/70'
                         : 'border-white/10 bg-slate-800/50 hover:border-purple-500/30'
                     }`}
                   >
-                    {/* Badge label */}
+                    {/* Best Value badge - takes priority */}
+                    {isBestValue && !pkg.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white whitespace-nowrap shadow-lg flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        {language === 'en' ? 'Best Value' : 'Meilleur Rapport'}
+                      </div>
+                    )}
+
+                    {/* Original badge label */}
                     {pkg.badge && (
                       <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 ${getBadgeStyles(pkg.badge)} rounded-full text-xs font-bold text-white whitespace-nowrap shadow-lg`}>
                         {label}
@@ -336,22 +461,40 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                     <p className="text-sm font-medium text-slate-400 mb-1">{name}</p>
 
                     {/* Credits */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
+                    <div className="flex items-center gap-2 mb-1">
+                      <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-purple-400'}`} />
                       <span className="text-3xl font-bold text-white">{pkg.credits}</span>
                       <span className="text-sm text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
                     </div>
 
+                    {/* First purchase bonus display */}
+                    {isFirstPurchase && bonusCredits > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-1.5 mb-2 ml-8"
+                      >
+                        <Gift className="w-4 h-4 text-amber-400" />
+                        <span className="text-sm font-medium text-amber-400">+{bonusCredits}</span>
+                        <span className="text-xs text-amber-400/70">
+                          {language === 'en' ? 'bonus' : 'bonus'}
+                        </span>
+                        <span className="text-xs text-slate-500 ml-1">
+                          = {totalCredits} {language === 'en' ? 'total' : 'total'}
+                        </span>
+                      </motion.div>
+                    )}
+
                     {/* Price */}
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-bold text-amber-400">€{pkg.priceEur.toFixed(2)}</p>
+                    <div className={`flex items-baseline gap-2 ${isFirstPurchase ? '' : 'mt-2'}`}>
+                      <p className={`text-2xl font-bold ${isBestValue ? 'text-green-400' : 'text-amber-400'}`}>€{pkg.priceEur.toFixed(2)}</p>
                       <p className="text-xs text-slate-500">
-                        (€{(pkg.priceEur / pkg.credits).toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'})
+                        (€{(pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits)).toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'})
                       </p>
                     </div>
 
                     {/* Non-badge label */}
-                    {!pkg.badge && (
+                    {!pkg.badge && !isBestValue && (
                       <p className="text-xs text-slate-500 mt-2">{label}</p>
                     )}
 

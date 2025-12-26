@@ -42,8 +42,8 @@
 - [x] Wire up achievement notifications
 
 ### Variable Rewards
-- [ ] Add 10-15% chance bonus credits on reading completion (Phase 3)
-- [ ] Add "mystery bonus" surprise moments (Phase 3)
+- [x] Add 10-15% chance bonus credits on reading completion (12% in Phase 3)
+- [x] Add "mystery bonus" surprise moments (ReadingCompleteCelebration)
 
 ---
 
@@ -71,20 +71,21 @@
 
 ---
 
-## Phase 4: Purchase UX (IN PROGRESS)
+## Phase 4: Purchase UX (COMPLETED)
 
 ### First-Purchase Bonus
-- [ ] Track first purchase status
-- [ ] Add bonus credits on first purchase
-- [ ] Add special first-time buyer UI
+- [x] Track first purchase status (localStorage with Clerk ID)
+- [x] Add bonus credits on first purchase (25% extra)
+- [x] Add special first-time buyer UI (animated banner)
 
 ### Low-Balance Detection
-- [ ] Add soft nudge when credits low
-- [ ] Non-blocking gentle upsell
+- [x] Add soft nudge when credits low (≤5 credits)
+- [x] Non-blocking gentle upsell (subtle reminder)
 
 ### Package Display
-- [ ] Add "best value" highlighting
-- [ ] Add one-tap quick purchase option
+- [x] Add "best value" highlighting (lowest price/credit)
+- [x] Show bonus amounts per package for first-timers
+- [ ] Add one-tap quick purchase option (deferred - current flow works well)
 
 ---
 
