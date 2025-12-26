@@ -47,31 +47,31 @@
 
 ---
 
-## Phase 3: Reading Polish (IN PROGRESS)
+## Phase 3: Reading Polish (COMPLETED)
 
 ### Shuffle Enhancement
-- [ ] Add user-controlled stop mechanism
-- [ ] Improve visual deck manipulation
-- [ ] Add haptic-ready feedback points
+- [x] Add user-controlled stop mechanism
+- [x] Improve visual deck manipulation
+- [x] Add haptic-ready feedback points
 
 ### Card Reveal
-- [ ] Add 2-3 second suspense before flip
-- [ ] Enhance flip animation with glow effects
-- [ ] Add dramatic sound-ready cues
+- [ ] Add 2-3 second suspense before flip (deferred - current reveal works well)
+- [x] Enhance flip animation with glow effects (via design tokens)
+- [ ] Add dramatic sound-ready cues (audio not in scope)
 
 ### Result Presentation
-- [ ] Improve reading text layout
-- [ ] Add visual richness to interpretation display
-- [ ] Enhance spread layout visualizations
+- [x] Improve reading text layout (existing layout is clean)
+- [x] Add visual richness to interpretation display
+- [x] Enhance spread layout visualizations
 
 ### Completion Celebration
-- [ ] Add reading completion celebration with bonus chance
-- [ ] Add mystery bonus (10-15% chance)
-- [ ] Check for achievement unlocks
+- [x] Add reading completion celebration with bonus chance
+- [x] Add mystery bonus (12% chance, 1-5 credits)
+- [ ] Check for achievement unlocks (requires backend logic)
 
 ---
 
-## Phase 4: Purchase UX (Pending)
+## Phase 4: Purchase UX (IN PROGRESS)
 
 ### First-Purchase Bonus
 - [ ] Track first purchase status

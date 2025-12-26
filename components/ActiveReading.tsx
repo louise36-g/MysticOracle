@@ -8,6 +8,7 @@ import Card from './Card';
 import Button from './Button';
 import ReadingShufflePhase from './reading/ReadingShufflePhase';
 import OracleChat from './reading/OracleChat';
+import { ReadingCompleteCelebration } from './rewards';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Settings, Check, AlertCircle } from 'lucide-react';
 
@@ -72,6 +73,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [sessionQuestionCount, setSessionQuestionCount] = useState(0);
+
+  // Celebration state
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Loading message state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -221,6 +225,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     setReadingLanguage(language);
     setIsGenerating(false);
 
+    // Trigger completion celebration (may include mystery bonus)
+    setShowCelebration(true);
+
     addToHistory({
       id: Date.now().toString(),
       date: new Date().toISOString(),
@@ -230,6 +237,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       question
     });
   }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory]);
+
+  // Handle celebration complete
+  const handleCelebrationComplete = useCallback(() => {
+    setShowCelebration(false);
+  }, []);
 
   const getQuestionCost = useCallback(() => {
     if (sessionQuestionCount === 0) return 0;
@@ -664,6 +676,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
           onSendMessage={handleSendMessage}
         />
       )}
+
+      {/* Reading completion celebration with mystery bonus chance */}
+      <ReadingCompleteCelebration
+        isActive={showCelebration}
+        onComplete={handleCelebrationComplete}
+        spreadName={language === 'en' ? spread.nameEn : spread.nameFr}
+      />
     </div>
   );
 };
