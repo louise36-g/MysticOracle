@@ -33,16 +33,16 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
             `}
             onClick={() => onSelect(spread)}
           >
-            <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-               <div className="flex items-center gap-1 bg-slate-950/50 rounded-full px-3 py-1 border border-amber-500/30">
-                  <span className="text-amber-400 font-bold">{spread.cost}</span>
-                  <span className="text-xs text-amber-200/70">CREDITS</span>
-               </div>
+            {/* Credits badge - positioned below title area */}
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xl font-heading text-purple-100">
+                {language === 'en' ? spread.nameEn : spread.nameFr}
+              </h3>
+              <div className="flex items-center gap-1 bg-slate-950/70 rounded-full px-3 py-1 border border-amber-500/30">
+                <span className="text-amber-400 font-bold text-sm">{spread.cost}</span>
+                <span className="text-xs text-amber-200/70">cr</span>
+              </div>
             </div>
-
-            <h3 className="text-xl font-heading text-purple-100 mb-2">
-              {language === 'en' ? spread.nameEn : spread.nameFr}
-            </h3>
             
             <div className="mb-4 flex items-center gap-2">
                <span className="text-xs uppercase tracking-wider text-slate-500">

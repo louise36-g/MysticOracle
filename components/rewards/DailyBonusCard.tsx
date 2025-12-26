@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Clock, Flame, Sparkles, Check } from 'lucide-react';
+import { Gift, Clock, Flame, Sparkles, Check, Coins } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import Confetti from './Confetti';
-import CreditEarnAnimation from './CreditEarnAnimation';
 
 interface DailyBonusCardProps {
   className?: string;
@@ -12,8 +10,7 @@ interface DailyBonusCardProps {
 const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
   const { user, language, claimDailyBonus } = useApp();
   const [isClaiming, setIsClaiming] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [creditAnimation, setCreditAnimation] = useState<{ amount: number; isBonus?: boolean } | null>(null);
+  const [flyingCoins, setFlyingCoins] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const [claimResult, setClaimResult] = useState<{ success: boolean; credits?: number; message?: string } | null>(null);
   const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const [canClaim, setCanClaim] = useState(false);
@@ -57,8 +54,13 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
     return () => clearInterval(interval);
   }, [user?.lastLoginDate]);
 
-  const handleClaim = useCallback(async () => {
+  const handleClaim = useCallback(async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!canClaim || isClaiming) return;
+
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top;
 
     setIsClaiming(true);
     setClaimResult(null);
@@ -68,18 +70,16 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
 
       if (result.success) {
         setClaimResult({ success: true, credits: result.amount });
-        setShowConfetti(true);
 
-        // Show credit animation
-        setTimeout(() => {
-          setCreditAnimation({
-            amount: result.amount || 2,
-            isBonus: (user?.loginStreak || 0) >= 6, // Extra celebration for 7-day streak
-          });
-        }, 300);
+        // Create flying coins (2 coins for visual effect)
+        const coins = [
+          { id: Date.now(), startX, startY },
+          { id: Date.now() + 1, startX: startX - 15, startY: startY + 10 },
+        ];
+        setFlyingCoins(coins);
 
-        // Hide confetti after a bit
-        setTimeout(() => setShowConfetti(false), 3000);
+        // Clear coins after animation
+        setTimeout(() => setFlyingCoins([]), 1500);
 
         // Update canClaim state
         setCanClaim(false);
@@ -97,7 +97,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
     } finally {
       setIsClaiming(false);
     }
-  }, [canClaim, isClaiming, claimDailyBonus, user?.loginStreak, language]);
+  }, [canClaim, isClaiming, claimDailyBonus, language]);
 
   const streakBonus = (user?.loginStreak || 0) >= 6;
   const baseCredits = 2;
@@ -233,9 +233,41 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
         </div>
       </motion.div>
 
-      {/* Effects */}
-      <Confetti isActive={showConfetti} pieceCount={30} duration={2500} />
-      <CreditEarnAnimation trigger={creditAnimation} />
+      {/* Flying Coins Animation */}
+      {flyingCoins.map((coin) => {
+        // Find the header credits element
+        const headerCredits = document.querySelector('[data-credit-counter]');
+        const targetRect = headerCredits?.getBoundingClientRect();
+        const targetX = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth / 2;
+        const targetY = targetRect ? targetRect.top + targetRect.height / 2 : 50;
+
+        return (
+          <motion.div
+            key={coin.id}
+            className="fixed z-[200] pointer-events-none"
+            initial={{
+              x: coin.startX,
+              y: coin.startY,
+              scale: 1,
+              opacity: 1,
+            }}
+            animate={{
+              x: targetX,
+              y: targetY,
+              scale: [1, 1.3, 0.5],
+              opacity: [1, 1, 0],
+            }}
+            transition={{
+              duration: 0.8,
+              ease: [0.32, 0, 0.67, 0],
+            }}
+          >
+            <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/50">
+              <Coins className="w-4 h-4 text-amber-900" />
+            </div>
+          </motion.div>
+        );
+      })}
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Language } from '../../types';
 import Button from '../Button';
-import { Send, Sparkles } from 'lucide-react';
+import { Send, Sparkles, Coins } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -44,8 +44,10 @@ const OracleChat: React.FC<OracleChatProps> = ({
           <Sparkles className="w-4 h-4 text-amber-400" />
           {language === 'en' ? 'Ask the Oracle' : "Demandez à l'Oracle"}
         </h3>
-        <div className="text-xs text-slate-400">
-          {credits} {language === 'en' ? 'Credits' : 'Crédits'}
+        <div className="flex items-center gap-1.5 text-xs bg-slate-800/50 px-2.5 py-1 rounded-full border border-slate-700">
+          <Coins className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-slate-400">{language === 'en' ? 'Balance:' : 'Solde:'}</span>
+          <span className="text-amber-300 font-medium">{credits}</span>
         </div>
       </div>
 

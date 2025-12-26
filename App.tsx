@@ -48,6 +48,7 @@ const App: React.FC = () => {
 
   const handleReadingModeSelect = (mode: string) => {
     setReadingMode(mode);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigate = (view: string) => {
@@ -64,6 +65,7 @@ const App: React.FC = () => {
     if (user && user.credits >= spread.cost) {
       setSelectedSpread(spread);
       setCurrentView('reading');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       alert(language === 'en' ? 'Not enough credits!' : 'Pas assez de crédits!');
     }
@@ -75,9 +77,42 @@ const App: React.FC = () => {
     setCurrentView(view);
   }, []);
 
-  // Show loading while Clerk initializes
+  // Show branded loading screen while Clerk initializes
   if (!clerkLoaded || isLoading) {
-    return <div className="min-h-screen bg-[#0f0c29] flex items-center justify-center text-purple-500">{language === 'en' ? 'Loading...' : 'Chargement...'}</div>;
+    return (
+      <div className="min-h-screen bg-[#0f0c29] flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-amber-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        </div>
+
+        {/* Logo/Brand */}
+        <div className="relative z-10 text-center">
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+            MysticOracle
+          </h1>
+
+          {/* Animated tarot cards */}
+          <div className="flex justify-center gap-2 mb-8">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-8 h-12 rounded bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+          </div>
+
+          {/* Loading indicator */}
+          <div className="flex items-center justify-center gap-2 text-purple-300">
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const renderContent = () => {

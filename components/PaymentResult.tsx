@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
-import { CheckCircle, XCircle, Loader2, Coins, Sparkles } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Coins, Sparkles, Gift } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
+
+// First-purchase tracking
+const FIRST_PURCHASE_STORAGE_KEY = 'mysticoracle_first_purchase_';
+
+const hasCompletedFirstPurchase = (userId: string | undefined): boolean => {
+  if (!userId) return false;
+  return localStorage.getItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`) === 'true';
+};
+
+const markFirstPurchaseComplete = (userId: string | undefined): void => {
+  if (!userId) return;
+  localStorage.setItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`, 'true');
+};
 
 interface PaymentResultProps {
   type: 'success' | 'cancelled';
@@ -14,13 +27,18 @@ interface PaymentResultProps {
 const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const { user: clerkUser } = useUser();
   const [loading, setLoading] = useState(type === 'success');
   const [result, setResult] = useState<{ success: boolean; credits?: number; error?: string } | null>(null);
+  const [wasFirstPurchase, setWasFirstPurchase] = useState(false);
 
   useEffect(() => {
     if (type !== 'success') return;
 
     const verifyPayment = async () => {
+      // Check if this is a first purchase BEFORE we mark it complete
+      const isFirstPurchase = !hasCompletedFirstPurchase(clerkUser?.id);
+
       try {
         const token = await getToken();
         if (!token) {
@@ -35,18 +53,28 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
         const provider = urlParams.get('provider');
         const paypalOrderId = urlParams.get('token'); // PayPal uses 'token' for order ID
 
+        let paymentResult: { success: boolean; credits?: number; error?: string };
+
         if (provider === 'paypal' && paypalOrderId) {
           // Capture PayPal order
-          const paypalResult = await capturePayPalOrder(paypalOrderId, token);
-          setResult(paypalResult);
+          paymentResult = await capturePayPalOrder(paypalOrderId, token);
         } else if (sessionId) {
           // Verify Stripe payment
-          const stripeResult = await verifyStripePayment(sessionId, token);
-          setResult(stripeResult);
+          paymentResult = await verifyStripePayment(sessionId, token);
         } else {
           // No payment to verify - redirect home
           setResult({ success: false, error: 'no_payment' });
+          setLoading(false);
+          return;
         }
+
+        // If payment succeeded and this was first purchase, mark it complete
+        if (paymentResult.success && isFirstPurchase) {
+          markFirstPurchaseComplete(clerkUser?.id);
+          setWasFirstPurchase(true);
+        }
+
+        setResult(paymentResult);
       } catch (error) {
         console.error('Payment verification error:', error);
         setResult({ success: false, error: error instanceof Error ? error.message : 'Verification failed' });
@@ -56,7 +84,7 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
     };
 
     verifyPayment();
-  }, [type, getToken]);
+  }, [type, getToken, clerkUser?.id]);
 
   // If no payment session found, redirect home
   useEffect(() => {
@@ -153,7 +181,7 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center gap-3 bg-amber-900/30 border border-amber-500/30 rounded-xl px-6 py-4 mb-6"
+              className="flex items-center gap-3 bg-amber-900/30 border border-amber-500/30 rounded-xl px-6 py-4 mb-4"
             >
               <Coins className="w-8 h-8 text-amber-400" />
               <div>
@@ -162,6 +190,23 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
                 </p>
                 <p className="text-3xl font-bold text-amber-400">+{result.credits}</p>
               </div>
+            </motion.div>
+          )}
+
+          {/* First Purchase Bonus Message */}
+          {wasFirstPurchase && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center gap-2 bg-gradient-to-r from-amber-900/40 to-yellow-900/40 border border-amber-500/40 rounded-lg px-4 py-2 mb-6"
+            >
+              <Gift className="w-5 h-5 text-amber-400" />
+              <p className="text-sm text-amber-200">
+                {language === 'en'
+                  ? 'First purchase bonus included!'
+                  : 'Bonus de premier achat inclus !'}
+              </p>
             </motion.div>
           )}
 

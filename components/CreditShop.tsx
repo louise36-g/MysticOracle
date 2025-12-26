@@ -175,11 +175,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt (will be finalized by webhook)
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
-      // Mark first purchase complete (optimistic - webhook will add bonus credits)
-      if (isFirstPurchase) {
-        markFirstPurchaseComplete(clerkUser?.id);
-      }
-
       const { url } = await createStripeCheckout(selectedPackage.id, token, useLink);
       if (url) {
         redirectToStripeCheckout(url);
@@ -201,7 +196,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase, isFirstPurchase, clerkUser?.id]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
 
   // Handle PayPal checkout
   const handlePayPalCheckout = useCallback(async () => {
@@ -223,11 +218,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
-      // Mark first purchase complete (optimistic - webhook will add bonus credits)
-      if (isFirstPurchase) {
-        markFirstPurchaseComplete(clerkUser?.id);
-      }
-
       const { approvalUrl } = await createPayPalOrder(selectedPackage.id, token);
       if (approvalUrl) {
         window.location.href = approvalUrl;
@@ -247,7 +237,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase, isFirstPurchase, clerkUser?.id]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
 
   // Get badge color based on type
   const getBadgeStyles = (badge: string | null) => {
@@ -283,27 +273,22 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-slate-900 border-b border-white/10 p-6 flex items-center justify-between">
+          <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-sm border-b border-white/10 p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-purple-600 rounded-full flex items-center justify-center">
                 <Coins className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h2 className="text-xl font-heading text-white">
-                  {language === 'en' ? 'Credit Shop' : 'Boutique de Crédits'}
-                </h2>
-                <p className="text-sm text-slate-400">
-                  {language === 'en' ? 'Choose a package to continue your journey' : 'Choisissez un pack pour continuer votre voyage'}
-                </p>
-              </div>
+              <h2 className="text-lg font-heading text-white">
+                {language === 'en' ? 'Credit Shop' : 'Boutique de Crédits'}
+              </h2>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSpendingLimits(true)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
-                title={language === 'en' ? 'Spending Limits' : 'Limites de Dépenses'}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-white text-sm border border-slate-600"
               >
-                <Shield className="w-5 h-5" />
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">{language === 'en' ? 'Limits' : 'Limites'}</span>
               </button>
               <button
                 onClick={onClose}
@@ -316,7 +301,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
 
           {/* Error message - sticky at top */}
           {error && (
-            <div className="sticky top-[73px] z-10 mx-6 mt-4 p-4 bg-red-900/90 border border-red-500/50 rounded-lg text-red-200 text-sm backdrop-blur-sm shadow-lg">
+            <div className="sticky top-[64px] z-10 mx-4 mt-3 p-3 bg-red-900/90 border border-red-500/50 rounded-lg text-red-200 text-sm backdrop-blur-sm shadow-lg">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500/30 flex items-center justify-center">
                   <X className="w-3 h-3 text-red-300" />
@@ -355,35 +340,19 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
           {/* Content */}
           <div className="p-6">
 
-            {/* First Purchase Bonus Banner */}
+            {/* First Purchase Bonus Banner - Compact */}
             {isFirstPurchase && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-gradient-to-r from-amber-900/40 via-yellow-900/40 to-amber-900/40 border border-amber-500/50 rounded-xl relative overflow-hidden"
+                className="mb-4 px-4 py-2.5 bg-gradient-to-r from-amber-900/40 to-yellow-900/30 border border-amber-500/40 rounded-lg flex items-center gap-3"
               >
-                {/* Animated glow */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent"
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                />
-                <div className="relative flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Gift className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-heading font-bold text-amber-200 flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" />
-                      {language === 'en' ? 'First Purchase Bonus!' : 'Bonus Premier Achat !'}
-                    </h3>
-                    <p className="text-sm text-amber-100/80">
-                      {language === 'en'
-                        ? `Get ${FIRST_PURCHASE_BONUS_PERCENT}% extra credits on your first purchase!`
-                        : `Obtenez ${FIRST_PURCHASE_BONUS_PERCENT}% de crédits supplémentaires sur votre premier achat !`}
-                    </p>
-                  </div>
-                </div>
+                <Gift className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span className="text-sm text-amber-200">
+                  <span className="font-bold">+{FIRST_PURCHASE_BONUS_PERCENT}%</span>
+                  {' '}
+                  {language === 'en' ? 'bonus on first purchase!' : 'bonus premier achat !'}
+                </span>
               </motion.div>
             )}
 
