@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { AppProvider } from './context/AppContext';
+import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import App from './App';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -29,7 +30,9 @@ if (root) {
   ReactDOM.createRoot(root).render(
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
       <AppProvider>
-        <App />
+        <SpendingLimitsProvider>
+          <App />
+        </SpendingLimitsProvider>
       </AppProvider>
     </ClerkProvider>
   );

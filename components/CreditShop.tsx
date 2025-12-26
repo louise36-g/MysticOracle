@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import { useSpendingLimits } from '../context/SpendingLimitsContext';
 import Button from './Button';
+import SpendingLimitsSettings from './SpendingLimitsSettings';
 import {
   Coins,
   CreditCard,
@@ -13,6 +15,9 @@ import {
   Shield,
   Zap,
   Loader2,
+  AlertTriangle,
+  Coffee,
+  Settings,
 } from 'lucide-react';
 import {
   CreditPackage,
@@ -45,16 +50,35 @@ interface CreditShopProps {
 const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const {
+    canSpend,
+    recordPurchase,
+    shouldShowBreakReminder,
+    dismissBreakReminder,
+    getLimitStatus,
+  } = useSpendingLimits();
+
   const [packages, setPackages] = useState<CreditPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'stripe_link' | 'paypal' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [spendingWarning, setSpendingWarning] = useState<string | null>(null);
+  const [showSpendingLimits, setShowSpendingLimits] = useState(false);
+  const [showBreakReminder, setShowBreakReminder] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState<{ method: 'stripe' | 'stripe_link' | 'paypal' } | null>(null);
 
   // Load packages on mount
   useEffect(() => {
     fetchCreditPackages().then(setPackages);
   }, []);
+
+  // Show break reminder when needed
+  useEffect(() => {
+    if (shouldShowBreakReminder && isOpen) {
+      setShowBreakReminder(true);
+    }
+  }, [shouldShowBreakReminder, isOpen]);
 
   // Handle ESC key to close modal
   useEffect(() => {
@@ -70,9 +94,27 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Check spending limits before checkout
+  const checkSpendingLimits = useCallback((amount: number): boolean => {
+    const result = canSpend(amount);
+    if (!result.allowed) {
+      setError(result.reason || (language === 'en' ? 'Purchase not allowed' : 'Achat non autorisé'));
+      return false;
+    }
+    if (result.warningLevel === 'soft' && result.reason) {
+      setSpendingWarning(result.reason);
+    }
+    return true;
+  }, [canSpend, language]);
+
   // Handle Stripe checkout
   const handleStripeCheckout = useCallback(async (useLink: boolean) => {
     if (!selectedPackage) return;
+
+    // Check spending limits first
+    if (!checkSpendingLimits(selectedPackage.priceEur)) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -81,6 +123,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     try {
       const token = await getToken();
       if (!token) throw new Error('Authentication required');
+
+      // Record the purchase attempt (will be finalized by webhook)
+      recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
       const { url } = await createStripeCheckout(selectedPackage.id, token, useLink);
       if (url) {
@@ -103,11 +148,16 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
 
   // Handle PayPal checkout
   const handlePayPalCheckout = useCallback(async () => {
     if (!selectedPackage) return;
+
+    // Check spending limits first
+    if (!checkSpendingLimits(selectedPackage.priceEur)) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -116,6 +166,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     try {
       const token = await getToken();
       if (!token) throw new Error('Authentication required');
+
+      // Record the purchase attempt
+      recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
       const { approvalUrl } = await createPayPalOrder(selectedPackage.id, token);
       if (approvalUrl) {
@@ -136,7 +189,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language]);
+  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
 
   // Get badge color based on type
   const getBadgeStyles = (badge: string | null) => {
@@ -155,7 +208,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // Use portal to render modal at body level for proper centering
-  return createPortal(
+  const modalContent = createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -186,12 +239,21 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowSpendingLimits(true)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                title={language === 'en' ? 'Spending Limits' : 'Limites de Dépenses'}
+              >
+                <Shield className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Error message - sticky at top */}
@@ -206,6 +268,27 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                     {language === 'en' ? 'Payment Error' : 'Erreur de Paiement'}
                   </p>
                   <p className="mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Spending limit warning (soft) */}
+          {spendingWarning && !error && (
+            <div className="mx-6 mt-4 p-4 bg-amber-900/50 border border-amber-500/30 rounded-lg text-amber-200 text-sm">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-amber-100">
+                    {language === 'en' ? 'Spending Reminder' : 'Rappel de Dépenses'}
+                  </p>
+                  <p className="mt-1">{spendingWarning}</p>
+                  <button
+                    onClick={() => setShowSpendingLimits(true)}
+                    className="mt-2 text-xs text-amber-400 hover:text-amber-300 underline"
+                  >
+                    {language === 'en' ? 'Manage spending limits' : 'Gérer les limites de dépenses'}
+                  </button>
                 </div>
               </div>
             </div>
@@ -414,9 +497,80 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         </motion.div>
+
+        {/* Break Reminder Modal */}
+        <AnimatePresence>
+          {showBreakReminder && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80"
+              onClick={() => {
+                setShowBreakReminder(false);
+                dismissBreakReminder();
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-slate-900 border border-amber-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-amber-500/20 rounded-full flex items-center justify-center">
+                    <Coffee className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <h3 className="text-xl font-heading text-white mb-2">
+                    {language === 'en' ? 'Time for a Break?' : 'Temps de Faire une Pause ?'}
+                  </h3>
+                  <p className="text-slate-400 mb-6">
+                    {language === 'en'
+                      ? "You've made several purchases recently. Would you like to take a moment before continuing?"
+                      : "Vous avez effectué plusieurs achats récemment. Souhaitez-vous prendre un moment avant de continuer ?"}
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setShowBreakReminder(false);
+                        dismissBreakReminder();
+                        setShowSpendingLimits(true);
+                      }}
+                    >
+                      {language === 'en' ? 'Set Limits' : 'Définir des Limites'}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="flex-1"
+                      onClick={() => {
+                        setShowBreakReminder(false);
+                        dismissBreakReminder();
+                      }}
+                    >
+                      {language === 'en' ? 'Continue' : 'Continuer'}
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>,
     document.body
+  );
+
+  return (
+    <>
+      {modalContent}
+      <SpendingLimitsSettings
+        isOpen={showSpendingLimits}
+        onClose={() => setShowSpendingLimits(false)}
+      />
+    </>
   );
 };
 
