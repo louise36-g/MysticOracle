@@ -435,9 +435,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       </div>
                     )}
 
-                    {/* Discount badge */}
+                    {/* Discount badge - positioned to not overlap with selection */}
                     {pkg.discount > 0 && (
-                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                      <div className="absolute -top-2 right-3 px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white shadow-lg">
                         -{pkg.discount}%
                       </div>
                     )}
@@ -483,10 +483,10 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       <p className="text-xs text-slate-500 mt-2">{label}</p>
                     )}
 
-                    {/* Selected check */}
+                    {/* Selected indicator - bottom right to avoid badge overlap */}
                     {isSelected && (
-                      <div className="absolute top-3 right-3">
-                        <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center">
+                      <div className="absolute bottom-3 right-3">
+                        <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center shadow-lg shadow-amber-400/30">
                           <Check className="w-4 h-4 text-slate-900" />
                         </div>
                       </div>
@@ -496,109 +496,140 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
               })}
             </div>
 
-            {/* Payment Methods */}
-            {selectedPackage && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                <h3 className="text-lg font-heading text-purple-200 mb-3">
-                  {language === 'en' ? 'Payment Method' : 'Mode de Paiement'}
-                </h3>
-
-                <div className="grid gap-3">
-                  {/* Stripe Link (fastest) */}
-                  <button
-                    onClick={() => handleStripeCheckout(true)}
-                    disabled={loading}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-xl hover:border-green-400/50 transition-all disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-green-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="font-medium text-white flex items-center gap-2">
-                          Stripe Link
-                          <span className="px-1.5 py-0.5 bg-green-500/20 rounded text-xs text-green-400">
-                            {language === 'en' ? 'Fastest' : 'Plus Rapide'}
-                          </span>
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {language === 'en' ? 'One-click checkout with saved payment' : 'Paiement en un clic'}
-                        </p>
-                      </div>
+            {/* Payment Methods Section */}
+            <div className="mt-6 pt-6 border-t border-purple-500/20">
+              {selectedPackage ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  {/* Section header with selected package summary */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-heading text-white flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-purple-400" />
+                      {language === 'en' ? 'Complete Purchase' : 'Finaliser l\'Achat'}
+                    </h3>
+                    <div className="flex items-center gap-2 bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-500/30">
+                      <Coins className="w-4 h-4 text-amber-400" />
+                      <span className="font-bold text-amber-300">{selectedPackage.credits}</span>
+                      <span className="text-amber-200/70 text-sm">
+                        {language === 'en' ? 'credits' : 'crédits'}
+                      </span>
                     </div>
-                    {loading && paymentMethod === 'stripe_link' ? (
-                      <Loader2 className="w-5 h-5 text-green-400 animate-spin" />
-                    ) : (
-                      <span className="text-lg font-bold text-green-400">€{selectedPackage.priceEur.toFixed(2)}</span>
-                    )}
-                  </button>
+                  </div>
 
-                  {/* Credit Card */}
-                  <button
-                    onClick={() => handleStripeCheckout(false)}
-                    disabled={loading}
-                    className="flex items-center justify-between p-4 bg-slate-800/50 border border-white/10 rounded-xl hover:border-purple-500/30 transition-all disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-purple-400" />
+                  <div className="grid gap-3">
+                    {/* Stripe Link (fastest) - Highlighted */}
+                    <motion.button
+                      onClick={() => handleStripeCheckout(true)}
+                      disabled={loading}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className="flex items-center justify-between p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-2 border-green-500/50 rounded-xl hover:border-green-400 transition-all disabled:opacity-50 shadow-lg shadow-green-500/10"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-500/30 rounded-xl flex items-center justify-center">
+                          <Zap className="w-6 h-6 text-green-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-white flex items-center gap-2">
+                            Stripe Link
+                            <span className="px-2 py-0.5 bg-green-500/30 rounded-full text-xs text-green-300 font-medium">
+                              {language === 'en' ? 'Recommended' : 'Recommandé'}
+                            </span>
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            {language === 'en' ? 'One-click checkout' : 'Paiement en un clic'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <p className="font-medium text-white">
-                          {language === 'en' ? 'Credit / Debit Card' : 'Carte Bancaire'}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          Visa, Mastercard, Amex
-                        </p>
-                      </div>
-                    </div>
-                    {loading && paymentMethod === 'stripe' ? (
-                      <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-                    ) : (
-                      <span className="text-lg font-bold text-purple-300">€{selectedPackage.priceEur.toFixed(2)}</span>
-                    )}
-                  </button>
+                      {loading && paymentMethod === 'stripe_link' ? (
+                        <Loader2 className="w-6 h-6 text-green-400 animate-spin" />
+                      ) : (
+                        <div className="text-right">
+                          <span className="text-2xl font-bold text-green-400">€{selectedPackage.priceEur.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </motion.button>
 
-                  {/* PayPal */}
-                  <button
-                    onClick={handlePayPalCheckout}
-                    disabled={loading}
-                    className="flex items-center justify-between p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl hover:border-blue-400/50 transition-all disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <PayPalIcon className="w-5 h-5 text-blue-400" />
+                    {/* Credit Card */}
+                    <motion.button
+                      onClick={() => handleStripeCheckout(false)}
+                      disabled={loading}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className="flex items-center justify-between p-4 bg-slate-800/70 border border-purple-500/30 rounded-xl hover:border-purple-400/60 transition-all disabled:opacity-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                          <CreditCard className="w-6 h-6 text-purple-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-white">
+                            {language === 'en' ? 'Credit / Debit Card' : 'Carte Bancaire'}
+                          </p>
+                          <p className="text-sm text-slate-400">
+                            Visa, Mastercard, Amex
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <p className="font-medium text-white">PayPal</p>
-                        <p className="text-xs text-slate-400">
-                          {language === 'en' ? 'Pay with your PayPal account' : 'Payez avec votre compte PayPal'}
-                        </p>
-                      </div>
-                    </div>
-                    {loading && paymentMethod === 'paypal' ? (
-                      <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
-                    ) : (
-                      <span className="text-lg font-bold text-blue-300">€{selectedPackage.priceEur.toFixed(2)}</span>
-                    )}
-                  </button>
-                </div>
+                      {loading && paymentMethod === 'stripe' ? (
+                        <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                      ) : (
+                        <span className="text-xl font-bold text-purple-300">€{selectedPackage.priceEur.toFixed(2)}</span>
+                      )}
+                    </motion.button>
 
-                {/* Security note */}
-                <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mt-4">
-                  <Shield className="w-4 h-4" />
-                  <span>
+                    {/* PayPal */}
+                    <motion.button
+                      onClick={handlePayPalCheckout}
+                      disabled={loading}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className="flex items-center justify-between p-4 bg-blue-900/30 border border-blue-500/30 rounded-xl hover:border-blue-400/60 transition-all disabled:opacity-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                          <PayPalIcon className="w-6 h-6 text-blue-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-white">PayPal</p>
+                          <p className="text-sm text-slate-400">
+                            {language === 'en' ? 'Pay with PayPal' : 'Payer avec PayPal'}
+                          </p>
+                        </div>
+                      </div>
+                      {loading && paymentMethod === 'paypal' ? (
+                        <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                      ) : (
+                        <span className="text-xl font-bold text-blue-300">€{selectedPackage.priceEur.toFixed(2)}</span>
+                      )}
+                    </motion.button>
+                  </div>
+
+                  {/* Security note */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mt-4">
+                    <Shield className="w-4 h-4" />
+                    <span>
+                      {language === 'en'
+                        ? 'Secure payment processed by Stripe & PayPal'
+                        : 'Paiement sécurisé par Stripe & PayPal'}
+                    </span>
+                  </div>
+                </motion.div>
+              ) : (
+                /* Prompt to select a package */
+                <div className="text-center py-6 text-slate-400">
+                  <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">
                     {language === 'en'
-                      ? 'Secure payment processed by Stripe & PayPal'
-                      : 'Paiement sécurisé par Stripe & PayPal'}
-                  </span>
+                      ? 'Select a credit package above to continue'
+                      : 'Sélectionnez un forfait ci-dessus pour continuer'}
+                  </p>
                 </div>
-              </motion.div>
-            )}
+              )}
+            </div>
 
             {/* Benefits */}
             <div className="mt-8 pt-6 border-t border-white/10">

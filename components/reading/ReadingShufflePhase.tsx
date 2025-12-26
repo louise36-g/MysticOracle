@@ -9,121 +9,183 @@ interface ReadingShufflePhaseProps {
   minDuration?: number;
 }
 
+const NUM_CARDS = 7;
+
 const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   language,
   onStop,
   minDuration = 2000,
 }) => {
   const [canStop, setCanStop] = useState(false);
+  const [shufflePhase, setShufflePhase] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => setCanStop(true), minDuration);
     return () => clearTimeout(timer);
   }, [minDuration]);
 
+  // Cycle through shuffle phases for variety
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShufflePhase((prev) => (prev + 1) % 3);
+    }, 2400);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleStop = useCallback(() => {
     if (canStop && onStop) onStop();
   }, [canStop, onStop]);
 
-  // Card back component
-  const CardBack = ({ className = '' }: { className?: string }) => (
-    <div className={`w-16 h-24 md:w-20 md:h-28 rounded-lg border-2 border-amber-500/40 bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-900 shadow-xl ${className}`}>
+  // Card back design
+  const CardBack = ({ style, className = '' }: { style?: React.CSSProperties; className?: string }) => (
+    <div
+      style={style}
+      className={`w-14 h-20 md:w-16 md:h-24 rounded-lg bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 shadow-xl border border-amber-500/30 ${className}`}
+    >
       <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
-        <div className="absolute inset-1.5 border border-amber-500/20 rounded" />
-        <Moon className="w-6 h-6 md:w-8 md:h-8 text-amber-400/50" />
+        {/* Inner border */}
+        <div className="absolute inset-1 border border-amber-500/20 rounded-sm" />
+        {/* Decorative pattern */}
+        <div className="absolute inset-2 opacity-30">
+          <div className="w-full h-full border border-purple-400/30 rounded-sm" />
+          <div className="absolute inset-1 border border-purple-400/20 rounded-sm" />
+        </div>
+        {/* Center symbol */}
+        <Moon className="w-5 h-5 md:w-6 md:h-6 text-amber-400/60" />
       </div>
     </div>
   );
 
+  // Generate card positions for arc spread
+  const getArcPosition = (index: number, total: number, radius: number, spreadAngle: number) => {
+    const startAngle = -spreadAngle / 2;
+    const angleStep = spreadAngle / (total - 1);
+    const angle = startAngle + index * angleStep;
+    const rad = (angle * Math.PI) / 180;
+
+    return {
+      x: Math.sin(rad) * radius,
+      y: -Math.cos(rad) * radius + radius * 0.3,
+      rotation: angle * 0.6,
+    };
+  };
+
+  // Different shuffle animation variants
+  const getCardAnimation = (index: number) => {
+    const centerIndex = Math.floor(NUM_CARDS / 2);
+    const offset = index - centerIndex;
+
+    switch (shufflePhase) {
+      case 0: // Arc spread
+        const arcPos = getArcPosition(index, NUM_CARDS, 120, 70);
+        return {
+          x: [0, arcPos.x, 0],
+          y: [0, arcPos.y, 0],
+          rotate: [0, arcPos.rotation, 0],
+          scale: [1, 1.05, 1],
+        };
+
+      case 1: // Cascade/waterfall
+        return {
+          x: [0, offset * 25, 0],
+          y: [0, Math.abs(offset) * 15, 0],
+          rotate: [0, offset * 8, 0],
+          scale: [1, 1, 1],
+        };
+
+      case 2: // Riffle interleave
+        const isLeft = index % 2 === 0;
+        return {
+          x: [0, isLeft ? -40 : 40, 0],
+          y: [0, -20 + index * 5, 0],
+          rotate: [0, isLeft ? -10 : 10, 0],
+          scale: [1, 1.02, 1],
+        };
+
+      default:
+        return { x: 0, y: 0, rotate: 0, scale: 1 };
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] relative px-4">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl" />
-      </div>
-
-      {/* Floating sparkles */}
-      {[...Array(4)].map((_, i) => (
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          key={i}
-          className="absolute text-amber-400/60"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full"
           style={{
-            left: `${25 + i * 15}%`,
-            top: `${30 + (i % 2) * 20}%`,
+            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, transparent 70%)',
           }}
           animate={{
-            y: [0, -15, 0],
-            opacity: [0.3, 0.7, 0.3],
-            scale: [0.8, 1, 0.8],
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0.8, 0.5],
           }}
           transition={{
-            duration: 2 + i * 0.5,
+            duration: 3,
             repeat: Infinity,
-            delay: i * 0.3,
+            ease: 'easeInOut',
+          }}
+        />
+      </div>
+
+      {/* Floating particles */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute pointer-events-none"
+          style={{
+            left: `${20 + i * 12}%`,
+            top: `${25 + (i % 3) * 15}%`,
+          }}
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0.2, 0.6, 0.2],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: 2 + i * 0.3,
+            repeat: Infinity,
+            delay: i * 0.2,
+            ease: 'easeInOut',
           }}
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-3 h-3 text-amber-400/50" />
         </motion.div>
       ))}
 
-      {/* Card deck animation - Smooth fanning shuffle */}
-      <div className="relative h-36 w-56 mb-10">
-        {/* Base stack of cards (static foundation) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60">
-          <CardBack />
-        </div>
+      {/* Card deck animation */}
+      <div className="relative h-40 w-64 mb-8">
+        {/* Shadow underneath deck */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-4 w-20 h-4 bg-black/30 rounded-full blur-md" />
 
-        {/* Card 1 - fans left */}
-        <motion.div
-          className="absolute left-1/2 top-1/2"
-          animate={{
-            x: ['-50%', '-110%', '-50%'],
-            y: '-50%',
-            rotate: [0, -25, 0],
-          }}
-          transition={{
-            duration: 1.2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        >
-          <CardBack />
-        </motion.div>
-
-        {/* Card 2 - fans right */}
-        <motion.div
-          className="absolute left-1/2 top-1/2"
-          animate={{
-            x: ['-50%', '10%', '-50%'],
-            y: '-50%',
-            rotate: [0, 25, 0],
-          }}
-          transition={{
-            duration: 1.2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.6,
-          }}
-        >
-          <CardBack />
-        </motion.div>
-
-        {/* Card 3 - subtle lift in center */}
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2"
-          animate={{
-            y: ['-50%', '-65%', '-50%'],
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 0.8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.3,
-          }}
-        >
-          <CardBack className="shadow-2xl shadow-purple-500/30" />
-        </motion.div>
+        {/* Animated cards */}
+        {[...Array(NUM_CARDS)].map((_, index) => (
+          <motion.div
+            key={index}
+            className="absolute left-1/2 top-1/2"
+            style={{
+              zIndex: index,
+              marginLeft: '-28px',
+              marginTop: '-40px',
+            }}
+            initial={{ x: 0, y: 0, rotate: 0 }}
+            animate={getCardAnimation(index)}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              repeatType: 'reverse',
+              ease: [0.45, 0.05, 0.55, 0.95], // Custom easing for smooth motion
+              delay: index * 0.05,
+            }}
+          >
+            <CardBack
+              className="transition-shadow duration-300"
+              style={{
+                boxShadow: `0 ${4 + index}px ${8 + index * 2}px rgba(0, 0, 0, 0.3)`,
+              }}
+            />
+          </motion.div>
+        ))}
       </div>
 
       {/* Text and button */}
@@ -139,7 +201,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
         <p className="text-sm text-slate-400 mb-8 max-w-xs mx-auto">
           {language === 'en'
             ? 'Focus on your question as the cards align with your energy'
-            : 'Concentrez-vous sur votre question pendant que les cartes s\'alignent'}
+            : "Concentrez-vous sur votre question pendant que les cartes s'alignent"}
         </p>
 
         <AnimatePresence mode="wait">

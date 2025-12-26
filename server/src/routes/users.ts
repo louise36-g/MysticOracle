@@ -192,4 +192,26 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
   }
 });
 
+// DEV ONLY - Reset daily bonus for testing
+router.post('/me/reset-daily-bonus', requireAuth, async (req, res) => {
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ error: 'Not allowed in production' });
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    await prisma.user.update({
+      where: { id: req.auth.userId },
+      data: { lastLoginDate: yesterday }
+    });
+
+    return res.json({ success: true, message: 'Daily bonus reset - you can claim again!' });
+  } catch (error) {
+    console.error('Error resetting daily bonus:', error);
+    return res.status(500).json({ error: 'Failed to reset daily bonus' });
+  }
+});
+
 export default router;
