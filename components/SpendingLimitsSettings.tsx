@@ -1,4 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Clock, Download, AlertTriangle, Info, Coffee, X, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { useSpendingLimits, SpendingLimits } from '../context/SpendingLimitsContext';
@@ -189,15 +190,17 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[150] flex items-center justify-center p-4"
+      >
         {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        <div
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         />
 
@@ -473,8 +476,9 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
             </Button>
           </div>
         </motion.div>
-      </div>
-    </AnimatePresence>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
   );
 };
 
