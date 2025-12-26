@@ -34,7 +34,7 @@ const TEMPLATES = {
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #0f0c29; color: #e2e8f0; padding: 40px;">
             <div style="max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #c4b5fd;">Welcome to MysticOracle, {{username}}!</h1>
+              <h1 style="color: #c4b5fd;">Welcome to MysticOracle, {{params.username}}!</h1>
               <p>Your mystical journey begins now. You've received <strong>10 free credits</strong> to start exploring.</p>
               <p>Discover what the cards have in store for you:</p>
               <ul>
@@ -42,10 +42,10 @@ const TEMPLATES = {
                 <li>⭐ Daily horoscopes</li>
                 <li>🔮 Follow-up questions for deeper insights</li>
               </ul>
-              <a href="{{siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px;">Start Your First Reading</a>
+              <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px;">Start Your First Reading</a>
               <p style="margin-top: 40px; color: #94a3b8; font-size: 12px;">
                 You're receiving this email because you signed up for MysticOracle.<br>
-                <a href="{{unsubscribeUrl}}" style="color: #94a3b8;">Unsubscribe</a>
+                <a href="{{params.unsubscribeUrl}}" style="color: #94a3b8;">Unsubscribe</a>
               </p>
             </div>
           </body>
@@ -58,7 +58,7 @@ const TEMPLATES = {
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #0f0c29; color: #e2e8f0; padding: 40px;">
             <div style="max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #c4b5fd;">Bienvenue sur MysticOracle, {{username}}!</h1>
+              <h1 style="color: #c4b5fd;">Bienvenue sur MysticOracle, {{params.username}}!</h1>
               <p>Votre voyage mystique commence maintenant. Vous avez reçu <strong>10 crédits gratuits</strong> pour commencer à explorer.</p>
               <p>Découvrez ce que les cartes vous réservent :</p>
               <ul>
@@ -66,10 +66,10 @@ const TEMPLATES = {
                 <li>⭐ Horoscopes quotidiens</li>
                 <li>🔮 Questions de suivi pour des insights plus profonds</li>
               </ul>
-              <a href="{{siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px;">Commencer Votre Première Lecture</a>
+              <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px;">Commencer Votre Première Lecture</a>
               <p style="margin-top: 40px; color: #94a3b8; font-size: 12px;">
                 Vous recevez cet email car vous vous êtes inscrit sur MysticOracle.<br>
-                <a href="{{unsubscribeUrl}}" style="color: #94a3b8;">Se désabonner</a>
+                <a href="{{params.unsubscribeUrl}}" style="color: #94a3b8;">Se désabonner</a>
               </p>
             </div>
           </body>
@@ -80,38 +80,38 @@ const TEMPLATES = {
 
   PURCHASE_CONFIRMATION: {
     en: {
-      subject: 'Payment Confirmed - {{credits}} Credits Added',
+      subject: 'Payment Confirmed - {{params.credits}} Credits Added',
       htmlContent: `
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #0f0c29; color: #e2e8f0; padding: 40px;">
             <div style="max-width: 600px; margin: 0 auto;">
               <h1 style="color: #c4b5fd;">Payment Confirmed! ✨</h1>
-              <p>Thank you for your purchase, {{username}}.</p>
+              <p>Thank you for your purchase, {{params.username}}.</p>
               <div style="background: #1e1b4b; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Credits Added:</strong> {{credits}}</p>
-                <p><strong>Amount Paid:</strong> €{{amount}}</p>
-                <p><strong>New Balance:</strong> {{newBalance}} credits</p>
+                <p><strong>Credits Added:</strong> {{params.credits}}</p>
+                <p><strong>Amount Paid:</strong> {{params.amount}}</p>
+                <p><strong>New Balance:</strong> {{params.newBalance}} credits</p>
               </div>
-              <a href="{{siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Continue Your Journey</a>
+              <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Continue Your Journey</a>
             </div>
           </body>
         </html>
       `
     },
     fr: {
-      subject: 'Paiement Confirmé - {{credits}} Crédits Ajoutés',
+      subject: 'Paiement Confirmé - {{params.credits}} Crédits Ajoutés',
       htmlContent: `
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #0f0c29; color: #e2e8f0; padding: 40px;">
             <div style="max-width: 600px; margin: 0 auto;">
               <h1 style="color: #c4b5fd;">Paiement Confirmé! ✨</h1>
-              <p>Merci pour votre achat, {{username}}.</p>
+              <p>Merci pour votre achat, {{params.username}}.</p>
               <div style="background: #1e1b4b; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Crédits Ajoutés:</strong> {{credits}}</p>
-                <p><strong>Montant Payé:</strong> €{{amount}}</p>
-                <p><strong>Nouveau Solde:</strong> {{newBalance}} crédits</p>
+                <p><strong>Crédits Ajoutés:</strong> {{params.credits}}</p>
+                <p><strong>Montant Payé:</strong> {{params.amount}}</p>
+                <p><strong>Nouveau Solde:</strong> {{params.newBalance}} crédits</p>
               </div>
-              <a href="{{siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Continuer Votre Voyage</a>
+              <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(to right, #fbbf24, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Continuer Votre Voyage</a>
             </div>
           </body>
         </html>
@@ -204,12 +204,12 @@ export async function sendPurchaseConfirmation(
   return sendEmail({
     to: email,
     toName: username,
-    subject: template.subject.replace('{{credits}}', credits.toString()),
+    subject: template.subject.replace('{{params.credits}}', credits.toString()),
     htmlContent: template.htmlContent,
     params: {
       username,
       credits: credits.toString(),
-      amount: amount.toFixed(2),
+      amount: `€${amount.toFixed(2)}`,
       newBalance: newBalance.toString(),
       siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com'
     }
