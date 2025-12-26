@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, Clock, Flame, Sparkles, Check, Coins } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -14,6 +14,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
   const [claimResult, setClaimResult] = useState<{ success: boolean; credits?: number; message?: string } | null>(null);
   const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const [canClaim, setCanClaim] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Calculate time until next bonus
   useEffect(() => {
@@ -43,24 +44,33 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
 
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        setTimeUntilNext(`${hours}h ${minutes}m`);
+        // Show format based on time remaining
+        if (hours > 0) {
+          setTimeUntilNext(`${hours}h ${minutes}m`);
+        } else if (minutes > 0) {
+          setTimeUntilNext(`${minutes}m ${seconds}s`);
+        } else {
+          setTimeUntilNext(`${seconds}s`);
+        }
       }
     };
 
     calculateTimeUntilNext();
-    const interval = setInterval(calculateTimeUntilNext, 60000); // Update every minute
+    // Update every second for more accurate countdown
+    const interval = setInterval(calculateTimeUntilNext, 1000);
 
     return () => clearInterval(interval);
   }, [user?.lastLoginDate]);
 
-  const handleClaim = useCallback(async (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!canClaim || isClaiming) return;
+  const handleClaim = useCallback(async () => {
+    if (!canClaim || isClaiming || !buttonRef.current) return;
 
-    const button = event.currentTarget;
-    const rect = button.getBoundingClientRect();
+    // Get button position for coin animation
+    const rect = buttonRef.current.getBoundingClientRect();
     const startX = rect.left + rect.width / 2;
-    const startY = rect.top;
+    const startY = rect.top + rect.height / 2;
 
     setIsClaiming(true);
     setClaimResult(null);
@@ -71,15 +81,15 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
       if (result.success) {
         setClaimResult({ success: true, credits: result.amount });
 
-        // Create flying coins (2 coins for visual effect)
+        // Create flying coins from button position
         const coins = [
           { id: Date.now(), startX, startY },
-          { id: Date.now() + 1, startX: startX - 15, startY: startY + 10 },
+          { id: Date.now() + 1, startX: startX - 20, startY },
         ];
         setFlyingCoins(coins);
 
         // Clear coins after animation
-        setTimeout(() => setFlyingCoins([]), 1500);
+        setTimeout(() => setFlyingCoins([]), 1200);
 
         // Update canClaim state
         setCanClaim(false);
@@ -179,6 +189,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
           {/* Claim button or countdown */}
           {canClaim ? (
             <motion.button
+              ref={buttonRef}
               onClick={handleClaim}
               disabled={isClaiming}
               className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold
@@ -209,10 +220,11 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
               )}
             </motion.button>
           ) : (
-            <div className="flex items-center justify-center gap-2 py-3 text-slate-400">
+            <div className="flex items-center justify-center gap-2 py-3 text-slate-400 bg-slate-800/50 rounded-lg">
               <Clock className="w-4 h-4" />
               <span className="text-sm">
-                {language === 'en' ? 'Next bonus in' : 'Prochain bonus dans'} {timeUntilNext}
+                {language === 'en' ? 'Next bonus in' : 'Prochain bonus dans'}{' '}
+                <span className="font-mono font-bold text-slate-300">{timeUntilNext || '...'}</span>
               </span>
             </div>
           )}
@@ -233,41 +245,45 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
         </div>
       </motion.div>
 
-      {/* Flying Coins Animation */}
-      {flyingCoins.map((coin) => {
-        // Find the header credits element
-        const headerCredits = document.querySelector('[data-credit-counter]');
-        const targetRect = headerCredits?.getBoundingClientRect();
-        const targetX = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth / 2;
-        const targetY = targetRect ? targetRect.top + targetRect.height / 2 : 50;
+      {/* Flying Coins Animation - using fixed positioning with calculated values */}
+      <AnimatePresence>
+        {flyingCoins.map((coin) => {
+          // Find the header credits element
+          const headerCredits = document.querySelector('[data-credit-counter]');
+          const targetRect = headerCredits?.getBoundingClientRect();
+          const targetX = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth - 100;
+          const targetY = targetRect ? targetRect.top + targetRect.height / 2 : 30;
 
-        return (
-          <motion.div
-            key={coin.id}
-            className="fixed z-[200] pointer-events-none"
-            initial={{
-              x: coin.startX,
-              y: coin.startY,
-              scale: 1,
-              opacity: 1,
-            }}
-            animate={{
-              x: targetX,
-              y: targetY,
-              scale: [1, 1.3, 0.5],
-              opacity: [1, 1, 0],
-            }}
-            transition={{
-              duration: 0.8,
-              ease: [0.32, 0, 0.67, 0],
-            }}
-          >
-            <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/50">
-              <Coins className="w-4 h-4 text-amber-900" />
-            </div>
-          </motion.div>
-        );
-      })}
+          return (
+            <motion.div
+              key={coin.id}
+              className="fixed z-[9999] pointer-events-none"
+              style={{ left: 0, top: 0 }}
+              initial={{
+                x: coin.startX - 12,
+                y: coin.startY - 12,
+                scale: 1,
+                opacity: 1,
+              }}
+              animate={{
+                x: targetX - 12,
+                y: targetY - 12,
+                scale: [1, 1.5, 0.8],
+                opacity: [1, 1, 0],
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
+            >
+              <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/50">
+                <Coins className="w-4 h-4 text-amber-900" />
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </>
   );
 };

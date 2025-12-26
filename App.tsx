@@ -15,10 +15,15 @@ import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
+import CreditShop from './components/CreditShop';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
-import { Star, Shield, Zap } from 'lucide-react';
+import { Star, Shield, Zap, Coins, X, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Low credits threshold
+const LOW_CREDITS_WARNING_THRESHOLD = 5;
 
 const App: React.FC = () => {
   const { user, isLoading, language } = useApp();
@@ -26,6 +31,13 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
   const [readingMode, setReadingMode] = useState<string | null>(null);
+
+  // Modal states
+  const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
+  const [showLowCreditsModal, setShowLowCreditsModal] = useState(false);
+  const [showCreditShop, setShowCreditShop] = useState(false);
+  const [pendingSpread, setPendingSpread] = useState<SpreadConfig | null>(null);
+  const [hasShownLowCreditsWarning, setHasShownLowCreditsWarning] = useState(false);
 
   // Check if user is admin (from AppContext or default false)
   const isAdmin = user?.isAdmin || false;
@@ -35,26 +47,68 @@ const App: React.FC = () => {
     const path = window.location.pathname;
     if (path === '/payment/success') {
       setCurrentView('payment-success');
+      window.history.replaceState({ view: 'payment-success' }, '', '/payment/success');
     } else if (path === '/payment/cancelled') {
       setCurrentView('payment-cancelled');
+      window.history.replaceState({ view: 'payment-cancelled' }, '', '/payment/cancelled');
     }
   }, []);
+
+  // Browser history management - handle back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state) {
+        setCurrentView(state.view || 'home');
+        setReadingMode(state.readingMode || null);
+        setSelectedSpread(state.selectedSpread || null);
+      } else {
+        // No state means we're at the initial page
+        setCurrentView('home');
+        setReadingMode(null);
+        setSelectedSpread(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Set initial state
+    if (!window.history.state) {
+      window.history.replaceState({ view: 'home', readingMode: null }, '', window.location.pathname);
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Check for low credits and show warning
+  useEffect(() => {
+    if (user && user.credits <= LOW_CREDITS_WARNING_THRESHOLD && user.credits > 0 && !hasShownLowCreditsWarning) {
+      setShowLowCreditsModal(true);
+      setHasShownLowCreditsWarning(true);
+    }
+  }, [user?.credits, hasShownLowCreditsWarning]);
 
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
     setCurrentView('home');
     setReadingMode(null);
+    window.history.pushState({ view: 'home', readingMode: null }, '', '/');
   }, []);
 
   const handleReadingModeSelect = (mode: string) => {
     setReadingMode(mode);
+    window.history.pushState({ view: 'home', readingMode: mode }, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigate = (view: string) => {
     setCurrentView(view);
-    // Scroll to top when navigating to a new view
     window.scrollTo(0, 0);
+
+    // Push state to history for back button support
+    const url = view === 'home' ? '/' : `/${view}`;
+    window.history.pushState({ view, readingMode: view === 'home' ? null : readingMode }, '', url);
+
     if (view === 'home') {
       setReadingMode(null);
       setSelectedSpread(null);
@@ -62,19 +116,30 @@ const App: React.FC = () => {
   }
 
   const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
-    if (user && user.credits >= spread.cost) {
+    if (!user) return;
+
+    if (user.credits >= spread.cost) {
       setSelectedSpread(spread);
       setCurrentView('reading');
+      window.history.pushState({ view: 'reading', readingMode: 'tarot', selectedSpread: spread }, '', '/reading');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      alert(language === 'en' ? 'Not enough credits!' : 'Pas assez de crédits!');
+      // Show no credits modal instead of alert
+      setPendingSpread(spread);
+      setShowNoCreditsModal(true);
     }
-  }, [user, language]);
+  }, [user]);
 
   // Navigate and clear URL path - MUST be before early return to follow Rules of Hooks
   const handlePaymentNavigate = useCallback((view: string) => {
-    window.history.pushState({}, '', '/');
+    window.history.pushState({ view }, '', '/');
     setCurrentView(view);
+  }, []);
+
+  const handleBuyCredits = useCallback(() => {
+    setShowNoCreditsModal(false);
+    setShowLowCreditsModal(false);
+    setShowCreditShop(true);
   }, []);
 
   // Show branded loading screen while Clerk initializes
@@ -171,11 +236,11 @@ const App: React.FC = () => {
             MysticOracle
           </h1>
           <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-            {language === 'en' 
-              ? 'Unveil the secrets of your destiny through the ancient wisdom of Tarot, guided by artificial intelligence.' 
+            {language === 'en'
+              ? 'Unveil the secrets of your destiny through the ancient wisdom of Tarot, guided by artificial intelligence.'
               : 'Dévoilez les secrets de votre destin grâce à la sagesse ancienne du Tarot, guidée par l\'intelligence artificielle.'}
           </p>
-          
+
           {!user && (
             <SignInButton mode="modal">
               <Button size="lg">
@@ -227,7 +292,7 @@ const App: React.FC = () => {
         {user && currentView === 'home' && readingMode === 'tarot' && (
            <SpreadSelector onSelect={handleSpreadSelect} />
         )}
-        
+
         {/* Horoscope Reading */}
         {user && currentView === 'home' && readingMode === 'horoscope' && (
            <HoroscopeReading />
@@ -266,6 +331,124 @@ const App: React.FC = () => {
       <Footer onNavigate={handleNavigate} />
       <CookieConsent onNavigate={handleNavigate} />
       <WelcomeModal />
+
+      {/* Credit Shop Modal */}
+      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
+
+      {/* No Credits Modal */}
+      <AnimatePresence>
+        {showNoCreditsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowNoCreditsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-slate-900 border border-red-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+                  <Coins className="w-8 h-8 text-red-400" />
+                </div>
+                <h3 className="text-xl font-heading text-white mb-2">
+                  {language === 'en' ? 'Not Enough Credits' : 'Crédits Insuffisants'}
+                </h3>
+                <p className="text-slate-400 mb-2">
+                  {language === 'en'
+                    ? `This spread requires ${pendingSpread?.cost} credits.`
+                    : `Ce tirage nécessite ${pendingSpread?.cost} crédits.`}
+                </p>
+                <p className="text-slate-500 text-sm mb-6">
+                  {language === 'en'
+                    ? `You have ${user?.credits ?? 0} credits remaining.`
+                    : `Il vous reste ${user?.credits ?? 0} crédits.`}
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowNoCreditsModal(false)}
+                  >
+                    {language === 'en' ? 'Cancel' : 'Annuler'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="flex-1"
+                    onClick={handleBuyCredits}
+                  >
+                    <Coins className="w-4 h-4 mr-2" />
+                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Low Credits Warning Modal */}
+      <AnimatePresence>
+        {showLowCreditsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowLowCreditsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-slate-900 border border-amber-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowLowCreditsModal(false)}
+                className="absolute top-4 right-4 p-1 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-amber-500/20 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-8 h-8 text-amber-400" />
+                </div>
+                <h3 className="text-xl font-heading text-white mb-2">
+                  {language === 'en' ? 'Running Low on Credits' : 'Crédits Bientôt Épuisés'}
+                </h3>
+                <p className="text-slate-400 mb-6">
+                  {language === 'en'
+                    ? `You only have ${user?.credits ?? 0} credits left. Top up now to continue your mystical journey without interruption.`
+                    : `Il ne vous reste que ${user?.credits ?? 0} crédits. Rechargez maintenant pour continuer votre voyage mystique sans interruption.`}
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowLowCreditsModal(false)}
+                  >
+                    {language === 'en' ? 'Later' : 'Plus Tard'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="flex-1"
+                    onClick={handleBuyCredits}
+                  >
+                    <Coins className="w-4 h-4 mr-2" />
+                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
