@@ -3,7 +3,8 @@ import { useUser, useClerk } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
-import { Flame, Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon } from 'lucide-react';
+import { DailyBonusCard } from './rewards';
+import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
@@ -94,25 +95,8 @@ const UserProfile: React.FC = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {/* Streak Card */}
-                <motion.div
-                    whileHover={{ y: -5 }}
-                    className="bg-gradient-to-br from-orange-900/20 to-slate-900 border border-orange-500/20 p-6 rounded-xl flex items-center gap-4"
-                >
-                    <div className="w-12 h-12 bg-orange-900/30 rounded-full flex items-center justify-center text-orange-500">
-                        <Flame className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-heading text-orange-100">
-                            {displayUser.loginStreak} {language === 'en' ? 'Day Streak' : 'Jours de Suite'}
-                        </h3>
-                        <p className="text-sm text-slate-400">
-                            {language === 'en'
-                                ? 'Come back tomorrow for +2 credits'
-                                : 'Revenez demain pour +2 crédits'}
-                        </p>
-                    </div>
-                </motion.div>
+                {/* Daily Bonus Card */}
+                <DailyBonusCard />
 
                 {/* Referral Card */}
                 <motion.div

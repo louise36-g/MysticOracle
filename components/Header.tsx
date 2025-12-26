@@ -70,6 +70,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           {isSignedIn && (
              <button
                 onClick={() => setShowCreditShop(true)}
+                data-credit-counter
                 className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
              >
                 <Coins className="w-4 h-4 text-amber-400" />
