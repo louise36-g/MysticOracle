@@ -93,23 +93,31 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const regenerateReading = async () => {
     setIsGenerating(true);
 
-    const cardsWithPosition = drawnCards.map((item, idx) => ({
-      card: item.card,
-      isReversed: item.isReversed,
-      positionIndex: idx
-    }));
+    try {
+      const cardsWithPosition = drawnCards.map((item, idx) => ({
+        card: item.card,
+        isReversed: item.isReversed,
+        positionIndex: idx
+      }));
 
-    const result = await generateTarotReading({
-      spread,
-      style: isAdvanced ? selectedStyles : [InterpretationStyle.CLASSIC],
-      cards: cardsWithPosition,
-      question,
-      language
-    });
+      const result = await generateTarotReading({
+        spread,
+        style: isAdvanced ? selectedStyles : [InterpretationStyle.CLASSIC],
+        cards: cardsWithPosition,
+        question,
+        language
+      });
 
-    setReadingText(result);
-    setReadingLanguage(language);
-    setIsGenerating(false);
+      setReadingText(result);
+      setReadingLanguage(language);
+    } catch (error) {
+      console.error('Failed to regenerate reading:', error);
+      setReadingText(language === 'en'
+        ? 'Failed to generate reading. Please try again.'
+        : 'Échec de la génération de la lecture. Veuillez réessayer.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Cycle loading messages
@@ -245,15 +253,24 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     setSessionQuestionCount(prev => prev + 1);
 
-    const response = await generateFollowUpReading({
-      context: readingText,
-      history: chatHistory,
-      newQuestion: userMsg,
-      language
-    });
+    try {
+      const response = await generateFollowUpReading({
+        context: readingText,
+        history: chatHistory,
+        newQuestion: userMsg,
+        language
+      });
 
-    setChatHistory(prev => [...prev, { role: 'model', content: response }]);
-    setIsChatLoading(false);
+      setChatHistory(prev => [...prev, { role: 'model', content: response }]);
+    } catch (error) {
+      console.error('Failed to generate follow-up response:', error);
+      const errorMessage = language === 'en'
+        ? 'Sorry, I could not process your question. Please try again.'
+        : 'Désolé, je n\'ai pas pu traiter votre question. Veuillez réessayer.';
+      setChatHistory(prev => [...prev, { role: 'model', content: errorMessage }]);
+    } finally {
+      setIsChatLoading(false);
+    }
   }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, readingText, chatHistory]);
 
   const handleChatInputChange = useCallback((value: string) => {

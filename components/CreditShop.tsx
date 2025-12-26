@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -71,7 +71,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   }, [isOpen, onClose]);
 
   // Handle Stripe checkout
-  const handleStripeCheckout = async (useLink: boolean) => {
+  const handleStripeCheckout = useCallback(async (useLink: boolean) => {
     if (!selectedPackage) return;
 
     setLoading(true);
@@ -103,10 +103,10 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  };
+  }, [selectedPackage, getToken, language]);
 
   // Handle PayPal checkout
-  const handlePayPalCheckout = async () => {
+  const handlePayPalCheckout = useCallback(async () => {
     if (!selectedPackage) return;
 
     setLoading(true);
@@ -136,7 +136,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  };
+  }, [selectedPackage, getToken, language]);
 
   // Get badge color based on type
   const getBadgeStyles = (badge: string | null) => {
@@ -420,4 +420,4 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default CreditShop;
+export default memo(CreditShop);
