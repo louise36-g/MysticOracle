@@ -39,34 +39,37 @@ const OracleChat: React.FC<OracleChatProps> = ({
 
   return (
     <div className="bg-slate-900 border border-indigo-500/30 rounded-xl overflow-hidden shadow-2xl">
-      <div className="bg-indigo-950/50 p-4 border-b border-indigo-500/20 flex justify-between items-center">
-        <h3 className="font-heading text-lg text-indigo-200 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-950/80 to-purple-950/80 px-5 py-4 border-b border-indigo-500/30 flex justify-between items-center">
+        <h3 className="font-heading text-lg text-white flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-amber-400" />
           {language === 'en' ? 'Ask the Oracle' : "Demandez à l'Oracle"}
         </h3>
-        <div className="flex items-center gap-1.5 text-xs bg-slate-800/50 px-2.5 py-1 rounded-full border border-slate-700">
-          <Coins className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-slate-400">{language === 'en' ? 'Balance:' : 'Solde:'}</span>
-          <span className="text-amber-300 font-medium">{credits}</span>
+        <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-600">
+          <Coins className="w-4 h-4 text-amber-400" />
+          <span className="text-slate-300 text-sm">{language === 'en' ? 'Balance:' : 'Solde:'}</span>
+          <span className="text-amber-300 font-bold text-sm">{credits}</span>
         </div>
       </div>
 
       {/* Chat History */}
-      <div className={`overflow-y-auto bg-slate-950/30 transition-all duration-300 ${chatHistory.length > 0 ? 'p-4 max-h-[400px]' : 'py-2'}`}>
+      <div className={`overflow-y-auto bg-slate-950/50 transition-all duration-300 ${chatHistory.length > 0 ? 'p-5 max-h-[400px]' : 'py-6 px-5'}`}>
         {chatHistory.length === 0 && (
-          <div className="text-center text-slate-500 text-xs italic opacity-70">
-            {language === 'en'
-              ? 'The cards have spoken. Do you have further questions?'
-              : "Les cartes ont parlé. Avez-vous d'autres questions ?"}
+          <div className="text-center py-4">
+            <p className="text-slate-400 text-sm">
+              {language === 'en'
+                ? 'The cards have spoken. Do you have further questions?'
+                : "Les cartes ont parlé. Avez-vous d'autres questions ?"}
+            </p>
           </div>
         )}
 
         {chatHistory.map((msg, idx) => (
-          <div key={`chat-${idx}`} className={`flex mb-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-lg p-3 text-sm ${
+          <div key={`chat-${idx}`} className={`flex mb-5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
               msg.role === 'user'
-                ? 'bg-indigo-600 text-white rounded-br-none'
-                : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-sm shadow-lg'
+                : 'bg-slate-800 text-slate-100 border border-slate-700 rounded-bl-sm'
             }`}>
               {msg.content}
             </div>
@@ -75,10 +78,10 @@ const OracleChat: React.FC<OracleChatProps> = ({
 
         {isChatLoading && (
           <div className="flex justify-start">
-            <div className="bg-slate-800 rounded-lg p-3 rounded-bl-none flex gap-1">
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></span>
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-100"></span>
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-200"></span>
+            <div className="bg-slate-800 rounded-xl rounded-bl-sm px-4 py-3 flex gap-1.5 border border-slate-700">
+              <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+              <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+              <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
             </div>
           </div>
         )}
@@ -86,22 +89,22 @@ const OracleChat: React.FC<OracleChatProps> = ({
       </div>
 
       {/* Input Area */}
-      <form onSubmit={onSendMessage} className="p-4 bg-indigo-950/30 border-t border-indigo-500/20 flex gap-2">
+      <form onSubmit={onSendMessage} className="p-4 bg-slate-900/80 border-t border-indigo-500/20 flex gap-3">
         <input
           type="text"
           value={chatInput}
           onChange={(e) => onInputChange(e.target.value)}
           placeholder={language === 'en' ? 'Ask a follow-up question...' : 'Posez une question de suivi...'}
-          className="flex-1 bg-slate-900 border border-indigo-500/30 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+          className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
         />
         <Button
           type="submit"
           disabled={isChatLoading || !chatInput.trim()}
-          className="min-w-[100px]"
+          className="min-w-[110px]"
         >
           <span className="flex items-center gap-2">
             {isChatLoading ? '...' : <Send className="w-4 h-4" />}
-            <span className="text-xs">
+            <span className="text-sm font-medium">
               {questionCost === 0
                 ? (language === 'en' ? 'Free' : 'Gratuit')
                 : `1 ${language === 'en' ? 'Credit' : 'Crédit'}`}
@@ -111,11 +114,11 @@ const OracleChat: React.FC<OracleChatProps> = ({
       </form>
 
       {/* Free question hint */}
-      <div className="bg-slate-950 py-1 text-center">
-        <span className="text-[10px] text-slate-500">
+      <div className="bg-slate-950/80 py-2 text-center border-t border-slate-800">
+        <span className="text-xs text-slate-500">
           {language === 'en'
-            ? 'First question is free. Every 5th question is free.'
-            : 'Première question gratuite. Chaque 5ème question est gratuite.'}
+            ? 'First question is free • Every 5th question is free'
+            : 'Première question gratuite • Chaque 5ème question est gratuite'}
         </span>
       </div>
     </div>

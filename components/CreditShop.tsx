@@ -340,19 +340,35 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
           {/* Content */}
           <div className="p-6">
 
-            {/* First Purchase Bonus Banner - Compact */}
+            {/* First Purchase Bonus Banner - Shiny */}
             {isFirstPurchase && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 px-4 py-2.5 bg-gradient-to-r from-amber-900/40 to-yellow-900/30 border border-amber-500/40 rounded-lg flex items-center gap-3"
+                className="mb-4 p-3 bg-gradient-to-r from-amber-900/50 via-yellow-800/40 to-amber-900/50 border border-amber-500/60 rounded-xl relative overflow-hidden"
               >
-                <Gift className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                <span className="text-sm text-amber-200">
-                  <span className="font-bold">+{FIRST_PURCHASE_BONUS_PERCENT}%</span>
-                  {' '}
-                  {language === 'en' ? 'bonus on first purchase!' : 'bonus premier achat !'}
-                </span>
+                {/* Animated shimmer */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/20 to-transparent"
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                />
+                <div className="relative flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30">
+                    <Gift className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-amber-400" />
+                      <span className="font-bold text-amber-200">
+                        +{FIRST_PURCHASE_BONUS_PERCENT}% {language === 'en' ? 'BONUS' : 'BONUS'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-amber-200/70">
+                      {language === 'en' ? 'Extra credits on your first purchase!' : 'Crédits bonus sur votre premier achat !'}
+                    </span>
+                  </div>
+                </div>
               </motion.div>
             )}
 

@@ -93,13 +93,16 @@ const App: React.FC = () => {
             MysticOracle
           </h1>
 
-          {/* Animated tarot cards */}
-          <div className="flex justify-center gap-2 mb-8">
+          {/* Animated tarot cards - sequential bounce */}
+          <div className="flex justify-center gap-3 mb-8">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-8 h-12 rounded bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
+                className="w-10 h-14 rounded-lg bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 shadow-lg"
+                style={{
+                  animation: 'bounce 1s ease-in-out infinite',
+                  animationDelay: `${i * 0.15}s`,
+                }}
               />
             ))}
           </div>

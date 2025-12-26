@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion } from 'framer-motion';
+import { Coins } from 'lucide-react';
 
 interface SpreadSelectorProps {
   onSelect: (spread: SpreadConfig) => void;
@@ -26,46 +27,49 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
         {Object.values(SPREADS).map((spread) => (
           <motion.div
             key={spread.id}
-            whileHover={{ y: -5 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={`
-              relative bg-slate-800/50 border border-purple-500/20 rounded-xl p-6 cursor-pointer overflow-hidden group
+              relative bg-slate-800/50 border border-purple-500/20 rounded-xl overflow-hidden cursor-pointer group
               hover:border-amber-400/50 hover:bg-slate-800/80 transition-all duration-300
             `}
             onClick={() => onSelect(spread)}
           >
-            {/* Credits badge - positioned below title area */}
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-heading text-purple-100">
+            {/* Card content */}
+            <div className="p-5">
+              <h3 className="text-xl font-heading text-purple-100 mb-1">
                 {language === 'en' ? spread.nameEn : spread.nameFr}
               </h3>
-              <div className="flex items-center gap-1 bg-slate-950/70 rounded-full px-3 py-1 border border-amber-500/30">
-                <span className="text-amber-400 font-bold text-sm">{spread.cost}</span>
-                <span className="text-xs text-amber-200/70">cr</span>
+
+              <p className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                {language === 'en' ? `${spread.positions} Cards` : `${spread.positions} Cartes`}
+              </p>
+
+              {/* Visual card representation */}
+              <div className="flex gap-1.5 mb-2">
+                {Array.from({ length: Math.min(spread.positions, 5) }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-5 h-7 rounded-sm bg-purple-900/50 border border-purple-500/30"
+                    style={{ marginTop: `${i * 2}px` }}
+                  />
+                ))}
+                {spread.positions > 5 && (
+                  <span className="text-slate-600 self-end text-sm ml-1">+{spread.positions - 5}</span>
+                )}
               </div>
             </div>
-            
-            <div className="mb-4 flex items-center gap-2">
-               <span className="text-xs uppercase tracking-wider text-slate-500">
-                 {language === 'en' ? `${spread.positions} Cards` : `${spread.positions} Cartes`}
-               </span>
-            </div>
 
-            <div className="flex gap-1 mt-4">
-               {/* Minimal visual representation of spread */}
-               {Array.from({ length: Math.min(spread.positions, 5) }).map((_, i) => (
-                  <div key={i} className={`w-6 h-8 rounded-sm bg-purple-900/40 border border-purple-500/20 ${i === 0 ? 'mt-0' : 'mt-2'}`}></div>
-               ))}
-               {spread.positions > 5 && <span className="text-slate-600 self-end">...</span>}
-            </div>
-
-            {/* DEV MODE: Insufficient credits overlay disabled */}
-            {/* {user && user.credits < spread.cost && (
-              <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center backdrop-blur-sm z-10">
-                 <span className="text-red-400 font-medium">
-                   {language === 'en' ? 'Insufficient Credits' : 'Crédits Insuffisants'}
-                 </span>
+            {/* Footer with credits */}
+            <div className="px-5 py-3 bg-slate-900/50 border-t border-purple-500/10 flex items-center justify-between">
+              <span className="text-xs text-slate-400">
+                {language === 'en' ? 'Cost' : 'Coût'}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Coins className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-400 font-bold">{spread.cost}</span>
               </div>
-            )} */}
+            </div>
           </motion.div>
         ))}
       </div>
