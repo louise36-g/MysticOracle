@@ -1,0 +1,97 @@
+{
+  "name": "MysticOracle - AI Tarot Readings",
+  "short_name": "MysticOracle",
+  "description": "AI-powered tarot readings and daily horoscopes. Discover your destiny through ancient wisdom and modern technology.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["entertainment", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "MysticOracle Homepage"
+    },
+    {
+      "src": "/screenshots/reading.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tarot Reading"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Reading",
+      "short_name": "Reading",
+      "description": "Start a new tarot reading",
+      "url": "/tarot",
+      "icons": [{ "src": "/icons/reading-shortcut.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Daily Horoscope",
+      "short_name": "Horoscope",
+      "description": "Check your daily horoscope",
+      "url": "/horoscope",
+      "icons": [{ "src": "/icons/horoscope-shortcut.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

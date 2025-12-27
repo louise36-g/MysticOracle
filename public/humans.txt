@@ -1,0 +1,18 @@
+/* TEAM */
+Creator: MysticOracle Team
+Site: https://mysticoracle.com
+Location: Europe
+
+/* THANKS */
+Claude AI - Development assistance
+OpenRouter - AI API provider
+Clerk - Authentication
+Stripe - Payments
+Render - Hosting
+
+/* SITE */
+Last update: 2024/12/27
+Standards: HTML5, CSS3, ES2022
+Components: React 19, TypeScript, Tailwind CSS
+Backend: Express.js, Prisma, PostgreSQL
+Software: VS Code, Claude Code

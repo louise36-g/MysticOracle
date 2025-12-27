@@ -3,6 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -57,6 +62,7 @@ import webhookRoutes from './routes/webhooks.js';
 import adminRoutes from './routes/admin.js';
 import horoscopeRoutes from './routes/horoscopes.js';
 import translationRoutes from './routes/translations.js';
+import blogRoutes from './routes/blog.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -100,6 +106,9 @@ app.use(express.json());
 // Apply general rate limiting to all routes
 app.use(generalLimiter);
 
+// Serve static files for uploads
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+
 // Routes with specific rate limits
 app.use('/api/health', healthRoutes);
 app.use('/api/users', authLimiter, userRoutes);
@@ -108,6 +117,7 @@ app.use('/api/payments', paymentLimiter, paymentRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
 app.use('/api/translations', generalLimiter, translationRoutes);
+app.use('/api/blog', generalLimiter, blogRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

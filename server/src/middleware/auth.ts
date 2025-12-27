@@ -90,6 +90,9 @@ export async function optionalAuth(
   }
 }
 
+// List of usernames that should automatically be granted admin access
+const AUTO_ADMIN_USERNAMES = ['mooks', 'louisegriffin', 'louise'];
+
 /**
  * Middleware to require admin access (use after requireAuth)
  */
@@ -107,10 +110,24 @@ export async function requireAdmin(
     // Check if user is admin in our database
     const user = await prisma.user.findUnique({
       where: { id: req.auth.userId },
-      select: { isAdmin: true }
+      select: { isAdmin: true, username: true }
     });
 
-    if (!user?.isAdmin) {
+    if (!user) {
+      return res.status(403).json({ error: 'User not found' });
+    }
+
+    // Auto-grant admin to specific usernames (and update DB for future)
+    if (!user.isAdmin && AUTO_ADMIN_USERNAMES.includes(user.username.toLowerCase())) {
+      await prisma.user.update({
+        where: { id: req.auth.userId },
+        data: { isAdmin: true }
+      });
+      console.log(`Auto-granted admin access to user: ${user.username}`);
+      return next();
+    }
+
+    if (!user.isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
 

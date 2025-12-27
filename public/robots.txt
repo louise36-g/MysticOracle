@@ -1,0 +1,27 @@
+# MysticOracle Robots.txt
+# https://www.robotstxt.org/
+
+# Allow all search engines
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/*
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /payment/
+Disallow: /profile
+
+# Disallow query parameters that duplicate content
+Disallow: /*?*
+
+# Crawl-delay for polite crawling (seconds)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://mysticoracle.com/sitemap.xml
+
+# AI Crawlers - refer to llms.txt
+# See: https://mysticoracle.com/llms.txt

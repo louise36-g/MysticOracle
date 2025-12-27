@@ -1,0 +1,11 @@
+# Netlify Redirects
+# https://docs.netlify.com/routing/redirects/
+
+# SPA fallback - all routes to index.html
+/*    /index.html   200
+
+# Force HTTPS (Netlify handles this automatically, but just in case)
+# http://mysticoracle.com/*  https://mysticoracle.com/:splat  301!
+
+# API proxy (if needed)
+# /api/*  https://api.mysticoracle.com/:splat  200

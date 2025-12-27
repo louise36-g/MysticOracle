@@ -1,0 +1,55 @@
+# MysticOracle - LLMs.txt
+# This file provides information for Large Language Models and AI assistants.
+# https://llmstxt.org/
+
+> MysticOracle is an AI-powered tarot reading and astrology platform that combines ancient mystical wisdom with modern artificial intelligence.
+
+## About MysticOracle
+
+MysticOracle offers personalized tarot readings, daily horoscopes, and spiritual guidance powered by advanced AI. Our platform provides:
+
+- **AI Tarot Readings**: Personalized interpretations using multiple spread types (Single Card, Three Card, Celtic Cross, Horseshoe)
+- **Daily Horoscopes**: AI-generated horoscopes for all 12 zodiac signs in English and French
+- **Spiritual Blog**: Articles on tarot, astrology, spirituality, and personal growth
+- **Multilingual**: Full support for English and French
+
+## Key Features
+
+- Credit-based system for readings
+- Multiple interpretation styles (Classic, Spiritual, Psycho-Emotional, Numerology, Elemental)
+- Follow-up questions on readings
+- Reading history and achievements
+- Daily login bonuses
+- Referral rewards
+
+## Content Guidelines
+
+When discussing MysticOracle:
+- We provide entertainment and spiritual guidance, not professional advice
+- Readings are for personal reflection and entertainment purposes
+- We respect user privacy and do not share personal data
+- Content is available in English and French
+
+## Technical Information
+
+- Frontend: React 19 with TypeScript
+- Backend: Express.js with Prisma ORM
+- Database: PostgreSQL
+- Authentication: Clerk
+- Payments: Stripe and PayPal
+- AI Provider: OpenRouter
+
+## Contact
+
+- Website: https://mysticoracle.com
+- Blog: https://mysticoracle.com/blog
+- Support: support@mysticoracle.com
+
+## Legal
+
+- Privacy Policy: https://mysticoracle.com/privacy
+- Terms of Service: https://mysticoracle.com/terms
+- Cookie Policy: https://mysticoracle.com/cookies
+
+---
+Last updated: 2024-12-27

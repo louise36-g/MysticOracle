@@ -358,3 +358,160 @@ model SystemSetting {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ============================================
+// BLOG CMS
+// ============================================
+
+model BlogPost {
+  id              String   @id @default(cuid())
+
+  // URL slug (unique, SEO-friendly)
+  slug            String   @unique
+
+  // Content - English
+  titleEn         String
+  excerptEn       String   @db.Text  // Short description for cards/SEO
+  contentEn       String   @db.Text  // Rich text HTML content
+
+  // Content - French
+  titleFr         String
+  excerptFr       String   @db.Text
+  contentFr       String   @db.Text
+
+  // Media
+  coverImage      String?  // URL to cover image
+  coverImageAlt   String?  // Alt text for accessibility/SEO
+
+  // SEO Meta (optional overrides)
+  metaTitleEn     String?  // Override for <title> tag
+  metaTitleFr     String?
+  metaDescEn      String?  // Override for meta description
+  metaDescFr      String?
+  ogImage         String?  // Override Open Graph image
+
+  // Author & Status
+  authorId        String?  // Optional link to User
+  authorName      String   // Displayed author name
+  status          BlogPostStatus @default(DRAFT)
+  featured        Boolean  @default(false)
+
+  // Engagement
+  viewCount       Int      @default(0)
+  readTimeMinutes Int      @default(5)
+
+  // Timestamps
+  publishedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  categories      BlogPostCategory[]
+  tags            BlogPostTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([featured])
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogCategory {
+  id          String   @id @default(cuid())
+
+  // URL slug
+  slug        String   @unique
+
+  // Names
+  nameEn      String
+  nameFr      String
+  descEn      String?  @db.Text
+  descFr      String?  @db.Text
+
+  // Display
+  color       String?  // Hex color for badges
+  icon        String?  // Lucide icon name
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts       BlogPostCategory[]
+
+  @@index([slug])
+}
+
+model BlogTag {
+  id          String   @id @default(cuid())
+
+  // URL slug
+  slug        String   @unique
+
+  // Names
+  nameEn      String
+  nameFr      String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts       BlogPostTag[]
+
+  @@index([slug])
+}
+
+// Many-to-many join tables
+model BlogPostCategory {
+  id          String   @id @default(cuid())
+  postId      String
+  categoryId  String
+
+  post        BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category    BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, categoryId])
+  @@index([postId])
+  @@index([categoryId])
+}
+
+model BlogPostTag {
+  id          String   @id @default(cuid())
+  postId      String
+  tagId       String
+
+  post        BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag         BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])
+  @@index([postId])
+  @@index([tagId])
+}
+
+// Media uploads for blog
+model MediaUpload {
+  id          String   @id @default(cuid())
+
+  // File info
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int      // bytes
+  url         String   // Public URL
+
+  // Metadata
+  altText     String?
+  caption     String?
+
+  // Organization
+  folder      String   @default("blog")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([folder])
+}

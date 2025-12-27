@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Shield, User, Coins } from 'lucide-react';
+import { Moon, Menu, X, Shield, User, Coins, FileText } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -69,7 +69,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           >
             {language === 'en' ? 'Home' : 'Accueil'}
           </button>
-          
+
+          <button
+            onClick={() => handleNavigate('blog')}
+            className={`flex items-center gap-1 text-sm font-medium transition-colors ${currentView === 'blog' || currentView === 'blog-post' ? 'text-amber-400' : 'text-slate-300 hover:text-white'}`}
+            aria-current={currentView === 'blog' ? 'page' : undefined}
+          >
+            <FileText className="w-4 h-4" />
+            Blog
+          </button>
+
           {isSignedIn && (
              <button
                 onClick={() => setShowCreditShop(true)}
@@ -162,6 +171,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             onClick={() => handleNavigate('home', true)}
           >
             {language === 'en' ? 'Home' : 'Accueil'}
+          </button>
+
+          <button
+            className="flex items-center gap-2 w-full text-left py-2 text-slate-300"
+            onClick={() => handleNavigate('blog', true)}
+          >
+            <FileText className="w-4 h-4" />
+            Blog
           </button>
 
           {isSignedIn && (

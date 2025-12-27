@@ -125,17 +125,19 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       // User might not exist in our DB yet (Clerk webhook will create them)
       // Create a temporary user object from Clerk data
       if (clerkUser) {
+        const username = clerkUser.username || clerkUser.firstName || 'User';
+        const adminUsernames = ['mooks', 'louise', 'louisegriffin'];
         setUser({
           id: clerkUser.id,
           email: clerkUser.primaryEmailAddress?.emailAddress || '',
-          username: clerkUser.username || clerkUser.firstName || 'User',
+          username,
           credits: 10,
           totalReadings: 0,
           totalQuestionsAsked: 0,
           loginStreak: 1,
           lastLoginDate: new Date().toISOString(),
           referralCode: '',
-          isAdmin: clerkUser.username?.toLowerCase() === 'mooks',
+          isAdmin: adminUsernames.includes(username.toLowerCase()),
           language: 'en',
           achievements: [],
           spreadsUsed: [],

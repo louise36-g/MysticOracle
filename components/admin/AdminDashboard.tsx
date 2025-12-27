@@ -9,9 +9,10 @@ import AdminEmailTemplates from './AdminEmailTemplates';
 import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
 import AdminTranslations from './AdminTranslations';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages } from 'lucide-react';
+import AdminBlog from './AdminBlog';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'health' | 'translations' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'health' | 'translations' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -29,6 +30,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'transactions', labelEn: 'Transactions', labelFr: 'Transactions', icon: <CreditCard className="w-4 h-4" /> },
     { id: 'packages', labelEn: 'Packages', labelFr: 'Forfaits', icon: <Package className="w-4 h-4" /> },
     { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
+    { id: 'blog', labelEn: 'Blog', labelFr: 'Blog', icon: <FileText className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
     { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
@@ -78,6 +80,7 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'transactions' && <AdminTransactions />}
         {activeTab === 'packages' && <AdminPackages />}
         {activeTab === 'emails' && <AdminEmailTemplates />}
+        {activeTab === 'blog' && <AdminBlog />}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
         {activeTab === 'translations' && <AdminTranslations />}

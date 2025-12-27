@@ -664,6 +664,244 @@ export function getRevenueExportUrl(token: string, year: number, month: number):
   return `${API_URL}/api/admin/revenue/export?year=${year}&month=${month}`;
 }
 
+// ============================================
+// BLOG ENDPOINTS
+// ============================================
+
+export interface BlogCategory {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameFr: string;
+  descEn?: string;
+  descFr?: string;
+  color?: string;
+  icon?: string;
+  sortOrder: number;
+  postCount?: number;
+  _count?: { posts: number };
+}
+
+export interface BlogTag {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameFr: string;
+  postCount?: number;
+  _count?: { posts: number };
+}
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  titleEn: string;
+  titleFr: string;
+  excerptEn: string;
+  excerptFr: string;
+  contentEn: string;
+  contentFr: string;
+  coverImage?: string;
+  coverImageAlt?: string;
+  metaTitleEn?: string;
+  metaTitleFr?: string;
+  metaDescEn?: string;
+  metaDescFr?: string;
+  ogImage?: string;
+  authorName: string;
+  authorId?: string;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  featured: boolean;
+  viewCount: number;
+  readTimeMinutes: number;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  categories: BlogCategory[];
+  tags: BlogTag[];
+  categoryIds?: string[];
+  tagIds?: string[];
+}
+
+export interface BlogMedia {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  altText?: string;
+  caption?: string;
+  folder: string;
+  createdAt: string;
+}
+
+export interface BlogPostListResponse {
+  posts: BlogPost[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// Public blog endpoints
+export async function fetchBlogPosts(params: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  tag?: string;
+  featured?: boolean;
+} = {}): Promise<BlogPostListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.category) queryParams.set('category', params.category);
+  if (params.tag) queryParams.set('tag', params.tag);
+  if (params.featured !== undefined) queryParams.set('featured', params.featured.toString());
+  return apiRequest(`/api/blog/posts?${queryParams.toString()}`);
+}
+
+export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
+  return apiRequest(`/api/blog/posts/${encodeURIComponent(slug)}`);
+}
+
+export async function fetchBlogCategories(): Promise<{ categories: BlogCategory[] }> {
+  return apiRequest('/api/blog/categories');
+}
+
+export async function fetchBlogTags(): Promise<{ tags: BlogTag[] }> {
+  return apiRequest('/api/blog/tags');
+}
+
+// Admin blog endpoints
+export async function fetchAdminBlogPosts(
+  token: string,
+  params: { page?: number; limit?: number; status?: string; search?: string } = {}
+): Promise<BlogPostListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.status) queryParams.set('status', params.status);
+  if (params.search) queryParams.set('search', params.search);
+  return apiRequest(`/api/blog/admin/posts?${queryParams.toString()}`, { token });
+}
+
+export async function fetchAdminBlogPost(token: string, id: string): Promise<{ post: BlogPost }> {
+  return apiRequest(`/api/blog/admin/posts/${id}`, { token });
+}
+
+export async function createBlogPost(
+  token: string,
+  data: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt' | 'categories' | 'tags'> & {
+    categoryIds: string[];
+    tagIds: string[];
+  }
+): Promise<{ success: boolean; post: BlogPost }> {
+  return apiRequest('/api/blog/admin/posts', { method: 'POST', body: data, token });
+}
+
+export async function updateBlogPost(
+  token: string,
+  id: string,
+  data: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt' | 'categories' | 'tags'> & {
+    categoryIds?: string[];
+    tagIds?: string[];
+  }>
+): Promise<{ success: boolean; post: BlogPost }> {
+  return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'PATCH', body: data, token });
+}
+
+export async function deleteBlogPost(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'DELETE', token });
+}
+
+// Admin categories
+export async function fetchAdminBlogCategories(token: string): Promise<{ categories: BlogCategory[] }> {
+  return apiRequest('/api/blog/admin/categories', { token });
+}
+
+export async function createBlogCategory(
+  token: string,
+  data: Omit<BlogCategory, 'id' | 'postCount' | '_count'>
+): Promise<{ success: boolean; category: BlogCategory }> {
+  return apiRequest('/api/blog/admin/categories', { method: 'POST', body: data, token });
+}
+
+export async function updateBlogCategory(
+  token: string,
+  id: string,
+  data: Partial<Omit<BlogCategory, 'id' | 'postCount' | '_count'>>
+): Promise<{ success: boolean; category: BlogCategory }> {
+  return apiRequest(`/api/blog/admin/categories/${id}`, { method: 'PATCH', body: data, token });
+}
+
+export async function deleteBlogCategory(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/blog/admin/categories/${id}`, { method: 'DELETE', token });
+}
+
+// Admin tags
+export async function fetchAdminBlogTags(token: string): Promise<{ tags: BlogTag[] }> {
+  return apiRequest('/api/blog/admin/tags', { token });
+}
+
+export async function createBlogTag(
+  token: string,
+  data: Omit<BlogTag, 'id' | 'postCount' | '_count'>
+): Promise<{ success: boolean; tag: BlogTag }> {
+  return apiRequest('/api/blog/admin/tags', { method: 'POST', body: data, token });
+}
+
+export async function updateBlogTag(
+  token: string,
+  id: string,
+  data: Partial<Omit<BlogTag, 'id' | 'postCount' | '_count'>>
+): Promise<{ success: boolean; tag: BlogTag }> {
+  return apiRequest(`/api/blog/admin/tags/${id}`, { method: 'PATCH', body: data, token });
+}
+
+export async function deleteBlogTag(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/blog/admin/tags/${id}`, { method: 'DELETE', token });
+}
+
+// Admin media
+export async function fetchAdminBlogMedia(token: string): Promise<{ media: BlogMedia[] }> {
+  return apiRequest('/api/blog/admin/media', { token });
+}
+
+export async function uploadBlogMedia(
+  token: string,
+  file: File,
+  altText?: string,
+  caption?: string
+): Promise<{ success: boolean; media: BlogMedia }> {
+  const formData = new FormData();
+  formData.append('image', file);
+  if (altText) formData.append('altText', altText);
+  if (caption) formData.append('caption', caption);
+
+  const response = await fetch(`${API_URL}/api/blog/admin/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+    throw new Error(error.error || 'Upload failed');
+  }
+
+  return response.json();
+}
+
+export async function deleteBlogMedia(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/blog/admin/media/${id}`, { method: 'DELETE', token });
+}
+
+export async function seedBlogData(token: string): Promise<{ success: boolean; categories: number; tags: number }> {
+  return apiRequest('/api/blog/admin/seed', { method: 'POST', token });
+}
+
 export default {
   fetchUserProfile,
   updateUserProfile,

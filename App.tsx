@@ -17,6 +17,8 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
 import CreditShop from './components/CreditShop';
 import Breadcrumb from './components/Breadcrumb';
+import BlogList from './components/blog/BlogList';
+import BlogPostView from './components/blog/BlogPost';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -32,6 +34,9 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
   const [readingMode, setReadingMode] = useState<string | null>(null);
+  const [blogSlug, setBlogSlug] = useState<string | null>(null);
+  const [blogCategory, setBlogCategory] = useState<string | null>(null);
+  const [blogTag, setBlogTag] = useState<string | null>(null);
 
   // Modal states
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
@@ -87,6 +92,16 @@ const App: React.FC = () => {
       setReadingMode('oracle');
       window.history.replaceState({ view: 'home', readingMode: 'oracle' }, '', '/oracle');
     }
+    // Blog pages
+    else if (path === '/blog') {
+      setCurrentView('blog');
+      window.history.replaceState({ view: 'blog' }, '', '/blog');
+    } else if (path.startsWith('/blog/')) {
+      const slug = path.replace('/blog/', '');
+      setCurrentView('blog-post');
+      setBlogSlug(slug);
+      window.history.replaceState({ view: 'blog-post', blogSlug: slug }, '', path);
+    }
   }, []);
 
   // Browser history management - handle back button
@@ -97,11 +112,17 @@ const App: React.FC = () => {
         setCurrentView(state.view || 'home');
         setReadingMode(state.readingMode || null);
         setSelectedSpread(state.selectedSpread || null);
+        setBlogSlug(state.blogSlug || null);
+        setBlogCategory(state.blogCategory || null);
+        setBlogTag(state.blogTag || null);
       } else {
         // No state means we're at the initial page
         setCurrentView('home');
         setReadingMode(null);
         setSelectedSpread(null);
+        setBlogSlug(null);
+        setBlogCategory(null);
+        setBlogTag(null);
       }
     };
 
@@ -156,6 +177,13 @@ const App: React.FC = () => {
       setReadingMode(null);
       setSelectedSpread(null);
     }
+
+    // Reset blog state when navigating away from blog
+    if (view === 'blog') {
+      setBlogSlug(null);
+      setBlogCategory(null);
+      setBlogTag(null);
+    }
   }
 
   const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
@@ -185,6 +213,41 @@ const App: React.FC = () => {
     setShowNoCreditsModal(false);
     setShowLowCreditsModal(false);
     setShowCreditShop(true);
+  }, []);
+
+  // Blog navigation handlers
+  const handleNavigateToBlog = useCallback(() => {
+    setCurrentView('blog');
+    setBlogSlug(null);
+    setBlogCategory(null);
+    setBlogTag(null);
+    window.history.pushState({ view: 'blog' }, '', '/blog');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleNavigateToBlogPost = useCallback((slug: string) => {
+    setCurrentView('blog-post');
+    setBlogSlug(slug);
+    window.history.pushState({ view: 'blog-post', blogSlug: slug }, '', `/blog/${slug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleBlogCategoryClick = useCallback((categorySlug: string) => {
+    setCurrentView('blog');
+    setBlogSlug(null);
+    setBlogCategory(categorySlug);
+    setBlogTag(null);
+    window.history.pushState({ view: 'blog', blogCategory: categorySlug }, '', `/blog?category=${categorySlug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleBlogTagClick = useCallback((tagSlug: string) => {
+    setCurrentView('blog');
+    setBlogSlug(null);
+    setBlogCategory(null);
+    setBlogTag(tagSlug);
+    window.history.pushState({ view: 'blog', blogTag: tagSlug }, '', `/blog?tag=${tagSlug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   // Show branded loading screen while Clerk initializes
@@ -241,6 +304,39 @@ const App: React.FC = () => {
         return <AdminDashboard />;
     }
 
+    // 3b. Admin route but not authorized - show 403
+    if (currentView === 'admin') {
+        return (
+          <div className="min-h-[60vh] flex items-center justify-center p-8">
+            <div className="text-center max-w-md">
+              <div className="w-20 h-20 mx-auto mb-6 bg-red-500/20 rounded-full flex items-center justify-center">
+                <Shield className="w-10 h-10 text-red-400" />
+              </div>
+              <h1 className="text-3xl font-heading text-white mb-4">
+                {language === 'en' ? 'Access Denied' : 'Accès Refusé'}
+              </h1>
+              <p className="text-slate-400 mb-6">
+                {language === 'en'
+                  ? 'You do not have permission to access this page. This area is restricted to administrators only.'
+                  : 'Vous n\'avez pas la permission d\'accéder à cette page. Cette zone est réservée aux administrateurs.'}
+              </p>
+              {!isSignedIn && (
+                <SignInButton mode="modal">
+                  <Button variant="primary">
+                    {language === 'en' ? 'Sign In' : 'Se connecter'}
+                  </Button>
+                </SignInButton>
+              )}
+              {isSignedIn && (
+                <Button variant="outline" onClick={() => handleNavigate('home')}>
+                  {language === 'en' ? 'Go Home' : 'Retour à l\'accueil'}
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+    }
+
     // 4. Legal Pages (accessible to all)
     if (currentView === 'privacy') {
         return <PrivacyPolicy />;
@@ -252,7 +348,29 @@ const App: React.FC = () => {
         return <CookiePolicy />;
     }
 
-    // 5. Active Reading View
+    // 5. Blog Pages (accessible to all)
+    if (currentView === 'blog') {
+        return (
+          <BlogList
+            onNavigateToPost={handleNavigateToBlogPost}
+            initialCategory={blogCategory || undefined}
+            initialTag={blogTag || undefined}
+          />
+        );
+    }
+    if (currentView === 'blog-post' && blogSlug) {
+        return (
+          <BlogPostView
+            slug={blogSlug}
+            onBack={handleNavigateToBlog}
+            onNavigateToPost={handleNavigateToBlogPost}
+            onCategoryClick={handleBlogCategoryClick}
+            onTagClick={handleBlogTagClick}
+          />
+        );
+    }
+
+    // 6. Active Reading View
     if (currentView === 'reading' && selectedSpread) {
       return (
         <ErrorBoundary>
