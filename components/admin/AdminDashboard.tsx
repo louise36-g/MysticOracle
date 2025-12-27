@@ -4,10 +4,13 @@ import AdminOverview from './AdminOverview';
 import AdminUsers from './AdminUsers';
 import AdminTransactions from './AdminTransactions';
 import AdminAnalytics from './AdminAnalytics';
+import AdminPackages from './AdminPackages';
+import AdminEmailTemplates from './AdminEmailTemplates';
+import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Mail, Bot } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'health' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -17,7 +20,10 @@ const AdminDashboard: React.FC = () => {
     { id: 'overview', labelEn: 'Overview', labelFr: 'Apercu', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'users', labelEn: 'Users', labelFr: 'Utilisateurs', icon: <Users className="w-4 h-4" /> },
     { id: 'transactions', labelEn: 'Transactions', labelFr: 'Transactions', icon: <CreditCard className="w-4 h-4" /> },
+    { id: 'packages', labelEn: 'Packages', labelFr: 'Forfaits', icon: <Package className="w-4 h-4" /> },
+    { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
     { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
   ];
 
@@ -58,7 +64,10 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'overview' && <AdminOverview />}
         {activeTab === 'users' && <AdminUsers />}
         {activeTab === 'transactions' && <AdminTransactions />}
+        {activeTab === 'packages' && <AdminPackages />}
+        {activeTab === 'emails' && <AdminEmailTemplates />}
         {activeTab === 'analytics' && <AdminAnalytics />}
+        {activeTab === 'health' && <AdminHealth />}
         {activeTab === 'settings' && <AdminSettings />}
       </div>
     </div>

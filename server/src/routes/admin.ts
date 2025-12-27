@@ -468,16 +468,217 @@ router.get('/config/ai', (req, res) => {
   });
 });
 
-// Get email templates list
-router.get('/config/email-templates', (req, res) => {
-  // Return available template keys and their subjects
+// ============================================
+// CREDIT PACKAGES CRUD
+// ============================================
+
+// List all packages
+router.get('/packages', async (req, res) => {
+  try {
+    const packages = await prisma.creditPackage.findMany({
+      orderBy: { sortOrder: 'asc' }
+    });
+    res.json({ packages });
+  } catch (error) {
+    console.error('Error fetching packages:', error);
+    res.status(500).json({ error: 'Failed to fetch packages' });
+  }
+});
+
+// Create package
+const createPackageSchema = z.object({
+  credits: z.number().int().min(1),
+  priceEur: z.number().min(0.01),
+  nameEn: z.string().min(1),
+  nameFr: z.string().min(1),
+  labelEn: z.string().default(''),
+  labelFr: z.string().default(''),
+  discount: z.number().int().min(0).max(100).default(0),
+  badge: z.string().nullable().optional(),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().int().default(0)
+});
+
+router.post('/packages', async (req, res) => {
+  try {
+    const data = createPackageSchema.parse(req.body);
+    const pkg = await prisma.creditPackage.create({
+      data: {
+        credits: data.credits,
+        priceEur: data.priceEur,
+        nameEn: data.nameEn,
+        nameFr: data.nameFr,
+        labelEn: data.labelEn,
+        labelFr: data.labelFr,
+        discount: data.discount,
+        badge: data.badge,
+        isActive: data.isActive,
+        sortOrder: data.sortOrder
+      }
+    });
+    res.json({ success: true, package: pkg });
+  } catch (error) {
+    console.error('Error creating package:', error);
+    res.status(500).json({ error: 'Failed to create package' });
+  }
+});
+
+// Update package
+router.patch('/packages/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = createPackageSchema.partial().parse(req.body);
+
+    const pkg = await prisma.creditPackage.update({
+      where: { id },
+      data
+    });
+    res.json({ success: true, package: pkg });
+  } catch (error) {
+    console.error('Error updating package:', error);
+    res.status(500).json({ error: 'Failed to update package' });
+  }
+});
+
+// Delete package
+router.delete('/packages/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.creditPackage.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting package:', error);
+    res.status(500).json({ error: 'Failed to delete package' });
+  }
+});
+
+// ============================================
+// EMAIL TEMPLATES CRUD
+// ============================================
+
+// List all templates
+router.get('/email-templates', async (req, res) => {
+  try {
+    const templates = await prisma.emailTemplate.findMany({
+      orderBy: { slug: 'asc' }
+    });
+    res.json({
+      templates,
+      brevoConfigured: !!process.env.BREVO_API_KEY
+    });
+  } catch (error) {
+    console.error('Error fetching templates:', error);
+    res.status(500).json({ error: 'Failed to fetch templates' });
+  }
+});
+
+// Create template
+const createTemplateSchema = z.object({
+  slug: z.string().min(1).regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only'),
+  subjectEn: z.string().min(1),
+  bodyEn: z.string().min(1),
+  subjectFr: z.string().min(1),
+  bodyFr: z.string().min(1),
+  isActive: z.boolean().default(true)
+});
+
+router.post('/email-templates', async (req, res) => {
+  try {
+    const data = createTemplateSchema.parse(req.body);
+    const template = await prisma.emailTemplate.create({
+      data: {
+        slug: data.slug,
+        subjectEn: data.subjectEn,
+        bodyEn: data.bodyEn,
+        subjectFr: data.subjectFr,
+        bodyFr: data.bodyFr,
+        isActive: data.isActive
+      }
+    });
+    res.json({ success: true, template });
+  } catch (error) {
+    console.error('Error creating template:', error);
+    res.status(500).json({ error: 'Failed to create template' });
+  }
+});
+
+// Update template
+router.patch('/email-templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = createTemplateSchema.partial().parse(req.body);
+
+    const template = await prisma.emailTemplate.update({
+      where: { id },
+      data
+    });
+    res.json({ success: true, template });
+  } catch (error) {
+    console.error('Error updating template:', error);
+    res.status(500).json({ error: 'Failed to update template' });
+  }
+});
+
+// Delete template
+router.delete('/email-templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.emailTemplate.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting template:', error);
+    res.status(500).json({ error: 'Failed to delete template' });
+  }
+});
+
+// ============================================
+// SYSTEM HEALTH
+// ============================================
+
+router.get('/health', async (req, res) => {
+  const health: Record<string, { status: string; message?: string }> = {};
+
+  // Database
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    health.database = { status: 'ok' };
+  } catch (error) {
+    health.database = { status: 'error', message: 'Connection failed' };
+  }
+
+  // Clerk
+  health.clerk = {
+    status: process.env.CLERK_SECRET_KEY ? 'ok' : 'not_configured'
+  };
+
+  // Stripe
+  health.stripe = {
+    status: process.env.STRIPE_SECRET_KEY ? 'ok' : 'not_configured'
+  };
+
+  // PayPal
+  health.paypal = {
+    status: process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET ? 'ok' : 'not_configured'
+  };
+
+  // Brevo
+  health.brevo = {
+    status: process.env.BREVO_API_KEY ? 'ok' : 'not_configured'
+  };
+
+  // OpenRouter
+  health.openrouter = {
+    status: process.env.OPENROUTER_API_KEY ? 'ok' : 'not_configured'
+  };
+
+  // Overall status
+  const allOk = Object.values(health).every(h => h.status === 'ok');
+  const hasErrors = Object.values(health).some(h => h.status === 'error');
+
   res.json({
-    templates: [
-      { id: 'WELCOME', nameEn: 'Welcome Email', nameFr: 'Email de bienvenue', subjectEn: 'Welcome to MysticOracle - Your Journey Begins!', subjectFr: 'Bienvenue sur MysticOracle - Votre Voyage Commence!' },
-      { id: 'PURCHASE_CONFIRMATION', nameEn: 'Purchase Confirmation', nameFr: 'Confirmation d\'achat', subjectEn: 'Payment Confirmed - Credits Added', subjectFr: 'Paiement Confirmé - Crédits Ajoutés' },
-      { id: 'LOW_CREDITS_REMINDER', nameEn: 'Low Credits Reminder', nameFr: 'Rappel crédits faibles', subjectEn: 'Your MysticOracle Credits are Running Low', subjectFr: 'Vos Crédits MysticOracle sont Presque Épuisés' }
-    ],
-    brevoConfigured: !!process.env.BREVO_API_KEY
+    status: hasErrors ? 'degraded' : (allOk ? 'healthy' : 'partial'),
+    services: health,
+    timestamp: new Date().toISOString()
   });
 });
 

@@ -276,6 +276,35 @@ export async function checkHealth(): Promise<{ status: string; timestamp: string
 }
 
 // ============================================
+// HOROSCOPE ENDPOINTS
+// ============================================
+
+export async function fetchHoroscope(
+  sign: string,
+  language: 'en' | 'fr' = 'en',
+  token?: string | null
+): Promise<{ horoscope: string; cached: boolean; generatedAt: string }> {
+  return apiRequest(`/api/horoscopes/${encodeURIComponent(sign)}?language=${language}`, {
+    token: token || undefined
+  });
+}
+
+export async function askHoroscopeQuestion(
+  sign: string,
+  question: string,
+  horoscope: string,
+  history: Array<{ role: string; content: string }>,
+  language: 'en' | 'fr' = 'en',
+  token?: string | null
+): Promise<{ answer: string; cached: boolean }> {
+  return apiRequest(`/api/horoscopes/${encodeURIComponent(sign)}/followup?language=${language}`, {
+    method: 'POST',
+    body: { question, horoscope, history },
+    token: token || undefined
+  });
+}
+
+// ============================================
 // ADMIN ENDPOINTS
 // ============================================
 
@@ -460,6 +489,111 @@ export async function fetchAdminEmailTemplates(token: string): Promise<{
   brevoConfigured: boolean;
 }> {
   return apiRequest('/api/admin/config/email-templates', { token });
+}
+
+// ============================================
+// ADMIN CREDIT PACKAGES CRUD
+// ============================================
+
+export interface AdminCreditPackage {
+  id: string;
+  credits: number;
+  priceEur: number;
+  nameEn: string;
+  nameFr: string;
+  labelEn: string;
+  labelFr: string;
+  discount: number;
+  badge: string | null;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchAdminPackages(token: string): Promise<{ packages: AdminCreditPackage[] }> {
+  return apiRequest('/api/admin/packages', { token });
+}
+
+export async function createAdminPackage(
+  token: string,
+  data: Omit<AdminCreditPackage, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<{ success: boolean; package: AdminCreditPackage }> {
+  return apiRequest('/api/admin/packages', { method: 'POST', body: data, token });
+}
+
+export async function updateAdminPackage(
+  token: string,
+  id: string,
+  data: Partial<Omit<AdminCreditPackage, 'id' | 'createdAt' | 'updatedAt'>>
+): Promise<{ success: boolean; package: AdminCreditPackage }> {
+  return apiRequest(`/api/admin/packages/${id}`, { method: 'PATCH', body: data, token });
+}
+
+export async function deleteAdminPackage(
+  token: string,
+  id: string
+): Promise<{ success: boolean }> {
+  return apiRequest(`/api/admin/packages/${id}`, { method: 'DELETE', token });
+}
+
+// ============================================
+// ADMIN EMAIL TEMPLATES CRUD
+// ============================================
+
+export interface AdminEmailTemplate {
+  id: string;
+  slug: string;
+  subjectEn: string;
+  bodyEn: string;
+  subjectFr: string;
+  bodyFr: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchAdminEmailTemplatesCRUD(token: string): Promise<{
+  templates: AdminEmailTemplate[];
+  brevoConfigured: boolean;
+}> {
+  return apiRequest('/api/admin/email-templates', { token });
+}
+
+export async function createAdminEmailTemplate(
+  token: string,
+  data: Omit<AdminEmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<{ success: boolean; template: AdminEmailTemplate }> {
+  return apiRequest('/api/admin/email-templates', { method: 'POST', body: data, token });
+}
+
+export async function updateAdminEmailTemplate(
+  token: string,
+  id: string,
+  data: Partial<Omit<AdminEmailTemplate, 'id' | 'createdAt' | 'updatedAt'>>
+): Promise<{ success: boolean; template: AdminEmailTemplate }> {
+  return apiRequest(`/api/admin/email-templates/${id}`, { method: 'PATCH', body: data, token });
+}
+
+export async function deleteAdminEmailTemplate(
+  token: string,
+  id: string
+): Promise<{ success: boolean }> {
+  return apiRequest(`/api/admin/email-templates/${id}`, { method: 'DELETE', token });
+}
+
+// ============================================
+// ADMIN SYSTEM HEALTH
+// ============================================
+
+export interface SystemHealth {
+  status: 'healthy' | 'partial' | 'degraded';
+  services: Record<string, { status: string; message?: string }>;
+  timestamp: string;
+}
+
+export async function fetchAdminHealth(token: string): Promise<SystemHealth> {
+  return apiRequest('/api/admin/health', { token });
 }
 
 export default {

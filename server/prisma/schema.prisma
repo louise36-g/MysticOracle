@@ -244,3 +244,57 @@ model EmailSubscription {
 
   @@index([email])
 }
+
+// ============================================
+// CREDIT PACKAGES (Admin-managed)
+// ============================================
+
+model CreditPackage {
+  id          String   @id @default(cuid())
+
+  // Package details
+  credits     Int
+  priceEur    Decimal  @db.Decimal(10, 2)
+
+  // Display names
+  nameEn      String
+  nameFr      String
+  labelEn     String   // e.g., "Best Value"
+  labelFr     String
+
+  // Marketing
+  discount    Int      @default(0)  // Percentage discount shown
+  badge       String?  // e.g., "POPULAR", "BEST_VALUE"
+
+  // Status
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================
+// EMAIL TEMPLATES (Admin-managed)
+// ============================================
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+
+  // Template identifier
+  slug        String   @unique  // e.g., "welcome", "purchase_confirmation"
+
+  // Content - English
+  subjectEn   String
+  bodyEn      String   @db.Text
+
+  // Content - French
+  subjectFr   String
+  bodyFr      String   @db.Text
+
+  // Status
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
