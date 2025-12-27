@@ -43,15 +43,49 @@ const App: React.FC = () => {
   // Check if user is admin (from AppContext or default false)
   const isAdmin = user?.isAdmin || false;
 
-  // Handle payment callback URLs
+  // Handle initial URL path routing
   useEffect(() => {
     const path = window.location.pathname;
+
+    // Payment callbacks
     if (path === '/payment/success') {
       setCurrentView('payment-success');
       window.history.replaceState({ view: 'payment-success' }, '', '/payment/success');
     } else if (path === '/payment/cancelled') {
       setCurrentView('payment-cancelled');
       window.history.replaceState({ view: 'payment-cancelled' }, '', '/payment/cancelled');
+    }
+    // Admin
+    else if (path === '/admin') {
+      setCurrentView('admin');
+      window.history.replaceState({ view: 'admin' }, '', '/admin');
+    }
+    // Profile
+    else if (path === '/profile') {
+      setCurrentView('profile');
+      window.history.replaceState({ view: 'profile' }, '', '/profile');
+    }
+    // Legal pages
+    else if (path === '/privacy') {
+      setCurrentView('privacy');
+      window.history.replaceState({ view: 'privacy' }, '', '/privacy');
+    } else if (path === '/terms') {
+      setCurrentView('terms');
+      window.history.replaceState({ view: 'terms' }, '', '/terms');
+    } else if (path === '/cookies') {
+      setCurrentView('cookies');
+      window.history.replaceState({ view: 'cookies' }, '', '/cookies');
+    }
+    // Reading modes
+    else if (path === '/tarot' || path.startsWith('/tarot/')) {
+      setReadingMode('tarot');
+      window.history.replaceState({ view: 'home', readingMode: 'tarot' }, '', path);
+    } else if (path === '/horoscope') {
+      setReadingMode('horoscope');
+      window.history.replaceState({ view: 'home', readingMode: 'horoscope' }, '', '/horoscope');
+    } else if (path === '/oracle') {
+      setReadingMode('oracle');
+      window.history.replaceState({ view: 'home', readingMode: 'oracle' }, '', '/oracle');
     }
   }, []);
 

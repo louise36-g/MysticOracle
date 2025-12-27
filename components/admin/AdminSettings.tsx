@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { fetchAdminAIConfig, fetchAdminServices, ServiceConfig } from '../../services/apiService';
@@ -20,13 +20,18 @@ const serviceIcons: Record<string, React.ReactNode> = {
   openrouter: <Bot className="w-5 h-5" />
 };
 
-const AdminSettings: React.FC = () => {
+interface AdminSettingsProps {
+  selectedServiceId?: string;
+}
+
+const AdminSettings: React.FC<AdminSettingsProps> = ({ selectedServiceId }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
   const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
   const [services, setServices] = useState<ServiceConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const serviceRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -50,6 +55,15 @@ const AdminSettings: React.FC = () => {
 
     loadSettings();
   }, [getToken]);
+
+  // Scroll to selected service when it changes
+  useEffect(() => {
+    if (selectedServiceId && !loading && serviceRefs.current[selectedServiceId]) {
+      setTimeout(() => {
+        serviceRefs.current[selectedServiceId]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }, [selectedServiceId, loading, services]);
 
   if (loading) {
     return (
@@ -95,13 +109,16 @@ const AdminSettings: React.FC = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.id}
+              ref={(el) => { serviceRefs.current[service.id] = el; }}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
-              className={`rounded-lg border p-4 ${
-                service.configured
-                  ? 'border-green-500/30 bg-green-500/5'
-                  : 'border-amber-500/30 bg-amber-500/5'
+              className={`rounded-lg border p-4 transition-all ${
+                selectedServiceId === service.id
+                  ? 'border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/50'
+                  : service.configured
+                    ? 'border-green-500/30 bg-green-500/5'
+                    : 'border-amber-500/30 bg-amber-500/5'
               }`}
             >
               <div className="flex items-start justify-between">

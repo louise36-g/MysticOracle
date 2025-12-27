@@ -16,6 +16,12 @@ type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages'
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
+
+  const handleServiceClick = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    setActiveTab('settings');
+  };
 
   const tabs: { id: AdminTab; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
     { id: 'overview', labelEn: 'Overview', labelFr: 'Apercu', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -48,7 +54,11 @@ const AdminDashboard: React.FC = () => {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              // Clear selected service when clicking settings tab directly
+              if (tab.id === 'settings') setSelectedServiceId(undefined);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === tab.id
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
@@ -69,9 +79,9 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'packages' && <AdminPackages />}
         {activeTab === 'emails' && <AdminEmailTemplates />}
         {activeTab === 'analytics' && <AdminAnalytics />}
-        {activeTab === 'health' && <AdminHealth />}
+        {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
         {activeTab === 'translations' && <AdminTranslations />}
-        {activeTab === 'settings' && <AdminSettings />}
+        {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
       </div>
     </div>
   );

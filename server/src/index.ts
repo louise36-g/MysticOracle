@@ -56,6 +56,7 @@ import paymentRoutes from './routes/payments.js';
 import webhookRoutes from './routes/webhooks.js';
 import adminRoutes from './routes/admin.js';
 import horoscopeRoutes from './routes/horoscopes.js';
+import translationRoutes from './routes/translations.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -106,6 +107,7 @@ app.use('/api/readings', strictLimiter, readingRoutes);
 app.use('/api/payments', paymentLimiter, paymentRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
+app.use('/api/translations', generalLimiter, translationRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

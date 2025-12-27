@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
+import { TranslationProvider } from './context/TranslationContext';
 import App from './App';
 import './styles/main.css';
 
@@ -30,11 +31,13 @@ const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <AppProvider>
-        <SpendingLimitsProvider>
-          <App />
-        </SpendingLimitsProvider>
-      </AppProvider>
+      <TranslationProvider>
+        <AppProvider>
+          <SpendingLimitsProvider>
+            <App />
+          </SpendingLimitsProvider>
+        </AppProvider>
+      </TranslationProvider>
     </ClerkProvider>
   );
 }

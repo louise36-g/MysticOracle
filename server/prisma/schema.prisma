@@ -298,3 +298,42 @@ model EmailTemplate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ============================================
+// LOCALIZATION (Dynamic translations)
+// ============================================
+
+model Language {
+  id          String   @id @default(cuid())
+  code        String   @unique  // e.g., "en", "fr", "es"
+  name        String             // e.g., "English", "Français"
+  nativeName  String             // e.g., "English", "Français"
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+
+  translations Translation[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Translation {
+  id          String   @id @default(cuid())
+
+  // Translation key (e.g., "nav.home", "tarot.shuffle")
+  key         String
+
+  // The translated value
+  value       String   @db.Text
+
+  // Language relation
+  languageId  String
+  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([key, languageId])
+  @@index([languageId])
+}

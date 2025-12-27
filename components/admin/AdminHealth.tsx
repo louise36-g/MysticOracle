@@ -31,7 +31,11 @@ const REFRESH_OPTIONS = [
   { value: 0, labelEn: 'Off', labelFr: 'Desactive' }
 ];
 
-const AdminHealth: React.FC = () => {
+interface AdminHealthProps {
+  onServiceClick?: (serviceId: string) => void;
+}
+
+const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
   const [health, setHealth] = useState<SystemHealth | null>(null);
@@ -215,7 +219,8 @@ const AdminHealth: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`rounded-lg border p-4 ${getStatusColor(info.status)}`}
+            onClick={() => onServiceClick?.(service)}
+            className={`rounded-lg border p-4 ${getStatusColor(info.status)} ${onServiceClick ? 'cursor-pointer hover:scale-[1.02] transition-transform' : ''}`}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -250,8 +255,8 @@ const AdminHealth: React.FC = () => {
       <div className="p-4 bg-slate-800/30 rounded-lg text-sm text-slate-400">
         <p>
           {language === 'en'
-            ? 'Services marked as "Not Configured" need their environment variables set on your hosting platform.'
-            : 'Les services "Non configure" necessitent la configuration des variables d\'environnement sur votre plateforme d\'hebergement.'}
+            ? 'Click on a service to view its configuration. Services marked as "Not Configured" need their environment variables set on your hosting platform.'
+            : 'Cliquez sur un service pour voir sa configuration. Les services "Non configure" necessitent la configuration des variables d\'environnement sur votre plateforme d\'hebergement.'}
         </p>
       </div>
     </div>

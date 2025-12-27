@@ -1,191 +1,201 @@
-import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
-import { Languages, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-react';
+import { useTranslation } from '../../context/TranslationContext';
+import { Languages, Search, ChevronDown, ChevronRight, Plus, Download, Globe, Edit2, Trash2, Check, X, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface TranslationEntry {
-  key: string;
-  en: string;
-  fr: string;
-}
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api$/, '');
 
-interface TranslationSection {
+interface Language {
   id: string;
-  nameEn: string;
-  nameFr: string;
-  entries: TranslationEntry[];
+  code: string;
+  name: string;
+  nativeName: string;
+  isActive: boolean;
+  isDefault: boolean;
+  sortOrder: number;
+  _count?: { translations: number };
 }
 
-const TRANSLATIONS: TranslationSection[] = [
-  {
-    id: 'navigation',
-    nameEn: 'Navigation & Header',
-    nameFr: 'Navigation & En-tête',
-    entries: [
-      { key: 'nav.home', en: 'Home', fr: 'Accueil' },
-      { key: 'nav.reading', en: 'Reading', fr: 'Lecture' },
-      { key: 'nav.horoscope', en: 'Horoscope', fr: 'Horoscope' },
-      { key: 'nav.profile', en: 'Profile', fr: 'Profil' },
-      { key: 'nav.admin', en: 'Admin', fr: 'Admin' },
-      { key: 'nav.credits', en: 'credits', fr: 'crédits' },
-      { key: 'nav.signIn', en: 'Sign In', fr: 'Connexion' },
-      { key: 'nav.signOut', en: 'Sign Out', fr: 'Déconnexion' },
-    ]
-  },
-  {
-    id: 'home',
-    nameEn: 'Home Page',
-    nameFr: 'Page d\'Accueil',
-    entries: [
-      { key: 'home.title', en: 'MysticOracle', fr: 'MysticOracle' },
-      { key: 'home.subtitle', en: 'Discover Your Destiny', fr: 'Découvrez Votre Destin' },
-      { key: 'home.startReading', en: 'Start Reading', fr: 'Commencer la Lecture' },
-      { key: 'home.dailyHoroscope', en: 'Daily Horoscope', fr: 'Horoscope Quotidien' },
-    ]
-  },
-  {
-    id: 'tarot',
-    nameEn: 'Tarot Reading',
-    nameFr: 'Lecture de Tarot',
-    entries: [
-      { key: 'tarot.selectSpread', en: 'Select Your Spread', fr: 'Choisissez Votre Tirage' },
-      { key: 'tarot.singleCard', en: 'Single Card', fr: 'Une Carte' },
-      { key: 'tarot.threeCard', en: 'Three Card Spread', fr: 'Tirage Trois Cartes' },
-      { key: 'tarot.celticCross', en: 'Celtic Cross', fr: 'Croix Celtique' },
-      { key: 'tarot.shuffleDeck', en: 'Shuffle the Deck', fr: 'Mélanger les Cartes' },
-      { key: 'tarot.drawCards', en: 'Draw Cards', fr: 'Tirer les Cartes' },
-      { key: 'tarot.getInterpretation', en: 'Get Interpretation', fr: 'Obtenir l\'Interprétation' },
-      { key: 'tarot.askFollowUp', en: 'Ask a follow-up question...', fr: 'Posez une question de suivi...' },
-      { key: 'tarot.newReading', en: 'New Reading', fr: 'Nouvelle Lecture' },
-      { key: 'tarot.cost', en: 'Cost', fr: 'Coût' },
-      { key: 'tarot.credit', en: 'credit', fr: 'crédit' },
-      { key: 'tarot.credits', en: 'credits', fr: 'crédits' },
-    ]
-  },
-  {
-    id: 'horoscope',
-    nameEn: 'Horoscope',
-    nameFr: 'Horoscope',
-    entries: [
-      { key: 'horoscope.title', en: 'Daily Horoscope', fr: 'Horoscope Quotidien' },
-      { key: 'horoscope.selectSign', en: 'Select your zodiac sign', fr: 'Sélectionnez votre signe du zodiaque' },
-      { key: 'horoscope.aries', en: 'Aries', fr: 'Bélier' },
-      { key: 'horoscope.taurus', en: 'Taurus', fr: 'Taureau' },
-      { key: 'horoscope.gemini', en: 'Gemini', fr: 'Gémeaux' },
-      { key: 'horoscope.cancer', en: 'Cancer', fr: 'Cancer' },
-      { key: 'horoscope.leo', en: 'Leo', fr: 'Lion' },
-      { key: 'horoscope.virgo', en: 'Virgo', fr: 'Vierge' },
-      { key: 'horoscope.libra', en: 'Libra', fr: 'Balance' },
-      { key: 'horoscope.scorpio', en: 'Scorpio', fr: 'Scorpion' },
-      { key: 'horoscope.sagittarius', en: 'Sagittarius', fr: 'Sagittaire' },
-      { key: 'horoscope.capricorn', en: 'Capricorn', fr: 'Capricorne' },
-      { key: 'horoscope.aquarius', en: 'Aquarius', fr: 'Verseau' },
-      { key: 'horoscope.pisces', en: 'Pisces', fr: 'Poissons' },
-    ]
-  },
-  {
-    id: 'profile',
-    nameEn: 'User Profile',
-    nameFr: 'Profil Utilisateur',
-    entries: [
-      { key: 'profile.title', en: 'Your Profile', fr: 'Votre Profil' },
-      { key: 'profile.credits', en: 'Credits', fr: 'Crédits' },
-      { key: 'profile.readingHistory', en: 'Reading History', fr: 'Historique des Lectures' },
-      { key: 'profile.achievements', en: 'Achievements', fr: 'Réalisations' },
-      { key: 'profile.settings', en: 'Settings', fr: 'Paramètres' },
-      { key: 'profile.dailyBonus', en: 'Daily Bonus', fr: 'Bonus Quotidien' },
-      { key: 'profile.claim', en: 'Claim', fr: 'Réclamer' },
-      { key: 'profile.claimed', en: 'Claimed', fr: 'Réclamé' },
-      { key: 'profile.streak', en: 'Day Streak', fr: 'Jours Consécutifs' },
-    ]
-  },
-  {
-    id: 'creditShop',
-    nameEn: 'Credit Shop',
-    nameFr: 'Boutique de Crédits',
-    entries: [
-      { key: 'shop.title', en: 'Get More Credits', fr: 'Obtenez Plus de Crédits' },
-      { key: 'shop.popular', en: 'Popular', fr: 'Populaire' },
-      { key: 'shop.bestValue', en: 'Best Value', fr: 'Meilleur Rapport' },
-      { key: 'shop.buyNow', en: 'Buy Now', fr: 'Acheter' },
-      { key: 'shop.securePayment', en: 'Secure Payment', fr: 'Paiement Sécurisé' },
-      { key: 'shop.payWithCard', en: 'Pay with Card', fr: 'Payer par Carte' },
-      { key: 'shop.payWithPaypal', en: 'Pay with PayPal', fr: 'Payer avec PayPal' },
-    ]
-  },
-  {
-    id: 'admin',
-    nameEn: 'Admin Dashboard',
-    nameFr: 'Tableau de Bord Admin',
-    entries: [
-      { key: 'admin.title', en: 'Admin Dashboard', fr: 'Tableau de Bord Admin' },
-      { key: 'admin.overview', en: 'Overview', fr: 'Aperçu' },
-      { key: 'admin.users', en: 'Users', fr: 'Utilisateurs' },
-      { key: 'admin.transactions', en: 'Transactions', fr: 'Transactions' },
-      { key: 'admin.packages', en: 'Packages', fr: 'Forfaits' },
-      { key: 'admin.emails', en: 'Emails', fr: 'Emails' },
-      { key: 'admin.analytics', en: 'Analytics', fr: 'Analytique' },
-      { key: 'admin.health', en: 'Health', fr: 'Santé' },
-      { key: 'admin.settings', en: 'Settings', fr: 'Paramètres' },
-      { key: 'admin.translations', en: 'Translations', fr: 'Traductions' },
-    ]
-  },
-  {
-    id: 'common',
-    nameEn: 'Common',
-    nameFr: 'Commun',
-    entries: [
-      { key: 'common.loading', en: 'Loading...', fr: 'Chargement...' },
-      { key: 'common.error', en: 'Error', fr: 'Erreur' },
-      { key: 'common.save', en: 'Save', fr: 'Sauvegarder' },
-      { key: 'common.cancel', en: 'Cancel', fr: 'Annuler' },
-      { key: 'common.delete', en: 'Delete', fr: 'Supprimer' },
-      { key: 'common.edit', en: 'Edit', fr: 'Modifier' },
-      { key: 'common.create', en: 'Create', fr: 'Créer' },
-      { key: 'common.close', en: 'Close', fr: 'Fermer' },
-      { key: 'common.yes', en: 'Yes', fr: 'Oui' },
-      { key: 'common.no', en: 'No', fr: 'Non' },
-      { key: 'common.refresh', en: 'Refresh', fr: 'Actualiser' },
-      { key: 'common.active', en: 'Active', fr: 'Actif' },
-      { key: 'common.inactive', en: 'Inactive', fr: 'Inactif' },
-    ]
-  },
-  {
-    id: 'legal',
-    nameEn: 'Legal Pages',
-    nameFr: 'Pages Légales',
-    entries: [
-      { key: 'legal.privacy', en: 'Privacy Policy', fr: 'Politique de Confidentialité' },
-      { key: 'legal.terms', en: 'Terms of Service', fr: 'Conditions d\'Utilisation' },
-      { key: 'legal.cookies', en: 'Cookie Policy', fr: 'Politique des Cookies' },
-      { key: 'legal.contact', en: 'Contact', fr: 'Contact' },
-    ]
-  },
-];
+interface Translation {
+  id: string;
+  key: string;
+  value: string;
+  languageId: string;
+}
 
 const AdminTranslations: React.FC = () => {
-  const { language } = useApp();
+  const { language: currentLang } = useTranslation();
+  const { getToken } = useAuth();
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [selectedLang, setSelectedLang] = useState<string | null>(null);
+  const [translations, setTranslations] = useState<Translation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedSections, setExpandedSections] = useState<string[]>(['navigation', 'common']);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [seeding, setSeeding] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev =>
-      prev.includes(sectionId)
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
+  // Fetch languages
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('No token');
+
+        const res = await fetch(`${API_URL}/api/translations/admin/languages`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch languages');
+
+        const data = await res.json();
+        setLanguages(data.languages);
+
+        // Select first language by default
+        if (data.languages.length > 0 && !selectedLang) {
+          setSelectedLang(data.languages[0].code);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load languages');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguages();
+  }, [getToken]);
+
+  // Fetch translations for selected language
+  useEffect(() => {
+    if (!selectedLang) return;
+
+    const fetchTranslations = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+
+        const res = await fetch(`${API_URL}/api/translations/admin/${selectedLang}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch translations');
+
+        const data = await res.json();
+        setTranslations(data.translations);
+      } catch (err) {
+        console.error('Failed to fetch translations:', err);
+      }
+    };
+
+    fetchTranslations();
+  }, [selectedLang, getToken]);
+
+  const handleSeedTranslations = async () => {
+    try {
+      setSeeding(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const res = await fetch(`${API_URL}/api/translations/admin/seed`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Failed to seed translations');
+
+      // Reload languages
+      const langRes = await fetch(`${API_URL}/api/translations/admin/languages`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await langRes.json();
+      setLanguages(data.languages);
+
+      if (data.languages.length > 0) {
+        setSelectedLang(data.languages[0].code);
+      }
+
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to seed');
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const handleSaveTranslation = async (key: string, value: string) => {
+    try {
+      setSaving(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const lang = languages.find(l => l.code === selectedLang);
+      if (!lang) return;
+
+      const res = await fetch(`${API_URL}/api/translations/admin/translations`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ key, value, languageId: lang.id })
+      });
+
+      if (!res.ok) throw new Error('Failed to save');
+
+      // Update local state
+      setTranslations(prev => {
+        const existing = prev.find(t => t.key === key);
+        if (existing) {
+          return prev.map(t => t.key === key ? { ...t, value } : t);
+        }
+        return [...prev, { id: 'new', key, value, languageId: lang.id }];
+      });
+
+      setEditingKey(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Group translations by prefix (e.g., nav.*, tarot.*)
+  const groupedTranslations = translations.reduce((acc, t) => {
+    const prefix = t.key.split('.')[0];
+    if (!acc[prefix]) acc[prefix] = [];
+    acc[prefix].push(t);
+    return acc;
+  }, {} as Record<string, Translation[]>);
+
+  const filteredGroups = Object.entries(groupedTranslations)
+    .map(([prefix, items]) => ({
+      prefix,
+      items: items.filter(t =>
+        t.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.value.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }))
+    .filter(g => g.items.length > 0);
+
+  const toggleGroup = (prefix: string) => {
+    setExpandedKeys(prev =>
+      prev.includes(prefix)
+        ? prev.filter(p => p !== prefix)
+        : [...prev, prefix]
     );
   };
 
-  const filteredSections = TRANSLATIONS.map(section => ({
-    ...section,
-    entries: section.entries.filter(entry =>
-      entry.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.fr.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(section => section.entries.length > 0);
-
-  const totalStrings = TRANSLATIONS.reduce((acc, section) => acc + section.entries.length, 0);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -194,108 +204,189 @@ const AdminTranslations: React.FC = () => {
           <Languages className="w-6 h-6 text-purple-400" />
           <div>
             <h2 className="text-xl font-heading text-purple-200">
-              {language === 'en' ? 'Translations' : 'Traductions'}
+              {currentLang === 'en' ? 'Translations' : 'Traductions'}
             </h2>
             <p className="text-xs text-slate-400">
-              {totalStrings} {language === 'en' ? 'strings in 2 languages' : 'chaînes en 2 langues'}
+              {languages.length} {currentLang === 'en' ? 'languages' : 'langues'}, {translations.length} {currentLang === 'en' ? 'strings' : 'chaînes'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={language === 'en' ? 'Search translations...' : 'Rechercher des traductions...'}
-          className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500"
-        />
-      </div>
-
-      {/* Info Banner */}
-      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-        <p className="text-sm text-amber-200/80">
-          {language === 'en'
-            ? 'These translations are currently hardcoded in the React components. To modify them, edit the source files directly. A future update may add dynamic translation management.'
-            : 'Ces traductions sont actuellement codées en dur dans les composants React. Pour les modifier, éditez directement les fichiers source. Une future mise à jour pourrait ajouter une gestion dynamique des traductions.'}
-        </p>
-      </div>
-
-      {/* Translation Sections */}
-      <div className="space-y-3">
-        {filteredSections.map((section) => (
-          <motion.div
-            key={section.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-slate-900/60 rounded-lg border border-purple-500/20 overflow-hidden"
-          >
-            <button
-              onClick={() => toggleSection(section.id)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                {expandedSections.includes(section.id) ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                )}
-                <span className="font-medium text-white">
-                  {language === 'en' ? section.nameEn : section.nameFr}
-                </span>
-                <span className="px-2 py-0.5 bg-slate-700 rounded text-xs text-slate-400">
-                  {section.entries.length}
-                </span>
-              </div>
-            </button>
-
-            <AnimatePresence>
-              {expandedSections.includes(section.id) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-slate-700"
-                >
-                  <div className="p-4">
-                    <div className="grid grid-cols-12 gap-2 mb-2 text-xs text-slate-500 font-medium">
-                      <div className="col-span-3">KEY</div>
-                      <div className="col-span-4">ENGLISH</div>
-                      <div className="col-span-5">FRENCH</div>
-                    </div>
-                    <div className="space-y-2">
-                      {section.entries.map((entry) => (
-                        <div
-                          key={entry.key}
-                          className="grid grid-cols-12 gap-2 p-2 bg-slate-800/50 rounded text-sm"
-                        >
-                          <div className="col-span-3 font-mono text-xs text-purple-300 truncate" title={entry.key}>
-                            {entry.key}
-                          </div>
-                          <div className="col-span-4 text-slate-300">
-                            {entry.en}
-                          </div>
-                          <div className="col-span-5 text-slate-300">
-                            {entry.fr}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ))}
-      </div>
-
-      {filteredSections.length === 0 && (
-        <div className="text-center py-12 text-slate-400">
-          {language === 'en' ? 'No translations found matching your search.' : 'Aucune traduction trouvée.'}
+      {error && (
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300">
+          {error}
         </div>
+      )}
+
+      {/* Empty State - Seed Button */}
+      {languages.length === 0 ? (
+        <div className="text-center py-12">
+          <Globe className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+          <p className="text-slate-400 mb-4">
+            {currentLang === 'en' ? 'No languages configured yet.' : 'Aucune langue configurée.'}
+          </p>
+          <button
+            onClick={handleSeedTranslations}
+            disabled={seeding}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white text-sm mx-auto disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {seeding
+              ? (currentLang === 'en' ? 'Loading...' : 'Chargement...')
+              : (currentLang === 'en' ? 'Load Default Translations' : 'Charger les traductions par défaut')}
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Language Tabs */}
+          <div className="flex gap-2 border-b border-slate-700 pb-4">
+            {languages.map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => setSelectedLang(lang.code)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                  selectedLang === lang.code
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {lang.nativeName}
+                {lang.isDefault && (
+                  <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded text-xs">
+                    Default
+                  </span>
+                )}
+                <span className="text-xs opacity-60">
+                  ({lang._count?.translations || 0})
+                </span>
+              </button>
+            ))}
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 text-slate-400 hover:bg-slate-700 rounded-lg"
+              title="Add language"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={currentLang === 'en' ? 'Search translations...' : 'Rechercher...'}
+              className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+            />
+          </div>
+
+          {/* Translation Groups */}
+          <div className="space-y-3">
+            {filteredGroups.map(({ prefix, items }) => (
+              <div
+                key={prefix}
+                className="bg-slate-900/60 rounded-lg border border-purple-500/20 overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleGroup(prefix)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {expandedKeys.includes(prefix) ? (
+                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                    )}
+                    <span className="font-medium text-white capitalize">{prefix}</span>
+                    <span className="px-2 py-0.5 bg-slate-700 rounded text-xs text-slate-400">
+                      {items.length}
+                    </span>
+                  </div>
+                </button>
+
+                <AnimatePresence>
+                  {expandedKeys.includes(prefix) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="border-t border-slate-700"
+                    >
+                      <div className="p-4 space-y-2">
+                        {items.map((t) => (
+                          <div
+                            key={t.key}
+                            className="flex items-center gap-3 p-2 bg-slate-800/50 rounded"
+                          >
+                            <div className="flex-shrink-0 w-48 font-mono text-xs text-purple-300 truncate" title={t.key}>
+                              {t.key}
+                            </div>
+                            {editingKey === t.key ? (
+                              <div className="flex-1 flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="flex-1 px-2 py-1 bg-slate-900 border border-slate-600 rounded text-white text-sm"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => handleSaveTranslation(t.key, editValue)}
+                                  disabled={saving}
+                                  className="p-1 text-green-400 hover:bg-green-500/20 rounded"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => setEditingKey(null)}
+                                  className="p-1 text-slate-400 hover:bg-slate-700 rounded"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex-1 text-sm text-slate-300 truncate" title={t.value}>
+                                  {t.value}
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setEditingKey(t.key);
+                                    setEditValue(t.value);
+                                  }}
+                                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+
+          {filteredGroups.length === 0 && (
+            <div className="text-center py-12 text-slate-400">
+              {currentLang === 'en' ? 'No translations found.' : 'Aucune traduction trouvée.'}
+            </div>
+          )}
+
+          {/* Info */}
+          <div className="p-4 bg-slate-800/30 rounded-lg text-sm text-slate-400">
+            <p>
+              {currentLang === 'en'
+                ? 'Click on a translation to edit it. Changes are saved immediately. The frontend will use these translations dynamically.'
+                : 'Cliquez sur une traduction pour la modifier. Les modifications sont enregistrées immédiatement.'}
+            </p>
+          </div>
+        </>
       )}
     </div>
   );
