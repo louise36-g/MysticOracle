@@ -40,6 +40,14 @@ const strictLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const adminLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // Higher limit for admin operations
+  message: { error: 'Admin rate limit exceeded, please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Import routes
 import healthRoutes from './routes/health.js';
 import userRoutes from './routes/users.js';
@@ -96,7 +104,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/users', authLimiter, userRoutes);
 app.use('/api/readings', strictLimiter, readingRoutes);
 app.use('/api/payments', paymentLimiter, paymentRoutes);
-app.use('/api/admin', strictLimiter, adminRoutes);
+app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
 
 // Error handling middleware

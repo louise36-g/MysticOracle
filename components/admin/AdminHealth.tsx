@@ -23,6 +23,14 @@ const serviceNames: Record<string, { en: string; fr: string }> = {
   openrouter: { en: 'OpenRouter AI', fr: 'OpenRouter IA' }
 };
 
+const REFRESH_OPTIONS = [
+  { value: 60000, labelEn: '1 min', labelFr: '1 min' },
+  { value: 300000, labelEn: '5 min', labelFr: '5 min' },
+  { value: 600000, labelEn: '10 min', labelFr: '10 min' },
+  { value: 1800000, labelEn: '30 min', labelFr: '30 min' },
+  { value: 0, labelEn: 'Off', labelFr: 'Desactive' }
+];
+
 const AdminHealth: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
@@ -30,6 +38,7 @@ const AdminHealth: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(300000); // 5 minutes default
 
   const loadHealth = async (showRefresh = false) => {
     try {
@@ -52,10 +61,13 @@ const AdminHealth: React.FC = () => {
 
   useEffect(() => {
     loadHealth();
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(() => loadHealth(true), 30000);
-    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (refreshInterval === 0) return; // Auto-refresh disabled
+    const interval = setInterval(() => loadHealth(true), refreshInterval);
+    return () => clearInterval(interval);
+  }, [refreshInterval]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -136,14 +148,27 @@ const AdminHealth: React.FC = () => {
             {language === 'en' ? 'System Health' : 'Sante du Systeme'}
           </h2>
         </div>
-        <button
-          onClick={() => loadHealth(true)}
-          disabled={refreshing}
-          className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-sm disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          {language === 'en' ? 'Refresh' : 'Actualiser'}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={refreshInterval}
+            onChange={(e) => setRefreshInterval(Number(e.target.value))}
+            className="px-2 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+          >
+            {REFRESH_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {language === 'en' ? opt.labelEn : opt.labelFr}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => loadHealth(true)}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-sm disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {language === 'en' ? 'Refresh' : 'Actualiser'}
+          </button>
+        </div>
       </div>
 
       {/* Overall Status */}
@@ -225,8 +250,8 @@ const AdminHealth: React.FC = () => {
       <div className="p-4 bg-slate-800/30 rounded-lg text-sm text-slate-400">
         <p>
           {language === 'en'
-            ? 'Health status auto-refreshes every 30 seconds. Services marked as "Not Configured" need their environment variables set on your hosting platform.'
-            : 'Le statut de sante se rafraichit automatiquement toutes les 30 secondes. Les services "Non configure" necessitent la configuration des variables d\'environnement sur votre plateforme d\'hebergement.'}
+            ? 'Services marked as "Not Configured" need their environment variables set on your hosting platform.'
+            : 'Les services "Non configure" necessitent la configuration des variables d\'environnement sur votre plateforme d\'hebergement.'}
         </p>
       </div>
     </div>
