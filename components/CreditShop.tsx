@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -89,6 +89,42 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const [showSpendingLimits, setShowSpendingLimits] = useState(false);
   const [showBreakReminder, setShowBreakReminder] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState<{ method: 'stripe' | 'stripe_link' | 'paypal' } | null>(null);
+  const paymentSectionRef = useRef<HTMLDivElement>(null);
+  const modalContentRef = useRef<HTMLDivElement>(null);
+
+  // Handle package selection with auto-scroll to payment inside modal
+  const handleSelectPackage = useCallback((pkg: CreditPackage) => {
+    setSelectedPackage(pkg);
+    // Scroll to payment section within the modal after animation settles
+    setTimeout(() => {
+      if (paymentSectionRef.current && modalContentRef.current) {
+        const modal = modalContentRef.current;
+        const paymentSection = paymentSectionRef.current;
+        const paymentTop = paymentSection.offsetTop - 100; // Offset for header
+        const startTop = modal.scrollTop;
+        const distance = paymentTop - startTop;
+        const duration = 800; // Slower scroll duration in ms
+        const startTime = performance.now();
+
+        // Custom smooth scroll with easing
+        const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+
+        const animateScroll = (currentTime: number) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = easeOutQuart(progress);
+
+          modal.scrollTop = startTop + (distance * eased);
+
+          if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+          }
+        };
+
+        requestAnimationFrame(animateScroll);
+      }
+    }, 300);
+  }, []);
 
   // First-purchase bonus tracking
   const isFirstPurchase = useMemo(() => {
@@ -266,10 +302,11 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
         onClick={onClose}
       >
         <motion.div
+          ref={modalContentRef}
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-slate-900 border border-purple-500/30 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+          className="bg-slate-900 border border-purple-500/30 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl scroll-smooth"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -394,87 +431,172 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
               </motion.div>
             )}
 
-            {/* Package Selection - Clean layout with no overlapping elements */}
-            <div className="space-y-3 mb-6">
-              {packages.map((pkg) => {
-                const isSelected = selectedPackage?.id === pkg.id;
-                const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
-                const name = language === 'en' ? pkg.nameEn : pkg.nameFr;
-                const isBestValue = pkg.id === bestValuePackageId;
-                const bonusCredits = getFirstPurchaseBonus(pkg.credits);
-                const totalCredits = pkg.credits + bonusCredits;
-                const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
+            {/* Package Selection - Custom Layout: 2 small on top, 3 larger below */}
+            <div className="space-y-4 mb-6">
+              {/* First row: 2 smaller starter packages */}
+              <div className="grid grid-cols-2 gap-3">
+                {packages.slice(0, 2).map((pkg, index) => {
+                  const isSelected = selectedPackage?.id === pkg.id;
+                  const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
+                  const isBestValue = pkg.id === bestValuePackageId;
+                  const bonusCredits = getFirstPurchaseBonus(pkg.credits);
+                  const totalCredits = pkg.credits + bonusCredits;
+                  const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
+                  const isStarter = index === 0;
 
-                return (
-                  <motion.button
-                    key={pkg.id}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => setSelectedPackage(pkg)}
-                    className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
-                      isSelected
-                        ? 'border-amber-400 bg-gradient-to-r from-amber-900/30 to-amber-800/20 shadow-lg shadow-amber-500/20'
-                        : 'border-slate-700 bg-slate-800/50 hover:border-purple-500/50 hover:bg-slate-800/80'
-                    }`}
-                  >
-                    {/* Selection indicator */}
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                      isSelected
-                        ? 'border-amber-400 bg-amber-400'
-                        : 'border-slate-500'
-                    }`}>
-                      {isSelected && <Check className="w-3 h-3 text-slate-900" />}
-                    </div>
-
-                    {/* Credits display */}
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
-                      <span className="text-2xl font-bold text-white">{pkg.credits}</span>
-                      {isFirstPurchase && bonusCredits > 0 && (
-                        <span className="text-sm font-medium text-amber-400">+{bonusCredits}</span>
-                      )}
-                    </div>
-
-                    {/* Package info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm text-slate-300">{name}</span>
-                        {/* Badges inline */}
-                        {pkg.badge && (
-                          <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
-                            {label}
-                          </span>
-                        )}
-                        {isBestValue && !pkg.badge && (
-                          <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded text-xs font-bold text-white flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
-                            {language === 'en' ? 'Best' : 'Top'}
-                          </span>
-                        )}
-                        {pkg.discount > 0 && (
-                          <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/40 rounded text-xs font-medium text-green-400">
-                            -{pkg.discount}%
-                          </span>
-                        )}
+                  return (
+                    <motion.button
+                      key={pkg.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleSelectPackage(pkg)}
+                      className={`relative p-3 rounded-xl border-2 transition-all text-left ${
+                        isSelected
+                          ? 'border-amber-400 bg-gradient-to-br from-amber-900/30 to-amber-800/20 shadow-lg shadow-amber-500/20'
+                          : 'border-slate-700 bg-slate-800/50 hover:border-purple-500/50'
+                      }`}
+                    >
+                      {/* Badge row */}
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {isStarter && (
+                            <span className="px-2 py-0.5 bg-slate-600 rounded text-xs font-bold text-white">
+                              {language === 'en' ? 'Starter' : 'Découverte'}
+                            </span>
+                          )}
+                          {pkg.badge && (
+                            <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
+                              {label}
+                            </span>
+                          )}
+                          {pkg.discount > 0 && (
+                            <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/40 rounded text-xs font-medium text-green-400">
+                              -{pkg.discount}%
+                            </span>
+                          )}
+                        </div>
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          isSelected ? 'border-amber-400 bg-amber-400' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <Check className="w-2.5 h-2.5 text-slate-900" />}
+                        </div>
                       </div>
-                      <span className="text-xs text-slate-500">
-                        €{pricePerCredit.toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'}
-                      </span>
-                    </div>
 
-                    {/* Price */}
-                    <div className="text-right flex-shrink-0">
-                      <p className={`text-xl font-bold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
-                        €{pkg.priceEur.toFixed(2)}
-                      </p>
-                    </div>
-                  </motion.button>
-                );
-              })}
+                      {/* Credits + Price inline */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
+                          <span className="text-2xl font-bold text-white">{pkg.credits}</span>
+                          <span className="text-xs text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
+                        </div>
+                        <p className={`text-xl font-bold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
+                          €{pkg.priceEur.toFixed(2)}
+                        </p>
+                      </div>
+
+                      {/* First purchase bonus - compact */}
+                      {isFirstPurchase && bonusCredits > 0 && (
+                        <div className="flex items-center gap-1 mt-1 text-amber-400 text-xs">
+                          <Gift className="w-3 h-3" />
+                          <span>+{bonusCredits} bonus</span>
+                        </div>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Second row: 3 larger packages */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {packages.slice(2).map((pkg) => {
+                  const isSelected = selectedPackage?.id === pkg.id;
+                  const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
+                  const name = language === 'en' ? pkg.nameEn : pkg.nameFr;
+                  const isBestValue = pkg.id === bestValuePackageId;
+                  const bonusCredits = getFirstPurchaseBonus(pkg.credits);
+                  const totalCredits = pkg.credits + bonusCredits;
+                  const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
+
+                  return (
+                    <motion.button
+                      key={pkg.id}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleSelectPackage(pkg)}
+                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                        isSelected
+                          ? 'border-amber-400 bg-gradient-to-br from-amber-900/30 to-amber-800/20 shadow-lg shadow-amber-500/20'
+                          : isBestValue
+                          ? 'border-green-500/50 bg-slate-800/70 hover:border-green-400/70'
+                          : 'border-slate-700 bg-slate-800/50 hover:border-purple-500/50'
+                      }`}
+                    >
+                      {/* Top row: Badge + Selection indicator */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {pkg.badge && (
+                            <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
+                              {label}
+                            </span>
+                          )}
+                          {isBestValue && !pkg.badge && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded text-xs font-bold text-white flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3" />
+                              {language === 'en' ? 'Best Value' : 'Meilleur'}
+                            </span>
+                          )}
+                          {pkg.discount > 0 && (
+                            <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/40 rounded text-xs font-medium text-green-400">
+                              -{pkg.discount}%
+                            </span>
+                          )}
+                        </div>
+                        {/* Selection check */}
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          isSelected ? 'border-amber-400 bg-amber-400' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-slate-900" />}
+                        </div>
+                      </div>
+
+                      {/* Credits display - prominent */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-purple-400'}`} />
+                        <span className="text-3xl font-bold text-white">{pkg.credits}</span>
+                        <span className="text-sm text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
+                      </div>
+
+                      {/* First purchase bonus */}
+                      {isFirstPurchase && bonusCredits > 0 && (
+                        <div className="flex items-center gap-1.5 mb-2 text-amber-400">
+                          <Gift className="w-4 h-4" />
+                          <span className="text-sm font-medium">+{bonusCredits} bonus</span>
+                          <span className="text-xs text-slate-500">= {totalCredits} total</span>
+                        </div>
+                      )}
+
+                      {/* Package name */}
+                      <p className="text-sm text-slate-400 mb-3">{name}</p>
+
+                      {/* Price section */}
+                      <div className="pt-3 border-t border-slate-700/50">
+                        <div className="flex items-baseline justify-between">
+                          <p className={`text-2xl font-bold ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-white'}`}>
+                            €{pkg.priceEur.toFixed(2)}
+                          </p>
+                          <span className="text-xs text-slate-500">
+                            €{pricePerCredit.toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Payment Methods Section */}
-            <div className="mt-6 pt-6 border-t border-purple-500/20">
+            <div ref={paymentSectionRef} className="mt-6 pt-6 border-t border-purple-500/20">
               {selectedPackage ? (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}

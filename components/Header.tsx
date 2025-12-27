@@ -43,26 +43,29 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   }, [language, setLanguage]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div
+        <a
+          href="/"
           className="flex items-center gap-2 cursor-pointer"
-          onClick={() => handleNavigate('home')}
+          onClick={(e) => { e.preventDefault(); handleNavigate('home'); }}
+          aria-label="MysticOracle - Go to homepage"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 flex items-center justify-center" aria-hidden="true">
             <Moon className="w-5 h-5 text-white fill-current" />
           </div>
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             MysticOracle
           </span>
-        </div>
+        </a>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-6" role="navigation" aria-label="Main navigation">
           <button
             onClick={() => handleNavigate('home')}
             className={`text-sm font-medium transition-colors ${currentView === 'home' ? 'text-amber-400' : 'text-slate-300 hover:text-white'}`}
+            aria-current={currentView === 'home' ? 'page' : undefined}
           >
             {language === 'en' ? 'Home' : 'Accueil'}
           </button>
@@ -91,9 +94,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           <button
             onClick={toggleLanguage}
             className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors"
-            title="Switch Language"
+            aria-label={language === 'en' ? 'Switch to French' : 'Switch to English'}
+            title={language === 'en' ? 'Switch to French' : 'Passer en anglais'}
           >
-            {language === 'en' ? <FlagEN className="w-5 h-5" /> : <FlagFR className="w-5 h-5" />}
+            {language === 'en' ? <FlagEN className="w-5 h-5" aria-hidden="true" /> : <FlagFR className="w-5 h-5" aria-hidden="true" />}
           </button>
 
           {/* Clerk Auth Components */}
@@ -128,14 +132,17 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
         <button
           className="md:hidden p-2 text-slate-300"
           onClick={toggleMobileMenu}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-menu"
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
         >
-          {isMobileMenuOpen ? <X /> : <Menu />}
+          {isMobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-slate-900 border-b border-white/10 p-4 space-y-4">
+        <nav id="mobile-menu" className="md:hidden bg-slate-900 border-b border-white/10 p-4 space-y-4" role="navigation" aria-label="Mobile navigation">
            {isSignedIn && (
              <div className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg">
                 <button onClick={() => handleNavigate('profile', true)} className="text-slate-300 font-bold hover:text-white transition-colors">
@@ -210,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
               />
             </div>
           </SignedIn>
-        </div>
+        </nav>
       )}
 
       {/* Credit Shop Modal */}

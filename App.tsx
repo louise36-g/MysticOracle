@@ -16,6 +16,7 @@ import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
 import CreditShop from './components/CreditShop';
+import Breadcrumb from './components/Breadcrumb';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -97,7 +98,15 @@ const App: React.FC = () => {
 
   const handleReadingModeSelect = (mode: string) => {
     setReadingMode(mode);
-    window.history.pushState({ view: 'home', readingMode: mode }, '', '/');
+    const url = mode === 'tarot' ? '/tarot' : mode === 'horoscope' ? '/horoscope' : `/${mode}`;
+    window.history.pushState({ view: 'home', readingMode: mode }, '', url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleClearReadingMode = () => {
+    setReadingMode(null);
+    setSelectedSpread(null);
+    window.history.pushState({ view: 'home', readingMode: null }, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -121,7 +130,9 @@ const App: React.FC = () => {
     if (user.credits >= spread.cost) {
       setSelectedSpread(spread);
       setCurrentView('reading');
-      window.history.pushState({ view: 'reading', readingMode: 'tarot', selectedSpread: spread }, '', '/reading');
+      // Create URL-friendly spread name
+      const spreadSlug = spread.nameEn.toLowerCase().replace(/\s+/g, '-');
+      window.history.pushState({ view: 'reading', readingMode: 'tarot', selectedSpread: spread }, '', `/tarot/${spreadSlug}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Show no credits modal instead of alert
@@ -172,12 +183,6 @@ const App: React.FC = () => {
             ))}
           </div>
 
-          {/* Loading indicator */}
-          <div className="flex items-center justify-center gap-2 text-purple-300">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-          </div>
         </div>
       </div>
     );
@@ -216,11 +221,13 @@ const App: React.FC = () => {
     // 5. Active Reading View
     if (currentView === 'reading' && selectedSpread) {
       return (
-        <ActiveReading
-          spread={selectedSpread}
-          style={InterpretationStyle.CLASSIC}
-          onFinish={handleReadingFinish}
-        />
+        <ErrorBoundary>
+          <ActiveReading
+            spread={selectedSpread}
+            style={InterpretationStyle.CLASSIC}
+            onFinish={handleReadingFinish}
+          />
+        </ErrorBoundary>
       );
     }
 
@@ -323,6 +330,13 @@ const App: React.FC = () => {
       </div>
 
       <Header onNavigate={handleNavigate} currentView={currentView} />
+      <Breadcrumb
+        currentView={currentView}
+        readingMode={readingMode}
+        selectedSpread={selectedSpread}
+        onNavigate={handleNavigate}
+        onClearReadingMode={handleClearReadingMode}
+      />
       <main className="relative z-10 flex-grow">
         <ErrorBoundary>
           {renderContent()}

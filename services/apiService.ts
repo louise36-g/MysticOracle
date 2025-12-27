@@ -275,6 +275,193 @@ export async function checkHealth(): Promise<{ status: string; timestamp: string
   return apiRequest('/api/health');
 }
 
+// ============================================
+// ADMIN ENDPOINTS
+// ============================================
+
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalReadings: number;
+  totalRevenue: number;
+  todayReadings: number;
+  todaySignups: number;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  username: string;
+  credits: number;
+  totalReadings: number;
+  totalCreditsEarned: number;
+  totalCreditsSpent: number;
+  loginStreak: number;
+  lastLoginDate: string;
+  accountStatus: 'ACTIVE' | 'FLAGGED' | 'SUSPENDED';
+  isAdmin: boolean;
+  createdAt: string;
+  _count: {
+    achievements: number;
+    readings: number;
+  };
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface AdminRevenue {
+  totalRevenue: number;
+  totalTransactions: number;
+  last30Days: {
+    revenue: number;
+    transactions: number;
+  };
+  byProvider: Array<{
+    paymentProvider: string;
+    _sum: { paymentAmount: number };
+    _count: number;
+  }>;
+}
+
+export async function fetchAdminStats(token: string): Promise<AdminStats> {
+  return apiRequest('/api/admin/stats', { token });
+}
+
+export async function fetchAdminUsers(
+  token: string,
+  params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'ACTIVE' | 'FLAGGED' | 'SUSPENDED';
+    sortBy?: 'createdAt' | 'credits' | 'totalReadings' | 'username';
+    sortOrder?: 'asc' | 'desc';
+  } = {}
+): Promise<AdminUserList> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.search) queryParams.set('search', params.search);
+  if (params.status) queryParams.set('status', params.status);
+  if (params.sortBy) queryParams.set('sortBy', params.sortBy);
+  if (params.sortOrder) queryParams.set('sortOrder', params.sortOrder);
+
+  return apiRequest(`/api/admin/users?${queryParams.toString()}`, { token });
+}
+
+export async function fetchAdminUserDetail(token: string, userId: string): Promise<any> {
+  return apiRequest(`/api/admin/users/${userId}`, { token });
+}
+
+export async function updateUserStatus(
+  token: string,
+  userId: string,
+  status: 'ACTIVE' | 'FLAGGED' | 'SUSPENDED'
+): Promise<{ success: boolean }> {
+  return apiRequest(`/api/admin/users/${userId}/status`, {
+    method: 'PATCH',
+    body: { status },
+    token,
+  });
+}
+
+export async function adjustUserCredits(
+  token: string,
+  userId: string,
+  amount: number,
+  reason: string
+): Promise<{ success: boolean; newBalance: number }> {
+  return apiRequest(`/api/admin/users/${userId}/credits`, {
+    method: 'POST',
+    body: { amount, reason },
+    token,
+  });
+}
+
+export async function toggleUserAdmin(
+  token: string,
+  userId: string
+): Promise<{ success: boolean; isAdmin: boolean }> {
+  return apiRequest(`/api/admin/users/${userId}/admin`, {
+    method: 'PATCH',
+    token,
+  });
+}
+
+export async function fetchAdminTransactions(
+  token: string,
+  params: { page?: number; limit?: number; type?: string } = {}
+): Promise<{
+  transactions: Array<Transaction & { user: { username: string; email: string } }>;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+}> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.type) queryParams.set('type', params.type);
+
+  return apiRequest(`/api/admin/transactions?${queryParams.toString()}`, { token });
+}
+
+export async function fetchAdminRevenue(token: string): Promise<AdminRevenue> {
+  return apiRequest('/api/admin/revenue', { token });
+}
+
+export async function fetchAdminReadingStats(token: string): Promise<{
+  bySpreadType: Array<{ spreadType: string; _count: number }>;
+  recentReadings: Array<{
+    id: string;
+    spreadType: string;
+    creditCost: number;
+    createdAt: string;
+    user: { username: string };
+  }>;
+}> {
+  return apiRequest('/api/admin/readings/stats', { token });
+}
+
+export async function fetchAdminAIConfig(token: string): Promise<{
+  model: string;
+  provider: string;
+  hasApiKey: boolean;
+}> {
+  return apiRequest('/api/admin/config/ai', { token });
+}
+
+export interface AdminAnalytics {
+  readingsByDay: Array<{ date: string; count: number }>;
+  topUsers: Array<{ id: string; username: string; count: number }>;
+  topCreditUsers: Array<{ username: string; credits: number }>;
+  topStreakUsers: Array<{ username: string; streak: number }>;
+}
+
+export async function fetchAdminAnalytics(token: string): Promise<AdminAnalytics> {
+  return apiRequest('/api/admin/analytics', { token });
+}
+
+export interface EmailTemplate {
+  id: string;
+  nameEn: string;
+  nameFr: string;
+  subjectEn: string;
+  subjectFr: string;
+}
+
+export async function fetchAdminEmailTemplates(token: string): Promise<{
+  templates: EmailTemplate[];
+  brevoConfigured: boolean;
+}> {
+  return apiRequest('/api/admin/config/email-templates', { token });
+}
+
 export default {
   fetchUserProfile,
   updateUserProfile,
@@ -292,4 +479,17 @@ export default {
   capturePayPalOrder,
   fetchPurchaseHistory,
   checkHealth,
+  // Admin
+  fetchAdminStats,
+  fetchAdminUsers,
+  fetchAdminUserDetail,
+  updateUserStatus,
+  adjustUserCredits,
+  toggleUserAdmin,
+  fetchAdminTransactions,
+  fetchAdminRevenue,
+  fetchAdminReadingStats,
+  fetchAdminAIConfig,
+  fetchAdminAnalytics,
+  fetchAdminEmailTemplates,
 };

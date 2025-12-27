@@ -4,10 +4,34 @@ import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { DailyBonusCard } from './rewards';
-import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
-import { SPREADS } from '../constants';
+import { SPREADS, FULL_DECK } from '../constants';
+
+// Helper to get achievement progress
+const getAchievementProgress = (achievementId: string, user: { totalReadings: number; loginStreak: number; spreadsUsed?: SpreadType[]; achievements?: string[] }) => {
+  const totalSpreads = Object.keys(SPREADS).length;
+
+  switch (achievementId) {
+    case 'first_reading':
+      return { current: Math.min(user.totalReadings, 1), target: 1 };
+    case 'five_readings':
+      return { current: Math.min(user.totalReadings, 5), target: 5 };
+    case 'ten_readings':
+      return { current: Math.min(user.totalReadings, 10), target: 10 };
+    case 'celtic_master':
+      return { current: user.spreadsUsed?.includes(SpreadType.CELTIC_CROSS) ? 1 : 0, target: 1 };
+    case 'all_spreads':
+      return { current: user.spreadsUsed?.length || 0, target: totalSpreads };
+    case 'week_streak':
+      return { current: Math.min(user.loginStreak, 7), target: 7 };
+    case 'share_reading':
+      return { current: user.achievements?.includes('share_reading') ? 1 : 0, target: 1 };
+    default:
+      return { current: 0, target: 1 };
+  }
+};
 
 const UserProfile: React.FC = () => {
     const { user, language, logout, history } = useApp();
@@ -16,6 +40,7 @@ const UserProfile: React.FC = () => {
 
     const [isCopied, setIsCopied] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
+    const [expandedReading, setExpandedReading] = useState<string | null>(null);
 
     if (!isSignedIn) return null;
 
@@ -133,22 +158,46 @@ const UserProfile: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {ACHIEVEMENTS.map(achievement => {
                         const isUnlocked = displayUser.achievements?.includes(achievement.id);
+                        const progress = getAchievementProgress(achievement.id, {
+                            totalReadings: user?.totalReadings || 0,
+                            loginStreak: user?.loginStreak || 0,
+                            spreadsUsed: user?.spreadsUsed,
+                            achievements: displayUser.achievements
+                        });
+                        const progressPercent = Math.round((progress.current / progress.target) * 100);
+
                         return (
                             <div
                                 key={achievement.id}
                                 className={`p-3 rounded-lg border text-center transition-all ${
                                     isUnlocked
                                         ? 'bg-amber-900/20 border-amber-500/30'
-                                        : 'bg-slate-800/30 border-slate-700/30 opacity-50'
+                                        : 'bg-slate-800/30 border-slate-700/30'
                                 }`}
                             >
                                 <Star className={`w-6 h-6 mx-auto mb-2 ${isUnlocked ? 'text-amber-400' : 'text-slate-600'}`} />
-                                <p className={`text-sm font-medium ${isUnlocked ? 'text-amber-100' : 'text-slate-500'}`}>
+                                <p className={`text-sm font-medium ${isUnlocked ? 'text-amber-100' : 'text-slate-400'}`}>
                                     {language === 'en' ? achievement.nameEn : achievement.nameFr}
                                 </p>
                                 <p className="text-xs text-slate-400 mt-1">
                                     {language === 'en' ? achievement.descriptionEn : achievement.descriptionFr}
                                 </p>
+
+                                {/* Progress bar */}
+                                {!isUnlocked && (
+                                    <div className="mt-2">
+                                        <div className="w-full bg-slate-700 rounded-full h-1.5 mb-1">
+                                            <div
+                                                className="bg-gradient-to-r from-purple-500 to-amber-500 h-1.5 rounded-full transition-all duration-300"
+                                                style={{ width: `${progressPercent}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-xs text-slate-500">
+                                            {progress.current}/{progress.target}
+                                        </p>
+                                    </div>
+                                )}
+
                                 <p className={`text-xs mt-2 ${isUnlocked ? 'text-green-400' : 'text-amber-500'}`}>
                                     {isUnlocked ? (language === 'en' ? 'Unlocked!' : 'Débloqué!') : `+${achievement.reward} ${language === 'en' ? 'credits' : 'crédits'}`}
                                 </p>
@@ -172,35 +221,98 @@ const UserProfile: React.FC = () => {
                         {language === 'en' ? 'No readings yet. Start your journey!' : 'Pas encore de lectures. Commencez votre voyage!'}
                     </p>
                 ) : (
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                        {history.slice(0, 10).map((reading, index) => {
+                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        {history.slice(0, 20).map((reading, index) => {
                             const spread = SPREADS[reading.spreadType as SpreadType];
+                            const isExpanded = expandedReading === reading.id;
+                            const cardDetails = reading.cards?.map(cardId => FULL_DECK.find(c => c.id === cardId)).filter(Boolean) || [];
+
                             return (
                                 <motion.div
                                     key={reading.id}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+                                    transition={{ delay: index * 0.03 }}
+                                    className="bg-slate-800/50 rounded-lg border border-slate-700/30 overflow-hidden"
                                 >
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="text-purple-200 font-medium">
-                                                {spread ? (language === 'en' ? spread.nameEn : spread.nameFr) : reading.spreadType}
-                                            </h3>
-                                            {reading.question && (
-                                                <p className="text-sm text-slate-400 italic mt-1">"{reading.question}"</p>
-                                            )}
+                                    <button
+                                        onClick={() => setExpandedReading(isExpanded ? null : reading.id)}
+                                        className="w-full p-4 text-left hover:bg-slate-700/20 transition-colors"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-purple-200 font-medium">
+                                                        {spread ? (language === 'en' ? spread.nameEn : spread.nameFr) : reading.spreadType}
+                                                    </h3>
+                                                    <span className="text-xs bg-purple-900/30 text-purple-300 px-2 py-0.5 rounded">
+                                                        {reading.cards?.length || 0} {language === 'en' ? 'cards' : 'cartes'}
+                                                    </span>
+                                                </div>
+                                                {reading.question && (
+                                                    <p className="text-sm text-slate-400 italic mt-1 line-clamp-1">"{reading.question}"</p>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-slate-500">
+                                                    {new Date(reading.date).toLocaleDateString()}
+                                                </span>
+                                                {isExpanded ? (
+                                                    <ChevronUp className="w-4 h-4 text-slate-400" />
+                                                ) : (
+                                                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                                                )}
+                                            </div>
                                         </div>
-                                        <span className="text-xs text-slate-500">
-                                            {new Date(reading.date).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-3">
-                                        <span className="text-xs text-slate-500">
-                                            {reading.cards.length} {language === 'en' ? 'cards' : 'cartes'}
-                                        </span>
-                                    </div>
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="border-t border-slate-700/30"
+                                            >
+                                                <div className="p-4 space-y-3">
+                                                    {/* Cards drawn */}
+                                                    <div>
+                                                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">
+                                                            {language === 'en' ? 'Cards Drawn' : 'Cartes Tirées'}
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {cardDetails.map((card, i) => (
+                                                                <span
+                                                                    key={i}
+                                                                    className="text-xs bg-slate-700/50 text-amber-200 px-2 py-1 rounded border border-amber-500/20"
+                                                                >
+                                                                    {language === 'en' ? card?.nameEn : card?.nameFr}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Position meanings */}
+                                                    {spread && cardDetails.length > 0 && (
+                                                        <div className="grid gap-2 mt-3">
+                                                            {cardDetails.map((card, i) => {
+                                                                const positionMeaning = language === 'en'
+                                                                    ? spread.positionMeaningsEn[i]
+                                                                    : spread.positionMeaningsFr[i];
+                                                                return (
+                                                                    <div key={i} className="flex items-center gap-2 text-xs">
+                                                                        <span className="text-slate-500 w-24 shrink-0">{positionMeaning}:</span>
+                                                                        <span className="text-purple-200">{language === 'en' ? card?.nameEn : card?.nameFr}</span>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </motion.div>
                             );
                         })}

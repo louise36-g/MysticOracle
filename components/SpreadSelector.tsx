@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion } from 'framer-motion';
-import { Coins } from 'lucide-react';
+import { Coins, ShoppingCart } from 'lucide-react';
+import CreditShop from './CreditShop';
 
 interface SpreadSelectorProps {
   onSelect: (spread: SpreadConfig) => void;
@@ -98,8 +99,16 @@ const SpreadVisual: React.FC<{ spreadId: SpreadType }> = ({ spreadId }) => {
 
 const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
   const { language, user } = useApp();
+  const [showCreditShop, setShowCreditShop] = useState(false);
+
+  const handleBuyCredits = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowCreditShop(true);
+  };
 
   return (
+    <>
+    <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
     <div className="max-w-4xl mx-auto py-12 px-4">
       <h2 className="text-3xl md:text-4xl font-heading text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-purple-200 mb-2">
         {language === 'en' ? 'Choose Your Spread' : 'Choisissez Votre Tirage'}
@@ -155,12 +164,19 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                 </div>
               </div>
 
-              {/* Insufficient credits indicator */}
+              {/* Insufficient credits indicator with Buy Credits button */}
               {!hasEnoughCredits && (
-                <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 p-4">
                   <span className="px-3 py-1.5 bg-red-500/20 border border-red-500/40 rounded-full text-xs text-red-300">
                     {language === 'en' ? 'Insufficient Credits' : 'Crédits Insuffisants'}
                   </span>
+                  <button
+                    onClick={handleBuyCredits}
+                    className="mt-1 flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg text-white text-sm font-medium hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -168,6 +184,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
         })}
       </div>
     </div>
+    </>
   );
 };
 

@@ -7,16 +7,18 @@ interface DailyBonusCardProps {
   className?: string;
 }
 
+const BONUS_COOLDOWN_HOURS = 24;
+
 const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
   const { user, language, claimDailyBonus } = useApp();
   const [isClaiming, setIsClaiming] = useState(false);
   const [flyingCoins, setFlyingCoins] = useState<{ id: number; startX: number; startY: number }[]>([]);
-  const [claimResult, setClaimResult] = useState<{ success: boolean; credits?: number; message?: string } | null>(null);
+  const [justClaimed, setJustClaimed] = useState(false);
   const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const [canClaim, setCanClaim] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Calculate time until next bonus
+  // Calculate time until next bonus (24 hours from last claim)
   useEffect(() => {
     const calculateTimeUntilNext = () => {
       if (!user?.lastLoginDate) {
@@ -25,30 +27,26 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
         return;
       }
 
-      const lastLogin = new Date(user.lastLoginDate);
+      const lastClaim = new Date(user.lastLoginDate);
       const now = new Date();
 
-      // Check if it's a new day (reset at midnight)
-      const lastLoginDay = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      // Calculate 24 hours from last claim
+      const nextClaimTime = new Date(lastClaim.getTime() + BONUS_COOLDOWN_HOURS * 60 * 60 * 1000);
+      const diff = nextClaimTime.getTime() - now.getTime();
 
-      if (today > lastLoginDay) {
+      if (diff <= 0) {
         setCanClaim(true);
         setTimeUntilNext('');
       } else {
         setCanClaim(false);
-        // Calculate time until midnight
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const diff = tomorrow.getTime() - now.getTime();
 
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        // Show format based on time remaining
+        // Always show full format with seconds
         if (hours > 0) {
-          setTimeUntilNext(`${hours}h ${minutes}m`);
+          setTimeUntilNext(`${hours}h ${minutes}m ${seconds}s`);
         } else if (minutes > 0) {
           setTimeUntilNext(`${minutes}m ${seconds}s`);
         } else {
@@ -58,7 +56,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
     };
 
     calculateTimeUntilNext();
-    // Update every second for more accurate countdown
+    // Update every second
     const interval = setInterval(calculateTimeUntilNext, 1000);
 
     return () => clearInterval(interval);
@@ -73,13 +71,12 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
     const startY = rect.top + rect.height / 2;
 
     setIsClaiming(true);
-    setClaimResult(null);
 
     try {
       const result = await claimDailyBonus();
 
       if (result.success) {
-        setClaimResult({ success: true, credits: result.amount });
+        setJustClaimed(true);
 
         // Create flying coins from button position
         const coins = [
@@ -91,23 +88,18 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
         // Clear coins after animation
         setTimeout(() => setFlyingCoins([]), 1200);
 
-        // Update canClaim state
-        setCanClaim(false);
-      } else {
-        setClaimResult({
-          success: false,
-          message: language === 'en' ? 'Already claimed today' : 'Déjà réclamé aujourd\'hui',
-        });
+        // Auto-hide "Claimed" state after 3 seconds and show timer
+        setTimeout(() => {
+          setJustClaimed(false);
+          setCanClaim(false);
+        }, 3000);
       }
     } catch (error) {
-      setClaimResult({
-        success: false,
-        message: language === 'en' ? 'Failed to claim bonus' : 'Échec de la réclamation',
-      });
+      console.error('Failed to claim bonus:', error);
     } finally {
       setIsClaiming(false);
     }
-  }, [canClaim, isClaiming, claimDailyBonus, language]);
+  }, [canClaim, isClaiming, claimDailyBonus]);
 
   const streakBonus = (user?.loginStreak || 0) >= 6;
   const baseCredits = 2;
@@ -126,7 +118,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
         whileTap={canClaim ? { scale: 0.98 } : {}}
       >
         {/* Animated background for claimable state */}
-        {canClaim && (
+        {canClaim && !justClaimed && (
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent"
             animate={{
@@ -145,15 +137,19 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
             <div className="flex items-center gap-2">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  canClaim
+                  canClaim || justClaimed
                     ? 'bg-gradient-to-br from-amber-400 to-orange-500'
                     : 'bg-slate-700'
                 }`}
               >
-                <Gift className={`w-5 h-5 ${canClaim ? 'text-white' : 'text-slate-400'}`} />
+                {justClaimed ? (
+                  <Check className="w-5 h-5 text-white" />
+                ) : (
+                  <Gift className={`w-5 h-5 ${canClaim ? 'text-white' : 'text-slate-400'}`} />
+                )}
               </div>
               <div>
-                <h3 className={`font-heading font-bold ${canClaim ? 'text-amber-100' : 'text-slate-300'}`}>
+                <h3 className={`font-heading font-bold ${canClaim || justClaimed ? 'text-amber-100' : 'text-slate-300'}`}>
                   {language === 'en' ? 'Daily Bonus' : 'Bonus Quotidien'}
                 </h3>
                 {user?.loginStreak && user.loginStreak > 0 && (
@@ -169,7 +165,7 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
 
             {/* Reward amount */}
             <div className="text-right">
-              <div className={`text-2xl font-bold ${canClaim ? 'text-amber-400' : 'text-slate-500'}`}>
+              <div className={`text-2xl font-bold ${canClaim || justClaimed ? 'text-amber-400' : 'text-slate-500'}`}>
                 +{totalCredits}
               </div>
               <div className="text-xs text-slate-400">
@@ -179,76 +175,79 @@ const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ className = '' }) => {
           </div>
 
           {/* Streak bonus indicator */}
-          {streakBonus && canClaim && (
+          {streakBonus && canClaim && !justClaimed && (
             <div className="mb-3 flex items-center gap-2 text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded-full w-fit">
               <Sparkles className="w-3 h-3" />
               <span>{language === 'en' ? '7-day streak bonus: +5' : 'Bonus 7 jours: +5'}</span>
             </div>
           )}
 
-          {/* Claim button or countdown */}
-          {canClaim ? (
-            <motion.button
-              ref={buttonRef}
-              onClick={handleClaim}
-              disabled={isClaiming}
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold
-                hover:from-amber-400 hover:to-orange-400 transition-all disabled:opacity-50
-                flex items-center justify-center gap-2 shadow-glow-amber"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isClaiming ? (
-                <>
-                  <motion.div
-                    className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  />
-                  <span>{language === 'en' ? 'Claiming...' : 'Réclamation...'}</span>
-                </>
-              ) : claimResult?.success ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  <span>{language === 'en' ? 'Claimed!' : 'Réclamé !'}</span>
-                </>
-              ) : (
-                <>
-                  <Gift className="w-5 h-5" />
-                  <span>{language === 'en' ? 'Claim Bonus' : 'Réclamer le Bonus'}</span>
-                </>
-              )}
-            </motion.button>
-          ) : (
-            <div className="flex items-center justify-center gap-2 py-3 text-slate-400 bg-slate-800/50 rounded-lg">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm">
-                {language === 'en' ? 'Next bonus in' : 'Prochain bonus dans'}{' '}
-                <span className="font-mono font-bold text-slate-300">{timeUntilNext || '...'}</span>
-              </span>
-            </div>
-          )}
-
-          {/* Error message */}
-          <AnimatePresence>
-            {claimResult && !claimResult.success && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mt-2 text-sm text-red-400 text-center"
+          {/* Claim button, claimed message, or countdown */}
+          <AnimatePresence mode="wait">
+            {justClaimed ? (
+              <motion.div
+                key="claimed"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="flex items-center justify-center gap-2 py-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400"
               >
-                {claimResult.message}
-              </motion.p>
+                <Check className="w-5 h-5" />
+                <span className="font-medium">{language === 'en' ? 'Bonus Claimed!' : 'Bonus Réclamé !'}</span>
+              </motion.div>
+            ) : canClaim ? (
+              <motion.button
+                key="claim"
+                ref={buttonRef}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={handleClaim}
+                disabled={isClaiming}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold
+                  hover:from-amber-400 hover:to-orange-400 transition-all disabled:opacity-50
+                  flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isClaiming ? (
+                  <>
+                    <motion.div
+                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    />
+                    <span>{language === 'en' ? 'Claiming...' : 'Réclamation...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Gift className="w-5 h-5" />
+                    <span>{language === 'en' ? 'Claim Bonus' : 'Réclamer le Bonus'}</span>
+                  </>
+                )}
+              </motion.button>
+            ) : (
+              <motion.div
+                key="countdown"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center justify-center gap-2 py-3 text-slate-400 bg-slate-800/50 rounded-lg"
+              >
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">
+                  {language === 'en' ? 'Next bonus in' : 'Prochain bonus dans'}{' '}
+                  <span className="font-mono font-bold text-slate-300">{timeUntilNext || '...'}</span>
+                </span>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
       </motion.div>
 
-      {/* Flying Coins Animation - using fixed positioning with calculated values */}
+      {/* Flying Coins Animation */}
       <AnimatePresence>
         {flyingCoins.map((coin) => {
-          // Find the header credits element
           const headerCredits = document.querySelector('[data-credit-counter]');
           const targetRect = headerCredits?.getBoundingClientRect();
           const targetX = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth - 100;

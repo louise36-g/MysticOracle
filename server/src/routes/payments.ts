@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
 import { createClerkClient } from '@clerk/backend';
+import { z } from 'zod';
 import {
   Client,
   Environment,
@@ -15,6 +16,24 @@ import {
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { sendWelcomeEmail } from '../services/email.js';
+
+// Zod validation schemas
+const stripeCheckoutSchema = z.object({
+  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium'], {
+    errorMap: () => ({ message: 'Invalid package ID' })
+  }),
+  useStripeLink: z.boolean().optional().default(false),
+});
+
+const paypalOrderSchema = z.object({
+  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium'], {
+    errorMap: () => ({ message: 'Invalid package ID' })
+  }),
+});
+
+const paypalCaptureSchema = z.object({
+  orderId: z.string().min(1, 'Order ID is required'),
+});
 
 // Initialize Clerk client for fetching user info
 const clerk = createClerkClient({
@@ -176,8 +195,17 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
       return res.status(503).json({ error: 'Stripe payments not configured' });
     }
 
+    // Validate request body
+    const validation = stripeCheckoutSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.error.errors.map(e => e.message)
+      });
+    }
+
     const userId = req.auth.userId;
-    const { packageId, useStripeLink = false } = req.body;
+    const { packageId, useStripeLink } = validation.data;
 
     const creditPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
     if (!creditPackage) {
@@ -276,8 +304,17 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
       return res.status(503).json({ error: 'PayPal payments not configured' });
     }
 
+    // Validate request body
+    const validation = paypalOrderSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.error.errors.map(e => e.message)
+      });
+    }
+
     const userId = req.auth.userId;
-    const { packageId } = req.body;
+    const { packageId } = validation.data;
 
     const creditPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
     if (!creditPackage) {
@@ -364,12 +401,17 @@ router.post('/paypal/capture', requireAuth, async (req, res) => {
       return res.status(503).json({ error: 'PayPal payments not configured' });
     }
 
-    const userId = req.auth.userId;
-    const { orderId } = req.body;
-
-    if (!orderId) {
-      return res.status(400).json({ error: 'Order ID required' });
+    // Validate request body
+    const validation = paypalCaptureSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.error.errors.map(e => e.message)
+      });
     }
+
+    const userId = req.auth.userId;
+    const { orderId } = validation.data;
 
     // Capture the order
     const { body } = await ordersController.captureOrder({

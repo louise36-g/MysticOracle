@@ -1,65 +1,52 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { getAllUsers, getAllReadings } from '../../services/storageService';
+import { fetchAdminAnalytics, AdminAnalytics as AnalyticsData } from '../../services/apiService';
 import { TrendingUp, Award, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const AdminAnalytics: React.FC = () => {
   const { language } = useApp();
+  const { getToken } = useAuth();
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const analytics = useMemo(() => {
-    const users = getAllUsers();
-    const readings = getAllReadings();
+  useEffect(() => {
+    const loadAnalytics = async () => {
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('No token');
 
-    // Most active users (by readings)
-    const userReadingCounts: Record<string, { username: string; count: number }> = {};
-    readings.forEach((r) => {
-      if (r.userId) {
-        if (!userReadingCounts[r.userId]) {
-          const user = users.find((u) => u.id === r.userId);
-          userReadingCounts[r.userId] = { username: user?.username || 'Unknown', count: 0 };
-        }
-        userReadingCounts[r.userId].count++;
+        const data = await fetchAdminAnalytics(token);
+        setAnalytics(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      } finally {
+        setLoading(false);
       }
-    });
-    const topUsers = Object.entries(userReadingCounts)
-      .sort(([, a], [, b]) => b.count - a.count)
-      .slice(0, 5)
-      .map(([id, data]) => ({ id, ...data }));
+    };
 
-    // Users with most credits
-    const topCreditUsers = [...users]
-      .sort((a, b) => b.credits - a.credits)
-      .slice(0, 5)
-      .map((u) => ({ username: u.username, credits: u.credits }));
+    loadAnalytics();
+  }, [getToken]);
 
-    // Readings by day (last 7 days)
-    const now = new Date();
-    const dayMs = 24 * 60 * 60 * 1000;
-    const readingsByDay: { date: string; count: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const dayStart = new Date(now.getTime() - i * dayMs);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart.getTime() + dayMs);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-      const count = readings.filter((r) => {
-        const readingDate = new Date(r.date).getTime();
-        return readingDate >= dayStart.getTime() && readingDate < dayEnd.getTime();
-      }).length;
+  if (error) {
+    return (
+      <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300">
+        {error}
+      </div>
+    );
+  }
 
-      readingsByDay.push({
-        date: dayStart.toLocaleDateString('en-US', { weekday: 'short' }),
-        count,
-      });
-    }
-
-    // Users with longest login streaks
-    const topStreakUsers = [...users]
-      .sort((a, b) => b.loginStreak - a.loginStreak)
-      .slice(0, 5)
-      .map((u) => ({ username: u.username, streak: u.loginStreak }));
-
-    return { topUsers, topCreditUsers, readingsByDay, topStreakUsers };
-  }, []);
+  if (!analytics) return null;
 
   return (
     <div className="space-y-8">
@@ -69,7 +56,11 @@ const AdminAnalytics: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Readings Chart (Simple Bar) */}
-        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
+        >
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-purple-400" />
             <h3 className="text-lg font-medium text-purple-200">
@@ -85,7 +76,7 @@ const AdminAnalytics: React.FC = () => {
                   <div className="w-full flex flex-col items-center justify-end h-24">
                     <span className="text-xs text-purple-300 mb-1">{day.count}</span>
                     <div
-                      className="w-full bg-purple-500 rounded-t"
+                      className="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t transition-all"
                       style={{ height: `${Math.max(height, 4)}%` }}
                     />
                   </div>
@@ -94,10 +85,15 @@ const AdminAnalytics: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Top Users by Readings */}
-        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
+        >
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-green-400" />
             <h3 className="text-lg font-medium text-purple-200">
@@ -105,7 +101,7 @@ const AdminAnalytics: React.FC = () => {
             </h3>
           </div>
           {analytics.topUsers.length === 0 ? (
-            <p className="text-slate-400">{language === 'en' ? 'No data yet' : 'Pas de données'}</p>
+            <p className="text-slate-400">{language === 'en' ? 'No data yet' : 'Pas de donnees'}</p>
           ) : (
             <div className="space-y-3">
               {analytics.topUsers.map((user, i) => (
@@ -133,14 +129,19 @@ const AdminAnalytics: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Top Credit Holders */}
-        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
+        >
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5 text-amber-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Top Credit Holders' : 'Top Détenteurs de Crédits'}
+              {language === 'en' ? 'Top Credit Holders' : 'Top Detenteurs de Credits'}
             </h3>
           </div>
           {analytics.topCreditUsers.length === 0 ? (
@@ -155,14 +156,19 @@ const AdminAnalytics: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Login Streaks */}
-        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
+        >
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-pink-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Longest Login Streaks' : 'Plus Longues Séries de Connexion'}
+              {language === 'en' ? 'Longest Login Streaks' : 'Plus Longues Series de Connexion'}
             </h3>
           </div>
           {analytics.topStreakUsers.length === 0 ? (
@@ -179,7 +185,7 @@ const AdminAnalytics: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

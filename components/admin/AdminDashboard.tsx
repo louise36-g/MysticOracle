@@ -2,50 +2,65 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AdminOverview from './AdminOverview';
 import AdminUsers from './AdminUsers';
+import AdminTransactions from './AdminTransactions';
 import AdminAnalytics from './AdminAnalytics';
+import AdminSettings from './AdminSettings';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Mail, Bot } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'analytics';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
 
-  const tabs: { id: AdminTab; labelEn: string; labelFr: string }[] = [
-    { id: 'overview', labelEn: 'Overview', labelFr: 'Aperçu' },
-    { id: 'users', labelEn: 'Users', labelFr: 'Utilisateurs' },
-    { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique' },
+  const tabs: { id: AdminTab; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
+    { id: 'overview', labelEn: 'Overview', labelFr: 'Apercu', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { id: 'users', labelEn: 'Users', labelFr: 'Utilisateurs', icon: <Users className="w-4 h-4" /> },
+    { id: 'transactions', labelEn: 'Transactions', labelFr: 'Transactions', icon: <CreditCard className="w-4 h-4" /> },
+    { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-heading text-amber-400 mb-2">
-        {language === 'en' ? 'Admin Dashboard' : 'Tableau de Bord Admin'}
-      </h1>
-      <p className="text-purple-300/70 mb-8">
-        {language === 'en' ? 'Manage users and view platform analytics' : 'Gérez les utilisateurs et consultez les analyses'}
-      </p>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-heading text-amber-400 mb-2">
+          {language === 'en' ? 'Admin Dashboard' : 'Tableau de Bord Admin'}
+        </h1>
+        <p className="text-purple-300/70">
+          {language === 'en'
+            ? 'Manage users, view analytics, and configure the platform'
+            : 'Gerez les utilisateurs, consultez les analyses et configurez la plateforme'}
+        </p>
+      </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-8 border-b border-purple-500/20 pb-4">
+      <div className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/20 pb-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === tab.id
-                ? 'bg-purple-600 text-white'
-                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
           >
-            {language === 'en' ? tab.labelEn : tab.labelFr}
+            {tab.icon}
+            <span className="hidden sm:inline">{language === 'en' ? tab.labelEn : tab.labelFr}</span>
           </button>
         ))}
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'overview' && <AdminOverview />}
-      {activeTab === 'users' && <AdminUsers />}
-      {activeTab === 'analytics' && <AdminAnalytics />}
+      <div className="min-h-[500px]">
+        {activeTab === 'overview' && <AdminOverview />}
+        {activeTab === 'users' && <AdminUsers />}
+        {activeTab === 'transactions' && <AdminTransactions />}
+        {activeTab === 'analytics' && <AdminAnalytics />}
+        {activeTab === 'settings' && <AdminSettings />}
+      </div>
     </div>
   );
 };

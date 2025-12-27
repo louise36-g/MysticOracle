@@ -4,6 +4,7 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import App from './App';
+import './styles/main.css';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

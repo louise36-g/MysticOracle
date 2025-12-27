@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { createClerkClient, verifyToken } from '@clerk/backend';
+import prisma from '../db/prisma.js';
 
 // Extend Express Request type
 declare global {
@@ -90,7 +91,7 @@ export async function optionalAuth(
 }
 
 /**
- * Middleware to require admin access
+ * Middleware to require admin access (use after requireAuth)
  */
 export async function requireAdmin(
   req: Request,
@@ -98,29 +99,14 @@ export async function requireAdmin(
   next: NextFunction
 ) {
   try {
-    // First verify auth
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Missing authorization header' });
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY!,
-    });
-
-    if (!payload || !payload.sub) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
+    // requireAuth should have already set req.auth
+    if (!req.auth?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     // Check if user is admin in our database
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
-
     const user = await prisma.user.findUnique({
-      where: { id: payload.sub },
+      where: { id: req.auth.userId },
       select: { isAdmin: true }
     });
 
@@ -128,14 +114,9 @@ export async function requireAdmin(
       return res.status(403).json({ error: 'Admin access required' });
     }
 
-    req.auth = {
-      userId: payload.sub,
-      sessionId: payload.sid as string || ''
-    };
-
     next();
   } catch (error) {
     console.error('Admin auth error:', error);
-    return res.status(401).json({ error: 'Authentication failed' });
+    return res.status(403).json({ error: 'Admin verification failed' });
   }
 }

@@ -41,23 +41,38 @@ const Card: React.FC<CardProps> = ({
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Card Back (Visible at 0deg) */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-xl shadow-2xl"
-          style={{ 
-            backgroundImage: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-            border: '2px solid #fbbf24', // Amber-400
+        <div
+          className="absolute inset-0 w-full h-full rounded-xl shadow-2xl overflow-hidden"
+          style={{
+            backgroundImage: 'linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%)',
+            border: '2px solid #fbbf24',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
           }}
         >
-          <div className="w-full h-full flex items-center justify-center opacity-30">
-               <svg width="40%" height="40%" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-                  <path d="M2 12h20"/>
-               </svg>
+          {/* Outer decorative border */}
+          <div className="absolute inset-2 border border-amber-500/30 rounded-lg" />
+
+          {/* Inner decorative border */}
+          <div className="absolute inset-4 border border-amber-500/20 rounded-md" />
+
+          {/* Corner decorations */}
+          <div className="absolute top-3 left-3 w-2 h-2 bg-amber-500/40 rounded-full" />
+          <div className="absolute top-3 right-3 w-2 h-2 bg-amber-500/40 rounded-full" />
+          <div className="absolute bottom-3 left-3 w-2 h-2 bg-amber-500/40 rounded-full" />
+          <div className="absolute bottom-3 right-3 w-2 h-2 bg-amber-500/40 rounded-full" />
+
+          {/* Center diamond pattern */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 rotate-45 border-2 border-amber-500/40 bg-purple-900/50 flex items-center justify-center">
+              <div className="w-10 h-10 border border-amber-500/30 bg-indigo-900/50 flex items-center justify-center">
+                <div className="w-4 h-4 bg-amber-500/50 rotate-45" />
+              </div>
+            </div>
           </div>
-          <div className="absolute inset-2 border border-purple-400/30 rounded-lg"></div>
+
+          {/* Subtle shimmer overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-white/5 opacity-50" />
         </div>
 
         {/* Card Front (Visible at 180deg) */}

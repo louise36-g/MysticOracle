@@ -259,7 +259,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         setUser(prev => prev ? {
           ...prev,
           credits: result.newBalance,
-          loginStreak: result.streak
+          loginStreak: result.streak,
+          lastLoginDate: new Date().toISOString()
         } : null);
         return { success: true, amount: result.creditsAwarded };
       }
