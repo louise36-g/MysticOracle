@@ -632,6 +632,151 @@ router.delete('/email-templates/:id', async (req, res) => {
 });
 
 // ============================================
+// SEED DEFAULT DATA
+// ============================================
+
+const DEFAULT_PACKAGES = [
+  { credits: 10, priceEur: 5.00, nameEn: 'Starter', nameFr: 'Démarrage', labelEn: 'Try It Out', labelFr: 'Essayez', discount: 0, badge: null, sortOrder: 0 },
+  { credits: 25, priceEur: 10.00, nameEn: 'Basic', nameFr: 'Basique', labelEn: 'Popular', labelFr: 'Populaire', discount: 20, badge: null, sortOrder: 1 },
+  { credits: 60, priceEur: 20.00, nameEn: 'Popular', nameFr: 'Populaire', labelEn: 'Best Value', labelFr: 'Meilleur Valeur', discount: 40, badge: 'POPULAR', sortOrder: 2 },
+  { credits: 100, priceEur: 30.00, nameEn: 'Value', nameFr: 'Valeur', labelEn: 'Most Savings', labelFr: 'Plus d\'économies', discount: 40, badge: 'BEST_VALUE', sortOrder: 3 },
+  { credits: 200, priceEur: 50.00, nameEn: 'Premium', nameFr: 'Premium', labelEn: 'Ultimate Pack', labelFr: 'Pack Ultime', discount: 50, badge: null, sortOrder: 4 },
+];
+
+const DEFAULT_EMAIL_TEMPLATES = [
+  {
+    slug: 'welcome',
+    subjectEn: 'Welcome to MysticOracle - Your Journey Begins!',
+    subjectFr: 'Bienvenue sur MysticOracle - Votre Voyage Commence!',
+    bodyEn: '<h2>Welcome, {{params.username}}!</h2><p>The stars have aligned to welcome you to MysticOracle. Your mystical journey begins now with <strong>10 free credits</strong> to explore the ancient wisdom of Tarot.</p>',
+    bodyFr: '<h2>Bienvenue, {{params.username}}!</h2><p>Les étoiles se sont alignées pour vous accueillir sur MysticOracle. Votre voyage mystique commence maintenant avec <strong>10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.</p>',
+  },
+  {
+    slug: 'purchase_confirmation',
+    subjectEn: 'Payment Confirmed - {{params.credits}} Credits Added',
+    subjectFr: 'Paiement Confirmé - {{params.credits}} Crédits Ajoutés',
+    bodyEn: '<h2>Payment Confirmed!</h2><p>Thank you for your purchase, {{params.username}}. Your credits have been added to your account.</p><p><strong>Credits Added:</strong> +{{params.credits}}<br><strong>Amount Paid:</strong> {{params.amount}}<br><strong>New Balance:</strong> {{params.newBalance}} credits</p>',
+    bodyFr: '<h2>Paiement Confirmé!</h2><p>Merci pour votre achat, {{params.username}}. Vos crédits ont été ajoutés à votre compte.</p><p><strong>Crédits Ajoutés:</strong> +{{params.credits}}<br><strong>Montant Payé:</strong> {{params.amount}}<br><strong>Nouveau Solde:</strong> {{params.newBalance}} crédits</p>',
+  },
+  {
+    slug: 'low_credits_reminder',
+    subjectEn: 'Your MysticOracle Credits are Running Low',
+    subjectFr: 'Vos Crédits MysticOracle sont Presque Épuisés',
+    bodyEn: '<h2>Don\'t let your journey end, {{params.username}}</h2><p>You have only <strong>{{params.credits}} credits</strong> remaining. Top up now to continue receiving mystical guidance.</p>',
+    bodyFr: '<h2>Ne laissez pas votre voyage s\'arrêter, {{params.username}}</h2><p>Il ne vous reste que <strong>{{params.credits}} crédits</strong>. Rechargez maintenant pour continuer à recevoir des conseils mystiques.</p>',
+  },
+];
+
+router.post('/seed/packages', async (req, res) => {
+  try {
+    const existing = await prisma.creditPackage.count();
+    if (existing > 0) {
+      return res.status(400).json({ error: 'Packages already exist. Delete them first if you want to reseed.' });
+    }
+
+    await prisma.creditPackage.createMany({
+      data: DEFAULT_PACKAGES.map(pkg => ({ ...pkg, isActive: true }))
+    });
+
+    const packages = await prisma.creditPackage.findMany({ orderBy: { sortOrder: 'asc' } });
+    res.json({ success: true, packages, count: packages.length });
+  } catch (error) {
+    console.error('Error seeding packages:', error);
+    res.status(500).json({ error: 'Failed to seed packages' });
+  }
+});
+
+router.post('/seed/email-templates', async (req, res) => {
+  try {
+    const existing = await prisma.emailTemplate.count();
+    if (existing > 0) {
+      return res.status(400).json({ error: 'Email templates already exist. Delete them first if you want to reseed.' });
+    }
+
+    await prisma.emailTemplate.createMany({
+      data: DEFAULT_EMAIL_TEMPLATES.map(t => ({ ...t, isActive: true }))
+    });
+
+    const templates = await prisma.emailTemplate.findMany({ orderBy: { slug: 'asc' } });
+    res.json({ success: true, templates, count: templates.length });
+  } catch (error) {
+    console.error('Error seeding email templates:', error);
+    res.status(500).json({ error: 'Failed to seed email templates' });
+  }
+});
+
+// ============================================
+// SERVICE CONFIGURATION
+// ============================================
+
+router.get('/services', async (req, res) => {
+  res.json({
+    services: [
+      {
+        id: 'database',
+        nameEn: 'Database',
+        nameFr: 'Base de données',
+        descriptionEn: 'PostgreSQL database for storing all application data',
+        descriptionFr: 'Base de données PostgreSQL pour stocker toutes les données',
+        envVars: ['DATABASE_URL'],
+        configured: !!process.env.DATABASE_URL,
+        docsUrl: 'https://www.prisma.io/docs/concepts/database-connectors/postgresql'
+      },
+      {
+        id: 'clerk',
+        nameEn: 'Clerk Authentication',
+        nameFr: 'Authentification Clerk',
+        descriptionEn: 'User authentication and session management',
+        descriptionFr: 'Authentification utilisateur et gestion de session',
+        envVars: ['CLERK_SECRET_KEY', 'CLERK_WEBHOOK_SECRET', 'VITE_CLERK_PUBLISHABLE_KEY'],
+        configured: !!process.env.CLERK_SECRET_KEY,
+        docsUrl: 'https://clerk.com/docs'
+      },
+      {
+        id: 'stripe',
+        nameEn: 'Stripe Payments',
+        nameFr: 'Paiements Stripe',
+        descriptionEn: 'Credit card payments processing',
+        descriptionFr: 'Traitement des paiements par carte',
+        envVars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'],
+        configured: !!process.env.STRIPE_SECRET_KEY,
+        docsUrl: 'https://stripe.com/docs'
+      },
+      {
+        id: 'paypal',
+        nameEn: 'PayPal Payments',
+        nameFr: 'Paiements PayPal',
+        descriptionEn: 'PayPal payment processing',
+        descriptionFr: 'Traitement des paiements PayPal',
+        envVars: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'PAYPAL_MODE'],
+        configured: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
+        docsUrl: 'https://developer.paypal.com/docs'
+      },
+      {
+        id: 'brevo',
+        nameEn: 'Brevo Email',
+        nameFr: 'Email Brevo',
+        descriptionEn: 'Transactional and marketing emails',
+        descriptionFr: 'Emails transactionnels et marketing',
+        envVars: ['BREVO_API_KEY'],
+        configured: !!process.env.BREVO_API_KEY,
+        docsUrl: 'https://developers.brevo.com/'
+      },
+      {
+        id: 'openrouter',
+        nameEn: 'OpenRouter AI',
+        nameFr: 'OpenRouter IA',
+        descriptionEn: 'AI model for tarot readings and horoscopes',
+        descriptionFr: 'Modèle IA pour les lectures de tarot et horoscopes',
+        envVars: ['OPENROUTER_API_KEY', 'AI_MODEL'],
+        configured: !!process.env.OPENROUTER_API_KEY,
+        docsUrl: 'https://openrouter.ai/docs'
+      }
+    ]
+  });
+});
+
+// ============================================
 // SYSTEM HEALTH
 // ============================================
 

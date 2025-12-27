@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminAIConfig } from '../../services/apiService';
-import { Bot, Key, CheckCircle, AlertCircle } from 'lucide-react';
+import { fetchAdminAIConfig, fetchAdminServices, ServiceConfig } from '../../services/apiService';
+import { Bot, Key, CheckCircle, AlertCircle, ExternalLink, Server, Database, CreditCard, Mail, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface AIConfig {
@@ -11,10 +11,20 @@ interface AIConfig {
   hasApiKey: boolean;
 }
 
+const serviceIcons: Record<string, React.ReactNode> = {
+  database: <Database className="w-5 h-5" />,
+  clerk: <Users className="w-5 h-5" />,
+  stripe: <CreditCard className="w-5 h-5" />,
+  paypal: <CreditCard className="w-5 h-5" />,
+  brevo: <Mail className="w-5 h-5" />,
+  openrouter: <Bot className="w-5 h-5" />
+};
+
 const AdminSettings: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
   const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
+  const [services, setServices] = useState<ServiceConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,8 +34,13 @@ const AdminSettings: React.FC = () => {
         const token = await getToken();
         if (!token) throw new Error('No token');
 
-        const aiData = await fetchAdminAIConfig(token);
+        const [aiData, servicesData] = await Promise.all([
+          fetchAdminAIConfig(token),
+          fetchAdminServices(token)
+        ]);
+
         setAiConfig(aiData);
+        setServices(servicesData.services);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load settings');
       } finally {
@@ -54,10 +69,103 @@ const AdminSettings: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Service Configuration */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+            <Server className="w-5 h-5 text-cyan-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-heading text-purple-200">
+              {language === 'en' ? 'Service Configuration' : 'Configuration des Services'}
+            </h3>
+            <p className="text-sm text-slate-400">
+              {language === 'en'
+                ? 'Required environment variables for each service'
+                : 'Variables d\'environnement requises pour chaque service'}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {services.map((service, index) => (
+            <motion.div
+              key={service.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={`rounded-lg border p-4 ${
+                service.configured
+                  ? 'border-green-500/30 bg-green-500/5'
+                  : 'border-amber-500/30 bg-amber-500/5'
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="text-slate-400 mt-0.5">
+                    {serviceIcons[service.id] || <Server className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-white">
+                        {language === 'en' ? service.nameEn : service.nameFr}
+                      </h4>
+                      {service.configured ? (
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-amber-400" />
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-400 mt-1">
+                      {language === 'en' ? service.descriptionEn : service.descriptionFr}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {service.envVars.map((envVar) => (
+                        <span
+                          key={envVar}
+                          className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-300"
+                        >
+                          {envVar}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <a
+                  href={service.docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-slate-400 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-colors"
+                  title={language === 'en' ? 'View documentation' : 'Voir la documentation'}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-6 p-4 bg-slate-800/30 rounded-lg">
+          <div className="flex items-start gap-2">
+            <Key className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-slate-400">
+              {language === 'en'
+                ? 'Environment variables are managed on your hosting platform (Render). Go to your service dashboard to update these values.'
+                : 'Les variables d\'environnement sont gérées sur votre plateforme d\'hébergement (Render). Accédez au tableau de bord de votre service pour mettre à jour ces valeurs.'}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* AI Configuration */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
         className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
       >
         <div className="flex items-center gap-3 mb-6">
@@ -71,57 +179,46 @@ const AdminSettings: React.FC = () => {
             <p className="text-sm text-slate-400">
               {language === 'en'
                 ? 'Current AI model and provider settings'
-                : 'Parametres actuels du modele IA'}
+                : 'Paramètres actuels du modèle IA'}
             </p>
           </div>
         </div>
 
         {aiConfig && (
-          <div className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-xs text-slate-400 mb-1">
-                  {language === 'en' ? 'Provider' : 'Fournisseur'}
-                </p>
-                <p className="text-lg font-medium text-white capitalize">{aiConfig.provider}</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-xs text-slate-400 mb-1">
-                  {language === 'en' ? 'Model' : 'Modele'}
-                </p>
-                <p className="text-lg font-medium text-white">{aiConfig.model}</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-xs text-slate-400 mb-1">
-                  {language === 'en' ? 'API Key Status' : 'Statut Cle API'}
-                </p>
-                <div className="flex items-center gap-2">
-                  {aiConfig.hasApiKey ? (
-                    <>
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span className="text-green-400 font-medium">
-                        {language === 'en' ? 'Configured' : 'Configure'}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="w-4 h-4 text-red-400" />
-                      <span className="text-red-400 font-medium">
-                        {language === 'en' ? 'Not Set' : 'Non configure'}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-              <Key className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-amber-200/80">
-                {language === 'en'
-                  ? 'AI configuration is managed via environment variables on your hosting platform (Render). Update OPENROUTER_API_KEY and AI_MODEL in your environment settings.'
-                  : 'La configuration IA est geree via les variables d\'environnement sur votre plateforme d\'hebergement (Render). Mettez a jour OPENROUTER_API_KEY et AI_MODEL dans vos parametres.'}
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">
+                {language === 'en' ? 'Provider' : 'Fournisseur'}
               </p>
+              <p className="text-lg font-medium text-white capitalize">{aiConfig.provider}</p>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">
+                {language === 'en' ? 'Model' : 'Modèle'}
+              </p>
+              <p className="text-lg font-medium text-white">{aiConfig.model}</p>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">
+                {language === 'en' ? 'API Key Status' : 'Statut Clé API'}
+              </p>
+              <div className="flex items-center gap-2">
+                {aiConfig.hasApiKey ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 font-medium">
+                      {language === 'en' ? 'Configured' : 'Configuré'}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-red-400" />
+                    <span className="text-red-400 font-medium">
+                      {language === 'en' ? 'Not Set' : 'Non configuré'}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -131,11 +228,11 @@ const AdminSettings: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ delay: 0.2 }}
         className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-6"
       >
         <h3 className="text-lg font-heading text-purple-200 mb-4">
-          {language === 'en' ? 'System Information' : 'Informations Systeme'}
+          {language === 'en' ? 'System Information' : 'Informations Système'}
         </h3>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-slate-800/50 rounded-lg p-4">

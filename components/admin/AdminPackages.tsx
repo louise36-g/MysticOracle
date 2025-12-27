@@ -6,9 +6,10 @@ import {
   createAdminPackage,
   updateAdminPackage,
   deleteAdminPackage,
+  seedAdminPackages,
   AdminCreditPackage
 } from '../../services/apiService';
-import { Plus, Edit2, Trash2, Package, Check, X, GripVertical } from 'lucide-react';
+import { Plus, Edit2, Trash2, Package, Check, X, GripVertical, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminPackages: React.FC = () => {
@@ -19,6 +20,7 @@ const AdminPackages: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -138,6 +140,22 @@ const AdminPackages: React.FC = () => {
     setEditingId(null);
     setShowNewForm(false);
     resetForm();
+  };
+
+  const handleSeed = async () => {
+    try {
+      setSeeding(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const result = await seedAdminPackages(token);
+      setPackages(result.packages);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to seed packages');
+    } finally {
+      setSeeding(false);
+    }
   };
 
   if (loading) {
@@ -318,8 +336,20 @@ const AdminPackages: React.FC = () => {
 
       <div className="space-y-3">
         {packages.length === 0 && !showNewForm ? (
-          <div className="text-center py-12 text-slate-400">
-            {language === 'en' ? 'No packages yet. Create your first one!' : 'Aucun forfait. Creez le premier!'}
+          <div className="text-center py-12">
+            <p className="text-slate-400 mb-4">
+              {language === 'en' ? 'No packages yet.' : 'Aucun forfait.'}
+            </p>
+            <button
+              onClick={handleSeed}
+              disabled={seeding}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white text-sm mx-auto disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              {seeding
+                ? (language === 'en' ? 'Loading...' : 'Chargement...')
+                : (language === 'en' ? 'Load Default Packages' : 'Charger les forfaits par défaut')}
+            </button>
           </div>
         ) : (
           packages.map((pkg, index) => (

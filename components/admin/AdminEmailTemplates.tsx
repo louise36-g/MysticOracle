@@ -6,9 +6,10 @@ import {
   createAdminEmailTemplate,
   updateAdminEmailTemplate,
   deleteAdminEmailTemplate,
+  seedAdminEmailTemplates,
   AdminEmailTemplate
 } from '../../services/apiService';
-import { Plus, Edit2, Trash2, Mail, Check, X, Eye, Code } from 'lucide-react';
+import { Plus, Edit2, Trash2, Mail, Check, X, Eye, Code, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminEmailTemplates: React.FC = () => {
@@ -22,6 +23,7 @@ const AdminEmailTemplates: React.FC = () => {
   const [showNewForm, setShowNewForm] = useState(false);
   const [previewLang, setPreviewLang] = useState<'en' | 'fr'>('en');
   const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const [seeding, setSeeding] = useState(false);
 
   const [formData, setFormData] = useState({
     slug: '',
@@ -124,6 +126,22 @@ const AdminEmailTemplates: React.FC = () => {
     setEditingId(null);
     setShowNewForm(false);
     resetForm();
+  };
+
+  const handleSeed = async () => {
+    try {
+      setSeeding(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const result = await seedAdminEmailTemplates(token);
+      setTemplates(result.templates);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to seed templates');
+    } finally {
+      setSeeding(false);
+    }
   };
 
   if (loading) {
@@ -279,8 +297,20 @@ const AdminEmailTemplates: React.FC = () => {
 
       <div className="space-y-3">
         {templates.length === 0 && !showNewForm ? (
-          <div className="text-center py-12 text-slate-400">
-            {language === 'en' ? 'No templates yet. Create your first one!' : 'Aucun modele. Creez le premier!'}
+          <div className="text-center py-12">
+            <p className="text-slate-400 mb-4">
+              {language === 'en' ? 'No templates yet.' : 'Aucun modèle.'}
+            </p>
+            <button
+              onClick={handleSeed}
+              disabled={seeding}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white text-sm mx-auto disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              {seeding
+                ? (language === 'en' ? 'Loading...' : 'Chargement...')
+                : (language === 'en' ? 'Load Default Templates' : 'Charger les modèles par défaut')}
+            </button>
           </div>
         ) : (
           templates.map((template, index) => (

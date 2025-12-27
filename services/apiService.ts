@@ -596,6 +596,29 @@ export async function fetchAdminHealth(token: string): Promise<SystemHealth> {
   return apiRequest('/api/admin/health', { token });
 }
 
+export async function seedAdminPackages(token: string): Promise<{ success: boolean; packages: AdminCreditPackage[]; count: number }> {
+  return apiRequest('/api/admin/seed/packages', { method: 'POST', token });
+}
+
+export async function seedAdminEmailTemplates(token: string): Promise<{ success: boolean; templates: AdminEmailTemplate[]; count: number }> {
+  return apiRequest('/api/admin/seed/email-templates', { method: 'POST', token });
+}
+
+export interface ServiceConfig {
+  id: string;
+  nameEn: string;
+  nameFr: string;
+  descriptionEn: string;
+  descriptionFr: string;
+  envVars: string[];
+  configured: boolean;
+  docsUrl: string;
+}
+
+export async function fetchAdminServices(token: string): Promise<{ services: ServiceConfig[] }> {
+  return apiRequest('/api/admin/services', { token });
+}
+
 export default {
   fetchUserProfile,
   updateUserProfile,

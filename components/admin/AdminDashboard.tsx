@@ -8,9 +8,10 @@ import AdminPackages from './AdminPackages';
 import AdminEmailTemplates from './AdminEmailTemplates';
 import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity } from 'lucide-react';
+import AdminTranslations from './AdminTranslations';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'health' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'health' | 'translations' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -24,6 +25,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
+    { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
     { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
   ];
 
@@ -68,6 +70,7 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'emails' && <AdminEmailTemplates />}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'health' && <AdminHealth />}
+        {activeTab === 'translations' && <AdminTranslations />}
         {activeTab === 'settings' && <AdminSettings />}
       </div>
     </div>
