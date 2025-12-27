@@ -710,6 +710,14 @@ router.post('/seed/email-templates', async (req, res) => {
 // ============================================
 
 router.get('/services', async (req, res) => {
+  // Get database settings to check if they override env vars
+  const dbSettings = await prisma.systemSetting.findMany();
+  const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
+
+  const isConfigured = (envVars: string[]) => {
+    return envVars.some(v => settingsMap.has(v) || !!process.env[v]);
+  };
+
   res.json({
     services: [
       {
@@ -720,6 +728,7 @@ router.get('/services', async (req, res) => {
         descriptionFr: 'Base de données PostgreSQL pour stocker toutes les données',
         envVars: ['DATABASE_URL'],
         configured: !!process.env.DATABASE_URL,
+        dashboardUrl: 'https://dashboard.render.com/',
         docsUrl: 'https://www.prisma.io/docs/concepts/database-connectors/postgresql'
       },
       {
@@ -728,8 +737,9 @@ router.get('/services', async (req, res) => {
         nameFr: 'Authentification Clerk',
         descriptionEn: 'User authentication and session management',
         descriptionFr: 'Authentification utilisateur et gestion de session',
-        envVars: ['CLERK_SECRET_KEY', 'CLERK_WEBHOOK_SECRET', 'VITE_CLERK_PUBLISHABLE_KEY'],
+        envVars: ['CLERK_SECRET_KEY', 'CLERK_WEBHOOK_SECRET'],
         configured: !!process.env.CLERK_SECRET_KEY,
+        dashboardUrl: 'https://dashboard.clerk.com/',
         docsUrl: 'https://clerk.com/docs'
       },
       {
@@ -740,6 +750,7 @@ router.get('/services', async (req, res) => {
         descriptionFr: 'Traitement des paiements par carte',
         envVars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'],
         configured: !!process.env.STRIPE_SECRET_KEY,
+        dashboardUrl: 'https://dashboard.stripe.com/',
         docsUrl: 'https://stripe.com/docs'
       },
       {
@@ -748,8 +759,9 @@ router.get('/services', async (req, res) => {
         nameFr: 'Paiements PayPal',
         descriptionEn: 'PayPal payment processing',
         descriptionFr: 'Traitement des paiements PayPal',
-        envVars: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'PAYPAL_MODE'],
+        envVars: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'],
         configured: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
+        dashboardUrl: 'https://developer.paypal.com/dashboard/',
         docsUrl: 'https://developer.paypal.com/docs'
       },
       {
@@ -760,6 +772,7 @@ router.get('/services', async (req, res) => {
         descriptionFr: 'Emails transactionnels et marketing',
         envVars: ['BREVO_API_KEY'],
         configured: !!process.env.BREVO_API_KEY,
+        dashboardUrl: 'https://app.brevo.com/',
         docsUrl: 'https://developers.brevo.com/'
       },
       {
@@ -769,7 +782,8 @@ router.get('/services', async (req, res) => {
         descriptionEn: 'AI model for tarot readings and horoscopes',
         descriptionFr: 'Modèle IA pour les lectures de tarot et horoscopes',
         envVars: ['OPENROUTER_API_KEY', 'AI_MODEL'],
-        configured: !!process.env.OPENROUTER_API_KEY,
+        configured: isConfigured(['OPENROUTER_API_KEY']),
+        dashboardUrl: 'https://openrouter.ai/keys',
         docsUrl: 'https://openrouter.ai/docs'
       }
     ]
@@ -827,7 +841,182 @@ router.get('/health', async (req, res) => {
   });
 });
 
-// Note: Updating AI config would require environment variable management
-// which is typically handled through deployment platform (Render, etc.)
+// ============================================
+// SYSTEM SETTINGS CRUD
+// ============================================
+
+// Editable settings (can be stored in DB to override env vars)
+const EDITABLE_SETTINGS = [
+  { key: 'OPENROUTER_API_KEY', isSecret: true, descriptionEn: 'OpenRouter API Key', descriptionFr: 'Clé API OpenRouter' },
+  { key: 'AI_MODEL', isSecret: false, descriptionEn: 'AI Model (e.g., openai/gpt-4o-mini)', descriptionFr: 'Modèle IA' },
+  { key: 'BREVO_API_KEY', isSecret: true, descriptionEn: 'Brevo Email API Key', descriptionFr: 'Clé API Brevo' },
+];
+
+// Get all editable settings
+router.get('/settings', async (req, res) => {
+  try {
+    const dbSettings = await prisma.systemSetting.findMany();
+    const settingsMap = new Map(dbSettings.map(s => [s.key, s]));
+
+    const settings = EDITABLE_SETTINGS.map(setting => {
+      const dbSetting = settingsMap.get(setting.key);
+      const envValue = process.env[setting.key];
+      const value = dbSetting?.value || envValue || '';
+
+      return {
+        key: setting.key,
+        value: setting.isSecret && value ? '••••••••' + value.slice(-4) : value,
+        hasValue: !!value,
+        isSecret: setting.isSecret,
+        source: dbSetting ? 'database' : (envValue ? 'environment' : 'none'),
+        descriptionEn: setting.descriptionEn,
+        descriptionFr: setting.descriptionFr
+      };
+    });
+
+    res.json({ settings });
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+// Update a setting
+const updateSettingSchema = z.object({
+  key: z.string().min(1),
+  value: z.string()
+});
+
+router.post('/settings', async (req, res) => {
+  try {
+    const { key, value } = updateSettingSchema.parse(req.body);
+
+    // Verify it's an allowed setting
+    const settingDef = EDITABLE_SETTINGS.find(s => s.key === key);
+    if (!settingDef) {
+      return res.status(400).json({ error: 'Setting not allowed' });
+    }
+
+    if (value === '') {
+      // Delete setting if empty (fall back to env var)
+      await prisma.systemSetting.deleteMany({ where: { key } });
+    } else {
+      await prisma.systemSetting.upsert({
+        where: { key },
+        create: {
+          key,
+          value,
+          isSecret: settingDef.isSecret,
+          description: settingDef.descriptionEn
+        },
+        update: { value }
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating setting:', error);
+    res.status(500).json({ error: 'Failed to update setting' });
+  }
+});
+
+// ============================================
+// REVENUE EXPORT
+// ============================================
+
+router.get('/revenue/export', async (req, res) => {
+  try {
+    const params = z.object({
+      year: z.coerce.number().min(2020).max(2100),
+      month: z.coerce.number().min(1).max(12)
+    }).parse(req.query);
+
+    const startDate = new Date(params.year, params.month - 1, 1);
+    const endDate = new Date(params.year, params.month, 0, 23, 59, 59, 999);
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        type: 'PURCHASE',
+        paymentStatus: 'COMPLETED',
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      include: {
+        user: { select: { email: true, username: true } }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    // Calculate totals
+    const totals = {
+      count: transactions.length,
+      revenue: transactions.reduce((sum, t) => sum + (Number(t.paymentAmount) || 0), 0),
+      credits: transactions.reduce((sum, t) => sum + t.amount, 0)
+    };
+
+    // Generate CSV
+    const monthName = new Date(params.year, params.month - 1).toLocaleString('en', { month: 'long', year: 'numeric' });
+    const csv = [
+      `MysticOracle Revenue Report - ${monthName}`,
+      '',
+      'Date,User,Email,Payment Provider,Amount (EUR),Credits,Transaction ID',
+      ...transactions.map(t => [
+        new Date(t.createdAt).toISOString().split('T')[0],
+        `"${t.user.username}"`,
+        `"${t.user.email}"`,
+        t.paymentProvider || 'N/A',
+        Number(t.paymentAmount).toFixed(2),
+        t.amount,
+        t.paymentId || t.id
+      ].join(',')),
+      '',
+      `Total Transactions,${totals.count}`,
+      `Total Revenue (EUR),${totals.revenue.toFixed(2)}`,
+      `Total Credits Sold,${totals.credits}`
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="mysticoracle-revenue-${params.year}-${String(params.month).padStart(2, '0')}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    console.error('Error exporting revenue:', error);
+    res.status(500).json({ error: 'Failed to export revenue' });
+  }
+});
+
+// Get available months for export
+router.get('/revenue/months', async (req, res) => {
+  try {
+    const firstTransaction = await prisma.transaction.findFirst({
+      where: { type: 'PURCHASE', paymentStatus: 'COMPLETED' },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    if (!firstTransaction) {
+      return res.json({ months: [] });
+    }
+
+    const months: { year: number; month: number; label: string }[] = [];
+    const start = new Date(firstTransaction.createdAt);
+    const now = new Date();
+
+    let current = new Date(start.getFullYear(), start.getMonth(), 1);
+    while (current <= now) {
+      months.push({
+        year: current.getFullYear(),
+        month: current.getMonth() + 1,
+        label: current.toLocaleString('en', { month: 'long', year: 'numeric' })
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    res.json({ months: months.reverse() }); // Most recent first
+  } catch (error) {
+    console.error('Error fetching revenue months:', error);
+    res.status(500).json({ error: 'Failed to fetch months' });
+  }
+});
 
 export default router;

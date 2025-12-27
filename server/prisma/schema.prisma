@@ -337,3 +337,24 @@ model Translation {
   @@unique([key, languageId])
   @@index([languageId])
 }
+
+// ============================================
+// SYSTEM SETTINGS (Runtime configuration)
+// ============================================
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+
+  // Setting key (e.g., "OPENROUTER_API_KEY", "AI_MODEL")
+  key         String   @unique
+
+  // The value (encrypted for secrets)
+  value       String   @db.Text
+
+  // Metadata
+  isSecret    Boolean  @default(false)  // If true, mask in UI
+  description String?  // Human-readable description
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

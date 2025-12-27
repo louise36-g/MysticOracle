@@ -612,11 +612,56 @@ export interface ServiceConfig {
   descriptionFr: string;
   envVars: string[];
   configured: boolean;
+  dashboardUrl: string;
   docsUrl: string;
 }
 
 export async function fetchAdminServices(token: string): Promise<{ services: ServiceConfig[] }> {
   return apiRequest('/api/admin/services', { token });
+}
+
+// ============================================
+// ADMIN SYSTEM SETTINGS
+// ============================================
+
+export interface SystemSetting {
+  key: string;
+  value: string;
+  hasValue: boolean;
+  isSecret: boolean;
+  source: 'database' | 'environment' | 'none';
+  descriptionEn: string;
+  descriptionFr: string;
+}
+
+export async function fetchAdminSettings(token: string): Promise<{ settings: SystemSetting[] }> {
+  return apiRequest('/api/admin/settings', { token });
+}
+
+export async function updateAdminSetting(
+  token: string,
+  key: string,
+  value: string
+): Promise<{ success: boolean }> {
+  return apiRequest('/api/admin/settings', { method: 'POST', body: { key, value }, token });
+}
+
+// ============================================
+// ADMIN REVENUE EXPORT
+// ============================================
+
+export interface RevenueMonth {
+  year: number;
+  month: number;
+  label: string;
+}
+
+export async function fetchRevenueMonths(token: string): Promise<{ months: RevenueMonth[] }> {
+  return apiRequest('/api/admin/revenue/months', { token });
+}
+
+export function getRevenueExportUrl(token: string, year: number, month: number): string {
+  return `${API_URL}/api/admin/revenue/export?year=${year}&month=${month}`;
 }
 
 export default {
