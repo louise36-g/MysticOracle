@@ -18,21 +18,17 @@ import {
   fetchAdminBlogMedia,
   uploadBlogMedia,
   deleteBlogMedia,
-  seedBlogData,
   BlogPost,
   BlogCategory,
   BlogTag,
   BlogMedia,
-  BlogPostListResponse,
 } from '../../services/apiService';
 import {
   Search,
   Plus,
   Edit2,
   Trash2,
-  Eye,
   X,
-  Save,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -41,13 +37,12 @@ import {
   Image,
   Upload,
   Star,
-  StarOff,
-  Archive,
-  Send,
   Copy,
   Check,
+  ExternalLink,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BlogPostEditor from './BlogPostEditor';
 
 type TabType = 'posts' | 'categories' | 'tags' | 'media';
 
@@ -166,21 +161,6 @@ const AdminBlog: React.FC = () => {
     if (activeTab === 'tags') loadTags();
     if (activeTab === 'media') loadMedia();
   }, [activeTab, loadPosts, loadCategories, loadTags, loadMedia]);
-
-  // Seed default data
-  const handleSeedData = async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      await seedBlogData(token);
-      loadCategories();
-      loadTags();
-      alert(language === 'en' ? 'Default categories and tags created!' : 'Categories et tags par defaut crees!');
-    } catch (err) {
-      alert('Failed to seed data');
-    }
-  };
 
   // Copy URL to clipboard
   const copyToClipboard = async (url: string) => {
@@ -342,7 +322,9 @@ const AdminBlog: React.FC = () => {
       setIsNewCategory(false);
       loadCategories();
     } catch (err) {
-      alert('Failed to save category');
+      const message = err instanceof Error ? err.message : 'Failed to save category';
+      setError(message);
+      alert(message);
     } finally {
       setSaving(false);
     }
@@ -400,7 +382,9 @@ const AdminBlog: React.FC = () => {
       setIsNewTag(false);
       loadTags();
     } catch (err) {
-      alert('Failed to save tag');
+      const message = err instanceof Error ? err.message : 'Failed to save tag';
+      setError(message);
+      alert(message);
     } finally {
       setSaving(false);
     }
@@ -439,7 +423,9 @@ const AdminBlog: React.FC = () => {
 
       loadMedia();
     } catch (err) {
-      alert('Failed to upload file');
+      const message = err instanceof Error ? err.message : 'Failed to upload file';
+      setError(message);
+      alert(message);
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -499,6 +485,25 @@ const AdminBlog: React.FC = () => {
     { id: 'media' as TabType, label: language === 'en' ? 'Media' : 'Medias', icon: Image },
   ];
 
+  // If editing a post, show the full page editor
+  if (editingPost) {
+    return (
+      <BlogPostEditor
+        post={editingPost}
+        isNew={isNewPost}
+        onSave={() => {
+          setEditingPost(null);
+          setIsNewPost(false);
+          loadPosts();
+        }}
+        onCancel={() => {
+          setEditingPost(null);
+          setIsNewPost(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div>
       {/* Tabs */}
@@ -517,12 +522,6 @@ const AdminBlog: React.FC = () => {
             {tab.label}
           </button>
         ))}
-        <button
-          onClick={handleSeedData}
-          className="ml-auto px-4 py-2 bg-amber-600/20 text-amber-400 rounded-lg hover:bg-amber-600/30 text-sm"
-        >
-          {language === 'en' ? 'Seed Defaults' : 'Ajouter defauts'}
-        </button>
       </div>
 
       {/* Error display */}
@@ -622,6 +621,17 @@ const AdminBlog: React.FC = () => {
                           <td className="p-4 text-slate-400 text-sm">{new Date(post.updatedAt).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex items-center gap-2">
+                              {post.status === 'PUBLISHED' && (
+                                <a
+                                  href={`/blog/${post.slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
+                                  title={language === 'en' ? 'View' : 'Voir'}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              )}
                               <button
                                 onClick={() => handleEditPost(post)}
                                 className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
@@ -860,333 +870,6 @@ const AdminBlog: React.FC = () => {
           )}
         </div>
       )}
-
-      {/* Post Editor Modal */}
-      <AnimatePresence>
-        {editingPost && (
-          <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 p-4 overflow-y-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-purple-500/30 rounded-xl w-full max-w-4xl my-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
-                <h3 className="text-lg font-heading text-purple-200">
-                  {isNewPost
-                    ? language === 'en' ? 'New Post' : 'Nouvel article'
-                    : language === 'en' ? 'Edit Post' : 'Modifier article'}
-                </h3>
-                <button onClick={() => setEditingPost(null)} className="text-slate-400 hover:text-white">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Form */}
-              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-                {/* Slug & Status */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Slug (URL)</label>
-                    <input
-                      type="text"
-                      value={editingPost.slug}
-                      onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value })}
-                      placeholder="my-awesome-post"
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Status' : 'Statut'}</label>
-                      <select
-                        value={editingPost.status}
-                        onChange={(e) => setEditingPost({ ...editingPost, status: e.target.value as any })}
-                        className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                      >
-                        <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>
-                        <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publie'}</option>
-                        <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archive'}</option>
-                      </select>
-                    </div>
-                    <div className="flex items-end pb-2">
-                      <button
-                        onClick={() => setEditingPost({ ...editingPost, featured: !editingPost.featured })}
-                        className={`p-2 rounded-lg ${editingPost.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}`}
-                        title={language === 'en' ? 'Featured' : 'A la une'}
-                      >
-                        {editingPost.featured ? <Star className="w-5 h-5" /> : <StarOff className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Titles */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Title (English)</label>
-                    <input
-                      type="text"
-                      value={editingPost.titleEn}
-                      onChange={(e) => {
-                        const title = e.target.value;
-                        setEditingPost({
-                          ...editingPost,
-                          titleEn: title,
-                          slug: editingPost.slug || generateSlug(title),
-                        });
-                      }}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Titre (Francais)</label>
-                    <input
-                      type="text"
-                      value={editingPost.titleFr}
-                      onChange={(e) => setEditingPost({ ...editingPost, titleFr: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Excerpts */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Excerpt (English)</label>
-                    <textarea
-                      value={editingPost.excerptEn}
-                      onChange={(e) => setEditingPost({ ...editingPost, excerptEn: e.target.value })}
-                      rows={2}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Extrait (Francais)</label>
-                    <textarea
-                      value={editingPost.excerptFr}
-                      onChange={(e) => setEditingPost({ ...editingPost, excerptFr: e.target.value })}
-                      rows={2}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Content (English)</label>
-                    <textarea
-                      value={editingPost.contentEn}
-                      onChange={(e) => setEditingPost({ ...editingPost, contentEn: e.target.value })}
-                      rows={8}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none font-mono text-sm"
-                      placeholder="HTML content..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">Contenu (Francais)</label>
-                    <textarea
-                      value={editingPost.contentFr}
-                      onChange={(e) => setEditingPost({ ...editingPost, contentFr: e.target.value })}
-                      rows={8}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none font-mono text-sm"
-                      placeholder="Contenu HTML..."
-                    />
-                  </div>
-                </div>
-
-                {/* Cover Image & Author */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Cover Image URL' : 'URL image couverture'}</label>
-                    <input
-                      type="text"
-                      value={editingPost.coverImage || ''}
-                      onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Author Name' : 'Nom auteur'}</label>
-                    <input
-                      type="text"
-                      value={editingPost.authorName}
-                      onChange={(e) => setEditingPost({ ...editingPost, authorName: e.target.value })}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Read Time (min)' : 'Temps lecture (min)'}</label>
-                    <input
-                      type="number"
-                      value={editingPost.readTimeMinutes}
-                      onChange={(e) => setEditingPost({ ...editingPost, readTimeMinutes: parseInt(e.target.value) || 5 })}
-                      min={1}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Categories & Tags */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Categories' : 'Categories'}</label>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => {
-                            const ids = editingPost.categoryIds || [];
-                            setEditingPost({
-                              ...editingPost,
-                              categoryIds: ids.includes(cat.id)
-                                ? ids.filter((id) => id !== cat.id)
-                                : [...ids, cat.id],
-                            });
-                          }}
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            (editingPost.categoryIds || []).includes(cat.id)
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                          }`}
-                        >
-                          {language === 'en' ? cat.nameEn : cat.nameFr}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Tags' : 'Tags'}</label>
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag) => (
-                        <button
-                          key={tag.id}
-                          onClick={() => {
-                            const ids = editingPost.tagIds || [];
-                            setEditingPost({
-                              ...editingPost,
-                              tagIds: ids.includes(tag.id)
-                                ? ids.filter((id) => id !== tag.id)
-                                : [...ids, tag.id],
-                            });
-                          }}
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            (editingPost.tagIds || []).includes(tag.id)
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                          }`}
-                        >
-                          {language === 'en' ? tag.nameEn : tag.nameFr}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* SEO Section */}
-                <details className="bg-slate-800/50 rounded-lg p-4">
-                  <summary className="text-slate-300 cursor-pointer font-medium">
-                    {language === 'en' ? 'SEO Settings' : 'Parametres SEO'}
-                  </summary>
-                  <div className="mt-4 space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Meta Title (EN)</label>
-                        <input
-                          type="text"
-                          value={editingPost.metaTitleEn || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, metaTitleEn: e.target.value })}
-                          placeholder={editingPost.titleEn}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Meta Titre (FR)</label>
-                        <input
-                          type="text"
-                          value={editingPost.metaTitleFr || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, metaTitleFr: e.target.value })}
-                          placeholder={editingPost.titleFr}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Meta Description (EN)</label>
-                        <textarea
-                          value={editingPost.metaDescEn || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, metaDescEn: e.target.value })}
-                          placeholder={editingPost.excerptEn}
-                          rows={2}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Meta Description (FR)</label>
-                        <textarea
-                          value={editingPost.metaDescFr || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, metaDescFr: e.target.value })}
-                          placeholder={editingPost.excerptFr}
-                          rows={2}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 resize-none"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">OG Image URL</label>
-                        <input
-                          type="text"
-                          value={editingPost.ogImage || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, ogImage: e.target.value })}
-                          placeholder={editingPost.coverImage}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Cover Image Alt Text' : 'Texte alt image'}</label>
-                        <input
-                          type="text"
-                          value={editingPost.coverImageAlt || ''}
-                          onChange={(e) => setEditingPost({ ...editingPost, coverImageAlt: e.target.value })}
-                          className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </details>
-              </div>
-
-              {/* Footer */}
-              <div className="flex gap-3 p-4 border-t border-purple-500/20">
-                <button
-                  onClick={() => setEditingPost(null)}
-                  className="flex-1 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
-                >
-                  {language === 'en' ? 'Cancel' : 'Annuler'}
-                </button>
-                <button
-                  onClick={handleSavePost}
-                  disabled={saving || !editingPost.slug || !editingPost.titleEn || !editingPost.authorName}
-                  className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {saving ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      {language === 'en' ? 'Save' : 'Enregistrer'}
-                    </>
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Category Editor Modal */}
       <AnimatePresence>

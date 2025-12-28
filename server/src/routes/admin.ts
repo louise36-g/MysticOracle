@@ -459,13 +459,27 @@ router.get('/analytics', async (req, res) => {
 // SYSTEM CONFIGURATION
 // ============================================
 
-// Get current AI configuration (stored in memory/env for now)
-router.get('/config/ai', (req, res) => {
-  res.json({
-    model: process.env.AI_MODEL || 'openai/gpt-4o-mini',
-    provider: process.env.AI_PROVIDER || 'openrouter',
-    hasApiKey: !!process.env.OPENROUTER_API_KEY
-  });
+// Get current AI configuration (checks DB settings first, then env vars)
+router.get('/config/ai', async (req, res) => {
+  try {
+    // Check database for overridden settings
+    const dbSettings = await prisma.systemSetting.findMany({
+      where: { key: { in: ['AI_MODEL', 'OPENROUTER_API_KEY'] } }
+    });
+    const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
+
+    const model = settingsMap.get('AI_MODEL') || process.env.AI_MODEL || 'openai/gpt-4o-mini';
+    const hasApiKey = !!(settingsMap.get('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY);
+
+    res.json({
+      model,
+      provider: process.env.AI_PROVIDER || 'openrouter',
+      hasApiKey
+    });
+  } catch (error) {
+    console.error('Error fetching AI config:', error);
+    res.status(500).json({ error: 'Failed to fetch AI config' });
+  }
 });
 
 // ============================================
@@ -797,6 +811,18 @@ router.get('/services', async (req, res) => {
 router.get('/health', async (req, res) => {
   const health: Record<string, { status: string; message?: string }> = {};
 
+  // Check database settings for overrides
+  let dbSettings: Map<string, string> = new Map();
+  try {
+    const settings = await prisma.systemSetting.findMany();
+    dbSettings = new Map(settings.map(s => [s.key, s.value]));
+  } catch {
+    // Ignore - will use env vars only
+  }
+
+  // Helper to check if a setting is configured (DB or env)
+  const isConfigured = (key: string) => !!(dbSettings.get(key) || process.env[key]);
+
   // Database
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -820,14 +846,14 @@ router.get('/health', async (req, res) => {
     status: process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET ? 'ok' : 'not_configured'
   };
 
-  // Brevo
+  // Brevo (check DB and env)
   health.brevo = {
-    status: process.env.BREVO_API_KEY ? 'ok' : 'not_configured'
+    status: isConfigured('BREVO_API_KEY') ? 'ok' : 'not_configured'
   };
 
-  // OpenRouter
+  // OpenRouter (check DB and env)
   health.openrouter = {
-    status: process.env.OPENROUTER_API_KEY ? 'ok' : 'not_configured'
+    status: isConfigured('OPENROUTER_API_KEY') ? 'ok' : 'not_configured'
   };
 
   // Overall status

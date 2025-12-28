@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminTransactions } from '../../services/apiService';
-import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { fetchAdminTransactions, fetchRevenueMonths } from '../../services/apiService';
+import { ChevronLeft, ChevronRight, Filter, Download, Calendar, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface TransactionWithUser {
@@ -18,6 +18,12 @@ interface TransactionWithUser {
   user: { username: string; email: string };
 }
 
+interface RevenueMonth {
+  year: number;
+  month: number;
+  label: string;
+}
+
 const AdminTransactions: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
@@ -30,13 +36,19 @@ const AdminTransactions: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [typeFilter, setTypeFilter] = useState('');
 
+  // Revenue export
+  const [availableMonths, setAvailableMonths] = useState<RevenueMonth[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [exporting, setExporting] = useState(false);
+
   useEffect(() => {
-    const loadTransactions = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         const token = await getToken();
         if (!token) throw new Error('No token');
 
+        // Load transactions
         const result = await fetchAdminTransactions(token, {
           page,
           limit: 25,
@@ -46,6 +58,14 @@ const AdminTransactions: React.FC = () => {
         setTransactions(result.transactions);
         setTotalPages(result.pagination.totalPages);
         setTotal(result.pagination.total);
+
+        // Load available months for export
+        const monthsResult = await fetchRevenueMonths(token);
+        setAvailableMonths(monthsResult.months || []);
+        if (monthsResult.months?.length > 0 && !selectedMonth) {
+          setSelectedMonth(`${monthsResult.months[0].year}-${monthsResult.months[0].month}`);
+        }
+
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load transactions');
@@ -54,8 +74,41 @@ const AdminTransactions: React.FC = () => {
       }
     };
 
-    loadTransactions();
+    loadData();
   }, [getToken, page, typeFilter]);
+
+  const handleExport = async () => {
+    if (!selectedMonth) return;
+
+    try {
+      setExporting(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const [year, month] = selectedMonth.split('-').map(Number);
+      const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api$/, '');
+
+      const response = await fetch(`${API_URL}/api/admin/revenue/export?year=${year}&month=${month}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mysticoracle-revenue-${year}-${String(month).padStart(2, '0')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -80,6 +133,57 @@ const AdminTransactions: React.FC = () => {
 
   return (
     <div>
+      {/* Revenue Export Section */}
+      <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-xl p-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-green-200 font-medium">
+                {language === 'en' ? 'Revenue Export' : 'Export des revenus'}
+              </h3>
+              <p className="text-green-400/60 text-sm">
+                {language === 'en' ? 'Download monthly revenue reports' : 'Télécharger les rapports mensuels'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-slate-800/80 rounded-lg px-3 py-2">
+              <Calendar className="w-4 h-4 text-slate-400" />
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="bg-transparent text-slate-200 text-sm focus:outline-none"
+              >
+                {availableMonths.length === 0 ? (
+                  <option value="">{language === 'en' ? 'No data available' : 'Aucune donnée'}</option>
+                ) : (
+                  availableMonths.map((m) => (
+                    <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>
+                      {m.label}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={exporting || !selectedMonth || availableMonths.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {exporting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {language === 'en' ? 'Export CSV' : 'Exporter CSV'}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6">
         <Filter className="w-4 h-4 text-slate-400" />

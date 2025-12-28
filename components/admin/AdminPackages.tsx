@@ -12,6 +12,176 @@ import {
 import { Plus, Edit2, Trash2, Package, Check, X, GripVertical, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Form component defined outside to prevent re-creation on every render
+const PackageFormFields: React.FC<{
+  formData: {
+    credits: number;
+    priceEur: number;
+    nameEn: string;
+    nameFr: string;
+    labelEn: string;
+    labelFr: string;
+    discount: number;
+    badge: string;
+    isActive: boolean;
+    sortOrder: number;
+  };
+  setFormData: React.Dispatch<React.SetStateAction<{
+    credits: number;
+    priceEur: number;
+    nameEn: string;
+    nameFr: string;
+    labelEn: string;
+    labelFr: string;
+    discount: number;
+    badge: string;
+    isActive: boolean;
+    sortOrder: number;
+  }>>;
+  language: string;
+  onSave: () => void;
+  onCancel: () => void;
+  isNew: boolean;
+}> = ({ formData, setFormData, language, onSave, onCancel, isNew }) => (
+  <motion.div
+    initial={{ opacity: 0, height: 0 }}
+    animate={{ opacity: 1, height: 'auto' }}
+    exit={{ opacity: 0, height: 0 }}
+    className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30"
+  >
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Credits</label>
+        <input
+          type="number"
+          value={formData.credits}
+          onChange={e => setFormData(prev => ({ ...prev, credits: parseInt(e.target.value) || 0 }))}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Price (EUR)</label>
+        <input
+          type="number"
+          step="0.01"
+          value={formData.priceEur}
+          onChange={e => setFormData(prev => ({ ...prev, priceEur: parseFloat(e.target.value) || 0 }))}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Discount %</label>
+        <input
+          type="number"
+          value={formData.discount}
+          onChange={e => setFormData(prev => ({ ...prev, discount: parseInt(e.target.value) || 0 }))}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Sort Order</label>
+        <input
+          type="number"
+          value={formData.sortOrder}
+          onChange={e => setFormData(prev => ({ ...prev, sortOrder: parseInt(e.target.value) || 0 }))}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Name (EN)</label>
+        <input
+          type="text"
+          value={formData.nameEn}
+          onChange={e => setFormData(prev => ({ ...prev, nameEn: e.target.value }))}
+          placeholder="e.g., Starter Pack"
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Name (FR)</label>
+        <input
+          type="text"
+          value={formData.nameFr}
+          onChange={e => setFormData(prev => ({ ...prev, nameFr: e.target.value }))}
+          placeholder="e.g., Pack Debutant"
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Label (EN)</label>
+        <input
+          type="text"
+          value={formData.labelEn}
+          onChange={e => setFormData(prev => ({ ...prev, labelEn: e.target.value }))}
+          placeholder="e.g., Best Value"
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Label (FR)</label>
+        <input
+          type="text"
+          value={formData.labelFr}
+          onChange={e => setFormData(prev => ({ ...prev, labelFr: e.target.value }))}
+          placeholder="e.g., Meilleur Valeur"
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label className="block text-xs text-slate-400 mb-1">Badge</label>
+        <select
+          value={formData.badge}
+          onChange={e => setFormData(prev => ({ ...prev, badge: e.target.value }))}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
+        >
+          <option value="">None</option>
+          <option value="POPULAR">Popular</option>
+          <option value="BEST_VALUE">Best Value</option>
+          <option value="LIMITED">Limited Offer</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-2 pt-5">
+        <input
+          type="checkbox"
+          id={`isActive-${isNew ? 'new' : 'edit'}`}
+          checked={formData.isActive}
+          onChange={e => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+          className="w-4 h-4"
+        />
+        <label htmlFor={`isActive-${isNew ? 'new' : 'edit'}`} className="text-sm text-slate-300">
+          {language === 'en' ? 'Active' : 'Actif'}
+        </label>
+      </div>
+    </div>
+
+    <div className="flex gap-2">
+      <button
+        onClick={onSave}
+        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded text-white text-sm"
+      >
+        <Check className="w-4 h-4" />
+        {isNew ? (language === 'en' ? 'Create' : 'Creer') : (language === 'en' ? 'Save' : 'Sauvegarder')}
+      </button>
+      <button
+        onClick={onCancel}
+        className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-white text-sm"
+      >
+        <X className="w-4 h-4" />
+        {language === 'en' ? 'Cancel' : 'Annuler'}
+      </button>
+    </div>
+  </motion.div>
+);
+
 const AdminPackages: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
@@ -166,146 +336,6 @@ const AdminPackages: React.FC = () => {
     );
   }
 
-  const PackageForm = ({ isNew }: { isNew: boolean }) => (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
-      className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30"
-    >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Credits</label>
-          <input
-            type="number"
-            value={formData.credits}
-            onChange={e => setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Price (EUR)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={formData.priceEur}
-            onChange={e => setFormData({ ...formData, priceEur: parseFloat(e.target.value) || 0 })}
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Discount %</label>
-          <input
-            type="number"
-            value={formData.discount}
-            onChange={e => setFormData({ ...formData, discount: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Sort Order</label>
-          <input
-            type="number"
-            value={formData.sortOrder}
-            onChange={e => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Name (EN)</label>
-          <input
-            type="text"
-            value={formData.nameEn}
-            onChange={e => setFormData({ ...formData, nameEn: e.target.value })}
-            placeholder="e.g., Starter Pack"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Name (FR)</label>
-          <input
-            type="text"
-            value={formData.nameFr}
-            onChange={e => setFormData({ ...formData, nameFr: e.target.value })}
-            placeholder="e.g., Pack Debutant"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Label (EN)</label>
-          <input
-            type="text"
-            value={formData.labelEn}
-            onChange={e => setFormData({ ...formData, labelEn: e.target.value })}
-            placeholder="e.g., Best Value"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Label (FR)</label>
-          <input
-            type="text"
-            value={formData.labelFr}
-            onChange={e => setFormData({ ...formData, labelFr: e.target.value })}
-            placeholder="e.g., Meilleur Valeur"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-xs text-slate-400 mb-1">Badge</label>
-          <select
-            value={formData.badge}
-            onChange={e => setFormData({ ...formData, badge: e.target.value })}
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-sm"
-          >
-            <option value="">None</option>
-            <option value="POPULAR">Popular</option>
-            <option value="BEST_VALUE">Best Value</option>
-            <option value="LIMITED">Limited Offer</option>
-          </select>
-        </div>
-        <div className="flex items-center gap-2 pt-5">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={formData.isActive}
-            onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
-            className="w-4 h-4"
-          />
-          <label htmlFor="isActive" className="text-sm text-slate-300">
-            {language === 'en' ? 'Active' : 'Actif'}
-          </label>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={() => isNew ? handleCreate() : handleUpdate(editingId!)}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded text-white text-sm"
-        >
-          <Check className="w-4 h-4" />
-          {isNew ? (language === 'en' ? 'Create' : 'Creer') : (language === 'en' ? 'Save' : 'Sauvegarder')}
-        </button>
-        <button
-          onClick={cancelEdit}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-white text-sm"
-        >
-          <X className="w-4 h-4" />
-          {language === 'en' ? 'Cancel' : 'Annuler'}
-        </button>
-      </div>
-    </motion.div>
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -332,7 +362,16 @@ const AdminPackages: React.FC = () => {
         </div>
       )}
 
-      {showNewForm && <PackageForm isNew />}
+      {showNewForm && (
+        <PackageFormFields
+          formData={formData}
+          setFormData={setFormData}
+          language={language}
+          onSave={handleCreate}
+          onCancel={cancelEdit}
+          isNew={true}
+        />
+      )}
 
       <div className="space-y-3">
         {packages.length === 0 && !showNewForm ? (
@@ -363,7 +402,14 @@ const AdminPackages: React.FC = () => {
               }`}
             >
               {editingId === pkg.id ? (
-                <PackageForm isNew={false} />
+                <PackageFormFields
+                  formData={formData}
+                  setFormData={setFormData}
+                  language={language}
+                  onSave={() => handleUpdate(pkg.id)}
+                  onCancel={cancelEdit}
+                  isNew={false}
+                />
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

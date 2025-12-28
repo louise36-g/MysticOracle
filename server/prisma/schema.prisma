@@ -369,15 +369,15 @@ model BlogPost {
   // URL slug (unique, SEO-friendly)
   slug            String   @unique
 
-  // Content - English
+  // Content - English (required)
   titleEn         String
-  excerptEn       String   @db.Text  // Short description for cards/SEO
-  contentEn       String   @db.Text  // Rich text HTML content
+  excerptEn       String   @default("") @db.Text  // Short description for cards/SEO
+  contentEn       String   @default("") @db.Text  // Rich text HTML content
 
-  // Content - French
-  titleFr         String
-  excerptFr       String   @db.Text
-  contentFr       String   @db.Text
+  // Content - French (optional - can add later)
+  titleFr         String   @default("")
+  excerptFr       String   @default("") @db.Text
+  contentFr       String   @default("") @db.Text
 
   // Media
   coverImage      String?  // URL to cover image

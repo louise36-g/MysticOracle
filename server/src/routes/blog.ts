@@ -107,7 +107,7 @@ router.get('/posts', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching posts:', error);
+    console.error('Error fetching posts:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -178,7 +178,7 @@ router.get('/posts/:slug', async (req, res) => {
       relatedPosts
     });
   } catch (error) {
-    console.error('Error fetching post:', error);
+    console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch post' });
   }
 });
@@ -211,7 +211,7 @@ router.get('/categories', async (req, res) => {
       }))
     });
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching categories:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
@@ -244,7 +244,7 @@ router.get('/tags', async (req, res) => {
       }))
     });
   } catch (error) {
-    console.error('Error fetching tags:', error);
+    console.error('Error fetching tags:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch tags' });
   }
 });
@@ -301,7 +301,7 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching admin posts:', error);
+    console.error('Error fetching admin posts:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -329,33 +329,34 @@ router.get('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching post:', error);
+    console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch post' });
   }
 });
 
-// Create post
+// Create post - use nullish() for optional fields to handle null from frontend
+// Note: Only titleEn and authorName are required - all other language fields are optional
 const createPostSchema = z.object({
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   titleEn: z.string().min(1),
-  titleFr: z.string().min(1),
-  excerptEn: z.string().min(1),
-  excerptFr: z.string().min(1),
-  contentEn: z.string().min(1),
-  contentFr: z.string().min(1),
-  coverImage: z.string().optional(),
-  coverImageAlt: z.string().optional(),
-  metaTitleEn: z.string().optional(),
-  metaTitleFr: z.string().optional(),
-  metaDescEn: z.string().optional(),
-  metaDescFr: z.string().optional(),
-  ogImage: z.string().optional(),
+  titleFr: z.string().nullish().transform(v => v || ''),
+  excerptEn: z.string().nullish().transform(v => v || ''),
+  excerptFr: z.string().nullish().transform(v => v || ''),
+  contentEn: z.string().nullish().transform(v => v || ''),
+  contentFr: z.string().nullish().transform(v => v || ''),
+  coverImage: z.string().nullish().transform(v => v || undefined),
+  coverImageAlt: z.string().nullish().transform(v => v || undefined),
+  metaTitleEn: z.string().nullish().transform(v => v || undefined),
+  metaTitleFr: z.string().nullish().transform(v => v || undefined),
+  metaDescEn: z.string().nullish().transform(v => v || undefined),
+  metaDescFr: z.string().nullish().transform(v => v || undefined),
+  ogImage: z.string().nullish().transform(v => v || undefined),
   authorName: z.string().min(1),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
   featured: z.boolean().default(false),
   readTimeMinutes: z.number().int().min(1).default(5),
-  categoryIds: z.array(z.string()).default([]),
-  tagIds: z.array(z.string()).default([])
+  categoryIds: z.array(z.string()).nullish().transform(v => v || []),
+  tagIds: z.array(z.string()).nullish().transform(v => v || [])
 });
 
 router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
@@ -406,7 +407,7 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
 
     res.json({ success: true, post });
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error('Error creating post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to create post' });
   }
 });
@@ -469,7 +470,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
 
     res.json({ success: true, post });
   } catch (error) {
-    console.error('Error updating post:', error);
+    console.error('Error updating post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to update post' });
   }
 });
@@ -480,7 +481,7 @@ router.delete('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) =>
     await prisma.blogPost.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting post:', error);
+    console.error('Error deleting post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to delete post' });
   }
 });
@@ -497,7 +498,7 @@ router.get('/admin/categories', requireAuth, requireAdmin, async (req, res) => {
     });
     res.json({ categories });
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching categories:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
@@ -506,16 +507,23 @@ const categorySchema = z.object({
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
   nameEn: z.string().min(1),
   nameFr: z.string().min(1),
-  descEn: z.string().optional(),
-  descFr: z.string().optional(),
-  color: z.string().optional(),
-  icon: z.string().optional(),
+  descEn: z.string().nullish().transform(v => v || undefined),
+  descFr: z.string().nullish().transform(v => v || undefined),
+  color: z.string().nullish().transform(v => v || undefined),
+  icon: z.string().nullish().transform(v => v || undefined),
   sortOrder: z.number().int().default(0)
 });
 
 router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => {
   try {
     const data = categorySchema.parse(req.body);
+
+    // Check for duplicate slug
+    const existing = await prisma.blogCategory.findUnique({ where: { slug: data.slug } });
+    if (existing) {
+      return res.status(400).json({ error: 'A category with this slug already exists' });
+    }
+
     const category = await prisma.blogCategory.create({
       data: {
         slug: data.slug,
@@ -530,7 +538,10 @@ router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => 
     });
     res.json({ success: true, category });
   } catch (error) {
-    console.error('Error creating category:', error);
+    console.error('Error creating category:', error instanceof Error ? error.message : String(error));
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to create category' });
   }
 });
@@ -538,13 +549,27 @@ router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => 
 router.patch('/admin/categories/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const data = categorySchema.partial().parse(req.body);
+
+    // Check for duplicate slug if changing
+    if (data.slug) {
+      const existing = await prisma.blogCategory.findFirst({
+        where: { slug: data.slug, id: { not: req.params.id } }
+      });
+      if (existing) {
+        return res.status(400).json({ error: 'A category with this slug already exists' });
+      }
+    }
+
     const category = await prisma.blogCategory.update({
       where: { id: req.params.id },
       data
     });
     res.json({ success: true, category });
   } catch (error) {
-    console.error('Error updating category:', error);
+    console.error('Error updating category:', error instanceof Error ? error.message : String(error));
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to update category' });
   }
 });
@@ -554,7 +579,7 @@ router.delete('/admin/categories/:id', requireAuth, requireAdmin, async (req, re
     await prisma.blogCategory.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error deleting category:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to delete category' });
   }
 });
@@ -571,7 +596,7 @@ router.get('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
     });
     res.json({ tags });
   } catch (error) {
-    console.error('Error fetching tags:', error);
+    console.error('Error fetching tags:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch tags' });
   }
 });
@@ -585,6 +610,13 @@ const tagSchema = z.object({
 router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
   try {
     const data = tagSchema.parse(req.body);
+
+    // Check for duplicate slug
+    const existing = await prisma.blogTag.findUnique({ where: { slug: data.slug } });
+    if (existing) {
+      return res.status(400).json({ error: 'A tag with this slug already exists' });
+    }
+
     const tag = await prisma.blogTag.create({
       data: {
         slug: data.slug,
@@ -594,7 +626,10 @@ router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
     });
     res.json({ success: true, tag });
   } catch (error) {
-    console.error('Error creating tag:', error);
+    console.error('Error creating tag:', error instanceof Error ? error.message : String(error));
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to create tag' });
   }
 });
@@ -602,13 +637,27 @@ router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
 router.patch('/admin/tags/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const data = tagSchema.partial().parse(req.body);
+
+    // Check for duplicate slug if changing
+    if (data.slug) {
+      const existing = await prisma.blogTag.findFirst({
+        where: { slug: data.slug, id: { not: req.params.id } }
+      });
+      if (existing) {
+        return res.status(400).json({ error: 'A tag with this slug already exists' });
+      }
+    }
+
     const tag = await prisma.blogTag.update({
       where: { id: req.params.id },
       data
     });
     res.json({ success: true, tag });
   } catch (error) {
-    console.error('Error updating tag:', error);
+    console.error('Error updating tag:', error instanceof Error ? error.message : String(error));
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to update tag' });
   }
 });
@@ -618,7 +667,7 @@ router.delete('/admin/tags/:id', requireAuth, requireAdmin, async (req, res) => 
     await prisma.blogTag.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting tag:', error);
+    console.error('Error deleting tag:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to delete tag' });
   }
 });
@@ -651,7 +700,7 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
 
     res.json({ success: true, media });
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading file:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to upload file' });
   }
 });
@@ -665,7 +714,7 @@ router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
     });
     res.json({ media });
   } catch (error) {
-    console.error('Error fetching media:', error);
+    console.error('Error fetching media:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch media' });
   }
 });
@@ -683,7 +732,7 @@ router.delete('/admin/media/:id', requireAuth, requireAdmin, async (req, res) =>
     }
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting media:', error);
+    console.error('Error deleting media:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to delete media' });
   }
 });
@@ -736,7 +785,7 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       tags: tags.length
     });
   } catch (error) {
-    console.error('Error seeding blog data:', error);
+    console.error('Error seeding blog data:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to seed blog data' });
   }
 });
@@ -860,7 +909,7 @@ router.get('/sitemap.xml', async (req, res) => {
     res.set('Content-Type', 'application/xml');
     res.send(xml);
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    console.error('Error generating sitemap:', error instanceof Error ? error.message : String(error));
     res.status(500).send('Error generating sitemap');
   }
 });

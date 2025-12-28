@@ -15,7 +15,7 @@ dotenv.config();
 // Rate limiting configurations
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 500, // Limit each IP to 500 requests per windowMs
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -47,7 +47,7 @@ const strictLimiter = rateLimit({
 
 const adminLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 60, // Higher limit for admin operations
+  max: 200, // Higher limit for admin operations
   message: { error: 'Admin rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -67,8 +67,10 @@ import blogRoutes from './routes/blog.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware
-app.use(helmet());
+// Security middleware - configure helmet to allow cross-origin for uploads
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 // CORS configuration
 const allowedOrigins = [
@@ -117,7 +119,7 @@ app.use('/api/payments', paymentLimiter, paymentRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
 app.use('/api/translations', generalLimiter, translationRoutes);
-app.use('/api/blog', generalLimiter, blogRoutes);
+app.use('/api/blog', adminLimiter, blogRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
