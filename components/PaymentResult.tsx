@@ -5,19 +5,7 @@ import { useApp } from '../context/AppContext';
 import Button from './Button';
 import { CheckCircle, XCircle, Loader2, Coins, Sparkles, Gift } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
-
-// First-purchase tracking
-const FIRST_PURCHASE_STORAGE_KEY = 'mysticoracle_first_purchase_';
-
-const hasCompletedFirstPurchase = (userId: string | undefined): boolean => {
-  if (!userId) return false;
-  return localStorage.getItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`) === 'true';
-};
-
-const markFirstPurchaseComplete = (userId: string | undefined): void => {
-  if (!userId) return;
-  localStorage.setItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`, 'true');
-};
+import { hasCompletedFirstPurchase, markFirstPurchaseComplete } from '../utils/firstPurchaseBonus';
 
 interface PaymentResultProps {
   type: 'success' | 'cancelled';
@@ -57,10 +45,10 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
 
         if (provider === 'paypal' && paypalOrderId) {
           // Capture PayPal order
-          paymentResult = await capturePayPalOrder(paypalOrderId, token);
+          paymentResult = await capturePayPalOrder(token, paypalOrderId);
         } else if (sessionId) {
           // Verify Stripe payment
-          paymentResult = await verifyStripePayment(sessionId, token);
+          paymentResult = await verifyStripePayment(token, sessionId);
         } else {
           // No payment to verify - redirect home
           setResult({ success: false, error: 'no_payment' });

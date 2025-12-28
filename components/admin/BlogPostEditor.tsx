@@ -12,6 +12,7 @@ import {
   BlogCategory,
   BlogTag,
   BlogMedia,
+  CreateBlogPostData,
 } from '../../services/apiService';
 import {
   ArrowLeft,
@@ -113,14 +114,14 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       const token = await getToken();
       if (!token) throw new Error('No token');
 
-      const postData = {
+      const postData: CreateBlogPostData = {
         slug: post.slug,
         titleEn: post.titleEn,
-        titleFr: post.titleFr,
-        excerptEn: post.excerptEn,
-        excerptFr: post.excerptFr,
-        contentEn: post.contentEn,
-        contentFr: post.contentFr,
+        titleFr: post.titleFr || '',
+        excerptEn: post.excerptEn || '',
+        excerptFr: post.excerptFr || '',
+        contentEn: post.contentEn || '',
+        contentFr: post.contentFr || '',
         coverImage: post.coverImage,
         coverImageAlt: post.coverImageAlt,
         metaTitleEn: post.metaTitleEn,
@@ -137,7 +138,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       };
 
       if (isNew) {
-        await createBlogPost(token, postData as any);
+        await createBlogPost(token, postData);
       } else {
         await updateBlogPost(token, post.id, postData);
       }
@@ -374,7 +375,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                   <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Status' : 'Statut'}</label>
                   <select
                     value={post.status}
-                    onChange={(e) => setPost({ ...post, status: e.target.value as any })}
+                    onChange={(e) => setPost({ ...post, status: e.target.value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })}
                     className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
                   >
                     <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>

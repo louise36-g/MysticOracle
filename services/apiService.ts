@@ -8,39 +8,119 @@
 const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const API_URL = rawUrl.replace(/\/api$/, '');
 
-interface ApiOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-  body?: any;
-  token?: string | null;
+// Retry configuration
+const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelayMs: 1000,
+  maxDelayMs: 10000,
+};
+
+/**
+ * Check if an error is retryable (network errors, 5xx server errors)
+ */
+function isRetryableError(error: unknown, status?: number): boolean {
+  // Network errors
+  if (error instanceof TypeError && error.message.includes('fetch')) {
+    return true;
+  }
+  // Server errors (5xx)
+  if (status && status >= 500 && status < 600) {
+    return true;
+  }
+  // Rate limiting
+  if (status === 429) {
+    return true;
+  }
+  return false;
 }
 
 /**
- * Make an authenticated API request
+ * Calculate delay with exponential backoff and jitter
+ */
+function calculateDelay(attempt: number): number {
+  const exponentialDelay = RETRY_CONFIG.baseDelayMs * Math.pow(2, attempt);
+  const jitter = Math.random() * 0.3 * exponentialDelay;
+  return Math.min(exponentialDelay + jitter, RETRY_CONFIG.maxDelayMs);
+}
+
+/**
+ * Sleep for a specified duration
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+interface ApiOptions {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  token?: string | null;
+  retry?: boolean; // Enable retry for this request (default: true for GET, false for others)
+}
+
+/**
+ * Make an authenticated API request with optional retry logic
  */
 async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-  const { method = 'GET', body, token } = options;
+  const { method = 'GET', body, token, retry } = options;
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
+  // Enable retry by default for GET requests only (idempotent)
+  const shouldRetry = retry ?? method === 'GET';
+  const maxAttempts = shouldRetry ? RETRY_CONFIG.maxRetries : 1;
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  let lastError: Error | null = null;
+  let lastStatus: number | undefined;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        credentials: 'include',
+      });
+
+      lastStatus = response.status;
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Request failed' }));
+        const errorMessage = error.error || `API Error: ${response.status}`;
+
+        // Check if we should retry
+        if (shouldRetry && isRetryableError(null, response.status) && attempt < maxAttempts - 1) {
+          const delay = calculateDelay(attempt);
+          console.warn(`API request failed (attempt ${attempt + 1}/${maxAttempts}), retrying in ${delay}ms...`);
+          await sleep(delay);
+          continue;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Check if we should retry network errors
+      if (shouldRetry && isRetryableError(error, lastStatus) && attempt < maxAttempts - 1) {
+        const delay = calculateDelay(attempt);
+        console.warn(`API request failed (attempt ${attempt + 1}/${maxAttempts}), retrying in ${delay}ms...`);
+        await sleep(delay);
+        continue;
+      }
+
+      throw lastError;
+    }
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || `API Error: ${response.status}`);
-  }
-
-  return response.json();
+  throw lastError || new Error('Request failed after max retries');
 }
 
 // ============================================
@@ -722,6 +802,33 @@ export interface BlogPost {
   tagIds?: string[];
 }
 
+// Type for creating/updating blog posts
+export type CreateBlogPostData = {
+  slug: string;
+  titleEn: string;
+  titleFr?: string;
+  excerptEn?: string;
+  excerptFr?: string;
+  contentEn?: string;
+  contentFr?: string;
+  coverImage?: string;
+  coverImageAlt?: string;
+  metaTitleEn?: string;
+  metaTitleFr?: string;
+  metaDescEn?: string;
+  metaDescFr?: string;
+  ogImage?: string;
+  authorName: string;
+  authorId?: string;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  featured: boolean;
+  readTimeMinutes: number;
+  categoryIds: string[];
+  tagIds: string[];
+};
+
+export type UpdateBlogPostData = Partial<CreateBlogPostData>;
+
 export interface BlogMedia {
   id: string;
   filename: string;
@@ -793,10 +900,7 @@ export async function fetchAdminBlogPost(token: string, id: string): Promise<{ p
 
 export async function createBlogPost(
   token: string,
-  data: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt' | 'categories' | 'tags'> & {
-    categoryIds: string[];
-    tagIds: string[];
-  }
+  data: CreateBlogPostData
 ): Promise<{ success: boolean; post: BlogPost }> {
   return apiRequest('/api/blog/admin/posts', { method: 'POST', body: data, token });
 }
@@ -804,10 +908,7 @@ export async function createBlogPost(
 export async function updateBlogPost(
   token: string,
   id: string,
-  data: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt' | 'categories' | 'tags'> & {
-    categoryIds?: string[];
-    tagIds?: string[];
-  }>
+  data: UpdateBlogPostData
 ): Promise<{ success: boolean; post: BlogPost }> {
   return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'PATCH', body: data, token });
 }

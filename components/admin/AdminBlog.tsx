@@ -8,6 +8,7 @@ import {
   updateBlogPost,
   deleteBlogPost,
   fetchAdminBlogCategories,
+  CreateBlogPostData,
   createBlogCategory,
   updateBlogCategory,
   deleteBlogCategory,
@@ -221,14 +222,14 @@ const AdminBlog: React.FC = () => {
       const token = await getToken();
       if (!token) return;
 
-      const postData = {
+      const postData: CreateBlogPostData = {
         slug: editingPost.slug,
         titleEn: editingPost.titleEn,
-        titleFr: editingPost.titleFr,
-        excerptEn: editingPost.excerptEn,
-        excerptFr: editingPost.excerptFr,
-        contentEn: editingPost.contentEn,
-        contentFr: editingPost.contentFr,
+        titleFr: editingPost.titleFr || '',
+        excerptEn: editingPost.excerptEn || '',
+        excerptFr: editingPost.excerptFr || '',
+        contentEn: editingPost.contentEn || '',
+        contentFr: editingPost.contentFr || '',
         coverImage: editingPost.coverImage,
         coverImageAlt: editingPost.coverImageAlt,
         metaTitleEn: editingPost.metaTitleEn,
@@ -245,7 +246,7 @@ const AdminBlog: React.FC = () => {
       };
 
       if (isNewPost) {
-        await createBlogPost(token, postData as any);
+        await createBlogPost(token, postData);
       } else {
         await updateBlogPost(token, editingPost.id, postData);
       }

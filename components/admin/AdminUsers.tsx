@@ -134,12 +134,12 @@ const AdminUsers: React.FC = () => {
 
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value as any); setPage(1); }}
+          onChange={(e) => { setStatusFilter(e.target.value as 'ACTIVE' | 'FLAGGED' | 'SUSPENDED' | ''); setPage(1); }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none"
         >
           <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
           <option value="ACTIVE">{language === 'en' ? 'Active' : 'Actif'}</option>
-          <option value="FLAGGED">{language === 'en' ? 'Flagged' : 'Signale'}</option>
+          <option value="FLAGGED">{language === 'en' ? 'Flagged' : 'Signalé'}</option>
           <option value="SUSPENDED">{language === 'en' ? 'Suspended' : 'Suspendu'}</option>
         </select>
 

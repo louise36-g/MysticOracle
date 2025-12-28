@@ -28,6 +28,12 @@ import {
   redirectToStripeCheckout,
   createPayPalOrder,
 } from '../services/paymentService';
+import {
+  FIRST_PURCHASE_BONUS_PERCENT,
+  hasCompletedFirstPurchase,
+  markFirstPurchaseComplete,
+  calculateFirstPurchaseBonus,
+} from '../utils/firstPurchaseBonus';
 
 // PayPal icon component
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -44,24 +50,8 @@ const StripeLinkIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// First-purchase bonus configuration
-const FIRST_PURCHASE_BONUS_PERCENT = 25; // 25% bonus on first purchase
-const FIRST_PURCHASE_STORAGE_KEY = 'mysticoracle_first_purchase_';
-
 // Low balance threshold
 const LOW_BALANCE_THRESHOLD = 5;
-
-// Helper to check if user has made first purchase
-const hasCompletedFirstPurchase = (userId: string | undefined): boolean => {
-  if (!userId) return false;
-  return localStorage.getItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`) === 'true';
-};
-
-// Helper to mark first purchase as complete
-const markFirstPurchaseComplete = (userId: string | undefined): void => {
-  if (!userId) return;
-  localStorage.setItem(`${FIRST_PURCHASE_STORAGE_KEY}${userId}`, 'true');
-};
 
 interface CreditShopProps {
   isOpen: boolean;
@@ -211,7 +201,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt (will be finalized by webhook)
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
-      const { url } = await createStripeCheckout(selectedPackage.id, token, useLink);
+      const { url } = await createStripeCheckout(token, selectedPackage.id, useLink);
       if (url) {
         redirectToStripeCheckout(url);
       } else {
@@ -254,7 +244,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       // Record the purchase attempt
       recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
 
-      const { approvalUrl } = await createPayPalOrder(selectedPackage.id, token);
+      const { approvalUrl } = await createPayPalOrder(token, selectedPackage.id);
       if (approvalUrl) {
         window.location.href = approvalUrl;
       } else {
