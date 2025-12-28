@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminHealth, SystemHealth } from '../../services/apiService';
-import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw, Database, CreditCard, Mail, Bot, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { fetchAdminHealth, fetchAdminErrorLogs, clearAdminErrorLogs, SystemHealth, ErrorLogEntry } from '../../services/apiService';
+import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw, Database, CreditCard, Mail, Bot, Users, Trash2, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const serviceIcons: Record<string, React.ReactNode> = {
   database: <Database className="w-5 h-5" />,
@@ -44,6 +44,13 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(300000); // 5 minutes default
 
+  // Error logs state
+  const [errorLogs, setErrorLogs] = useState<ErrorLogEntry[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [showLogs, setShowLogs] = useState(true);
+  const [levelFilter, setLevelFilter] = useState<string>('');
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
+
   const loadHealth = async (showRefresh = false) => {
     try {
       if (showRefresh) setRefreshing(true);
@@ -63,15 +70,52 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
     }
   };
 
+  const loadErrorLogs = async () => {
+    try {
+      setLogsLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const data = await fetchAdminErrorLogs(token, { limit: 50, level: levelFilter || undefined });
+      setErrorLogs(data.logs);
+    } catch (err) {
+      console.error('Failed to load error logs:', err);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const handleClearLogs = async () => {
+    if (!confirm(language === 'en' ? 'Clear all error logs?' : 'Effacer tous les logs d\'erreur?')) return;
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      await clearAdminErrorLogs(token);
+      setErrorLogs([]);
+    } catch (err) {
+      console.error('Failed to clear logs:', err);
+    }
+  };
+
   useEffect(() => {
     loadHealth();
+    loadErrorLogs();
   }, []);
 
   useEffect(() => {
     if (refreshInterval === 0) return; // Auto-refresh disabled
-    const interval = setInterval(() => loadHealth(true), refreshInterval);
+    const interval = setInterval(() => {
+      loadHealth(true);
+      loadErrorLogs();
+    }, refreshInterval);
     return () => clearInterval(interval);
   }, [refreshInterval]);
+
+  useEffect(() => {
+    loadErrorLogs();
+  }, [levelFilter]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -250,6 +294,147 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
           </motion.div>
         ))}
       </div>
+
+      {/* Error Logs Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden"
+      >
+        <div
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800/30"
+          onClick={() => setShowLogs(!showLogs)}
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <h3 className="font-medium text-purple-200">
+              {language === 'en' ? 'Error Log' : 'Journal des erreurs'}
+            </h3>
+            {errorLogs.length > 0 && (
+              <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">
+                {errorLogs.length}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {showLogs && (
+              <>
+                <select
+                  value={levelFilter}
+                  onChange={(e) => setLevelFilter(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-xs text-slate-300"
+                >
+                  <option value="">{language === 'en' ? 'All Levels' : 'Tous les niveaux'}</option>
+                  <option value="error">{language === 'en' ? 'Errors' : 'Erreurs'}</option>
+                  <option value="warn">{language === 'en' ? 'Warnings' : 'Avertissements'}</option>
+                  <option value="info">Info</option>
+                </select>
+                {errorLogs.length > 0 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleClearLogs(); }}
+                    className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                    title={language === 'en' ? 'Clear logs' : 'Effacer les logs'}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </>
+            )}
+            {showLogs ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {showLogs && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-t border-slate-800"
+            >
+              {logsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : errorLogs.length === 0 ? (
+                <div className="p-6 text-center text-slate-500">
+                  <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-500/50" />
+                  <p>{language === 'en' ? 'No errors logged' : 'Aucune erreur enregistree'}</p>
+                </div>
+              ) : (
+                <div className="max-h-96 overflow-y-auto">
+                  {errorLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="border-b border-slate-800 last:border-b-0 hover:bg-slate-800/30"
+                    >
+                      <div
+                        className="p-3 cursor-pointer"
+                        onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {log.level === 'error' ? (
+                              <XCircle className="w-4 h-4 text-red-400" />
+                            ) : log.level === 'warn' ? (
+                              <AlertTriangle className="w-4 h-4 text-amber-400" />
+                            ) : (
+                              <Info className="w-4 h-4 text-blue-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                log.level === 'error' ? 'bg-red-500/20 text-red-400' :
+                                log.level === 'warn' ? 'bg-amber-500/20 text-amber-400' :
+                                'bg-blue-500/20 text-blue-400'
+                              }`}>
+                                {log.level.toUpperCase()}
+                              </span>
+                              <span className="text-xs text-slate-500">{log.source}</span>
+                              <span className="text-xs text-slate-600">
+                                {new Date(log.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-300 truncate">{log.message}</p>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${expandedLogId === log.id ? 'rotate-180' : ''}`} />
+                        </div>
+                      </div>
+                      <AnimatePresence>
+                        {expandedLogId === log.id && log.details && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="px-3 pb-3"
+                          >
+                            <pre className="p-2 bg-slate-950 rounded text-xs text-slate-400 overflow-x-auto">
+                              {log.details}
+                            </pre>
+                            {log.path && (
+                              <p className="mt-2 text-xs text-slate-500">
+                                Path: <span className="text-slate-400">{log.path}</span>
+                              </p>
+                            )}
+                            {log.userId && (
+                              <p className="text-xs text-slate-500">
+                                User: <span className="text-slate-400">{log.userId}</span>
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {/* Info */}
       <div className="p-4 bg-slate-800/30 rounded-lg text-sm text-slate-400">

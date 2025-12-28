@@ -676,6 +676,42 @@ export async function fetchAdminHealth(token: string): Promise<SystemHealth> {
   return apiRequest('/api/admin/health', { token });
 }
 
+// ============================================
+// ADMIN ERROR LOGS
+// ============================================
+
+export interface ErrorLogEntry {
+  id: string;
+  timestamp: string;
+  level: 'error' | 'warn' | 'info';
+  source: string;
+  message: string;
+  details?: string;
+  userId?: string;
+  path?: string;
+}
+
+export interface ErrorLogsResponse {
+  logs: ErrorLogEntry[];
+  total: number;
+  maxSize: number;
+}
+
+export async function fetchAdminErrorLogs(
+  token: string,
+  params: { limit?: number; level?: string; source?: string } = {}
+): Promise<ErrorLogsResponse> {
+  const queryParams = new URLSearchParams();
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.level) queryParams.set('level', params.level);
+  if (params.source) queryParams.set('source', params.source);
+  return apiRequest(`/api/admin/error-logs?${queryParams.toString()}`, { token });
+}
+
+export async function clearAdminErrorLogs(token: string): Promise<{ success: boolean }> {
+  return apiRequest('/api/admin/error-logs', { method: 'DELETE', token });
+}
+
 export async function seedAdminPackages(token: string): Promise<{ success: boolean; packages: AdminCreditPackage[]; count: number }> {
   return apiRequest('/api/admin/seed/packages', { method: 'POST', token });
 }
