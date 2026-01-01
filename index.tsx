@@ -13,12 +13,27 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 window.onerror = (message, source, lineno, colno, error) => {
   console.error('Global error:', { message, source, lineno, colno, error });
   const root = document.getElementById('root');
-  if (root && !root.innerHTML.includes('Error')) {
-    root.innerHTML = `<div style="color: red; padding: 20px; background: #1a1a2e;">
-      <h1>Something went wrong</h1>
-      <pre>${message}</pre>
-      <button onclick="localStorage.clear(); location.reload();">Clear Storage & Reload</button>
-    </div>`;
+  if (root && !root.textContent?.includes('Something went wrong')) {
+    // Build DOM elements safely to prevent XSS
+    const container = document.createElement('div');
+    container.style.cssText = 'color: red; padding: 20px; background: #1a1a2e;';
+
+    const heading = document.createElement('h1');
+    heading.textContent = 'Something went wrong';
+
+    const pre = document.createElement('pre');
+    pre.textContent = String(message); // Safe: textContent escapes HTML
+
+    const button = document.createElement('button');
+    button.textContent = 'Clear Storage & Reload';
+    button.onclick = () => { localStorage.clear(); location.reload(); };
+
+    container.appendChild(heading);
+    container.appendChild(pre);
+    container.appendChild(button);
+
+    root.innerHTML = '';
+    root.appendChild(container);
   }
   return true;
 };

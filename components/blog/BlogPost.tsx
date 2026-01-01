@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { useApp } from '../../context/AppContext';
 import { fetchBlogPost, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
 import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
@@ -220,8 +221,27 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
   }
 
   const title = language === 'en' ? post.titleEn : post.titleFr;
-  const content = language === 'en' ? post.contentEn : post.contentFr;
+  const rawContent = language === 'en' ? post.contentEn : post.contentFr;
   const excerpt = language === 'en' ? post.excerptEn : post.excerptFr;
+
+  // Sanitize HTML content to prevent XSS attacks
+  const sanitizedContent = useMemo(() => {
+    return DOMPurify.sanitize(rawContent || '', {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
+        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
+      ],
+      ALLOWED_ATTR: [
+        'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
+        'width', 'height', 'loading'
+      ],
+      ALLOW_DATA_ATTR: false,
+      ADD_ATTR: ['target', 'rel'],
+      // Force all links to open in new tab with security attributes
+      FORCE_BODY: true,
+    });
+  }, [rawContent]);
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-12">
@@ -332,13 +352,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
         </motion.div>
       )}
 
-      {/* Content */}
+      {/* Content - HTML is sanitized with DOMPurify to prevent XSS */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="prose prose-invert prose-purple max-w-none mb-12"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         style={{
           // Custom prose styling
           lineHeight: '1.8',

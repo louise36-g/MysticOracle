@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
@@ -11,6 +12,19 @@ import {
 } from '../../services/apiService';
 import { Plus, Edit2, Trash2, Mail, Check, X, Eye, Code, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+// Sanitize HTML for safe preview rendering
+const sanitizeEmailHtml = (html: string): string => {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'span', 'div', 'hr'
+    ],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'style', 'class', 'width', 'height'],
+    ALLOW_DATA_ATTR: false,
+  });
+};
 
 const AdminEmailTemplates: React.FC = () => {
   const { language } = useApp();
@@ -387,7 +401,7 @@ const AdminEmailTemplates: React.FC = () => {
                         <div
                           className="text-black text-sm"
                           dangerouslySetInnerHTML={{
-                            __html: previewLang === 'en' ? template.bodyEn : template.bodyFr
+                            __html: sanitizeEmailHtml(previewLang === 'en' ? template.bodyEn : template.bodyFr)
                           }}
                         />
                       </div>

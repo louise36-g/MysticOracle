@@ -1,14 +1,51 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
+// Server-side credit costs by spread type (NEVER trust client)
+const SPREAD_CREDIT_COSTS: Record<string, number> = {
+  SINGLE: 1,
+  THREE_CARD: 2,
+  CELTIC_CROSS: 5,
+  HORSESHOE: 4,
+};
+
+// Follow-up question cost
+const FOLLOW_UP_CREDIT_COST = 1;
+
+// Spread types matching Prisma schema
+const SPREAD_TYPES = ['SINGLE', 'THREE_CARD', 'CELTIC_CROSS', 'HORSESHOE'] as const;
+
+// Interpretation styles matching Prisma schema
+const INTERPRETATION_STYLES = ['CLASSIC', 'SPIRITUAL', 'PSYCHO_EMOTIONAL', 'NUMEROLOGY', 'ELEMENTAL'] as const;
+
+// Validation schema for reading creation
+const createReadingSchema = z.object({
+  spreadType: z.enum(SPREAD_TYPES),
+  interpretationStyle: z.enum(INTERPRETATION_STYLES).optional(),
+  question: z.string().max(1000).optional(),
+  cards: z.any(), // JSON field
+  interpretation: z.string(),
+});
+
 // Create a new reading
 router.post('/', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { spreadType, interpretationStyle, question, cards, interpretation, creditCost } = req.body;
+
+    // Validate input
+    const validation = createReadingSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+    }
+
+    const { spreadType, interpretationStyle, question, cards, interpretation } = validation.data;
+
+    // Get credit cost from server-side config (NEVER trust client)
+    const creditCost = SPREAD_CREDIT_COSTS[spreadType] || 1;
 
     // Check if user has enough credits
     const user = await prisma.user.findUnique({
@@ -91,12 +128,28 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 });
 
+// Validation schema for follow-up questions
+const followUpSchema = z.object({
+  question: z.string().min(1).max(1000),
+  answer: z.string(),
+});
+
 // Add follow-up question to a reading
 router.post('/:id/follow-up', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { id } = req.params;
-    const { question, answer, creditCost = 0 } = req.body;
+
+    // Validate input
+    const validation = followUpSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+    }
+
+    const { question, answer } = validation.data;
+
+    // Use server-side credit cost (NEVER trust client)
+    const creditCost = FOLLOW_UP_CREDIT_COST;
 
     // Verify reading belongs to user
     const reading = await prisma.reading.findFirst({
@@ -107,20 +160,18 @@ router.post('/:id/follow-up', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Reading not found' });
     }
 
-    // Check credits if needed
-    if (creditCost > 0) {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { credits: true }
-      });
+    // Check credits
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
 
-      if (!user || user.credits < creditCost) {
-        return res.status(400).json({ error: 'Insufficient credits' });
-      }
+    if (!user || user.credits < creditCost) {
+      return res.status(400).json({ error: 'Insufficient credits' });
     }
 
-    // Create follow-up and deduct credits
-    const operations: any[] = [
+    // Create follow-up and deduct credits in a transaction
+    const [followUp] = await prisma.$transaction([
       prisma.followUpQuestion.create({
         data: {
           readingId: id,
@@ -128,31 +179,24 @@ router.post('/:id/follow-up', requireAuth, async (req, res) => {
           answer,
           creditCost
         }
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          credits: { decrement: creditCost },
+          totalCreditsSpent: { increment: creditCost },
+          totalQuestions: { increment: 1 }
+        }
+      }),
+      prisma.transaction.create({
+        data: {
+          userId,
+          type: 'QUESTION',
+          amount: -creditCost,
+          description: 'Follow-up question'
+        }
       })
-    ];
-
-    if (creditCost > 0) {
-      operations.push(
-        prisma.user.update({
-          where: { id: userId },
-          data: {
-            credits: { decrement: creditCost },
-            totalCreditsSpent: { increment: creditCost },
-            totalQuestions: { increment: 1 }
-          }
-        }),
-        prisma.transaction.create({
-          data: {
-            userId,
-            type: 'QUESTION',
-            amount: -creditCost,
-            description: 'Follow-up question'
-          }
-        })
-      );
-    }
-
-    const [followUp] = await prisma.$transaction(operations);
+    ]);
 
     res.status(201).json(followUp);
   } catch (error) {
@@ -233,39 +277,10 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
   }
 });
 
-// Deduct credits (generic endpoint for frontend)
-router.post('/deduct-credits', requireAuth, async (req, res) => {
-  try {
-    const userId = req.auth.userId;
-    const { amount, description = 'Credit usage' } = req.body;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    if (user.credits < amount) {
-      return res.status(400).json({ error: 'Insufficient credits' });
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        credits: { decrement: amount },
-        totalCreditsSpent: { increment: amount }
-      },
-      select: { credits: true }
-    });
-
-    res.json({ success: true, newBalance: updatedUser.credits });
-  } catch (error) {
-    console.error('Error deducting credits:', error);
-    res.status(500).json({ error: 'Failed to deduct credits' });
-  }
-});
+// NOTE: Generic deduct-credits endpoint removed for security
+// Credit deductions should only happen through specific endpoints:
+// - POST /readings (new reading)
+// - POST /readings/:id/follow-up (follow-up question)
+// This prevents client-side manipulation of credit amounts
 
 export default router;
