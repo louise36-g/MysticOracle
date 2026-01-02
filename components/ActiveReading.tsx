@@ -4,12 +4,13 @@ import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
 import { generateTarotReading, generateFollowUpReading } from '../services/openrouterService';
-import { summarizeQuestion } from '../services/apiService';
+import { summarizeQuestion, createReading, updateReadingReflection } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
 import Card from './Card';
 import Button from './Button';
 import ReadingShufflePhase from './reading/ReadingShufflePhase';
 import OracleChat from './reading/OracleChat';
+import ReflectionPrompt from './reading/ReflectionPrompt';
 import QuestionLengthModal from './QuestionLengthModal';
 import { ReadingCompleteCelebration } from './rewards';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -91,6 +92,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
+
+  // Backend reading ID (for saving reflections)
+  const [backendReadingId, setBackendReadingId] = useState<string | null>(null);
 
   // Loading message state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -325,6 +329,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     // Trigger completion celebration (may include mystery bonus)
     setShowCelebration(true);
 
+    // Save to local history
     addToHistory({
       id: Date.now().toString(),
       date: new Date().toISOString(),
@@ -333,12 +338,49 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       interpretation: result,
       question
     });
-  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory]);
+
+    // Save to backend (for reflection feature)
+    try {
+      const token = await getToken();
+      if (token) {
+        const savedReading = await createReading(token, {
+          spreadType: spread.id,
+          interpretationStyle: isAdvanced && selectedStyles.length > 0
+            ? selectedStyles[0]
+            : 'CLASSIC',
+          question,
+          cards: drawnCards.map((item, idx) => ({
+            cardId: item.card.id,
+            position: idx,
+            isReversed: item.isReversed,
+          })),
+          interpretation: result,
+          creditCost: totalCost,
+        });
+        setBackendReadingId(savedReading.id);
+      }
+    } catch (error) {
+      // Non-blocking - reflection just won't be available if save fails
+      console.error('Failed to save reading to backend:', error);
+    }
+  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
     setShowCelebration(false);
   }, []);
+
+  // Handle saving reflection
+  const handleSaveReflection = useCallback(async (reflection: string) => {
+    if (!backendReadingId) {
+      throw new Error('No reading ID available');
+    }
+    const token = await getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    await updateReadingReflection(token, backendReadingId, reflection);
+  }, [backendReadingId, getToken]);
 
   const getQuestionCost = useCallback(() => {
     if (sessionQuestionCount === 0) return 0;
@@ -760,7 +802,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
         ))}
       </div>
 
-      <div className="bg-slate-900/80 border border-purple-500/20 rounded-2xl p-8 md:p-12 shadow-2xl mb-12">
+      <div className="bg-slate-900/80 border border-purple-500/20 rounded-2xl p-8 md:p-12 shadow-2xl mb-6">
         {isGenerating ? (
           <div className="flex flex-col items-center justify-center py-20 space-y-6">
             <div className="w-16 h-16 border-4 border-purple-500 border-t-amber-400 rounded-full animate-spin"></div>
@@ -795,6 +837,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
           </motion.div>
         )}
       </div>
+
+      {/* Optional reflection prompt - appears after reading, doesn't block anything */}
+      {!isGenerating && (
+        <ReflectionPrompt
+          readingId={backendReadingId}
+          onSave={handleSaveReflection}
+        />
+      )}
 
       {!isGenerating && (
         <OracleChat

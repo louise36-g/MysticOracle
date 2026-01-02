@@ -277,6 +277,47 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
   }
 });
 
+// Validation schema for reflection update
+const reflectionSchema = z.object({
+  userReflection: z.string().max(1000),
+});
+
+// Update reading with user reflection
+router.patch('/:id', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { id } = req.params;
+
+    // Validate input
+    const validation = reflectionSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+    }
+
+    const { userReflection } = validation.data;
+
+    // Verify reading belongs to user
+    const reading = await prisma.reading.findFirst({
+      where: { id, userId }
+    });
+
+    if (!reading) {
+      return res.status(404).json({ error: 'Reading not found' });
+    }
+
+    // Update the reading with reflection
+    const updatedReading = await prisma.reading.update({
+      where: { id },
+      data: { userReflection }
+    });
+
+    res.json({ success: true, reading: updatedReading });
+  } catch (error) {
+    console.error('Error updating reading reflection:', error);
+    res.status(500).json({ error: 'Failed to update reading' });
+  }
+});
+
 // NOTE: Generic deduct-credits endpoint removed for security
 // Credit deductions should only happen through specific endpoints:
 // - POST /readings (new reading)

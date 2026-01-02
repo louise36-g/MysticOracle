@@ -397,6 +397,16 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'error.requestFailed': { en: 'Request failed', fr: 'La requête a échoué' },
       'message.buyCredits': { en: 'Buy Credits', fr: 'Acheter des Crédits' },
       'message.later': { en: 'Later', fr: 'Plus Tard' },
+
+      // Reflection
+      'reflection.header': { en: 'How does this reading resonate with you?', fr: 'Comment cette lecture vous parle-t-elle?' },
+      'reflection.tooltip': { en: 'Your reflections help personalize future readings', fr: 'Vos réflexions aident à personnaliser les lectures futures' },
+      'reflection.placeholder': { en: 'Share your thoughts, feelings, or insights about this reading...', fr: 'Partagez vos pensées, sentiments ou intuitions sur cette lecture...' },
+      'reflection.save': { en: 'Save Reflection', fr: 'Enregistrer' },
+      'reflection.skip': { en: 'Skip', fr: 'Passer' },
+      'reflection.saved': { en: 'Reflection saved', fr: 'Réflexion enregistrée' },
+      'reflection.saving': { en: 'Saving...', fr: 'Sauvegarde...' },
+      'reflection.characters': { en: 'characters', fr: 'caractères' },
     };
 
     // Insert all translations

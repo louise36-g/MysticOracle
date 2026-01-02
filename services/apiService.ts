@@ -259,6 +259,18 @@ export async function deductCredits(
   });
 }
 
+export async function updateReadingReflection(
+  token: string,
+  readingId: string,
+  userReflection: string
+): Promise<{ success: boolean; reading: ReadingData }> {
+  return apiRequest(`/api/readings/${readingId}`, {
+    method: 'PATCH',
+    body: { userReflection },
+    token,
+  });
+}
+
 // ============================================
 // TRANSACTIONS ENDPOINTS
 // ============================================
