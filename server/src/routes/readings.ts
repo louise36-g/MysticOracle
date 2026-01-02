@@ -67,7 +67,7 @@ router.post('/', requireAuth, async (req, res) => {
         data: {
           userId,
           spreadType,
-          interpretationStyle,
+          interpretationStyle: interpretationStyle || 'CLASSIC',
           question,
           cards,
           interpretation,

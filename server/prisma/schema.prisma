@@ -81,6 +81,11 @@ model Reading {
   // AI Response
   interpretation  String   @db.Text
 
+  // Post-reading enrichment
+  summary         String?  @db.Text    // Short summary for personalization (generated later)
+  userReflection  String?  @db.Text    // User's optional reflection after reading
+  themes          String[]             // Extracted themes like ["career", "transition", "fear"]
+
   // Metadata
   creditCost      Int
   createdAt       DateTime @default(now())

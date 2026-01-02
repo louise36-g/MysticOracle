@@ -63,6 +63,7 @@ import adminRoutes from './routes/admin.js';
 import horoscopeRoutes from './routes/horoscopes.js';
 import translationRoutes from './routes/translations.js';
 import blogRoutes from './routes/blog.js';
+import aiRoutes from './routes/ai.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -120,6 +121,7 @@ app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
 app.use('/api/translations', generalLimiter, translationRoutes);
 app.use('/api/blog', adminLimiter, blogRoutes);
+app.use('/api/ai', strictLimiter, aiRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

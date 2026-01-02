@@ -385,6 +385,22 @@ export async function askHoroscopeQuestion(
 }
 
 // ============================================
+// AI ENDPOINTS
+// ============================================
+
+export async function summarizeQuestion(
+  token: string,
+  question: string,
+  language: 'en' | 'fr'
+): Promise<{ summary: string; creditsUsed: number }> {
+  return apiRequest('/api/ai/summarize-question', {
+    method: 'POST',
+    body: { question, language },
+    token
+  });
+}
+
+// ============================================
 // ADMIN ENDPOINTS
 // ============================================
 

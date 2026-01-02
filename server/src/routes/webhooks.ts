@@ -315,7 +315,7 @@ async function verifyPayPalWebhook(
       return false;
     }
 
-    const tokenData = await tokenRes.json();
+    const tokenData = await tokenRes.json() as { access_token: string };
     const accessToken = tokenData.access_token;
 
     // Verify webhook signature with PayPal
@@ -341,7 +341,7 @@ async function verifyPayPalWebhook(
       return false;
     }
 
-    const verifyData = await verifyRes.json();
+    const verifyData = await verifyRes.json() as { verification_status: string };
     return verifyData.verification_status === 'SUCCESS';
   } catch (error) {
     console.error('PayPal webhook verification error:', error);

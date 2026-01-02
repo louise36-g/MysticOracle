@@ -1,16 +1,25 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
 import { generateTarotReading, generateFollowUpReading } from '../services/openrouterService';
+import { summarizeQuestion } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
 import Card from './Card';
 import Button from './Button';
 import ReadingShufflePhase from './reading/ReadingShufflePhase';
 import OracleChat from './reading/OracleChat';
+import QuestionLengthModal from './QuestionLengthModal';
 import { ReadingCompleteCelebration } from './rewards';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Settings, Check, AlertCircle } from 'lucide-react';
+
+// Question length thresholds
+const QUESTION_LENGTH = {
+  FREE_LIMIT: 500,
+  HARD_LIMIT: 2000,
+} as const;
 
 interface ActiveReadingProps {
   spread: SpreadConfig;
@@ -47,7 +56,8 @@ const LOADING_MESSAGES = {
 };
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
-  const { language, user, deductCredits, addToHistory } = useApp();
+  const { language, user, deductCredits, addToHistory, refreshUser } = useApp();
+  const { getToken } = useAuth();
 
   // Phase state
   const [phase, setPhase] = useState<ReadingPhase>('intro');
@@ -63,6 +73,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const [question, setQuestion] = useState('');
   const [questionError, setQuestionError] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+
+  // Question length modal state
+  const [showLengthModal, setShowLengthModal] = useState(false);
+  const [extendedQuestionPaid, setExtendedQuestionPaid] = useState(false);
+  const [isProcessingLength, setIsProcessingLength] = useState(false);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -148,6 +163,66 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     return spread.cost + (isAdvanced ? 1 : 0);
   }, [spread.cost, isAdvanced]);
 
+  // Character count and color for question input
+  const questionLength = question.length;
+  const questionLengthColor = useMemo(() => {
+    if (questionLength < QUESTION_LENGTH.FREE_LIMIT) return 'text-green-400';
+    if (questionLength <= QUESTION_LENGTH.HARD_LIMIT) return 'text-amber-400';
+    return 'text-red-400';
+  }, [questionLength]);
+
+  const questionLengthStatus = useMemo(() => {
+    if (questionLength < QUESTION_LENGTH.FREE_LIMIT) return 'ok';
+    if (questionLength <= QUESTION_LENGTH.HARD_LIMIT) return 'extended';
+    return 'exceeded';
+  }, [questionLength]);
+
+  // Handle AI summarize from modal
+  const handleAISummarize = useCallback(async () => {
+    setIsProcessingLength(true);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+
+      const result = await summarizeQuestion(token, question, language);
+      setQuestion(result.summary);
+      setShowLengthModal(false);
+      setExtendedQuestionPaid(false);
+      refreshUser();
+    } catch (error) {
+      console.error('Failed to summarize question:', error);
+      setValidationMessage(
+        language === 'en'
+          ? 'Failed to summarize question. Please try again.'
+          : 'Échec du résumé de la question. Veuillez réessayer.'
+      );
+    } finally {
+      setIsProcessingLength(false);
+    }
+  }, [question, language, getToken, refreshUser]);
+
+  // Handle "use full question" from modal (pay 1 credit)
+  const handleUseFullQuestion = useCallback(async () => {
+    setIsProcessingLength(true);
+    try {
+      const result = await deductCredits(1);
+      if (!result.success) {
+        setValidationMessage(result.message || (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants'));
+        return;
+      }
+      setExtendedQuestionPaid(true);
+      setShowLengthModal(false);
+    } finally {
+      setIsProcessingLength(false);
+    }
+  }, [deductCredits, language]);
+
+  // Handle "shorten manually" from modal
+  const handleShortenManually = useCallback(() => {
+    setShowLengthModal(false);
+    // Focus will return to textarea automatically
+  }, []);
+
   const handleGeneralGuidance = useCallback(() => {
     setQuestion(language === 'en' ? "Guidance from the Tarot" : "Guidance du Tarot");
     setQuestionError(false);
@@ -155,8 +230,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   }, [language]);
 
   const handleQuestionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setQuestion(e.target.value);
-    if (e.target.value) {
+    const newValue = e.target.value;
+    // Enforce hard limit
+    if (newValue.length > QUESTION_LENGTH.HARD_LIMIT) {
+      return; // Don't allow input beyond hard limit
+    }
+    setQuestion(newValue);
+    setExtendedQuestionPaid(false); // Reset when question changes
+    if (newValue) {
       setQuestionError(false);
       setValidationMessage(null);
     }
@@ -173,6 +254,22 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       return;
     }
 
+    // Check question length
+    if (questionLengthStatus === 'exceeded') {
+      setValidationMessage(
+        language === 'en'
+          ? `Question too long (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} characters). Please shorten it.`
+          : `Question trop longue (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} caractères). Veuillez la raccourcir.`
+      );
+      return;
+    }
+
+    // If extended (500-2000) and not paid, show modal
+    if (questionLengthStatus === 'extended' && !extendedQuestionPaid) {
+      setShowLengthModal(true);
+      return;
+    }
+
     setValidationMessage(null);
 
     const result = await deductCredits(totalCost);
@@ -183,7 +280,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     setPhase('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [question, totalCost, deductCredits, language]);
+  }, [question, totalCost, deductCredits, language, questionLengthStatus, questionLength, extendedQuestionPaid]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
@@ -327,12 +424,34 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
                   value={question}
                   onChange={handleQuestionChange}
                   placeholder={language === 'en' ? 'Type your question here...' : 'Écrivez votre question ici...'}
+                  maxLength={QUESTION_LENGTH.HARD_LIMIT}
                   className={`w-full bg-slate-900/80 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 text-center text-lg min-h-[100px] resize-none transition-all ${
                     questionError
                       ? 'border-2 border-red-500 focus:ring-red-500/50'
-                      : 'border border-purple-500/30 focus:border-amber-500 focus:ring-amber-500/50'
+                      : questionLengthStatus === 'exceeded'
+                        ? 'border-2 border-red-500 focus:ring-red-500/50'
+                        : questionLengthStatus === 'extended'
+                          ? 'border-2 border-amber-500 focus:ring-amber-500/50'
+                          : 'border border-purple-500/30 focus:border-amber-500 focus:ring-amber-500/50'
                   }`}
                 />
+                {/* Character count */}
+                <div className="flex justify-between items-center mt-2 px-1">
+                  <span className={`text-xs ${questionLengthColor}`}>
+                    {questionLength} / {QUESTION_LENGTH.HARD_LIMIT}
+                  </span>
+                  {questionLengthStatus === 'extended' && !extendedQuestionPaid && (
+                    <span className="text-xs text-amber-400">
+                      {language === 'en' ? '+1 credit for extended question' : '+1 crédit pour question étendue'}
+                    </span>
+                  )}
+                  {extendedQuestionPaid && (
+                    <span className="text-xs text-green-400 flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      {language === 'en' ? 'Extended question paid' : 'Question étendue payée'}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="relative flex items-center py-2">
@@ -456,6 +575,19 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
             </Button>
           </div>
         </motion.div>
+
+        {/* Question Length Modal */}
+        <QuestionLengthModal
+          isOpen={showLengthModal}
+          onClose={() => setShowLengthModal(false)}
+          question={question}
+          language={language}
+          credits={user?.credits || 0}
+          onShortenManually={handleShortenManually}
+          onAISummarize={handleAISummarize}
+          onUseFullQuestion={handleUseFullQuestion}
+          isLoading={isProcessingLength}
+        />
       </div>
     );
   }

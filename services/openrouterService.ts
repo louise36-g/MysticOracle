@@ -10,6 +10,19 @@ const CONFIG = {
   timeoutMs: 60000, // Increased timeout for detailed prompts
   temperature: 0.7,
   topP: 0.95,
+  // Dynamic token limits by spread type
+  maxTokensBySpread: {
+    SINGLE: 600,
+    THREE_CARD: 1200,
+    HORSESHOE: 2000,
+    CELTIC_CROSS: 2500,
+  } as Record<string, number>,
+  // Token limits for other functions
+  maxTokens: {
+    followUp: 500,
+    horoscope: 800,
+    horoscopeFollowUp: 400,
+  },
 } as const;
 
 // Error messages
@@ -244,6 +257,9 @@ Tone: Mystical, supportive, insightful, warm, and conversational.
   try {
     const ai = getClient();
 
+    // Get dynamic token limit based on spread type
+    const maxTokens = CONFIG.maxTokensBySpread[spread.id] || CONFIG.maxTokensBySpread.THREE_CARD;
+
     const result = await withRetry(() =>
       withTimeout(
         ai.chat.completions.create({
@@ -251,6 +267,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
           top_p: CONFIG.topP,
+          max_tokens: maxTokens,
         }),
         CONFIG.timeoutMs
       )
@@ -310,6 +327,7 @@ IMPORTANT: Write naturally without tables, emojis, or icons. Speak as a wise ora
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
           top_p: CONFIG.topP,
+          max_tokens: CONFIG.maxTokens.followUp,
         }),
         CONFIG.timeoutMs
       )
@@ -381,6 +399,7 @@ IMPORTANT STYLE RULES:
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
           top_p: CONFIG.topP,
+          max_tokens: CONFIG.maxTokens.horoscopeFollowUp,
         }),
         CONFIG.timeoutMs
       )
@@ -442,6 +461,7 @@ Tone: Professional, informative, respectful, and direct.
           messages: [{ role: "user", content: prompt }],
           temperature: CONFIG.temperature,
           top_p: CONFIG.topP,
+          max_tokens: CONFIG.maxTokens.horoscope,
         }),
         CONFIG.timeoutMs
       )
