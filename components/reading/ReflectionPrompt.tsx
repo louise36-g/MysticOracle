@@ -64,8 +64,8 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
     }
   }, [isSaved]);
 
-  // Don't render if skipped or no reading ID
-  if (!isVisible || !readingId) return null;
+  // Don't render if skipped
+  if (!isVisible) return null;
 
   return (
     <motion.div
@@ -171,9 +171,10 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
 
                   <Button
                     onClick={handleSave}
-                    disabled={isSaving || !reflection.trim()}
+                    disabled={isSaving || !reflection.trim() || !readingId}
                     size="sm"
                     className="min-w-[140px]"
+                    title={!readingId ? t('reflection.cannotSave', 'Cannot save - reading not synced') : undefined}
                   >
                     {isSaving ? (
                       <span className="flex items-center gap-2">

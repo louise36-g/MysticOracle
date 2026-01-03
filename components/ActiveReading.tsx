@@ -164,19 +164,22 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   }, []);
 
   const totalCost = useMemo(() => {
-    return spread.cost + (isAdvanced ? 1 : 0);
-  }, [spread.cost, isAdvanced]);
+    return spread.cost + (isAdvanced ? 1 : 0) + (extendedQuestionPaid ? 1 : 0);
+  }, [spread.cost, isAdvanced, extendedQuestionPaid]);
 
-  // Character count and color for question input
+  // Character count and limits
   const questionLength = question.length;
+  const currentLimit = extendedQuestionPaid ? QUESTION_LENGTH.HARD_LIMIT : QUESTION_LENGTH.FREE_LIMIT;
+
+  // Color based on current allowed limit (not the hard limit)
   const questionLengthColor = useMemo(() => {
-    if (questionLength < QUESTION_LENGTH.FREE_LIMIT) return 'text-green-400';
-    if (questionLength <= QUESTION_LENGTH.HARD_LIMIT) return 'text-amber-400';
+    if (questionLength <= currentLimit * 0.9) return 'text-slate-400';
+    if (questionLength <= currentLimit) return 'text-green-400';
     return 'text-red-400';
-  }, [questionLength]);
+  }, [questionLength, currentLimit]);
 
   const questionLengthStatus = useMemo(() => {
-    if (questionLength < QUESTION_LENGTH.FREE_LIMIT) return 'ok';
+    if (questionLength <= QUESTION_LENGTH.FREE_LIMIT) return 'ok';
     if (questionLength <= QUESTION_LENGTH.HARD_LIMIT) return 'extended';
     return 'exceeded';
   }, [questionLength]);
@@ -205,21 +208,17 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     }
   }, [question, language, getToken, refreshUser]);
 
-  // Handle "use full question" from modal (pay 1 credit)
-  const handleUseFullQuestion = useCallback(async () => {
-    setIsProcessingLength(true);
-    try {
-      const result = await deductCredits(1);
-      if (!result.success) {
-        setValidationMessage(result.message || (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants'));
-        return;
-      }
-      setExtendedQuestionPaid(true);
-      setShowLengthModal(false);
-    } finally {
-      setIsProcessingLength(false);
+  // Handle "use full question" from modal - adds 1 credit to total cost (deducted at reading start)
+  const handleUseFullQuestion = useCallback(() => {
+    // Check if user has enough credits for total cost including extended question
+    const projectedCost = spread.cost + (isAdvanced ? 1 : 0) + 1; // +1 for extended
+    if ((user?.credits || 0) < projectedCost) {
+      setValidationMessage(language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants');
+      return;
     }
-  }, [deductCredits, language]);
+    setExtendedQuestionPaid(true);
+    setShowLengthModal(false);
+  }, [spread.cost, isAdvanced, user?.credits, language]);
 
   // Handle "shorten manually" from modal
   const handleShortenManually = useCallback(() => {
@@ -470,29 +469,16 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
                   className={`w-full bg-slate-900/80 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 text-center text-lg min-h-[100px] resize-none transition-all ${
                     questionError
                       ? 'border-2 border-red-500 focus:ring-red-500/50'
-                      : questionLengthStatus === 'exceeded'
+                      : questionLength > currentLimit
                         ? 'border-2 border-red-500 focus:ring-red-500/50'
-                        : questionLengthStatus === 'extended'
-                          ? 'border-2 border-amber-500 focus:ring-amber-500/50'
-                          : 'border border-purple-500/30 focus:border-amber-500 focus:ring-amber-500/50'
+                        : 'border border-purple-500/30 focus:border-amber-500 focus:ring-amber-500/50'
                   }`}
                 />
                 {/* Character count */}
-                <div className="flex justify-between items-center mt-2 px-1">
+                <div className="flex justify-end items-center mt-2 px-1">
                   <span className={`text-xs ${questionLengthColor}`}>
-                    {questionLength} / {QUESTION_LENGTH.HARD_LIMIT}
+                    {questionLength} / {currentLimit}
                   </span>
-                  {questionLengthStatus === 'extended' && !extendedQuestionPaid && (
-                    <span className="text-xs text-amber-400">
-                      {language === 'en' ? '+1 credit for extended question' : '+1 crédit pour question étendue'}
-                    </span>
-                  )}
-                  {extendedQuestionPaid && (
-                    <span className="text-xs text-green-400 flex items-center gap-1">
-                      <Check className="w-3 h-3" />
-                      {language === 'en' ? 'Extended question paid' : 'Question étendue payée'}
-                    </span>
-                  )}
                 </div>
               </div>
 
@@ -594,6 +580,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
               <div className="flex justify-between items-center text-sm text-amber-400">
                 <span>{language === 'en' ? 'Advanced Options:' : 'Options Avancées:'}</span>
                 <span>+{advancedCost}</span>
+              </div>
+            )}
+            {extendedQuestionPaid && (
+              <div className="flex justify-between items-center text-sm text-purple-400">
+                <span>{language === 'en' ? 'Extended Question:' : 'Question Étendue:'}</span>
+                <span>+1</span>
               </div>
             )}
             <div className="flex justify-between items-center font-bold text-white border-t border-white/10 pt-2 mt-1 mb-2">

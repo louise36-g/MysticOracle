@@ -31,8 +31,9 @@ const OracleChat: React.FC<OracleChatProps> = ({
 }) => {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Only auto-scroll when there are messages in the chat
   useEffect(() => {
-    if (chatEndRef.current) {
+    if (chatEndRef.current && chatHistory.length > 0) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatHistory, isChatLoading]);

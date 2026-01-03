@@ -421,28 +421,30 @@ const App: React.FC = () => {
     // 6. Home / Dashboard View
     return (
       <div className="pb-20 relative z-10">
-        {/* Hero Section */}
-        <div className="relative py-20 px-4 text-center overflow-hidden">
-          {/* Decorative Elements */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+        {/* Hero Section - Only show on home (no readingMode selected) */}
+        {!readingMode && (
+          <div className="relative py-20 px-4 text-center overflow-hidden">
+            {/* Decorative Elements */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
 
-          <h1 className="text-5xl md:text-7xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-            MysticOracle
-          </h1>
-          <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-            {language === 'en'
-              ? 'Unveil the secrets of your destiny through the ancient wisdom of Tarot, guided by artificial intelligence.'
-              : 'Dévoilez les secrets de votre destin grâce à la sagesse ancienne du Tarot, guidée par l\'intelligence artificielle.'}
-          </p>
+            <h1 className="text-5xl md:text-7xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+              MysticOracle
+            </h1>
+            <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+              {language === 'en'
+                ? 'Unveil the secrets of your destiny through the ancient wisdom of Tarot, guided by artificial intelligence.'
+                : 'Dévoilez les secrets de votre destin grâce à la sagesse ancienne du Tarot, guidée par l\'intelligence artificielle.'}
+            </p>
 
-          {!user && (
-            <SignInButton mode="modal">
-              <Button size="lg">
-                {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
-              </Button>
-            </SignInButton>
-          )}
-        </div>
+            {!user && (
+              <SignInButton mode="modal">
+                <Button size="lg">
+                  {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
+                </Button>
+              </SignInButton>
+            )}
+          </div>
+        )}
 
         {/* Feature Highlights (Only for non-authenticated) */}
         {!user && (
