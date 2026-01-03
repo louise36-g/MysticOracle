@@ -418,9 +418,43 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'welcome.step3.title': { en: 'Your Credits', fr: 'Vos Crédits' },
       'welcome.step3.description': { en: 'You have 3 free credits to start. A single card reading costs 1 credit, larger spreads cost more. Earn extra credits through daily bonuses and referrals — or purchase more anytime.', fr: 'Vous avez 3 crédits gratuits pour commencer. Un tirage à une carte coûte 1 crédit, les tirages plus grands coûtent plus. Gagnez des crédits supplémentaires grâce aux bonus quotidiens et aux parrainages — ou achetez-en à tout moment.' },
       'welcome.step3.purchaseNow': { en: 'Purchase now', fr: 'Acheter maintenant' },
+      'welcome.step3.learnMore': { en: 'Learn more', fr: 'En savoir plus' },
       'welcome.skip': { en: 'Skip', fr: 'Passer' },
       'welcome.next': { en: 'Next', fr: 'Suivant' },
       'welcome.startReading': { en: 'Start Your First Reading', fr: 'Commencer Votre Première Lecture' },
+
+      // How Credits Work Page
+      'credits.hero.title': { en: 'How Credits Work', fr: 'Comment fonctionnent les crédits' },
+      'credits.hero.subtitle': { en: 'Simple, transparent, no subscriptions', fr: 'Simple, transparent, sans abonnement' },
+
+      'credits.whatAre.title': { en: 'What Are Credits?', fr: 'Que sont les crédits ?' },
+      'credits.whatAre.description': { en: 'Credits are your currency for tarot readings on MysticOracle. There are no monthly fees or subscriptions — you simply purchase credits when you need them, and they never expire. Each reading type has a fixed cost, so you always know exactly what you\'re spending.', fr: 'Les crédits sont votre monnaie pour les lectures de tarot sur MysticOracle. Il n\'y a pas de frais mensuels ni d\'abonnements — vous achetez simplement des crédits quand vous en avez besoin, et ils n\'expirent jamais. Chaque type de lecture a un coût fixe, vous savez donc toujours exactement ce que vous dépensez.' },
+
+      'credits.costs.title': { en: 'Reading Costs', fr: 'Coûts des lectures' },
+      'credits.costs.readingType': { en: 'Reading Type', fr: 'Type de lecture' },
+      'credits.costs.credits': { en: 'Credits', fr: 'Crédits' },
+      'credits.costs.followUp': { en: 'Follow-up Question', fr: 'Question de suivi' },
+      'credits.costs.note': { en: 'More complex spreads with additional cards provide deeper insights and cost more credits.', fr: 'Les tirages plus complexes avec des cartes supplémentaires offrent des aperçus plus profonds et coûtent plus de crédits.' },
+      'credits.credit': { en: 'credit', fr: 'crédit' },
+      'credits.credits': { en: 'credits', fr: 'crédits' },
+
+      'credits.earn.title': { en: 'Earning Free Credits', fr: 'Gagner des crédits gratuits' },
+      'credits.earn.daily.title': { en: 'Daily Bonus', fr: 'Bonus quotidien' },
+      'credits.earn.daily.description': { en: 'Visit each day to claim free credits. Build a streak for bigger rewards — 7-day streaks unlock bonus credits!', fr: 'Visitez chaque jour pour réclamer des crédits gratuits. Construisez une série pour de plus grandes récompenses — les séries de 7 jours débloquent des crédits bonus !' },
+      'credits.earn.referrals.title': { en: 'Referrals', fr: 'Parrainages' },
+      'credits.earn.referrals.description': { en: 'Share your referral link with friends. When they sign up and make their first reading, you both earn credits.', fr: 'Partagez votre lien de parrainage avec des amis. Quand ils s\'inscrivent et font leur première lecture, vous gagnez tous les deux des crédits.' },
+      'credits.earn.achievements.title': { en: 'Achievements', fr: 'Réussites' },
+      'credits.earn.achievements.description': { en: 'Complete milestones like your first reading, trying all spread types, or maintaining streaks to unlock bonus credits.', fr: 'Complétez des étapes comme votre première lecture, essayer tous les types de tirages, ou maintenir des séries pour débloquer des crédits bonus.' },
+
+      'credits.buy.title': { en: 'Buying Credits', fr: 'Acheter des crédits' },
+      'credits.buy.description': { en: 'Need more credits? Purchase them instantly through our secure checkout. We offer several packages to suit your needs, with bigger packages offering better value.', fr: 'Besoin de plus de crédits ? Achetez-les instantanément via notre paiement sécurisé. Nous proposons plusieurs forfaits adaptés à vos besoins, avec de meilleurs prix pour les gros forfaits.' },
+      'credits.buy.stripe': { en: 'Credit/Debit Cards (Stripe)', fr: 'Cartes de crédit/débit (Stripe)' },
+      'credits.buy.paypal': { en: 'PayPal', fr: 'PayPal' },
+      'credits.buy.button': { en: 'View Credit Packages', fr: 'Voir les forfaits' },
+
+      'credits.cta.title': { en: 'Ready to begin?', fr: 'Prêt à commencer ?' },
+      'credits.cta.description': { en: 'Start your journey with a tarot reading and discover what the cards reveal for you.', fr: 'Commencez votre voyage avec une lecture de tarot et découvrez ce que les cartes révèlent pour vous.' },
+      'credits.cta.button': { en: 'Start a Reading', fr: 'Commencer une lecture' },
     };
 
     // Insert all translations

@@ -19,6 +19,7 @@ import CreditShop from './components/CreditShop';
 import Breadcrumb from './components/Breadcrumb';
 import BlogList from './components/blog/BlogList';
 import BlogPostView from './components/blog/BlogPost';
+import HowCreditsWork from './components/HowCreditsWork';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -81,6 +82,11 @@ const App: React.FC = () => {
     } else if (path === '/cookies') {
       setCurrentView('cookies');
       window.history.replaceState({ view: 'cookies' }, '', '/cookies');
+    }
+    // How Credits Work
+    else if (path === '/how-credits-work') {
+      setCurrentView('how-credits-work');
+      window.history.replaceState({ view: 'how-credits-work' }, '', '/how-credits-work');
     }
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
@@ -356,7 +362,17 @@ const App: React.FC = () => {
         return <CookiePolicy />;
     }
 
-    // 5. Blog Pages (accessible to all)
+    // 5. How Credits Work (accessible to all)
+    if (currentView === 'how-credits-work') {
+        return (
+          <HowCreditsWork
+            onNavigate={handleNavigate}
+            onOpenCreditShop={() => setShowCreditShop(true)}
+          />
+        );
+    }
+
+    // 6. Blog Pages (accessible to all)
     if (currentView === 'blog') {
         return (
           <BlogList
@@ -509,11 +525,12 @@ const App: React.FC = () => {
         onClose={() => setShowWelcomeModal(false)}
         onNavigateToReading={() => handleReadingModeSelect('tarot')}
         onOpenCreditShop={() => setShowCreditShop(true)}
+        onNavigateToCreditsInfo={() => handleNavigate('how-credits-work')}
         credits={user?.credits ?? 3}
       />
 
       {/* Credit Shop Modal */}
-      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
+      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} onNavigate={handleNavigate} />
 
       {/* No Credits Modal */}
       <AnimatePresence>

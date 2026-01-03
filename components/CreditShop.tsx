@@ -56,9 +56,10 @@ const LOW_BALANCE_THRESHOLD = 5;
 interface CreditShopProps {
   isOpen: boolean;
   onClose: () => void;
+  onNavigate?: (view: string) => void;
 }
 
-const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
+const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) => {
   const { language, user } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
@@ -742,6 +743,21 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   </p>
                 </div>
               </div>
+
+              {/* How credits work link */}
+              {onNavigate && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onNavigate('how-credits-work');
+                    }}
+                    className="text-sm text-slate-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
+                  >
+                    {language === 'en' ? 'How do credits work?' : 'Comment fonctionnent les crédits ?'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

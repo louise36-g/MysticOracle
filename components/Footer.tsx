@@ -14,7 +14,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
     <footer className="relative z-10 border-t border-white/10 bg-slate-950/80 backdrop-blur-md mt-auto">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center gap-2 mb-3">
@@ -30,6 +30,21 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 ? 'AI-powered tarot readings and horoscopes'
                 : 'Lectures de tarot et horoscopes alimentés par l\'IA'}
             </p>
+          </div>
+
+          {/* Help */}
+          <div className="flex flex-col items-center">
+            <h4 className="text-slate-300 font-medium mb-3">
+              {language === 'en' ? 'Help' : 'Aide'}
+            </h4>
+            <nav className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => onNavigate('how-credits-work')}
+                className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
+              >
+                {language === 'en' ? 'How Credits Work' : 'Comment fonctionnent les crédits'}
+              </button>
+            </nav>
           </div>
 
           {/* Legal Links */}

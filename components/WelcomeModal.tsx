@@ -11,12 +11,13 @@ interface WelcomeModalProps {
   onClose: () => void;
   onNavigateToReading: () => void;
   onOpenCreditShop: () => void;
+  onNavigateToCreditsInfo: () => void;
   credits: number;
 }
 
 const TOTAL_STEPS = 3;
 
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, credits }) => {
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, onNavigateToCreditsInfo, credits }) => {
   const { t } = useTranslation();
   const { getToken } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
@@ -58,6 +59,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
     onClose();
     onOpenCreditShop();
   }, [markComplete, onClose, onOpenCreditShop]);
+
+  const handleLearnMore = useCallback(async () => {
+    setIsClosing(true);
+    await markComplete();
+    onClose();
+    onNavigateToCreditsInfo();
+  }, [markComplete, onClose, onNavigateToCreditsInfo]);
 
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -188,12 +196,21 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
                       <p>
                         {t('welcome.step3.description', 'You have 3 free credits to start. A single card reading costs 1 credit, larger spreads cost more. Earn extra credits through daily bonuses and referrals — or purchase more anytime.')}
                       </p>
-                      <button
-                        onClick={handlePurchase}
-                        className="mt-2 text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors text-sm font-medium"
-                      >
-                        {t('welcome.step3.purchaseNow', 'Purchase now')}
-                      </button>
+                      <div className="flex items-center justify-center gap-4 mt-2">
+                        <button
+                          onClick={handlePurchase}
+                          className="text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors text-sm font-medium"
+                        >
+                          {t('welcome.step3.purchaseNow', 'Purchase now')}
+                        </button>
+                        <span className="text-slate-600">|</span>
+                        <button
+                          onClick={handleLearnMore}
+                          className="text-slate-400 hover:text-slate-300 underline underline-offset-2 transition-colors text-sm"
+                        >
+                          {t('welcome.step3.learnMore', 'Learn more')}
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}
