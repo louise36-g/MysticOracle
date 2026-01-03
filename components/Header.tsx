@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Shield, User, Coins, FileText } from 'lucide-react';
+import { Moon, Menu, X, Shield, User, Coins, FileText, HelpCircle } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -77,6 +77,15 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           >
             <FileText className="w-4 h-4" />
             Blog
+          </button>
+
+          <button
+            onClick={() => handleNavigate('faq')}
+            className={`flex items-center gap-1 text-sm font-medium transition-colors ${currentView === 'faq' ? 'text-amber-400' : 'text-slate-300 hover:text-white'}`}
+            aria-current={currentView === 'faq' ? 'page' : undefined}
+          >
+            <HelpCircle className="w-4 h-4" />
+            {language === 'en' ? 'Help' : 'Aide'}
           </button>
 
           {isSignedIn && (
@@ -179,6 +188,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           >
             <FileText className="w-4 h-4" />
             Blog
+          </button>
+
+          <button
+            className="flex items-center gap-2 w-full text-left py-2 text-slate-300"
+            onClick={() => handleNavigate('faq', true)}
+          >
+            <HelpCircle className="w-4 h-4" />
+            {language === 'en' ? 'Help & FAQ' : 'Aide & FAQ'}
           </button>
 
           {isSignedIn && (

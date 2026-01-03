@@ -20,6 +20,7 @@ import Breadcrumb from './components/Breadcrumb';
 import BlogList from './components/blog/BlogList';
 import BlogPostView from './components/blog/BlogPost';
 import HowCreditsWork from './components/HowCreditsWork';
+import FAQ from './components/FAQ';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -87,6 +88,11 @@ const App: React.FC = () => {
     else if (path === '/how-credits-work') {
       setCurrentView('how-credits-work');
       window.history.replaceState({ view: 'how-credits-work' }, '', '/how-credits-work');
+    }
+    // FAQ
+    else if (path === '/faq') {
+      setCurrentView('faq');
+      window.history.replaceState({ view: 'faq' }, '', '/faq');
     }
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
@@ -372,7 +378,12 @@ const App: React.FC = () => {
         );
     }
 
-    // 6. Blog Pages (accessible to all)
+    // 6. FAQ (accessible to all)
+    if (currentView === 'faq') {
+        return <FAQ onNavigate={handleNavigate} />;
+    }
+
+    // 7. Blog Pages (accessible to all)
     if (currentView === 'blog') {
         return (
           <BlogList

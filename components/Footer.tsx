@@ -39,6 +39,12 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <nav className="flex flex-col items-center gap-2">
               <button
+                onClick={() => onNavigate('faq')}
+                className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
+              >
+                {language === 'en' ? 'FAQ' : 'FAQ'}
+              </button>
+              <button
                 onClick={() => onNavigate('how-credits-work')}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
