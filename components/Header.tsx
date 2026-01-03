@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
 
   // Use Clerk user data if AppContext user not synced yet
   const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
-  const userCredits = user?.credits ?? 10; // Default 10 credits for new users
+  const userCredits = user?.credits ?? 3; // Default 3 credits for new users
   const isAdmin = user?.isAdmin || false;
 
   const toggleLanguage = useCallback(() => {

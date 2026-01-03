@@ -48,7 +48,7 @@ const UserProfile: React.FC = () => {
     const displayUser = {
         username: user?.username || clerkUser?.username || clerkUser?.firstName || 'User',
         email: user?.email || clerkUser?.primaryEmailAddress?.emailAddress || '',
-        credits: user?.credits ?? 10,
+        credits: user?.credits ?? 3,
         loginStreak: user?.loginStreak ?? 1,
         joinDate: clerkUser?.createdAt?.toISOString() || new Date().toISOString(),
         referralCode: user?.referralCode || 'MYSTIC' + Math.random().toString(36).substring(2, 6).toUpperCase(),

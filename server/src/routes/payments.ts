@@ -59,7 +59,7 @@ async function getOrCreateUser(userId: string) {
           id: userId,
           email,
           username,
-          credits: 10, // Starting credits
+          credits: 3, // Starting credits
           language: 'en',
           referralCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
         },

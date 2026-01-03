@@ -508,7 +508,8 @@ const App: React.FC = () => {
         isOpen={showWelcomeModal}
         onClose={() => setShowWelcomeModal(false)}
         onNavigateToReading={() => handleReadingModeSelect('tarot')}
-        credits={user?.credits ?? 10}
+        onOpenCreditShop={() => setShowCreditShop(true)}
+        credits={user?.credits ?? 3}
       />
 
       {/* Credit Shop Modal */}

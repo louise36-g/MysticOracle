@@ -10,12 +10,13 @@ interface WelcomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToReading: () => void;
+  onOpenCreditShop: () => void;
   credits: number;
 }
 
 const TOTAL_STEPS = 3;
 
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, credits }) => {
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, credits }) => {
   const { t } = useTranslation();
   const { getToken } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
@@ -50,6 +51,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
     onClose();
     onNavigateToReading();
   }, [markComplete, onClose, onNavigateToReading]);
+
+  const handlePurchase = useCallback(async () => {
+    setIsClosing(true);
+    await markComplete();
+    onClose();
+    onOpenCreditShop();
+  }, [markComplete, onClose, onOpenCreditShop]);
 
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -120,7 +128,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
                       {t('welcome.step1.title', 'Welcome to MysticOracle')}
                     </h2>
                     <p className="text-slate-300 leading-relaxed">
-                      {t('welcome.step1.description', 'The veil between worlds grows thin. Here, ancient wisdom meets modern insight, offering guidance through the mystical art of Tarot. Your journey of self-discovery begins now.')}
+                      {t('welcome.step1.description', 'Your personal guide to tarot wisdom. Each reading is crafted uniquely for you, blending ancient symbolism with modern insight.')}
                     </p>
                   </motion.div>
                 )}
@@ -145,15 +153,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
                     <div className="text-slate-300 leading-relaxed space-y-3 text-left">
                       <p>
                         <span className="text-amber-400 font-medium">1.</span>{' '}
-                        {t('welcome.step2.point1', 'Focus your mind and ask a question')}
+                        {t('welcome.step2.point1', 'Ask a question (or let the cards guide you)')}
                       </p>
                       <p>
                         <span className="text-amber-400 font-medium">2.</span>{' '}
-                        {t('welcome.step2.point2', 'Choose your spread (1 card, 3 cards, or Celtic Cross)')}
+                        {t('welcome.step2.point2', 'Choose your spread — from a single card to a full Celtic Cross')}
                       </p>
                       <p>
                         <span className="text-amber-400 font-medium">3.</span>{' '}
-                        {t('welcome.step2.point3', 'Receive a personalized AI interpretation of your cards')}
+                        {t('welcome.step2.point3', 'Receive a personalized interpretation that speaks to your situation')}
                       </p>
                     </div>
                   </motion.div>
@@ -178,16 +186,14 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
                     </h2>
                     <div className="text-slate-300 leading-relaxed space-y-3">
                       <p>
-                        {t('welcome.step3.balance', 'You start with')}{' '}
-                        <span className="text-amber-400 font-bold text-lg">{credits}</span>{' '}
-                        {t('welcome.step3.freeCredits', 'free credits')}
+                        {t('welcome.step3.description', 'You have 3 free credits to start. A single card reading costs 1 credit, larger spreads cost more. Earn extra credits through daily bonuses and referrals — or purchase more anytime.')}
                       </p>
-                      <p className="text-sm text-slate-400">
-                        {t('welcome.step3.costs', 'Single card readings cost 1 credit, 3-card spreads cost 2, and Celtic Cross costs 5.')}
-                      </p>
-                      <p className="text-sm text-slate-400">
-                        {t('welcome.step3.earn', 'Earn more through daily bonuses and referrals!')}
-                      </p>
+                      <button
+                        onClick={handlePurchase}
+                        className="mt-2 text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors text-sm font-medium"
+                      >
+                        {t('welcome.step3.purchaseNow', 'Purchase now')}
+                      </button>
                     </div>
                   </motion.div>
                 )}

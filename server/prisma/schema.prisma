@@ -25,8 +25,8 @@ model User {
   language          String   @default("en") // 'en' | 'fr'
 
   // Credits & Economy
-  credits           Int      @default(10)
-  totalCreditsEarned Int     @default(10)
+  credits           Int      @default(3)
+  totalCreditsEarned Int     @default(3)
   totalCreditsSpent  Int     @default(0)
 
   // Engagement

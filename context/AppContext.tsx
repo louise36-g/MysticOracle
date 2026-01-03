@@ -133,7 +133,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
           id: clerkUser.id,
           email: clerkUser.primaryEmailAddress?.emailAddress || '',
           username,
-          credits: 10,
+          credits: 3,
           totalReadings: 0,
           totalQuestionsAsked: 0,
           loginStreak: 1,

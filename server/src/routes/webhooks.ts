@@ -215,7 +215,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
             email: data.email_addresses[0]?.email_address || '',
             username,
             referralCode,
-            credits: 10, // Welcome bonus
+            credits: 3, // Welcome bonus
             isAdmin: false // Admin status must be set explicitly via database
           }
         });
@@ -225,7 +225,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
           data: {
             userId: data.id,
             type: 'ACHIEVEMENT',
-            amount: 10,
+            amount: 3,
             description: 'Welcome bonus'
           }
         });
