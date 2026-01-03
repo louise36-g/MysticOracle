@@ -1,7 +1,7 @@
-import React, { useState, useCallback, memo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Shield, User, Coins, FileText, HelpCircle, ChevronDown, BookOpen, CreditCard } from 'lucide-react';
+import { Moon, Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -18,24 +18,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const { user: clerkUser, isSignedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
-  const moreMenuRef = useRef<HTMLDivElement>(null);
 
-  // Use Clerk user data if AppContext user not synced yet
   const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
   const userCredits = user?.credits ?? 3;
   const isAdmin = user?.isAdmin || false;
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
-        setIsMoreMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const toggleLanguage = useCallback(() => {
     setLanguage(language === 'en' ? 'fr' : 'en');
@@ -47,7 +33,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
 
   const handleNavigate = useCallback((view: string, closeMobile = false) => {
     onNavigate(view);
-    setIsMoreMenuOpen(false);
     if (closeMobile) setIsMobileMenuOpen(false);
   }, [onNavigate]);
 
@@ -55,9 +40,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
     setLanguage(language === 'en' ? 'fr' : 'en');
     setIsMobileMenuOpen(false);
   }, [language, setLanguage]);
-
-  // Check if any "More" menu item is active
-  const isMoreActive = ['blog', 'blog-post', 'faq', 'how-credits-work'].includes(currentView);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md" role="banner">
@@ -77,82 +59,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           </span>
         </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-4" role="navigation" aria-label="Main navigation">
-          <button
-            onClick={() => handleNavigate('home')}
-            className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${currentView === 'home' ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
-            aria-current={currentView === 'home' ? 'page' : undefined}
-          >
-            {language === 'en' ? 'Home' : 'Accueil'}
-          </button>
-
-          {/* More Dropdown */}
-          <div className="relative" ref={moreMenuRef}>
-            <button
-              onClick={() => setIsMoreMenuOpen(prev => !prev)}
-              className={`flex items-center gap-1.5 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isMoreActive ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
-              aria-expanded={isMoreMenuOpen}
-              aria-haspopup="true"
-            >
-              {language === 'en' ? 'Explore' : 'Explorer'}
-              <ChevronDown className={`w-4 h-4 transition-transform ${isMoreMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {isMoreMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute top-full left-0 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden"
-                >
-                  <div className="p-2">
-                    <button
-                      onClick={() => handleNavigate('blog')}
-                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-left transition-colors ${currentView === 'blog' || currentView === 'blog-post' ? 'bg-purple-500/20 text-purple-200' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                        <BookOpen className="w-4 h-4 text-purple-400" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm">Blog</div>
-                        <div className="text-xs text-slate-500">{language === 'en' ? 'Articles & guides' : 'Articles & guides'}</div>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => handleNavigate('how-credits-work')}
-                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-left transition-colors ${currentView === 'how-credits-work' ? 'bg-amber-500/20 text-amber-200' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-amber-400" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm">{language === 'en' ? 'Credits' : 'Crédits'}</div>
-                        <div className="text-xs text-slate-500">{language === 'en' ? 'How credits work' : 'Comment ça marche'}</div>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => handleNavigate('faq')}
-                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-left transition-colors ${currentView === 'faq' ? 'bg-blue-500/20 text-blue-200' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                        <HelpCircle className="w-4 h-4 text-blue-400" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm">{language === 'en' ? 'Help & FAQ' : 'Aide & FAQ'}</div>
-                        <div className="text-xs text-slate-500">{language === 'en' ? 'Get answers' : 'Trouvez des réponses'}</div>
-                      </div>
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
+        {/* Desktop Nav - Simplified */}
+        <nav className="hidden md:flex items-center gap-3" role="navigation" aria-label="Main navigation">
           {isSignedIn && (
             <button
               onClick={() => setShowCreditShop(true)}
@@ -183,7 +91,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             {language === 'en' ? <FlagEN className="w-5 h-5" aria-hidden="true" /> : <FlagFR className="w-5 h-5" aria-hidden="true" />}
           </button>
 
-          {/* Clerk Auth Components */}
           <SignedOut>
             <SignInButton mode="modal">
               <Button variant="primary" size="sm">
@@ -252,10 +159,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
               )}
 
               <button
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'home' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'home' && !isMobileMenuOpen ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
                 onClick={() => handleNavigate('home', true)}
               >
-                <Moon className="w-5 h-5" />
+                <Home className="w-5 h-5" />
                 {language === 'en' ? 'Home' : 'Accueil'}
               </button>
 

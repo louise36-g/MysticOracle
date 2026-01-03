@@ -21,6 +21,8 @@ import BlogList from './components/blog/BlogList';
 import BlogPostView from './components/blog/BlogPost';
 import HowCreditsWork from './components/HowCreditsWork';
 import FAQ from './components/FAQ';
+import AboutUs from './components/AboutUs';
+import SubNav from './components/SubNav';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -93,6 +95,11 @@ const App: React.FC = () => {
     else if (path === '/faq') {
       setCurrentView('faq');
       window.history.replaceState({ view: 'faq' }, '', '/faq');
+    }
+    // About Us
+    else if (path === '/about') {
+      setCurrentView('about');
+      window.history.replaceState({ view: 'about' }, '', '/about');
     }
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
@@ -383,6 +390,11 @@ const App: React.FC = () => {
         return <FAQ onNavigate={handleNavigate} />;
     }
 
+    // 6b. About Us (accessible to all)
+    if (currentView === 'about') {
+        return <AboutUs onNavigate={handleNavigate} />;
+    }
+
     // 7. Blog Pages (accessible to all)
     if (currentView === 'blog') {
         return (
@@ -519,6 +531,13 @@ const App: React.FC = () => {
       </div>
 
       <Header onNavigate={handleNavigate} currentView={currentView} />
+      <SubNav
+        onNavigate={handleNavigate}
+        onSelectSpread={handleSpreadSelect}
+        onSelectReadingMode={handleReadingModeSelect}
+        currentView={currentView}
+        readingMode={readingMode}
+      />
       <Breadcrumb
         currentView={currentView}
         readingMode={readingMode}

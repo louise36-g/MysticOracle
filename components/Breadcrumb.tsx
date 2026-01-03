@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye } from 'lucide-react';
+import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface BreadcrumbProps {
@@ -67,6 +67,46 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         });
         break;
 
+      case 'blog':
+        items.push({
+          label: 'Blog',
+          icon: <BookOpen className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'blog-post':
+        items.push({
+          label: 'Blog',
+          icon: <BookOpen className="w-3.5 h-3.5" />,
+          onClick: () => onNavigate('blog'),
+        });
+        items.push({
+          label: language === 'en' ? 'Article' : 'Article',
+          icon: <FileText className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'faq':
+        items.push({
+          label: language === 'en' ? 'Help & FAQ' : 'Aide & FAQ',
+          icon: <HelpCircle className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'how-credits-work':
+        items.push({
+          label: language === 'en' ? 'How Credits Work' : 'Comment fonctionnent les crédits',
+          icon: <CreditCard className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'about':
+        items.push({
+          label: language === 'en' ? 'About Us' : 'À Propos',
+          icon: <Users className="w-3.5 h-3.5" />,
+        });
+        break;
+
       case 'reading':
         // Add reading mode crumb
         if (readingMode === 'tarot') {
@@ -111,11 +151,6 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   };
 
   const breadcrumbs = buildBreadcrumbs();
-
-  // Don't render if only home breadcrumb (no navigation needed)
-  if (breadcrumbs.length <= 1 && currentView === 'home' && !readingMode) {
-    return null;
-  }
 
   return (
     <nav className="bg-slate-900/50 backdrop-blur-sm border-b border-purple-500/10">
