@@ -139,6 +139,7 @@ export interface UserProfile {
   totalQuestions: number;
   loginStreak: number;
   lastLoginDate: string;
+  welcomeCompleted: boolean;
   referralCode: string;
   isAdmin: boolean;
   accountStatus: string;
@@ -156,13 +157,17 @@ export async function fetchUserProfile(token: string): Promise<UserProfile> {
 
 export async function updateUserProfile(
   token: string,
-  data: { language?: string }
+  data: { language?: string; welcomeCompleted?: boolean }
 ): Promise<UserProfile> {
   return apiRequest<UserProfile>('/api/users/me', {
     method: 'PATCH',
     body: data,
     token,
   });
+}
+
+export async function markWelcomeCompleted(token: string): Promise<UserProfile> {
+  return updateUserProfile(token, { welcomeCompleted: true });
 }
 
 export async function fetchUserCredits(token: string): Promise<{

@@ -37,12 +37,13 @@ router.get('/me', requireAuth, async (req, res) => {
 router.patch('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { language } = req.body;
+    const { language, welcomeCompleted } = req.body;
 
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         language: language || undefined,
+        welcomeCompleted: typeof welcomeCompleted === 'boolean' ? welcomeCompleted : undefined,
       }
     });
 

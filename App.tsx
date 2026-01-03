@@ -42,6 +42,7 @@ const App: React.FC = () => {
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
   const [showLowCreditsModal, setShowLowCreditsModal] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [pendingSpread, setPendingSpread] = useState<SpreadConfig | null>(null);
   const [hasShownLowCreditsWarning, setHasShownLowCreditsWarning] = useState(false);
 
@@ -143,6 +144,13 @@ const App: React.FC = () => {
       setHasShownLowCreditsWarning(true);
     }
   }, [user?.credits, hasShownLowCreditsWarning]);
+
+  // Show welcome modal for new users
+  useEffect(() => {
+    if (user && !user.welcomeCompleted && user.totalReadings === 0) {
+      setShowWelcomeModal(true);
+    }
+  }, [user]);
 
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
@@ -496,7 +504,12 @@ const App: React.FC = () => {
       </main>
       <Footer onNavigate={handleNavigate} />
       <CookieConsent onNavigate={handleNavigate} />
-      <WelcomeModal />
+      <WelcomeModal
+        isOpen={showWelcomeModal}
+        onClose={() => setShowWelcomeModal(false)}
+        onNavigateToReading={() => handleReadingModeSelect('tarot')}
+        credits={user?.credits ?? 10}
+      />
 
       {/* Credit Shop Modal */}
       <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />

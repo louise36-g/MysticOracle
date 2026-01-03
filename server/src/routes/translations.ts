@@ -407,6 +407,22 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'reflection.saved': { en: 'Reflection saved', fr: 'Réflexion enregistrée' },
       'reflection.saving': { en: 'Saving...', fr: 'Sauvegarde...' },
       'reflection.characters': { en: 'characters', fr: 'caractères' },
+
+      // Welcome Modal
+      'welcome.step1.title': { en: 'Welcome to MysticOracle', fr: 'Bienvenue sur MysticOracle' },
+      'welcome.step1.description': { en: 'The veil between worlds grows thin. Here, ancient wisdom meets modern insight, offering guidance through the mystical art of Tarot. Your journey of self-discovery begins now.', fr: 'Le voile entre les mondes s\'amincit. Ici, la sagesse ancienne rencontre la perspicacité moderne, offrant des conseils à travers l\'art mystique du Tarot. Votre voyage de découverte de soi commence maintenant.' },
+      'welcome.step2.title': { en: 'How It Works', fr: 'Comment ça marche' },
+      'welcome.step2.point1': { en: 'Focus your mind and ask a question', fr: 'Concentrez votre esprit et posez une question' },
+      'welcome.step2.point2': { en: 'Choose your spread (1 card, 3 cards, or Celtic Cross)', fr: 'Choisissez votre tirage (1 carte, 3 cartes, ou Croix Celtique)' },
+      'welcome.step2.point3': { en: 'Receive a personalized AI interpretation of your cards', fr: 'Recevez une interprétation IA personnalisée de vos cartes' },
+      'welcome.step3.title': { en: 'Your Credits', fr: 'Vos Crédits' },
+      'welcome.step3.balance': { en: 'You start with', fr: 'Vous commencez avec' },
+      'welcome.step3.freeCredits': { en: 'free credits', fr: 'crédits gratuits' },
+      'welcome.step3.costs': { en: 'Single card readings cost 1 credit, 3-card spreads cost 2, and Celtic Cross costs 5.', fr: 'Les tirages à une carte coûtent 1 crédit, les tirages à 3 cartes coûtent 2, et la Croix Celtique coûte 5.' },
+      'welcome.step3.earn': { en: 'Earn more through daily bonuses and referrals!', fr: 'Gagnez-en plus grâce aux bonus quotidiens et aux parrainages!' },
+      'welcome.skip': { en: 'Skip', fr: 'Passer' },
+      'welcome.next': { en: 'Next', fr: 'Suivant' },
+      'welcome.startReading': { en: 'Start Your First Reading', fr: 'Commencer Votre Première Lecture' },
     };
 
     // Insert all translations

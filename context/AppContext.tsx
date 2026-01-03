@@ -18,6 +18,7 @@ interface User {
   totalQuestionsAsked: number;
   loginStreak: number;
   lastLoginDate: string;
+  welcomeCompleted: boolean;
   referralCode: string;
   isAdmin: boolean;
   language: Language;
@@ -98,6 +99,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         totalQuestionsAsked: profile.totalQuestions,
         loginStreak: profile.loginStreak,
         lastLoginDate: profile.lastLoginDate,
+        welcomeCompleted: profile.welcomeCompleted,
         referralCode: profile.referralCode,
         isAdmin: profile.isAdmin,
         language: profile.language as Language,
@@ -136,6 +138,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
           totalQuestionsAsked: 0,
           loginStreak: 1,
           lastLoginDate: new Date().toISOString(),
+          welcomeCompleted: false,
           referralCode: '',
           isAdmin: adminUsernames.includes(username.toLowerCase()),
           language: 'en',
