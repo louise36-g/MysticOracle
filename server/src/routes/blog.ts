@@ -49,7 +49,8 @@ router.get('/posts', async (req, res) => {
 
     const where: any = {
       status: 'PUBLISHED',
-      publishedAt: { not: null }
+      publishedAt: { not: null },
+      deletedAt: null  // Exclude deleted posts
     };
 
     if (params.category) {
@@ -143,11 +144,12 @@ router.get('/posts/:slug', async (req, res) => {
       data: { viewCount: { increment: 1 } }
     }).catch(() => {});
 
-    // Get related posts (same category, excluding current)
+    // Get related posts (same category, excluding current and deleted)
     const relatedPosts = await prisma.blogPost.findMany({
       where: {
         status: 'PUBLISHED',
         publishedAt: { not: null },
+        deletedAt: null,
         id: { not: post.id },
         categories: {
           some: {
@@ -253,6 +255,65 @@ router.get('/tags', async (req, res) => {
 // ADMIN ENDPOINTS
 // ============================================
 
+// Preview any post (admin only) - bypasses published status check
+router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const post = await prisma.blogPost.findUnique({
+      where: { id: req.params.id, deletedAt: null },
+      include: {
+        categories: {
+          include: { category: true }
+        },
+        tags: {
+          include: { tag: true }
+        }
+      }
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Transform to flat structure
+    const transformedPost = {
+      ...post,
+      categories: post.categories.map(pc => pc.category),
+      tags: post.tags.map(pt => pt.tag)
+    };
+
+    // Get related posts (same category) for preview
+    const relatedPosts = await prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: { not: null },
+        deletedAt: null,
+        id: { not: post.id },
+        categories: {
+          some: {
+            categoryId: { in: post.categories.map(c => c.categoryId) }
+          }
+        }
+      },
+      select: {
+        slug: true,
+        titleEn: true,
+        titleFr: true,
+        excerptEn: true,
+        excerptFr: true,
+        coverImage: true,
+        readTimeMinutes: true
+      },
+      take: 3,
+      orderBy: { publishedAt: 'desc' }
+    });
+
+    res.json({ post: transformedPost, relatedPosts });
+  } catch (error) {
+    console.error('Preview post error:', error);
+    res.status(500).json({ error: 'Failed to load post preview' });
+  }
+});
+
 // List all posts (including drafts) for admin
 router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -260,10 +321,19 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       page: z.coerce.number().min(1).default(1),
       limit: z.coerce.number().min(1).max(100).default(20),
       status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
-      search: z.string().optional()
+      search: z.string().optional(),
+      deleted: z.coerce.boolean().optional()  // true = show trash, false/undefined = show active
     }).parse(req.query);
 
     const where: any = {};
+
+    // Filter by deleted status
+    if (params.deleted) {
+      where.deletedAt = { not: null };
+    } else {
+      where.deletedAt = null;
+    }
+
     if (params.status) where.status = params.status;
     if (params.search) {
       where.OR = [
@@ -475,14 +545,102 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
   }
 });
 
-// Delete post
+// Soft delete post (move to trash)
 router.delete('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
-    await prisma.blogPost.delete({ where: { id: req.params.id } });
+    const post = await prisma.blogPost.findUnique({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Save original slug and modify current slug to avoid conflicts
+    const timestamp = Date.now();
+    const trashedSlug = `_deleted_${timestamp}_${post.slug}`;
+
+    await prisma.blogPost.update({
+      where: { id: req.params.id },
+      data: {
+        deletedAt: new Date(),
+        originalSlug: post.slug,
+        slug: trashedSlug
+      }
+    });
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to delete post' });
+  }
+});
+
+// Restore post from trash
+router.post('/admin/posts/:id/restore', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const post = await prisma.blogPost.findUnique({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    if (!post.deletedAt) {
+      return res.status(400).json({ error: 'Post is not in trash' });
+    }
+
+    // Check if original slug is available
+    const originalSlug = post.originalSlug || post.slug.replace(/^_deleted_\d+_/, '');
+    const existingWithSlug = await prisma.blogPost.findFirst({
+      where: { slug: originalSlug, id: { not: post.id } }
+    });
+
+    // If original slug is taken, generate a new one
+    let newSlug = originalSlug;
+    if (existingWithSlug) {
+      newSlug = `${originalSlug}-restored-${Date.now()}`;
+    }
+
+    await prisma.blogPost.update({
+      where: { id: req.params.id },
+      data: {
+        deletedAt: null,
+        originalSlug: null,
+        slug: newSlug
+      }
+    });
+
+    res.json({ success: true, slug: newSlug });
+  } catch (error) {
+    console.error('Error restoring post:', error instanceof Error ? error.message : String(error));
+    res.status(500).json({ error: 'Failed to restore post' });
+  }
+});
+
+// Permanently delete post
+router.delete('/admin/posts/:id/permanent', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const post = await prisma.blogPost.findUnique({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    if (!post.deletedAt) {
+      return res.status(400).json({ error: 'Post must be in trash before permanent deletion' });
+    }
+
+    await prisma.blogPost.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error permanently deleting post:', error instanceof Error ? error.message : String(error));
+    res.status(500).json({ error: 'Failed to permanently delete post' });
+  }
+});
+
+// Empty trash (delete all trashed posts)
+router.delete('/admin/posts/trash/empty', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const result = await prisma.blogPost.deleteMany({
+      where: { deletedAt: { not: null } }
+    });
+    res.json({ success: true, deleted: result.count });
+  } catch (error) {
+    console.error('Error emptying trash:', error instanceof Error ? error.message : String(error));
+    res.status(500).json({ error: 'Failed to empty trash' });
   }
 });
 

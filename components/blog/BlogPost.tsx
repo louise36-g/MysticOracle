@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DOMPurify from 'dompurify';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchBlogPost, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
-import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
+import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
+import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BlogPostProps {
-  slug: string;
+  slug?: string;
+  previewId?: string;
   onBack: () => void;
   onNavigateToPost: (slug: string) => void;
   onCategoryClick: (slug: string) => void;
   onTagClick: (slug: string) => void;
 }
 
-const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost, onCategoryClick, onTagClick }) => {
+const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavigateToPost, onCategoryClick, onTagClick }) => {
   const { language } = useApp();
+  const { getToken } = useAuth();
+  const isPreview = !!previewId;
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,18 +29,41 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
     try {
       setLoading(true);
       setError(null);
-      const result = await fetchBlogPost(slug);
-      setPost(result.post);
-      setRelatedPosts(result.relatedPosts);
 
-      // Update page meta tags for SEO
-      updateMetaTags(result.post);
+      let result;
+      if (previewId) {
+        // Admin preview mode - fetch by ID
+        const token = await getToken();
+        if (!token) {
+          setError('Authentication required for preview');
+          setLoading(false);
+          return;
+        }
+        result = await fetchBlogPostPreview(token, previewId);
+      } else if (slug) {
+        // Normal mode - fetch by slug
+        result = await fetchBlogPost(slug);
+      } else {
+        setError('No post specified');
+        setLoading(false);
+        return;
+      }
+
+      setPost(result.post);
+      setRelatedPosts(result.relatedPosts || []);
+
+      // Update page meta tags for SEO (skip for preview)
+      if (!isPreview) {
+        updateMetaTags(result.post);
+      } else {
+        document.title = `Preview: ${result.post.titleEn} | MysticOracle`;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load article');
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, previewId, getToken, isPreview]);
 
   useEffect(() => {
     loadPost();
@@ -249,6 +276,23 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-12">
+      {/* Preview Banner */}
+      {isPreview && (
+        <div className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+          <div>
+            <p className="text-amber-200 font-medium">
+              {language === 'en' ? 'Preview Mode' : 'Mode Apercu'}
+            </p>
+            <p className="text-amber-200/70 text-sm">
+              {language === 'en'
+                ? 'This is a preview. The post is not published yet.'
+                : 'Ceci est un apercu. L\'article n\'est pas encore publie.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Back Button */}
       <button
         onClick={onBack}

@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
   const [readingMode, setReadingMode] = useState<string | null>(null);
   const [blogSlug, setBlogSlug] = useState<string | null>(null);
+  const [blogPreviewId, setBlogPreviewId] = useState<string | null>(null);
   const [blogCategory, setBlogCategory] = useState<string | null>(null);
   const [blogTag, setBlogTag] = useState<string | null>(null);
 
@@ -119,6 +120,11 @@ const App: React.FC = () => {
     else if (path === '/blog') {
       setCurrentView('blog');
       window.history.replaceState({ view: 'blog' }, '', '/blog');
+    } else if (path.startsWith('/blog/preview/')) {
+      const id = path.replace('/blog/preview/', '');
+      setCurrentView('blog-preview');
+      setBlogPreviewId(id);
+      window.history.replaceState({ view: 'blog-preview', blogPreviewId: id }, '', path);
     } else if (path.startsWith('/blog/')) {
       const slug = path.replace('/blog/', '');
       setCurrentView('blog-post');
@@ -136,6 +142,7 @@ const App: React.FC = () => {
         setReadingMode(state.readingMode || null);
         setSelectedSpread(state.selectedSpread || null);
         setBlogSlug(state.blogSlug || null);
+        setBlogPreviewId(state.blogPreviewId || null);
         setBlogCategory(state.blogCategory || null);
         setBlogTag(state.blogTag || null);
       } else {
@@ -144,6 +151,7 @@ const App: React.FC = () => {
         setReadingMode(null);
         setSelectedSpread(null);
         setBlogSlug(null);
+        setBlogPreviewId(null);
         setBlogCategory(null);
         setBlogTag(null);
       }
@@ -434,6 +442,18 @@ const App: React.FC = () => {
         return (
           <BlogPostView
             slug={blogSlug}
+            onBack={handleNavigateToBlog}
+            onNavigateToPost={handleNavigateToBlogPost}
+            onCategoryClick={handleBlogCategoryClick}
+            onTagClick={handleBlogTagClick}
+          />
+        );
+    }
+    // 7b. Blog Preview (admin only)
+    if (currentView === 'blog-preview' && blogPreviewId) {
+        return (
+          <BlogPostView
+            previewId={blogPreviewId}
             onBack={handleNavigateToBlog}
             onNavigateToPost={handleNavigateToBlogPost}
             onCategoryClick={handleBlogCategoryClick}

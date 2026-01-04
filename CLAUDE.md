@@ -2,7 +2,7 @@
 
 ## Overview
 
-MysticOracle is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma.
+MysticOracle is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma. Features include tarot readings, daily horoscopes, a blog CMS, user credits system, and full admin dashboard.
 
 ## Tech Stack
 
@@ -14,28 +14,31 @@ MysticOracle is a mystical tarot reading web application with AI-powered interpr
 - **Icons**: Lucide React
 - **Auth**: Clerk (@clerk/clerk-react)
 - **State**: React Context API
+- **Rich Text**: Custom editors (RichTextEditor, MarkdownEditor)
 
 ### Backend
 - **Server**: Express.js with TypeScript
 - **Database**: PostgreSQL on Render
 - **ORM**: Prisma
+- **Validation**: Zod
 - **Payments**: Stripe + PayPal
 - **Email**: Brevo (SendInBlue)
-- **Hosting**: Render
+- **Hosting**: Render (Frankfurt EU)
 
 ## Project Structure
 
 ```
 MysticOracle/
-├── App.tsx                    # Main React application
+├── App.tsx                    # Main React application (SPA routing)
 ├── index.tsx                  # React entry point
-├── index.html                 # HTML template
+├── index.html                 # HTML template + blog typography CSS
 ├── types.ts                   # TypeScript type definitions
 ├── constants.ts               # Tarot cards data, spread configs
 ├── CLAUDE.md                  # This file
 │
 ├── components/
 │   ├── Header.tsx             # Navigation with CreditShop trigger
+│   ├── SubNav.tsx             # Secondary navigation with hover dropdowns
 │   ├── Footer.tsx             # Footer with legal links
 │   ├── CreditShop.tsx         # Credit purchase modal
 │   ├── CookieConsent.tsx      # GDPR cookie banner
@@ -44,77 +47,137 @@ MysticOracle/
 │   ├── HoroscopeReading.tsx   # Daily horoscope
 │   ├── UserProfile.tsx        # User account page
 │   ├── PaymentResult.tsx      # Payment success/cancel pages
+│   ├── WelcomeModal.tsx       # First-time user welcome
+│   ├── Breadcrumb.tsx         # Navigation breadcrumbs
+│   │
+│   ├── blog/
+│   │   ├── BlogList.tsx       # Blog listing page with filters
+│   │   └── BlogPost.tsx       # Single blog post view + preview mode
+│   │
+│   ├── rewards/
+│   │   └── DailyBonusPopup.tsx # Daily login bonus UI
+│   │
 │   ├── legal/
 │   │   ├── PrivacyPolicy.tsx  # GDPR privacy policy
 │   │   ├── TermsOfService.tsx # Terms of service
 │   │   └── CookiePolicy.tsx   # Cookie policy
+│   │
 │   └── admin/
-│       └── AdminDashboard.tsx # Admin panel
+│       ├── AdminDashboard.tsx # Main admin container with tabs
+│       ├── AdminOverview.tsx  # Dashboard stats overview
+│       ├── AdminUsers.tsx     # User management
+│       ├── AdminTransactions.tsx # Transaction history
+│       ├── AdminAnalytics.tsx # Analytics charts
+│       ├── AdminPackages.tsx  # Credit package management
+│       ├── AdminEmailTemplates.tsx # Email template editor
+│       ├── AdminBlog.tsx      # Blog CMS (posts, categories, tags, media, trash)
+│       ├── BlogPostEditor.tsx # Visual/Markdown blog editor
+│       ├── RichTextEditor.tsx # WYSIWYG editor component
+│       ├── MarkdownEditor.tsx # Markdown editor with preview
+│       ├── AdminHealth.tsx    # Service health checks
+│       ├── AdminTranslations.tsx # Translation string management
+│       └── AdminSettings.tsx  # System settings
 │
 ├── context/
-│   └── AppContext.tsx         # Global state (localStorage-based)
+│   └── AppContext.tsx         # Global state (user, language, credits)
 │
 ├── services/
+│   ├── apiService.ts          # All API calls with retry logic
 │   ├── openrouterService.ts   # OpenRouter AI integration
 │   ├── paymentService.ts      # Frontend payment helpers
 │   └── storageService.ts      # LocalStorage wrapper
 │
 ├── utils/
-│   ├── crypto.ts              # Token generation, password hashing
+│   ├── crypto.ts              # Token generation
 │   ├── shuffle.ts             # Fisher-Yates shuffle
 │   └── validation.ts          # Input validation
 │
 └── server/                    # Express Backend
     ├── prisma/
-    │   └── schema.prisma      # Database schema
+    │   └── schema.prisma      # Database schema (see ARCHITECTURE.md)
     ├── src/
     │   ├── index.ts           # Express server entry
     │   ├── db/
     │   │   └── prisma.ts      # Prisma client instance
     │   ├── middleware/
-    │   │   └── auth.ts        # Clerk JWT verification
+    │   │   └── auth.ts        # Clerk JWT verification (requireAuth, requireAdmin)
     │   ├── routes/
     │   │   ├── health.ts      # Health check endpoint
     │   │   ├── users.ts       # User profile, credits, history
     │   │   ├── readings.ts    # Tarot reading CRUD
     │   │   ├── payments.ts    # Stripe + PayPal checkout
-    │   │   └── webhooks.ts    # Stripe + Clerk webhooks
+    │   │   ├── webhooks.ts    # Stripe + Clerk webhooks
+    │   │   ├── admin.ts       # Admin endpoints
+    │   │   ├── blog.ts        # Blog CMS endpoints
+    │   │   └── horoscopes.ts  # Horoscope generation
     │   └── services/
     │       └── email.ts       # Brevo email templates
     └── .env.example           # Environment template
 ```
 
-## Database Schema (Prisma)
+## Key Features
 
-Key models:
-- **User**: Synced with Clerk, stores credits, referrals, admin flag
-- **Reading**: Tarot readings with cards (JSON), interpretation
-- **Transaction**: Credit purchases, spending, bonuses, refunds
-- **UserAchievement**: Gamification achievements
-- **HoroscopeCache**: Daily horoscope caching
-- **EmailSubscription**: Newsletter preferences
+### Authentication
+- Clerk handles auth (sign in, sign up, SSO)
+- Clerk webhooks sync users to our database
+- JWT verification on backend routes
+- Admin flag on User model for access control
+
+### Credits System
+- New users get 3 free credits
+- Daily login bonus (2 credits, +5 for 7-day streak)
+- Purchases via Stripe or PayPal
+- Referral bonuses
+
+### Tarot Readings
+- Multiple spread types: Single, 3-Card, Love, Career, Horseshoe, Celtic Cross
+- Interpretation styles: Classic, Spiritual, Psycho-Emotional, Numerology, Elemental
+- AI interpretations via OpenRouter
+- Follow-up questions
+- Reading history saved with themes extraction
+
+### Blog CMS
+- Full admin interface for posts, categories, tags, media
+- Visual (WYSIWYG) and Markdown editor modes
+- JSON import for bulk article creation
+- Soft delete with trash bin
+- Preview mode for unpublished posts
+- SEO meta fields and Open Graph support
+- Multi-language support (EN/FR)
+
+### Admin Dashboard
+- User management with status controls
+- Transaction history
+- Analytics and charts
+- Credit package management
+- Email template editor
+- System health monitoring
+- Translation string management
+- System settings
 
 ## API Endpoints
 
-### Users (`/api/users`)
-- `GET /me` - Get current user profile
-- `PATCH /me` - Update preferences
-- `GET /me/credits` - Get credit balance
-- `GET /me/readings` - Reading history
-- `GET /me/transactions` - Transaction history
-- `POST /me/daily-bonus` - Claim daily login bonus
+### Public
+- `GET /api/health` - Health check
+- `GET /api/blog/posts` - List published posts
+- `GET /api/blog/posts/:slug` - Get single post
+- `GET /api/blog/categories` - List categories
+- `GET /api/blog/tags` - List tags
 
-### Payments (`/api/payments`)
-- `GET /packages` - List credit packages
-- `POST /stripe/checkout` - Create Stripe session
-- `GET /stripe/verify/:sessionId` - Verify payment
-- `POST /paypal/order` - Create PayPal order
-- `POST /paypal/capture` - Capture PayPal payment
-- `GET /history` - Purchase history
+### Authenticated
+- `GET /api/users/me` - Get current user profile
+- `PATCH /api/users/me` - Update preferences
+- `POST /api/users/me/daily-bonus` - Claim daily bonus
+- `POST /api/readings` - Create reading
+- `POST /api/payments/stripe/checkout` - Create Stripe session
 
-### Webhooks (`/api/webhooks`)
-- `POST /stripe` - Stripe payment events
-- `POST /clerk` - Clerk user events (create/update/delete)
+### Admin Only
+- `GET /api/admin/stats` - Dashboard stats
+- `GET /api/admin/users` - List users
+- `PATCH /api/admin/users/:id/status` - Update user status
+- `GET /api/blog/admin/posts` - List all posts (inc. drafts)
+- `GET /api/blog/admin/preview/:id` - Preview any post
+- `POST /api/blog/admin/import` - Import JSON articles
 
 ## Environment Variables
 
@@ -127,28 +190,17 @@ VITE_API_KEY=sk-or-xxxxx  # OpenRouter
 
 ### Backend (server/.env)
 ```
-# Server
 PORT=3001
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
-
-# Database
 DATABASE_URL=postgresql://...
-
-# Clerk
 CLERK_SECRET_KEY=sk_test_xxxxx
 CLERK_WEBHOOK_SECRET=whsec_xxxxx
-
-# Stripe
 STRIPE_SECRET_KEY=sk_test_xxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx
-
-# PayPal
 PAYPAL_CLIENT_ID=xxxxx
 PAYPAL_CLIENT_SECRET=xxxxx
 PAYPAL_MODE=sandbox
-
-# Brevo Email
 BREVO_API_KEY=xkeysib-xxxxx
 ```
 
@@ -170,74 +222,21 @@ npm run dev          # Start dev server (port 3001)
 npm run build        # Compile TypeScript
 npx prisma generate  # Generate Prisma client
 npx prisma db push   # Push schema to database
+npx prisma migrate dev # Run migrations
 npx prisma studio    # Open Prisma Studio
 ```
 
-## Key Features
+## Development Notes
 
-### Authentication
-- Clerk handles auth (sign in, sign up, SSO)
-- Clerk webhooks sync users to our database
-- JWT verification on backend routes
+- Set `VITE_DEV_MODE=true` in `.env.local` to bypass credit checks
+- Username "Mooks" is auto-admin
+- Blog typography styles are in `index.html` (`.prose` class)
+- Visual editor is default for new blog posts
+- Confirmation modals replace browser alerts
+- Soft delete for blog posts (trash bin feature)
 
-### Credits System
-- New users get 10 free credits
-- Daily login bonus (2 credits, +5 for 7-day streak)
-- Purchases via Stripe or PayPal
-- Referral bonuses
-
-### Tarot Readings
-- Single card, 3-card, Celtic Cross spreads
-- AI interpretations via OpenRouter
-- Follow-up questions
-- Reading history saved
-
-### Legal Compliance
+## Legal Compliance
 - GDPR-compliant privacy policy
 - Cookie consent banner (CNIL compliant)
 - Terms of service
 - Data stored in EU (Render Frankfurt)
-
-## Development Notes
-
-- Set `VITE_DEV_MODE=true` in `.env.local` to bypass credit checks during development
-- Username "Mooks" is auto-admin
-- Payment webhooks handle credit fulfillment
-- Brevo emails use `{{params.variableName}}` placeholder syntax
-
-## Future Improvements (TODO)
-
-### Admin Dashboard
-The admin dashboard exists but is incomplete:
-- `components/admin/AdminDashboard.tsx` - Just a stub showing title
-- `components/admin/AdminOverview.tsx` - Exists but not wired up
-- `components/admin/AdminAnalytics.tsx` - Exists but not wired up
-- `components/admin/AdminUsers.tsx` - Exists but not wired up
-
-**TODO:** Connect these components to display real data from the backend.
-
-### Backend Validation (Zod)
-API routes don't validate incoming request data. Zod is installed but not used.
-
-**TODO:** Add Zod schemas to validate request bodies in:
-- `server/src/routes/payments.ts`
-- `server/src/routes/readings.ts`
-- `server/src/routes/users.ts`
-
-### Rate Limiting
-No rate limiting on API endpoints. Payment and webhook routes are exposed.
-
-**TODO:** Add `express-rate-limit` middleware to protect sensitive endpoints.
-
-### Type Sharing
-Types are duplicated between frontend (`types.ts`) and backend (Prisma schema).
-
-**TODO:** Consider using `prisma-zod-generator` or a shared types package to keep them in sync.
-
-### localStorage Usage
-Some features still use localStorage instead of backend:
-- `CookieConsent` - Cookie preferences
-- `HoroscopeReading` - Daily horoscope caching
-- `WelcomeModal` - "Welcome seen" flag
-
-**TODO:** Migrate to backend storage for consistency across devices.

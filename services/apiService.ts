@@ -865,6 +865,8 @@ export interface BlogPost {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
+  originalSlug?: string;
   categories: BlogCategory[];
   tags: BlogTag[];
   categoryIds?: string[];
@@ -942,6 +944,10 @@ export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; rel
   return apiRequest(`/api/blog/posts/${encodeURIComponent(slug)}`);
 }
 
+export async function fetchBlogPostPreview(token: string, id: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
+  return apiRequest(`/api/blog/admin/preview/${encodeURIComponent(id)}`, { token });
+}
+
 export async function fetchBlogCategories(): Promise<{ categories: BlogCategory[] }> {
   return apiRequest('/api/blog/categories');
 }
@@ -953,13 +959,14 @@ export async function fetchBlogTags(): Promise<{ tags: BlogTag[] }> {
 // Admin blog endpoints
 export async function fetchAdminBlogPosts(
   token: string,
-  params: { page?: number; limit?: number; status?: string; search?: string } = {}
+  params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean } = {}
 ): Promise<BlogPostListResponse> {
   const queryParams = new URLSearchParams();
   if (params.page) queryParams.set('page', params.page.toString());
   if (params.limit) queryParams.set('limit', params.limit.toString());
   if (params.status) queryParams.set('status', params.status);
   if (params.search) queryParams.set('search', params.search);
+  if (params.deleted !== undefined) queryParams.set('deleted', params.deleted.toString());
   return apiRequest(`/api/blog/admin/posts?${queryParams.toString()}`, { token });
 }
 
@@ -1066,6 +1073,19 @@ export async function uploadBlogMedia(
 
 export async function deleteBlogMedia(token: string, id: string): Promise<{ success: boolean }> {
   return apiRequest(`/api/blog/admin/media/${id}`, { method: 'DELETE', token });
+}
+
+// Trash management
+export async function restoreBlogPost(token: string, id: string): Promise<{ success: boolean; slug: string }> {
+  return apiRequest(`/api/blog/admin/posts/${id}/restore`, { method: 'POST', token });
+}
+
+export async function permanentlyDeleteBlogPost(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/blog/admin/posts/${id}/permanent`, { method: 'DELETE', token });
+}
+
+export async function emptyBlogTrash(token: string): Promise<{ success: boolean; deleted: number }> {
+  return apiRequest('/api/blog/admin/posts/trash/empty', { method: 'DELETE', token });
 }
 
 export async function seedBlogData(token: string): Promise<{ success: boolean; categories: number; tags: number }> {

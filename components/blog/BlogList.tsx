@@ -186,57 +186,56 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory, 
         </section>
       )}
 
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-slate-400 flex items-center gap-1">
-              <Folder className="w-4 h-4" />
-              {language === 'en' ? 'Categories:' : 'Categories:'}
-            </span>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.slug)}
-                className={`px-3 py-1 rounded-full text-sm transition-all ${
-                  selectedCategory === cat.slug
-                    ? 'text-white'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-                style={{
-                  backgroundColor: selectedCategory === cat.slug ? cat.color : `${cat.color}20`,
-                  borderColor: cat.color,
-                }}
-              >
-                {language === 'en' ? cat.nameEn : cat.nameFr}
-                <span className="ml-1 text-xs opacity-70">({cat.postCount || cat._count?.posts || 0})</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Tags */}
-      {tags.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-slate-400 flex items-center gap-1">
-              <Tag className="w-4 h-4" />
-              {language === 'en' ? 'Tags:' : 'Tags:'}
-            </span>
-            {tags.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => handleTagClick(tag.slug)}
-                className={`px-3 py-1 rounded-full text-sm transition-all ${
-                  selectedTag === tag.slug
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                #{language === 'en' ? tag.nameEn : tag.nameFr}
-              </button>
-            ))}
+      {/* Categories & Tags - Compact Filter Bar */}
+      {(categories.length > 0 || tags.length > 0) && (
+        <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-purple-500/10">
+          <div className="flex flex-wrap items-center gap-4">
+            {categories.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-slate-500 flex items-center gap-1 text-sm">
+                  <Folder className="w-3.5 h-3.5" />
+                </span>
+                {categories.slice(0, 5).map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryClick(cat.slug)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      selectedCategory === cat.slug
+                        ? 'text-white shadow-md'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                    style={{
+                      backgroundColor: selectedCategory === cat.slug ? cat.color : `${cat.color}15`,
+                    }}
+                  >
+                    {language === 'en' ? cat.nameEn : cat.nameFr}
+                  </button>
+                ))}
+              </div>
+            )}
+            {categories.length > 0 && tags.length > 0 && (
+              <div className="h-4 w-px bg-slate-700" />
+            )}
+            {tags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-slate-500 flex items-center gap-1 text-sm">
+                  <Tag className="w-3.5 h-3.5" />
+                </span>
+                {tags.slice(0, 6).map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => handleTagClick(tag.slug)}
+                    className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                      selectedTag === tag.slug
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {language === 'en' ? tag.nameEn : tag.nameFr}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}

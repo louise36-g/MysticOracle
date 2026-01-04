@@ -413,6 +413,10 @@ model BlogPost {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  // Soft delete
+  deletedAt       DateTime?  // If set, post is in trash
+  originalSlug    String?    // Original slug before deletion (for restore)
+
   // Relations
   categories      BlogPostCategory[]
   tags            BlogPostTag[]
@@ -420,6 +424,7 @@ model BlogPost {
   @@index([slug])
   @@index([status, publishedAt])
   @@index([featured])
+  @@index([deletedAt])
 }
 
 enum BlogPostStatus {

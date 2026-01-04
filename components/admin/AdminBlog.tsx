@@ -20,6 +20,9 @@ import {
   uploadBlogMedia,
   deleteBlogMedia,
   importBlogArticles,
+  restoreBlogPost,
+  permanentlyDeleteBlogPost,
+  emptyBlogTrash,
   BlogPost,
   BlogCategory,
   BlogTag,
@@ -46,11 +49,14 @@ import {
   FileJson,
   AlertCircle,
   CheckCircle,
+  RotateCcw,
+  Trash,
+  Eye,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BlogPostEditor from './BlogPostEditor';
 
-type TabType = 'posts' | 'categories' | 'tags' | 'media';
+type TabType = 'posts' | 'categories' | 'tags' | 'media' | 'trash';
 
 const AdminBlog: React.FC = () => {
   const { language } = useApp();
@@ -84,6 +90,11 @@ const AdminBlog: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Trash state
+  const [trashPosts, setTrashPosts] = useState<BlogPost[]>([]);
+  const [trashLoading, setTrashLoading] = useState(true);
+  const [trashPagination, setTrashPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
+
   // General
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +107,15 @@ const AdminBlog: React.FC = () => {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
   const jsonTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    isDangerous?: boolean;
+  }>({ show: false, title: '', message: '', onConfirm: () => {} });
 
   // Auto-focus textarea when import modal opens
   useEffect(() => {
@@ -179,12 +199,35 @@ const AdminBlog: React.FC = () => {
     }
   }, [getToken]);
 
+  // Load trash
+  const loadTrash = useCallback(async () => {
+    try {
+      setTrashLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const result = await fetchAdminBlogPosts(token, {
+        page: trashPagination.page,
+        limit: trashPagination.limit,
+        deleted: true,
+      });
+
+      setTrashPosts(result.posts);
+      setTrashPagination(result.pagination);
+    } catch (err) {
+      console.error('Failed to load trash:', err);
+    } finally {
+      setTrashLoading(false);
+    }
+  }, [getToken, trashPagination.page, trashPagination.limit]);
+
   useEffect(() => {
     if (activeTab === 'posts') loadPosts();
     if (activeTab === 'categories') loadCategories();
+    if (activeTab === 'trash') loadTrash();
     if (activeTab === 'tags') loadTags();
     if (activeTab === 'media') loadMedia();
-  }, [activeTab, loadPosts, loadCategories, loadTags, loadMedia]);
+  }, [activeTab, loadPosts, loadCategories, loadTags, loadMedia, loadTrash]);
 
   // Copy URL to clipboard
   const copyToClipboard = async (url: string) => {
@@ -284,18 +327,26 @@ const AdminBlog: React.FC = () => {
     }
   };
 
-  const handleDeletePost = async (id: string) => {
-    if (!confirm(language === 'en' ? 'Delete this post?' : 'Supprimer cet article?')) return;
-
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      await deleteBlogPost(token, id);
-      loadPosts();
-    } catch (err) {
-      alert('Failed to delete post');
-    }
+  const handleDeletePost = (id: string) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Move to Trash' : 'Déplacer vers la corbeille',
+      message: language === 'en'
+        ? 'This post will be moved to the trash. You can restore it later.'
+        : 'Cet article sera déplacé vers la corbeille. Vous pourrez le restaurer plus tard.',
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await deleteBlogPost(token, id);
+          loadPosts();
+          loadTrash();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to delete post' : 'Échec de la suppression');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
   };
 
   // ============================================
@@ -354,18 +405,26 @@ const AdminBlog: React.FC = () => {
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!confirm(language === 'en' ? 'Delete this category?' : 'Supprimer cette categorie?')) return;
-
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      await deleteBlogCategory(token, id);
-      loadCategories();
-    } catch (err) {
-      alert('Failed to delete category');
-    }
+  const handleDeleteCategory = (id: string) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Delete Category' : 'Supprimer la catégorie',
+      message: language === 'en'
+        ? 'Are you sure you want to delete this category?'
+        : 'Êtes-vous sûr de vouloir supprimer cette catégorie?',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await deleteBlogCategory(token, id);
+          loadCategories();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to delete category' : 'Échec de la suppression');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
   };
 
   // ============================================
@@ -414,18 +473,26 @@ const AdminBlog: React.FC = () => {
     }
   };
 
-  const handleDeleteTag = async (id: string) => {
-    if (!confirm(language === 'en' ? 'Delete this tag?' : 'Supprimer ce tag?')) return;
-
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      await deleteBlogTag(token, id);
-      loadTags();
-    } catch (err) {
-      alert('Failed to delete tag');
-    }
+  const handleDeleteTag = (id: string) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Delete Tag' : 'Supprimer le tag',
+      message: language === 'en'
+        ? 'Are you sure you want to delete this tag?'
+        : 'Êtes-vous sûr de vouloir supprimer ce tag?',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await deleteBlogTag(token, id);
+          loadTags();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to delete tag' : 'Échec de la suppression');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
   };
 
   // ============================================
@@ -458,18 +525,87 @@ const AdminBlog: React.FC = () => {
     }
   };
 
-  const handleDeleteMedia = async (id: string) => {
-    if (!confirm(language === 'en' ? 'Delete this image?' : 'Supprimer cette image?')) return;
+  const handleDeleteMedia = (id: string) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Delete Image' : 'Supprimer l\'image',
+      message: language === 'en'
+        ? 'Are you sure you want to delete this image?'
+        : 'Êtes-vous sûr de vouloir supprimer cette image?',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await deleteBlogMedia(token, id);
+          loadMedia();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to delete media' : 'Échec de la suppression');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
+  };
 
+  // ============================================
+  // TRASH HANDLERS
+  // ============================================
+
+  const handleRestorePost = async (id: string) => {
     try {
       const token = await getToken();
       if (!token) return;
 
-      await deleteBlogMedia(token, id);
-      loadMedia();
+      await restoreBlogPost(token, id);
+      loadTrash();
+      loadPosts();
     } catch (err) {
-      alert('Failed to delete media');
+      alert(language === 'en' ? 'Failed to restore post' : 'Échec de la restauration');
     }
+  };
+
+  const handlePermanentDelete = (id: string) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Permanently Delete' : 'Supprimer définitivement',
+      message: language === 'en'
+        ? 'This will permanently delete this post. This action cannot be undone.'
+        : 'Cela supprimera définitivement cet article. Cette action est irréversible.',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await permanentlyDeleteBlogPost(token, id);
+          loadTrash();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to delete post' : 'Échec de la suppression');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
+  };
+
+  const handleEmptyTrash = () => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Empty Trash' : 'Vider la corbeille',
+      message: language === 'en'
+        ? `Permanently delete all ${trashPosts.length} items in trash? This cannot be undone.`
+        : `Supprimer définitivement les ${trashPosts.length} éléments de la corbeille? Cette action est irréversible.`,
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          const token = await getToken();
+          if (!token) return;
+          await emptyBlogTrash(token);
+          loadTrash();
+        } catch (err) {
+          setError(language === 'en' ? 'Failed to empty trash' : 'Échec du vidage de la corbeille');
+        }
+        setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+      },
+    });
   };
 
   // ============================================
@@ -521,6 +657,16 @@ const AdminBlog: React.FC = () => {
         createMissingTaxonomies: true,
       });
 
+      // If all successful with no errors, close modal automatically
+      if (result.results.errors.length === 0 && result.results.imported > 0) {
+        loadPosts();
+        loadCategories();
+        loadTags();
+        closeImportModal();
+        return;
+      }
+
+      // Otherwise show results
       setImportResult(result);
 
       if (result.results.imported > 0) {
@@ -577,6 +723,7 @@ const AdminBlog: React.FC = () => {
     { id: 'categories' as TabType, label: language === 'en' ? 'Categories' : 'Categories', icon: Folder },
     { id: 'tags' as TabType, label: language === 'en' ? 'Tags' : 'Tags', icon: Tag },
     { id: 'media' as TabType, label: language === 'en' ? 'Media' : 'Medias', icon: Image },
+    { id: 'trash' as TabType, label: language === 'en' ? 'Trash' : 'Corbeille', icon: Trash, count: trashPosts.length },
   ];
 
   // If editing a post, show the full page editor
@@ -614,6 +761,11 @@ const AdminBlog: React.FC = () => {
           >
             <tab.icon className="w-4 h-4" />
             {tab.label}
+            {'count' in tab && tab.count > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                {tab.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -722,17 +874,25 @@ const AdminBlog: React.FC = () => {
                           <td className="p-4 text-slate-400 text-sm">{new Date(post.updatedAt).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex items-center gap-2">
-                              {post.status === 'PUBLISHED' && (
-                                <a
-                                  href={`/blog/${post.slug}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
-                                  title={language === 'en' ? 'View' : 'Voir'}
-                                >
+                              <a
+                                href={post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`p-2 rounded-lg ${
+                                  post.status === 'PUBLISHED'
+                                    ? 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
+                                    : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
+                                }`}
+                                title={post.status === 'PUBLISHED'
+                                  ? (language === 'en' ? 'View' : 'Voir')
+                                  : (language === 'en' ? 'Preview' : 'Apercu')}
+                              >
+                                {post.status === 'PUBLISHED' ? (
                                   <ExternalLink className="w-4 h-4" />
-                                </a>
-                              )}
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </a>
                               <button
                                 onClick={() => handleEditPost(post)}
                                 className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
@@ -972,6 +1132,118 @@ const AdminBlog: React.FC = () => {
         </div>
       )}
 
+      {/* Trash Tab */}
+      {activeTab === 'trash' && (
+        <div>
+          {trashPosts.length > 0 && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleEmptyTrash}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+              >
+                <Trash2 className="w-4 h-4" />
+                {language === 'en' ? 'Empty Trash' : 'Vider la corbeille'}
+              </button>
+            </div>
+          )}
+
+          {trashLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : trashPosts.length === 0 ? (
+            <div className="text-center py-20">
+              <Trash className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <h3 className="text-xl text-slate-400 mb-2">
+                {language === 'en' ? 'Trash is empty' : 'La corbeille est vide'}
+              </h3>
+              <p className="text-slate-500">
+                {language === 'en'
+                  ? 'Deleted posts will appear here'
+                  : 'Les articles supprimés apparaîtront ici'}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-purple-500/20 bg-slate-800/50">
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Title' : 'Titre'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Original Slug' : 'Slug original'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Deleted' : 'Supprimé'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trashPosts.map((post) => (
+                      <tr key={post.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
+                        <td className="p-4">
+                          <p className="text-slate-200 font-medium">{language === 'en' ? post.titleEn : post.titleFr}</p>
+                        </td>
+                        <td className="p-4 text-slate-400 text-sm">
+                          {post.originalSlug || post.slug.replace(/^_deleted_\d+_/, '')}
+                        </td>
+                        <td className="p-4 text-slate-400 text-sm">
+                          {post.deletedAt ? new Date(post.deletedAt).toLocaleDateString() : '-'}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleRestorePost(post.id)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30 text-sm"
+                              title={language === 'en' ? 'Restore' : 'Restaurer'}
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                              {language === 'en' ? 'Restore' : 'Restaurer'}
+                            </button>
+                            <button
+                              onClick={() => handlePermanentDelete(post.id)}
+                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
+                              title={language === 'en' ? 'Delete permanently' : 'Supprimer définitivement'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Trash Pagination */}
+          {trashPagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-slate-400 text-sm">
+                {language === 'en'
+                  ? `Showing ${trashPosts.length} of ${trashPagination.total} items`
+                  : `Affichage de ${trashPosts.length} sur ${trashPagination.total} éléments`}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setTrashPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
+                  disabled={trashPagination.page === 1}
+                  className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-slate-300 px-4">{trashPagination.page} / {trashPagination.totalPages}</span>
+                <button
+                  onClick={() => setTrashPagination((p) => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
+                  disabled={trashPagination.page >= trashPagination.totalPages}
+                  className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Category Editor Modal */}
       <AnimatePresence>
         {editingCategory && (
@@ -1152,7 +1424,11 @@ const AdminBlog: React.FC = () => {
       {/* JSON Import Modal */}
       <AnimatePresence>
         {showImportModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+            onClick={(e) => { if (e.target === e.currentTarget) closeImportModal(); }}
+            onKeyDown={(e) => { if (e.key === 'Escape') closeImportModal(); }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1326,6 +1602,59 @@ const AdminBlog: React.FC = () => {
                     )}
                   </button>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {confirmModal.show && (
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+            onClick={(e) => { if (e.target === e.currentTarget) setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} }); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-purple-500/30 rounded-xl p-6 max-w-md w-full"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                {confirmModal.isDangerous ? (
+                  <div className="p-2 bg-red-500/20 rounded-full">
+                    <AlertCircle className="w-6 h-6 text-red-400" />
+                  </div>
+                ) : (
+                  <div className="p-2 bg-amber-500/20 rounded-full">
+                    <Trash2 className="w-6 h-6 text-amber-400" />
+                  </div>
+                )}
+                <h3 className="text-lg font-heading text-purple-200">
+                  {confirmModal.title}
+                </h3>
+              </div>
+              <p className="text-slate-400 mb-6">
+                {confirmModal.message}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} })}
+                  className="flex-1 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
+                >
+                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  className={`flex-1 py-2 text-white rounded-lg ${
+                    confirmModal.isDangerous
+                      ? 'bg-red-600 hover:bg-red-500'
+                      : 'bg-purple-600 hover:bg-purple-500'
+                  }`}
+                >
+                  {language === 'en' ? 'Confirm' : 'Confirmer'}
+                </button>
               </div>
             </motion.div>
           </div>

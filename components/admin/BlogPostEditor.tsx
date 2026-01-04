@@ -56,7 +56,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
   const [post, setPost] = useState<BlogPost>(initialPost);
   const [editLanguage, setEditLanguage] = useState<string>('en');
-  const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('markdown');
+  const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('visual');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -257,15 +257,23 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
             </div>
 
             {/* Preview button */}
-            {!isNew && post.status === 'PUBLISHED' && (
+            {!isNew && (
               <a
-                href={`/blog/${post.slug}`}
+                href={post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
               >
-                <ExternalLink className="w-4 h-4" />
-                <span className="hidden sm:inline">{language === 'en' ? 'View' : 'Voir'}</span>
+                {post.status === 'PUBLISHED' ? (
+                  <ExternalLink className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {post.status === 'PUBLISHED'
+                    ? (language === 'en' ? 'View' : 'Voir')
+                    : (language === 'en' ? 'Preview' : 'Apercu')}
+                </span>
               </a>
             )}
 

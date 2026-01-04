@@ -54,6 +54,213 @@
         min-height: 100vh;
         background-color: #0f0c29;
       }
+      /* Ensure all clickable elements have pointer cursor */
+      a, button, [role="button"], [onclick], input[type="submit"], input[type="button"], input[type="reset"], select, label[for], .cursor-pointer {
+        cursor: pointer;
+      }
+    </style>
+
+    <!-- Blog Content Typography -->
+    <style>
+      /* Headings */
+      .prose h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(to bottom, #fff, #c4b5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+      .prose h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #c4b5fd;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+      }
+      .prose h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #ddd6fe;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+      }
+      .prose h4 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #e9d5ff;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .prose h5, .prose h6 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #f3e8ff;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Paragraphs */
+      .prose p {
+        color: #cbd5e1;
+        margin-bottom: 1.25rem;
+        font-size: 1.125rem;
+        line-height: 1.9;
+      }
+
+      /* Links */
+      .prose a {
+        color: #a78bfa;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: all 0.2s ease;
+      }
+      .prose a:hover {
+        color: #c4b5fd;
+        border-bottom-color: #a78bfa;
+      }
+
+      /* Lists */
+      .prose ul, .prose ol {
+        margin: 1.5rem 0;
+        padding-left: 1.75rem;
+      }
+      .prose li {
+        color: #cbd5e1;
+        margin-bottom: 0.75rem;
+        font-size: 1.125rem;
+        line-height: 1.8;
+        padding-left: 0.5rem;
+      }
+      .prose ul {
+        list-style-type: none;
+      }
+      .prose ul li {
+        position: relative;
+      }
+      .prose ul li::before {
+        content: '✦';
+        position: absolute;
+        left: -1.5rem;
+        color: #a78bfa;
+        font-size: 0.75rem;
+        top: 0.35rem;
+      }
+      .prose ol {
+        list-style-type: decimal;
+      }
+      .prose ol li::marker {
+        color: #c4b5fd;
+        font-weight: 500;
+      }
+      .prose ul ul, .prose ol ol, .prose ul ol, .prose ol ul {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Blockquotes */
+      .prose blockquote {
+        border-left: 4px solid #8b5cf6;
+        background: rgba(139, 92, 246, 0.1);
+        margin: 2rem 0;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0 0.5rem 0.5rem 0;
+        font-style: italic;
+      }
+      .prose blockquote p {
+        color: #e2e8f0;
+        margin-bottom: 0;
+      }
+
+      /* Code */
+      .prose code {
+        background: rgba(139, 92, 246, 0.15);
+        color: #c4b5fd;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.9em;
+      }
+      .prose pre {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+      }
+      .prose pre code {
+        background: transparent;
+        padding: 0;
+        color: #e2e8f0;
+      }
+
+      /* Images */
+      .prose img {
+        border-radius: 0.75rem;
+        margin: 2rem auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+      }
+
+      /* Horizontal Rule */
+      .prose hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(139, 92, 246, 0.5), transparent);
+        margin: 3rem 0;
+      }
+
+      /* Tables */
+      .prose table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 2rem 0;
+      }
+      .prose th {
+        background: rgba(139, 92, 246, 0.2);
+        color: #c4b5fd;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+      }
+      .prose td {
+        padding: 0.75rem 1rem;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+      }
+      .prose tr:hover td {
+        background: rgba(139, 92, 246, 0.05);
+      }
+
+      /* Strong & Emphasis */
+      .prose strong {
+        color: #e9d5ff;
+        font-weight: 500;
+      }
+      .prose em {
+        color: #ddd6fe;
+        font-style: italic;
+      }
+
+      /* Figure captions */
+      .prose figcaption {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        text-align: center;
+        margin-top: 0.75rem;
+        font-style: italic;
+      }
     </style>
   </head>
   <body>

@@ -18,6 +18,7 @@ const AdminDashboard: React.FC = () => {
   const { language } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
+  const [blogKey, setBlogKey] = useState(0); // Key to force re-mount of AdminBlog
 
   const handleServiceClick = (serviceId: string) => {
     setSelectedServiceId(serviceId);
@@ -60,6 +61,8 @@ const AdminDashboard: React.FC = () => {
               setActiveTab(tab.id);
               // Clear selected service when clicking settings tab directly
               if (tab.id === 'settings') setSelectedServiceId(undefined);
+              // Reset blog view when clicking blog tab
+              if (tab.id === 'blog') setBlogKey(k => k + 1);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === tab.id
@@ -80,7 +83,7 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'transactions' && <AdminTransactions />}
         {activeTab === 'packages' && <AdminPackages />}
         {activeTab === 'emails' && <AdminEmailTemplates />}
-        {activeTab === 'blog' && <AdminBlog />}
+        {activeTab === 'blog' && <AdminBlog key={blogKey} />}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
         {activeTab === 'translations' && <AdminTranslations />}

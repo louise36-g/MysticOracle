@@ -595,6 +595,62 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'about.disclaimer': { en: 'MysticOracle is intended for entertainment and personal reflection purposes only. Our AI-generated readings should not be considered professional advice for medical, legal, financial, or psychological matters.', fr: 'MysticOracle est destiné uniquement à des fins de divertissement et de réflexion personnelle. Nos lectures générées par IA ne doivent pas être considérées comme des conseils professionnels pour des questions médicales, juridiques, financières ou psychologiques.' },
       'about.cta.ready': { en: 'Ready to begin your journey?', fr: 'Prêt à commencer votre voyage ?' },
       'about.cta.button': { en: 'Start Your Reading', fr: 'Commencer Votre Lecture' },
+
+      // Blog
+      'blog.title': { en: 'Mystic Insights', fr: 'Révélations Mystiques' },
+      'blog.subtitle': { en: 'Explore the mystical world of tarot, astrology, and spiritual growth.', fr: 'Explorez le monde mystique du tarot, de l\'astrologie et de la croissance spirituelle.' },
+      'blog.featured': { en: 'Featured Articles', fr: 'Articles à la Une' },
+      'blog.all': { en: 'All Articles', fr: 'Tous les Articles' },
+      'blog.filtered': { en: 'Filtered Articles', fr: 'Articles Filtrés' },
+      'blog.noArticles': { en: 'No articles found.', fr: 'Aucun article trouvé.' },
+      'blog.categories': { en: 'Categories', fr: 'Catégories' },
+      'blog.tags': { en: 'Tags', fr: 'Tags' },
+      'blog.filterBy': { en: 'Filtering by', fr: 'Filtrer par' },
+      'blog.backToBlog': { en: 'Back to Blog', fr: 'Retour au Blog' },
+      'blog.share': { en: 'Share', fr: 'Partager' },
+      'blog.relatedArticles': { en: 'Related Articles', fr: 'Articles Connexes' },
+      'blog.readMore': { en: 'Read More', fr: 'Lire la Suite' },
+      'blog.minRead': { en: 'min read', fr: 'min de lecture' },
+      'blog.views': { en: 'views', fr: 'vues' },
+      'blog.preview': { en: 'Preview Mode', fr: 'Mode Aperçu' },
+      'blog.previewNote': { en: 'This is a preview. The post is not published yet.', fr: 'Ceci est un aperçu. L\'article n\'est pas encore publié.' },
+
+      // Admin Blog
+      'admin.blog': { en: 'Blog', fr: 'Blog' },
+      'admin.blog.posts': { en: 'Posts', fr: 'Articles' },
+      'admin.blog.categories': { en: 'Categories', fr: 'Catégories' },
+      'admin.blog.tags': { en: 'Tags', fr: 'Tags' },
+      'admin.blog.media': { en: 'Media', fr: 'Médias' },
+      'admin.blog.trash': { en: 'Trash', fr: 'Corbeille' },
+      'admin.blog.newPost': { en: 'New Post', fr: 'Nouvel Article' },
+      'admin.blog.editPost': { en: 'Edit Post', fr: 'Modifier l\'Article' },
+      'admin.blog.importJson': { en: 'Import JSON', fr: 'Importer JSON' },
+      'admin.blog.preview': { en: 'Preview', fr: 'Aperçu' },
+      'admin.blog.view': { en: 'View', fr: 'Voir' },
+      'admin.blog.restore': { en: 'Restore', fr: 'Restaurer' },
+      'admin.blog.emptyTrash': { en: 'Empty Trash', fr: 'Vider la Corbeille' },
+      'admin.blog.deleteForever': { en: 'Delete Forever', fr: 'Supprimer Définitivement' },
+
+      // Confirmation dialogs
+      'confirm.moveToTrash': { en: 'Move to Trash', fr: 'Déplacer vers la Corbeille' },
+      'confirm.moveToTrashMsg': { en: 'This post will be moved to the trash. You can restore it later.', fr: 'Cet article sera déplacé vers la corbeille. Vous pourrez le restaurer plus tard.' },
+      'confirm.deleteCategory': { en: 'Delete Category', fr: 'Supprimer la Catégorie' },
+      'confirm.deleteCategoryMsg': { en: 'Are you sure you want to delete this category?', fr: 'Êtes-vous sûr de vouloir supprimer cette catégorie?' },
+      'confirm.deleteTag': { en: 'Delete Tag', fr: 'Supprimer le Tag' },
+      'confirm.deleteTagMsg': { en: 'Are you sure you want to delete this tag?', fr: 'Êtes-vous sûr de vouloir supprimer ce tag?' },
+      'confirm.deleteImage': { en: 'Delete Image', fr: 'Supprimer l\'Image' },
+      'confirm.deleteImageMsg': { en: 'Are you sure you want to delete this image?', fr: 'Êtes-vous sûr de vouloir supprimer cette image?' },
+      'confirm.permanentDelete': { en: 'Permanently Delete', fr: 'Supprimer Définitivement' },
+      'confirm.permanentDeleteMsg': { en: 'This will permanently delete this post. This action cannot be undone.', fr: 'Cela supprimera définitivement cet article. Cette action est irréversible.' },
+      'confirm.emptyTrash': { en: 'Empty Trash', fr: 'Vider la Corbeille' },
+      'confirm.emptyTrashMsg': { en: 'Permanently delete all items in trash? This cannot be undone.', fr: 'Supprimer définitivement tous les éléments de la corbeille? Cette action est irréversible.' },
+      'confirm.cancel': { en: 'Cancel', fr: 'Annuler' },
+      'confirm.confirm': { en: 'Confirm', fr: 'Confirmer' },
+
+      // Status labels
+      'status.draft': { en: 'Draft', fr: 'Brouillon' },
+      'status.published': { en: 'Published', fr: 'Publié' },
+      'status.archived': { en: 'Archived', fr: 'Archivé' },
     };
 
     // Insert all translations
