@@ -774,6 +774,7 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
     const results = {
       imported: 0,
       skipped: 0,
+      skippedSlugs: [] as string[],
       errors: [] as { slug: string; error: string }[],
       createdCategories: [] as string[],
       createdTags: [] as string[],
@@ -798,6 +799,7 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
         if (existing) {
           if (skipDuplicates) {
             results.skipped++;
+            results.skippedSlugs.push(article.slug);
             continue;
           } else {
             results.errors.push({ slug: article.slug, error: 'Slug already exists' });

@@ -1102,6 +1102,7 @@ export interface ImportResult {
   results: {
     imported: number;
     skipped: number;
+    skippedSlugs: string[];
     errors: { slug: string; error: string }[];
     createdCategories: string[];
     createdTags: string[];

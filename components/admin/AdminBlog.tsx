@@ -95,6 +95,17 @@ const AdminBlog: React.FC = () => {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
+  const jsonTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus textarea when import modal opens
+  useEffect(() => {
+    if (showImportModal && jsonTextareaRef.current) {
+      // Small delay to ensure modal animation is complete
+      setTimeout(() => {
+        jsonTextareaRef.current?.focus();
+      }, 100);
+    }
+  }, [showImportModal]);
 
   // Load posts
   const loadPosts = useCallback(async () => {
@@ -1180,7 +1191,7 @@ const AdminBlog: React.FC = () => {
                       <div className="text-slate-400">{language === 'en' ? 'Imported' : 'Importés'}</div>
                     </div>
                     <div className="text-center p-2 bg-slate-800/50 rounded">
-                      <div className="text-2xl font-bold text-slate-400">{importResult.results.skipped}</div>
+                      <div className="text-2xl font-bold text-amber-400">{importResult.results.skipped}</div>
                       <div className="text-slate-400">{language === 'en' ? 'Skipped' : 'Ignorés'}</div>
                     </div>
                     <div className="text-center p-2 bg-slate-800/50 rounded">
@@ -1188,6 +1199,12 @@ const AdminBlog: React.FC = () => {
                       <div className="text-slate-400">{language === 'en' ? 'Errors' : 'Erreurs'}</div>
                     </div>
                   </div>
+                  {importResult.results.skippedSlugs && importResult.results.skippedSlugs.length > 0 && (
+                    <p className="text-sm text-amber-400 mb-2">
+                      {language === 'en' ? 'Skipped (already exist):' : 'Ignorés (existent déjà):'}{' '}
+                      <span className="text-slate-300">{importResult.results.skippedSlugs.join(', ')}</span>
+                    </p>
+                  )}
                   {importResult.results.createdCategories.length > 0 && (
                     <p className="text-sm text-slate-400">
                       {language === 'en' ? 'Created categories:' : 'Catégories créées:'}{' '}
@@ -1251,6 +1268,7 @@ const AdminBlog: React.FC = () => {
                   {/* JSON input */}
                   <div className="mb-4">
                     <textarea
+                      ref={jsonTextareaRef}
                       value={importJson}
                       onChange={(e) => setImportJson(e.target.value)}
                       placeholder={`{
