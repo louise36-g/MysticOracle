@@ -26,9 +26,11 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Code,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
+import MarkdownEditor from './MarkdownEditor';
 
 interface BlogPostEditorProps {
   post: BlogPost;
@@ -53,6 +55,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
   const [post, setPost] = useState<BlogPost>(initialPost);
   const [editLanguage, setEditLanguage] = useState<string>('en');
+  const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('markdown');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -328,25 +331,74 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
           {/* Content */}
           <div className="mb-6">
-            <label className="block text-sm text-slate-400 mb-2">
-              {AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag} {language === 'en' ? 'Content' : 'Contenu'}
-            </label>
-            {editLanguage === 'en' ? (
-              <RichTextEditor
-                content={post.contentEn}
-                onChange={(html) => setPost({ ...post, contentEn: html })}
-                placeholder="Start writing your post..."
-                mediaLibrary={media}
-                onMediaUpload={handleMediaUpload}
-              />
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm text-slate-400">
+                {AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag} {language === 'en' ? 'Content' : 'Contenu'}
+              </label>
+              {/* Editor Mode Toggle */}
+              <div className="flex items-center gap-1 bg-slate-800 rounded-lg p-0.5">
+                <button
+                  onClick={() => setEditorMode('markdown')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
+                    editorMode === 'markdown'
+                      ? 'bg-purple-600 text-white'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  }`}
+                  title="Markdown editor"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>Markdown</span>
+                </button>
+                <button
+                  onClick={() => setEditorMode('visual')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
+                    editorMode === 'visual'
+                      ? 'bg-purple-600 text-white'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  }`}
+                  title="Visual editor"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Visual</span>
+                </button>
+              </div>
+            </div>
+            {editorMode === 'markdown' ? (
+              editLanguage === 'en' ? (
+                <MarkdownEditor
+                  content={post.contentEn}
+                  onChange={(html) => setPost({ ...post, contentEn: html })}
+                  placeholder="Write your post in Markdown..."
+                  mediaLibrary={media}
+                  onMediaUpload={handleMediaUpload}
+                />
+              ) : (
+                <MarkdownEditor
+                  content={post.contentFr}
+                  onChange={(html) => setPost({ ...post, contentFr: html })}
+                  placeholder="Écrivez votre article en Markdown..."
+                  mediaLibrary={media}
+                  onMediaUpload={handleMediaUpload}
+                />
+              )
             ) : (
-              <RichTextEditor
-                content={post.contentFr}
-                onChange={(html) => setPost({ ...post, contentFr: html })}
-                placeholder="Commencez à écrire votre article..."
-                mediaLibrary={media}
-                onMediaUpload={handleMediaUpload}
-              />
+              editLanguage === 'en' ? (
+                <RichTextEditor
+                  content={post.contentEn}
+                  onChange={(html) => setPost({ ...post, contentEn: html })}
+                  placeholder="Start writing your post..."
+                  mediaLibrary={media}
+                  onMediaUpload={handleMediaUpload}
+                />
+              ) : (
+                <RichTextEditor
+                  content={post.contentFr}
+                  onChange={(html) => setPost({ ...post, contentFr: html })}
+                  placeholder="Commencez à écrire votre article..."
+                  mediaLibrary={media}
+                  onMediaUpload={handleMediaUpload}
+                />
+              )
             )}
           </div>
         </div>
