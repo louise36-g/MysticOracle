@@ -1072,6 +1072,54 @@ export async function seedBlogData(token: string): Promise<{ success: boolean; c
   return apiRequest('/api/blog/admin/seed', { method: 'POST', token });
 }
 
+// Blog import types
+export interface ImportArticle {
+  title: string;
+  excerpt?: string;
+  content?: string;
+  slug: string;
+  author?: string;
+  read_time?: string | number;
+  image_alt_text?: string;
+  categories?: string[];
+  tags?: string[];
+  seo_meta?: {
+    focus_keyword?: string;
+    meta_title?: string;
+    meta_description?: string;
+    og_title?: string;
+    og_description?: string;
+  };
+}
+
+export interface ImportOptions {
+  skipDuplicates?: boolean;
+  createMissingTaxonomies?: boolean;
+}
+
+export interface ImportResult {
+  success: boolean;
+  results: {
+    imported: number;
+    skipped: number;
+    errors: { slug: string; error: string }[];
+    createdCategories: string[];
+    createdTags: string[];
+  };
+}
+
+export async function importBlogArticles(
+  token: string,
+  articles: ImportArticle | ImportArticle[],
+  options?: ImportOptions
+): Promise<ImportResult> {
+  return apiRequest('/api/blog/admin/import', {
+    method: 'POST',
+    token,
+    body: { articles, options },
+  });
+}
+
 export default {
   fetchUserProfile,
   updateUserProfile,

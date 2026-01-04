@@ -738,6 +738,180 @@ router.delete('/admin/media/:id', requireAuth, requireAdmin, async (req, res) =>
 });
 
 // ============================================
+// JSON IMPORT
+// ============================================
+
+// Schema for imported article
+const importArticleSchema = z.object({
+  title: z.string().min(1),
+  excerpt: z.string().optional(),
+  content: z.string().optional(),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
+  author: z.string().optional(),
+  read_time: z.union([z.string(), z.number()]).optional(),
+  image_alt_text: z.string().optional(),
+  categories: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  seo_meta: z.object({
+    focus_keyword: z.string().optional(),
+    meta_title: z.string().optional(),
+    meta_description: z.string().optional(),
+    og_title: z.string().optional(),
+    og_description: z.string().optional(),
+  }).optional(),
+});
+
+// Import one or more articles from JSON
+router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { articles, options } = req.body;
+
+    // Allow single article or array
+    const articlesToImport = Array.isArray(articles) ? articles : [articles];
+    const skipDuplicates = options?.skipDuplicates ?? true;
+    const createMissingTaxonomies = options?.createMissingTaxonomies ?? true;
+
+    const results = {
+      imported: 0,
+      skipped: 0,
+      errors: [] as { slug: string; error: string }[],
+      createdCategories: [] as string[],
+      createdTags: [] as string[],
+    };
+
+    for (const articleData of articlesToImport) {
+      try {
+        // Validate article structure
+        const validation = importArticleSchema.safeParse(articleData);
+        if (!validation.success) {
+          results.errors.push({
+            slug: articleData.slug || 'unknown',
+            error: validation.error.errors.map(e => e.message).join(', ')
+          });
+          continue;
+        }
+
+        const article = validation.data;
+
+        // Check if slug exists
+        const existing = await prisma.blogPost.findUnique({ where: { slug: article.slug } });
+        if (existing) {
+          if (skipDuplicates) {
+            results.skipped++;
+            continue;
+          } else {
+            results.errors.push({ slug: article.slug, error: 'Slug already exists' });
+            continue;
+          }
+        }
+
+        // Process categories - find or create
+        const categoryIds: string[] = [];
+        if (article.categories && article.categories.length > 0) {
+          for (const catName of article.categories) {
+            const catSlug = catName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+
+            let category = await prisma.blogCategory.findUnique({ where: { slug: catSlug } });
+
+            if (!category && createMissingTaxonomies) {
+              category = await prisma.blogCategory.create({
+                data: {
+                  slug: catSlug,
+                  nameEn: catName,
+                  nameFr: catName, // Default same, can edit later
+                }
+              });
+              results.createdCategories.push(catName);
+            }
+
+            if (category) {
+              categoryIds.push(category.id);
+            }
+          }
+        }
+
+        // Process tags - find or create
+        const tagIds: string[] = [];
+        if (article.tags && article.tags.length > 0) {
+          for (const tagName of article.tags) {
+            const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+
+            let tag = await prisma.blogTag.findUnique({ where: { slug: tagSlug } });
+
+            if (!tag && createMissingTaxonomies) {
+              tag = await prisma.blogTag.create({
+                data: {
+                  slug: tagSlug,
+                  nameEn: tagName,
+                  nameFr: tagName, // Default same, can edit later
+                }
+              });
+              results.createdTags.push(tagName);
+            }
+
+            if (tag) {
+              tagIds.push(tag.id);
+            }
+          }
+        }
+
+        // Parse read time
+        let readTimeMinutes = 5;
+        if (article.read_time) {
+          if (typeof article.read_time === 'number') {
+            readTimeMinutes = article.read_time;
+          } else {
+            const match = article.read_time.match(/(\d+)/);
+            if (match) readTimeMinutes = parseInt(match[1]);
+          }
+        }
+
+        // Create the post
+        await prisma.blogPost.create({
+          data: {
+            slug: article.slug,
+            titleEn: article.title,
+            titleFr: '', // English only for imports
+            excerptEn: article.excerpt || '',
+            excerptFr: '',
+            contentEn: article.content || '',
+            contentFr: '',
+            coverImageAlt: article.image_alt_text,
+            authorName: article.author || 'MysticOracle',
+            authorId: req.auth.userId,
+            status: 'DRAFT', // Import as draft for review
+            readTimeMinutes,
+            metaTitleEn: article.seo_meta?.meta_title || article.seo_meta?.og_title,
+            metaDescEn: article.seo_meta?.meta_description || article.seo_meta?.og_description,
+            categories: {
+              create: categoryIds.map(categoryId => ({ categoryId }))
+            },
+            tags: {
+              create: tagIds.map(tagId => ({ tagId }))
+            }
+          }
+        });
+
+        results.imported++;
+      } catch (err) {
+        results.errors.push({
+          slug: articleData.slug || 'unknown',
+          error: err instanceof Error ? err.message : 'Unknown error'
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      results
+    });
+  } catch (error) {
+    console.error('Error importing articles:', error instanceof Error ? error.message : String(error));
+    res.status(500).json({ error: 'Failed to import articles' });
+  }
+});
+
+// ============================================
 // SEED DEFAULT DATA
 // ============================================
 

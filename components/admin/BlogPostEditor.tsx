@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
@@ -27,6 +27,7 @@ import {
   ChevronUp,
   ExternalLink,
   Code,
+  Upload,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
@@ -58,6 +59,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('markdown');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Sidebar data
   const [categories, setCategories] = useState<BlogCategory[]>([]);
@@ -169,6 +172,26 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     const result = await uploadBlogMedia(token, file);
     await loadMedia();
     return result.media.url;
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCover(true);
+    try {
+      const url = await handleMediaUpload(file);
+      const alt = file.name.replace(/\.[^/.]+$/, '');
+      setPost({ ...post, coverImage: url, coverImageAlt: alt });
+    } catch (err) {
+      console.error('Failed to upload cover image:', err);
+      setError('Failed to upload cover image');
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) {
+        coverInputRef.current.value = '';
+      }
+    }
   };
 
   const SidebarSection: React.FC<{
@@ -481,8 +504,47 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                     className="w-full h-32 object-cover rounded-lg"
                   />
                 )}
+
+                {/* Upload Button */}
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">URL</label>
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => coverInputRef.current?.click()}
+                    disabled={uploadingCover}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+                  >
+                    {uploadingCover ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {language === 'en' ? 'Uploading...' : 'Envoi...'}
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        {language === 'en' ? 'Upload Image' : 'Télécharger image'}
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-2 bg-slate-900 text-slate-500">
+                      {language === 'en' ? 'or use URL' : 'ou utiliser URL'}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
                   <input
                     type="text"
                     value={post.coverImage || ''}
@@ -493,7 +555,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                 </div>
                 {media.length > 0 && (
                   <div>
-                    <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Or select' : 'Ou sélectionner'}</label>
+                    <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Or select from library' : 'Ou choisir depuis bibliothèque'}</label>
                     <div className="grid grid-cols-4 gap-1 max-h-24 overflow-y-auto">
                       {media.slice(0, 12).map((item) => (
                         <button
