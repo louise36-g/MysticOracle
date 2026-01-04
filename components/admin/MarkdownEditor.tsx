@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { marked } from 'marked';
 import {
   Eye,
@@ -125,8 +125,10 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
-  // Convert markdown to HTML and call onChange
+  // Convert markdown to HTML for preview
   const htmlOutput = useMemo(() => {
     try {
       return marked(markdown) as string;
@@ -135,10 +137,16 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     }
   }, [markdown]);
 
-  // Update parent with HTML whenever markdown changes
-  useEffect(() => {
-    onChange(htmlOutput);
-  }, [htmlOutput, onChange]);
+  // Handle markdown changes - only call onChange when user edits
+  const handleMarkdownChange = useCallback((newMarkdown: string) => {
+    setMarkdown(newMarkdown);
+    try {
+      const html = marked(newMarkdown) as string;
+      onChangeRef.current(html);
+    } catch {
+      // Don't update parent on parse error
+    }
+  }, []);
 
   // Insert text at cursor position
   const insertAtCursor = useCallback((before: string, after: string = '', placeholder: string = '') => {
@@ -154,18 +162,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       before + selectedText + after +
       markdown.substring(end);
 
-    setMarkdown(newText);
+    handleMarkdownChange(newText);
 
     // Set cursor position after insertion
     setTimeout(() => {
       textarea.focus();
-      const newCursorPos = start + before.length + selectedText.length + after.length;
       textarea.setSelectionRange(
         start + before.length,
         start + before.length + selectedText.length
       );
     }, 0);
-  }, [markdown]);
+  }, [markdown, handleMarkdownChange]);
 
   // Toolbar actions
   const toolbarActions = {
@@ -187,13 +194,15 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const insertLink = () => {
     if (linkUrl) {
       const text = linkText || linkUrl;
-      insertAtCursor(`[${text}](`, ')');
-      setMarkdown(prev => {
-        const textarea = textareaRef.current;
-        if (!textarea) return prev;
+      const textarea = textareaRef.current;
+      if (textarea) {
         const start = textarea.selectionStart;
-        return prev.substring(0, start) + `[${text}](${linkUrl})` + prev.substring(start);
-      });
+        const newMarkdown =
+          markdown.substring(0, start) +
+          `[${text}](${linkUrl})` +
+          markdown.substring(start);
+        handleMarkdownChange(newMarkdown);
+      }
       setLinkUrl('');
       setLinkText('');
       setShowLinkModal(false);
@@ -210,7 +219,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           markdown.substring(0, start) +
           `![${alt}](${imageUrl})` +
           markdown.substring(start);
-        setMarkdown(newMarkdown);
+        handleMarkdownChange(newMarkdown);
       }
       setImageUrl('');
       setImageAlt('');
@@ -232,7 +241,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           markdown.substring(0, start) +
           `![${alt}](${url})` +
           markdown.substring(start);
-        setMarkdown(newMarkdown);
+        handleMarkdownChange(newMarkdown);
       }
     } catch (err) {
       console.error('Failed to upload image:', err);
@@ -393,7 +402,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             <textarea
               ref={textareaRef}
               value={markdown}
-              onChange={(e) => setMarkdown(e.target.value)}
+              onChange={(e) => handleMarkdownChange(e.target.value)}
               placeholder={placeholder}
               className="w-full min-h-[400px] p-4 bg-transparent text-slate-200 font-mono text-sm resize-none focus:outline-none placeholder-slate-500"
               spellCheck={false}
