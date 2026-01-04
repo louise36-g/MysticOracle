@@ -174,11 +174,11 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
 
   const handleShare = async (platform: string) => {
     const url = window.location.href;
-    const title = post ? (language === 'en' ? post.titleEn : post.titleFr) : '';
+    const shareTitle = post ? (language === 'en' ? post.titleEn : post.titleFr) : '';
 
     switch (platform) {
       case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareTitle)}`, '_blank');
         break;
       case 'facebook':
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
@@ -193,6 +193,30 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
         break;
     }
   };
+
+  // Get content based on language (may be empty if post not loaded)
+  const rawContent = post ? (language === 'en' ? post.contentEn : post.contentFr) : '';
+
+  // Sanitize HTML content to prevent XSS attacks
+  // This hook MUST be called before any early returns to satisfy React's Rules of Hooks
+  const sanitizedContent = useMemo(() => {
+    if (!rawContent) return '';
+    return DOMPurify.sanitize(rawContent, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
+        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
+      ],
+      ALLOWED_ATTR: [
+        'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
+        'width', 'height', 'loading'
+      ],
+      ALLOW_DATA_ATTR: false,
+      ADD_ATTR: ['target', 'rel'],
+      // Force all links to open in new tab with security attributes
+      FORCE_BODY: true,
+    });
+  }, [rawContent]);
 
   if (loading) {
     return (
@@ -221,27 +245,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, onBack, onNavigateToPost,
   }
 
   const title = language === 'en' ? post.titleEn : post.titleFr;
-  const rawContent = language === 'en' ? post.contentEn : post.contentFr;
   const excerpt = language === 'en' ? post.excerptEn : post.excerptFr;
-
-  // Sanitize HTML content to prevent XSS attacks
-  const sanitizedContent = useMemo(() => {
-    return DOMPurify.sanitize(rawContent || '', {
-      ALLOWED_TAGS: [
-        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
-        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
-      ],
-      ALLOWED_ATTR: [
-        'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
-        'width', 'height', 'loading'
-      ],
-      ALLOW_DATA_ATTR: false,
-      ADD_ATTR: ['target', 'rel'],
-      // Force all links to open in new tab with security attributes
-      FORCE_BODY: true,
-    });
-  }, [rawContent]);
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-12">
