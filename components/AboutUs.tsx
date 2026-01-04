@@ -5,9 +5,10 @@ import { motion } from 'framer-motion';
 
 interface AboutUsProps {
   onNavigate: (view: string) => void;
+  onNavigateToTarot: () => void;
 }
 
-const AboutUs: React.FC<AboutUsProps> = ({ onNavigate }) => {
+const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
   const { language } = useApp();
 
   const values = [
@@ -146,7 +147,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate }) => {
             {language === 'en' ? 'Ready to begin your journey?' : 'Prêt à commencer votre voyage ?'}
           </p>
           <button
-            onClick={() => onNavigate('home')}
+            onClick={onNavigateToTarot}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-amber-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-amber-500 transition-all shadow-lg hover:shadow-purple-500/25"
           >
             <Sparkles className="w-5 h-5" />

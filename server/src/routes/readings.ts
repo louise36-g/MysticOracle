@@ -2,30 +2,65 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { SpreadType, InterpretationStyle } from '@prisma/client';
 
 const router = Router();
 
 // Server-side credit costs by spread type (NEVER trust client)
 const SPREAD_CREDIT_COSTS: Record<string, number> = {
   SINGLE: 1,
-  THREE_CARD: 2,
-  CELTIC_CROSS: 5,
-  HORSESHOE: 4,
+  THREE_CARD: 3,
+  LOVE: 5,
+  CAREER: 5,
+  HORSESHOE: 7,
+  CELTIC_CROSS: 10,
 };
 
 // Follow-up question cost
 const FOLLOW_UP_CREDIT_COST = 1;
 
-// Spread types matching Prisma schema
-const SPREAD_TYPES = ['SINGLE', 'THREE_CARD', 'CELTIC_CROSS', 'HORSESHOE'] as const;
+// Spread types matching Prisma schema (uppercase)
+const SPREAD_TYPES = ['SINGLE', 'THREE_CARD', 'LOVE', 'CAREER', 'HORSESHOE', 'CELTIC_CROSS'] as const;
+
+// Map lowercase frontend values to uppercase Prisma enum values
+const SPREAD_TYPE_MAP: Record<string, SpreadType> = {
+  'single': SpreadType.SINGLE,
+  'three_card': SpreadType.THREE_CARD,
+  'love': SpreadType.LOVE,
+  'career': SpreadType.CAREER,
+  'horseshoe': SpreadType.HORSESHOE,
+  'celtic_cross': SpreadType.CELTIC_CROSS,
+  // Also support uppercase directly
+  'SINGLE': SpreadType.SINGLE,
+  'THREE_CARD': SpreadType.THREE_CARD,
+  'LOVE': SpreadType.LOVE,
+  'CAREER': SpreadType.CAREER,
+  'HORSESHOE': SpreadType.HORSESHOE,
+  'CELTIC_CROSS': SpreadType.CELTIC_CROSS,
+};
 
 // Interpretation styles matching Prisma schema
 const INTERPRETATION_STYLES = ['CLASSIC', 'SPIRITUAL', 'PSYCHO_EMOTIONAL', 'NUMEROLOGY', 'ELEMENTAL'] as const;
 
-// Validation schema for reading creation
+// Map lowercase frontend values to uppercase Prisma enum values
+const INTERPRETATION_STYLE_MAP: Record<string, InterpretationStyle> = {
+  'classic': InterpretationStyle.CLASSIC,
+  'spiritual': InterpretationStyle.SPIRITUAL,
+  'psycho_emotional': InterpretationStyle.PSYCHO_EMOTIONAL,
+  'numerology': InterpretationStyle.NUMEROLOGY,
+  'elemental': InterpretationStyle.ELEMENTAL,
+  // Also support uppercase directly
+  'CLASSIC': InterpretationStyle.CLASSIC,
+  'SPIRITUAL': InterpretationStyle.SPIRITUAL,
+  'PSYCHO_EMOTIONAL': InterpretationStyle.PSYCHO_EMOTIONAL,
+  'NUMEROLOGY': InterpretationStyle.NUMEROLOGY,
+  'ELEMENTAL': InterpretationStyle.ELEMENTAL,
+};
+
+// Validation schema for reading creation (accepts lowercase or uppercase)
 const createReadingSchema = z.object({
-  spreadType: z.enum(SPREAD_TYPES),
-  interpretationStyle: z.enum(INTERPRETATION_STYLES).optional(),
+  spreadType: z.string(),
+  interpretationStyle: z.string().optional(),
   question: z.string().max(1000).optional(),
   cards: z.any(), // JSON field
   interpretation: z.string(),
@@ -42,7 +77,21 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
-    const { spreadType, interpretationStyle, question, cards, interpretation } = validation.data;
+    const { spreadType: rawSpreadType, interpretationStyle: rawInterpretationStyle, question, cards, interpretation } = validation.data;
+
+    // Convert spread type to uppercase Prisma enum value
+    const spreadType = SPREAD_TYPE_MAP[rawSpreadType];
+    if (!spreadType) {
+      return res.status(400).json({ error: `Invalid spread type: ${rawSpreadType}` });
+    }
+
+    // Convert interpretation style to uppercase if provided
+    const interpretationStyle = rawInterpretationStyle
+      ? INTERPRETATION_STYLE_MAP[rawInterpretationStyle]
+      : InterpretationStyle.CLASSIC;
+    if (rawInterpretationStyle && !interpretationStyle) {
+      return res.status(400).json({ error: `Invalid interpretation style: ${rawInterpretationStyle}` });
+    }
 
     // Get credit cost from server-side config (NEVER trust client)
     const creditCost = SPREAD_CREDIT_COSTS[spreadType] || 1;
@@ -67,7 +116,7 @@ router.post('/', requireAuth, async (req, res) => {
         data: {
           userId,
           spreadType,
-          interpretationStyle: interpretationStyle || 'CLASSIC',
+          interpretationStyle,
           question,
           cards,
           interpretation,

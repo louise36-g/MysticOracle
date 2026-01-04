@@ -23,6 +23,7 @@ import HowCreditsWork from './components/HowCreditsWork';
 import FAQ from './components/FAQ';
 import AboutUs from './components/AboutUs';
 import SubNav from './components/SubNav';
+import { DailyBonusPopup } from './components/rewards';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
 import Button from './components/Button';
@@ -47,8 +48,10 @@ const App: React.FC = () => {
   const [showLowCreditsModal, setShowLowCreditsModal] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showDailyBonusPopup, setShowDailyBonusPopup] = useState(false);
   const [pendingSpread, setPendingSpread] = useState<SpreadConfig | null>(null);
   const [hasShownLowCreditsWarning, setHasShownLowCreditsWarning] = useState(false);
+  const [hasCheckedDailyBonus, setHasCheckedDailyBonus] = useState(false);
 
   // Check if user is admin (from AppContext or default false)
   const isAdmin = user?.isAdmin || false;
@@ -170,6 +173,28 @@ const App: React.FC = () => {
       setShowWelcomeModal(true);
     }
   }, [user]);
+
+  // Check for daily bonus eligibility
+  useEffect(() => {
+    if (!user || hasCheckedDailyBonus || showWelcomeModal) return;
+
+    // Check if user can claim daily bonus (24 hours since last claim)
+    const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+    const now = new Date();
+
+    if (!lastLogin) {
+      // Never claimed before
+      setShowDailyBonusPopup(true);
+      setHasCheckedDailyBonus(true);
+    } else {
+      // Check if 24 hours have passed
+      const hoursSinceLastClaim = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60);
+      if (hoursSinceLastClaim >= 24) {
+        setShowDailyBonusPopup(true);
+      }
+      setHasCheckedDailyBonus(true);
+    }
+  }, [user, hasCheckedDailyBonus, showWelcomeModal]);
 
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
@@ -392,7 +417,7 @@ const App: React.FC = () => {
 
     // 6b. About Us (accessible to all)
     if (currentView === 'about') {
-        return <AboutUs onNavigate={handleNavigate} />;
+        return <AboutUs onNavigate={handleNavigate} onNavigateToTarot={() => handleReadingModeSelect('tarot')} />;
     }
 
     // 7. Blog Pages (accessible to all)
@@ -563,6 +588,9 @@ const App: React.FC = () => {
 
       {/* Credit Shop Modal */}
       <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} onNavigate={handleNavigate} />
+
+      {/* Daily Bonus Popup */}
+      <DailyBonusPopup isOpen={showDailyBonusPopup} onClose={() => setShowDailyBonusPopup(false)} />
 
       {/* No Credits Modal */}
       <AnimatePresence>

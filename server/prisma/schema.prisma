@@ -114,8 +114,10 @@ model FollowUpQuestion {
 enum SpreadType {
   SINGLE
   THREE_CARD
-  CELTIC_CROSS
+  LOVE
+  CAREER
   HORSESHOE
+  CELTIC_CROSS
 }
 
 enum InterpretationStyle {

@@ -542,6 +542,59 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
 
       'faq.footer.disclaimer': { en: 'MysticOracle is intended for entertainment and personal insight only. Readings are AI-generated and should not replace professional advice. By using this service, you agree to our', fr: 'MysticOracle est destiné uniquement au divertissement et à l\'insight personnel. Les lectures sont générées par l\'IA et ne doivent pas remplacer les conseils professionnels. En utilisant ce service, vous acceptez nos' },
       'faq.footer.terms': { en: 'Terms of Service', fr: 'Conditions d\'Utilisation' },
+
+      // SubNav - Navigation Menu
+      'subnav.tarot.title': { en: 'Tarot Readings', fr: 'Tirages Tarot' },
+      'subnav.horoscope.title': { en: 'Horoscope', fr: 'Horoscope' },
+      'subnav.comingSoon.title': { en: 'Coming Soon', fr: 'Bientôt' },
+      'subnav.learn.title': { en: 'Learn', fr: 'Découvrir' },
+
+      // SubNav - Tarot Spreads
+      'subnav.tarot.single.desc': { en: '1 card', fr: '1 carte' },
+      'subnav.tarot.three_card.desc': { en: '3 cards', fr: '3 cartes' },
+      'subnav.tarot.love.desc': { en: '5 cards', fr: '5 cartes' },
+      'subnav.tarot.career.desc': { en: '5 cards', fr: '5 cartes' },
+      'subnav.tarot.horseshoe.desc': { en: '7 cards', fr: '7 cartes' },
+      'subnav.tarot.celtic_cross.desc': { en: '10 cards', fr: '10 cartes' },
+
+      // SubNav - Coming Soon Items
+      'subnav.comingSoon.runes.label': { en: 'Rune Reading', fr: 'Lecture des Runes' },
+      'subnav.comingSoon.runes.desc': { en: 'Ancient Nordic wisdom', fr: 'Sagesse nordique ancienne' },
+      'subnav.comingSoon.birthchart.label': { en: 'Birth Chart', fr: 'Thème Astral' },
+      'subnav.comingSoon.birthchart.desc': { en: 'Your cosmic blueprint', fr: 'Votre empreinte cosmique' },
+      'subnav.comingSoon.iching.label': { en: 'I Ching', fr: 'Yi King' },
+      'subnav.comingSoon.iching.desc': { en: 'Book of Changes', fr: 'Livre des mutations' },
+      'subnav.comingSoon.biofeedback.label': { en: 'Biofeedback', fr: 'Biofeedback' },
+      'subnav.comingSoon.biofeedback.desc': { en: 'Mind-body connection', fr: 'Connexion corps-esprit' },
+
+      // SubNav - Learn Items
+      'subnav.learn.about.label': { en: 'About Us', fr: 'À Propos' },
+      'subnav.learn.about.desc': { en: 'Our story', fr: 'Notre histoire' },
+      'subnav.learn.blog.label': { en: 'Blog', fr: 'Blog' },
+      'subnav.learn.blog.desc': { en: 'Articles & guides', fr: 'Articles & guides' },
+      'subnav.learn.credits.label': { en: 'How Credits Work', fr: 'Comment fonctionnent les crédits' },
+      'subnav.learn.credits.desc': { en: 'Pricing & packages', fr: 'Tarifs & forfaits' },
+      'subnav.learn.faq.label': { en: 'Help & FAQ', fr: 'Aide & FAQ' },
+      'subnav.learn.faq.desc': { en: 'Get answers', fr: 'Trouvez des réponses' },
+
+      // About Us Page
+      'about.title': { en: 'About MysticOracle', fr: 'À Propos de MysticOracle' },
+      'about.subtitle': { en: 'Where ancient wisdom meets modern technology to illuminate your path.', fr: 'Là où la sagesse ancienne rencontre la technologie moderne pour éclairer votre chemin.' },
+      'about.story.title': { en: 'Our Story', fr: 'Notre Histoire' },
+      'about.story.p1': { en: 'MysticOracle was born from a simple belief: that the timeless wisdom of tarot should be accessible to everyone, anytime they need guidance. We created a platform that honors the rich traditions of tarot reading while embracing the possibilities of artificial intelligence.', fr: 'MysticOracle est né d\'une croyance simple : la sagesse intemporelle du tarot devrait être accessible à tous, à tout moment où ils ont besoin de guidance. Nous avons créé une plateforme qui honore les riches traditions de la lecture du tarot tout en embrassant les possibilités de l\'intelligence artificielle.' },
+      'about.story.p2': { en: 'Our AI has been trained on centuries of tarot interpretation, symbolism, and meaning, allowing it to provide readings that are both insightful and personally relevant. Whether you seek clarity on love, career, or life\'s bigger questions, MysticOracle is here to guide you.', fr: 'Notre IA a été formée sur des siècles d\'interprétation, de symbolisme et de signification du tarot, lui permettant de fournir des lectures à la fois perspicaces et personnellement pertinentes. Que vous cherchiez de la clarté sur l\'amour, la carrière ou les grandes questions de la vie, MysticOracle est là pour vous guider.' },
+      'about.values.title': { en: 'Our Values', fr: 'Nos Valeurs' },
+      'about.values.ai.title': { en: 'AI-Powered Wisdom', fr: 'Sagesse Assistée par IA' },
+      'about.values.ai.desc': { en: 'We combine ancient tarot traditions with modern AI to provide meaningful, personalized readings.', fr: 'Nous combinons les traditions anciennes du tarot avec l\'IA moderne pour offrir des lectures personnalisées et significatives.' },
+      'about.values.compassion.title': { en: 'Compassionate Guidance', fr: 'Guidance Bienveillante' },
+      'about.values.compassion.desc': { en: 'Every reading is delivered with empathy and care, supporting you on your personal journey.', fr: 'Chaque lecture est délivrée avec empathie et soin, vous accompagnant dans votre parcours personnel.' },
+      'about.values.privacy.title': { en: 'Privacy First', fr: 'Confidentialité Avant Tout' },
+      'about.values.privacy.desc': { en: 'Your spiritual journey is personal. We protect your data with the highest security standards.', fr: 'Votre voyage spirituel est personnel. Nous protégeons vos données avec les plus hauts standards de sécurité.' },
+      'about.values.instant.title': { en: 'Instant Insights', fr: 'Insights Instantanés' },
+      'about.values.instant.desc': { en: 'Get clarity when you need it most, with readings available 24/7 at your fingertips.', fr: 'Obtenez de la clarté quand vous en avez le plus besoin, avec des lectures disponibles 24h/24.' },
+      'about.disclaimer': { en: 'MysticOracle is intended for entertainment and personal reflection purposes only. Our AI-generated readings should not be considered professional advice for medical, legal, financial, or psychological matters.', fr: 'MysticOracle est destiné uniquement à des fins de divertissement et de réflexion personnelle. Nos lectures générées par IA ne doivent pas être considérées comme des conseils professionnels pour des questions médicales, juridiques, financières ou psychologiques.' },
+      'about.cta.ready': { en: 'Ready to begin your journey?', fr: 'Prêt à commencer votre voyage ?' },
+      'about.cta.button': { en: 'Start Your Reading', fr: 'Commencer Votre Lecture' },
     };
 
     // Insert all translations

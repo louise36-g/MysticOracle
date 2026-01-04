@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { useApp } from '../context/AppContext';
+import { useTranslation } from '../context/TranslationContext';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,7 +14,8 @@ import {
   CreditCard,
   Users,
   Lock,
-  Coins
+  Coins,
+  Heart
 } from 'lucide-react';
 
 interface SubNavProps {
@@ -45,25 +47,22 @@ const SubNav: React.FC<SubNavProps> = ({
   readingMode
 }) => {
   const { language, user } = useApp();
+  const { t } = useTranslation();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const isOutside = Object.values(dropdownRefs.current).every(
-        ref => ref && !ref.contains(event.target as Node)
-      );
-      if (isOutside) {
-        setOpenDropdown(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const handleMouseEnter = (name: string) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setOpenDropdown(name);
+  };
 
-  const toggleDropdown = (name: string) => {
-    setOpenDropdown(prev => prev === name ? null : name);
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150);
   };
 
   const handleItemClick = (onClick: () => void) => {
@@ -76,8 +75,8 @@ const SubNav: React.FC<SubNavProps> = ({
     id: spread.id,
     labelEn: spread.nameEn,
     labelFr: spread.nameFr,
-    descriptionEn: `${spread.positions} cards`,
-    descriptionFr: `${spread.positions} cartes`,
+    descriptionEn: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cards`),
+    descriptionFr: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cartes`),
     icon: <Sparkles className="w-4 h-4 text-purple-400" />,
     iconBg: 'bg-purple-500/20',
     cost: spread.cost,
@@ -88,10 +87,10 @@ const SubNav: React.FC<SubNavProps> = ({
   const comingSoonItems: DropdownItem[] = [
     {
       id: 'runes',
-      labelEn: 'Rune Reading',
-      labelFr: 'Lecture des Runes',
-      descriptionEn: 'Ancient Nordic wisdom',
-      descriptionFr: 'Sagesse nordique ancienne',
+      labelEn: t('subnav.comingSoon.runes.label', 'Rune Reading'),
+      labelFr: t('subnav.comingSoon.runes.label', 'Lecture des Runes'),
+      descriptionEn: t('subnav.comingSoon.runes.desc', 'Ancient Nordic wisdom'),
+      descriptionFr: t('subnav.comingSoon.runes.desc', 'Sagesse nordique ancienne'),
       icon: <Compass className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
       comingSoon: true,
@@ -99,10 +98,10 @@ const SubNav: React.FC<SubNavProps> = ({
     },
     {
       id: 'birthchart',
-      labelEn: 'Birth Chart',
-      labelFr: 'Thème Astral',
-      descriptionEn: 'Your cosmic blueprint',
-      descriptionFr: 'Votre empreinte cosmique',
+      labelEn: t('subnav.comingSoon.birthchart.label', 'Birth Chart'),
+      labelFr: t('subnav.comingSoon.birthchart.label', 'Thème Astral'),
+      descriptionEn: t('subnav.comingSoon.birthchart.desc', 'Your cosmic blueprint'),
+      descriptionFr: t('subnav.comingSoon.birthchart.desc', 'Votre empreinte cosmique'),
       icon: <Moon className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
       comingSoon: true,
@@ -110,58 +109,69 @@ const SubNav: React.FC<SubNavProps> = ({
     },
     {
       id: 'iching',
-      labelEn: 'I Ching',
-      labelFr: 'Yi King',
-      descriptionEn: 'Book of Changes',
-      descriptionFr: 'Livre des mutations',
+      labelEn: t('subnav.comingSoon.iching.label', 'I Ching'),
+      labelFr: t('subnav.comingSoon.iching.label', 'Yi King'),
+      descriptionEn: t('subnav.comingSoon.iching.desc', 'Book of Changes'),
+      descriptionFr: t('subnav.comingSoon.iching.desc', 'Livre des mutations'),
       icon: <BookOpen className="w-4 h-4 text-emerald-400" />,
       iconBg: 'bg-emerald-500/20',
+      comingSoon: true,
+      onClick: () => {}
+    },
+    {
+      id: 'biofeedback',
+      labelEn: t('subnav.comingSoon.biofeedback.label', 'Biofeedback'),
+      labelFr: t('subnav.comingSoon.biofeedback.label', 'Biofeedback'),
+      descriptionEn: t('subnav.comingSoon.biofeedback.desc', 'Mind-body connection'),
+      descriptionFr: t('subnav.comingSoon.biofeedback.desc', 'Connexion corps-esprit'),
+      icon: <Heart className="w-4 h-4 text-rose-400" />,
+      iconBg: 'bg-rose-500/20',
       comingSoon: true,
       onClick: () => {}
     }
   ];
 
-  // Learn items
+  // Learn items - About Us at top
   const learnItems: DropdownItem[] = [
     {
+      id: 'about',
+      labelEn: t('subnav.learn.about.label', 'About Us'),
+      labelFr: t('subnav.learn.about.label', 'À Propos'),
+      descriptionEn: t('subnav.learn.about.desc', 'Our story'),
+      descriptionFr: t('subnav.learn.about.desc', 'Notre histoire'),
+      icon: <Users className="w-4 h-4 text-pink-400" />,
+      iconBg: 'bg-pink-500/20',
+      onClick: () => onNavigate('about')
+    },
+    {
       id: 'blog',
-      labelEn: 'Blog',
-      labelFr: 'Blog',
-      descriptionEn: 'Articles & guides',
-      descriptionFr: 'Articles & guides',
+      labelEn: t('subnav.learn.blog.label', 'Blog'),
+      labelFr: t('subnav.learn.blog.label', 'Blog'),
+      descriptionEn: t('subnav.learn.blog.desc', 'Articles & guides'),
+      descriptionFr: t('subnav.learn.blog.desc', 'Articles & guides'),
       icon: <BookOpen className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
       onClick: () => onNavigate('blog')
     },
     {
       id: 'how-credits-work',
-      labelEn: 'How Credits Work',
-      labelFr: 'Comment fonctionnent les crédits',
-      descriptionEn: 'Pricing & packages',
-      descriptionFr: 'Tarifs & forfaits',
+      labelEn: t('subnav.learn.credits.label', 'How Credits Work'),
+      labelFr: t('subnav.learn.credits.label', 'Comment fonctionnent les crédits'),
+      descriptionEn: t('subnav.learn.credits.desc', 'Pricing & packages'),
+      descriptionFr: t('subnav.learn.credits.desc', 'Tarifs & forfaits'),
       icon: <CreditCard className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
       onClick: () => onNavigate('how-credits-work')
     },
     {
       id: 'faq',
-      labelEn: 'Help & FAQ',
-      labelFr: 'Aide & FAQ',
-      descriptionEn: 'Get answers',
-      descriptionFr: 'Trouvez des réponses',
+      labelEn: t('subnav.learn.faq.label', 'Help & FAQ'),
+      labelFr: t('subnav.learn.faq.label', 'Aide & FAQ'),
+      descriptionEn: t('subnav.learn.faq.desc', 'Get answers'),
+      descriptionFr: t('subnav.learn.faq.desc', 'Trouvez des réponses'),
       icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
       onClick: () => onNavigate('faq')
-    },
-    {
-      id: 'about',
-      labelEn: 'About Us',
-      labelFr: 'À Propos',
-      descriptionEn: 'Our story',
-      descriptionFr: 'Notre histoire',
-      icon: <Users className="w-4 h-4 text-pink-400" />,
-      iconBg: 'bg-pink-500/20',
-      onClick: () => onNavigate('about')
     }
   ];
 
@@ -171,7 +181,7 @@ const SubNav: React.FC<SubNavProps> = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
       transition={{ duration: 0.15 }}
-      className="absolute top-full left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
+      className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
     >
       <div className="p-2 max-h-[400px] overflow-y-auto">
         {items.map(item => {
@@ -228,16 +238,16 @@ const SubNav: React.FC<SubNavProps> = ({
   const isLearnActive = ['blog', 'blog-post', 'faq', 'how-credits-work', 'about'].includes(currentView);
 
   return (
-    <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5">
+    <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5 relative z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-1 h-12">
           {/* Tarot Dropdown */}
           <div
             className="relative"
-            ref={el => { dropdownRefs.current['tarot'] = el; }}
+            onMouseEnter={() => handleMouseEnter('tarot')}
+            onMouseLeave={handleMouseLeave}
           >
             <button
-              onClick={() => toggleDropdown('tarot')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
                   ? 'text-purple-300 bg-purple-500/10'
@@ -245,7 +255,7 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>{language === 'en' ? 'Tarot Readings' : 'Tirages Tarot'}</span>
+              <span>{t('subnav.tarot.title', language === 'en' ? 'Tarot Readings' : 'Tirages Tarot')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'tarot' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
@@ -255,10 +265,7 @@ const SubNav: React.FC<SubNavProps> = ({
 
           {/* Horoscope Link */}
           <button
-            onClick={() => {
-              onSelectReadingMode('horoscope');
-              setOpenDropdown(null);
-            }}
+            onClick={() => onSelectReadingMode('horoscope')}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isHoroscopeActive
                 ? 'text-amber-300 bg-amber-500/10'
@@ -266,16 +273,16 @@ const SubNav: React.FC<SubNavProps> = ({
             }`}
           >
             <Moon className="w-4 h-4" />
-            <span>{language === 'en' ? 'Horoscope' : 'Horoscope'}</span>
+            <span>{t('subnav.horoscope.title', 'Horoscope')}</span>
           </button>
 
           {/* Coming Soon Dropdown */}
           <div
             className="relative"
-            ref={el => { dropdownRefs.current['comingsoon'] = el; }}
+            onMouseEnter={() => handleMouseEnter('comingsoon')}
+            onMouseLeave={handleMouseLeave}
           >
             <button
-              onClick={() => toggleDropdown('comingsoon')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 openDropdown === 'comingsoon'
                   ? 'text-slate-300 bg-white/5'
@@ -283,7 +290,7 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <Compass className="w-4 h-4" />
-              <span>{language === 'en' ? 'Coming Soon' : 'Bientôt'}</span>
+              <span>{t('subnav.comingSoon.title', language === 'en' ? 'Coming Soon' : 'Bientôt')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'comingsoon' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
@@ -297,10 +304,10 @@ const SubNav: React.FC<SubNavProps> = ({
           {/* Learn Dropdown */}
           <div
             className="relative"
-            ref={el => { dropdownRefs.current['learn'] = el; }}
+            onMouseEnter={() => handleMouseEnter('learn')}
+            onMouseLeave={handleMouseLeave}
           >
             <button
-              onClick={() => toggleDropdown('learn')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isLearnActive || openDropdown === 'learn'
                   ? 'text-blue-300 bg-blue-500/10'
@@ -308,7 +315,7 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>{language === 'en' ? 'Learn' : 'Découvrir'}</span>
+              <span>{t('subnav.learn.title', language === 'en' ? 'Learn' : 'Découvrir')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
