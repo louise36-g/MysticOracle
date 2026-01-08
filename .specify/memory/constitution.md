@@ -194,6 +194,188 @@ If the answer to any is "no" — reconsider the approach.
 
 ---
 
+## Technical Standards (Detailed)
+
+### Tech Stack (Non-Negotiable)
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19 + TypeScript (strict) |
+| Build | Vite |
+| Styling | Tailwind CSS |
+| Animation | Framer Motion |
+| Auth | Clerk |
+| Backend | Express.js + TypeScript |
+| Database | PostgreSQL (Render Frankfurt EU) |
+| ORM | Prisma |
+| Validation | Zod |
+| Payments | Stripe + PayPal |
+| Email | Brevo (SendInBlue) |
+| AI | OpenRouter |
+
+### Code Standards
+
+- Maximum component file: 300 lines (current violations: ActiveReading.tsx ~900, AdminBlog.tsx ~800)
+- No `any` types except external untyped libraries
+- Functional components only
+- Custom hooks for reusable logic
+- Props interfaces named `ComponentNameProps`
+
+### Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| LCP | < 2.5s |
+| FID | < 100ms |
+| CLS | < 0.1 |
+| API response | < 500ms (excluding AI) |
+| AI interpretation | < 10s |
+| Lighthouse score | [TO FILL] ___/100 |
+
+### Testing Strategy [TO FILL]
+
+- Unit test coverage target: ___% (suggested: 80%)
+- Integration tests: Yes / No
+- E2E tests: Yes / No (Playwright ready)
+- Test framework: [TO FILL] Vitest / Jest
+
+---
+
+## Development Process
+
+### Version Control
+
+- Main branch: `main`
+- Feature branches: `feature/<name>`
+- Hotfix branches: `hotfix/<name>`
+- [TO FILL] Commit conventions: Conventional Commits / Free-form
+
+### Deployment
+
+- Hosting: Render (Frankfurt EU)
+- [TO FILL] CI/CD: GitHub Actions / Render auto-deploy / Manual
+- [TO FILL] Staging environment: Yes / No / Planned
+- [TO FILL] Deploy frequency: On merge / Scheduled / Manual
+
+### Code Review
+
+- [TO FILL] Required for: All changes / Features only / Critical paths only
+- [TO FILL] Approvers needed: 1 / 2 / Self-review okay
+
+---
+
+## Data & Compliance
+
+### Data Retention [TO FILL]
+
+| Data Type | Retention |
+|-----------|-----------|
+| Reading history | Forever / ___ months / User-controlled |
+| Transaction records | ___ years (legal minimum varies) |
+| Account data after deletion | ___ days |
+
+### Compliance Requirements
+
+**Active:**
+- GDPR (EU data residency, privacy policy, cookie consent, DSAR support)
+
+**[TO FILL] Additional:**
+- CCPA compliance needed: Yes / No
+- SOC 2: Yes / No / Planned
+- Other regional requirements: ___
+
+### Third-Party Data
+
+- Analytics: [TO FILL] Google Analytics / Plausible / None
+- Marketing pixels: [TO FILL] Yes / No
+- Data sold: Never (non-negotiable)
+
+---
+
+## User Support [TO FILL]
+
+| Item | Value |
+|------|-------|
+| Support email | ___ |
+| Response SLA | ___ hours |
+| Help documentation | Yes / No / Planned |
+| FAQ location | /faq (exists) |
+
+---
+
+## Error Monitoring [TO FILL]
+
+- Error tracking: Sentry / LogRocket / None / ___
+- Alerting channel: Email / Slack / PagerDuty / ___
+- On-call rotation: Yes / No
+
+---
+
+## Scalability Targets [TO FILL]
+
+| Metric | Target |
+|--------|--------|
+| Monthly active users | ___ |
+| Peak concurrent users | ___ |
+| Database size (1 year) | ___ GB |
+
+---
+
+## Accessibility Standards
+
+**Committed (WCAG 2.1 AA):**
+- Color contrast: 4.5:1 text, 3:1 UI
+- Keyboard navigation complete
+- Screen reader compatible
+- Focus indicators visible
+- Form labels associated
+
+**[TO FILL] Enhanced:**
+- Reduced motion support: Yes / Planned / No
+- High contrast mode: Yes / Planned / No
+- Target level: AA / AAA
+
+---
+
+## Priority Ranking [TO FILL]
+
+When trade-offs are necessary, rank these 1-5:
+
+| Priority | Rank |
+|----------|------|
+| User experience | ___ |
+| Security | ___ |
+| Performance | ___ |
+| Code quality | ___ |
+| Feature velocity | ___ |
+
+---
+
+## Open Questions [TO FILL]
+
+These need answers before detailed specifications:
+
+### Product
+1. Target age range for users: ___
+2. Primary use case: Entertainment / Guidance / Self-reflection / All
+3. Languages beyond EN/FR planned: ___
+
+### Business
+4. Monthly revenue target: ___
+5. Break-even timeline: ___
+6. Average customer LTV target: ___
+
+### Mobile Integration
+7. Web readings accessible from mobile app: Yes / No / Limited
+8. Shared credit pool: Yes / No
+9. Mobile launch target: ___
+
+### Safety
+10. Crisis detection keywords to implement: ___
+11. Response to crisis detection: Show resources / Redirect / Flag for review
+
+---
+
 ## Living Document
 
 This constitution evolves as the product matures. Updates require:
@@ -204,4 +386,13 @@ This constitution evolves as the product matures. Updates require:
 
 ---
 
-*Last updated: January 2026*
+## Revision History
+
+| Version | Date | Changes | Author |
+|---------|------|---------|--------|
+| 1.0 | January 2026 | Initial constitution | Team |
+| 1.1 | 2026-01-08 | Added technical standards, compliance, open questions | Claude |
+
+---
+
+*Last updated: 2026-01-08*
