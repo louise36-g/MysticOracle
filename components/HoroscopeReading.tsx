@@ -325,11 +325,12 @@ const HoroscopeReading: React.FC = () => {
       const { horoscope: reading } = await fetchHoroscope(sign, language, token);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating horoscope:', error);
-      setHoroscope(language === 'en'
+      const errorMsg = error?.message || (language === 'en'
         ? 'Failed to generate horoscope. Please try again.'
         : 'Échec de la génération de l\'horoscope. Veuillez réessayer.');
+      setHoroscope(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -356,11 +357,12 @@ const HoroscopeReading: React.FC = () => {
       const { horoscope: reading } = await fetchHoroscope(sign, language, token);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating horoscope:', error);
-      setHoroscope(language === 'en'
+      const errorMsg = error?.message || (language === 'en'
         ? 'Failed to generate horoscope. Please try again.'
         : 'Échec de la génération de l\'horoscope. Veuillez réessayer.');
+      setHoroscope(errorMsg);
     } finally {
       setIsLoading(false);
     }

@@ -62,8 +62,12 @@ const createReadingSchema = z.object({
   spreadType: z.string(),
   interpretationStyle: z.string().optional(),
   question: z.string().max(1000).optional(),
-  cards: z.any(), // JSON field
-  interpretation: z.string(),
+  cards: z.array(z.object({
+    cardId: z.string(),
+    position: z.number(),
+    isReversed: z.boolean().optional(),
+  })).min(1, 'At least one card is required'),
+  interpretation: z.string().min(1, 'Interpretation is required'),
 });
 
 // Create a new reading

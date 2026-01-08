@@ -338,7 +338,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       question
     });
 
-    // Save to backend (for reflection feature)
+    // Save to backend (credits are deducted here)
     try {
       const token = await getToken();
       if (token) {
@@ -357,12 +357,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
           creditCost: totalCost,
         });
         setBackendReadingId(savedReading.id);
+        // Refresh user to get updated credit balance from backend
+        refreshUser();
       }
     } catch (error) {
       // Non-blocking - reflection just won't be available if save fails
       console.error('Failed to save reading to backend:', error);
     }
-  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost]);
+  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -382,11 +384,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   }, [backendReadingId, getToken]);
 
   const getQuestionCost = useCallback(() => {
-    if (sessionQuestionCount === 0) return 0;
-    const nextGlobalCount = (user?.totalQuestionsAsked || 0) + 1;
-    if (nextGlobalCount % 5 === 0) return 0;
-    return 1;
-  }, [sessionQuestionCount, user?.totalQuestionsAsked]);
+    // 2 questions for 1 credit: charge on even counts (0, 2, 4...), free on odd counts (1, 3, 5...)
+    if (sessionQuestionCount % 2 === 0) return 1;
+    return 0;
+  }, [sessionQuestionCount]);
 
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();

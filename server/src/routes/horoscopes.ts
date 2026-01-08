@@ -36,7 +36,8 @@ const getHoroscopeSchema = z.object({
 // Generate horoscope via OpenRouter
 async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
   if (!OPENROUTER_API_KEY) {
-    throw new Error('OpenRouter API key not configured');
+    console.error('OPENROUTER_API_KEY is not set in environment variables');
+    throw new Error('AI service not configured. Please contact support.');
   }
 
   const langName = language === 'en' ? 'English' : 'French';
@@ -98,8 +99,15 @@ Tone: Professional, informative, respectful, and direct.
 
   if (!response.ok) {
     const error = await response.text();
-    console.error('OpenRouter error:', error);
-    throw new Error('Failed to generate horoscope');
+    console.error('OpenRouter API error:', response.status, error);
+    if (response.status === 401) {
+      throw new Error('AI service authentication failed. Please check API key.');
+    } else if (response.status === 429) {
+      throw new Error('AI service rate limited. Please try again in a moment.');
+    } else if (response.status === 402) {
+      throw new Error('AI service credits exhausted. Please contact support.');
+    }
+    throw new Error(`AI service error (${response.status}). Please try again.`);
   }
 
   const data = await response.json() as { choices: Array<{ message: { content: string } }> };
@@ -174,7 +182,8 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Horoscope error:', error);
-    res.status(500).json({ error: 'Failed to get horoscope' });
+    const message = error instanceof Error ? error.message : 'Failed to get horoscope';
+    res.status(500).json({ error: message });
   }
 });
 

@@ -203,25 +203,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       };
     }
 
-    try {
-      const token = await getToken();
-      if (!token) return { success: false, message: 'Not authenticated' };
-
-      const result = await api.deductCredits(token, amount, 'Reading');
-
-      if (result.success) {
-        setUser(prev => prev ? { ...prev, credits: result.newBalance } : null);
-        return { success: true };
-      }
-
-      return { success: false, message: 'Failed to deduct credits' };
-    } catch (error) {
-      console.error('Error deducting credits:', error);
-      // Fallback to local deduction for now
-      setUser(prev => prev ? { ...prev, credits: prev.credits - amount } : null);
-      return { success: true };
-    }
-  }, [user, language, getToken]);
+    // Credits are validated here but actually deducted on the backend when saving the reading
+    // This prevents double-deduction and ensures credits are only spent for completed readings
+    return { success: true };
+  }, [user, language]);
 
   // History
   const addToHistory = useCallback(async (item: ReadingHistoryItem) => {

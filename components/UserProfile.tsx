@@ -4,11 +4,11 @@ import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { DailyBonusCard } from './rewards';
-import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon, ChevronDown, ChevronUp, MessageCircle, BookOpen, Loader2, Pencil } from 'lucide-react';
+import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon, ChevronDown, ChevronUp, MessageCircle, BookOpen, Loader2, Pencil, CreditCard, Gift, Sparkles, TrendingUp, TrendingDown, Receipt } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS, FULL_DECK } from '../constants';
-import { fetchUserReadings, ReadingData } from '../services/apiService';
+import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/apiService';
 
 // Helper to get achievement progress
 const getAchievementProgress = (achievementId: string, user: { totalReadings: number; loginStreak: number; spreadsUsed?: SpreadType[]; achievements?: string[] }) => {
@@ -46,28 +46,36 @@ const UserProfile: React.FC = () => {
     const [backendReadings, setBackendReadings] = useState<ReadingData[]>([]);
     const [isLoadingReadings, setIsLoadingReadings] = useState(true);
     const [readingsError, setReadingsError] = useState<string | null>(null);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
-    // Fetch readings from backend
+    // Fetch readings and transactions from backend
     useEffect(() => {
-        const loadReadings = async () => {
+        const loadData = async () => {
             try {
                 setIsLoadingReadings(true);
+                setIsLoadingTransactions(true);
                 setReadingsError(null);
                 const token = await getToken();
                 if (token) {
-                    const result = await fetchUserReadings(token, 50, 0);
-                    setBackendReadings(result.readings);
+                    const [readingsResult, transactionsResult] = await Promise.all([
+                        fetchUserReadings(token, 50, 0),
+                        fetchUserTransactions(token, 100, 0)
+                    ]);
+                    setBackendReadings(readingsResult.readings);
+                    setTransactions(transactionsResult.transactions);
                 }
             } catch (error) {
-                console.error('Failed to load readings:', error);
-                setReadingsError(language === 'en' ? 'Failed to load reading history' : 'Échec du chargement de l\'historique');
+                console.error('Failed to load data:', error);
+                setReadingsError(language === 'en' ? 'Failed to load history' : 'Échec du chargement de l\'historique');
             } finally {
                 setIsLoadingReadings(false);
+                setIsLoadingTransactions(false);
             }
         };
 
         if (isSignedIn) {
-            loadReadings();
+            loadData();
         }
     }, [isSignedIn, getToken, language]);
 
@@ -260,7 +268,10 @@ const UserProfile: React.FC = () => {
                     </p>
                 ) : (
                     <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                        {backendReadings.map((reading, index) => {
+                        {backendReadings
+                            // Filter out invalid readings (0 cards = incomplete/invalid reading)
+                            .filter(r => Array.isArray(r.cards) && r.cards.length > 0)
+                            .map((reading, index) => {
                             const spread = SPREADS[reading.spreadType as SpreadType];
                             const isExpanded = expandedReading === reading.id;
                             const cards = Array.isArray(reading.cards) ? reading.cards : [];
@@ -434,6 +445,149 @@ const UserProfile: React.FC = () => {
                                 </motion.div>
                             );
                         })}
+                    </div>
+                )}
+            </div>
+
+            {/* Transaction History Section */}
+            <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-6 mb-8">
+                <h2 className="text-xl font-heading text-purple-200 mb-4 flex items-center gap-2">
+                    <Receipt className="w-5 h-5 text-green-400" />
+                    {language === 'en' ? 'Credit History' : 'Historique des Crédits'}
+                </h2>
+                {isLoadingTransactions ? (
+                    <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                        <span className="ml-2 text-slate-400">
+                            {language === 'en' ? 'Loading transactions...' : 'Chargement des transactions...'}
+                        </span>
+                    </div>
+                ) : transactions.length === 0 ? (
+                    <p className="text-slate-400 text-center py-8">
+                        {language === 'en' ? 'No transactions yet.' : 'Pas encore de transactions.'}
+                    </p>
+                ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                        {transactions.map((transaction, index) => {
+                            const isPositive = transaction.amount > 0;
+                            const getTransactionIcon = () => {
+                                switch (transaction.type) {
+                                    case 'PURCHASE':
+                                        return <CreditCard className="w-4 h-4 text-green-400" />;
+                                    case 'DAILY_BONUS':
+                                        return <Gift className="w-4 h-4 text-amber-400" />;
+                                    case 'ACHIEVEMENT':
+                                        return <Award className="w-4 h-4 text-purple-400" />;
+                                    case 'REFERRAL_BONUS':
+                                        return <Share2 className="w-4 h-4 text-blue-400" />;
+                                    case 'READING':
+                                        return <Sparkles className="w-4 h-4 text-pink-400" />;
+                                    case 'QUESTION':
+                                        return <MessageCircle className="w-4 h-4 text-cyan-400" />;
+                                    case 'REFUND':
+                                        return <TrendingUp className="w-4 h-4 text-green-400" />;
+                                    default:
+                                        return <Coins className="w-4 h-4 text-slate-400" />;
+                                }
+                            };
+
+                            const getTransactionLabel = () => {
+                                switch (transaction.type) {
+                                    case 'PURCHASE':
+                                        return language === 'en' ? 'Credit Purchase' : 'Achat de crédits';
+                                    case 'DAILY_BONUS':
+                                        return language === 'en' ? 'Daily Bonus' : 'Bonus quotidien';
+                                    case 'ACHIEVEMENT':
+                                        return language === 'en' ? 'Achievement Reward' : 'Récompense';
+                                    case 'REFERRAL_BONUS':
+                                        return language === 'en' ? 'Referral Bonus' : 'Bonus parrainage';
+                                    case 'READING':
+                                        return language === 'en' ? 'Tarot Reading' : 'Lecture de Tarot';
+                                    case 'QUESTION':
+                                        return language === 'en' ? 'Follow-up Question' : 'Question de suivi';
+                                    case 'REFUND':
+                                        return language === 'en' ? 'Refund' : 'Remboursement';
+                                    default:
+                                        return transaction.type;
+                                }
+                            };
+
+                            return (
+                                <motion.div
+                                    key={transaction.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.02 }}
+                                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                                        isPositive
+                                            ? 'bg-green-900/10 border-green-500/20'
+                                            : 'bg-slate-800/30 border-slate-700/30'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-full ${
+                                            isPositive ? 'bg-green-900/30' : 'bg-slate-800/50'
+                                        }`}>
+                                            {getTransactionIcon()}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-200">
+                                                {getTransactionLabel()}
+                                            </p>
+                                            <p className="text-xs text-slate-500">
+                                                {transaction.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={`text-sm font-bold flex items-center gap-1 ${
+                                            isPositive ? 'text-green-400' : 'text-red-400'
+                                        }`}>
+                                            {isPositive ? (
+                                                <TrendingUp className="w-3 h-3" />
+                                            ) : (
+                                                <TrendingDown className="w-3 h-3" />
+                                            )}
+                                            {isPositive ? '+' : ''}{transaction.amount}
+                                            <Coins className="w-3 h-3 ml-0.5" />
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {new Date(transaction.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Summary Stats */}
+                {transactions.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-slate-700/30 grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                                {language === 'en' ? 'Purchased' : 'Achetés'}
+                            </p>
+                            <p className="text-lg font-bold text-green-400">
+                                +{transactions.filter(t => t.type === 'PURCHASE').reduce((sum, t) => sum + t.amount, 0)}
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                                {language === 'en' ? 'Earned' : 'Gagnés'}
+                            </p>
+                            <p className="text-lg font-bold text-amber-400">
+                                +{transactions.filter(t => ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type)).reduce((sum, t) => sum + t.amount, 0)}
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                                {language === 'en' ? 'Spent' : 'Dépensés'}
+                            </p>
+                            <p className="text-lg font-bold text-red-400">
+                                {transactions.filter(t => ['READING', 'QUESTION'].includes(t.type)).reduce((sum, t) => sum + t.amount, 0)}
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>

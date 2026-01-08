@@ -4,6 +4,40 @@
 
 MysticOracle is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma. Features include tarot readings, daily horoscopes, a blog CMS, user credits system, and full admin dashboard.
 
+## Spec-Kit Reference
+
+This project uses Spec-Kit for documentation-driven development.
+
+### Core Documents
+- `.specify/memory/constitution.md` — Non-negotiable principles
+- `.specify/specs/001-mystic-oracle/spec.md` — Feature specification
+- `.specify/specs/001-mystic-oracle/plan.md` — Implementation phases
+- `.specify/specs/001-mystic-oracle/data-model.md` — Database schema
+- `.specify/specs/001-mystic-oracle/api-spec.md` — API endpoints
+
+### Project Status
+- `docs/Project_status.md` — Current progress
+- `docs/Tech_debt.md` — Known issues to fix
+- `docs/Roadmap.md` — High-level roadmap
+
+## Current Priority
+
+**Phase 1: Stabilization**
+
+Focus on:
+1. Fix remaining bugs (horoscope API, dead endpoints)
+2. Clear tech debt (credit deduction, component splitting)
+3. Add basic tests
+4. Prepare for mobile integration
+
+## Cross-Platform Vision
+
+MysticOracle serves as:
+1. **Standalone Product**: Monetized tarot readings and horoscopes
+2. **Mobile Funnel**: Gateway to AI Tarot Saga mobile game
+
+The backend will be shared between web and mobile, with same Clerk authentication and credit system.
+
 ## Tech Stack
 
 ### Frontend

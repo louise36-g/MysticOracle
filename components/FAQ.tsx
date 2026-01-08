@@ -97,6 +97,8 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
   // Get actual costs from constants
   const singleCardCost = SPREADS[SpreadType.SINGLE].cost;
   const threeCardCost = SPREADS[SpreadType.THREE_CARD].cost;
+  const loveCost = SPREADS[SpreadType.LOVE].cost;
+  const careerCost = SPREADS[SpreadType.CAREER].cost;
   const horseshoeCost = SPREADS[SpreadType.HORSESHOE].cost;
   const celticCrossCost = SPREADS[SpreadType.CELTIC_CROSS].cost;
 
@@ -233,8 +235,8 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {language === 'en'
-                    ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions cost ${FOLLOW_UP_CREDIT_COST} credit each.`
-                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Les questions de suivi coûtent ${FOLLOW_UP_CREDIT_COST} crédit chacune.`
+                    ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Love & Relationships spreads cost ${loveCost} credits. Career Path spreads cost ${careerCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
+                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages Amour & Relations coûtent ${loveCost} crédits. Les tirages Chemin de Carrière coûtent ${careerCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
                   }{' '}
                   <Link to="how-credits-work">{t('faq.credits.seeFullPricing', 'See full pricing')}</Link>
                 </span>
@@ -298,8 +300,8 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               question={t('faq.readings.q2', 'Can I ask follow-up questions?')}
               answer={
                 language === 'en'
-                  ? `Yes. After receiving your reading, you can ask follow-up questions to dive deeper or clarify specific aspects. Each follow-up question costs ${FOLLOW_UP_CREDIT_COST} credit.`
-                  : `Oui. Après avoir reçu votre lecture, vous pouvez poser des questions de suivi pour approfondir ou clarifier des aspects spécifiques. Chaque question de suivi coûte ${FOLLOW_UP_CREDIT_COST} crédit.`
+                  ? `Yes. After receiving your reading, you can ask follow-up questions to dive deeper or clarify specific aspects. You get 2 follow-up questions for ${FOLLOW_UP_CREDIT_COST} credit.`
+                  : `Oui. Après avoir reçu votre lecture, vous pouvez poser des questions de suivi pour approfondir ou clarifier des aspects spécifiques. Vous obtenez 2 questions de suivi pour ${FOLLOW_UP_CREDIT_COST} crédit.`
               }
               isOpen={openItems.has('yr-2')}
               onToggle={() => toggleItem('yr-2')}
@@ -309,10 +311,12 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {t('faq.readings.a3', 'We offer several spread types to suit different needs:')}<br /><br />
-                  <strong className="text-slate-300">{t('faq.readings.spread1', 'Single Card')}</strong> — {t('faq.readings.spread1desc', 'Quick guidance for simple questions')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread2', 'Three Card')}</strong> — {t('faq.readings.spread2desc', 'Past, present, and future perspective')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread3', 'Horseshoe')}</strong> — {t('faq.readings.spread3desc', 'Deeper situation analysis with 7 cards')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread4', 'Celtic Cross')}</strong> — {t('faq.readings.spread4desc', 'Comprehensive 10-card reading for complex questions')}
+                  <strong className="text-slate-300">{t('faq.readings.spread1', 'Single Card')}</strong> ({singleCardCost} {language === 'en' ? 'credit' : 'crédit'}) — {t('faq.readings.spread1desc', 'Quick guidance for simple questions')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread2', 'Three Card')}</strong> ({threeCardCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread2desc', 'Past, present, and future perspective')}<br />
+                  <strong className="text-slate-300">{language === 'en' ? 'Love & Relationships' : 'Amour & Relations'}</strong> ({loveCost} {language === 'en' ? 'credits' : 'crédits'}) — {language === 'en' ? '5-card spread exploring matters of the heart' : 'Tirage à 5 cartes explorant les affaires du cœur'}<br />
+                  <strong className="text-slate-300">{language === 'en' ? 'Career Path' : 'Chemin de Carrière'}</strong> ({careerCost} {language === 'en' ? 'credits' : 'crédits'}) — {language === 'en' ? '5-card spread for professional guidance' : 'Tirage à 5 cartes pour orientation professionnelle'}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread3', 'Horseshoe')}</strong> ({horseshoeCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread3desc', 'Deeper situation analysis with 7 cards')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread4', 'Celtic Cross')}</strong> ({celticCrossCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread4desc', 'Comprehensive 10-card reading for complex questions')}
                 </span>
               }
               isOpen={openItems.has('yr-3')}
