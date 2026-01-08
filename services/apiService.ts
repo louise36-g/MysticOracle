@@ -201,6 +201,7 @@ export interface ReadingData {
   question?: string;
   cards: any;
   interpretation: string;
+  userReflection?: string;
   creditCost: number;
   createdAt: string;
   followUps: {
@@ -242,12 +243,11 @@ export async function addFollowUpQuestion(
   token: string,
   readingId: string,
   question: string,
-  answer: string,
-  creditCost: number
-): Promise<void> {
-  return apiRequest(`/api/readings/${readingId}/followup`, {
+  answer: string
+): Promise<{ id: string; question: string; answer: string; creditCost: number; createdAt: string }> {
+  return apiRequest(`/api/readings/${readingId}/follow-up`, {
     method: 'POST',
-    body: { question, answer, creditCost },
+    body: { question, answer },
     token,
   });
 }

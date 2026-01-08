@@ -29,6 +29,7 @@ interface MarkdownEditorProps {
   placeholder?: string;
   mediaLibrary?: { id: string; url: string; originalName: string }[];
   onMediaUpload?: (file: File) => Promise<string>;
+  onMediaDelete?: (id: string) => Promise<void>;
 }
 
 // Configure marked for safe HTML output
@@ -43,6 +44,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   placeholder = 'Write your content in Markdown...',
   mediaLibrary = [],
   onMediaUpload,
+  onMediaDelete,
 }) => {
   // Convert HTML back to markdown for editing (simple conversion)
   const htmlToMarkdown = (html: string): string => {
@@ -123,8 +125,10 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [deletingMedia, setDeletingMedia] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const modalFileInputRef = useRef<HTMLInputElement>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -258,6 +262,39 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleModalFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onMediaUpload) {
+      setUploading(true);
+      try {
+        const url = await onMediaUpload(file);
+        setImageUrl(url);
+        setImageAlt(file.name.replace(/\.[^/.]+$/, ''));
+      } catch (err) {
+        console.error('Failed to upload image:', err);
+      } finally {
+        setUploading(false);
+      }
+    }
+    if (modalFileInputRef.current) {
+      modalFileInputRef.current.value = '';
+    }
+  };
+
+  const handleMediaDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onMediaDelete) return;
+
+    setDeletingMedia(id);
+    try {
+      await onMediaDelete(id);
+    } catch (err) {
+      console.error('Failed to delete media:', err);
+    } finally {
+      setDeletingMedia(null);
     }
   };
 
@@ -501,6 +538,46 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
               </button>
             </div>
             <div className="space-y-4">
+              {/* Upload Button */}
+              {onMediaUpload && (
+                <div>
+                  <input
+                    ref={modalFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleModalFileSelect}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => modalFileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg transition-colors"
+                  >
+                    {uploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5" />
+                        Upload Image
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-700"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-slate-900 text-slate-500">or enter URL</span>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm text-slate-400 mb-1">Image URL</label>
                 <input
@@ -527,23 +604,39 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                   <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
                   <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
                     {mediaLibrary.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          setImageUrl(item.url);
-                          setImageAlt(item.originalName);
-                        }}
-                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                          imageUrl === item.url ? 'border-purple-500' : 'border-transparent hover:border-purple-500/50'
-                        }`}
-                      >
-                        <img src={item.url} alt={item.originalName} className="w-full h-full object-cover" />
-                        {imageUrl === item.url && (
-                          <div className="absolute inset-0 bg-purple-500/30 flex items-center justify-center">
-                            <Check className="w-6 h-6 text-white" />
-                          </div>
+                      <div key={item.id} className="relative group">
+                        <button
+                          onClick={() => {
+                            setImageUrl(item.url);
+                            setImageAlt(item.originalName);
+                          }}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors w-full ${
+                            imageUrl === item.url ? 'border-purple-500' : 'border-transparent hover:border-purple-500/50'
+                          }`}
+                        >
+                          <img src={item.url} alt={item.originalName} className="w-full h-full object-cover" />
+                          {imageUrl === item.url && (
+                            <div className="absolute inset-0 bg-purple-500/30 flex items-center justify-center">
+                              <Check className="w-6 h-6 text-white" />
+                            </div>
+                          )}
+                        </button>
+                        {/* Delete button */}
+                        {onMediaDelete && (
+                          <button
+                            onClick={(e) => handleMediaDelete(item.id, e)}
+                            disabled={deletingMedia === item.id}
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            title="Delete image"
+                          >
+                            {deletingMedia === item.id ? (
+                              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <X className="w-3 h-3" />
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>

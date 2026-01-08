@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { useUser, useClerk } from '@clerk/clerk-react';
+import React, { useState, useEffect } from 'react';
+import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { DailyBonusCard } from './rewards';
-import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Star, User as UserIcon, ChevronDown, ChevronUp, MessageCircle, BookOpen, Loader2, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS, FULL_DECK } from '../constants';
+import { fetchUserReadings, ReadingData } from '../services/apiService';
 
 // Helper to get achievement progress
 const getAchievementProgress = (achievementId: string, user: { totalReadings: number; loginStreak: number; spreadsUsed?: SpreadType[]; achievements?: string[] }) => {
@@ -34,13 +35,41 @@ const getAchievementProgress = (achievementId: string, user: { totalReadings: nu
 };
 
 const UserProfile: React.FC = () => {
-    const { user, language, logout, history } = useApp();
+    const { user, language, logout } = useApp();
     const { user: clerkUser, isSignedIn } = useUser();
     const { signOut } = useClerk();
+    const { getToken } = useAuth();
 
     const [isCopied, setIsCopied] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
     const [expandedReading, setExpandedReading] = useState<string | null>(null);
+    const [backendReadings, setBackendReadings] = useState<ReadingData[]>([]);
+    const [isLoadingReadings, setIsLoadingReadings] = useState(true);
+    const [readingsError, setReadingsError] = useState<string | null>(null);
+
+    // Fetch readings from backend
+    useEffect(() => {
+        const loadReadings = async () => {
+            try {
+                setIsLoadingReadings(true);
+                setReadingsError(null);
+                const token = await getToken();
+                if (token) {
+                    const result = await fetchUserReadings(token, 50, 0);
+                    setBackendReadings(result.readings);
+                }
+            } catch (error) {
+                console.error('Failed to load readings:', error);
+                setReadingsError(language === 'en' ? 'Failed to load reading history' : 'Échec du chargement de l\'historique');
+            } finally {
+                setIsLoadingReadings(false);
+            }
+        };
+
+        if (isSignedIn) {
+            loadReadings();
+        }
+    }, [isSignedIn, getToken, language]);
 
     if (!isSignedIn) return null;
 
@@ -216,16 +245,29 @@ const UserProfile: React.FC = () => {
                         {user?.totalReadings || 0} {language === 'en' ? 'total readings' : 'lectures au total'}
                     </span>
                 </h2>
-                {history.length === 0 ? (
+                {isLoadingReadings ? (
+                    <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                        <span className="ml-2 text-slate-400">
+                            {language === 'en' ? 'Loading readings...' : 'Chargement des lectures...'}
+                        </span>
+                    </div>
+                ) : readingsError ? (
+                    <p className="text-red-400 text-center py-8">{readingsError}</p>
+                ) : backendReadings.length === 0 ? (
                     <p className="text-slate-400 text-center py-8">
                         {language === 'en' ? 'No readings yet. Start your journey!' : 'Pas encore de lectures. Commencez votre voyage!'}
                     </p>
                 ) : (
-                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                        {history.slice(0, 20).map((reading, index) => {
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                        {backendReadings.map((reading, index) => {
                             const spread = SPREADS[reading.spreadType as SpreadType];
                             const isExpanded = expandedReading === reading.id;
-                            const cardDetails = reading.cards?.map(cardId => FULL_DECK.find(c => c.id === cardId)).filter(Boolean) || [];
+                            const cards = Array.isArray(reading.cards) ? reading.cards : [];
+                            const cardDetails = cards.map((c: any) => {
+                                const card = FULL_DECK.find(fc => fc.id === c.cardId);
+                                return { ...card, isReversed: c.isReversed, position: c.position };
+                            }).filter(c => c.id);
 
                             return (
                                 <motion.div
@@ -241,13 +283,25 @@ const UserProfile: React.FC = () => {
                                     >
                                         <div className="flex justify-between items-start">
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap">
                                                     <h3 className="text-purple-200 font-medium">
                                                         {spread ? (language === 'en' ? spread.nameEn : spread.nameFr) : reading.spreadType}
                                                     </h3>
                                                     <span className="text-xs bg-purple-900/30 text-purple-300 px-2 py-0.5 rounded">
-                                                        {reading.cards?.length || 0} {language === 'en' ? 'cards' : 'cartes'}
+                                                        {cardDetails.length} {language === 'en' ? 'cards' : 'cartes'}
                                                     </span>
+                                                    {reading.followUps && reading.followUps.length > 0 && (
+                                                        <span className="text-xs bg-blue-900/30 text-blue-300 px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <MessageCircle className="w-3 h-3" />
+                                                            {reading.followUps.length} {language === 'en' ? 'Q&A' : 'Q&R'}
+                                                        </span>
+                                                    )}
+                                                    {reading.userReflection && (
+                                                        <span className="text-xs bg-purple-900/30 text-purple-300 px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <Pencil className="w-3 h-3" />
+                                                            {language === 'en' ? 'Reflection' : 'Réflexion'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 {reading.question && (
                                                     <p className="text-sm text-slate-400 italic mt-1 line-clamp-1">"{reading.question}"</p>
@@ -255,7 +309,7 @@ const UserProfile: React.FC = () => {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-500">
-                                                    {new Date(reading.date).toLocaleDateString()}
+                                                    {new Date(reading.createdAt).toLocaleDateString()}
                                                 </span>
                                                 {isExpanded ? (
                                                     <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -275,19 +329,20 @@ const UserProfile: React.FC = () => {
                                                 transition={{ duration: 0.2 }}
                                                 className="border-t border-slate-700/30"
                                             >
-                                                <div className="p-4 space-y-3">
+                                                <div className="p-4 space-y-4">
                                                     {/* Cards drawn */}
                                                     <div>
                                                         <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">
                                                             {language === 'en' ? 'Cards Drawn' : 'Cartes Tirées'}
                                                         </p>
                                                         <div className="flex flex-wrap gap-2">
-                                                            {cardDetails.map((card, i) => (
+                                                            {cardDetails.map((card: any, i: number) => (
                                                                 <span
                                                                     key={i}
                                                                     className="text-xs bg-slate-700/50 text-amber-200 px-2 py-1 rounded border border-amber-500/20"
                                                                 >
                                                                     {language === 'en' ? card?.nameEn : card?.nameFr}
+                                                                    {card?.isReversed && <span className="text-amber-500/70 ml-1">(R)</span>}
                                                                 </span>
                                                             ))}
                                                         </div>
@@ -295,18 +350,81 @@ const UserProfile: React.FC = () => {
 
                                                     {/* Position meanings */}
                                                     {spread && cardDetails.length > 0 && (
-                                                        <div className="grid gap-2 mt-3">
-                                                            {cardDetails.map((card, i) => {
+                                                        <div className="grid gap-2">
+                                                            {cardDetails.map((card: any, i: number) => {
                                                                 const positionMeaning = language === 'en'
                                                                     ? spread.positionMeaningsEn[i]
                                                                     : spread.positionMeaningsFr[i];
                                                                 return (
                                                                     <div key={i} className="flex items-center gap-2 text-xs">
-                                                                        <span className="text-slate-500 w-24 shrink-0">{positionMeaning}:</span>
-                                                                        <span className="text-purple-200">{language === 'en' ? card?.nameEn : card?.nameFr}</span>
+                                                                        <span className="text-slate-500 w-28 shrink-0">{positionMeaning}:</span>
+                                                                        <span className="text-purple-200">
+                                                                            {language === 'en' ? card?.nameEn : card?.nameFr}
+                                                                            {card?.isReversed && <span className="text-amber-500/70 ml-1">({language === 'en' ? 'Reversed' : 'Renversée'})</span>}
+                                                                        </span>
                                                                     </div>
                                                                 );
                                                             })}
+                                                        </div>
+                                                    )}
+
+                                                    {/* AI Interpretation */}
+                                                    {reading.interpretation && (
+                                                        <div className="mt-4 pt-4 border-t border-slate-700/30">
+                                                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                                                <BookOpen className="w-3 h-3" />
+                                                                {language === 'en' ? 'Oracle\'s Interpretation' : 'Interprétation de l\'Oracle'}
+                                                            </p>
+                                                            <div className="bg-slate-900/50 rounded-lg p-4 max-h-[300px] overflow-y-auto">
+                                                                <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                                                    {reading.interpretation.split('\n').map((line, i) => {
+                                                                        if (line.startsWith('**')) return <p key={i} className="font-semibold text-amber-200 mt-3 mb-1">{line.replace(/\*\*/g, '')}</p>;
+                                                                        if (line.startsWith('#')) return <p key={i} className="font-bold text-purple-300 mt-4 mb-2">{line.replace(/#/g, '')}</p>;
+                                                                        return line.trim() ? <p key={i} className="mb-2">{line.replace(/\*\*/g, '')}</p> : null;
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Follow-up Questions & Answers */}
+                                                    {reading.followUps && reading.followUps.length > 0 && (
+                                                        <div className="mt-4 pt-4 border-t border-slate-700/30">
+                                                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1">
+                                                                <MessageCircle className="w-3 h-3" />
+                                                                {language === 'en' ? 'Follow-up Questions' : 'Questions de Suivi'}
+                                                            </p>
+                                                            <div className="space-y-3">
+                                                                {reading.followUps.map((followUp, i) => (
+                                                                    <div key={followUp.id} className="bg-slate-900/50 rounded-lg p-3">
+                                                                        <p className="text-sm text-purple-200 font-medium mb-2">
+                                                                            <span className="text-purple-400 mr-2">Q{i + 1}:</span>
+                                                                            {followUp.question}
+                                                                        </p>
+                                                                        <p className="text-sm text-slate-300 pl-6 whitespace-pre-wrap">
+                                                                            {followUp.answer}
+                                                                        </p>
+                                                                        <p className="text-xs text-slate-500 mt-2 pl-6">
+                                                                            {new Date(followUp.createdAt).toLocaleString()}
+                                                                        </p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* User Reflection */}
+                                                    {reading.userReflection && (
+                                                        <div className="mt-4 pt-4 border-t border-slate-700/30">
+                                                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                                                <Pencil className="w-3 h-3" />
+                                                                {language === 'en' ? 'Your Reflection' : 'Votre Réflexion'}
+                                                            </p>
+                                                            <div className="bg-gradient-to-br from-purple-900/20 to-slate-900/50 rounded-lg p-4 border border-purple-500/20">
+                                                                <p className="text-sm text-purple-100 italic whitespace-pre-wrap leading-relaxed">
+                                                                    "{reading.userReflection}"
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>

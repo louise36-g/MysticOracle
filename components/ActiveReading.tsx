@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
 import { generateTarotReading, generateFollowUpReading } from '../services/openrouterService';
-import { summarizeQuestion, createReading, updateReadingReflection } from '../services/apiService';
+import { summarizeQuestion, createReading, updateReadingReflection, addFollowUpQuestion } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
 import Card from './Card';
 import Button from './Button';
@@ -417,6 +417,19 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       });
 
       setChatHistory(prev => [...prev, { role: 'model', content: response }]);
+
+      // Save follow-up question to backend
+      if (backendReadingId) {
+        try {
+          const token = await getToken();
+          if (token) {
+            await addFollowUpQuestion(token, backendReadingId, userMsg, response);
+          }
+        } catch (saveError) {
+          // Non-blocking - follow-up just won't be saved to history if save fails
+          console.error('Failed to save follow-up to backend:', saveError);
+        }
+      }
     } catch (error) {
       console.error('Failed to generate follow-up response:', error);
       const errorMessage = language === 'en'
@@ -426,7 +439,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     } finally {
       setIsChatLoading(false);
     }
-  }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, readingText, chatHistory]);
+  }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, readingText, chatHistory, backendReadingId, getToken]);
 
   const handleChatInputChange = useCallback((value: string) => {
     setChatInput(value);

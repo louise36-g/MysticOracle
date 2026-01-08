@@ -3,7 +3,7 @@ import DOMPurify from 'dompurify';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
-import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle, X, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BlogPostProps {
@@ -24,6 +24,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   const loadPost = useCallback(async () => {
     try {
@@ -306,10 +307,10 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       <motion.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-8 text-center"
       >
         {/* Categories */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {post.categories.map((cat) => (
             <button
               key={cat.id}
@@ -328,7 +329,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         </h1>
 
         {/* Meta */}
-        <div className="flex flex-wrap items-center gap-4 text-slate-400 text-sm mb-6">
+        <div className="flex flex-wrap justify-center items-center gap-4 text-slate-400 text-sm mb-6">
           <span className="flex items-center gap-1">
             <User className="w-4 h-4" />
             {post.authorName}
@@ -348,7 +349,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         </div>
 
         {/* Share */}
-        <div className="flex items-center gap-3">
+        <div className="flex justify-center items-center gap-3">
           <span className="text-slate-500 flex items-center gap-1">
             <Share2 className="w-4 h-4" />
             {language === 'en' ? 'Share:' : 'Partager:'}
@@ -390,13 +391,19 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="mb-10 rounded-2xl overflow-hidden border border-purple-500/20"
+          className="mb-10 rounded-2xl overflow-hidden border border-purple-500/20 group cursor-pointer"
+          onClick={() => setLightboxImage(post.coverImage!)}
         >
-          <img
-            src={post.coverImage}
-            alt={post.coverImageAlt || title}
-            className="w-full aspect-video object-cover"
-          />
+          <div className="relative">
+            <img
+              src={post.coverImage}
+              alt={post.coverImageAlt || title}
+              className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
         </motion.div>
       )}
 
@@ -405,11 +412,17 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="prose prose-invert prose-purple max-w-none mb-12"
+        className="prose prose-invert prose-purple max-w-none mb-12 blog-content-images"
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         style={{
           // Custom prose styling
           lineHeight: '1.8',
+        }}
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'IMG') {
+            setLightboxImage((target as HTMLImageElement).src);
+          }
         }}
       />
 
@@ -478,6 +491,28 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
             ))}
           </div>
         </motion.section>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Full size image"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </article>
   );

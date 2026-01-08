@@ -6,6 +6,7 @@ import {
   fetchAdminBlogTags,
   fetchAdminBlogMedia,
   uploadBlogMedia,
+  deleteBlogMedia,
   createBlogPost,
   updateBlogPost,
   BlogPost,
@@ -28,6 +29,7 @@ import {
   ExternalLink,
   Code,
   Upload,
+  X,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
@@ -60,6 +62,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Sidebar data
@@ -108,7 +111,19 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     }
   };
 
-  const handleSave = async () => {
+  const handleMediaDelete = async (id: string): Promise<void> => {
+    const token = await getToken();
+    if (!token) throw new Error('No token');
+    setDeletingMediaId(id);
+    try {
+      await deleteBlogMedia(token, id);
+      await loadMedia();
+    } finally {
+      setDeletingMediaId(null);
+    }
+  };
+
+  const handleSave = async (publish: boolean = false) => {
     if (!post.slug || !post.titleEn || !post.authorName) {
       setError('Please fill in required fields: Slug, Title (EN), and Author Name');
       return;
@@ -136,7 +151,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         metaDescFr: post.metaDescFr,
         ogImage: post.ogImage,
         authorName: post.authorName,
-        status: post.status,
+        status: publish ? 'PUBLISHED' : post.status,
         featured: post.featured,
         readTimeMinutes: post.readTimeMinutes,
         categoryIds: post.categoryIds || [],
@@ -279,9 +294,9 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
             {/* Save button */}
             <button
-              onClick={handleSave}
+              onClick={() => handleSave(false)}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 disabled:opacity-50 text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 text-sm font-medium"
             >
               {saving ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -290,6 +305,22 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
               )}
               {language === 'en' ? 'Save' : 'Enregistrer'}
             </button>
+
+            {/* Publish & Save button */}
+            {post.status !== 'PUBLISHED' && (
+              <button
+                onClick={() => handleSave(true)}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 disabled:opacity-50 text-sm font-medium"
+              >
+                {saving ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+                {language === 'en' ? 'Publish' : 'Publier'}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -402,6 +433,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                   placeholder="Write your post in Markdown..."
                   mediaLibrary={media}
                   onMediaUpload={handleMediaUpload}
+                  onMediaDelete={handleMediaDelete}
                 />
               ) : (
                 <MarkdownEditor
@@ -410,6 +442,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                   placeholder="Écrivez votre article en Markdown..."
                   mediaLibrary={media}
                   onMediaUpload={handleMediaUpload}
+                  onMediaDelete={handleMediaDelete}
                 />
               )
             ) : (
@@ -420,6 +453,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                   placeholder="Start writing your post..."
                   mediaLibrary={media}
                   onMediaUpload={handleMediaUpload}
+                  onMediaDelete={handleMediaDelete}
                 />
               ) : (
                 <RichTextEditor
@@ -428,6 +462,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                   placeholder="Commencez à écrire votre article..."
                   mediaLibrary={media}
                   onMediaUpload={handleMediaUpload}
+                  onMediaDelete={handleMediaDelete}
                 />
               )
             )}
@@ -566,15 +601,28 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                     <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Or select from library' : 'Ou choisir depuis bibliothèque'}</label>
                     <div className="grid grid-cols-4 gap-1 max-h-24 overflow-y-auto">
                       {media.slice(0, 12).map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => setPost({ ...post, coverImage: item.url, coverImageAlt: item.originalName })}
-                          className={`aspect-square rounded overflow-hidden border-2 ${
-                            post.coverImage === item.url ? 'border-purple-500' : 'border-transparent'
-                          }`}
-                        >
-                          <img src={item.url} alt="" className="w-full h-full object-cover" />
-                        </button>
+                        <div key={item.id} className="relative group">
+                          <button
+                            onClick={() => setPost({ ...post, coverImage: item.url, coverImageAlt: item.originalName })}
+                            className={`aspect-square rounded overflow-hidden border-2 w-full ${
+                              post.coverImage === item.url ? 'border-purple-500' : 'border-transparent'
+                            }`}
+                          >
+                            <img src={item.url} alt="" className="w-full h-full object-cover" />
+                          </button>
+                          <button
+                            onClick={() => handleMediaDelete(item.id)}
+                            disabled={deletingMediaId === item.id}
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            title="Delete image"
+                          >
+                            {deletingMediaId === item.id ? (
+                              <div className="w-2.5 h-2.5 border border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <X className="w-2.5 h-2.5" />
+                            )}
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>

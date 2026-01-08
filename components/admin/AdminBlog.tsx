@@ -851,7 +851,12 @@ const AdminBlog: React.FC = () => {
                             <div className="flex items-center gap-2">
                               {post.featured && <Star className="w-4 h-4 text-amber-400" />}
                               <div>
-                                <p className="text-slate-200 font-medium">{language === 'en' ? post.titleEn : post.titleFr}</p>
+                                <button
+                                  onClick={() => handleEditPost(post)}
+                                  className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
+                                >
+                                  {language === 'en' ? post.titleEn : post.titleFr}
+                                </button>
                                 <p className="text-slate-500 text-sm">{post.slug}</p>
                               </div>
                             </div>
