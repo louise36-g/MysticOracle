@@ -1,3 +1,8 @@
+---
+name: context-optimization
+description: Manage context effectively in long Claude Code conversations. Use when sessions exceed 50+ tool calls, during complex multi-file refactoring, extended debugging, or large codebase exploration. Strategies include targeted file reading, focused searches, parallel operations, and agent delegation.
+---
+
 # Context Optimization Skill
 
 Strategies for managing context effectively in long Claude Code conversations to maximize productivity and minimize token usage.

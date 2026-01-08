@@ -1,3 +1,8 @@
+---
+name: skill-orchestrator
+description: Automatically invoke the right skills and agents for MysticOracle tasks. Use before any response to check if a skill or agent should be invoked first. Maps UI work to frontend-design, new code to test-driven-development, React to react-specialist, database to postgres-pro, refactoring to refactoring-specialist, accessibility to accessibility-tester, SEO to seo-specialist, AI prompts to prompt-engineer.
+---
+
 # Skill Orchestrator
 
 Automatically invoke the right skills and agents for MysticOracle tasks. Based on [obra/superpowers](https://github.com/obra/superpowers).

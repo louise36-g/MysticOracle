@@ -1,3 +1,8 @@
+---
+name: context-compression
+description: Reduce token usage in long Claude Code sessions. Use when working with large files, extensive searches, or when approaching token limits. Techniques include file offsets, filtered searches, batched operations, and compressed responses.
+---
+
 # Context Compression Skill
 
 Techniques for reducing token usage in Claude Code sessions while maintaining effectiveness.
