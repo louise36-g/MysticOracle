@@ -115,37 +115,10 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     FORCE_BODY: true,
   };
 
-  // Split content at FAQ section, then sanitize each part separately
-  // This allows us to render styled FAQ component in place of the original FAQ
-  const contentParts = useMemo(() => {
-    if (!article?.content) return { before: '', after: '' };
-
-    const content = article.content;
-
-    // Find FAQ section - matches FAQ heading and all content until next major heading or end
-    const faqPattern = /<h2[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi;
-
-    const match = faqPattern.exec(content);
-
-    if (!match) {
-      // No FAQ found in content - return all content as "before"
-      return {
-        before: DOMPurify.sanitize(content, sanitizeConfig),
-        after: ''
-      };
-    }
-
-    // Split at the FAQ section
-    const faqStartIndex = match.index;
-    const faqEndIndex = faqStartIndex + match[0].length;
-
-    const beforeFAQ = content.substring(0, faqStartIndex);
-    const afterFAQ = content.substring(faqEndIndex);
-
-    return {
-      before: DOMPurify.sanitize(beforeFAQ, sanitizeConfig),
-      after: DOMPurify.sanitize(afterFAQ, sanitizeConfig)
-    };
+  // Sanitize content for safe rendering
+  const sanitizedContent = useMemo(() => {
+    if (!article?.content) return '';
+    return DOMPurify.sanitize(article.content, sanitizeConfig);
   }, [article?.content]);
 
   const handleNavigate = (path: string) => {
@@ -332,69 +305,46 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           </motion.div>
         )}
 
-        {/* Article body with styled FAQ rendered in place */}
-        <div className="mb-12">
-          {/* Content before FAQ - sanitized with DOMPurify */}
-          <motion.div
+        {/* Article body */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="prose prose-invert prose-purple max-w-none mb-12"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+          style={{
+            lineHeight: '1.8',
+          }}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              setLightboxImage((target as HTMLImageElement).src);
+            }
+          }}
+        />
+
+        {/* FAQ Section - from JSON data */}
+        {article.faq && article.faq.length > 0 && (
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="prose prose-invert prose-purple max-w-none"
-            dangerouslySetInnerHTML={{ __html: contentParts.before }}
-            style={{
-              lineHeight: '1.8',
-            }}
-            onClick={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.tagName === 'IMG') {
-                setLightboxImage((target as HTMLImageElement).src);
-              }
-            }}
-          />
-
-          {/* FAQ Section - Styled and positioned where original FAQ was in content */}
-          {article.faq && article.faq.length > 0 && (
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="my-8 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20"
-            >
-              <h2 className="text-2xl font-heading text-purple-300 mb-6 flex items-center gap-2">
-                <HelpCircle className="w-6 h-6" />
-                {language === 'en' ? 'Frequently Asked Questions' : 'Questions Fréquentes'}
-              </h2>
-              <div className="space-y-6">
-                {article.faq.map((item: any, index: number) => (
-                  <div key={index} className="border-b border-purple-500/10 pb-6 last:border-b-0">
-                    <h3 className="text-lg text-purple-200 font-medium mb-2">{item.question}</h3>
-                    <p className="text-slate-300 leading-relaxed">{item.answer}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
-          )}
-
-          {/* Content after FAQ (if any) */}
-          {contentParts.after && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="prose prose-invert prose-purple max-w-none"
-              dangerouslySetInnerHTML={{ __html: contentParts.after }}
-              style={{
-                lineHeight: '1.8',
-              }}
-              onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (target.tagName === 'IMG') {
-                  setLightboxImage((target as HTMLImageElement).src);
-                }
-              }}
-            />
-          )}
-        </div>
+            transition={{ delay: 0.3 }}
+            className="mb-12 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20"
+          >
+            <h2 className="text-2xl font-heading text-purple-300 mb-6 flex items-center gap-2">
+              <HelpCircle className="w-6 h-6" />
+              {language === 'en' ? 'Frequently Asked Questions' : 'Questions Fréquentes'}
+            </h2>
+            <div className="space-y-6">
+              {article.faq.map((item: any, index: number) => (
+                <div key={index} className="border-b border-purple-500/10 pb-6 last:border-b-0">
+                  <h3 className="text-lg text-purple-200 font-medium mb-2">{item.question}</h3>
+                  <p className="text-slate-300 leading-relaxed">{item.answer}</p>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         {/* Tags */}
         {article.tags.length > 0 && (
