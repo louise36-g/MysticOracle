@@ -197,8 +197,261 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     });
   };
 
-  // Placeholder for rest of component
-  return <div>AdminTarotArticles Component</div>;
+  return (
+    <div>
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center justify-between">
+          <p className="text-red-400">{error}</p>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Filter Bar */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex-1 min-w-[200px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder={language === 'en' ? 'Search by title or slug...' : 'Rechercher par titre ou slug...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500"
+          />
+        </div>
+
+        <select
+          value={cardTypeFilter}
+          onChange={(e) => setCardTypeFilter(e.target.value as CardType | '')}
+          className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
+        >
+          <option value="">{language === 'en' ? 'All Types' : 'Tous les types'}</option>
+          <option value="MAJOR_ARCANA">Major Arcana</option>
+          <option value="SUIT_OF_WANDS">Wands</option>
+          <option value="SUIT_OF_CUPS">Cups</option>
+          <option value="SUIT_OF_SWORDS">Swords</option>
+          <option value="SUIT_OF_PENTACLES">Pentacles</option>
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as ArticleStatus | '')}
+          className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
+        >
+          <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
+          <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>
+          <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publié'}</option>
+          <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archivé'}</option>
+        </select>
+
+        <button
+          onClick={() => onNavigateToImport(null)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
+        >
+          <Upload className="w-4 h-4" />
+          {language === 'en' ? 'Go to Import' : 'Aller à Import'}
+        </button>
+      </div>
+
+      {/* Articles Table */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-purple-500/20 bg-slate-800/50">
+                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Article' : 'Article'}</th>
+                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
+                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Stats' : 'Stats'}</th>
+                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {articles.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-slate-400">
+                      {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
+                    </td>
+                  </tr>
+                ) : (
+                  articles.map((article) => (
+                    <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={article.featuredImage || '/placeholder-card.png'}
+                            alt={article.featuredImageAlt || article.title}
+                            className="w-20 h-20 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/placeholder-card.png';
+                            }}
+                          />
+                          <div>
+                            <button
+                              onClick={() => onNavigateToImport(article.id)}
+                              className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
+                            >
+                              {article.title}
+                            </button>
+                            <p className="text-slate-500 text-sm">{article.slug}</p>
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mt-1 ${cardTypeBadges[article.cardType as CardType].bg} ${cardTypeBadges[article.cardType as CardType].text}`}>
+                              {cardTypeBadges[article.cardType as CardType].label}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">{getStatusBadge(article.status as ArticleStatus)}</td>
+                      <td className="p-4">
+                        <div className="text-sm">
+                          <p className="text-slate-400">{getWordCount(article.content).toLocaleString()} words</p>
+                          {article.datePublished && (
+                            <p className="text-slate-500 text-xs mt-1">
+                              {formatDate(article.datePublished)}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          {article.status === 'PUBLISHED' && (
+                            <a
+                              href={`/tarot/articles/${article.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
+                              title={language === 'en' ? 'Preview' : 'Aperçu'}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => onNavigateToImport(article.id)}
+                            className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
+                            title={language === 'en' ? 'Edit' : 'Modifier'}
+                            disabled={actionLoading === article.id}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleTogglePublish(article)}
+                            className={`p-2 rounded-lg ${
+                              article.status === 'PUBLISHED'
+                                ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
+                                : 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
+                            }`}
+                            title={article.status === 'PUBLISHED'
+                              ? (language === 'en' ? 'Unpublish' : 'Dépublier')
+                              : (language === 'en' ? 'Publish' : 'Publier')}
+                            disabled={actionLoading === article.id}
+                          >
+                            {actionLoading === article.id ? (
+                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : article.status === 'PUBLISHED' ? (
+                              <XCircle className="w-4 h-4" />
+                            ) : (
+                              <CheckCircle className="w-4 h-4" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(article)}
+                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
+                            title={language === 'en' ? 'Delete' : 'Supprimer'}
+                            disabled={actionLoading === article.id}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-slate-400 text-sm">
+            {language === 'en'
+              ? `Showing ${articles.length} of ${pagination.total} articles`
+              : `Affichage de ${articles.length} sur ${pagination.total} articles`}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
+              disabled={pagination.page === 1}
+              className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-slate-300 px-4">{pagination.page} / {pagination.totalPages}</span>
+            <button
+              onClick={() => setPagination((p) => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
+              disabled={pagination.page >= pagination.totalPages}
+              className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Modal */}
+      <AnimatePresence>
+        {confirmModal.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} })}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-800 rounded-xl border border-purple-500/20 p-6 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-heading text-amber-400 mb-4">{confirmModal.title}</h3>
+              <p className="text-slate-300 mb-6">{confirmModal.message}</p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} })}
+                  className="px-4 py-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600"
+                >
+                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  className={`px-4 py-2 rounded-lg ${
+                    confirmModal.isDangerous
+                      ? 'bg-red-600 text-white hover:bg-red-500'
+                      : 'bg-purple-600 text-white hover:bg-purple-500'
+                  }`}
+                >
+                  {language === 'en' ? 'Confirm' : 'Confirmer'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export default AdminTarotArticles;
