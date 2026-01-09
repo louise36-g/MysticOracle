@@ -1,40 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { validateArticleExtended, convertToPrismaFormat } from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
 
-// Configure multer for tarot media uploads
-const tarotMediaStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'tarot');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const tarotMediaUpload = multer({
-  storage: tarotMediaStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type'));
-    }
-  }
-});
+// Note: Media is now handled by the shared blog media system
+// See /api/blog/admin/media endpoints in blog.ts
 
 const router = Router();
 
@@ -802,156 +774,6 @@ router.delete('/admin/tags/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting tarot tag:', error);
     res.status(500).json({ error: 'Failed to delete tag' });
-  }
-});
-
-// ============================================
-// MEDIA MANAGEMENT
-// ============================================
-
-const listMediaSchema = z.object({
-  deleted: z.coerce.boolean().optional(),
-});
-
-/**
- * GET /api/tarot-articles/admin/media
- * List all tarot media (with trash filter)
- */
-router.get('/admin/media', async (req, res) => {
-  try {
-    const params = listMediaSchema.parse(req.query);
-    const where = params.deleted
-      ? { deletedAt: { not: null } }
-      : { deletedAt: null };
-
-    const media = await prisma.tarotMedia.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
-    res.json({ media });
-  } catch (error) {
-    console.error('Error fetching tarot media:', error);
-    res.status(500).json({ error: 'Failed to fetch media' });
-  }
-});
-
-/**
- * POST /api/tarot-articles/admin/media/upload
- * Upload a new media file
- */
-router.post('/admin/media/upload', tarotMediaUpload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    // Use backend URL for images since they're served from the backend's public folder
-    const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
-    const url = `${baseUrl}/uploads/tarot/${req.file.filename}`;
-
-    const media = await prisma.tarotMedia.create({
-      data: {
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        url,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
-      },
-    });
-
-    res.status(201).json({ media });
-  } catch (error) {
-    console.error('Error uploading tarot media:', error);
-    res.status(500).json({ error: 'Failed to upload media' });
-  }
-});
-
-/**
- * PATCH /api/tarot-articles/admin/media/:id
- * Update media metadata
- */
-const updateMediaSchema = z.object({
-  altText: z.string().max(500).optional(),
-  caption: z.string().max(500).optional(),
-});
-
-router.patch('/admin/media/:id', async (req, res) => {
-  try {
-    const data = updateMediaSchema.parse(req.body);
-    const media = await prisma.tarotMedia.update({
-      where: { id: req.params.id },
-      data,
-    });
-    res.json({ media });
-  } catch (error) {
-    console.error('Error updating tarot media:', error);
-    res.status(500).json({ error: 'Failed to update media' });
-  }
-});
-
-/**
- * DELETE /api/tarot-articles/admin/media/:id
- * Soft delete media (move to trash)
- */
-router.delete('/admin/media/:id', async (req, res) => {
-  try {
-    await prisma.tarotMedia.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting tarot media:', error);
-    res.status(500).json({ error: 'Failed to delete media' });
-  }
-});
-
-/**
- * POST /api/tarot-articles/admin/media/:id/restore
- * Restore media from trash
- */
-router.post('/admin/media/:id/restore', async (req, res) => {
-  try {
-    await prisma.tarotMedia.update({
-      where: { id: req.params.id },
-      data: { deletedAt: null },
-    });
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error restoring tarot media:', error);
-    res.status(500).json({ error: 'Failed to restore media' });
-  }
-});
-
-/**
- * DELETE /api/tarot-articles/admin/media/:id/permanent
- * Permanently delete media (from trash only)
- */
-router.delete('/admin/media/:id/permanent', async (req, res) => {
-  try {
-    const media = await prisma.tarotMedia.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!media) {
-      return res.status(404).json({ error: 'Media not found' });
-    }
-
-    if (!media.deletedAt) {
-      return res.status(400).json({ error: 'Media must be in trash first' });
-    }
-
-    // Delete file from disk
-    const filePath = path.join(process.cwd(), 'uploads', 'tarot', media.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    await prisma.tarotMedia.delete({ where: { id: req.params.id } });
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error permanently deleting tarot media:', error);
-    res.status(500).json({ error: 'Failed to permanently delete media' });
   }
 });
 

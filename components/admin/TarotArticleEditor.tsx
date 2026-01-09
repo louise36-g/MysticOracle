@@ -6,13 +6,14 @@ import {
   updateTarotArticle,
   fetchTarotCategories,
   fetchTarotTags,
-  fetchTarotMedia,
-  uploadTarotMedia,
-  deleteTarotMedia,
   TarotArticle,
   TarotCategory,
   TarotTag,
-  TarotMedia,
+  // Use blog media system - it already works!
+  fetchAdminBlogMedia,
+  uploadBlogMedia,
+  deleteBlogMedia,
+  BlogMedia,
 } from '../../services/apiService';
 import {
   ArrowLeft,
@@ -78,7 +79,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   // Sidebar data
   const [categories, setCategories] = useState<TarotCategory[]>([]);
   const [tags, setTags] = useState<TarotTag[]>([]);
-  const [media, setMedia] = useState<TarotMedia[]>([]);
+  const [media, setMedia] = useState<BlogMedia[]>([]); // Use shared blog media
 
   // Collapsible sections
   const [showCoverImage, setShowCoverImage] = useState(true);
@@ -113,7 +114,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       const [catResult, tagResult, mediaResult] = await Promise.all([
         fetchTarotCategories(token),
         fetchTarotTags(token),
-        fetchTarotMedia(token),
+        fetchAdminBlogMedia(token), // Use shared blog media system
       ]);
       setCategories(catResult.categories);
       setTags(tagResult.tags);
@@ -127,7 +128,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     try {
       const token = await getToken();
       if (!token) return;
-      const result = await fetchTarotMedia(token);
+      const result = await fetchAdminBlogMedia(token); // Use shared blog media system
       setMedia(result.media);
     } catch (err) {
       console.error('Failed to load media:', err);
@@ -170,7 +171,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const handleMediaUpload = async (file: File): Promise<string> => {
     const token = await getToken();
     if (!token) throw new Error('No token');
-    const result = await uploadTarotMedia(token, file);
+    const result = await uploadBlogMedia(token, file); // Use shared blog media system
     await loadMedia();
     return result.media.url;
   };
@@ -178,7 +179,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const handleMediaDelete = async (id: string): Promise<void> => {
     const token = await getToken();
     if (!token) throw new Error('No token');
-    await deleteTarotMedia(token, id);
+    await deleteBlogMedia(token, id); // Use shared blog media system
     await loadMedia();
   };
 
