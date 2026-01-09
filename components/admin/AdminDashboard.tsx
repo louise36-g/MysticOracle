@@ -10,13 +10,16 @@ import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
 import AdminTranslations from './AdminTranslations';
 import AdminBlog from './AdminBlog';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText } from 'lucide-react';
+import ImportArticle from './ImportArticle';
+import AdminTarotArticles from './AdminTarotArticles';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'health' | 'translations' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'translations' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
   const [blogKey, setBlogKey] = useState(0); // Key to force re-mount of AdminBlog
 
@@ -32,6 +35,8 @@ const AdminDashboard: React.FC = () => {
     { id: 'packages', labelEn: 'Packages', labelFr: 'Forfaits', icon: <Package className="w-4 h-4" /> },
     { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
     { id: 'blog', labelEn: 'Blog', labelFr: 'Blog', icon: <FileText className="w-4 h-4" /> },
+    { id: 'import-article', labelEn: 'Import Article', labelFr: 'Importer Article', icon: <Upload className="w-4 h-4" /> },
+    { id: 'tarot-articles', labelEn: 'Tarot Articles', labelFr: 'Articles Tarot', icon: <FileText className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
     { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
@@ -84,6 +89,23 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'packages' && <AdminPackages />}
         {activeTab === 'emails' && <AdminEmailTemplates />}
         {activeTab === 'blog' && <AdminBlog key={blogKey} />}
+        {activeTab === 'import-article' && (
+          <ImportArticle
+            editingArticleId={editingArticleId}
+            onCancelEdit={() => {
+              setEditingArticleId(null);
+              setActiveTab('tarot-articles');
+            }}
+          />
+        )}
+        {activeTab === 'tarot-articles' && (
+          <AdminTarotArticles
+            onNavigateToImport={(articleId) => {
+              setEditingArticleId(articleId);
+              setActiveTab('import-article');
+            }}
+          />
+        )}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
         {activeTab === 'translations' && <AdminTranslations />}
