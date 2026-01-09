@@ -46,6 +46,7 @@ const listArticlesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
   cardType: z.enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES']).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+  search: z.string().optional(),
 });
 
 router.get('/', async (req, res) => {
@@ -237,7 +238,7 @@ router.post('/admin/import', async (req, res) => {
 router.get('/admin/list', async (req, res) => {
   try {
     const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status } = params;
+    const { page, limit, cardType, status, search } = params;
 
     const where: any = {};
 
@@ -249,6 +250,13 @@ router.get('/admin/list', async (req, res) => {
       where.status = status;
     }
 
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     const [articles, total] = await Promise.all([
       prisma.tarotArticle.findMany({
         where,
@@ -257,6 +265,7 @@ router.get('/admin/list', async (req, res) => {
           title: true,
           slug: true,
           excerpt: true,
+          content: true, // Add content for word count
           featuredImage: true,
           cardType: true,
           cardNumber: true,
