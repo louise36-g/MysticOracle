@@ -386,11 +386,15 @@ router.get('/admin/:id', async (req, res) => {
 /**
  * PATCH /api/tarot-articles/admin/:id
  * Update a tarot article - admin only
+ * Supports both:
+ * - Full validation mode (for JSON import updates)
+ * - Visual editor mode (for field-by-field updates from TarotArticleEditor)
  */
 router.patch('/admin/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+    const isVisualEditorMode = updates._visualEditorMode === true;
 
     // Check if article exists
     const existingArticle = await prisma.tarotArticle.findUnique({
@@ -401,7 +405,46 @@ router.patch('/admin/:id', async (req, res) => {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    // If this is a full article update (from edit mode), process it
+    // Visual editor mode: allow partial updates without strict validation
+    if (isVisualEditorMode) {
+      // Remove the flag before saving
+      delete updates._visualEditorMode;
+
+      // Whitelist allowed fields for visual editor updates
+      const allowedFields = [
+        'title', 'excerpt', 'content', 'slug', 'author', 'readTime',
+        'featuredImage', 'featuredImageAlt', 'cardType', 'cardNumber',
+        'astrologicalCorrespondence', 'element', 'categories', 'tags',
+        'faq', 'breadcrumbCategory', 'breadcrumbCategoryUrl', 'relatedCards',
+        'isCourtCard', 'isChallengeCard', 'status',
+        'seoFocusKeyword', 'seoMetaTitle', 'seoMetaDescription',
+      ];
+
+      const sanitizedUpdates: Record<string, any> = {};
+      for (const key of allowedFields) {
+        if (key in updates && updates[key] !== undefined) {
+          sanitizedUpdates[key] = updates[key];
+        }
+      }
+
+      // Validate status if present
+      if (sanitizedUpdates.status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+      }
+
+      // Update with sanitized data
+      const updatedArticle = await prisma.tarotArticle.update({
+        where: { id },
+        data: {
+          ...sanitizedUpdates,
+          updatedAt: new Date(),
+        },
+      });
+
+      return res.json(updatedArticle);
+    }
+
+    // Full validation mode: If this is a full article update (from JSON import edit)
     if (updates.title && updates.content && updates.slug) {
       // Validate the updated article data
       const validationResult = validateArticleExtended(updates);
@@ -433,8 +476,7 @@ router.patch('/admin/:id', async (req, res) => {
       return res.json(updatedArticle);
     }
 
-    // Otherwise, simple field update (status, etc.)
-    // Whitelist allowed simple update fields for security
+    // Simple field update (status only)
     const allowedSimpleUpdates = ['status'];
     const sanitizedUpdates: Record<string, any> = {};
 
@@ -803,8 +845,8 @@ router.post('/admin/media/upload', tarotMediaUpload.single('file'), async (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Use frontend URL for images since they're served from the backend's public folder
-    const baseUrl = process.env.BACKEND_URL || process.env.FRONTEND_URL || `http://localhost:${process.env.PORT || 3001}`;
+    // Use backend URL for images since they're served from the backend's public folder
+    const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
     const url = `${baseUrl}/uploads/tarot/${req.file.filename}`;
 
     const media = await prisma.tarotMedia.create({

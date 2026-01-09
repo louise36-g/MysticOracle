@@ -146,6 +146,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       const updateData = {
         ...article,
         status: publish ? 'PUBLISHED' : article.status,
+        _visualEditorMode: true, // Flag to skip strict validation on backend
       };
 
       await updateTarotArticle(token, article.id, updateData);
