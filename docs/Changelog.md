@@ -5,6 +5,11 @@ All notable changes to MysticOracle.
 ## [Unreleased]
 
 ### Added
+- AdminTarotArticles management interface with list view, filters, and search
+- Tarot article validation system with content quality checks
+- Snake_case to camelCase JSON conversion for article imports
+- Import Article edit mode with pre-filled data
+- Tarot article meta-prompt (v3.0) compatible with backend validation
 - Spec-Kit documentation structure (.specify/)
 - Project status and tech debt tracking (docs/)
 - Transaction history in user profile
@@ -12,11 +17,16 @@ All notable changes to MysticOracle.
 - Claude agents and commands (.claude/)
 
 ### Changed
+- Em dash validation changed from blocking error to warning
+- Image URL validation relaxed (accepts placeholders with warning)
 - Follow-up questions now 2 per 1 credit
 - Credit deduction moved to backend only
 - CLAUDE.md updated with Spec-Kit references
 
 ### Fixed
+- API route URLs in ImportArticle component (removed duplicate /api prefix)
+- Validation error message format (using errorMessages instead of raw Zod errors)
+- Response handling for non-200 status codes in validation endpoint
 - Double credit deduction bug
 - 0-card readings being saved
 - Reading history not persisting interpretation

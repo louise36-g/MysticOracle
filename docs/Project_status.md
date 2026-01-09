@@ -10,7 +10,7 @@
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| Phase 1: Stabilization | 🔄 Active | 60% |
+| Phase 1: Stabilization | 🔄 Active | 65% |
 | Phase 2: Mobile Funnel | ⏳ Pending | 0% |
 | Phase 3: Shared Backend | ⏳ Pending | 0% |
 | Phase 4: New Features | ⏳ Backlog | 0% |
@@ -84,6 +84,7 @@
 |---------|--------|-------|
 | Daily Horoscope | ⚠️ Needs Config | Requires OPENROUTER_API_KEY |
 | Blog CMS | ✅ Working | Posts, categories, tags, media |
+| Tarot Articles CMS | ✅ Working | Admin management, validation, import |
 | Admin Dashboard | ✅ Working | Users, transactions, analytics |
 | Multi-language (EN/FR) | ✅ Working | Full translation support |
 | Achievements | ✅ Working | Basic achievement system |
@@ -108,6 +109,10 @@ None currently.
 
 ## Recent Changes
 
+- 2026-01-09: Completed AdminTarotArticles management interface with validation
+- 2026-01-09: Added snake_case to camelCase JSON conversion for article imports
+- 2026-01-09: Relaxed em dash and image URL validation to warnings (non-blocking)
+- 2026-01-09: Fixed API route URLs in frontend (correct /api/tarot-articles/admin/* paths)
 - 2026-01-08: Added Spec-Kit documentation and Claude agents/commands
 - 2026-01-08: Fixed double credit deduction, 0-card readings
 - 2026-01-08: Added transaction history to user profile

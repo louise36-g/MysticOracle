@@ -149,7 +149,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/tarot-articles/validate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,24 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
       });
 
       const data = await response.json();
-      setValidationResult(data);
+
+      // Handle non-200 responses
+      if (!response.ok) {
+        setValidationResult({
+          valid: false,
+          errors: data.errors || [data.error || data.message || `Server error: ${response.status}`],
+        });
+        return;
+      }
+
+      // Map backend response format to frontend format
+      setValidationResult({
+        valid: data.success,
+        errors: data.errors || [],
+        warnings: data.warnings || [],
+        stats: data.stats,
+        schemaPreview: data.schema,
+      });
     } catch (err) {
       setValidationResult({
         valid: false,
@@ -192,7 +209,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
       let response;
       if (isEditMode && editingArticleId) {
         // Update existing article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/api/tarot-articles/admin/${editingArticleId}`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/${editingArticleId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -202,7 +219,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         });
       } else {
         // Import new article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/tarot-articles/import`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/import`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

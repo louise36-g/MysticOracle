@@ -872,7 +872,7 @@ export async function createTarotArticle(
   token: string,
   data: Partial<TarotArticle>
 ): Promise<TarotArticle> {
-  return apiRequest('/api/admin/tarot-articles', {
+  return apiRequest('/api/tarot-articles/admin/import', {
     method: 'POST',
     body: data,
     token,
@@ -897,7 +897,7 @@ export async function deleteTarotArticle(
   token: string,
   id: string
 ): Promise<{ success: boolean }> {
-  return apiRequest(`/api/admin/tarot-articles/${id}`, {
+  return apiRequest(`/api/tarot-articles/admin/${id}`, {
     method: 'DELETE',
     token,
   });

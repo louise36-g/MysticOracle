@@ -122,7 +122,7 @@ router.post('/admin/validate', async (req, res) => {
     if (!validationResult.success || !validationResult.data) {
       return res.status(400).json({
         success: false,
-        errors: validationResult.errors,
+        errors: validationResult.errorMessages || [],
         warnings: [],
         stats: null,
         schema: null,
@@ -170,7 +170,7 @@ router.post('/admin/import', async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Validation failed',
-        errors: validationResult.errors,
+        errors: validationResult.errorMessages || [],
         warnings: [],
       });
     }
@@ -343,7 +343,7 @@ router.patch('/admin/:id', async (req, res) => {
       if (!validationResult.success || !validationResult.data) {
         return res.status(400).json({
           error: 'Validation failed',
-          errors: validationResult.errors,
+          errors: validationResult.errorMessages || [],
         });
       }
 
