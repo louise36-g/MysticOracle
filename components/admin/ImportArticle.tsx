@@ -51,6 +51,85 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticleTitle, setEditingArticleTitle] = useState<string>('');
 
+  // Load article when editingArticleId changes
+  useEffect(() => {
+    if (editingArticleId) {
+      loadArticleForEditing(editingArticleId);
+    } else {
+      setIsEditMode(false);
+      setEditingArticleTitle('');
+      setJsonInput('');
+      setResult(null);
+      setValidationResult(null);
+    }
+  }, [editingArticleId]);
+
+  // Convert enum to display format (e.g., MAJOR_ARCANA → "Major Arcana")
+  function convertEnumToDisplay(value: string): string {
+    return value
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  // Load article for editing
+  async function loadArticleForEditing(id: string) {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        setResult({
+          success: false,
+          error: 'Authentication required',
+        });
+        return;
+      }
+
+      const article = await fetchAdminTarotArticle(token, id);
+      setEditingArticleTitle(article.title);
+      setIsEditMode(true);
+
+      // Convert article data to JSON format for editing
+      const editableData = {
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        content: article.content,
+        author: article.author,
+        readTime: article.readTime,
+        featuredImage: article.featuredImage,
+        featuredImageAlt: article.featuredImageAlt,
+        cardType: article.cardType,
+        cardNumber: article.cardNumber,
+        astrologicalCorrespondence: article.astrologicalCorrespondence,
+        element: article.element,
+        categories: article.categories,
+        tags: article.tags,
+        seoFocusKeyword: article.seoFocusKeyword,
+        seoMetaTitle: article.seoMetaTitle,
+        seoMetaDescription: article.seoMetaDescription,
+        faq: article.faq,
+        breadcrumbCategory: article.breadcrumbCategory,
+        breadcrumbCategoryUrl: article.breadcrumbCategoryUrl,
+        relatedCards: article.relatedCards,
+        isCourtCard: article.isCourtCard,
+        isChallengeCard: article.isChallengeCard,
+        status: article.status,
+      };
+
+      setJsonInput(JSON.stringify(editableData, null, 2));
+      setResult(null);
+      setValidationResult(null);
+    } catch (err) {
+      setResult({
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to load article',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // Validate without saving
   async function handleValidate() {
     if (!jsonInput.trim()) return;
