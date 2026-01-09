@@ -160,8 +160,11 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
 
   const handleTogglePublish = () => {
     if (!article) return;
-    const newStatus = article.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-    setArticle({ ...article, status: newStatus });
+    setArticle(prev => {
+      if (!prev) return prev;
+      const newStatus = prev.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
+      return { ...prev, status: newStatus };
+    });
   };
 
   const handleMediaUpload = async (file: File): Promise<string> => {
@@ -187,7 +190,8 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     setUploadingCover(true);
     try {
       const url = await handleMediaUpload(file);
-      setArticle({ ...article, featuredImage: url, featuredImageAlt: file.name.replace(/\.[^/.]+$/, '') });
+      const altText = file.name.replace(/\.[^/.]+$/, '');
+      setArticle(prev => prev ? { ...prev, featuredImage: url, featuredImageAlt: altText } : prev);
     } catch (err) {
       setError('Failed to upload cover image');
     } finally {
@@ -251,7 +255,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 disabled:opacity-50 text-sm font-medium"
             >
               {saving ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -266,8 +270,8 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
               onClick={handleTogglePublish}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
                 article.status === 'PUBLISHED'
-                  ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                  : 'bg-green-600 hover:bg-green-500 text-white'
+                  ? 'bg-slate-600 hover:bg-slate-500 text-white'
+                  : 'bg-purple-600 hover:bg-purple-500 text-white'
               }`}
             >
               {article.status === 'PUBLISHED'
@@ -295,7 +299,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             <input
               type="text"
               value={article.title}
-              onChange={(e) => setArticle({ ...article, title: e.target.value })}
+              onChange={(e) => setArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
               className="w-full px-4 py-3 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 text-xl font-medium placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
             />
           </div>
@@ -305,7 +309,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             <label className="block text-sm text-slate-400 mb-2">{language === 'en' ? 'Excerpt' : 'Extrait'}</label>
             <textarea
               value={article.excerpt}
-              onChange={(e) => setArticle({ ...article, excerpt: e.target.value })}
+              onChange={(e) => setArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
               rows={2}
               className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-purple-500/50"
             />
@@ -316,7 +320,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             <label className="block text-sm text-slate-400 mb-2">{language === 'en' ? 'Content' : 'Contenu'}</label>
             <RichTextEditor
               content={article.content}
-              onChange={(html) => setArticle({ ...article, content: html })}
+              onChange={(html) => setArticle(prev => prev ? { ...prev, content: html } : prev)}
               placeholder="Write your article content..."
               mediaLibrary={media}
               onMediaUpload={handleMediaUpload}
@@ -355,14 +359,14 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
                 <input
                   type="text"
                   value={article.featuredImage}
-                  onChange={(e) => setArticle({ ...article, featuredImage: e.target.value })}
+                  onChange={(e) => setArticle(prev => prev ? { ...prev, featuredImage: e.target.value } : prev)}
                   placeholder="Image URL"
                   className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
                 />
                 <input
                   type="text"
                   value={article.featuredImageAlt}
-                  onChange={(e) => setArticle({ ...article, featuredImageAlt: e.target.value })}
+                  onChange={(e) => setArticle(prev => prev ? { ...prev, featuredImageAlt: e.target.value } : prev)}
                   placeholder="Alt text"
                   className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
                 />
@@ -381,11 +385,14 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
                   <button
                     key={cat.id}
                     onClick={() => {
-                      const current = article.categories || [];
-                      const updated = current.includes(cat.name)
-                        ? current.filter((c) => c !== cat.name)
-                        : [...current, cat.name];
-                      setArticle({ ...article, categories: updated });
+                      setArticle(prev => {
+                        if (!prev) return prev;
+                        const current = prev.categories || [];
+                        const updated = current.includes(cat.name)
+                          ? current.filter((c) => c !== cat.name)
+                          : [...current, cat.name];
+                        return { ...prev, categories: updated };
+                      });
                     }}
                     className={`px-2 py-1 rounded text-xs transition-colors ${
                       (article.categories || []).includes(cat.name)
@@ -412,11 +419,14 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
                   <button
                     key={tag.id}
                     onClick={() => {
-                      const current = article.tags || [];
-                      const updated = current.includes(tag.name)
-                        ? current.filter((t) => t !== tag.name)
-                        : [...current, tag.name];
-                      setArticle({ ...article, tags: updated });
+                      setArticle(prev => {
+                        if (!prev) return prev;
+                        const current = prev.tags || [];
+                        const updated = current.includes(tag.name)
+                          ? current.filter((t) => t !== tag.name)
+                          : [...current, tag.name];
+                        return { ...prev, tags: updated };
+                      });
                     }}
                     className={`px-2 py-1 rounded text-xs transition-colors ${
                       (article.tags || []).includes(tag.name)
@@ -440,7 +450,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             >
               <TarotFAQManager
                 faq={(article.faq as FAQItem[]) || []}
-                onChange={(faq) => setArticle({ ...article, faq })}
+                onChange={(faq) => setArticle(prev => prev ? { ...prev, faq } : prev)}
               />
             </SidebarSection>
 
@@ -453,10 +463,10 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
             >
               <textarea
                 value={(article.relatedCards || []).join('\n')}
-                onChange={(e) => setArticle({
-                  ...article,
+                onChange={(e) => setArticle(prev => prev ? {
+                  ...prev,
                   relatedCards: e.target.value.split('\n').filter(Boolean),
-                })}
+                } : prev)}
                 placeholder={language === 'en' ? 'One slug per line...' : 'Un slug par ligne...'}
                 rows={4}
                 className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200 resize-none"

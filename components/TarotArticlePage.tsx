@@ -109,9 +109,8 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     ],
     ALLOWED_ATTR: [
       'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
-      'width', 'height', 'loading'
+      'width', 'height', 'loading', 'data-width', 'data-align'
     ],
-    ALLOW_DATA_ATTR: false,
     ADD_ATTR: ['target', 'rel'],
     FORCE_BODY: true,
   };
