@@ -865,10 +865,10 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
 
 router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
   try {
+    // Return all media regardless of folder - shared across blog, tarot, etc.
     const media = await prisma.mediaUpload.findMany({
-      where: { folder: 'blog' },
       orderBy: { createdAt: 'desc' },
-      take: 50
+      take: 100
     });
     res.json({ media });
   } catch (error) {
