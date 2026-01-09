@@ -98,6 +98,50 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     );
   };
 
+  // Load articles
+  const loadArticles = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetchAdminTarotArticles(token, {
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchQuery || undefined,
+        cardType: cardTypeFilter || undefined,
+        status: statusFilter || undefined,
+      });
+
+      setArticles(response.articles);
+      setPagination(prev => ({
+        ...prev,
+        total: response.total,
+        totalPages: response.totalPages,
+      }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load articles';
+      setError(message);
+      console.error('Error loading articles:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [getToken, pagination.page, pagination.limit, searchQuery, cardTypeFilter, statusFilter]);
+
+  // Load on mount and when filters change
+  useEffect(() => {
+    loadArticles();
+  }, [loadArticles]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Placeholder for rest of component
   return <div>AdminTarotArticles Component</div>;
 };
