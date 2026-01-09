@@ -262,6 +262,34 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         </p>
       </div>
 
+      {/* Edit Mode Banner */}
+      {isEditMode && (
+        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+              <div>
+                <p className="text-amber-300 font-medium">
+                  {language === 'en' ? 'Editing Article' : 'Édition d\'Article'}
+                </p>
+                <p className="text-sm text-amber-300/70">
+                  {editingArticleTitle}
+                </p>
+              </div>
+            </div>
+            {onCancelEdit && (
+              <button
+                onClick={onCancelEdit}
+                className="text-sm text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-2"
+              >
+                <X className="w-4 h-4" />
+                {language === 'en' ? 'Cancel' : 'Annuler'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Panel */}
         <div className="space-y-4">
@@ -319,12 +347,16 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                 {loading ? (
                   <>
                     <Loader className="w-4 h-4 animate-spin" />
-                    {language === 'en' ? 'Importing...' : 'Importation...'}
+                    {isEditMode
+                      ? (language === 'en' ? 'Updating...' : 'Mise à jour...')
+                      : (language === 'en' ? 'Importing...' : 'Importation...')}
                   </>
                 ) : (
                   <>
                     <Upload className="w-4 h-4" />
-                    {language === 'en' ? 'Import Article' : 'Importer'}
+                    {isEditMode
+                      ? (language === 'en' ? 'Update Article' : 'Mettre à jour')
+                      : (language === 'en' ? 'Import Article' : 'Importer')}
                   </>
                 )}
               </button>
