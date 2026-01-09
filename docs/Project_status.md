@@ -109,6 +109,9 @@ None currently.
 
 ## Recent Changes
 
+- 2026-01-09: Fixed AdminTarotArticles UX issues (back button, modal popups, image flickering)
+- 2026-01-09: Improved ImportArticle UI (removed sidebar, header buttons, preview modal, warnings toggle)
+- 2026-01-09: Relaxed FAQ validation for contextual phrases and em dashes in blockquotes
 - 2026-01-09: Completed AdminTarotArticles management interface with validation
 - 2026-01-09: Added snake_case to camelCase JSON conversion for article imports
 - 2026-01-09: Relaxed em dash and image URL validation to warnings (non-blocking)
