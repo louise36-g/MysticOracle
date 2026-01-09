@@ -1,22 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
-import { BookOpen, Search, Filter, ImageOff } from 'lucide-react';
-
-interface TarotArticle {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  featuredImage: string;
-  featuredImageAlt: string;
-  cardType: string;
-  cardNumber: string;
-  datePublished: string;
-  readTime: string;
-  tags: string[];
-  categories: string[];
-}
+import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
+import { fetchTarotArticles, TarotArticle } from '../services/apiService';
 
 interface TarotArticlesListProps {
   onArticleClick: (slug: string) => void;
@@ -26,20 +12,24 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
   const { language } = useApp();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCardType, setSelectedCardType] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchArticles();
+    loadArticles();
   }, []);
 
-  async function fetchArticles() {
+  async function loadArticles() {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles`);
-      const data = await response.json();
+      setLoading(true);
+      setError(null);
+      const data = await fetchTarotArticles({ status: 'PUBLISHED' });
       setArticles(data.articles || []);
-    } catch (error) {
-      console.error('Error fetching tarot articles:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load articles';
+      setError(message);
+      console.error('Error fetching tarot articles:', err);
     } finally {
       setLoading(false);
     }
@@ -66,6 +56,24 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center text-purple-300">
           {language === 'en' ? 'Loading articles...' : 'Chargement des articles...'}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <p className="text-red-300 mb-4">{error}</p>
+          <button
+            onClick={loadArticles}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg flex items-center gap-2 mx-auto"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {language === 'en' ? 'Try Again' : 'Réessayer'}
+          </button>
         </div>
       </div>
     );

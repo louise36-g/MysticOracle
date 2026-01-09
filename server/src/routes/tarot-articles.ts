@@ -308,6 +308,28 @@ router.get('/admin/list', async (req, res) => {
 });
 
 /**
+ * GET /api/tarot-articles/admin/preview/:id
+ * Preview any article (admin only) - bypasses published status check
+ * NOTE: This route MUST be before /admin/:id to avoid 'preview' being captured as an ID
+ */
+router.get('/admin/preview/:id', async (req, res) => {
+  try {
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: req.params.id, deletedAt: null },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    res.json(article);
+  } catch (error) {
+    console.error('Error previewing tarot article:', error);
+    res.status(500).json({ error: 'Failed to preview article' });
+  }
+});
+
+/**
  * GET /api/tarot-articles/admin/:id
  * Get single article for editing - admin only
  */
@@ -327,27 +349,6 @@ router.get('/admin/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching single tarot article:', error);
     res.status(500).json({ error: 'Failed to fetch article' });
-  }
-});
-
-/**
- * GET /api/tarot-articles/admin/preview/:id
- * Preview any article (admin only) - bypasses published status check
- */
-router.get('/admin/preview/:id', async (req, res) => {
-  try {
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id: req.params.id, deletedAt: null },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    res.json(article);
-  } catch (error) {
-    console.error('Error previewing tarot article:', error);
-    res.status(500).json({ error: 'Failed to preview article' });
   }
 });
 
@@ -402,14 +403,30 @@ router.patch('/admin/:id', async (req, res) => {
     }
 
     // Otherwise, simple field update (status, etc.)
-    if (updates.status === 'PUBLISHED' && existingArticle.status !== 'PUBLISHED') {
-      updates.publishedAt = new Date();
+    // Whitelist allowed simple update fields for security
+    const allowedSimpleUpdates = ['status'];
+    const sanitizedUpdates: Record<string, any> = {};
+
+    for (const key of allowedSimpleUpdates) {
+      if (key in updates) {
+        sanitizedUpdates[key] = updates[key];
+      }
+    }
+
+    // Validate status value if present
+    if (sanitizedUpdates.status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)) {
+      return res.status(400).json({ error: 'Invalid status value' });
+    }
+
+    // Set publishedAt when publishing
+    if (sanitizedUpdates.status === 'PUBLISHED' && existingArticle.status !== 'PUBLISHED') {
+      sanitizedUpdates.datePublished = new Date();
     }
 
     const updatedArticle = await prisma.tarotArticle.update({
       where: { id },
       data: {
-        ...updates,
+        ...sanitizedUpdates,
         updatedAt: new Date(),
       },
     });

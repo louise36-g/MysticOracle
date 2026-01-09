@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import DOMPurify from 'dompurify';
 import { useApp } from '../../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Check, AlertTriangle, X, Code, Upload, Eye, Loader } from 'lucide-react';
@@ -606,10 +607,10 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                         <button
                           onClick={() => {
                             if (result.article?.id) {
-                              const port = window.location.port || '3000';
+                              const baseUrl = window.location.origin;
                               const url = result.article.status === 'PUBLISHED'
-                                ? `http://localhost:${port}/tarot/articles/${result.article.slug}`
-                                : `http://localhost:${port}/admin/tarot/preview/${result.article.id}`;
+                                ? `${baseUrl}/tarot/articles/${result.article.slug}`
+                                : `${baseUrl}/admin/tarot/preview/${result.article.id}`;
                               window.open(url, '_blank');
                             }
                           }}
@@ -740,7 +741,9 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                 {/* Content Preview */}
                 <div
                   className="prose prose-invert prose-purple max-w-none"
-                  dangerouslySetInnerHTML={{ __html: previewData.content?.substring(0, 1000) + '...' }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize((previewData.content?.substring(0, 1000) || '') + '...')
+                  }}
                 />
 
                 {/* FAQ Preview */}
