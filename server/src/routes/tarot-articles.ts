@@ -23,6 +23,7 @@ router.get('/:slug', async (req, res) => {
       where: {
         slug,
         status: 'PUBLISHED',
+        deletedAt: null, // Exclude deleted articles
       },
     });
 
@@ -57,6 +58,7 @@ router.get('/', async (req, res) => {
 
     const where: any = {
       status: status || 'PUBLISHED', // Default to published only
+      deletedAt: null, // Exclude deleted articles from public list
     };
 
     if (cardType) {
