@@ -656,3 +656,45 @@ model TarotCard {
 
   @@map("tarot_cards")
 }
+
+// ============================================
+// TAROT ARTICLE TAXONOMY (for editor management)
+// ============================================
+
+model TarotCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tarot_categories")
+}
+
+model TarotTag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tarot_tags")
+}
+
+model TarotMedia {
+  id           String    @id @default(cuid())
+  filename     String
+  originalName String
+  url          String
+  mimeType     String
+  size         Int
+  altText      String?
+  caption      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([deletedAt])
+  @@map("tarot_media")
+}

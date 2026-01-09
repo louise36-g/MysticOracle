@@ -1,9 +1,40 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { validateArticleExtended, convertToPrismaFormat } from '../lib/validation.js';
-import { processArticleSchema } from '../lib/schema-builder.js';
+import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
+
+// Configure multer for tarot media uploads
+const tarotMediaStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'uploads', 'tarot');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const tarotMediaUpload = multer({
+  storage: tarotMediaStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
+});
 
 const router = Router();
 
@@ -135,8 +166,8 @@ router.post('/admin/validate', async (req, res) => {
     // At this point, validationResult.data is guaranteed to exist
     const validatedData = validationResult.data;
 
-    // Generate schema preview
-    const { schema } = processArticleSchema(validatedData);
+    // Generate schema preview (cast to TarotArticleData since validation passed)
+    const { schema } = processArticleSchema(validatedData as TarotArticleData);
 
     res.json({
       success: true,
@@ -198,8 +229,8 @@ router.post('/admin/import', async (req, res) => {
     // Convert to Prisma format (maps display names to enum keys)
     const prismaData = convertToPrismaFormat(validatedData);
 
-    // Generate schema for the article
-    const { schema, schemaHtml } = processArticleSchema(validatedData);
+    // Generate schema for the article (cast to TarotArticleData since validation passed)
+    const { schema, schemaHtml } = processArticleSchema(validatedData as TarotArticleData);
 
     // Create the article in the database
     const article = await prisma.tarotArticle.create({
@@ -385,8 +416,8 @@ router.patch('/admin/:id', async (req, res) => {
       // Convert to Prisma format
       const prismaData = convertToPrismaFormat(validationResult.data);
 
-      // Regenerate schema
-      const { schema, schemaHtml } = processArticleSchema(validationResult.data);
+      // Regenerate schema (cast to TarotArticleData since validation passed)
+      const { schema, schemaHtml } = processArticleSchema(validationResult.data as TarotArticleData);
 
       // Update with validated data
       const updatedArticle = await prisma.tarotArticle.update({
@@ -561,6 +592,323 @@ router.delete('/admin/trash/empty', async (req, res) => {
   } catch (error) {
     console.error('Error emptying trash:', error);
     res.status(500).json({ error: 'Failed to empty trash' });
+  }
+});
+
+// ============================================
+// CATEGORY MANAGEMENT
+// ============================================
+
+/**
+ * GET /api/tarot-articles/admin/categories
+ * List all tarot categories
+ */
+router.get('/admin/categories', async (req, res) => {
+  try {
+    const categories = await prisma.tarotCategory.findMany({
+      orderBy: { name: 'asc' },
+    });
+    res.json({ categories });
+  } catch (error) {
+    console.error('Error fetching tarot categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+/**
+ * POST /api/tarot-articles/admin/categories
+ * Create a new tarot category
+ */
+const createCategorySchema = z.object({
+  name: z.string().min(1).max(100),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  description: z.string().max(500).optional(),
+});
+
+router.post('/admin/categories', async (req, res) => {
+  try {
+    const data = createCategorySchema.parse(req.body);
+    const category = await prisma.tarotCategory.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+      },
+    });
+    res.status(201).json({ category });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    console.error('Error creating tarot category:', error);
+    res.status(500).json({ error: 'Failed to create category' });
+  }
+});
+
+/**
+ * PATCH /api/tarot-articles/admin/categories/:id
+ * Update a tarot category
+ */
+router.patch('/admin/categories/:id', async (req, res) => {
+  try {
+    const data = createCategorySchema.partial().parse(req.body);
+    const category = await prisma.tarotCategory.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json({ category });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    console.error('Error updating tarot category:', error);
+    res.status(500).json({ error: 'Failed to update category' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/categories/:id
+ * Delete a tarot category
+ */
+router.delete('/admin/categories/:id', async (req, res) => {
+  try {
+    await prisma.tarotCategory.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tarot category:', error);
+    res.status(500).json({ error: 'Failed to delete category' });
+  }
+});
+
+// ============================================
+// TAG MANAGEMENT
+// ============================================
+
+/**
+ * GET /api/tarot-articles/admin/tags
+ * List all tarot tags
+ */
+router.get('/admin/tags', async (req, res) => {
+  try {
+    const tags = await prisma.tarotTag.findMany({
+      orderBy: { name: 'asc' },
+    });
+    res.json({ tags });
+  } catch (error) {
+    console.error('Error fetching tarot tags:', error);
+    res.status(500).json({ error: 'Failed to fetch tags' });
+  }
+});
+
+/**
+ * POST /api/tarot-articles/admin/tags
+ * Create a new tarot tag
+ */
+const createTagSchema = z.object({
+  name: z.string().min(1).max(100),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+});
+
+router.post('/admin/tags', async (req, res) => {
+  try {
+    const data = createTagSchema.parse(req.body);
+    const tag = await prisma.tarotTag.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+      },
+    });
+    res.status(201).json({ tag });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    console.error('Error creating tarot tag:', error);
+    res.status(500).json({ error: 'Failed to create tag' });
+  }
+});
+
+/**
+ * PATCH /api/tarot-articles/admin/tags/:id
+ * Update a tarot tag
+ */
+router.patch('/admin/tags/:id', async (req, res) => {
+  try {
+    const data = createTagSchema.partial().parse(req.body);
+    const tag = await prisma.tarotTag.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json({ tag });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    console.error('Error updating tarot tag:', error);
+    res.status(500).json({ error: 'Failed to update tag' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/tags/:id
+ * Delete a tarot tag
+ */
+router.delete('/admin/tags/:id', async (req, res) => {
+  try {
+    await prisma.tarotTag.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tarot tag:', error);
+    res.status(500).json({ error: 'Failed to delete tag' });
+  }
+});
+
+// ============================================
+// MEDIA MANAGEMENT
+// ============================================
+
+const listMediaSchema = z.object({
+  deleted: z.coerce.boolean().optional(),
+});
+
+/**
+ * GET /api/tarot-articles/admin/media
+ * List all tarot media (with trash filter)
+ */
+router.get('/admin/media', async (req, res) => {
+  try {
+    const params = listMediaSchema.parse(req.query);
+    const where = params.deleted
+      ? { deletedAt: { not: null } }
+      : { deletedAt: null };
+
+    const media = await prisma.tarotMedia.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ media });
+  } catch (error) {
+    console.error('Error fetching tarot media:', error);
+    res.status(500).json({ error: 'Failed to fetch media' });
+  }
+});
+
+/**
+ * POST /api/tarot-articles/admin/media/upload
+ * Upload a new media file
+ */
+router.post('/admin/media/upload', tarotMediaUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
+    const url = `${baseUrl}/uploads/tarot/${req.file.filename}`;
+
+    const media = await prisma.tarotMedia.create({
+      data: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        url,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+      },
+    });
+
+    res.status(201).json({ media });
+  } catch (error) {
+    console.error('Error uploading tarot media:', error);
+    res.status(500).json({ error: 'Failed to upload media' });
+  }
+});
+
+/**
+ * PATCH /api/tarot-articles/admin/media/:id
+ * Update media metadata
+ */
+const updateMediaSchema = z.object({
+  altText: z.string().max(500).optional(),
+  caption: z.string().max(500).optional(),
+});
+
+router.patch('/admin/media/:id', async (req, res) => {
+  try {
+    const data = updateMediaSchema.parse(req.body);
+    const media = await prisma.tarotMedia.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json({ media });
+  } catch (error) {
+    console.error('Error updating tarot media:', error);
+    res.status(500).json({ error: 'Failed to update media' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/media/:id
+ * Soft delete media (move to trash)
+ */
+router.delete('/admin/media/:id', async (req, res) => {
+  try {
+    await prisma.tarotMedia.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tarot media:', error);
+    res.status(500).json({ error: 'Failed to delete media' });
+  }
+});
+
+/**
+ * POST /api/tarot-articles/admin/media/:id/restore
+ * Restore media from trash
+ */
+router.post('/admin/media/:id/restore', async (req, res) => {
+  try {
+    await prisma.tarotMedia.update({
+      where: { id: req.params.id },
+      data: { deletedAt: null },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error restoring tarot media:', error);
+    res.status(500).json({ error: 'Failed to restore media' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/media/:id/permanent
+ * Permanently delete media (from trash only)
+ */
+router.delete('/admin/media/:id/permanent', async (req, res) => {
+  try {
+    const media = await prisma.tarotMedia.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!media) {
+      return res.status(404).json({ error: 'Media not found' });
+    }
+
+    if (!media.deletedAt) {
+      return res.status(400).json({ error: 'Media must be in trash first' });
+    }
+
+    // Delete file from disk
+    const filePath = path.join(process.cwd(), 'uploads', 'tarot', media.filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await prisma.tarotMedia.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error permanently deleting tarot media:', error);
+    res.status(500).json({ error: 'Failed to permanently delete media' });
   }
 });
 

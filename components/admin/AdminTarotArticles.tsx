@@ -25,15 +25,20 @@ import {
   Trash,
   RotateCcw,
   ImageOff,
+  Folder,
+  Tag,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import TarotArticleEditor from './TarotArticleEditor';
+import TarotCategoriesManager from './TarotCategoriesManager';
+import TarotTagsManager from './TarotTagsManager';
+import TarotMediaManager from './TarotMediaManager';
+import ImportArticle from './ImportArticle';
 
+type TabType = 'articles' | 'categories' | 'tags' | 'media' | 'trash';
 type CardType = 'MAJOR_ARCANA' | 'SUIT_OF_WANDS' | 'SUIT_OF_CUPS' | 'SUIT_OF_SWORDS' | 'SUIT_OF_PENTACLES';
 type ArticleStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-
-interface AdminTarotArticlesProps {
-  onNavigateToImport: (articleId: string | null) => void;
-}
 
 interface ConfirmModal {
   show: boolean;
@@ -43,12 +48,16 @@ interface ConfirmModal {
   onConfirm: () => void;
 }
 
-const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImport }) => {
+const AdminTarotArticles: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
 
-  // State
-  const [viewMode, setViewMode] = useState<'active' | 'trash'>('active');
+  // Tab and view state
+  const [activeTab, setActiveTab] = useState<TabType>('articles');
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Articles state
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
@@ -170,19 +179,19 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     }
   }, [getToken, trashPagination.page, trashPagination.limit]);
 
-  // Load on mount and when view mode or filters change
+  // Load on mount and when tab changes
   useEffect(() => {
-    if (viewMode === 'active') {
+    if (activeTab === 'articles') {
       loadArticles();
-    } else {
+    } else if (activeTab === 'trash') {
       loadTrash();
     }
-  }, [viewMode, loadArticles, loadTrash]);
+  }, [activeTab, loadArticles, loadTrash]);
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on search
+      setPagination(prev => ({ ...prev, page: 1 }));
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -197,7 +206,6 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
       const newStatus: ArticleStatus = article.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
       await updateTarotArticleStatus(token, article.id, newStatus);
 
-      // Update local state
       setArticles(prev => prev.map(a =>
         a.id === article.id ? { ...a, status: newStatus } : a
       ));
@@ -226,10 +234,9 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
 
           await deleteTarotArticle(token, article.id);
 
-          // Remove from local state and reload trash
           setArticles(prev => prev.filter(a => a.id !== article.id));
           setPagination(prev => ({ ...prev, total: prev.total - 1 }));
-          loadTrash(); // Reload trash to show the new item
+          loadTrash();
 
           setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
         } catch (err) {
@@ -243,7 +250,6 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     });
   };
 
-  // Trash handlers
   const handleRestore = async (articleId: string) => {
     try {
       setActionLoading(articleId);
@@ -252,10 +258,9 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
 
       await restoreTarotArticle(token, articleId);
 
-      // Remove from trash and reload active articles
       setTrashArticles(prev => prev.filter(a => a.id !== articleId));
       setTrashPagination(prev => ({ ...prev, total: prev.total - 1 }));
-      loadArticles(); // Reload active articles to show the restored item
+      loadArticles();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to restore article';
       setError(message);
@@ -281,7 +286,6 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
 
           await permanentlyDeleteTarotArticle(token, articleId);
 
-          // Remove from trash
           setTrashArticles(prev => prev.filter(a => a.id !== articleId));
           setTrashPagination(prev => ({ ...prev, total: prev.total - 1 }));
 
@@ -312,7 +316,6 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
 
           await emptyTarotArticlesTrash(token);
 
-          // Clear trash
           setTrashArticles([]);
           setTrashPagination({ page: 1, limit: 20, total: 0, totalPages: 0 });
 
@@ -326,277 +329,311 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     });
   };
 
+  // If editing an article, show the editor
+  if (editingArticleId) {
+    return (
+      <TarotArticleEditor
+        articleId={editingArticleId}
+        onSave={() => {
+          setEditingArticleId(null);
+          loadArticles();
+        }}
+        onCancel={() => setEditingArticleId(null)}
+      />
+    );
+  }
+
   return (
     <div>
       {/* Error Display */}
       {error && (
         <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center justify-between">
           <p className="text-red-400">{error}</p>
-          <button
-            onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-300"
-          >
+          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
             <XCircle className="w-5 h-5" />
           </button>
         </div>
       )}
 
-      {/* View Mode Toggle */}
-      <div className="flex items-center gap-2 mb-6">
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
         <button
-          onClick={() => setViewMode('active')}
+          onClick={() => setActiveTab('articles')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            viewMode === 'active'
-              ? 'bg-purple-600 text-white'
-              : 'bg-slate-800 text-slate-400 hover:text-white'
+            activeTab === 'articles' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
           }`}
         >
           <FileText className="w-4 h-4" />
-          {language === 'en' ? 'Active Articles' : 'Articles Actifs'}
-          <span className={`px-2 py-0.5 rounded-full text-xs ${
-            viewMode === 'active' ? 'bg-purple-700' : 'bg-slate-700'
-          }`}>
+          {language === 'en' ? 'Articles' : 'Articles'}
+          <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === 'articles' ? 'bg-purple-700' : 'bg-slate-700'}`}>
             {pagination.total}
           </span>
         </button>
         <button
-          onClick={() => setViewMode('trash')}
+          onClick={() => setActiveTab('categories')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            viewMode === 'trash'
-              ? 'bg-purple-600 text-white'
-              : 'bg-slate-800 text-slate-400 hover:text-white'
+            activeTab === 'categories' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+          }`}
+        >
+          <Folder className="w-4 h-4" />
+          {language === 'en' ? 'Categories' : 'Catégories'}
+        </button>
+        <button
+          onClick={() => setActiveTab('tags')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+            activeTab === 'tags' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+          }`}
+        >
+          <Tag className="w-4 h-4" />
+          Tags
+        </button>
+        <button
+          onClick={() => setActiveTab('media')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+            activeTab === 'media' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+          }`}
+        >
+          <ImageIcon className="w-4 h-4" />
+          {language === 'en' ? 'Media' : 'Médias'}
+        </button>
+        <button
+          onClick={() => setActiveTab('trash')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+            activeTab === 'trash' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
           }`}
         >
           <Trash className="w-4 h-4" />
           {language === 'en' ? 'Trash' : 'Corbeille'}
-          <span className={`px-2 py-0.5 rounded-full text-xs ${
-            viewMode === 'trash' ? 'bg-purple-700' : 'bg-slate-700'
-          }`}>
-            {trashArticles.length}
-          </span>
+          {trashArticles.length > 0 && (
+            <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === 'trash' ? 'bg-purple-700' : 'bg-slate-700'}`}>
+              {trashArticles.length}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* Filter Bar - Only show for active view */}
-      {viewMode === 'active' && (
-      <div className="flex flex-wrap gap-3 mb-6">
-        <div className="flex-1 min-w-[200px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder={language === 'en' ? 'Search by title or slug...' : 'Rechercher par titre ou slug...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500"
-          />
-        </div>
-
-        <select
-          value={cardTypeFilter}
-          onChange={(e) => setCardTypeFilter(e.target.value as CardType | '')}
-          className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
-        >
-          <option value="">{language === 'en' ? 'All Types' : 'Tous les types'}</option>
-          <option value="MAJOR_ARCANA">Major Arcana</option>
-          <option value="SUIT_OF_WANDS">Wands</option>
-          <option value="SUIT_OF_CUPS">Cups</option>
-          <option value="SUIT_OF_SWORDS">Swords</option>
-          <option value="SUIT_OF_PENTACLES">Pentacles</option>
-        </select>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as ArticleStatus | '')}
-          className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
-        >
-          <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
-          <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>
-          <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publié'}</option>
-          <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archivé'}</option>
-        </select>
-
-        <button
-          onClick={() => onNavigateToImport(null)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
-        >
-          <Upload className="w-4 h-4" />
-          {language === 'en' ? 'Go to Import' : 'Aller à Import'}
-        </button>
-      </div>
-      )}
-
-      {/* Active Articles View */}
-      {viewMode === 'active' && (
+      {/* Articles Tab */}
+      {activeTab === 'articles' && (
         <>
-      {/* Articles Table */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      ) : (
-        <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Article' : 'Article'}</th>
-                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
-                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Stats' : 'Stats'}</th>
-                  <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {articles.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-slate-400">
-                      {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
-                    </td>
-                  </tr>
-                ) : (
-                  articles.map((article) => (
-                    <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-20 h-20 flex-shrink-0">
-                            {article.featuredImage ? (
-                              <img
-                                src={article.featuredImage}
-                                alt={article.featuredImageAlt || article.title}
-                                className="w-full h-full object-cover rounded-lg bg-slate-800"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const placeholder = target.parentElement?.querySelector('.img-placeholder');
-                                  if (placeholder) placeholder.classList.remove('hidden');
-                                }}
-                              />
-                            ) : null}
-                            <div className={`img-placeholder absolute inset-0 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center ${article.featuredImage ? 'hidden' : ''}`}>
-                              <ImageOff className="w-6 h-6 text-purple-400/50" />
-                            </div>
-                          </div>
-                          <div>
-                            <button
-                              onClick={() => onNavigateToImport(article.id)}
-                              className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
-                            >
-                              {article.title}
-                            </button>
-                            <p className="text-slate-500 text-sm">{article.slug}</p>
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mt-1 ${cardTypeBadges[article.cardType as CardType].bg} ${cardTypeBadges[article.cardType as CardType].text}`}>
-                              {cardTypeBadges[article.cardType as CardType].label}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">{getStatusBadge(article.status as ArticleStatus)}</td>
-                      <td className="p-4">
-                        <div className="text-sm">
-                          <p className="text-slate-400">{getWordCount(article.content).toLocaleString()} words</p>
-                          {article.datePublished && (
-                            <p className="text-slate-500 text-xs mt-1">
-                              {formatDate(article.datePublished)}
-                            </p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              const baseUrl = window.location.origin;
-                              const url = article.status === 'PUBLISHED'
-                                ? `${baseUrl}/tarot/articles/${article.slug}`
-                                : `${baseUrl}/admin/tarot/preview/${article.id}`;
-                              window.open(url, '_blank');
-                            }}
-                            className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
-                            title={article.status === 'PUBLISHED'
-                              ? (language === 'en' ? 'View' : 'Voir')
-                              : (language === 'en' ? 'Preview' : 'Aperçu')
-                            }
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => onNavigateToImport(article.id)}
-                            className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
-                            title={language === 'en' ? 'Edit' : 'Modifier'}
-                            disabled={actionLoading === article.id}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleTogglePublish(article)}
-                            className={`p-2 rounded-lg ${
-                              article.status === 'PUBLISHED'
-                                ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
-                                : 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
-                            }`}
-                            title={article.status === 'PUBLISHED'
-                              ? (language === 'en' ? 'Unpublish' : 'Dépublier')
-                              : (language === 'en' ? 'Publish' : 'Publier')}
-                            disabled={actionLoading === article.id}
-                          >
-                            {actionLoading === article.id ? (
-                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : article.status === 'PUBLISHED' ? (
-                              <XCircle className="w-4 h-4" />
-                            ) : (
-                              <CheckCircle className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleDelete(article)}
-                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
-                            title={language === 'en' ? 'Delete' : 'Supprimer'}
-                            disabled={actionLoading === article.id}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+          {/* Filter Bar */}
+          <div className="flex flex-wrap gap-3 mb-6">
+            <div className="flex-1 min-w-[200px] relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder={language === 'en' ? 'Search by title or slug...' : 'Rechercher par titre ou slug...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              />
+            </div>
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-slate-400 text-sm">
-            {language === 'en'
-              ? `Showing ${articles.length} of ${pagination.total} articles`
-              : `Affichage de ${articles.length} sur ${pagination.total} articles`}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
-              disabled={pagination.page === 1}
-              className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+            <select
+              value={cardTypeFilter}
+              onChange={(e) => setCardTypeFilter(e.target.value as CardType | '')}
+              className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-slate-300 px-4">{pagination.page} / {pagination.totalPages}</span>
-            <button
-              onClick={() => setPagination((p) => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
-              disabled={pagination.page >= pagination.totalPages}
-              className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+              <option value="">{language === 'en' ? 'All Types' : 'Tous les types'}</option>
+              <option value="MAJOR_ARCANA">Major Arcana</option>
+              <option value="SUIT_OF_WANDS">Wands</option>
+              <option value="SUIT_OF_CUPS">Cups</option>
+              <option value="SUIT_OF_SWORDS">Swords</option>
+              <option value="SUIT_OF_PENTACLES">Pentacles</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as ArticleStatus | '')}
+              className="px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none focus:border-purple-500"
             >
-              <ChevronRight className="w-4 h-4" />
+              <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
+              <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>
+              <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publié'}</option>
+              <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archivé'}</option>
+            </select>
+
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
+            >
+              <Upload className="w-4 h-4" />
+              {language === 'en' ? 'Import JSON' : 'Importer JSON'}
             </button>
           </div>
-        </div>
-      )}
+
+          {/* Articles Table */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-purple-500/20 bg-slate-800/50">
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Article' : 'Article'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Stats' : 'Stats'}</th>
+                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {articles.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-slate-400">
+                          {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
+                        </td>
+                      </tr>
+                    ) : (
+                      articles.map((article) => (
+                        <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-20 h-20 flex-shrink-0">
+                                {article.featuredImage ? (
+                                  <img
+                                    src={article.featuredImage}
+                                    alt={article.featuredImageAlt || article.title}
+                                    className="w-full h-full object-cover rounded-lg bg-slate-800"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const placeholder = target.parentElement?.querySelector('.img-placeholder');
+                                      if (placeholder) placeholder.classList.remove('hidden');
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`img-placeholder absolute inset-0 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center ${article.featuredImage ? 'hidden' : ''}`}>
+                                  <ImageOff className="w-6 h-6 text-purple-400/50" />
+                                </div>
+                              </div>
+                              <div>
+                                <button
+                                  onClick={() => setEditingArticleId(article.id)}
+                                  className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
+                                >
+                                  {article.title}
+                                </button>
+                                <p className="text-slate-500 text-sm">{article.slug}</p>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mt-1 ${cardTypeBadges[article.cardType as CardType].bg} ${cardTypeBadges[article.cardType as CardType].text}`}>
+                                  {cardTypeBadges[article.cardType as CardType].label}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">{getStatusBadge(article.status as ArticleStatus)}</td>
+                          <td className="p-4">
+                            <div className="text-sm">
+                              <p className="text-slate-400">{getWordCount(article.content).toLocaleString()} words</p>
+                              {article.datePublished && (
+                                <p className="text-slate-500 text-xs mt-1">
+                                  {formatDate(article.datePublished)}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  const baseUrl = window.location.origin;
+                                  const url = article.status === 'PUBLISHED'
+                                    ? `${baseUrl}/tarot/articles/${article.slug}`
+                                    : `${baseUrl}/admin/tarot/preview/${article.id}`;
+                                  window.open(url, '_blank');
+                                }}
+                                className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
+                                title={article.status === 'PUBLISHED' ? (language === 'en' ? 'View' : 'Voir') : (language === 'en' ? 'Preview' : 'Aperçu')}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setEditingArticleId(article.id)}
+                                className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
+                                title={language === 'en' ? 'Edit' : 'Modifier'}
+                                disabled={actionLoading === article.id}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleTogglePublish(article)}
+                                className={`p-2 rounded-lg ${
+                                  article.status === 'PUBLISHED'
+                                    ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
+                                    : 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
+                                }`}
+                                title={article.status === 'PUBLISHED' ? (language === 'en' ? 'Unpublish' : 'Dépublier') : (language === 'en' ? 'Publish' : 'Publier')}
+                                disabled={actionLoading === article.id}
+                              >
+                                {actionLoading === article.id ? (
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : article.status === 'PUBLISHED' ? (
+                                  <XCircle className="w-4 h-4" />
+                                ) : (
+                                  <CheckCircle className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => handleDelete(article)}
+                                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
+                                title={language === 'en' ? 'Delete' : 'Supprimer'}
+                                disabled={actionLoading === article.id}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-slate-400 text-sm">
+                {language === 'en'
+                  ? `Showing ${articles.length} of ${pagination.total} articles`
+                  : `Affichage de ${articles.length} sur ${pagination.total} articles`}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
+                  disabled={pagination.page === 1}
+                  className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-slate-300 px-4">{pagination.page} / {pagination.totalPages}</span>
+                <button
+                  onClick={() => setPagination((p) => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
+                  disabled={pagination.page >= pagination.totalPages}
+                  className="p-2 bg-slate-800 rounded-lg text-slate-300 disabled:opacity-50"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 
-      {/* Trash View */}
-      {viewMode === 'trash' && (
+      {/* Categories Tab */}
+      {activeTab === 'categories' && <TarotCategoriesManager />}
+
+      {/* Tags Tab */}
+      {activeTab === 'tags' && <TarotTagsManager />}
+
+      {/* Media Tab */}
+      {activeTab === 'media' && <TarotMediaManager />}
+
+      {/* Trash Tab */}
+      {activeTab === 'trash' && (
         <>
           {trashArticles.length > 0 && (
             <div className="flex justify-end mb-4">
@@ -621,9 +658,7 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                 {language === 'en' ? 'Trash is empty' : 'La corbeille est vide'}
               </h3>
               <p className="text-slate-500">
-                {language === 'en'
-                  ? 'Deleted articles will appear here'
-                  : 'Les articles supprimés apparaîtront ici'}
+                {language === 'en' ? 'Deleted articles will appear here' : 'Les articles supprimés apparaîtront ici'}
               </p>
             </div>
           ) : (
@@ -643,11 +678,19 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                       <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img
-                              src={article.featuredImage || '/placeholder-card.png'}
-                              alt={article.featuredImageAlt || article.title}
-                              className="w-16 h-16 object-cover rounded-lg bg-slate-800"
-                            />
+                            <div className="relative w-16 h-16 flex-shrink-0">
+                              {article.featuredImage ? (
+                                <img
+                                  src={article.featuredImage}
+                                  alt={article.featuredImageAlt || article.title}
+                                  className="w-full h-full object-cover rounded-lg bg-slate-800"
+                                />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                                  <ImageOff className="w-5 h-5 text-purple-400/50" />
+                                </div>
+                              )}
+                            </div>
                             <div>
                               <p className="text-slate-200 font-medium">{article.title}</p>
                               <p className="text-slate-500 text-sm">{article.cardNumber}</p>
@@ -718,6 +761,36 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
           )}
         </>
       )}
+
+      {/* Import Modal */}
+      <AnimatePresence>
+        {showImportModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowImportModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-900 rounded-xl border border-purple-500/30 p-0 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ImportArticle
+                isModal={true}
+                onClose={() => setShowImportModal(false)}
+                onSuccess={() => {
+                  setShowImportModal(false);
+                  loadArticles();
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Confirm Modal */}
       <AnimatePresence>

@@ -37,9 +37,12 @@ interface ValidationResult {
 interface ImportArticleProps {
   editingArticleId?: string | null;
   onCancelEdit?: () => void;
+  isModal?: boolean;
+  onClose?: () => void;
+  onSuccess?: () => void;
 }
 
-const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCancelEdit }) => {
+const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCancelEdit, isModal, onClose, onSuccess }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
   const [jsonInput, setJsonInput] = useState('');
@@ -277,6 +280,9 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
           if (onCancelEdit) {
             onCancelEdit();
           }
+        } else if (isModal && onSuccess) {
+          // Modal mode: call onSuccess callback
+          onSuccess();
         } else {
           // Clear form for new import
           setJsonInput('');
@@ -318,19 +324,30 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className={isModal ? 'p-6' : 'max-w-7xl mx-auto'}>
       {/* Header with Action Buttons */}
       <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-heading text-amber-400 mb-2 flex items-center gap-3">
-            <Upload className="w-6 h-6" />
-            {language === 'en' ? 'Import Tarot Article' : 'Importer un Article Tarot'}
-          </h2>
-          <p className="text-purple-300/70">
-            {language === 'en'
-              ? 'Paste the JSON output from the AI writer to import a new article.'
-              : 'Collez la sortie JSON du rédacteur AI pour importer un nouvel article.'}
-          </p>
+        <div className="flex items-start gap-4">
+          {isModal && onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-white transition-colors -mt-1"
+              title={language === 'en' ? 'Close' : 'Fermer'}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+          <div>
+            <h2 className="text-2xl font-heading text-amber-400 mb-2 flex items-center gap-3">
+              <Upload className="w-6 h-6" />
+              {language === 'en' ? 'Import Tarot Article' : 'Importer un Article Tarot'}
+            </h2>
+            <p className="text-purple-300/70">
+              {language === 'en'
+                ? 'Paste the JSON output from the AI writer to import a new article.'
+                : 'Collez la sortie JSON du rédacteur AI pour importer un nouvel article.'}
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons - Moved to upper right */}

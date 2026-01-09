@@ -1001,6 +1001,178 @@ export async function emptyTarotArticlesTrash(
 }
 
 // ============================================
+// TAROT CATEGORIES
+// ============================================
+
+export interface TarotCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchTarotCategories(token: string): Promise<{ categories: TarotCategory[] }> {
+  return apiRequest('/api/tarot-articles/admin/categories', { token });
+}
+
+export async function createTarotCategory(
+  token: string,
+  data: { name: string; slug: string; description?: string }
+): Promise<{ category: TarotCategory }> {
+  return apiRequest('/api/tarot-articles/admin/categories', {
+    method: 'POST',
+    token,
+    body: data,
+  });
+}
+
+export async function updateTarotCategory(
+  token: string,
+  id: string,
+  data: Partial<{ name: string; slug: string; description?: string }>
+): Promise<{ category: TarotCategory }> {
+  return apiRequest(`/api/tarot-articles/admin/categories/${id}`, {
+    method: 'PATCH',
+    token,
+    body: data,
+  });
+}
+
+export async function deleteTarotCategory(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/tarot-articles/admin/categories/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+// ============================================
+// TAROT TAGS
+// ============================================
+
+export interface TarotTag {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchTarotTags(token: string): Promise<{ tags: TarotTag[] }> {
+  return apiRequest('/api/tarot-articles/admin/tags', { token });
+}
+
+export async function createTarotTag(
+  token: string,
+  data: { name: string; slug: string }
+): Promise<{ tag: TarotTag }> {
+  return apiRequest('/api/tarot-articles/admin/tags', {
+    method: 'POST',
+    token,
+    body: data,
+  });
+}
+
+export async function updateTarotTag(
+  token: string,
+  id: string,
+  data: Partial<{ name: string; slug: string }>
+): Promise<{ tag: TarotTag }> {
+  return apiRequest(`/api/tarot-articles/admin/tags/${id}`, {
+    method: 'PATCH',
+    token,
+    body: data,
+  });
+}
+
+export async function deleteTarotTag(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/tarot-articles/admin/tags/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+// ============================================
+// TAROT MEDIA
+// ============================================
+
+export interface TarotMedia {
+  id: string;
+  filename: string;
+  originalName: string;
+  url: string;
+  mimeType: string;
+  size: number;
+  altText?: string;
+  caption?: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+}
+
+export async function fetchTarotMedia(
+  token: string,
+  params: { deleted?: boolean } = {}
+): Promise<{ media: TarotMedia[] }> {
+  const searchParams = new URLSearchParams();
+  if (params.deleted !== undefined) searchParams.append('deleted', String(params.deleted));
+  const query = searchParams.toString();
+  return apiRequest(`/api/tarot-articles/admin/media${query ? `?${query}` : ''}`, { token });
+}
+
+export async function uploadTarotMedia(token: string, file: File): Promise<{ media: TarotMedia }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_URL}/api/tarot-articles/admin/media/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || 'Failed to upload media');
+  }
+
+  return response.json();
+}
+
+export async function updateTarotMedia(
+  token: string,
+  id: string,
+  data: { altText?: string; caption?: string }
+): Promise<{ media: TarotMedia }> {
+  return apiRequest(`/api/tarot-articles/admin/media/${id}`, {
+    method: 'PATCH',
+    token,
+    body: data,
+  });
+}
+
+export async function deleteTarotMedia(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/tarot-articles/admin/media/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+export async function restoreTarotMedia(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/tarot-articles/admin/media/${id}/restore`, {
+    method: 'POST',
+    token,
+  });
+}
+
+export async function permanentlyDeleteTarotMedia(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/tarot-articles/admin/media/${id}/permanent`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+// ============================================
 // ADMIN REVENUE EXPORT
 // ============================================
 
