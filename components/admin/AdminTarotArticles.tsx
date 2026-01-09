@@ -508,14 +508,17 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
-                              const port = window.location.port || '5173';
+                              const port = window.location.port || '3000';
                               const url = article.status === 'PUBLISHED'
                                 ? `http://localhost:${port}/#/tarot/articles/${article.slug}`
                                 : `http://localhost:${port}/#/admin/tarot/preview/${article.id}`;
                               window.open(url, '_blank');
                             }}
                             className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
-                            title={language === 'en' ? 'Preview' : 'Aperçu'}
+                            title={article.status === 'PUBLISHED'
+                              ? (language === 'en' ? 'View' : 'Voir')
+                              : (language === 'en' ? 'Preview' : 'Aperçu')
+                            }
                           >
                             <Eye className="w-4 h-4" />
                           </button>

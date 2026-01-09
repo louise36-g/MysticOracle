@@ -606,14 +606,19 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                         <button
                           onClick={() => {
                             if (result.article?.id) {
-                              const port = window.location.port || '5173';
-                              const url = `http://localhost:${port}/#/admin/tarot/preview/${result.article.id}`;
+                              const port = window.location.port || '3000';
+                              const url = result.article.status === 'PUBLISHED'
+                                ? `http://localhost:${port}/#/tarot/articles/${result.article.slug}`
+                                : `http://localhost:${port}/#/admin/tarot/preview/${result.article.id}`;
                               window.open(url, '_blank');
                             }
                           }}
                           className="text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
                         >
-                          {language === 'en' ? 'View Article' : 'Voir l\'Article'} →
+                          {result.article?.status === 'PUBLISHED'
+                            ? (language === 'en' ? 'View' : 'Voir')
+                            : (language === 'en' ? 'Preview' : 'Aperçu')
+                          } →
                         </button>
                       </div>
                     </div>
