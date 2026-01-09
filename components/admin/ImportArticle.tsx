@@ -392,35 +392,9 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         </div>
       </div>
 
-      {/* Edit Mode Banner */}
+      {/* Editor Mode Info */}
       {isEditMode && (
-        <div className="mb-6 space-y-4">
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                <div>
-                  <p className="text-amber-300 font-medium">
-                    {language === 'en' ? 'Editing Article' : 'Édition d\'Article'}
-                  </p>
-                  <p className="text-sm text-amber-300/70">
-                    {editingArticleTitle}
-                  </p>
-                </div>
-              </div>
-              {onCancelEdit && (
-                <button
-                  onClick={onCancelEdit}
-                  className="text-sm text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-2"
-                >
-                  <X className="w-4 h-4" />
-                  {language === 'en' ? 'Cancel' : 'Annuler'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Editor Mode Info */}
+        <div className="mb-6">
           <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
             <div className="flex items-start gap-3">
               <FileText className="w-5 h-5 text-purple-300 flex-shrink-0 mt-0.5" />
@@ -439,8 +413,9 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         </div>
       )}
 
-      {/* Input Panel - Full Width */}
-      <div className="space-y-6">
+      {/* Two Column Layout: JSON Left, Results Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* LEFT: JSON Input */}
         <div className="bg-slate-800/50 rounded-lg p-6 border border-purple-500/20">
           <div className="flex items-center justify-between mb-3">
             <label className="flex items-center gap-2 text-sm font-medium text-purple-300">
@@ -459,13 +434,13 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
             placeholder={language === 'en' ? 'Paste your article JSON here...' : 'Collez votre JSON d\'article ici...'}
-            className="w-full h-[500px] font-mono text-sm p-4 bg-slate-900 border border-slate-700
+            className="w-full h-[600px] font-mono text-sm p-4 bg-slate-900 border border-slate-700
               rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent
               resize-none text-slate-300 placeholder-slate-500"
           />
         </div>
 
-        {/* Results Panel */}
+        {/* RIGHT: Results Panel */}
         <div className="space-y-4">
           {/* Validation Results */}
           <AnimatePresence mode="wait">
@@ -630,8 +605,10 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                       <div className="mt-4 flex gap-3">
                         <button
                           onClick={() => {
-                            if (result.article?.slug) {
-                              window.open(`/#/tarot/articles/${result.article.slug}`, '_blank');
+                            if (result.article?.id) {
+                              const port = window.location.port || '5173';
+                              const url = `http://localhost:${port}/#/admin/tarot/preview/${result.article.id}`;
+                              window.open(url, '_blank');
                             }
                           }}
                           className="text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"

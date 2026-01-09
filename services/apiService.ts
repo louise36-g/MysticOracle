@@ -835,6 +835,8 @@ export interface TarotArticle {
   schemaHtml: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   publishedAt?: string;
+  deletedAt?: string;
+  originalSlug?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -923,6 +925,7 @@ export async function fetchAdminTarotArticles(
     search?: string;
     cardType?: string;
     status?: string;
+    deleted?: boolean;
   }
 ): Promise<AdminTarotArticlesListResponse> {
   const queryParams = new URLSearchParams();
@@ -931,6 +934,7 @@ export async function fetchAdminTarotArticles(
   if (params.search) queryParams.set('search', params.search);
   if (params.cardType) queryParams.set('cardType', params.cardType);
   if (params.status) queryParams.set('status', params.status);
+  if (params.deleted !== undefined) queryParams.set('deleted', params.deleted.toString());
 
   return apiRequest(`/api/tarot-articles/admin/list?${queryParams.toString()}`, {
     token,
@@ -946,6 +950,15 @@ export async function fetchAdminTarotArticle(
   });
 }
 
+export async function previewTarotArticle(
+  token: string,
+  id: string
+): Promise<TarotArticle> {
+  return apiRequest(`/api/tarot-articles/admin/preview/${id}`, {
+    token,
+  });
+}
+
 export async function updateTarotArticleStatus(
   token: string,
   id: string,
@@ -954,6 +967,35 @@ export async function updateTarotArticleStatus(
   return apiRequest(`/api/tarot-articles/admin/${id}`, {
     method: 'PATCH',
     body: { status },
+    token,
+  });
+}
+
+export async function restoreTarotArticle(
+  token: string,
+  id: string
+): Promise<{ success: boolean; slug: string; message: string }> {
+  return apiRequest(`/api/tarot-articles/admin/${id}/restore`, {
+    method: 'POST',
+    token,
+  });
+}
+
+export async function permanentlyDeleteTarotArticle(
+  token: string,
+  id: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/api/tarot-articles/admin/${id}/permanent`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+export async function emptyTarotArticlesTrash(
+  token: string
+): Promise<{ success: boolean; deleted: number; message: string }> {
+  return apiRequest('/api/tarot-articles/admin/trash/empty', {
+    method: 'DELETE',
     token,
   });
 }

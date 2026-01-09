@@ -47,6 +47,7 @@ const listArticlesSchema = z.object({
   cardType: z.enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES']).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   search: z.string().optional(),
+  deleted: z.coerce.boolean().optional(),  // true = show trash, false/undefined = show active
 });
 
 router.get('/', async (req, res) => {
@@ -238,9 +239,16 @@ router.post('/admin/import', async (req, res) => {
 router.get('/admin/list', async (req, res) => {
   try {
     const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status, search } = params;
+    const { page, limit, cardType, status, search, deleted } = params;
 
     const where: any = {};
+
+    // Filter by trash status
+    if (deleted === true) {
+      where.deletedAt = { not: null };  // Show only trashed articles
+    } else {
+      where.deletedAt = null;  // Show only active articles (default)
+    }
 
     if (cardType) {
       where.cardType = cardType;
@@ -267,12 +275,15 @@ router.get('/admin/list', async (req, res) => {
           excerpt: true,
           content: true, // Add content for word count
           featuredImage: true,
+          featuredImageAlt: true,
           cardType: true,
           cardNumber: true,
           datePublished: true,
           status: true,
           createdAt: true,
           updatedAt: true,
+          deletedAt: true,
+          originalSlug: true,
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -314,6 +325,27 @@ router.get('/admin/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching single tarot article:', error);
     res.status(500).json({ error: 'Failed to fetch article' });
+  }
+});
+
+/**
+ * GET /api/tarot-articles/admin/preview/:id
+ * Preview any article (admin only) - bypasses published status check
+ */
+router.get('/admin/preview/:id', async (req, res) => {
+  try {
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: req.params.id, deletedAt: null },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    res.json(article);
+  } catch (error) {
+    console.error('Error previewing tarot article:', error);
+    res.status(500).json({ error: 'Failed to preview article' });
   }
 });
 
@@ -389,30 +421,127 @@ router.patch('/admin/:id', async (req, res) => {
 
 /**
  * DELETE /api/tarot-articles/admin/:id
- * Delete a tarot article - admin only
+ * Soft delete a tarot article (move to trash) - admin only
  */
 router.delete('/admin/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-
-    // Check if article exists
-    const existingArticle = await prisma.tarotArticle.findUnique({
-      where: { id },
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: req.params.id },
     });
 
-    if (!existingArticle) {
+    if (!article) {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    // Delete the article
-    await prisma.tarotArticle.delete({
-      where: { id },
+    // Save original slug and modify current slug to avoid conflicts
+    const timestamp = Date.now();
+    const trashedSlug = `_deleted_${timestamp}_${article.slug}`;
+
+    await prisma.tarotArticle.update({
+      where: { id: req.params.id },
+      data: {
+        deletedAt: new Date(),
+        originalSlug: article.slug,
+        slug: trashedSlug,
+      },
     });
 
-    res.json({ success: true, message: 'Article deleted successfully' });
+    res.json({ success: true, message: 'Article moved to trash' });
   } catch (error) {
     console.error('Error deleting tarot article:', error);
     res.status(500).json({ error: 'Failed to delete article' });
+  }
+});
+
+/**
+ * POST /api/tarot-articles/admin/:id/restore
+ * Restore a tarot article from trash - admin only
+ */
+router.post('/admin/:id/restore', async (req, res) => {
+  try {
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    if (!article.deletedAt) {
+      return res.status(400).json({ error: 'Article is not in trash' });
+    }
+
+    // Check if original slug is available
+    const originalSlug = article.originalSlug || article.slug.replace(/^_deleted_\d+_/, '');
+    const existingWithSlug = await prisma.tarotArticle.findFirst({
+      where: { slug: originalSlug, id: { not: article.id } },
+    });
+
+    // If original slug is taken, generate a new one
+    let newSlug = originalSlug;
+    if (existingWithSlug) {
+      newSlug = `${originalSlug}-restored-${Date.now()}`;
+    }
+
+    await prisma.tarotArticle.update({
+      where: { id: req.params.id },
+      data: {
+        deletedAt: null,
+        originalSlug: null,
+        slug: newSlug,
+      },
+    });
+
+    res.json({ success: true, slug: newSlug, message: 'Article restored successfully' });
+  } catch (error) {
+    console.error('Error restoring tarot article:', error);
+    res.status(500).json({ error: 'Failed to restore article' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/:id/permanent
+ * Permanently delete a tarot article - admin only
+ */
+router.delete('/admin/:id/permanent', async (req, res) => {
+  try {
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    if (!article.deletedAt) {
+      return res.status(400).json({ error: 'Article must be in trash before permanent deletion' });
+    }
+
+    await prisma.tarotArticle.delete({
+      where: { id: req.params.id },
+    });
+
+    res.json({ success: true, message: 'Article permanently deleted' });
+  } catch (error) {
+    console.error('Error permanently deleting tarot article:', error);
+    res.status(500).json({ error: 'Failed to permanently delete article' });
+  }
+});
+
+/**
+ * DELETE /api/tarot-articles/admin/trash/empty
+ * Empty trash (permanently delete all trashed articles) - admin only
+ */
+router.delete('/admin/trash/empty', async (req, res) => {
+  try {
+    const result = await prisma.tarotArticle.deleteMany({
+      where: { deletedAt: { not: null } },
+    });
+
+    res.json({ success: true, deleted: result.count, message: `${result.count} articles permanently deleted` });
+  } catch (error) {
+    console.error('Error emptying trash:', error);
+    res.status(500).json({ error: 'Failed to empty trash' });
   }
 });
 

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { fetchTarotArticle, TarotArticle } from '../services/apiService';
+import { fetchTarotArticle, previewTarotArticle, TarotArticle } from '../services/apiService';
 import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn, HelpCircle } from 'lucide-react';
 
 interface TarotArticlePageProps {
-  slug: string;
+  slug?: string;
+  previewId?: string;
   onBack: () => void;
 }
 
@@ -58,8 +60,9 @@ function Breadcrumbs({ category, title, onNavigate }: { category: string; title:
   );
 }
 
-const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, onBack }) => {
+const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, onBack }) => {
   const { language } = useApp();
+  const { getToken } = useAuth();
   const [article, setArticle] = useState<TarotArticle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,14 +73,28 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, onBack }) => 
       setLoading(true);
       setError(null);
 
-      const result = await fetchTarotArticle(slug);
+      let result: TarotArticle;
+      if (previewId) {
+        // Admin preview mode - fetch by ID with admin API
+        const token = await getToken();
+        if (!token) {
+          throw new Error('Authentication required');
+        }
+        result = await previewTarotArticle(token, previewId);
+      } else if (slug) {
+        // Public mode - fetch by slug
+        result = await fetchTarotArticle(slug);
+      } else {
+        throw new Error('No slug or preview ID provided');
+      }
+
       setArticle(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load article');
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, previewId, getToken]);
 
   useEffect(() => {
     loadArticle();
@@ -87,7 +104,22 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, onBack }) => 
   // This is safe because all content is sanitized before being rendered
   const sanitizedContent = useMemo(() => {
     if (!article?.content) return '';
-    return DOMPurify.sanitize(article.content, {
+
+    // Remove FAQ section from content (we render it separately as a styled component)
+    let contentWithoutFAQ = article.content;
+
+    // Match FAQ section: heading + content until next heading or end
+    // Matches variations: "FAQ", "Frequently Asked Questions", "Questions fréquentes", etc.
+    const faqPatterns = [
+      /<h2[^>]*>\s*(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes)\s*<\/h2>[\s\S]*?(?=<h2|$)/gi,
+      /<h3[^>]*>\s*(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes)\s*<\/h3>[\s\S]*?(?=<h[23]|$)/gi,
+    ];
+
+    faqPatterns.forEach(pattern => {
+      contentWithoutFAQ = contentWithoutFAQ.replace(pattern, '');
+    });
+
+    return DOMPurify.sanitize(contentWithoutFAQ, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',

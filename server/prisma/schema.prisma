@@ -614,11 +614,16 @@ model TarotArticle {
   status             ArticleStatus @default(DRAFT)
   publishedAt        DateTime?
 
+  // Soft delete
+  deletedAt          DateTime?  // If set, article is in trash
+  originalSlug       String?    // Original slug before deletion (for restore)
+
   // Indexes for common queries
   @@index([cardType])
   @@index([status])
   @@index([slug])
   @@index([datePublished])
+  @@index([deletedAt])
 
   @@map("tarot_articles")
 }
