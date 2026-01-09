@@ -31,6 +31,29 @@ import {
 import RichTextEditor from './RichTextEditor';
 import TarotFAQManager, { FAQItem } from './TarotFAQManager';
 
+// SidebarSection component - defined OUTSIDE to prevent re-renders losing focus
+const SidebarSection: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}> = ({ title, icon, isOpen, onToggle, children }) => (
+  <div className="border-b border-slate-700/50 last:border-b-0">
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center justify-between p-3 hover:bg-slate-800/50 transition-colors"
+    >
+      <div className="flex items-center gap-2 text-slate-300">
+        {icon}
+        <span className="text-sm font-medium">{title}</span>
+      </div>
+      {isOpen ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+    </button>
+    {isOpen && <div className="px-3 pb-3">{children}</div>}
+  </div>
+);
+
 interface TarotArticleEditorProps {
   articleId: string;
   onSave: () => void;
@@ -171,28 +194,6 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       if (coverInputRef.current) coverInputRef.current.value = '';
     }
   };
-
-  const SidebarSection: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    isOpen: boolean;
-    onToggle: () => void;
-    children: React.ReactNode;
-  }> = ({ title, icon, isOpen, onToggle, children }) => (
-    <div className="border-b border-slate-700/50 last:border-b-0">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-slate-800/50 transition-colors"
-      >
-        <div className="flex items-center gap-2 text-slate-300">
-          {icon}
-          <span className="text-sm font-medium">{title}</span>
-        </div>
-        {isOpen ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-      </button>
-      {isOpen && <div className="px-3 pb-3">{children}</div>}
-    </div>
-  );
 
   if (loading) {
     return (

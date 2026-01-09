@@ -11,7 +11,7 @@ import { processArticleSchema, type TarotArticleData } from '../lib/schema-build
 // Configure multer for tarot media uploads
 const tarotMediaStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(process.cwd(), 'uploads', 'tarot');
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'tarot');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -803,7 +803,8 @@ router.post('/admin/media/upload', tarotMediaUpload.single('file'), async (req, 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
+    // Use frontend URL for images since they're served from the backend's public folder
+    const baseUrl = process.env.BACKEND_URL || process.env.FRONTEND_URL || `http://localhost:${process.env.PORT || 3001}`;
     const url = `${baseUrl}/uploads/tarot/${req.file.filename}`;
 
     const media = await prisma.tarotMedia.create({
