@@ -64,6 +64,8 @@ import horoscopeRoutes from './routes/horoscopes.js';
 import translationRoutes from './routes/translations.js';
 import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
+import tarotArticleRoutes from './routes/tarot-articles.js';
+import ssrRoutes from './routes/ssr.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -121,7 +123,12 @@ app.use('/api/admin', adminLimiter, adminRoutes);
 app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
 app.use('/api/translations', generalLimiter, translationRoutes);
 app.use('/api/blog', adminLimiter, blogRoutes);
+app.use('/api/tarot-articles', generalLimiter, tarotArticleRoutes);
 app.use('/api/ai', strictLimiter, aiRoutes);
+
+// Server-Side Rendering routes (for SEO)
+// Must come AFTER API routes to avoid conflicts
+app.use('/', ssrRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

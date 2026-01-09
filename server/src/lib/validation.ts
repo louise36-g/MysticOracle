@@ -306,9 +306,13 @@ export function validateArticleExtended(
     warnings.push(`Forbidden words found: ${forbiddenFound.join(', ')}`);
   }
 
-  // Em dash check (warning only)
+  // Em dash check (warning only) - exclude blockquotes
   if (data.content.includes('—')) {
-    warnings.push('Content contains em dashes (—) which may affect readability');
+    // Remove blockquote content before checking for em dashes
+    const contentWithoutBlockquotes = data.content.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '');
+    if (contentWithoutBlockquotes.includes('—')) {
+      warnings.push('Content contains em dashes (—) which may affect readability');
+    }
   }
 
   // Image URL check (warning only)
@@ -327,9 +331,25 @@ export function validateArticleExtended(
 
   // FAQ answer quality check
   data.faq.forEach((item, index) => {
-    const firstWord = item.answer.split(' ')[0].toLowerCase();
-    const delayedStarts = ['when', 'if', 'as', 'in', 'for'];
-    if (delayedStarts.includes(firstWord)) {
+    const answer = item.answer.toLowerCase();
+    const firstWord = answer.split(' ')[0];
+
+    // Check for contextual phrases that are acceptable
+    const acceptablePatterns = [
+      /^in (love|career|relationship|financial|spiritual|health) (readings?|contexts?)/i,
+      /^in (the|a) (context|sense) of/i,
+      /^in (upright|reversed) (position|orientation)/i,
+    ];
+
+    const isAcceptableContext = acceptablePatterns.some(pattern => pattern.test(answer));
+
+    // Only warn about delayed starts if it's not an acceptable contextual phrase
+    const delayedStarts = ['when', 'if', 'as', 'for'];
+    const startsWithIn = firstWord === 'in';
+
+    if (startsWithIn && !isAcceptableContext) {
+      warnings.push(`FAQ ${index + 1} may not start with direct answer`);
+    } else if (!startsWithIn && delayedStarts.includes(firstWord)) {
       warnings.push(`FAQ ${index + 1} may not start with direct answer`);
     }
   });
