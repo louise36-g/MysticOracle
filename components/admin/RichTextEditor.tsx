@@ -596,9 +596,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               </div>
 
               {/* Media Library */}
-              {mediaLibrary.length > 0 && (
-                <div>
-                  <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
+              <div>
+                <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
+                {mediaLibrary.length > 0 ? (
                   <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
                     {mediaLibrary.map((item) => (
                       <div
@@ -643,8 +643,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-slate-500 italic p-2 bg-slate-800/50 rounded-lg">
+                    No images in library. Upload images in the Media tab first.
+                  </p>
+                )}
+              </div>
 
               <div className="flex gap-3 pt-2">
                 <button
