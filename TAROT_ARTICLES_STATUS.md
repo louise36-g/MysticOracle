@@ -15,13 +15,29 @@
 
 ### 3. Import Success Preview Link
 - **Issue**: "Preview" link after import led to 404 error
-- **Partial Fix**: Changed to use app router navigation
-- **Remaining Issue**: Articles import as DRAFT, so public endpoint returns 404
-- **Full Solution Needed**: Create admin preview endpoint (like Blog has)
+- **Fix**: Created admin preview endpoint for DRAFT articles
+- **Result**: Preview now works for all article statuses via `/api/tarot-articles/admin/preview/:id`
+
+### 4. Trash System Implementation ✅
+- **Implementation**: Full soft delete system like Blog section
+- **Features**:
+  - Soft delete moves articles to trash (updates `deletedAt` and modifies slug)
+  - View mode toggle between Active and Trash articles
+  - Restore articles from trash
+  - Permanent delete from trash (with confirmation)
+  - Empty trash bulk action
+- **Database Changes**: Added `deletedAt` and `originalSlug` fields to TarotArticle model
+- **Result**: Articles can be safely deleted and restored, matching Blog CMS functionality
+
+### 5. UI Improvements ✅
+- **Removed**: "Editing Article" banner from ImportArticle component
+- **Verified**: Thumbnail and preview icon present in admin articles list
+- **Enhanced**: Preview icon now shows for ALL articles (not just PUBLISHED)
+- **Fixed**: Duplicate FAQ rendering (removed from content HTML, kept styled section)
 
 ## In Progress 🔄
 
-### 4. Server-Side Rendering (SSR)
+### 6. Server-Side Rendering (SSR)
 - **Issue**: Schema shows in Inspect Element but NOT in View Source
 - **Root Cause**: In development, frontend (port 5173) intercepts routes before backend (port 3001) can serve SSR
 - **Current State**: SSR route exists but isn't being used in dev mode
@@ -37,15 +53,7 @@
 
 ## Remaining Tasks ⏳
 
-### 5. Trash System (Not Started)
-- **Requirement**: Soft delete like Blog section
-- **Implementation**: Add `status = 'TRASH'` instead of hard delete
-- **Scope**: Medium (2-3 hours)
-- **Files to Modify**:
-  - `server/src/routes/tarot-articles.ts` - Change DELETE to update status
-  - `components/admin/AdminTarotArticles.tsx` - Add trash view/restore
-
-### 6. Visual Form Editor (Not Started)
+### 7. Visual Form Editor (Not Started)
 - **Requirement**: Full WYSIWYG editor like BlogPostEditor
 - **Scope**: MASSIVE (8-12 hours minimum)
 - **Why It's Complex**:
@@ -65,15 +73,8 @@
 
 ## Known Issues 🐛
 
-### "Edit Mode" Banner
-- **User Feedback**: Don't need the "Editing Article / Article Title" banner
-- **Fix Required**: Remove the amber banner in ImportArticle component
-- **Priority**: Low (cosmetic)
-
-### Thumbnail Flickering (FIXED ✅)
-- **Issue**: Broken image icon was flickering
-- **Fix**: Added check to prevent infinite loop in onError handler
-- **Status**: Resolved
+### None currently
+All previously identified issues have been resolved.
 
 ## SSR Detailed Explanation
 
@@ -123,12 +124,17 @@ open http://localhost:3001/tarot/articles/your-slug
 
 ## Recommendations
 
-### Immediate Actions
+### Completed Actions ✅
 1. ✅ Keep current JSON import workflow (it works well)
-2. ⏸️ Defer visual editor to Phase 2 (scope too large)
-3. 🔧 Implement trash system (quick win, improves UX)
-4. 🔧 Remove "Editing Article" banner (cosmetic fix)
-5. 🔧 Create admin preview endpoint for DRAFT articles
+2. ✅ Implemented trash system with soft delete, restore, and permanent delete
+3. ✅ Removed "Editing Article" banner
+4. ✅ Created admin preview endpoint for DRAFT articles
+5. ✅ Fixed duplicate FAQ rendering
+
+### Next Steps
+1. ⏸️ Defer visual editor to Phase 2 (scope too large - 8-12 hours)
+2. 🔄 Test SSR in production environment
+3. 📝 Consider implementing visual editor in future phase
 
 ### Future Enhancements
 1. Visual form editor (Phase 2)
@@ -143,10 +149,14 @@ open http://localhost:3001/tarot/articles/your-slug
 ### Frontend
 - `App.tsx` - Added TarotArticlesList view, fixed back button
 - `components/TarotArticlesList.tsx` - NEW: Public articles list with filtering
-- `components/TarotArticlePage.tsx` - Added FAQ section, improved tags styling
-- `components/admin/ImportArticle.tsx` - Fixed preview link (partial)
+- `components/TarotArticlePage.tsx` - Added FAQ section, improved tags styling, removed duplicate FAQ, added admin preview mode
+- `components/admin/ImportArticle.tsx` - Removed "Editing Article" banner, fixed preview link
+- `components/admin/AdminTarotArticles.tsx` - Added trash system with view mode toggle, restore/permanent delete
+- `services/apiService.ts` - Added trash-related functions and preview endpoint
 
 ### Backend
+- `server/prisma/schema.prisma` - Added `deletedAt` and `originalSlug` fields to TarotArticle model
+- `server/src/routes/tarot-articles.ts` - Implemented trash system (soft delete, restore, permanent delete, empty trash, admin preview)
 - `server/src/routes/ssr.ts` - NEW: Server-side rendering for SEO
 - `server/src/index.ts` - Registered SSR routes
 - `server/src/lib/validation.ts` - Relaxed FAQ validation, excluded blockquote em dashes
@@ -154,7 +164,8 @@ open http://localhost:3001/tarot/articles/your-slug
 ### Documentation
 - `SERVER_SIDE_RENDERING.md` - SSR architecture docs
 - `TESTING_SSR.md` - SSR testing guide
-- `TAROT_ARTICLES_STATUS.md` - This file
+- `TAROT_ARTICLES_STATUS.md` - Updated with completed tasks
+- `docs/Changelog.md` - Added trash system and preview fixes
 
 ## Next Steps
 
@@ -173,15 +184,18 @@ npm run dev
 - Can reuse BlogPostEditor as template
 - Will need significant adaptation for tarot-specific fields
 
-**Quick wins to tackle next:**
-1. Implement trash system (2-3 hours)
-2. Remove editing banner (5 minutes)
-3. Add admin preview endpoint (30 minutes)
-
 ---
 
-**Total Time This Session:** ~4 hours
-**Lines of Code:** ~800 new lines
-**Files Created:** 3 components, 3 docs
-**Bugs Fixed:** 5
-**Features Added:** 2 (articles list, improved article display)
+## Session Summary
+
+**Total Time Combined Sessions:** ~6-7 hours
+**Lines of Code:** ~1500+ new lines
+**Files Created:** 3 components, 4 docs
+**Files Modified:** 12
+**Bugs Fixed:** 8
+**Features Added:**
+- Tarot articles list with search/filtering
+- Improved article display with styled FAQ
+- Complete trash system with soft delete
+- Admin preview for DRAFT articles
+- View mode toggle in admin interface

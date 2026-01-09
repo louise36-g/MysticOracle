@@ -6,6 +6,11 @@ All notable changes to MysticOracle.
 
 ### Added
 - AdminTarotArticles management interface with list view, filters, and search
+- Tarot articles trash system with soft delete, restore, and permanent delete
+- Admin preview endpoint for DRAFT tarot articles
+- View mode toggle (Active/Trash) in AdminTarotArticles
+- Trash view with restore and permanent delete actions
+- Empty trash bulk action
 - Tarot article validation system with content quality checks
 - Snake_case to camelCase JSON conversion for article imports
 - Import Article edit mode with pre-filled data
@@ -19,7 +24,11 @@ All notable changes to MysticOracle.
 - Claude agents and commands (.claude/)
 
 ### Changed
-- ImportArticle UI redesigned (removed sidebar, buttons in header)
+- ImportArticle UI redesigned (removed sidebar, buttons in header, removed "Editing Article" banner)
+- TarotArticlePage now supports admin preview mode with `previewId` prop
+- Preview icon now shows for ALL articles (not just PUBLISHED)
+- Delete action now moves articles to trash (soft delete) instead of permanent deletion
+- Prisma schema updated with `deletedAt` and `originalSlug` fields for trash system
 - FAQ validation relaxed to allow contextual phrases ("In love readings...")
 - Em dash validation excludes blockquotes (acceptable in quotes)
 - Em dash validation changed from blocking error to warning
@@ -31,6 +40,8 @@ All notable changes to MysticOracle.
 
 ### Fixed
 - TarotArticlePage back button navigation error
+- DRAFT article preview now works via admin preview endpoint
+- Duplicate FAQ rendering (removed from content HTML, displayed only as styled section)
 - Repeated modal popups (welcome modal, low credits warning)
 - Flickering image thumbnails in AdminTarotArticles list
 - API route URLs in ImportArticle component (removed duplicate /api prefix)
