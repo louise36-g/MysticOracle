@@ -170,7 +170,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
     }
   }
 
-  // Import article
+  // Import or update article
   async function handleImport() {
     if (!jsonInput.trim()) return;
 
@@ -189,26 +189,48 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/tarot-articles/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(parsed),
-      });
+      let response;
+      if (isEditMode && editingArticleId) {
+        // Update existing article
+        response = await fetch(`${import.meta.env.VITE_API_URL}/api/tarot-articles/admin/${editingArticleId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(parsed),
+        });
+      } else {
+        // Import new article
+        response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/tarot-articles/import`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(parsed),
+        });
+      }
 
       const data = await response.json();
       setResult(data);
 
       if (data.success) {
-        setJsonInput('');
-        setValidationResult(null);
+        if (isEditMode) {
+          // Exit edit mode and return to list
+          if (onCancelEdit) {
+            onCancelEdit();
+          }
+        } else {
+          // Clear form for new import
+          setJsonInput('');
+          setValidationResult(null);
+        }
       }
     } catch (err) {
       setResult({
         success: false,
-        error: err instanceof Error ? err.message : 'Import failed',
+        error: err instanceof Error ? err.message : (isEditMode ? 'Update failed' : 'Import failed'),
       });
     } finally {
       setLoading(false);
