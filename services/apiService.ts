@@ -796,6 +796,169 @@ export async function updateAdminSetting(
 }
 
 // ============================================
+// TAROT ARTICLES (Public & Admin)
+// ============================================
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface TarotArticle {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  readTime: string;
+  datePublished: string;
+  dateModified: string;
+  featuredImage: string;
+  featuredImageAlt: string;
+  cardType: string;
+  cardNumber: string;
+  astrologicalCorrespondence: string;
+  element: string;
+  categories: string[];
+  tags: string[];
+  seoFocusKeyword: string;
+  seoMetaTitle: string;
+  seoMetaDescription: string;
+  faq: FAQItem[];
+  breadcrumbCategory: string;
+  breadcrumbCategoryUrl?: string;
+  relatedCards: string[];
+  isCourtCard: boolean;
+  isChallengeCard: boolean;
+  schemaJson: object;
+  schemaHtml: string;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TarotArticlesListResponse {
+  articles: TarotArticle[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// Public: Fetch a single tarot article by slug
+export async function fetchTarotArticle(slug: string): Promise<TarotArticle> {
+  return apiRequest(`/api/tarot-articles/${slug}`);
+}
+
+// Public: Fetch list of tarot articles with pagination
+export async function fetchTarotArticles(params: {
+  page?: number;
+  limit?: number;
+  cardType?: string;
+  status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+} = {}): Promise<TarotArticlesListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.cardType) queryParams.set('cardType', params.cardType);
+  if (params.status) queryParams.set('status', params.status);
+
+  return apiRequest(`/api/tarot-articles?${queryParams.toString()}`);
+}
+
+// Admin: Create new tarot article
+export async function createTarotArticle(
+  token: string,
+  data: Partial<TarotArticle>
+): Promise<TarotArticle> {
+  return apiRequest('/api/admin/tarot-articles', {
+    method: 'POST',
+    body: data,
+    token,
+  });
+}
+
+// Admin: Update tarot article
+export async function updateTarotArticle(
+  token: string,
+  id: string,
+  data: Partial<TarotArticle>
+): Promise<TarotArticle> {
+  return apiRequest(`/api/admin/tarot-articles/${id}`, {
+    method: 'PATCH',
+    body: data,
+    token,
+  });
+}
+
+// Admin: Delete tarot article
+export async function deleteTarotArticle(
+  token: string,
+  id: string
+): Promise<{ success: boolean }> {
+  return apiRequest(`/api/admin/tarot-articles/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+// ============================================
+// ADMIN TAROT ARTICLES
+// ============================================
+
+export interface AdminTarotArticlesListResponse {
+  articles: TarotArticle[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function fetchAdminTarotArticles(
+  token: string,
+  params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    cardType?: string;
+    status?: string;
+  }
+): Promise<AdminTarotArticlesListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.set('page', params.page.toString());
+  if (params.limit) queryParams.set('limit', params.limit.toString());
+  if (params.search) queryParams.set('search', params.search);
+  if (params.cardType) queryParams.set('cardType', params.cardType);
+  if (params.status) queryParams.set('status', params.status);
+
+  return apiRequest(`/api/tarot-articles/admin/list?${queryParams.toString()}`, {
+    token,
+  });
+}
+
+export async function fetchAdminTarotArticle(
+  token: string,
+  id: string
+): Promise<TarotArticle> {
+  return apiRequest(`/api/tarot-articles/admin/${id}`, {
+    token,
+  });
+}
+
+export async function updateTarotArticleStatus(
+  token: string,
+  id: string,
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+): Promise<TarotArticle> {
+  return apiRequest(`/api/tarot-articles/admin/${id}`, {
+    method: 'PATCH',
+    body: { status },
+    token,
+  });
+}
+
+// ============================================
 // ADMIN REVENUE EXPORT
 // ============================================
 
