@@ -24,6 +24,7 @@ import {
   Archive,
   Trash,
   RotateCcw,
+  ImageOff,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -456,29 +457,24 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                     <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          {article.featuredImage ? (
-                            <img
-                              src={article.featuredImage}
-                              alt={article.featuredImageAlt || article.title}
-                              className="w-20 h-20 object-cover rounded-lg bg-slate-800"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                // Replace with placeholder div on error
-                                const parent = target.parentElement;
-                                if (parent) {
+                          <div className="relative w-20 h-20 flex-shrink-0">
+                            {article.featuredImage ? (
+                              <img
+                                src={article.featuredImage}
+                                alt={article.featuredImageAlt || article.title}
+                                className="w-full h-full object-cover rounded-lg bg-slate-800"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
-                                  const placeholder = document.createElement('div');
-                                  placeholder.className = 'w-20 h-20 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center';
-                                  placeholder.innerHTML = '<span class="text-purple-400 text-xs">No Image</span>';
-                                  parent.insertBefore(placeholder, target);
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div className="w-20 h-20 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                              <span className="text-purple-400 text-xs">No Image</span>
+                                  const placeholder = target.parentElement?.querySelector('.img-placeholder');
+                                  if (placeholder) placeholder.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <div className={`img-placeholder absolute inset-0 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center ${article.featuredImage ? 'hidden' : ''}`}>
+                              <ImageOff className="w-6 h-6 text-purple-400/50" />
                             </div>
-                          )}
+                          </div>
                           <div>
                             <button
                               onClick={() => onNavigateToImport(article.id)}

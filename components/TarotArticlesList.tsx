@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
-import { BookOpen, Search, Filter } from 'lucide-react';
+import { BookOpen, Search, Filter, ImageOff } from 'lucide-react';
 
 interface TarotArticle {
   id: string;
@@ -141,16 +141,26 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
               onClick={() => onArticleClick(article.slug)}
               className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20"
             >
-              <div className="aspect-video overflow-hidden bg-slate-900">
-                <img
-                  src={article.featuredImage}
-                  alt={article.featuredImageAlt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder-card.png';
-                  }}
-                />
+              <div className="aspect-video overflow-hidden bg-slate-900 relative">
+                {article.featuredImage ? (
+                  <img
+                    src={article.featuredImage}
+                    alt={article.featuredImageAlt || article.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
+                      if (placeholder) placeholder.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}>
+                  <div className="text-center">
+                    <ImageOff className="w-10 h-10 text-purple-400/50 mx-auto mb-2" />
+                    <span className="text-sm text-purple-300/50">No Image</span>
+                  </div>
+                </div>
               </div>
               <div className="p-4">
                 <div className="flex items-center gap-2 text-xs text-purple-400 mb-2">

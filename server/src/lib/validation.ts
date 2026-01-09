@@ -329,31 +329,6 @@ export function validateArticleExtended(
     warnings.push('Opening may not follow answer-first pattern');
   }
 
-  // FAQ answer quality check
-  data.faq.forEach((item, index) => {
-    const answer = item.answer.toLowerCase();
-    const firstWord = answer.split(' ')[0];
-
-    // Check for contextual phrases that are acceptable
-    const acceptablePatterns = [
-      /^in (love|career|relationship|financial|spiritual|health) (readings?|contexts?)/i,
-      /^in (the|a) (context|sense) of/i,
-      /^in (upright|reversed) (position|orientation)/i,
-    ];
-
-    const isAcceptableContext = acceptablePatterns.some(pattern => pattern.test(answer));
-
-    // Only warn about delayed starts if it's not an acceptable contextual phrase
-    const delayedStarts = ['when', 'if', 'as', 'for'];
-    const startsWithIn = firstWord === 'in';
-
-    if (startsWithIn && !isAcceptableContext) {
-      warnings.push(`FAQ ${index + 1} may not start with direct answer`);
-    } else if (!startsWithIn && delayedStarts.includes(firstWord)) {
-      warnings.push(`FAQ ${index + 1} may not start with direct answer`);
-    }
-  });
-
   return {
     ...baseResult,
     warnings: warnings.length > 0 ? warnings : undefined,

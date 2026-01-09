@@ -100,60 +100,54 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     loadArticle();
   }, [loadArticle]);
 
-  // Sanitize HTML content with DOMPurify to prevent XSS attacks
-  // Replace FAQ section with a placeholder marker so we can render styled FAQ in place
-  const FAQ_PLACEHOLDER = '<!-- FAQ_PLACEHOLDER -->';
+  // DOMPurify sanitization config
+  const sanitizeConfig = {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
+      'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
+      'width', 'height', 'loading'
+    ],
+    ALLOW_DATA_ATTR: false,
+    ADD_ATTR: ['target', 'rel'],
+    FORCE_BODY: true,
+  };
 
-  const sanitizedContent = useMemo(() => {
-    if (!article?.content) return '';
-
-    let contentWithFAQPlaceholder = article.content;
-
-    // Replace FAQ section with placeholder (we render styled FAQ component there)
-    // Matches FAQ headings and all content until the next major heading or end of content
-    const faqPatterns = [
-      // H2 FAQ sections
-      /<h2[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi,
-      // H3 FAQ sections
-      /<h3[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h3>[\s\S]*?(?=<h[23][^>]*>|$)/gi,
-    ];
-
-    // Replace the first match with placeholder, remove subsequent matches
-    let hasReplacedWithPlaceholder = false;
-    faqPatterns.forEach(pattern => {
-      contentWithFAQPlaceholder = contentWithFAQPlaceholder.replace(pattern, (match) => {
-        if (!hasReplacedWithPlaceholder) {
-          hasReplacedWithPlaceholder = true;
-          return FAQ_PLACEHOLDER;
-        }
-        return '';
-      });
-    });
-
-    return DOMPurify.sanitize(contentWithFAQPlaceholder, {
-      ALLOWED_TAGS: [
-        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
-        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
-      ],
-      ALLOWED_ATTR: [
-        'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
-        'width', 'height', 'loading'
-      ],
-      ALLOW_DATA_ATTR: false,
-      ADD_ATTR: ['target', 'rel'],
-      FORCE_BODY: true,
-    });
-  }, [article?.content]);
-
-  // Split content at FAQ placeholder to render styled FAQ in place
+  // Split content at FAQ section, then sanitize each part separately
+  // This allows us to render styled FAQ component in place of the original FAQ
   const contentParts = useMemo(() => {
-    if (!sanitizedContent.includes(FAQ_PLACEHOLDER)) {
-      return { before: sanitizedContent, after: '' };
+    if (!article?.content) return { before: '', after: '' };
+
+    const content = article.content;
+
+    // Find FAQ section - matches FAQ heading and all content until next major heading or end
+    const faqPattern = /<h2[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi;
+
+    const match = faqPattern.exec(content);
+
+    if (!match) {
+      // No FAQ found in content - return all content as "before"
+      return {
+        before: DOMPurify.sanitize(content, sanitizeConfig),
+        after: ''
+      };
     }
-    const [before, after] = sanitizedContent.split(FAQ_PLACEHOLDER);
-    return { before, after };
-  }, [sanitizedContent]);
+
+    // Split at the FAQ section
+    const faqStartIndex = match.index;
+    const faqEndIndex = faqStartIndex + match[0].length;
+
+    const beforeFAQ = content.substring(0, faqStartIndex);
+    const afterFAQ = content.substring(faqEndIndex);
+
+    return {
+      before: DOMPurify.sanitize(beforeFAQ, sanitizeConfig),
+      after: DOMPurify.sanitize(afterFAQ, sanitizeConfig)
+    };
+  }, [article?.content]);
 
   const handleNavigate = (path: string) => {
     window.history.pushState({}, '', path);
