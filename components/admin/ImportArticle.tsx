@@ -628,14 +628,16 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                         {language === 'en' ? 'Status:' : 'Statut:'} <span className="text-purple-300">{result.article?.status}</span>
                       </p>
                       <div className="mt-4 flex gap-3">
-                        <a
-                          href={`/tarot/articles/${result.article?.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => {
+                            if (result.article?.slug) {
+                              window.open(`/#/tarot/articles/${result.article.slug}`, '_blank');
+                            }
+                          }}
                           className="text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
                         >
-                          {language === 'en' ? 'Preview' : 'Aperçu'} →
-                        </a>
+                          {language === 'en' ? 'View Article' : 'Voir l\'Article'} →
+                        </button>
                       </div>
                     </div>
 

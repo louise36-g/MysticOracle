@@ -250,11 +250,19 @@ const ResizableImage = Node.create({
         tag: 'img[src]',
         getAttrs: (dom) => {
           const element = dom as HTMLElement;
+          // Parse width from data-width attribute or style attribute
+          let width = element.getAttribute('data-width');
+          if (!width && element.style.width) {
+            width = element.style.width.replace('px', '');
+          }
+          // Convert to number if it's a valid number string, otherwise keep as-is (e.g., "100%")
+          const parsedWidth = width && !isNaN(Number(width)) ? Number(width) : width;
+
           return {
             src: element.getAttribute('src'),
             alt: element.getAttribute('alt'),
             title: element.getAttribute('title'),
-            width: element.getAttribute('data-width') || element.style.width?.replace('px', '') || null,
+            width: parsedWidth || null,
             align: element.getAttribute('data-align') || 'center',
           };
         },

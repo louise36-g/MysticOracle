@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
+import { HelmetProvider } from 'react-helmet-async';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import { TranslationProvider } from './context/TranslationContext';
@@ -45,14 +46,16 @@ window.onunhandledrejection = (event) => {
 const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <TranslationProvider>
-        <AppProvider>
-          <SpendingLimitsProvider>
-            <App />
-          </SpendingLimitsProvider>
-        </AppProvider>
-      </TranslationProvider>
-    </ClerkProvider>
+    <HelmetProvider>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+        <TranslationProvider>
+          <AppProvider>
+            <SpendingLimitsProvider>
+              <App />
+            </SpendingLimitsProvider>
+          </AppProvider>
+        </TranslationProvider>
+      </ClerkProvider>
+    </HelmetProvider>
   );
 }

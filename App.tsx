@@ -19,6 +19,7 @@ import CreditShop from './components/CreditShop';
 import Breadcrumb from './components/Breadcrumb';
 import BlogList from './components/blog/BlogList';
 import BlogPostView from './components/blog/BlogPost';
+import TarotArticlesList from './components/TarotArticlesList';
 import TarotArticlePage from './components/TarotArticlePage';
 import HowCreditsWork from './components/HowCreditsWork';
 import FAQ from './components/FAQ';
@@ -466,11 +467,21 @@ const App: React.FC = () => {
     }
 
     // 8. Tarot Articles (accessible to all)
+    if (currentView === 'tarot-articles') {
+        return (
+          <TarotArticlesList
+            onArticleClick={(slug) => {
+              setTarotArticleSlug(slug);
+              handleNavigate('tarot-article');
+            }}
+          />
+        );
+    }
     if (currentView === 'tarot-article' && tarotArticleSlug) {
         return (
           <TarotArticlePage
             slug={tarotArticleSlug}
-            onBack={() => handleNavigate('home')}
+            onBack={() => handleNavigate('tarot-articles')}
           />
         );
     }

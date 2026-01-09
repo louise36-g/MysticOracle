@@ -528,3 +528,126 @@ model MediaUpload {
 
   @@index([folder])
 }
+
+// ============================================
+// TAROT ARTICLES (GEO-Optimized Content)
+// ============================================
+
+// Enums for Tarot Cards
+enum CardType {
+  MAJOR_ARCANA      @map("Major Arcana")
+  SUIT_OF_WANDS     @map("Suit of Wands")
+  SUIT_OF_CUPS      @map("Suit of Cups")
+  SUIT_OF_SWORDS    @map("Suit of Swords")
+  SUIT_OF_PENTACLES @map("Suit of Pentacles")
+}
+
+enum Element {
+  FIRE
+  WATER
+  AIR
+  EARTH
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// Main Tarot Article Model
+model TarotArticle {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Content
+  title              String
+  slug               String   @unique
+  excerpt            String
+  content            String   @db.Text
+  author             String
+  readTime           String
+
+  // Dates (for schema)
+  datePublished      DateTime
+  dateModified       DateTime
+
+  // Images
+  featuredImage      String
+  featuredImageAlt   String
+
+  // Card Metadata
+  cardType                   CardType
+  cardNumber                 String
+  astrologicalCorrespondence String
+  element                    Element
+
+  // Taxonomy (stored as JSON arrays)
+  categories         String[]
+  tags               String[]
+
+  // SEO
+  seoFocusKeyword    String
+  seoMetaTitle       String
+  seoMetaDescription String
+
+  // FAQ (stored as JSON)
+  faq                Json     // Array of { question: string, answer: string }
+
+  // Breadcrumbs
+  breadcrumbCategory    String
+  breadcrumbCategoryUrl String?
+
+  // Related Content
+  relatedCards       String[]
+
+  // Flags
+  isCourtCard        Boolean  @default(false)
+  isChallengeCard    Boolean  @default(false)
+
+  // Generated Schema (stored for performance)
+  schemaJson         Json     // The complete JSON-LD schema
+  schemaHtml         String   @db.Text
+
+  // Publishing
+  status             ArticleStatus @default(DRAFT)
+  publishedAt        DateTime?
+
+  // Indexes for common queries
+  @@index([cardType])
+  @@index([status])
+  @@index([slug])
+  @@index([datePublished])
+
+  @@map("tarot_articles")
+}
+
+// Optional: Card Reference Table
+model TarotCard {
+  id          String   @id @default(cuid())
+
+  name        String   @unique  // "The Fool", "Three of Cups"
+  slug        String   @unique  // "the-fool", "three-of-cups"
+  cardType    CardType
+  cardNumber  String            // "0", "3", etc.
+  element     Element
+
+  // Correspondences
+  astrologicalSign    String?
+  astrologicalPlanet  String?
+  hebrewLetter        String?
+
+  // Quick reference
+  uprightKeywords     String[]
+  reversedKeywords    String[]
+
+  // Relationships
+  // article          TarotArticle? @relation(fields: [articleId], references: [id])
+  // articleId        String?       @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tarot_cards")
+}
