@@ -12,12 +12,13 @@ interface WelcomeModalProps {
   onNavigateToReading: () => void;
   onOpenCreditShop: () => void;
   onNavigateToCreditsInfo: () => void;
+  onRefreshUser: () => Promise<void>;
   credits: number;
 }
 
 const TOTAL_STEPS = 3;
 
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, onNavigateToCreditsInfo, credits }) => {
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, onNavigateToCreditsInfo, onRefreshUser, credits }) => {
   const { t } = useTranslation();
   const { getToken } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
@@ -28,11 +29,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
       const token = await getToken();
       if (token) {
         await markWelcomeCompleted(token);
+        // Refresh user state to update welcomeCompleted flag
+        await onRefreshUser();
       }
     } catch (error) {
       console.error('Failed to mark welcome as completed:', error);
     }
-  }, [getToken]);
+  }, [getToken, onRefreshUser]);
 
   const handleNext = useCallback(() => {
     if (currentStep < TOTAL_STEPS - 1) {

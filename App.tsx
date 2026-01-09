@@ -36,7 +36,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
 
 const App: React.FC = () => {
-  const { user, isLoading, language } = useApp();
+  const { user, isLoading, language, refreshUser } = useApp();
   const { isSignedIn, isLoaded: clerkLoaded } = useUser();
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
@@ -639,6 +639,7 @@ const App: React.FC = () => {
         onNavigateToReading={() => handleReadingModeSelect('tarot')}
         onOpenCreditShop={() => setShowCreditShop(true)}
         onNavigateToCreditsInfo={() => handleNavigate('how-credits-work')}
+        onRefreshUser={refreshUser}
         credits={user?.credits ?? 3}
       />
 
