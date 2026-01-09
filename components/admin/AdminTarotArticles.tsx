@@ -57,6 +57,47 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     onConfirm: () => {},
   });
 
+  // Utility functions
+  const getWordCount = (htmlContent: string): number => {
+    const text = htmlContent.replace(/<[^>]*>/g, ' ');
+    const words = text.trim().split(/\s+/);
+    return words.filter(word => word.length > 0).length;
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Badge configurations
+  const cardTypeBadges: Record<CardType, { bg: string; text: string; label: string }> = {
+    MAJOR_ARCANA: { bg: 'bg-purple-500/20', text: 'text-purple-400', label: 'Major Arcana' },
+    SUIT_OF_WANDS: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Wands' },
+    SUIT_OF_CUPS: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Cups' },
+    SUIT_OF_SWORDS: { bg: 'bg-slate-500/20', text: 'text-slate-400', label: 'Swords' },
+    SUIT_OF_PENTACLES: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Pentacles' },
+  };
+
+  const getStatusBadge = (status: ArticleStatus) => {
+    const badges = {
+      DRAFT: { bg: 'bg-amber-500/20', text: 'text-amber-400', label: language === 'en' ? 'Draft' : 'Brouillon', Icon: FileText },
+      PUBLISHED: { bg: 'bg-green-500/20', text: 'text-green-400', label: language === 'en' ? 'Published' : 'Publié', Icon: CheckCircle },
+      ARCHIVED: { bg: 'bg-slate-500/20', text: 'text-slate-400', label: language === 'en' ? 'Archived' : 'Archivé', Icon: Archive },
+    };
+    const badge = badges[status];
+    const Icon = badge.Icon;
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${badge.bg} ${badge.text}`}>
+        <Icon className="w-3 h-3" />
+        {badge.label}
+      </span>
+    );
+  };
+
   // Placeholder for rest of component
   return <div>AdminTarotArticles Component</div>;
 };
