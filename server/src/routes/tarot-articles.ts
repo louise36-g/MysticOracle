@@ -335,12 +335,43 @@ router.patch('/admin/:id', async (req, res) => {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    // If status is being changed to PUBLISHED, set publishedAt
+    // If this is a full article update (from edit mode), process it
+    if (updates.title && updates.content && updates.slug) {
+      // Validate the updated article data
+      const validationResult = validateArticleExtended(updates);
+
+      if (!validationResult.success || !validationResult.data) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          errors: validationResult.errors,
+        });
+      }
+
+      // Convert to Prisma format
+      const prismaData = convertToPrismaFormat(validationResult.data);
+
+      // Regenerate schema
+      const { schema, schemaHtml } = processArticleSchema(validationResult.data);
+
+      // Update with validated data
+      const updatedArticle = await prisma.tarotArticle.update({
+        where: { id },
+        data: {
+          ...prismaData,
+          schemaJson: schema as any,
+          schemaHtml,
+          updatedAt: new Date(),
+        },
+      });
+
+      return res.json(updatedArticle);
+    }
+
+    // Otherwise, simple field update (status, etc.)
     if (updates.status === 'PUBLISHED' && existingArticle.status !== 'PUBLISHED') {
       updates.publishedAt = new Date();
     }
 
-    // Update the article
     const updatedArticle = await prisma.tarotArticle.update({
       where: { id },
       data: {
