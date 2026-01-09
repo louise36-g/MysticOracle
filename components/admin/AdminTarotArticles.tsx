@@ -290,10 +290,16 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                           <img
                             src={article.featuredImage || '/placeholder-card.png'}
                             alt={article.featuredImageAlt || article.title}
-                            className="w-20 h-20 object-cover rounded-lg"
+                            className="w-20 h-20 object-cover rounded-lg bg-slate-800"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder-card.png';
+                              // Prevent infinite loop by only setting fallback once
+                              if (target.src !== `${window.location.origin}/placeholder-card.png`) {
+                                target.src = '/placeholder-card.png';
+                              } else {
+                                // If placeholder also fails, hide the image
+                                target.style.display = 'none';
+                              }
                             }}
                           />
                           <div>

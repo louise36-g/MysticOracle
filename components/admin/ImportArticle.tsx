@@ -46,10 +46,41 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
   const [validating, setValidating] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [showWarnings, setShowWarnings] = useState(true);
+  const [viewMode, setViewMode] = useState<'form' | 'json'>('json'); // Default to JSON for new imports
 
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticleTitle, setEditingArticleTitle] = useState<string>('');
+
+  // Form data state (for form view)
+  const [formData, setFormData] = useState<any>({
+    title: '',
+    excerpt: '',
+    content: '',
+    author: '',
+    readTime: '',
+    featuredImage: '',
+    featuredImageAlt: '',
+    cardType: 'Major Arcana',
+    cardNumber: '',
+    astrologicalCorrespondence: '',
+    element: 'FIRE',
+    categories: [],
+    tags: [],
+    seoFocusKeyword: '',
+    seoMetaTitle: '',
+    seoMetaDescription: '',
+    faq: [],
+    breadcrumbCategory: '',
+    breadcrumbCategoryUrl: '',
+    relatedCards: [],
+    isCourtCard: false,
+    isChallengeCard: false,
+    status: 'DRAFT',
+  });
 
   // Load article when editingArticleId changes
   useEffect(() => {
@@ -120,6 +151,8 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
       setJsonInput(JSON.stringify(editableData, null, 2));
       setResult(null);
       setValidationResult(null);
+      setShowWarnings(true); // Show warnings when loading article for editing
+      setViewMode('form'); // Default to form view when editing
     } catch (err) {
       setResult({
         success: false,
@@ -177,6 +210,11 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         stats: data.stats,
         schemaPreview: data.schema,
       });
+
+      // Show warnings by default when validation completes
+      if (data.warnings && data.warnings.length > 0) {
+        setShowWarnings(true);
+      }
     } catch (err) {
       setValidationResult({
         valid: false,
@@ -264,121 +302,167 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
     }
   }
 
+  // Preview article
+  function handlePreview() {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      setPreviewData(parsed);
+      setShowPreview(true);
+    } catch (err) {
+      setResult({
+        success: false,
+        error: 'Invalid JSON - cannot preview',
+      });
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-heading text-amber-400 mb-2 flex items-center gap-3">
-          <Upload className="w-6 h-6" />
-          {language === 'en' ? 'Import Tarot Article' : 'Importer un Article Tarot'}
-        </h2>
-        <p className="text-purple-300/70">
-          {language === 'en'
-            ? 'Paste the JSON output from the AI writer to import a new article.'
-            : 'Collez la sortie JSON du rédacteur AI pour importer un nouvel article.'}
-        </p>
+      {/* Header with Action Buttons */}
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-heading text-amber-400 mb-2 flex items-center gap-3">
+            <Upload className="w-6 h-6" />
+            {language === 'en' ? 'Import Tarot Article' : 'Importer un Article Tarot'}
+          </h2>
+          <p className="text-purple-300/70">
+            {language === 'en'
+              ? 'Paste the JSON output from the AI writer to import a new article.'
+              : 'Collez la sortie JSON du rédacteur AI pour importer un nouvel article.'}
+          </p>
+        </div>
+
+        {/* Action Buttons - Moved to upper right */}
+        <div className="flex gap-3 flex-shrink-0">
+          <button
+            onClick={handlePreview}
+            disabled={!jsonInput.trim()}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-500 text-slate-300
+              rounded-lg hover:bg-slate-500/10 disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all"
+            title={language === 'en' ? 'Preview article' : 'Prévisualiser l\'article'}
+          >
+            <Eye className="w-4 h-4" />
+            {language === 'en' ? 'Preview' : 'Aperçu'}
+          </button>
+
+          <button
+            onClick={handleValidate}
+            disabled={!jsonInput.trim() || validating}
+            className="flex items-center gap-2 px-4 py-2 border border-purple-500 text-purple-300
+              rounded-lg hover:bg-purple-500/10 disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all"
+          >
+            {validating ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                {language === 'en' ? 'Validating...' : 'Validation...'}
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                {language === 'en' ? 'Validate' : 'Valider'}
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleImport}
+            disabled={!jsonInput.trim() || loading}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg
+              hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all shadow-lg shadow-purple-500/20"
+          >
+            {loading ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                {isEditMode
+                  ? (language === 'en' ? 'Updating...' : 'Mise à jour...')
+                  : (language === 'en' ? 'Importing...' : 'Importation...')}
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                {isEditMode
+                  ? (language === 'en' ? 'Update Article' : 'Mettre à jour')
+                  : (language === 'en' ? 'Import Article' : 'Importer')}
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Edit Mode Banner */}
       {isEditMode && (
-        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+        <div className="mb-6 space-y-4">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                <div>
+                  <p className="text-amber-300 font-medium">
+                    {language === 'en' ? 'Editing Article' : 'Édition d\'Article'}
+                  </p>
+                  <p className="text-sm text-amber-300/70">
+                    {editingArticleTitle}
+                  </p>
+                </div>
+              </div>
+              {onCancelEdit && (
+                <button
+                  onClick={onCancelEdit}
+                  className="text-sm text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Editor Mode Info */}
+          <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+            <div className="flex items-start gap-3">
+              <FileText className="w-5 h-5 text-purple-300 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-amber-300 font-medium">
-                  {language === 'en' ? 'Editing Article' : 'Édition d\'Article'}
+                <p className="text-purple-300 font-medium mb-1">
+                  {language === 'en' ? 'JSON Editor' : 'Éditeur JSON'}
                 </p>
-                <p className="text-sm text-amber-300/70">
-                  {editingArticleTitle}
+                <p className="text-sm text-purple-300/70">
+                  {language === 'en'
+                    ? 'Currently editing in JSON mode. A visual form editor for tarot articles is planned for a future update.'
+                    : 'Édition en mode JSON. Un éditeur visuel pour les articles tarot est prévu pour une mise à jour future.'}
                 </p>
               </div>
             </div>
-            {onCancelEdit && (
-              <button
-                onClick={onCancelEdit}
-                className="text-sm text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-2"
-              >
-                <X className="w-4 h-4" />
-                {language === 'en' ? 'Cancel' : 'Annuler'}
-              </button>
-            )}
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Input Panel */}
-        <div className="space-y-4">
-          <div className="bg-slate-800/50 rounded-lg p-6 border border-purple-500/20">
-            <div className="flex items-center justify-between mb-3">
-              <label className="flex items-center gap-2 text-sm font-medium text-purple-300">
-                <Code className="w-4 h-4" />
-                {language === 'en' ? 'Article JSON' : 'JSON de l\'Article'}
-              </label>
-              <button
-                onClick={handleFormat}
-                className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
-              >
-                {language === 'en' ? 'Format JSON' : 'Formater JSON'}
-              </button>
-            </div>
-
-            <textarea
-              value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
-              placeholder={language === 'en' ? 'Paste your article JSON here...' : 'Collez votre JSON d\'article ici...'}
-              className="w-full h-[500px] font-mono text-sm p-4 bg-slate-900 border border-slate-700
-                rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                resize-none text-slate-300 placeholder-slate-500"
-            />
-
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={handleValidate}
-                disabled={!jsonInput.trim() || validating}
-                className="flex items-center gap-2 px-4 py-2 border border-purple-500 text-purple-300
-                  rounded-lg hover:bg-purple-500/10 disabled:opacity-50 disabled:cursor-not-allowed
-                  transition-all"
-              >
-                {validating ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    {language === 'en' ? 'Validating...' : 'Validation...'}
-                  </>
-                ) : (
-                  <>
-                    <Eye className="w-4 h-4" />
-                    {language === 'en' ? 'Validate' : 'Valider'}
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handleImport}
-                disabled={!jsonInput.trim() || loading}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg
-                  hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed
-                  transition-all shadow-lg shadow-purple-500/20"
-              >
-                {loading ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    {isEditMode
-                      ? (language === 'en' ? 'Updating...' : 'Mise à jour...')
-                      : (language === 'en' ? 'Importing...' : 'Importation...')}
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    {isEditMode
-                      ? (language === 'en' ? 'Update Article' : 'Mettre à jour')
-                      : (language === 'en' ? 'Import Article' : 'Importer')}
-                  </>
-                )}
-              </button>
-            </div>
+      {/* Input Panel - Full Width */}
+      <div className="space-y-6">
+        <div className="bg-slate-800/50 rounded-lg p-6 border border-purple-500/20">
+          <div className="flex items-center justify-between mb-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-purple-300">
+              <Code className="w-4 h-4" />
+              {language === 'en' ? 'Article JSON' : 'JSON de l\'Article'}
+            </label>
+            <button
+              onClick={handleFormat}
+              className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              {language === 'en' ? 'Format JSON' : 'Formater JSON'}
+            </button>
           </div>
+
+          <textarea
+            value={jsonInput}
+            onChange={(e) => setJsonInput(e.target.value)}
+            placeholder={language === 'en' ? 'Paste your article JSON here...' : 'Collez votre JSON d\'article ici...'}
+            className="w-full h-[500px] font-mono text-sm p-4 bg-slate-900 border border-slate-700
+              rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent
+              resize-none text-slate-300 placeholder-slate-500"
+          />
         </div>
 
         {/* Results Panel */}
@@ -471,18 +555,31 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                 {/* Warnings */}
                 {validationResult.warnings && validationResult.warnings.length > 0 && (
                   <div className="mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                    <h4 className="text-sm font-medium text-amber-400 mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {language === 'en' ? 'Warnings:' : 'Avertissements:'}
-                    </h4>
-                    <ul className="text-sm text-amber-300 space-y-1">
-                      {validationResult.warnings.map((warn: string, i: number) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-amber-400">⚠</span>
-                          <span>{warn}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        {language === 'en' ? 'Warnings:' : 'Avertissements:'}
+                        <span className="text-xs text-amber-300/70">({validationResult.warnings.length})</span>
+                      </h4>
+                      <button
+                        onClick={() => setShowWarnings(!showWarnings)}
+                        className="text-xs text-amber-300 hover:text-amber-200 transition-colors"
+                      >
+                        {showWarnings
+                          ? (language === 'en' ? 'Hide' : 'Masquer')
+                          : (language === 'en' ? 'Show' : 'Afficher')}
+                      </button>
+                    </div>
+                    {showWarnings && (
+                      <ul className="text-sm text-amber-300 space-y-1">
+                        {validationResult.warnings.map((warn: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-amber-400">⚠</span>
+                            <span>{warn}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
 
@@ -582,114 +679,138 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Help */}
-          <div className="p-6 bg-slate-800/50 rounded-lg border border-purple-500/20">
-            <h3 className="font-semibold text-purple-300 mb-4 flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              {language === 'en' ? 'Import Workflow' : 'Flux d\'Importation'}
-            </h3>
-            <ol className="text-sm text-slate-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">1.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Use the meta-prompt with a card name (e.g., "The Fool")'
-                    : 'Utilisez le méta-prompt avec un nom de carte (ex: "Le Mat")'}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">2.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Feed the generated prompt to your AI writer'
-                    : 'Donnez le prompt généré à votre rédacteur AI'}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">3.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Copy the JSON output from the AI writer'
-                    : 'Copiez la sortie JSON du rédacteur AI'}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">4.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Paste it here and click "Validate" first'
-                    : 'Collez-le ici et cliquez sur "Valider" d\'abord'}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">5.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Fix any errors, then click "Import Article"'
-                    : 'Corrigez les erreurs, puis cliquez sur "Importer"'}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-medium">6.</span>
-                <span>
-                  {language === 'en'
-                    ? 'Article is created as DRAFT — publish when ready'
-                    : 'L\'article est créé en BROUILLON — publiez quand prêt'}
-                </span>
-              </li>
-            </ol>
-
-            <div className="mt-4 pt-4 border-t border-purple-500/20">
-              <h4 className="text-sm font-medium text-purple-300 mb-2">
-                {language === 'en' ? 'What happens on import:' : 'Ce qui se passe lors de l\'importation:'}
-              </h4>
-              <ul className="text-sm text-slate-400 space-y-1">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400">•</span>
-                  <span>
-                    {language === 'en'
-                      ? 'Article content is saved to database'
-                      : 'Le contenu de l\'article est enregistré dans la base de données'}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400">•</span>
-                  <span>
-                    {language === 'en'
-                      ? 'JSON-LD schema is auto-generated'
-                      : 'Le schéma JSON-LD est généré automatiquement'}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400">•</span>
-                  <span>
-                    {language === 'en'
-                      ? 'FAQ schema built from your FAQ array'
-                      : 'Schéma FAQ construit à partir de votre tableau FAQ'}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400">•</span>
-                  <span>
-                    {language === 'en'
-                      ? 'Breadcrumb schema built from metadata'
-                      : 'Schéma de fil d\'Ariane construit à partir des métadonnées'}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400">•</span>
-                  <span>
-                    {language === 'en'
-                      ? 'Everything stored for fast page rendering'
-                      : 'Tout est stocké pour un rendu rapide des pages'}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      <AnimatePresence>
+        {showPreview && previewData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowPreview(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 rounded-lg border border-purple-500/30 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-purple-500/20 flex items-center justify-between">
+                <h3 className="text-xl font-heading text-amber-400 flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  {language === 'en' ? 'Article Preview' : 'Aperçu de l\'Article'}
+                </h3>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="overflow-y-auto p-6 space-y-6">
+                {/* Title */}
+                <div>
+                  <h1 className="text-3xl font-heading text-amber-400 mb-2">
+                    {previewData.title}
+                  </h1>
+                  <p className="text-purple-300/70">{previewData.excerpt}</p>
+                </div>
+
+                {/* Meta Info */}
+                <div className="flex flex-wrap gap-4 text-sm text-slate-400">
+                  <span>By {previewData.author}</span>
+                  <span>•</span>
+                  <span>{previewData.readTime}</span>
+                  <span>•</span>
+                  <span>{previewData.cardType}</span>
+                  {previewData.element && (
+                    <>
+                      <span>•</span>
+                      <span>{previewData.element}</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Featured Image */}
+                {previewData.featuredImage && (
+                  <div className="rounded-lg overflow-hidden border border-purple-500/20">
+                    <img
+                      src={previewData.featuredImage}
+                      alt={previewData.featuredImageAlt}
+                      className="w-full h-64 object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder-card.png';
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Content Preview */}
+                <div
+                  className="prose prose-invert prose-purple max-w-none"
+                  dangerouslySetInnerHTML={{ __html: previewData.content?.substring(0, 1000) + '...' }}
+                />
+
+                {/* FAQ Preview */}
+                {previewData.faq && previewData.faq.length > 0 && (
+                  <div className="mt-8 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20">
+                    <h3 className="text-xl font-heading text-purple-300 mb-4">
+                      {language === 'en' ? 'FAQ' : 'Questions Fréquentes'}
+                    </h3>
+                    <div className="space-y-4">
+                      {previewData.faq.slice(0, 3).map((item: any, i: number) => (
+                        <div key={i}>
+                          <p className="text-purple-300 font-medium mb-1">{item.question}</p>
+                          <p className="text-slate-300 text-sm">{item.answer}</p>
+                        </div>
+                      ))}
+                      {previewData.faq.length > 3 && (
+                        <p className="text-slate-400 text-sm italic">
+                          {language === 'en'
+                            ? `...and ${previewData.faq.length - 3} more`
+                            : `...et ${previewData.faq.length - 3} de plus`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tags */}
+                {previewData.tags && previewData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {previewData.tags.map((tag: string, i: number) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-purple-500/20 text-purple-300 text-sm rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-purple-500/20 flex justify-end">
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                >
+                  {language === 'en' ? 'Close' : 'Fermer'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

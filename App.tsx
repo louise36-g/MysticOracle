@@ -19,6 +19,7 @@ import CreditShop from './components/CreditShop';
 import Breadcrumb from './components/Breadcrumb';
 import BlogList from './components/blog/BlogList';
 import BlogPostView from './components/blog/BlogPost';
+import TarotArticlePage from './components/TarotArticlePage';
 import HowCreditsWork from './components/HowCreditsWork';
 import FAQ from './components/FAQ';
 import AboutUs from './components/AboutUs';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
   const [blogPreviewId, setBlogPreviewId] = useState<string | null>(null);
   const [blogCategory, setBlogCategory] = useState<string | null>(null);
   const [blogTag, setBlogTag] = useState<string | null>(null);
+  const [tarotArticleSlug, setTarotArticleSlug] = useState<string | null>(null);
 
   // Modal states
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
@@ -105,6 +107,13 @@ const App: React.FC = () => {
       setCurrentView('about');
       window.history.replaceState({ view: 'about' }, '', '/about');
     }
+    // Tarot article pages
+    else if (path.startsWith('/tarot/articles/')) {
+      const slug = path.replace('/tarot/articles/', '');
+      setCurrentView('tarot-article');
+      setTarotArticleSlug(slug);
+      window.history.replaceState({ view: 'tarot-article', tarotArticleSlug: slug }, '', path);
+    }
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
       setReadingMode('tarot');
@@ -145,6 +154,7 @@ const App: React.FC = () => {
         setBlogPreviewId(state.blogPreviewId || null);
         setBlogCategory(state.blogCategory || null);
         setBlogTag(state.blogTag || null);
+        setTarotArticleSlug(state.tarotArticleSlug || null);
       } else {
         // No state means we're at the initial page
         setCurrentView('home');
@@ -154,6 +164,7 @@ const App: React.FC = () => {
         setBlogPreviewId(null);
         setBlogCategory(null);
         setBlogTag(null);
+        setTarotArticleSlug(null);
       }
     };
 
@@ -167,18 +178,22 @@ const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Check for low credits and show warning
+  // Check for low credits and show warning (once per session)
   useEffect(() => {
-    if (user && user.credits <= LOW_CREDITS_WARNING_THRESHOLD && user.credits > 0 && !hasShownLowCreditsWarning) {
+    const hasShownLowCreditsThisSession = sessionStorage.getItem('low_credits_warning_shown');
+    if (user && user.credits <= LOW_CREDITS_WARNING_THRESHOLD && user.credits > 0 && !hasShownLowCreditsWarning && !hasShownLowCreditsThisSession) {
       setShowLowCreditsModal(true);
       setHasShownLowCreditsWarning(true);
+      sessionStorage.setItem('low_credits_warning_shown', 'true');
     }
   }, [user?.credits, hasShownLowCreditsWarning]);
 
-  // Show welcome modal for new users
+  // Show welcome modal for new users (once per session)
   useEffect(() => {
-    if (user && !user.welcomeCompleted && user.totalReadings === 0) {
+    const hasShownWelcomeThisSession = sessionStorage.getItem('welcome_modal_shown');
+    if (user && !user.welcomeCompleted && user.totalReadings === 0 && !hasShownWelcomeThisSession) {
       setShowWelcomeModal(true);
+      sessionStorage.setItem('welcome_modal_shown', 'true');
     }
   }, [user]);
 
@@ -446,6 +461,16 @@ const App: React.FC = () => {
             onNavigateToPost={handleNavigateToBlogPost}
             onCategoryClick={handleBlogCategoryClick}
             onTagClick={handleBlogTagClick}
+          />
+        );
+    }
+
+    // 8. Tarot Articles (accessible to all)
+    if (currentView === 'tarot-article' && tarotArticleSlug) {
+        return (
+          <TarotArticlePage
+            slug={tarotArticleSlug}
+            onBack={() => handleNavigate('home')}
           />
         );
     }
