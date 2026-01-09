@@ -885,7 +885,7 @@ export async function updateTarotArticle(
   id: string,
   data: Partial<TarotArticle>
 ): Promise<TarotArticle> {
-  return apiRequest(`/api/admin/tarot-articles/${id}`, {
+  return apiRequest(`/api/tarot-articles/admin/${id}`, {
     method: 'PATCH',
     body: data,
     token,
