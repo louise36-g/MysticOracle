@@ -142,6 +142,61 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Action handlers
+  const handleTogglePublish = async (article: TarotArticle) => {
+    try {
+      setActionLoading(article.id);
+      const token = await getToken();
+      if (!token) return;
+
+      const newStatus: ArticleStatus = article.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
+      await updateTarotArticleStatus(token, article.id, newStatus);
+
+      // Update local state
+      setArticles(prev => prev.map(a =>
+        a.id === article.id ? { ...a, status: newStatus } : a
+      ));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update status';
+      setError(message);
+      console.error('Error updating status:', err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDelete = (article: TarotArticle) => {
+    setConfirmModal({
+      show: true,
+      title: language === 'en' ? 'Delete Article?' : 'Supprimer l\'article?',
+      message: language === 'en'
+        ? `Delete "${article.title}"? This action cannot be undone.`
+        : `Supprimer "${article.title}"? Cette action est irréversible.`,
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          setActionLoading(article.id);
+          const token = await getToken();
+          if (!token) return;
+
+          await deleteTarotArticle(token, article.id);
+
+          // Remove from local state
+          setArticles(prev => prev.filter(a => a.id !== article.id));
+          setPagination(prev => ({ ...prev, total: prev.total - 1 }));
+
+          setConfirmModal({ show: false, title: '', message: '', onConfirm: () => {} });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to delete article';
+          setError(message);
+          console.error('Error deleting article:', err);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
+  };
+
   // Placeholder for rest of component
   return <div>AdminTarotArticles Component</div>;
 };
