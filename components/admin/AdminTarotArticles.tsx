@@ -510,8 +510,8 @@ const AdminTarotArticles: React.FC<AdminTarotArticlesProps> = ({ onNavigateToImp
                             onClick={() => {
                               const port = window.location.port || '3000';
                               const url = article.status === 'PUBLISHED'
-                                ? `http://localhost:${port}/#/tarot/articles/${article.slug}`
-                                : `http://localhost:${port}/#/admin/tarot/preview/${article.id}`;
+                                ? `http://localhost:${port}/tarot/articles/${article.slug}`
+                                : `http://localhost:${port}/admin/tarot/preview/${article.id}`;
                               window.open(url, '_blank');
                             }}
                             className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"

@@ -608,8 +608,8 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                             if (result.article?.id) {
                               const port = window.location.port || '3000';
                               const url = result.article.status === 'PUBLISHED'
-                                ? `http://localhost:${port}/#/tarot/articles/${result.article.slug}`
-                                : `http://localhost:${port}/#/admin/tarot/preview/${result.article.id}`;
+                                ? `http://localhost:${port}/tarot/articles/${result.article.slug}`
+                                : `http://localhost:${port}/admin/tarot/preview/${result.article.id}`;
                               window.open(url, '_blank');
                             }
                           }}

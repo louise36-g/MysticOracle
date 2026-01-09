@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const [blogCategory, setBlogCategory] = useState<string | null>(null);
   const [blogTag, setBlogTag] = useState<string | null>(null);
   const [tarotArticleSlug, setTarotArticleSlug] = useState<string | null>(null);
+  const [tarotPreviewId, setTarotPreviewId] = useState<string | null>(null);
 
   // Modal states
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
@@ -107,6 +108,18 @@ const App: React.FC = () => {
     else if (path === '/about') {
       setCurrentView('about');
       window.history.replaceState({ view: 'about' }, '', '/about');
+    }
+    // Tarot articles list
+    else if (path === '/tarot-articles') {
+      setCurrentView('tarot-articles');
+      window.history.replaceState({ view: 'tarot-articles' }, '', '/tarot-articles');
+    }
+    // Admin tarot article preview
+    else if (path.startsWith('/admin/tarot/preview/')) {
+      const id = path.replace('/admin/tarot/preview/', '');
+      setCurrentView('tarot-preview');
+      setTarotPreviewId(id);
+      window.history.replaceState({ view: 'tarot-preview', tarotPreviewId: id }, '', path);
     }
     // Tarot article pages
     else if (path.startsWith('/tarot/articles/')) {
@@ -482,6 +495,15 @@ const App: React.FC = () => {
           <TarotArticlePage
             slug={tarotArticleSlug}
             onBack={() => handleNavigate('tarot-articles')}
+          />
+        );
+    }
+    // 8b. Tarot Article Preview (admin only)
+    if (currentView === 'tarot-preview' && tarotPreviewId) {
+        return (
+          <TarotArticlePage
+            previewId={tarotPreviewId}
+            onBack={() => handleNavigate('admin')}
           />
         );
     }

@@ -101,29 +101,36 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
   }, [loadArticle]);
 
   // Sanitize HTML content with DOMPurify to prevent XSS attacks
-  // This is safe because all content is sanitized before being rendered
+  // Replace FAQ section with a placeholder marker so we can render styled FAQ in place
+  const FAQ_PLACEHOLDER = '<!-- FAQ_PLACEHOLDER -->';
+
   const sanitizedContent = useMemo(() => {
     if (!article?.content) return '';
 
-    // Remove FAQ section from content (we render it separately as a styled component)
-    let contentWithoutFAQ = article.content;
+    let contentWithFAQPlaceholder = article.content;
 
-    // More comprehensive FAQ removal patterns
+    // Replace FAQ section with placeholder (we render styled FAQ component there)
     // Matches FAQ headings and all content until the next major heading or end of content
     const faqPatterns = [
       // H2 FAQ sections
       /<h2[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi,
       // H3 FAQ sections
       /<h3[^>]*>.*?(?:FAQ|Frequently Asked Questions|Questions [Ff]réquentes|Common Questions).*?<\/h3>[\s\S]*?(?=<h[23][^>]*>|$)/gi,
-      // Alternative: Look for consecutive Q&A patterns
-      /(?:<p[^>]*>.*?<strong[^>]*>.*?\?.*?<\/strong>.*?<\/p>\s*<p[^>]*>.*?<\/p>\s*){2,}/gi,
     ];
 
+    // Replace the first match with placeholder, remove subsequent matches
+    let hasReplacedWithPlaceholder = false;
     faqPatterns.forEach(pattern => {
-      contentWithoutFAQ = contentWithoutFAQ.replace(pattern, '');
+      contentWithFAQPlaceholder = contentWithFAQPlaceholder.replace(pattern, (match) => {
+        if (!hasReplacedWithPlaceholder) {
+          hasReplacedWithPlaceholder = true;
+          return FAQ_PLACEHOLDER;
+        }
+        return '';
+      });
     });
 
-    return DOMPurify.sanitize(contentWithoutFAQ, {
+    return DOMPurify.sanitize(contentWithFAQPlaceholder, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
@@ -138,6 +145,15 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
       FORCE_BODY: true,
     });
   }, [article?.content]);
+
+  // Split content at FAQ placeholder to render styled FAQ in place
+  const contentParts = useMemo(() => {
+    if (!sanitizedContent.includes(FAQ_PLACEHOLDER)) {
+      return { before: sanitizedContent, after: '' };
+    }
+    const [before, after] = sanitizedContent.split(FAQ_PLACEHOLDER);
+    return { before, after };
+  }, [sanitizedContent]);
 
   const handleNavigate = (path: string) => {
     window.history.pushState({}, '', path);
@@ -323,15 +339,15 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           </motion.div>
         )}
 
-        {/* Article body with styled FAQ inline */}
+        {/* Article body with styled FAQ rendered in place */}
         <div className="mb-12">
-          {/* Main Content - Content is sanitized with DOMPurify before rendering */}
+          {/* Content before FAQ - sanitized with DOMPurify */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="prose prose-invert prose-purple max-w-none"
-            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+            dangerouslySetInnerHTML={{ __html: contentParts.before }}
             style={{
               lineHeight: '1.8',
             }}
@@ -343,13 +359,13 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
             }}
           />
 
-          {/* FAQ Section - Styled and positioned within content flow */}
+          {/* FAQ Section - Styled and positioned where original FAQ was in content */}
           {article.faq && article.faq.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mt-12 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20"
+              className="my-8 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20"
             >
               <h2 className="text-2xl font-heading text-purple-300 mb-6 flex items-center gap-2">
                 <HelpCircle className="w-6 h-6" />
@@ -364,6 +380,26 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
                 ))}
               </div>
             </motion.section>
+          )}
+
+          {/* Content after FAQ (if any) */}
+          {contentParts.after && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="prose prose-invert prose-purple max-w-none"
+              dangerouslySetInnerHTML={{ __html: contentParts.after }}
+              style={{
+                lineHeight: '1.8',
+              }}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (target.tagName === 'IMG') {
+                  setLightboxImage((target as HTMLImageElement).src);
+                }
+              }}
+            />
           )}
         </div>
 
