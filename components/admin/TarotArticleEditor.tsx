@@ -173,7 +173,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const handleMediaUpload = async (file: File): Promise<string> => {
     const token = await getToken();
     if (!token) throw new Error('No token');
-    const result = await uploadBlogMedia(token, file); // Use shared blog media system
+    const result = await uploadBlogMedia(token, file, undefined, undefined, 'tarot');
     await loadMedia();
     return result.media.url;
   };
