@@ -435,12 +435,16 @@ router.get('/admin/:id', async (req, res) => {
  * Supports both:
  * - Full validation mode (for JSON import updates)
  * - Visual editor mode (for field-by-field updates from TarotArticleEditor)
+ *
+ * Query params:
+ * - force=true: Force-update mode - all validation issues become warnings (non-blocking)
  */
 router.patch('/admin/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
     const isVisualEditorMode = updates._visualEditorMode === true;
+    const forceUpdate = req.query.force === 'true';
 
     // Check if article exists
     const existingArticle = await prisma.tarotArticle.findUnique({
@@ -492,7 +496,45 @@ router.patch('/admin/:id', async (req, res) => {
 
     // Full validation mode: If this is a full article update (from JSON import edit)
     if (updates.title && updates.content && updates.slug) {
-      // Validate the updated article data
+      if (forceUpdate) {
+        // Force-update mode: proceed with warnings instead of errors
+        const warningsResult = validateArticleWithWarnings(updates);
+
+        // Convert to Prisma format with defaults for missing fields
+        const prismaData = convertToPrismaFormatLenient(warningsResult.data);
+
+        // Try to generate schema (may fail with incomplete data)
+        let schema: object | null = null;
+        let schemaHtml = '';
+        try {
+          const schemaResult = processArticleSchema(warningsResult.data as TarotArticleData);
+          schema = schemaResult.schema;
+          schemaHtml = schemaResult.schemaHtml;
+        } catch (schemaError) {
+          // Schema generation failed - add as warning but continue
+          warningsResult.warnings.push('[Schema] Could not generate structured data - article may need additional fields');
+        }
+
+        // Update with validated data
+        const updatedArticle = await prisma.tarotArticle.update({
+          where: { id },
+          data: {
+            ...prismaData,
+            schemaJson: schema as any || existingArticle.schemaJson,
+            schemaHtml: schemaHtml || existingArticle.schemaHtml,
+            updatedAt: new Date(),
+          },
+        });
+
+        return res.json({
+          ...updatedArticle,
+          _forceUpdated: true,
+          _warnings: warningsResult.warnings,
+          _stats: warningsResult.stats,
+        });
+      }
+
+      // Strict validation mode
       const validationResult = validateArticleExtended(updates);
 
       if (!validationResult.success || !validationResult.data) {
