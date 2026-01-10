@@ -5,21 +5,85 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { randomUUID } from 'crypto';
 
 const router = Router();
 
-// Configure multer for image uploads
-const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'blog');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+/**
+ * Sanitize filename for safe storage
+ * - Lowercase
+ * - Replace spaces with hyphens
+ * - Remove special characters except hyphens and dots
+ * - Preserve extension
+ */
+function sanitizeFilename(filename: string): string {
+  const ext = path.extname(filename).toLowerCase();
+  const base = path.basename(filename, path.extname(filename));
+
+  const sanitized = base
+    .toLowerCase()
+    .replace(/\s+/g, '-')           // spaces to hyphens
+    .replace(/[^a-z0-9-]/g, '')     // remove special chars
+    .replace(/-+/g, '-')            // collapse multiple hyphens
+    .replace(/^-|-$/g, '');         // trim hyphens from ends
+
+  return `${sanitized || 'image'}${ext}`;
 }
 
+/**
+ * Get unique filename by appending number suffix if needed
+ */
+function getUniqueFilename(dir: string, filename: string): string {
+  const ext = path.extname(filename);
+  const base = path.basename(filename, ext);
+
+  let finalName = filename;
+  let counter = 1;
+
+  while (fs.existsSync(path.join(dir, finalName))) {
+    finalName = `${base}-${counter}${ext}`;
+    counter++;
+  }
+
+  return finalName;
+}
+
+// Base uploads directory
+const baseUploadDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(baseUploadDir)) {
+  fs.mkdirSync(baseUploadDir, { recursive: true });
+}
+
+// Configure multer for image uploads with folder support and original filenames
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
+  destination: (req, file, cb) => {
+    // Get folder from request body, default to 'blog'
+    const folder = (req.body?.folder as string) || 'blog';
+    const folderPath = path.join(baseUploadDir, folder);
+
+    // Create folder if it doesn't exist
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    cb(null, folderPath);
+  },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${randomUUID()}${ext}`);
+    // Sanitize the original filename
+    const sanitized = sanitizeFilename(file.originalname);
+
+    // Get folder path for uniqueness check
+    const folder = (req.body?.folder as string) || 'blog';
+    const folderPath = path.join(baseUploadDir, folder);
+
+    // Ensure folder exists before checking for unique filename
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    // Get unique filename (auto-rename if exists)
+    const uniqueFilename = getUniqueFilename(folderPath, sanitized);
+
+    cb(null, uniqueFilename);
   }
 });
 
@@ -840,8 +904,11 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Get folder from request body (default to 'blog')
+    const folder = req.body.folder || 'blog';
+
     const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
-    const url = `${baseUrl}/uploads/blog/${req.file.filename}`;
+    const url = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
 
     const media = await prisma.mediaUpload.create({
       data: {
@@ -852,7 +919,7 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
         url,
         altText: req.body.altText || null,
         caption: req.body.caption || null,
-        folder: 'blog'
+        folder
       }
     });
 
@@ -865,8 +932,13 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
 
 router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
   try {
-    // Return all media regardless of folder - shared across blog, tarot, etc.
+    // Optional folder filter via query parameter
+    const folder = req.query.folder as string | undefined;
+
+    const where = folder ? { folder } : {};
+
     const media = await prisma.mediaUpload.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
       take: 100
     });
@@ -881,8 +953,9 @@ router.delete('/admin/media/:id', requireAuth, requireAdmin, async (req, res) =>
   try {
     const media = await prisma.mediaUpload.findUnique({ where: { id: req.params.id } });
     if (media) {
-      // Delete file from disk
-      const filePath = path.join(uploadDir, media.filename);
+      // Delete file from disk using folder from DB record
+      const folderPath = path.join(baseUploadDir, media.folder);
+      const filePath = path.join(folderPath, media.filename);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
