@@ -12,9 +12,10 @@ import AdminTranslations from './AdminTranslations';
 import AdminBlog from './AdminBlog';
 import ImportArticle from './ImportArticle';
 import AdminTarotArticles from './AdminTarotArticles';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload } from 'lucide-react';
+import AdminCache from './AdminCache';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'translations' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'cache' | 'translations' | 'settings';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -39,6 +40,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'tarot-articles', labelEn: 'Tarot Articles', labelFr: 'Articles Tarot', icon: <FileText className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
+    { id: 'cache', labelEn: 'Cache', labelFr: 'Cache', icon: <Database className="w-4 h-4" /> },
     { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
     { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
   ];
@@ -108,6 +110,7 @@ const AdminDashboard: React.FC = () => {
         )}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
+        {activeTab === 'cache' && <AdminCache />}
         {activeTab === 'translations' && <AdminTranslations />}
         {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
       </div>
