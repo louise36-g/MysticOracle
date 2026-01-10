@@ -233,7 +233,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-purple-200 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-purple-200 mb-4 text-center">
             {article.title}
           </h1>
 
