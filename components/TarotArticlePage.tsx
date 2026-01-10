@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { fetchTarotArticle, previewTarotArticle, TarotArticle } from '../services/apiService';
-import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn, HelpCircle } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn } from 'lucide-react';
 
 interface TarotArticlePageProps {
   slug?: string;
@@ -322,29 +322,6 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
             }
           }}
         />
-
-        {/* FAQ Section - from JSON data */}
-        {article.faq && article.faq.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-12 p-6 bg-slate-800/50 rounded-lg border border-purple-500/20"
-          >
-            <h2 className="text-2xl font-heading text-purple-300 mb-6 flex items-center gap-2">
-              <HelpCircle className="w-6 h-6" />
-              {language === 'en' ? 'Frequently Asked Questions' : 'Questions Fréquentes'}
-            </h2>
-            <div className="space-y-6">
-              {article.faq.map((item: any, index: number) => (
-                <div key={index} className="border-b border-purple-500/10 pb-6 last:border-b-0">
-                  <h3 className="text-lg text-purple-200 font-medium mb-2">{item.question}</h3>
-                  <p className="text-slate-300 leading-relaxed">{item.answer}</p>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-        )}
 
         {/* Tags */}
         {article.tags.length > 0 && (
