@@ -54,6 +54,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
   const [previewData, setPreviewData] = useState<any>(null);
   const [showWarnings, setShowWarnings] = useState(true);
   const [viewMode, setViewMode] = useState<'form' | 'json'>('json'); // Default to JSON for new imports
+  const [hasValidationErrors, setHasValidationErrors] = useState(false);
 
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
@@ -219,18 +220,22 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
       if (data.warnings && data.warnings.length > 0) {
         setShowWarnings(true);
       }
+
+      // Track if there are blocking errors (for Force Save button)
+      setHasValidationErrors(!data.success && data.errors && data.errors.length > 0);
     } catch (err) {
       setValidationResult({
         valid: false,
         errors: [err instanceof Error ? err.message : 'Invalid JSON'],
       });
+      setHasValidationErrors(true);
     } finally {
       setValidating(false);
     }
   }
 
   // Import or update article
-  async function handleImport() {
+  async function handleImport(force: boolean = false) {
     if (!jsonInput.trim()) return;
 
     setLoading(true);
@@ -248,10 +253,11 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         return;
       }
 
+      const forceParam = force ? '?force=true' : '';
       let response;
       if (isEditMode && editingArticleId) {
         // Update existing article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/${editingArticleId}`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/${editingArticleId}${forceParam}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -261,7 +267,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         });
       } else {
         // Import new article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/import`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/import${forceParam}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -385,7 +391,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
           </button>
 
           <button
-            onClick={handleImport}
+            onClick={() => handleImport(false)}
             disabled={!jsonInput.trim() || loading}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg
               hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed
@@ -407,6 +413,29 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
               </>
             )}
           </button>
+
+          {hasValidationErrors && (
+            <button
+              onClick={() => handleImport(true)}
+              disabled={!jsonInput.trim() || loading}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg
+                hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed
+                transition-all shadow-lg shadow-amber-500/20"
+              title={language === 'en' ? 'Save despite validation errors' : 'Enregistrer malgré les erreurs'}
+            >
+              {loading ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  {language === 'en' ? 'Forcing...' : 'Forçage...'}
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-4 h-4" />
+                  {language === 'en' ? 'Force Save' : 'Forcer'}
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
