@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import cacheService from '../services/cache.js';
 
 const router = Router();
 
@@ -1106,6 +1107,37 @@ router.get('/revenue/months', async (req, res) => {
   } catch (error) {
     console.error('Error fetching revenue months:', error);
     res.status(500).json({ error: 'Failed to fetch months' });
+  }
+});
+
+// ============================================
+// CACHE MANAGEMENT
+// ============================================
+
+// GET /api/admin/cache/stats
+router.get('/cache/stats', async (req, res) => {
+  try {
+    const stats = cacheService.getStats();
+    const lastPurge = cacheService.getLastPurge();
+
+    res.json({
+      ...stats,
+      lastPurge: lastPurge?.toISOString() || null,
+    });
+  } catch (error) {
+    console.error('Error getting cache stats:', error);
+    res.status(500).json({ error: 'Failed to get cache stats' });
+  }
+});
+
+// POST /api/admin/cache/purge
+router.post('/cache/purge', async (req, res) => {
+  try {
+    await cacheService.flush();
+    res.json({ success: true, message: 'Cache purged successfully' });
+  } catch (error) {
+    console.error('Error purging cache:', error);
+    res.status(500).json({ error: 'Failed to purge cache' });
   }
 });
 
