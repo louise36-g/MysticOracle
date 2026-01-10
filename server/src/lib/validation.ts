@@ -23,7 +23,336 @@ export const ElementEnum = z.enum(['FIRE', 'WATER', 'AIR', 'EARTH']);
 export const ArticleStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']);
 
 // ============================================
-// SUB-SCHEMAS
+// CORE SCHEMA (blocking errors only)
+// ============================================
+
+/**
+ * Core validation schema - only validates required fields.
+ * These are blocking errors that must be fixed before saving.
+ */
+export const TarotArticleCoreSchema = z.object({
+  // Required fields with minimal validation
+  title: z
+    .string({ required_error: 'Title is required' })
+    .min(1, 'Title is required')
+    .max(200, 'Title must be 200 characters or less'),
+  content: z
+    .string({ required_error: 'Content is required' })
+    .min(100, 'Content must be at least 100 characters'),
+  cardType: CardTypeEnum,
+  cardNumber: z.string({ required_error: 'Card number is required' }).min(1, 'Card number is required'),
+  element: ElementEnum,
+  author: z.string({ required_error: 'Author is required' }).min(1, 'Author is required'),
+
+  // Optional slug (will be auto-generated if not provided)
+  slug: z.string().optional(),
+
+  // All other fields are optional in core schema
+  excerpt: z.string().optional(),
+  readTime: z.string().optional(),
+  datePublished: z.string().optional(),
+  dateModified: z.string().optional(),
+  featuredImage: z.string().optional(),
+  featuredImageAlt: z.string().optional(),
+  astrologicalCorrespondence: z.string().optional(),
+  categories: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  seo: z.object({
+    focusKeyword: z.string().optional(),
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().optional(),
+  }).optional(),
+  faq: z.array(z.object({
+    question: z.string().optional(),
+    answer: z.string().optional(),
+  })).optional(),
+  breadcrumbCategory: z.string().optional(),
+  breadcrumbCategoryUrl: z.string().optional(),
+  relatedCards: z.array(z.string()).optional(),
+  isCourtCard: z.boolean().optional(),
+  isChallengeCard: z.boolean().optional(),
+  status: ArticleStatusEnum.optional(),
+});
+
+export type TarotArticleCoreInput = z.infer<typeof TarotArticleCoreSchema>;
+
+// ============================================
+// QUALITY WARNINGS SYSTEM
+// ============================================
+
+/**
+ * Quality warning - non-blocking issue that should be reviewed
+ */
+export interface QualityWarning {
+  field: string;
+  message: string;
+  severity: 'info' | 'warning' | 'error';
+  currentValue?: string | number;
+  recommendedRange?: { min?: number; max?: number };
+}
+
+/**
+ * Check article quality and return warnings (non-blocking).
+ * These are recommendations for SEO and content quality.
+ */
+export function checkArticleQuality(data: TarotArticleCoreInput): QualityWarning[] {
+  const warnings: QualityWarning[] = [];
+
+  // SEO Meta Title checks
+  const metaTitle = data.seo?.metaTitle;
+  if (metaTitle) {
+    if (metaTitle.length > 60) {
+      warnings.push({
+        field: 'seo.metaTitle',
+        message: 'Meta title exceeds 60 characters and may be truncated in search results',
+        severity: 'warning',
+        currentValue: metaTitle.length,
+        recommendedRange: { min: 20, max: 60 },
+      });
+    } else if (metaTitle.length < 20) {
+      warnings.push({
+        field: 'seo.metaTitle',
+        message: 'Meta title is shorter than recommended for SEO',
+        severity: 'info',
+        currentValue: metaTitle.length,
+        recommendedRange: { min: 20, max: 60 },
+      });
+    }
+  }
+
+  // SEO Meta Description checks
+  const metaDescription = data.seo?.metaDescription;
+  if (metaDescription) {
+    if (metaDescription.length > 155) {
+      warnings.push({
+        field: 'seo.metaDescription',
+        message: 'Meta description exceeds 155 characters and may be truncated',
+        severity: 'warning',
+        currentValue: metaDescription.length,
+        recommendedRange: { min: 50, max: 155 },
+      });
+    } else if (metaDescription.length < 50) {
+      warnings.push({
+        field: 'seo.metaDescription',
+        message: 'Meta description is shorter than recommended for SEO',
+        severity: 'info',
+        currentValue: metaDescription.length,
+        recommendedRange: { min: 50, max: 155 },
+      });
+    }
+  }
+
+  // Focus keyword checks
+  const focusKeyword = data.seo?.focusKeyword;
+  if (!focusKeyword || focusKeyword.length < 3) {
+    warnings.push({
+      field: 'seo.focusKeyword',
+      message: focusKeyword ? 'Focus keyword is too short' : 'Focus keyword is missing',
+      severity: 'warning',
+      currentValue: focusKeyword?.length || 0,
+      recommendedRange: { min: 3 },
+    });
+  }
+
+  // Excerpt checks
+  const excerpt = data.excerpt;
+  if (!excerpt) {
+    warnings.push({
+      field: 'excerpt',
+      message: 'Excerpt is missing - recommended for article previews',
+      severity: 'warning',
+    });
+  } else if (excerpt.length < 50) {
+    warnings.push({
+      field: 'excerpt',
+      message: 'Excerpt is shorter than recommended',
+      severity: 'info',
+      currentValue: excerpt.length,
+      recommendedRange: { min: 50, max: 300 },
+    });
+  } else if (excerpt.length > 300) {
+    warnings.push({
+      field: 'excerpt',
+      message: 'Excerpt exceeds recommended length',
+      severity: 'info',
+      currentValue: excerpt.length,
+      recommendedRange: { min: 50, max: 300 },
+    });
+  }
+
+  // Content length check for SEO
+  const content = data.content || '';
+  const contentLength = content.length;
+  if (contentLength < 5000) {
+    warnings.push({
+      field: 'content',
+      message: 'Content length may be insufficient for optimal SEO performance',
+      severity: 'info',
+      currentValue: contentLength,
+      recommendedRange: { min: 5000 },
+    });
+  }
+
+  // FAQ count checks
+  const faqCount = data.faq?.length || 0;
+  if (faqCount < 5) {
+    warnings.push({
+      field: 'faq',
+      message: 'Fewer than 5 FAQ items - more FAQs improve search visibility',
+      severity: 'warning',
+      currentValue: faqCount,
+      recommendedRange: { min: 5, max: 10 },
+    });
+  } else if (faqCount > 10) {
+    warnings.push({
+      field: 'faq',
+      message: 'More than 10 FAQ items may dilute focus',
+      severity: 'info',
+      currentValue: faqCount,
+      recommendedRange: { min: 5, max: 10 },
+    });
+  }
+
+  // Tags count checks
+  const tagsCount = data.tags?.length || 0;
+  if (tagsCount < 3) {
+    warnings.push({
+      field: 'tags',
+      message: 'Fewer than 3 tags - more tags improve discoverability',
+      severity: 'warning',
+      currentValue: tagsCount,
+      recommendedRange: { min: 3, max: 10 },
+    });
+  } else if (tagsCount > 10) {
+    warnings.push({
+      field: 'tags',
+      message: 'More than 10 tags may appear spammy',
+      severity: 'info',
+      currentValue: tagsCount,
+      recommendedRange: { min: 3, max: 10 },
+    });
+  }
+
+  // Categories count checks
+  const categoriesCount = data.categories?.length || 0;
+  if (categoriesCount < 1) {
+    warnings.push({
+      field: 'categories',
+      message: 'No categories assigned - at least one category is recommended',
+      severity: 'warning',
+      currentValue: categoriesCount,
+      recommendedRange: { min: 1, max: 5 },
+    });
+  } else if (categoriesCount > 5) {
+    warnings.push({
+      field: 'categories',
+      message: 'More than 5 categories may dilute focus',
+      severity: 'info',
+      currentValue: categoriesCount,
+      recommendedRange: { min: 1, max: 5 },
+    });
+  }
+
+  // Featured image alt text checks
+  const altText = data.featuredImageAlt;
+  if (altText) {
+    if (altText.length < 20) {
+      warnings.push({
+        field: 'featuredImageAlt',
+        message: 'Alt text is too short for accessibility',
+        severity: 'warning',
+        currentValue: altText.length,
+        recommendedRange: { min: 20 },
+      });
+    }
+    if (altText.toLowerCase().startsWith('image of')) {
+      warnings.push({
+        field: 'featuredImageAlt',
+        message: 'Alt text should not start with "image of" - describe the content directly',
+        severity: 'info',
+        currentValue: altText,
+      });
+    }
+  }
+
+  return warnings;
+}
+
+// ============================================
+// COMBINED VALIDATION RESULT
+// ============================================
+
+/**
+ * Combined validation result with errors, warnings, and stats
+ */
+export interface TarotArticleValidationResult {
+  success: boolean;
+  data?: TarotArticleCoreInput;
+  errors?: string[];
+  warnings: QualityWarning[];
+  stats: {
+    wordCount: number;
+    faqCount: number;
+    tagsCount: number;
+    categoriesCount: number;
+    contentLength: number;
+  };
+}
+
+/**
+ * Validate a tarot article with both core validation (blocking) and quality checks (warnings).
+ *
+ * @param input - Raw article data
+ * @returns Validation result with errors (blocking) and warnings (non-blocking)
+ */
+export function validateTarotArticle(input: unknown): TarotArticleValidationResult {
+  // Normalize keys from snake_case to camelCase
+  const normalized = normalizeKeys(input);
+
+  // Run core validation
+  const coreResult = TarotArticleCoreSchema.safeParse(normalized);
+
+  // Prepare stats
+  const content = (normalized as any)?.content || '';
+  const faq = (normalized as any)?.faq || [];
+  const tags = (normalized as any)?.tags || [];
+  const categories = (normalized as any)?.categories || [];
+
+  const stats = {
+    wordCount: getWordCount(content),
+    faqCount: faq.length,
+    tagsCount: tags.length,
+    categoriesCount: categories.length,
+    contentLength: content.length,
+  };
+
+  if (!coreResult.success) {
+    // Extract error messages
+    const errors = coreResult.error.errors.map(
+      (err) => `${err.path.join('.')}: ${err.message}`
+    );
+
+    return {
+      success: false,
+      errors,
+      warnings: [],
+      stats,
+    };
+  }
+
+  // Run quality checks on validated data
+  const warnings = checkArticleQuality(coreResult.data);
+
+  return {
+    success: true,
+    data: coreResult.data,
+    warnings,
+    stats,
+  };
+}
+
+// ============================================
+// SUB-SCHEMAS (for strict validation)
 // ============================================
 
 const FAQItemSchema = z.object({
