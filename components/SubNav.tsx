@@ -15,7 +15,8 @@ import {
   Users,
   Lock,
   Coins,
-  Heart
+  Heart,
+  Layers
 } from 'lucide-react';
 
 interface SubNavProps {
@@ -144,6 +145,16 @@ const SubNav: React.FC<SubNavProps> = ({
       onClick: () => onNavigate('about')
     },
     {
+      id: 'tarot-cards',
+      labelEn: t('subnav.learn.tarotCards.label', 'Tarot Cards'),
+      labelFr: t('subnav.learn.tarotCards.label', 'Cartes de Tarot'),
+      descriptionEn: t('subnav.learn.tarotCards.desc', 'Explore all 78 cards'),
+      descriptionFr: t('subnav.learn.tarotCards.desc', 'Explorez les 78 cartes'),
+      icon: <Layers className="w-4 h-4 text-purple-400" />,
+      iconBg: 'bg-purple-500/20',
+      onClick: () => onNavigate('tarot-cards')
+    },
+    {
       id: 'blog',
       labelEn: t('subnav.learn.blog.label', 'Blog'),
       labelFr: t('subnav.learn.blog.label', 'Blog'),
@@ -235,7 +246,7 @@ const SubNav: React.FC<SubNavProps> = ({
 
   const isTarotActive = readingMode === 'tarot';
   const isHoroscopeActive = readingMode === 'horoscope';
-  const isLearnActive = ['blog', 'blog-post', 'faq', 'how-credits-work', 'about'].includes(currentView);
+  const isLearnActive = ['blog', 'blog-post', 'faq', 'how-credits-work', 'about', 'tarot-cards', 'tarot-cards-all', 'tarot-cards-category'].includes(currentView);
 
   return (
     <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5 relative z-40">
