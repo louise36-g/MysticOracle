@@ -25,6 +25,7 @@ import HowCreditsWork from './components/HowCreditsWork';
 import FAQ from './components/FAQ';
 import AboutUs from './components/AboutUs';
 import SubNav from './components/SubNav';
+import { TarotCardsOverview, CategoryType, CATEGORY_CONFIG } from './components/tarot';
 import { DailyBonusPopup } from './components/rewards';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
   const [blogTag, setBlogTag] = useState<string | null>(null);
   const [tarotArticleSlug, setTarotArticleSlug] = useState<string | null>(null);
   const [tarotPreviewId, setTarotPreviewId] = useState<string | null>(null);
+  const [tarotCardsCategory, setTarotCardsCategory] = useState<string | null>(null);
 
   // Modal states
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
@@ -128,6 +130,21 @@ const App: React.FC = () => {
       setTarotArticleSlug(slug);
       window.history.replaceState({ view: 'tarot-article', tarotArticleSlug: slug }, '', path);
     }
+    // Tarot Cards pages
+    else if (path === '/tarot/cards') {
+      setCurrentView('tarot-cards');
+      window.history.replaceState({ view: 'tarot-cards' }, '', '/tarot/cards');
+    }
+    else if (path === '/tarot/cards/all') {
+      setCurrentView('tarot-cards-all');
+      window.history.replaceState({ view: 'tarot-cards-all' }, '', '/tarot/cards/all');
+    }
+    else if (path.startsWith('/tarot/cards/')) {
+      const category = path.replace('/tarot/cards/', '');
+      setCurrentView('tarot-cards-category');
+      setTarotCardsCategory(category);
+      window.history.replaceState({ view: 'tarot-cards-category', tarotCardsCategory: category }, '', path);
+    }
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
       setReadingMode('tarot');
@@ -169,6 +186,7 @@ const App: React.FC = () => {
         setBlogCategory(state.blogCategory || null);
         setBlogTag(state.blogTag || null);
         setTarotArticleSlug(state.tarotArticleSlug || null);
+        setTarotCardsCategory(state.tarotCardsCategory || null);
       } else {
         // No state means we're at the initial page
         setCurrentView('home');
@@ -179,6 +197,7 @@ const App: React.FC = () => {
         setBlogCategory(null);
         setBlogTag(null);
         setTarotArticleSlug(null);
+        setTarotCardsCategory(null);
       }
     };
 
@@ -336,6 +355,34 @@ const App: React.FC = () => {
     setBlogCategory(null);
     setBlogTag(tagSlug);
     window.history.pushState({ view: 'blog', blogTag: tagSlug }, '', `/blog?tag=${tagSlug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Tarot Cards navigation handlers
+  const handleNavigateToTarotCards = useCallback(() => {
+    setCurrentView('tarot-cards');
+    window.history.pushState({ view: 'tarot-cards' }, '', '/tarot/cards');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleNavigateToTarotCardsAll = useCallback(() => {
+    setCurrentView('tarot-cards-all');
+    window.history.pushState({ view: 'tarot-cards-all' }, '', '/tarot/cards/all');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleNavigateToTarotCardsCategory = useCallback((category: CategoryType) => {
+    const slug = CATEGORY_CONFIG[category].slug;
+    setCurrentView('tarot-cards-category');
+    setTarotCardsCategory(slug);
+    window.history.pushState({ view: 'tarot-cards-category', tarotCardsCategory: slug }, '', `/tarot/cards/${slug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleTarotCardClick = useCallback((slug: string) => {
+    setTarotArticleSlug(slug);
+    setCurrentView('tarot-article');
+    window.history.pushState({ view: 'tarot-article', tarotArticleSlug: slug }, '', `/tarot/articles/${slug}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -518,6 +565,35 @@ const App: React.FC = () => {
             onTagClick={handleBlogTagClick}
           />
         );
+    }
+
+    // 9. Tarot Cards Overview
+    if (currentView === 'tarot-cards') {
+      return (
+        <TarotCardsOverview
+          onCardClick={handleTarotCardClick}
+          onViewAllCards={handleNavigateToTarotCardsAll}
+          onViewCategory={handleNavigateToTarotCardsCategory}
+        />
+      );
+    }
+
+    // 9b. Tarot Cards All (uses existing TarotArticlesList)
+    if (currentView === 'tarot-cards-all') {
+      return (
+        <TarotArticlesList
+          onArticleClick={handleTarotCardClick}
+        />
+      );
+    }
+
+    // 9c. Tarot Cards Category (uses existing TarotArticlesList)
+    if (currentView === 'tarot-cards-category' && tarotCardsCategory) {
+      return (
+        <TarotArticlesList
+          onArticleClick={handleTarotCardClick}
+        />
+      );
     }
 
     // 6. Active Reading View
