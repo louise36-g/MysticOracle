@@ -135,7 +135,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     }
   };
 
-  const handleSave = async (publish: boolean = false) => {
+  const handleSave = async (publish: boolean = false, overrideStatus?: 'DRAFT' | 'PUBLISHED') => {
     if (!article) return;
 
     try {
@@ -144,13 +144,17 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       const token = await getToken();
       if (!token) throw new Error('No token');
 
+      // Use overrideStatus if provided, otherwise use publish flag logic
+      const status = overrideStatus ?? (publish ? 'PUBLISHED' : article.status);
+
       const updateData = {
         ...article,
-        status: publish ? 'PUBLISHED' : article.status,
+        status,
         _visualEditorMode: true, // Flag to skip strict validation on backend
       };
 
       await updateTarotArticle(token, article.id, updateData);
+      setArticle(prev => prev ? { ...prev, status } : prev);
       onSave();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save article');
@@ -161,11 +165,9 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
 
   const handleTogglePublish = () => {
     if (!article) return;
-    setArticle(prev => {
-      if (!prev) return prev;
-      const newStatus = prev.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-      return { ...prev, status: newStatus };
-    });
+    const newStatus = article.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
+    // Save immediately with the explicit new status
+    handleSave(false, newStatus);
   };
 
   const handleMediaUpload = async (file: File): Promise<string> => {
