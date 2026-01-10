@@ -214,19 +214,18 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
 
         {/* Scroll progress indicator - appears on hover */}
         <div className="flex justify-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="relative w-32 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+          <div className="relative w-20 h-1 bg-slate-700/50 rounded-full overflow-hidden">
             <motion.div
               className="absolute top-0 left-0 h-full rounded-full"
               style={{
                 backgroundColor: config.color,
                 width: `${thumbWidth}%`,
-                left: `${scrollProgress * (100 - thumbWidth)}%`,
               }}
               initial={false}
               animate={{
                 left: `${scrollProgress * (100 - thumbWidth)}%`,
               }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              transition={{ type: 'tween', duration: 0.1, ease: 'easeOut' }}
             />
           </div>
         </div>
