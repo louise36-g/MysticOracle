@@ -112,7 +112,7 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
   }
 
   return (
-    <section className="mb-10">
+    <section className="mb-10 overflow-visible">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-4 md:px-0">
         <div className="flex items-center gap-3">
@@ -179,15 +179,15 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
         {/* Cards row */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-0 pb-2 scroll-smooth"
+          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-0 pt-2 pb-2 scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {cards.map((card, index) => (
             <motion.div
               key={card.id}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: Math.min(index * 0.03, 0.3), duration: 0.2 }}
             >
               <TarotCardPreview
                 card={card}

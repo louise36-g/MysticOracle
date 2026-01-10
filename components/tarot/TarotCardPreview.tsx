@@ -20,13 +20,10 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
 }) => {
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       onClick={() => onClick(card.slug)}
-      className="group cursor-pointer flex-shrink-0 w-[220px] bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all"
-      style={{
-        boxShadow: `0 0 0 0 ${elementColor}00`,
-      }}
+      className="group cursor-pointer flex-shrink-0 w-[220px] bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40"
       whileTap={{ scale: 0.98 }}
     >
       {/* Image */}
@@ -71,7 +68,7 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
           <span className="font-bold" style={{ color: elementColor }}>
             {card.cardNumber}
           </span>
-          {card.cardNumber !== undefined && card.cardNumber !== null && ' · '}
+          {card.cardNumber !== undefined && card.cardNumber !== null && ' - '}
           {card.title}
         </h3>
 

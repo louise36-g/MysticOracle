@@ -171,13 +171,13 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
           {filteredArticles.map((article, index) => (
             <motion.div
               key={article.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(index * 0.02, 0.5) }}
-              whileHover={{ y: -4 }}
+              transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.2 }}
+              whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onArticleClick(article.slug)}
-              className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all"
+              className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40"
             >
               <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
                 {article.featuredImage ? (
@@ -211,7 +211,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
                   <span className="font-bold text-purple-400">
                     {article.cardNumber}
                   </span>
-                  {article.cardNumber !== undefined && article.cardNumber !== null && ' · '}
+                  {article.cardNumber !== undefined && article.cardNumber !== null && ' - '}
                   {article.title}
                 </h3>
                 {/* Excerpt */}
