@@ -1356,10 +1356,11 @@ export async function uploadBlogMedia(
   folder?: string
 ): Promise<{ success: boolean; media: BlogMedia }> {
   const formData = new FormData();
+  // IMPORTANT: folder must come before image for multer to access it during file processing
+  if (folder) formData.append('folder', folder);
   formData.append('image', file);
   if (altText) formData.append('altText', altText);
   if (caption) formData.append('caption', caption);
-  if (folder) formData.append('folder', folder);
 
   const response = await fetch(`${API_URL}/api/blog/admin/upload`, {
     method: 'POST',
