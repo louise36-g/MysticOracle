@@ -1,5 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { fetchAdminBlogMedia, BlogMedia } from '../../services/apiService';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -34,7 +36,15 @@ import {
   Check,
   Type,
   Unlink,
+  Loader,
 } from 'lucide-react';
+
+// Folder configuration for media library
+const MEDIA_FOLDERS = [
+  { id: 'all', label: 'All' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'tarot', label: 'Tarot' },
+];
 
 interface RichTextEditorProps {
   content: string;
@@ -83,6 +93,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onMediaUpload,
   onMediaDelete,
 }) => {
+  const { getToken } = useAuth();
   const [showImageModal, setShowImageModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
@@ -94,6 +105,40 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalFileInputRef = useRef<HTMLInputElement>(null);
   const fontSizeRef = useRef<HTMLDivElement>(null);
+
+  // Media library state - fetch independently for reliability
+  const [modalMedia, setModalMedia] = useState<BlogMedia[]>([]);
+  const [mediaLoading, setMediaLoading] = useState(false);
+  const [activeFolder, setActiveFolder] = useState<string>('all');
+
+  // Fetch media when modal opens
+  useEffect(() => {
+    if (showImageModal) {
+      loadModalMedia();
+    }
+  }, [showImageModal]);
+
+  const loadModalMedia = async () => {
+    try {
+      setMediaLoading(true);
+      const token = await getToken();
+      if (!token) return;
+      const folderFilter = activeFolder === 'all' ? undefined : activeFolder;
+      const result = await fetchAdminBlogMedia(token, folderFilter);
+      setModalMedia(result.media);
+    } catch (err) {
+      console.error('Failed to load media:', err);
+    } finally {
+      setMediaLoading(false);
+    }
+  };
+
+  // Reload media when folder changes (only if modal is open)
+  useEffect(() => {
+    if (showImageModal) {
+      loadModalMedia();
+    }
+  }, [activeFolder]);
 
   const editor = useEditor({
     extensions: [
@@ -205,6 +250,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         const url = await onMediaUpload(file);
         setImageUrl(url);
         setImageAlt(file.name.replace(/\.[^/.]+$/, ''));
+        // Reload media library after successful upload
+        await loadModalMedia();
       } catch (err) {
         console.error('Failed to upload image:', err);
       } finally {
@@ -223,6 +270,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setDeletingMedia(id);
     try {
       await onMediaDelete(id);
+      // Reload media library after deletion
+      await loadModalMedia();
     } catch (err) {
       console.error('Failed to delete media:', err);
     } finally {
@@ -521,8 +570,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* Image Modal */}
       {showImageModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-purple-500/30 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-slate-900 border border-purple-500/30 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
               <h3 className="text-lg font-medium text-purple-200">Insert Image</h3>
               <button
                 onClick={() => setShowImageModal(false)}
@@ -532,7 +582,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Upload Button */}
               {onMediaUpload && (
                 <div>
@@ -595,12 +646,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 />
               </div>
 
-              {/* Media Library */}
+              {/* Media Library with Folder Tabs */}
               <div>
                 <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
-                {mediaLibrary.length > 0 ? (
-                  <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
-                    {mediaLibrary.map((item) => (
+
+                {/* Folder Tabs */}
+                <div className="flex items-center gap-1 mb-3 bg-slate-800/50 p-1 rounded-lg">
+                  {MEDIA_FOLDERS.map((folder) => (
+                    <button
+                      key={folder.id}
+                      onClick={() => setActiveFolder(folder.id)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        activeFolder === folder.id
+                          ? 'bg-purple-600 text-white'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                      }`}
+                    >
+                      {folder.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Media Grid */}
+                {mediaLoading ? (
+                  <div className="flex items-center justify-center py-8 bg-slate-800/50 rounded-lg">
+                    <Loader className="w-6 h-6 text-purple-400 animate-spin" />
+                  </div>
+                ) : modalMedia.length > 0 ? (
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[280px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
+                    {modalMedia.map((item) => (
                       <div
                         key={item.id}
                         className="relative group"
@@ -608,7 +682,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                         <button
                           onClick={() => {
                             setImageUrl(item.url);
-                            setImageAlt(item.originalName);
+                            setImageAlt(item.originalName || '');
                           }}
                           className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors w-full ${
                             imageUrl === item.url ? 'border-purple-500' : 'border-transparent hover:border-purple-500/50'
@@ -616,7 +690,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                         >
                           <img
                             src={item.url}
-                            alt={item.originalName}
+                            alt={item.originalName || 'Media'}
                             className="w-full h-full object-cover"
                           />
                           {imageUrl === item.url && (
@@ -644,13 +718,21 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500 italic p-2 bg-slate-800/50 rounded-lg">
-                    No images in library. Upload images in the Media tab first.
-                  </p>
+                  <div className="text-center py-8 bg-slate-800/50 rounded-lg">
+                    <ImageIcon className="w-10 h-10 mx-auto mb-2 text-slate-600" />
+                    <p className="text-sm text-slate-500">
+                      {activeFolder === 'all'
+                        ? 'No images uploaded yet'
+                        : `No images in ${activeFolder} folder`}
+                    </p>
+                  </div>
                 )}
               </div>
+            </div>
 
-              <div className="flex gap-3 pt-2">
+            {/* Sticky Footer with Buttons */}
+            <div className="p-4 border-t border-purple-500/20 bg-slate-900">
+              <div className="flex gap-3">
                 <button
                   onClick={() => setShowImageModal(false)}
                   className="flex-1 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
