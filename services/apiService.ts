@@ -869,6 +869,39 @@ export async function fetchTarotArticles(params: {
   return apiRequest(`/api/tarot-articles?${queryParams.toString()}`);
 }
 
+// Tarot Overview types
+export interface TarotOverviewCard {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  featuredImage: string;
+  featuredImageAlt: string;
+  cardType: string;
+  cardNumber: string;
+  readTime: string;
+}
+
+export interface TarotOverviewData {
+  majorArcana: TarotOverviewCard[];
+  wands: TarotOverviewCard[];
+  cups: TarotOverviewCard[];
+  swords: TarotOverviewCard[];
+  pentacles: TarotOverviewCard[];
+  counts: {
+    majorArcana: number;
+    wands: number;
+    cups: number;
+    swords: number;
+    pentacles: number;
+  };
+}
+
+// Public: Fetch tarot overview data (batch)
+export async function fetchTarotOverview(): Promise<TarotOverviewData> {
+  return apiRequest('/api/tarot-articles/overview');
+}
+
 // Admin: Create new tarot article
 export async function createTarotArticle(
   token: string,
