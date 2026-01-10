@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users } from 'lucide-react';
+import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users, Layers } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface BreadcrumbProps {
@@ -104,6 +104,37 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         items.push({
           label: language === 'en' ? 'About Us' : 'À Propos',
           icon: <Users className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'tarot-cards':
+        items.push({
+          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          icon: <Layers className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'tarot-cards-all':
+        items.push({
+          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          icon: <Layers className="w-3.5 h-3.5" />,
+          onClick: () => onNavigate('tarot-cards'),
+        });
+        items.push({
+          label: language === 'en' ? 'All Cards' : 'Toutes les Cartes',
+          icon: <Sparkles className="w-3.5 h-3.5" />,
+        });
+        break;
+
+      case 'tarot-cards-category':
+        items.push({
+          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          icon: <Layers className="w-3.5 h-3.5" />,
+          onClick: () => onNavigate('tarot-cards'),
+        });
+        items.push({
+          label: language === 'en' ? 'Category' : 'Catégorie',
+          icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
 
