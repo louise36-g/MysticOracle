@@ -111,8 +111,22 @@ app.use(express.json());
 // Apply general rate limiting to all routes
 app.use(generalLimiter);
 
-// Serve static files for uploads
-app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+// Static uploads with long cache (files are immutable - include hash/timestamp)
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  next();
+}, express.static(path.join(process.cwd(), 'public', 'uploads')));
+
+// Add middleware for API cache headers (before routes)
+app.use('/api', (req, res, next) => {
+  // Only cache GET requests to public endpoints
+  if (req.method === 'GET' && !req.path.includes('/admin')) {
+    res.setHeader('Cache-Control', 'private, max-age=300'); // 5 minutes
+  } else {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+  next();
+});
 
 // Routes with specific rate limits
 app.use('/api/health', healthRoutes);
