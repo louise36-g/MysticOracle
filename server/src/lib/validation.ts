@@ -134,6 +134,73 @@ export const TarotArticleSchema = z.object({
 });
 
 // ============================================
+// LENIENT SCHEMA (for force-save mode)
+// ============================================
+
+// Lenient sub-schemas with all fields optional
+const FAQItemLenientSchema = z.object({
+  question: z.string().optional(),
+  answer: z.string().optional(),
+});
+
+const SEOLenientSchema = z.object({
+  focusKeyword: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+});
+
+// Lenient article schema - makes all fields optional for force-save
+export const TarotArticleLenientSchema = z.object({
+  // Content fields
+  title: z.string().optional(),
+  excerpt: z.string().optional(),
+  content: z.string().optional(),
+  slug: z.string().optional(),
+  author: z.string().optional(),
+  readTime: z.string().optional(),
+
+  // Dates
+  datePublished: z.string().optional(),
+  dateModified: z.string().optional(),
+
+  // Images
+  featuredImage: z.string().optional(),
+  featuredImageAlt: z.string().optional(),
+
+  // Card metadata
+  cardType: CardTypeEnum.optional(),
+  cardNumber: z.string().optional(),
+  astrologicalCorrespondence: z.string().optional(),
+  element: ElementEnum.optional(),
+
+  // Taxonomy
+  categories: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+
+  // SEO
+  seo: SEOLenientSchema.optional(),
+
+  // FAQ
+  faq: z.array(FAQItemLenientSchema).optional(),
+
+  // Breadcrumbs
+  breadcrumbCategory: z.string().optional(),
+  breadcrumbCategoryUrl: z.string().optional(),
+
+  // Related content
+  relatedCards: z.array(z.string()).optional(),
+
+  // Flags
+  isCourtCard: z.boolean().optional(),
+  isChallengeCard: z.boolean().optional(),
+
+  // Status
+  status: ArticleStatusEnum.optional(),
+});
+
+export type TarotArticleLenientInput = z.infer<typeof TarotArticleLenientSchema>;
+
+// ============================================
 // TYPE EXPORTS
 // ============================================
 
@@ -341,6 +408,130 @@ export function validateArticleExtended(
 }
 
 // ============================================
+// WARNINGS-ONLY VALIDATION (for force-save mode)
+// ============================================
+
+export interface WarningsOnlyValidationResult {
+  success: true; // Always succeeds in force-save mode
+  data: TarotArticleLenientInput;
+  warnings: string[];
+  stats: {
+    wordCount: number;
+    faqCount: number;
+    hasAnswerFirstOpening: boolean;
+  };
+}
+
+/**
+ * Validate article with all issues reported as warnings (non-blocking).
+ * Used for force-save mode where we want to save despite validation issues.
+ *
+ * @param input - Raw article data
+ * @param cardName - Optional card name for answer-first pattern check
+ * @returns Always succeeds with warnings array and parsed data
+ */
+export function validateArticleWithWarnings(
+  input: unknown,
+  cardName?: string
+): WarningsOnlyValidationResult {
+  const warnings: string[] = [];
+
+  // Normalize keys from snake_case to camelCase
+  const normalized = normalizeKeys(input);
+
+  // Run strict validation to collect all issues as warnings
+  const strictResult = TarotArticleSchema.safeParse(normalized);
+  if (!strictResult.success) {
+    // Convert all validation errors to warnings
+    for (const error of strictResult.error.errors) {
+      const path = error.path.join('.');
+      warnings.push(`[Schema] ${path}: ${error.message}`);
+    }
+  }
+
+  // Run lenient validation to get parseable data
+  const lenientResult = TarotArticleLenientSchema.safeParse(normalized);
+  const data = lenientResult.success ? lenientResult.data : (normalized as TarotArticleLenientInput);
+
+  // Content quality warnings
+  const content = data.content || '';
+  const wordCount = getWordCount(content);
+
+  if (wordCount < 2500) {
+    warnings.push(`[Content] Word count is ${wordCount}, target is 2500-3000`);
+  }
+  if (wordCount > 3500) {
+    warnings.push(`[Content] Word count is ${wordCount}, may be too long`);
+  }
+
+  // Forbidden words check
+  const forbiddenFound = checkForbiddenWords(content);
+  if (forbiddenFound.length > 0) {
+    warnings.push(`[Content] Forbidden words found: ${forbiddenFound.join(', ')}`);
+  }
+
+  // Em dash check (exclude blockquotes)
+  if (content.includes('—')) {
+    const contentWithoutBlockquotes = content.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '');
+    if (contentWithoutBlockquotes.includes('—')) {
+      warnings.push('[Content] Content contains em dashes (-) which may affect readability');
+    }
+  }
+
+  // Answer-first pattern check
+  const title = data.title || '';
+  const name = cardName || title.split(':')[0].trim();
+  const hasAnswerFirst = name && content ? validateAnswerFirstOpening(content, name) : false;
+  if (content && !hasAnswerFirst) {
+    warnings.push('[Content] Opening may not follow answer-first pattern');
+  }
+
+  // SEO warnings
+  const seo = data.seo;
+  if (seo) {
+    if (seo.metaTitle && seo.metaTitle.length > 60) {
+      warnings.push(`[SEO] Meta title is ${seo.metaTitle.length} characters, should be 60 or less`);
+    }
+    if (seo.metaDescription && seo.metaDescription.length > 155) {
+      warnings.push(`[SEO] Meta description is ${seo.metaDescription.length} characters, should be 155 or less`);
+    }
+  }
+
+  // FAQ count warning
+  const faq = data.faq || [];
+  const faqCount = faq.length;
+  if (faqCount < 5) {
+    warnings.push(`[FAQ] Only ${faqCount} FAQ items, minimum recommended is 5`);
+  }
+
+  // Tag count warning
+  const tags = data.tags || [];
+  if (tags.length < 3) {
+    warnings.push(`[Tags] Only ${tags.length} tags, minimum recommended is 3`);
+  }
+
+  // Image URL check
+  if (data.featuredImage) {
+    try {
+      new URL(data.featuredImage);
+    } catch {
+      warnings.push('[Image] Featured image URL may not be valid');
+    }
+  }
+
+  return {
+    success: true,
+    data,
+    warnings,
+    stats: {
+      wordCount,
+      faqCount,
+      hasAnswerFirstOpening: hasAnswerFirst,
+    },
+  };
+}
+
+// ============================================
 // HELPER: Convert validated data to Prisma format
 // ============================================
 
@@ -407,6 +598,64 @@ export function convertToPrismaFormat(data: TarotArticleInput) {
     // Flags
     isCourtCard: data.isCourtCard,
     isChallengeCard: data.isChallengeCard,
+
+    // Status (also needs mapping if provided)
+    status: (data.status || 'DRAFT') as any,
+  };
+}
+
+/**
+ * Convert lenient article data to Prisma-compatible format.
+ * Used for force-save mode where fields may be missing.
+ * Provides defaults for required database fields.
+ */
+export function convertToPrismaFormatLenient(data: TarotArticleLenientInput) {
+  const now = new Date();
+
+  return {
+    title: data.title || 'Untitled Article',
+    slug: data.slug || `untitled-${Date.now()}`,
+    excerpt: data.excerpt || '',
+    content: data.content || '',
+    author: data.author || 'Unknown',
+    readTime: data.readTime || '5 min read',
+
+    // Convert date strings to Date objects (with fallbacks)
+    datePublished: data.datePublished ? new Date(data.datePublished) : now,
+    dateModified: data.dateModified ? new Date(data.dateModified) : now,
+
+    // Images
+    featuredImage: data.featuredImage || '',
+    featuredImageAlt: data.featuredImageAlt || '',
+
+    // Card metadata - convert to Prisma enum keys
+    cardType: data.cardType ? mapCardTypeToPrisma(data.cardType) as any : 'MAJOR_ARCANA',
+    cardNumber: data.cardNumber || '0',
+    astrologicalCorrespondence: data.astrologicalCorrespondence || '',
+    element: data.element || 'FIRE',
+
+    // Taxonomy (arrays)
+    categories: data.categories || [],
+    tags: data.tags || [],
+
+    // SEO (flatten the nested object)
+    seoFocusKeyword: data.seo?.focusKeyword || '',
+    seoMetaTitle: data.seo?.metaTitle || '',
+    seoMetaDescription: data.seo?.metaDescription || '',
+
+    // FAQ (stored as JSON)
+    faq: (data.faq || []) as any,
+
+    // Breadcrumbs
+    breadcrumbCategory: data.breadcrumbCategory || '',
+    breadcrumbCategoryUrl: data.breadcrumbCategoryUrl,
+
+    // Related content
+    relatedCards: data.relatedCards || [],
+
+    // Flags
+    isCourtCard: data.isCourtCard || false,
+    isChallengeCard: data.isChallengeCard || false,
 
     // Status (also needs mapping if provided)
     status: (data.status || 'DRAFT') as any,

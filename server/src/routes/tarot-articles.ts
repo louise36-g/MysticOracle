@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
-import { validateArticleExtended, convertToPrismaFormat } from '../lib/validation.js';
+import { validateArticleExtended, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
 
 // Note: Media is now handled by the shared blog media system
@@ -164,12 +164,86 @@ router.post('/admin/validate', async (req, res) => {
 /**
  * POST /api/tarot-articles/admin/import
  * Import and save a validated tarot article to the database
+ *
+ * Query params:
+ * - force=true: Force-save mode - all validation issues become warnings (non-blocking)
  */
 router.post('/admin/import', async (req, res) => {
   try {
     const articleData = req.body;
+    const forceMode = req.query.force === 'true';
 
-    // Validate the article data
+    if (forceMode) {
+      // Force-save mode: use warnings-only validation
+      const warningsResult = validateArticleWithWarnings(articleData);
+
+      // Check for slug even in force mode (database constraint)
+      const slug = warningsResult.data.slug;
+      if (!slug) {
+        return res.status(400).json({
+          success: false,
+          error: 'Slug is required even in force-save mode',
+          errors: ['Slug is required even in force-save mode'],
+          warnings: warningsResult.warnings,
+        });
+      }
+
+      // Check if article with this slug already exists
+      const existingArticle = await prisma.tarotArticle.findUnique({
+        where: { slug },
+      });
+
+      if (existingArticle) {
+        return res.status(409).json({
+          success: false,
+          error: `Article with slug "${slug}" already exists`,
+          errors: [`Article with slug "${slug}" already exists`],
+          warnings: warningsResult.warnings,
+        });
+      }
+
+      // Convert to Prisma format with defaults for missing fields
+      const prismaData = convertToPrismaFormatLenient(warningsResult.data);
+
+      // Try to generate schema (may fail with incomplete data)
+      let schema: object | null = null;
+      let schemaHtml = '';
+      try {
+        const schemaResult = processArticleSchema(warningsResult.data as TarotArticleData);
+        schema = schemaResult.schema;
+        schemaHtml = schemaResult.schemaHtml;
+      } catch (schemaError) {
+        // Schema generation failed - add as warning but continue
+        warningsResult.warnings.push('[Schema] Could not generate structured data - article may need additional fields');
+      }
+
+      // Create the article in the database
+      const article = await prisma.tarotArticle.create({
+        data: {
+          ...prismaData,
+          schemaJson: schema as any || {},
+          schemaHtml,
+          status: 'DRAFT', // Force-saved articles always start as draft
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+
+      return res.status(201).json({
+        success: true,
+        forceSaved: true,
+        article: {
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+          status: article.status,
+        },
+        warnings: warningsResult.warnings,
+        stats: warningsResult.stats,
+      });
+    }
+
+    // Standard mode: strict validation
     const validationResult = validateArticleExtended(articleData);
 
     if (!validationResult.success || !validationResult.data) {
