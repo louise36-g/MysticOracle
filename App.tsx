@@ -1,36 +1,56 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { useUser, SignInButton } from '@clerk/clerk-react';
 import Header from './components/Header';
 import ReadingModeSelector from './components/ReadingModeSelector';
 import SpreadSelector from './components/SpreadSelector';
-import ActiveReading from './components/ActiveReading';
-import HoroscopeReading from './components/HoroscopeReading';
-import UserProfile from './components/UserProfile';
-import AdminDashboard from './components/admin/AdminDashboard';
-import PrivacyPolicy from './components/legal/PrivacyPolicy';
-import TermsOfService from './components/legal/TermsOfService';
-import CookiePolicy from './components/legal/CookiePolicy';
-import PaymentResult from './components/PaymentResult';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
 import CreditShop from './components/CreditShop';
 import Breadcrumb from './components/Breadcrumb';
-import BlogList from './components/blog/BlogList';
-import BlogPostView from './components/blog/BlogPost';
-import TarotArticlesList from './components/TarotArticlesList';
-import TarotArticlePage from './components/TarotArticlePage';
-import HowCreditsWork from './components/HowCreditsWork';
-import FAQ from './components/FAQ';
-import AboutUs from './components/AboutUs';
 import SubNav from './components/SubNav';
-import { TarotCardsOverview, CategoryType, CATEGORY_CONFIG } from './components/tarot';
 import { DailyBonusPopup } from './components/rewards';
 import { useApp } from './context/AppContext';
 import { SpreadConfig, InterpretationStyle } from './types';
+import { CategoryType, CATEGORY_CONFIG } from './components/tarot';
 import Button from './components/Button';
 import { Star, Shield, Zap, Coins, X, AlertTriangle } from 'lucide-react';
+
+// Lazy-loaded components for code splitting
+// Core reading components (loaded when user starts a reading)
+const ActiveReading = lazy(() => import('./components/ActiveReading'));
+const HoroscopeReading = lazy(() => import('./components/HoroscopeReading'));
+const UserProfile = lazy(() => import('./components/UserProfile'));
+const PaymentResult = lazy(() => import('./components/PaymentResult'));
+
+// Admin components
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+
+// Legal pages
+const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
+const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
+
+// Content pages
+const BlogList = lazy(() => import('./components/blog/BlogList'));
+const BlogPostView = lazy(() => import('./components/blog/BlogPost'));
+const TarotArticlesList = lazy(() => import('./components/TarotArticlesList'));
+const TarotArticlePage = lazy(() => import('./components/TarotArticlePage'));
+const TarotCardsOverview = lazy(() => import('./components/tarot/TarotCardsOverview'));
+const HowCreditsWork = lazy(() => import('./components/HowCreditsWork'));
+const FAQ = lazy(() => import('./components/FAQ'));
+const AboutUs = lazy(() => import('./components/AboutUs'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-[400px] flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-purple-300/70 text-sm">Loading...</p>
+    </div>
+  </div>
+);
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Low credits threshold
@@ -738,7 +758,9 @@ const App: React.FC = () => {
       />
       <main className="relative z-10 flex-grow">
         <ErrorBoundary>
-          {renderContent()}
+          <Suspense fallback={<PageLoader />}>
+            {renderContent()}
+          </Suspense>
         </ErrorBoundary>
       </main>
       <Footer onNavigate={handleNavigate} />

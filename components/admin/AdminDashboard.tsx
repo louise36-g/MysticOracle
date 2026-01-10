@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useApp } from '../../context/AppContext';
 import AdminOverview from './AdminOverview';
 import AdminUsers from './AdminUsers';
 import AdminTransactions from './AdminTransactions';
-import AdminAnalytics from './AdminAnalytics';
 import AdminPackages from './AdminPackages';
-import AdminEmailTemplates from './AdminEmailTemplates';
 import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
-import AdminTranslations from './AdminTranslations';
-import AdminBlog from './AdminBlog';
-import ImportArticle from './ImportArticle';
-import AdminTarotArticles from './AdminTarotArticles';
 import AdminCache from './AdminCache';
 import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database } from 'lucide-react';
+
+// Lazy load heavy admin components
+const AdminAnalytics = lazy(() => import('./AdminAnalytics'));
+const AdminEmailTemplates = lazy(() => import('./AdminEmailTemplates'));
+const AdminTranslations = lazy(() => import('./AdminTranslations'));
+const AdminBlog = lazy(() => import('./AdminBlog'));
+const ImportArticle = lazy(() => import('./ImportArticle'));
+const AdminTarotArticles = lazy(() => import('./AdminTarotArticles'));
+
+// Admin tab loading fallback
+const AdminTabLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+  </div>
+);
 
 type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'cache' | 'translations' | 'settings';
 
@@ -85,34 +94,36 @@ const AdminDashboard: React.FC = () => {
 
       {/* Tab Content */}
       <div className="min-h-[500px]">
-        {activeTab === 'overview' && <AdminOverview />}
-        {activeTab === 'users' && <AdminUsers />}
-        {activeTab === 'transactions' && <AdminTransactions />}
-        {activeTab === 'packages' && <AdminPackages />}
-        {activeTab === 'emails' && <AdminEmailTemplates />}
-        {activeTab === 'blog' && <AdminBlog key={blogKey} />}
-        {activeTab === 'import-article' && (
-          <ImportArticle
-            editingArticleId={editingArticleId}
-            onCancelEdit={() => {
-              setEditingArticleId(null);
-              setActiveTab('tarot-articles');
-            }}
-          />
-        )}
-        {activeTab === 'tarot-articles' && (
-          <AdminTarotArticles
-            onNavigateToImport={(articleId) => {
-              setEditingArticleId(articleId);
-              setActiveTab('import-article');
-            }}
-          />
-        )}
-        {activeTab === 'analytics' && <AdminAnalytics />}
-        {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
-        {activeTab === 'cache' && <AdminCache />}
-        {activeTab === 'translations' && <AdminTranslations />}
-        {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
+        <Suspense fallback={<AdminTabLoader />}>
+          {activeTab === 'overview' && <AdminOverview />}
+          {activeTab === 'users' && <AdminUsers />}
+          {activeTab === 'transactions' && <AdminTransactions />}
+          {activeTab === 'packages' && <AdminPackages />}
+          {activeTab === 'emails' && <AdminEmailTemplates />}
+          {activeTab === 'blog' && <AdminBlog key={blogKey} />}
+          {activeTab === 'import-article' && (
+            <ImportArticle
+              editingArticleId={editingArticleId}
+              onCancelEdit={() => {
+                setEditingArticleId(null);
+                setActiveTab('tarot-articles');
+              }}
+            />
+          )}
+          {activeTab === 'tarot-articles' && (
+            <AdminTarotArticles
+              onNavigateToImport={(articleId) => {
+                setEditingArticleId(articleId);
+                setActiveTab('import-article');
+              }}
+            />
+          )}
+          {activeTab === 'analytics' && <AdminAnalytics />}
+          {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
+          {activeTab === 'cache' && <AdminCache />}
+          {activeTab === 'translations' && <AdminTranslations />}
+          {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
+        </Suspense>
       </div>
     </div>
   );

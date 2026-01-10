@@ -20,6 +20,22 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              // Core React and framework
+              'vendor-react': ['react', 'react-dom'],
+              // Animation library
+              'vendor-motion': ['framer-motion'],
+              // Authentication
+              'vendor-clerk': ['@clerk/clerk-react'],
+              // UI utilities
+              'vendor-ui': ['lucide-react', 'dompurify', 'react-helmet-async'],
+            }
+          }
+        }
       }
     };
 });
