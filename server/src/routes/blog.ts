@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import cacheService, { CacheService } from '../services/cache.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -965,6 +966,9 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
       }
     });
 
+    // Invalidate media cache after successful upload
+    await cacheService.flushPattern('media:');
+
     res.json({ success: true, media });
   } catch (error) {
     console.error('Error uploading file:', error instanceof Error ? error.message : String(error));
@@ -977,6 +981,13 @@ router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
     // Optional folder filter via query parameter, validate to prevent injection
     const folderParam = req.query.folder as string | undefined;
     const folder = folderParam ? validateFolder(folderParam) : undefined;
+    const cacheKey = folder ? `media:list:${folder}` : 'media:list';
+
+    // Check cache first
+    const cached = await cacheService.get<any[]>(cacheKey);
+    if (cached) {
+      return res.json({ media: cached });
+    }
 
     const where = folder ? { folder } : {};
 
@@ -985,6 +996,10 @@ router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
       orderBy: { createdAt: 'desc' },
       take: 100
     });
+
+    // Cache result
+    await cacheService.set(cacheKey, media, CacheService.TTL.MEDIA);
+
     res.json({ media });
   } catch (error) {
     console.error('Error fetching media:', error instanceof Error ? error.message : String(error));
@@ -1004,6 +1019,9 @@ router.delete('/admin/media/:id', requireAuth, requireAdmin, async (req, res) =>
         fs.unlinkSync(filePath);
       }
       await prisma.mediaUpload.delete({ where: { id: req.params.id } });
+
+      // Invalidate media cache after successful delete
+      await cacheService.flushPattern('media:');
     }
     res.json({ success: true });
   } catch (error) {
