@@ -79,14 +79,28 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [thumbWidth, setThumbWidth] = useState(20);
 
-  const updateScrollButtons = () => {
+  const updateScrollState = () => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+
+      // Calculate scroll progress (0 to 1)
+      const maxScroll = scrollWidth - clientWidth;
+      const progress = maxScroll > 0 ? scrollLeft / maxScroll : 0;
+      setScrollProgress(progress);
+
+      // Calculate thumb width as percentage of visible content
+      const ratio = clientWidth / scrollWidth;
+      setThumbWidth(Math.max(ratio * 100, 15)); // Minimum 15% width
     }
   };
+
+  // Keep old function name for compatibility
+  const updateScrollButtons = updateScrollState;
 
   useEffect(() => {
     updateScrollButtons();
@@ -196,6 +210,25 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
               />
             </motion.div>
           ))}
+        </div>
+
+        {/* Scroll progress indicator - appears on hover */}
+        <div className="flex justify-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="relative w-32 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+            <motion.div
+              className="absolute top-0 left-0 h-full rounded-full"
+              style={{
+                backgroundColor: config.color,
+                width: `${thumbWidth}%`,
+                left: `${scrollProgress * (100 - thumbWidth)}%`,
+              }}
+              initial={false}
+              animate={{
+                left: `${scrollProgress * (100 - thumbWidth)}%`,
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            />
+          </div>
         </div>
 
         {/* Scroll hint for mobile - subtle indicator */}
