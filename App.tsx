@@ -278,7 +278,17 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
 
     // Push state to history for back button support
-    const url = view === 'home' ? '/' : `/${view}`;
+    // Handle special URL patterns that don't match simple /${view}
+    let url: string;
+    if (view === 'home') {
+      url = '/';
+    } else if (view === 'tarot-cards') {
+      url = '/tarot/cards';
+    } else if (view === 'tarot-cards-all') {
+      url = '/tarot/cards/all';
+    } else {
+      url = `/${view}`;
+    }
     window.history.pushState({ view, readingMode: view === 'home' ? null : readingMode }, '', url);
 
     if (view === 'home') {
