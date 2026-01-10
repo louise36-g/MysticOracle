@@ -42,6 +42,96 @@ router.get('/:slug', async (req, res) => {
 });
 
 /**
+ * GET /api/tarot-articles/overview
+ * Fetch overview data: first 5 cards per category + counts
+ */
+router.get('/overview', async (req, res) => {
+  try {
+    const cardTypes = [
+      'MAJOR_ARCANA',
+      'SUIT_OF_WANDS',
+      'SUIT_OF_CUPS',
+      'SUIT_OF_SWORDS',
+      'SUIT_OF_PENTACLES',
+    ] as const;
+
+    const selectFields = {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      featuredImage: true,
+      featuredImageAlt: true,
+      cardType: true,
+      cardNumber: true,
+      readTime: true,
+    };
+
+    // Fetch first 5 cards per category (4 visible + 1 peeking) and counts in parallel
+    const [majorArcana, wands, cups, swords, pentacles, counts] = await Promise.all([
+      prisma.tarotArticle.findMany({
+        where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
+        select: selectFields,
+        orderBy: { cardNumber: 'asc' },
+        take: 5,
+      }),
+      prisma.tarotArticle.findMany({
+        where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
+        select: selectFields,
+        orderBy: { cardNumber: 'asc' },
+        take: 5,
+      }),
+      prisma.tarotArticle.findMany({
+        where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
+        select: selectFields,
+        orderBy: { cardNumber: 'asc' },
+        take: 5,
+      }),
+      prisma.tarotArticle.findMany({
+        where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
+        select: selectFields,
+        orderBy: { cardNumber: 'asc' },
+        take: 5,
+      }),
+      prisma.tarotArticle.findMany({
+        where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
+        select: selectFields,
+        orderBy: { cardNumber: 'asc' },
+        take: 5,
+      }),
+      Promise.all(
+        cardTypes.map(async (type) => ({
+          type,
+          count: await prisma.tarotArticle.count({
+            where: { cardType: type, status: 'PUBLISHED', deletedAt: null },
+          }),
+        }))
+      ),
+    ]);
+
+    const countsMap = Object.fromEntries(counts.map((c) => [c.type, c.count]));
+
+    res.json({
+      majorArcana,
+      wands,
+      cups,
+      swords,
+      pentacles,
+      counts: {
+        majorArcana: countsMap.MAJOR_ARCANA || 0,
+        wands: countsMap.SUIT_OF_WANDS || 0,
+        cups: countsMap.SUIT_OF_CUPS || 0,
+        swords: countsMap.SUIT_OF_SWORDS || 0,
+        pentacles: countsMap.SUIT_OF_PENTACLES || 0,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching tarot overview:', error);
+    res.status(500).json({ error: 'Failed to fetch overview data' });
+  }
+});
+
+/**
  * GET /api/tarot-articles
  * List published tarot articles with pagination and filters
  */
