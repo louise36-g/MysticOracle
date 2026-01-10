@@ -31,3 +31,6 @@ server/.env.*.local
 *.sln
 *.sw?
 server/public/
+
+# Git worktrees
+.worktrees/
