@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
-import { validateArticleExtended, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
+import { validateTarotArticle, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
 
 // Note: Media is now handled by the shared blog media system
@@ -117,47 +117,45 @@ router.use('/admin', requireAdmin);
 /**
  * POST /api/tarot-articles/admin/validate
  * Validate tarot article JSON with content quality checks
+ * Uses two-tier validation: core errors (blocking) and quality warnings (non-blocking)
  */
 router.post('/admin/validate', async (req, res) => {
   try {
-    const articleData = req.body;
+    const result = validateTarotArticle(req.body);
 
-    // Perform extended validation with warnings
-    const validationResult = validateArticleExtended(articleData);
+    // Convert QualityWarning[] to string[] for frontend compatibility
+    const warningMessages = result.warnings.map(w => w.message);
 
-    if (!validationResult.success || !validationResult.data) {
+    if (!result.success) {
       return res.status(400).json({
         success: false,
-        errors: validationResult.errorMessages || [],
-        warnings: [],
-        stats: null,
+        errors: result.errors || [],
+        warnings: warningMessages,
+        stats: result.stats,
         schema: null,
       });
     }
 
-    // At this point, validationResult.data is guaranteed to exist
-    const validatedData = validationResult.data;
-
-    // Generate schema preview (cast to TarotArticleData since validation passed)
-    const { schema } = processArticleSchema(validatedData as TarotArticleData);
+    // Generate schema preview for valid articles
+    let schema = null;
+    try {
+      const schemaResult = processArticleSchema(result.data as TarotArticleData);
+      schema = schemaResult.schema;
+    } catch {
+      // Schema generation failed - not critical for validation
+    }
 
     res.json({
       success: true,
       errors: [],
-      warnings: validationResult.warnings || [],
-      stats: validationResult.stats || null,
+      warnings: warningMessages,
+      stats: result.stats,
       schema,
-      data: validatedData,
+      data: result.data,
     });
   } catch (error) {
-    console.error('Error validating tarot article:', error);
-    res.status(500).json({
-      success: false,
-      errors: ['Validation failed: ' + (error instanceof Error ? error.message : 'Unknown error')],
-      warnings: [],
-      stats: null,
-      schema: null,
-    });
+    console.error('Validation error:', error);
+    res.status(500).json({ error: 'Validation failed' });
   }
 });
 
@@ -166,7 +164,11 @@ router.post('/admin/validate', async (req, res) => {
  * Import and save a validated tarot article to the database
  *
  * Query params:
- * - force=true: Force-save mode - all validation issues become warnings (non-blocking)
+ * - force=true: Force-save mode - bypasses all validation entirely
+ *
+ * Standard mode uses two-tier validation:
+ * - Core errors (blocking) - must be fixed before import
+ * - Quality warnings (non-blocking) - returned in response for review
  */
 router.post('/admin/import', async (req, res) => {
   try {
@@ -174,7 +176,7 @@ router.post('/admin/import', async (req, res) => {
     const forceMode = req.query.force === 'true';
 
     if (forceMode) {
-      // Force-save mode: use warnings-only validation
+      // Force-save mode: use warnings-only validation (bypasses all validation)
       const warningsResult = validateArticleWithWarnings(articleData);
 
       // Check for slug even in force mode (database constraint)
@@ -243,15 +245,18 @@ router.post('/admin/import', async (req, res) => {
       });
     }
 
-    // Standard mode: strict validation
-    const validationResult = validateArticleExtended(articleData);
+    // Standard mode: two-tier validation (core errors block, quality warnings don't)
+    const validationResult = validateTarotArticle(articleData);
+
+    // Convert QualityWarning[] to string[] for frontend compatibility
+    const warningMessages = validationResult.warnings.map(w => w.message);
 
     if (!validationResult.success || !validationResult.data) {
       return res.status(400).json({
         success: false,
         error: 'Validation failed',
-        errors: validationResult.errorMessages || [],
-        warnings: [],
+        errors: validationResult.errors || [],
+        warnings: warningMessages,
       });
     }
 
@@ -259,30 +264,42 @@ router.post('/admin/import', async (req, res) => {
     const validatedData = validationResult.data;
 
     // Check if article with this slug already exists
+    const slug = validatedData.slug || `article-${Date.now()}`;
     const existingArticle = await prisma.tarotArticle.findUnique({
-      where: { slug: validatedData.slug },
+      where: { slug },
     });
 
     if (existingArticle) {
       return res.status(409).json({
         success: false,
-        error: `Article with slug "${validatedData.slug}" already exists`,
-        errors: [`Article with slug "${validatedData.slug}" already exists`],
-        warnings: [],
+        error: `Article with slug "${slug}" already exists`,
+        errors: [`Article with slug "${slug}" already exists`],
+        warnings: warningMessages,
       });
     }
 
     // Convert to Prisma format (maps display names to enum keys)
-    const prismaData = convertToPrismaFormat(validatedData);
+    // Note: Core schema allows optional slug, so we need to handle that
+    const dataForPrisma = { ...validatedData, slug } as any;
+    const prismaData = convertToPrismaFormatLenient(dataForPrisma);
 
-    // Generate schema for the article (cast to TarotArticleData since validation passed)
-    const { schema, schemaHtml } = processArticleSchema(validatedData as TarotArticleData);
+    // Generate schema for the article
+    let schema: object | null = null;
+    let schemaHtml = '';
+    try {
+      const schemaResult = processArticleSchema(validatedData as TarotArticleData);
+      schema = schemaResult.schema;
+      schemaHtml = schemaResult.schemaHtml;
+    } catch {
+      // Schema generation failed - add as warning but continue
+      warningMessages.push('Could not generate structured data schema');
+    }
 
     // Create the article in the database
     const article = await prisma.tarotArticle.create({
       data: {
         ...prismaData,
-        schemaJson: schema as any,
+        schemaJson: schema as any || {},
         schemaHtml,
         status: 'DRAFT', // Import as draft by default
         createdAt: new Date(),
@@ -298,7 +315,8 @@ router.post('/admin/import', async (req, res) => {
         slug: article.slug,
         status: article.status,
       },
-      warnings: validationResult.warnings || [],
+      warnings: warningMessages,
+      stats: validationResult.stats,
     });
   } catch (error) {
     console.error('Error importing tarot article:', error);
@@ -433,11 +451,11 @@ router.get('/admin/:id', async (req, res) => {
  * PATCH /api/tarot-articles/admin/:id
  * Update a tarot article - admin only
  * Supports both:
- * - Full validation mode (for JSON import updates)
+ * - Full validation mode (for JSON import updates) - uses two-tier validation
  * - Visual editor mode (for field-by-field updates from TarotArticleEditor)
  *
  * Query params:
- * - force=true: Force-update mode - all validation issues become warnings (non-blocking)
+ * - force=true: Force-update mode - bypasses all validation entirely
  */
 router.patch('/admin/:id', async (req, res) => {
   try {
@@ -497,7 +515,7 @@ router.patch('/admin/:id', async (req, res) => {
     // Full validation mode: If this is a full article update (from JSON import edit)
     if (updates.title && updates.content && updates.slug) {
       if (forceUpdate) {
-        // Force-update mode: proceed with warnings instead of errors
+        // Force-update mode: proceed with warnings instead of errors (bypasses all validation)
         const warningsResult = validateArticleWithWarnings(updates);
 
         // Convert to Prisma format with defaults for missing fields
@@ -534,34 +552,51 @@ router.patch('/admin/:id', async (req, res) => {
         });
       }
 
-      // Strict validation mode
-      const validationResult = validateArticleExtended(updates);
+      // Standard mode: two-tier validation (core errors block, quality warnings don't)
+      const validationResult = validateTarotArticle(updates);
+
+      // Convert QualityWarning[] to string[] for frontend compatibility
+      const warningMessages = validationResult.warnings.map(w => w.message);
 
       if (!validationResult.success || !validationResult.data) {
         return res.status(400).json({
           error: 'Validation failed',
-          errors: validationResult.errorMessages || [],
+          errors: validationResult.errors || [],
+          warnings: warningMessages,
         });
       }
 
       // Convert to Prisma format
-      const prismaData = convertToPrismaFormat(validationResult.data);
+      const prismaData = convertToPrismaFormatLenient(validationResult.data as any);
 
-      // Regenerate schema (cast to TarotArticleData since validation passed)
-      const { schema, schemaHtml } = processArticleSchema(validationResult.data as TarotArticleData);
+      // Regenerate schema
+      let schema: object | null = null;
+      let schemaHtml = '';
+      try {
+        const schemaResult = processArticleSchema(validationResult.data as TarotArticleData);
+        schema = schemaResult.schema;
+        schemaHtml = schemaResult.schemaHtml;
+      } catch {
+        // Schema generation failed - add as warning but continue
+        warningMessages.push('Could not generate structured data schema');
+      }
 
       // Update with validated data
       const updatedArticle = await prisma.tarotArticle.update({
         where: { id },
         data: {
           ...prismaData,
-          schemaJson: schema as any,
-          schemaHtml,
+          schemaJson: schema as any || existingArticle.schemaJson,
+          schemaHtml: schemaHtml || existingArticle.schemaHtml,
           updatedAt: new Date(),
         },
       });
 
-      return res.json(updatedArticle);
+      return res.json({
+        ...updatedArticle,
+        _warnings: warningMessages,
+        _stats: validationResult.stats,
+      });
     }
 
     // Simple field update (status only)
