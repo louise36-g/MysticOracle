@@ -133,10 +133,10 @@ const App: React.FC = () => {
       setCurrentView('about');
       window.history.replaceState({ view: 'about' }, '', '/about');
     }
-    // Tarot articles list
+    // Tarot articles list - redirect to /tarot/cards/all
     else if (path === '/tarot-articles') {
-      setCurrentView('tarot-articles');
-      window.history.replaceState({ view: 'tarot-articles' }, '', '/tarot-articles');
+      setCurrentView('tarot-cards-all');
+      window.history.replaceState({ view: 'tarot-cards-all' }, '', '/tarot/cards/all');
     }
     // Admin tarot article preview
     else if (path.startsWith('/admin/tarot/preview/')) {
@@ -558,22 +558,12 @@ const App: React.FC = () => {
         );
     }
 
-    // 8. Tarot Articles (accessible to all)
-    if (currentView === 'tarot-articles') {
-        return (
-          <TarotArticlesList
-            onArticleClick={(slug) => {
-              setTarotArticleSlug(slug);
-              handleNavigate('tarot-article');
-            }}
-          />
-        );
-    }
+    // 8. Single Tarot Article view
     if (currentView === 'tarot-article' && tarotArticleSlug) {
         return (
           <TarotArticlePage
             slug={tarotArticleSlug}
-            onBack={() => handleNavigate('tarot-articles')}
+            onBack={() => handleNavigate('tarot-cards-all')}
           />
         );
     }

@@ -107,21 +107,19 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         });
         break;
 
-      case 'tarot-articles':
-        items.push({
-          label: language === 'en' ? 'Tarot Card Meanings' : 'Significations des Cartes',
-          icon: <Layers className="w-3.5 h-3.5" />,
-        });
-        break;
-
       case 'tarot-article':
         items.push({
-          label: language === 'en' ? 'Tarot Card Meanings' : 'Significations des Cartes',
+          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
           icon: <Layers className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('tarot-articles'),
+          onClick: () => onNavigate('tarot-cards'),
         });
         items.push({
-          label: language === 'en' ? 'Card Details' : 'Détails de la Carte',
+          label: language === 'en' ? 'All Cards' : 'Toutes les Cartes',
+          icon: <Layers className="w-3.5 h-3.5" />,
+          onClick: () => onNavigate('tarot-cards-all'),
+        });
+        items.push({
+          label: language === 'en' ? 'Card Details' : 'Détails',
           icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
