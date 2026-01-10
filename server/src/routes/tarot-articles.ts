@@ -50,37 +50,37 @@ router.get('/overview', async (req, res) => {
       readTime: true,
     };
 
-    // Fetch first 5 cards per category (4 visible + 1 peeking) and counts in parallel
+    // Fetch first 6 cards per category (5 visible + 1 peeking) and counts in parallel
     const [majorArcana, wands, cups, swords, pentacles, counts] = await Promise.all([
       prisma.tarotArticle.findMany({
         where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
         orderBy: { cardNumber: 'asc' },
-        take: 5,
+        take: 22,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
         orderBy: { cardNumber: 'asc' },
-        take: 5,
+        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
         orderBy: { cardNumber: 'asc' },
-        take: 5,
+        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
         orderBy: { cardNumber: 'asc' },
-        take: 5,
+        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
         orderBy: { cardNumber: 'asc' },
-        take: 5,
+        take: 14,
       }),
       Promise.all(
         cardTypes.map(async (type) => ({

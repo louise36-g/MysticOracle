@@ -144,42 +144,42 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
 
       {/* Scrollable Cards */}
       <div className="relative group">
-        {/* Left fade */}
+        {/* Left fade - only show when scrolled */}
         <div
-          className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0f0c29] to-transparent z-10 pointer-events-none transition-opacity ${
+          className={`absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0f0c29] via-[#0f0c29]/80 to-transparent z-10 pointer-events-none transition-opacity duration-300 ${
             canScrollLeft ? 'opacity-100' : 'opacity-0'
           }`}
         />
 
-        {/* Right fade */}
+        {/* Right fade - always visible when there's more content */}
         <div
-          className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0f0c29] to-transparent z-10 pointer-events-none transition-opacity ${
+          className={`absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0f0c29] via-[#0f0c29]/80 to-transparent z-10 pointer-events-none transition-opacity duration-300 ${
             canScrollRight ? 'opacity-100' : 'opacity-0'
           }`}
         />
 
-        {/* Scroll buttons (desktop only) */}
+        {/* Scroll buttons (desktop) - always visible when scrollable */}
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-800/90 border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-slate-700"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-800/95 border border-purple-500/30 text-white shadow-lg shadow-black/30 transition-all hidden md:flex items-center justify-center hover:bg-purple-600 hover:border-purple-500"
           >
-            <ChevronRight className="w-4 h-4 rotate-180" />
+            <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
         )}
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-800/90 border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-slate-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-800/95 border border-purple-500/30 text-white shadow-lg shadow-black/30 transition-all hidden md:flex items-center justify-center hover:bg-purple-600 hover:border-purple-500"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         )}
 
         {/* Cards row */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-0 pb-2"
+          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-0 pb-2 scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {cards.map((card, index) => (
@@ -197,6 +197,15 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
             </motion.div>
           ))}
         </div>
+
+        {/* Scroll hint for mobile - subtle indicator */}
+        {canScrollRight && (
+          <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+            <div className="animate-pulse">
+              <ChevronRight className="w-6 h-6 text-purple-400/60" />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

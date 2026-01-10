@@ -59,21 +59,19 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
 
       {/* Content */}
       <div className="p-3">
-        {/* Card number and category */}
-        <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1.5">
-          <span className="font-medium" style={{ color: elementColor }}>
+        {/* Category label (if shown) */}
+        {showCategory && categoryLabel && (
+          <div className="text-xs text-slate-400 mb-1">
+            {categoryLabel}
+          </div>
+        )}
+
+        {/* Title with card number inline */}
+        <h3 className="font-heading text-sm text-purple-100 mb-1.5 line-clamp-2 group-hover:text-white transition-colors">
+          <span className="font-bold" style={{ color: elementColor }}>
             {card.cardNumber}
           </span>
-          {showCategory && categoryLabel && (
-            <>
-              <span>·</span>
-              <span>{categoryLabel}</span>
-            </>
-          )}
-        </div>
-
-        {/* Title */}
-        <h3 className="font-heading text-sm text-purple-100 mb-1.5 line-clamp-1 group-hover:text-white transition-colors">
+          {card.cardNumber !== undefined && card.cardNumber !== null && ' · '}
           {card.title}
         </h3>
 

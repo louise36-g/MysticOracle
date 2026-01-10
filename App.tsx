@@ -624,6 +624,7 @@ const App: React.FC = () => {
       return (
         <TarotArticlesList
           onArticleClick={handleTarotCardClick}
+          defaultCategory={tarotCardsCategory}
         />
       );
     }

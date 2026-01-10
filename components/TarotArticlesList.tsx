@@ -6,15 +6,27 @@ import { fetchTarotArticles, TarotArticle } from '../services/apiService';
 
 interface TarotArticlesListProps {
   onArticleClick: (slug: string) => void;
+  defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc.
 }
 
-const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick }) => {
+// Map URL slugs to API card types
+const categorySlugToType: Record<string, string> = {
+  'major-arcana': 'MAJOR_ARCANA',
+  'wands': 'SUIT_OF_WANDS',
+  'cups': 'SUIT_OF_CUPS',
+  'swords': 'SUIT_OF_SWORDS',
+  'pentacles': 'SUIT_OF_PENTACLES',
+};
+
+const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, defaultCategory }) => {
   const { language } = useApp();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCardType, setSelectedCardType] = useState<string | null>(null);
+  const [selectedCardType, setSelectedCardType] = useState<string | null>(
+    defaultCategory ? (categorySlugToType[defaultCategory] || null) : null
+  );
 
   useEffect(() => {
     loadArticles();
@@ -35,12 +47,28 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
     }
   }
 
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCardType = !selectedCardType || article.cardType === selectedCardType;
-    return matchesSearch && matchesCardType;
-  });
+  const filteredArticles = articles
+    .filter((article) => {
+      const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCardType = !selectedCardType || article.cardType === selectedCardType;
+      return matchesSearch && matchesCardType;
+    })
+    .sort((a, b) => {
+      // Sort by card type first (Major Arcana first, then suits)
+      const typeOrder: Record<string, number> = {
+        'MAJOR_ARCANA': 0,
+        'SUIT_OF_WANDS': 1,
+        'SUIT_OF_CUPS': 2,
+        'SUIT_OF_SWORDS': 3,
+        'SUIT_OF_PENTACLES': 4,
+      };
+      const typeA = typeOrder[a.cardType] ?? 5;
+      const typeB = typeOrder[b.cardType] ?? 5;
+      if (typeA !== typeB) return typeA - typeB;
+      // Then sort by card number within each type
+      return (a.cardNumber ?? 0) - (b.cardNumber ?? 0);
+    });
 
   const cardTypes = ['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'];
   const cardTypeLabels: Record<string, string> = {
@@ -139,22 +167,25 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
           {language === 'en' ? 'No articles found' : 'Aucun article trouvé'}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredArticles.map((article, index) => (
             <motion.div
               key={article.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: Math.min(index * 0.02, 0.5) }}
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => onArticleClick(article.slug)}
-              className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20"
+              className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all"
             >
-              <div className="aspect-video overflow-hidden bg-slate-900 relative">
+              <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
                 {article.featuredImage ? (
                   <img
                     src={article.featuredImage}
                     alt={article.featuredImageAlt || article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                    loading="lazy"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
@@ -165,33 +196,28 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick })
                 ) : null}
                 <div className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}>
                   <div className="text-center">
-                    <ImageOff className="w-10 h-10 text-purple-400/50 mx-auto mb-2" />
-                    <span className="text-sm text-purple-300/50">No Image</span>
+                    <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
+                    <span className="text-xs text-purple-300/50">No Image</span>
                   </div>
                 </div>
               </div>
-              <div className="p-4">
-                <div className="flex items-center gap-2 text-xs text-purple-400 mb-2">
-                  <span>{article.cardNumber}</span>
-                  <span>•</span>
-                  <span>{article.readTime}</span>
+              <div className="p-3">
+                {/* Category label */}
+                <div className="text-xs text-slate-400 mb-1">
+                  {cardTypeLabels[article.cardType] || article.cardType}
                 </div>
-                <h3 className="text-lg font-heading text-purple-200 mb-2 group-hover:text-purple-100 transition-colors">
+                {/* Title with card number inline */}
+                <h3 className="font-heading text-sm text-purple-100 mb-1.5 line-clamp-2 group-hover:text-white transition-colors">
+                  <span className="font-bold text-purple-400">
+                    {article.cardNumber}
+                  </span>
+                  {article.cardNumber !== undefined && article.cardNumber !== null && ' · '}
                   {article.title}
                 </h3>
-                <p className="text-sm text-slate-400 line-clamp-2 mb-3">
+                {/* Excerpt */}
+                <p className="text-xs text-slate-400 line-clamp-2">
                   {article.excerpt}
                 </p>
-                <div className="flex flex-wrap gap-1">
-                  {article.tags.slice(0, 3).map((tag, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
               </div>
             </motion.div>
           ))}
