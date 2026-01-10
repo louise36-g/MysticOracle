@@ -4,6 +4,7 @@ import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { validateTarotArticle, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
+import { cacheService, CacheService } from '../services/cache.js';
 
 // Note: Media is now handled by the shared blog media system
 // See /api/blog/admin/media endpoints in blog.ts
@@ -21,6 +22,14 @@ const router = Router();
  */
 router.get('/overview', async (req, res) => {
   try {
+    const cacheKey = 'tarot:overview';
+
+    // Check cache first
+    const cached = await cacheService.get<any>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const cardTypes = [
       'MAJOR_ARCANA',
       'SUIT_OF_WANDS',
@@ -85,7 +94,7 @@ router.get('/overview', async (req, res) => {
 
     const countsMap = Object.fromEntries(counts.map((c) => [c.type, c.count]));
 
-    res.json({
+    const result = {
       majorArcana,
       wands,
       cups,
@@ -98,7 +107,12 @@ router.get('/overview', async (req, res) => {
         swords: countsMap.SUIT_OF_SWORDS || 0,
         pentacles: countsMap.SUIT_OF_PENTACLES || 0,
       },
-    });
+    };
+
+    // Cache result for 5 minutes
+    await cacheService.set(cacheKey, result, CacheService.TTL.ARTICLES);
+
+    res.json(result);
   } catch (error) {
     console.error('Error fetching tarot overview:', error);
     res.status(500).json({ error: 'Failed to fetch overview data' });
@@ -113,6 +127,13 @@ router.get('/overview', async (req, res) => {
 router.get('/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
+    const cacheKey = `tarot:article:${slug}`;
+
+    // Check cache first
+    const cached = await cacheService.get<any>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
 
     const article = await prisma.tarotArticle.findFirst({
       where: {
@@ -125,6 +146,9 @@ router.get('/:slug', async (req, res) => {
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
     }
+
+    // Cache for 10 minutes
+    await cacheService.set(cacheKey, article, CacheService.TTL.ARTICLE);
 
     res.json(article);
   } catch (error) {
@@ -323,6 +347,9 @@ router.post('/admin/import', async (req, res) => {
         },
       });
 
+      // Invalidate cache for overview (new article added)
+      await cacheService.del('tarot:overview');
+
       return res.status(201).json({
         success: true,
         forceSaved: true,
@@ -398,6 +425,9 @@ router.post('/admin/import', async (req, res) => {
         updatedAt: new Date(),
       },
     });
+
+    // Invalidate cache for overview (new article added)
+    await cacheService.del('tarot:overview');
 
     res.status(201).json({
       success: true,
@@ -601,6 +631,13 @@ router.patch('/admin/:id', async (req, res) => {
         },
       });
 
+      // Invalidate cache for this article and overview
+      await cacheService.del('tarot:overview');
+      await cacheService.del(`tarot:article:${existingArticle.slug}`);
+      if (sanitizedUpdates.slug && sanitizedUpdates.slug !== existingArticle.slug) {
+        await cacheService.del(`tarot:article:${sanitizedUpdates.slug}`);
+      }
+
       return res.json(updatedArticle);
     }
 
@@ -635,6 +672,13 @@ router.patch('/admin/:id', async (req, res) => {
             updatedAt: new Date(),
           },
         });
+
+        // Invalidate cache for this article and overview
+        await cacheService.del('tarot:overview');
+        await cacheService.del(`tarot:article:${existingArticle.slug}`);
+        if (prismaData.slug && prismaData.slug !== existingArticle.slug) {
+          await cacheService.del(`tarot:article:${prismaData.slug}`);
+        }
 
         return res.json({
           ...updatedArticle,
@@ -684,6 +728,13 @@ router.patch('/admin/:id', async (req, res) => {
         },
       });
 
+      // Invalidate cache for this article and overview
+      await cacheService.del('tarot:overview');
+      await cacheService.del(`tarot:article:${existingArticle.slug}`);
+      if (prismaData.slug && prismaData.slug !== existingArticle.slug) {
+        await cacheService.del(`tarot:article:${prismaData.slug}`);
+      }
+
       return res.json({
         ...updatedArticle,
         _warnings: warningMessages,
@@ -719,6 +770,10 @@ router.patch('/admin/:id', async (req, res) => {
       },
     });
 
+    // Invalidate cache for this article and overview
+    await cacheService.del('tarot:overview');
+    await cacheService.del(`tarot:article:${existingArticle.slug}`);
+
     res.json(updatedArticle);
   } catch (error) {
     console.error('Error updating tarot article:', error);
@@ -752,6 +807,10 @@ router.delete('/admin/:id', async (req, res) => {
         slug: trashedSlug,
       },
     });
+
+    // Invalidate cache for this article and overview
+    await cacheService.del('tarot:overview');
+    await cacheService.del(`tarot:article:${article.slug}`);
 
     res.json({ success: true, message: 'Article moved to trash' });
   } catch (error) {
@@ -798,6 +857,9 @@ router.post('/admin/:id/restore', async (req, res) => {
         slug: newSlug,
       },
     });
+
+    // Invalidate cache for overview (article restored)
+    await cacheService.del('tarot:overview');
 
     res.json({ success: true, slug: newSlug, message: 'Article restored successfully' });
   } catch (error) {
