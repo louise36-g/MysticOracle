@@ -93,9 +93,9 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
       const progress = maxScroll > 0 ? scrollLeft / maxScroll : 0;
       setScrollProgress(progress);
 
-      // Calculate thumb width as percentage of visible content
+      // Calculate thumb width - keep it small and consistent
       const ratio = clientWidth / scrollWidth;
-      setThumbWidth(Math.max(ratio * 100, 15)); // Minimum 15% width
+      setThumbWidth(Math.min(Math.max(ratio * 100, 8), 20)); // 8-20% width
     }
   };
 
@@ -214,7 +214,7 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
 
         {/* Scroll progress indicator - appears on hover */}
         <div className="flex justify-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="relative w-20 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+          <div className="relative w-32 h-1 bg-slate-700/50 rounded-full overflow-hidden">
             <motion.div
               className="absolute top-0 left-0 h-full rounded-full"
               style={{
