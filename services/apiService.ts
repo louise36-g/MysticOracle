@@ -1340,20 +1340,26 @@ export async function deleteBlogTag(token: string, id: string): Promise<{ succes
 }
 
 // Admin media
-export async function fetchAdminBlogMedia(token: string): Promise<{ media: BlogMedia[] }> {
-  return apiRequest('/api/blog/admin/media', { token });
+export async function fetchAdminBlogMedia(
+  token: string,
+  folder?: string
+): Promise<{ media: BlogMedia[] }> {
+  const params = folder ? `?folder=${encodeURIComponent(folder)}` : '';
+  return apiRequest(`/api/blog/admin/media${params}`, { token });
 }
 
 export async function uploadBlogMedia(
   token: string,
   file: File,
   altText?: string,
-  caption?: string
+  caption?: string,
+  folder?: string
 ): Promise<{ success: boolean; media: BlogMedia }> {
   const formData = new FormData();
   formData.append('image', file);
   if (altText) formData.append('altText', altText);
   if (caption) formData.append('caption', caption);
+  if (folder) formData.append('folder', folder);
 
   const response = await fetch(`${API_URL}/api/blog/admin/upload`, {
     method: 'POST',
