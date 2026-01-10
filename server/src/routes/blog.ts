@@ -9,13 +9,40 @@ import fs from 'fs';
 const router = Router();
 
 /**
+ * Validate folder name to prevent path traversal attacks
+ * - Rejects absolute paths
+ * - Rejects path traversal attempts (..)
+ * - Rejects path separators
+ * - Only allows alphanumeric characters and hyphens
+ */
+function validateFolder(folder: string): string {
+  if (
+    !folder ||
+    path.isAbsolute(folder) ||
+    folder.includes('..') ||
+    folder.includes('/') ||
+    folder.includes('\\')
+  ) {
+    return 'blog'; // Default to safe value
+  }
+  // Only allow alphanumeric and hyphens
+  return folder.replace(/[^a-z0-9-]/gi, '').toLowerCase() || 'blog';
+}
+
+/**
  * Sanitize filename for safe storage
+ * - Removes path separators and null bytes
  * - Lowercase
  * - Replace spaces with hyphens
  * - Remove special characters except hyphens and dots
  * - Preserve extension
  */
 function sanitizeFilename(filename: string): string {
+  // Security: Remove path separators and null bytes first
+  if (filename.includes('/') || filename.includes('\\') || filename.includes('\0')) {
+    filename = filename.replace(/[/\\\0]/g, '-');
+  }
+
   const ext = path.extname(filename).toLowerCase();
   const base = path.basename(filename, path.extname(filename));
 
@@ -31,6 +58,7 @@ function sanitizeFilename(filename: string): string {
 
 /**
  * Get unique filename by appending number suffix if needed
+ * - Has max iteration limit to prevent infinite loops
  */
 function getUniqueFilename(dir: string, filename: string): string {
   const ext = path.extname(filename);
@@ -38,10 +66,16 @@ function getUniqueFilename(dir: string, filename: string): string {
 
   let finalName = filename;
   let counter = 1;
+  const maxAttempts = 1000;
 
-  while (fs.existsSync(path.join(dir, finalName))) {
+  while (fs.existsSync(path.join(dir, finalName)) && counter < maxAttempts) {
     finalName = `${base}-${counter}${ext}`;
     counter++;
+  }
+
+  // Fall back to timestamp-based uniqueness if max attempts reached
+  if (counter >= maxAttempts) {
+    finalName = `${base}-${Date.now()}${ext}`;
   }
 
   return finalName;
@@ -56,34 +90,42 @@ if (!fs.existsSync(baseUploadDir)) {
 // Configure multer for image uploads with folder support and original filenames
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Get folder from request body, default to 'blog'
-    const folder = (req.body?.folder as string) || 'blog';
-    const folderPath = path.join(baseUploadDir, folder);
+    try {
+      // Get folder from request body, validate to prevent path traversal
+      const folder = validateFolder((req.body?.folder as string) || 'blog');
+      const folderPath = path.join(baseUploadDir, folder);
 
-    // Create folder if it doesn't exist
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
+      // Create folder if it doesn't exist
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      cb(null, folderPath);
+    } catch (error) {
+      cb(error as Error, '');
     }
-
-    cb(null, folderPath);
   },
   filename: (req, file, cb) => {
-    // Sanitize the original filename
-    const sanitized = sanitizeFilename(file.originalname);
+    try {
+      // Sanitize the original filename
+      const sanitized = sanitizeFilename(file.originalname);
 
-    // Get folder path for uniqueness check
-    const folder = (req.body?.folder as string) || 'blog';
-    const folderPath = path.join(baseUploadDir, folder);
+      // Get folder path for uniqueness check, validate to prevent path traversal
+      const folder = validateFolder((req.body?.folder as string) || 'blog');
+      const folderPath = path.join(baseUploadDir, folder);
 
-    // Ensure folder exists before checking for unique filename
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
+      // Ensure folder exists before checking for unique filename
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      // Get unique filename (auto-rename if exists)
+      const uniqueFilename = getUniqueFilename(folderPath, sanitized);
+
+      cb(null, uniqueFilename);
+    } catch (error) {
+      cb(error as Error, '');
     }
-
-    // Get unique filename (auto-rename if exists)
-    const uniqueFilename = getUniqueFilename(folderPath, sanitized);
-
-    cb(null, uniqueFilename);
   }
 });
 
@@ -904,8 +946,8 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Get folder from request body (default to 'blog')
-    const folder = req.body.folder || 'blog';
+    // Get folder from request body, validate to prevent path traversal
+    const folder = validateFolder(req.body.folder || 'blog');
 
     const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
     const url = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
@@ -932,8 +974,9 @@ router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), 
 
 router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
   try {
-    // Optional folder filter via query parameter
-    const folder = req.query.folder as string | undefined;
+    // Optional folder filter via query parameter, validate to prevent injection
+    const folderParam = req.query.folder as string | undefined;
+    const folder = folderParam ? validateFolder(folderParam) : undefined;
 
     const where = folder ? { folder } : {};
 
@@ -953,8 +996,9 @@ router.delete('/admin/media/:id', requireAuth, requireAdmin, async (req, res) =>
   try {
     const media = await prisma.mediaUpload.findUnique({ where: { id: req.params.id } });
     if (media) {
-      // Delete file from disk using folder from DB record
-      const folderPath = path.join(baseUploadDir, media.folder);
+      // Delete file from disk using folder from DB record, validate to prevent path traversal
+      const folder = validateFolder(media.folder);
+      const folderPath = path.join(baseUploadDir, folder);
       const filePath = path.join(folderPath, media.filename);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
