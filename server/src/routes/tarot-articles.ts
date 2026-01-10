@@ -15,35 +15,9 @@ const router = Router();
 // ============================================
 
 /**
- * GET /api/tarot-articles/:slug
- * Fetch a single published tarot article by slug
- */
-router.get('/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-
-    const article = await prisma.tarotArticle.findFirst({
-      where: {
-        slug,
-        status: 'PUBLISHED',
-        deletedAt: null, // Exclude deleted articles
-      },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    res.json(article);
-  } catch (error) {
-    console.error('Error fetching tarot article:', error);
-    res.status(500).json({ error: 'Failed to fetch article' });
-  }
-});
-
-/**
  * GET /api/tarot-articles/overview
  * Fetch overview data: first 5 cards per category + counts
+ * NOTE: This must be defined BEFORE /:slug to avoid being matched as a slug
  */
 router.get('/overview', async (req, res) => {
   try {
@@ -128,6 +102,34 @@ router.get('/overview', async (req, res) => {
   } catch (error) {
     console.error('Error fetching tarot overview:', error);
     res.status(500).json({ error: 'Failed to fetch overview data' });
+  }
+});
+
+/**
+ * GET /api/tarot-articles/:slug
+ * Fetch a single published tarot article by slug
+ * NOTE: This must be defined AFTER specific routes like /overview
+ */
+router.get('/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const article = await prisma.tarotArticle.findFirst({
+      where: {
+        slug,
+        status: 'PUBLISHED',
+        deletedAt: null, // Exclude deleted articles
+      },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    res.json(article);
+  } catch (error) {
+    console.error('Error fetching tarot article:', error);
+    res.status(500).json({ error: 'Failed to fetch article' });
   }
 });
 

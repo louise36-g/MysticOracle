@@ -65,7 +65,9 @@ const App: React.FC = () => {
 
   // Handle initial URL path routing
   useEffect(() => {
-    const path = window.location.pathname;
+    // Normalize path by removing trailing slash (except for root)
+    const rawPath = window.location.pathname;
+    const path = rawPath === '/' ? '/' : rawPath.replace(/\/$/, '');
 
     // Payment callbacks
     if (path === '/payment/success') {
