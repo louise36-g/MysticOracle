@@ -94,12 +94,19 @@ router.get('/overview', async (req, res) => {
 
     const countsMap = Object.fromEntries(counts.map((c) => [c.type, c.count]));
 
+    // Sort numerically (cardNumber is stored as string)
+    const sortByCardNumber = (a: any, b: any) => {
+      const numA = parseInt(a.cardNumber, 10) || 0;
+      const numB = parseInt(b.cardNumber, 10) || 0;
+      return numA - numB;
+    };
+
     const result = {
-      majorArcana,
-      wands,
-      cups,
-      swords,
-      pentacles,
+      majorArcana: majorArcana.sort(sortByCardNumber),
+      wands: wands.sort(sortByCardNumber),
+      cups: cups.sort(sortByCardNumber),
+      swords: swords.sort(sortByCardNumber),
+      pentacles: pentacles.sort(sortByCardNumber),
       counts: {
         majorArcana: countsMap.MAJOR_ARCANA || 0,
         wands: countsMap.SUIT_OF_WANDS || 0,

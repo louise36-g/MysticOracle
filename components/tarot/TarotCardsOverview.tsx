@@ -44,34 +44,48 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   // Skeleton loader
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="pb-20">
         {/* Hero skeleton */}
-        <div className="text-center mb-16">
-          <div className="h-12 w-64 bg-slate-800/50 rounded-lg mx-auto mb-4 animate-pulse" />
-          <div className="h-6 w-96 max-w-full bg-slate-800/50 rounded mx-auto mb-8 animate-pulse" />
-          <div className="h-12 w-48 bg-slate-800/50 rounded-lg mx-auto animate-pulse" />
+        <div className="relative py-16 px-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-6 h-6 bg-slate-800/50 rounded animate-pulse" />
+            <div className="h-4 w-24 bg-slate-800/50 rounded animate-pulse" />
+          </div>
+          <div className="h-12 w-72 bg-slate-800/50 rounded-lg mx-auto mb-4 animate-pulse" />
+          <div className="h-5 w-[500px] max-w-full bg-slate-800/50 rounded mx-auto mb-8 animate-pulse" />
+          <div className="h-12 w-48 bg-purple-600/30 rounded-lg mx-auto animate-pulse" />
         </div>
+
         {/* Section skeletons */}
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-slate-800/50 rounded-lg animate-pulse" />
-              <div className="h-6 w-32 bg-slate-800/50 rounded animate-pulse" />
-            </div>
-            <div className="flex gap-4 overflow-hidden">
-              {[1, 2, 3, 4].map((j) => (
-                <div key={j} className="w-[220px] flex-shrink-0">
-                  <div className="aspect-[4/3] bg-slate-800/50 rounded-t-lg animate-pulse" />
-                  <div className="p-3 bg-slate-800/30 rounded-b-lg">
-                    <div className="h-3 w-16 bg-slate-700/50 rounded mb-2 animate-pulse" />
-                    <div className="h-4 w-full bg-slate-700/50 rounded mb-2 animate-pulse" />
-                    <div className="h-3 w-3/4 bg-slate-700/50 rounded animate-pulse" />
+        <div className="max-w-7xl mx-auto">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="mb-10">
+              {/* Section header */}
+              <div className="flex items-center justify-between mb-4 px-4 md:px-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-slate-800/50 rounded-lg animate-pulse" />
+                  <div>
+                    <div className="h-5 w-28 bg-slate-800/50 rounded animate-pulse mb-1" />
+                    <div className="h-0.5 w-16 bg-slate-700/50 rounded-full animate-pulse" />
                   </div>
                 </div>
-              ))}
+                <div className="h-4 w-20 bg-slate-800/50 rounded animate-pulse" />
+              </div>
+              {/* Cards row */}
+              <div className="flex gap-4 overflow-hidden px-4 md:px-0 pt-2 pb-2">
+                {[1, 2, 3, 4, 5, 6].map((j) => (
+                  <div key={j} className="w-[220px] flex-shrink-0 bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/10">
+                    <div className="aspect-[4/3] bg-slate-900/50 animate-pulse" />
+                    <div className="p-3">
+                      <div className="h-4 w-full bg-slate-700/50 rounded mb-2 animate-pulse" />
+                      <div className="h-3 w-3/4 bg-slate-700/50 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }

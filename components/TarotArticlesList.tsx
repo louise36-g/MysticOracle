@@ -66,8 +66,10 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
       const typeA = typeOrder[a.cardType] ?? 5;
       const typeB = typeOrder[b.cardType] ?? 5;
       if (typeA !== typeB) return typeA - typeB;
-      // Then sort by card number within each type
-      return (a.cardNumber ?? 0) - (b.cardNumber ?? 0);
+      // Then sort by card number within each type (parse as int since it's stored as string)
+      const numA = typeof a.cardNumber === 'string' ? parseInt(a.cardNumber, 10) : (a.cardNumber ?? 0);
+      const numB = typeof b.cardNumber === 'string' ? parseInt(b.cardNumber, 10) : (b.cardNumber ?? 0);
+      return numA - numB;
     });
 
   const cardTypes = ['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'];
