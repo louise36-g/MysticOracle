@@ -2,12 +2,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { optionalAuth } from '../middleware/auth.js';
+import { getAISettings } from '../services/aiSettings.js';
 
 const router = Router();
-
-// OpenRouter API for generating horoscopes
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const AI_MODEL = process.env.AI_MODEL || 'openai/gpt-4o-mini';
 
 const zodiacSigns = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -35,8 +32,10 @@ const getHoroscopeSchema = z.object({
 
 // Generate horoscope via OpenRouter
 async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
-  if (!OPENROUTER_API_KEY) {
-    console.error('OPENROUTER_API_KEY is not set in environment variables');
+  const aiSettings = await getAISettings();
+
+  if (!aiSettings.apiKey) {
+    console.error('OpenRouter API key not configured (check database settings or OPENROUTER_API_KEY env var)');
     throw new Error('AI service not configured. Please contact support.');
   }
 
@@ -85,12 +84,12 @@ Tone: Professional, informative, respectful, and direct.
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      'Authorization': `Bearer ${aiSettings.apiKey}`,
       'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
       'X-Title': 'MysticOracle'
     },
     body: JSON.stringify({
-      model: AI_MODEL,
+      model: aiSettings.model,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.8,
       max_tokens: 1000
@@ -228,7 +227,8 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
     }
 
     // Generate new answer
-    if (!OPENROUTER_API_KEY) {
+    const aiSettings = await getAISettings();
+    if (!aiSettings.apiKey) {
       return res.status(500).json({ error: 'AI not configured' });
     }
 
@@ -274,12 +274,12 @@ IMPORTANT STYLE RULES:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${aiSettings.apiKey}`,
         'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
         'X-Title': 'MysticOracle'
       },
       body: JSON.stringify({
-        model: AI_MODEL,
+        model: aiSettings.model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
         max_tokens: 500

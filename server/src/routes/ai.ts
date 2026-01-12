@@ -3,19 +3,23 @@ import { z } from 'zod';
 import OpenAI from 'openai';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { getAISettings } from '../services/aiSettings.js';
 
 const router = Router();
 
-// Initialize OpenAI client for OpenRouter
-const getOpenAIClient = () => {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY not configured');
+// Initialize OpenAI client for OpenRouter with dynamic settings
+const getOpenAIClient = async () => {
+  const settings = await getAISettings();
+  if (!settings.apiKey) {
+    throw new Error('OpenRouter API key not configured');
   }
-  return new OpenAI({
-    apiKey,
-    baseURL: 'https://openrouter.ai/api/v1',
-  });
+  return {
+    client: new OpenAI({
+      apiKey: settings.apiKey,
+      baseURL: 'https://openrouter.ai/api/v1',
+    }),
+    model: settings.model
+  };
 };
 
 // Cost for summarizing a question
@@ -71,9 +75,9 @@ Original question: "${question}"`
 Question originale: "${question}"`;
 
     // Call OpenRouter API
-    const client = getOpenAIClient();
+    const { client, model } = await getOpenAIClient();
     const response = await client.chat.completions.create({
-      model: process.env.AI_MODEL || 'google/gemini-2.0-flash-exp:free',
+      model,
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 150,
       temperature: 0.5,

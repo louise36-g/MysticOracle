@@ -7,7 +7,8 @@ import AdminPackages from './AdminPackages';
 import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
 import AdminCache from './AdminCache';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database } from 'lucide-react';
+import AdminDebug from './AdminDebug';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database, Bug } from 'lucide-react';
 
 // Lazy load heavy admin components
 const AdminAnalytics = lazy(() => import('./AdminAnalytics'));
@@ -24,7 +25,7 @@ const AdminTabLoader = () => (
   </div>
 );
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'cache' | 'translations' | 'settings';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'cache' | 'translations' | 'settings' | 'debug';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -52,6 +53,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'cache', labelEn: 'Cache', labelFr: 'Cache', icon: <Database className="w-4 h-4" /> },
     { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
     { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
+    { id: 'debug', labelEn: 'Debug', labelFr: 'Debug', icon: <Bug className="w-4 h-4" /> },
   ];
 
   return (
@@ -123,6 +125,7 @@ const AdminDashboard: React.FC = () => {
           {activeTab === 'cache' && <AdminCache />}
           {activeTab === 'translations' && <AdminTranslations />}
           {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
+          {activeTab === 'debug' && <AdminDebug language={language as 'en' | 'fr'} />}
         </Suspense>
       </div>
     </div>

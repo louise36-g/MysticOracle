@@ -72,7 +72,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
 
   // Fetch user from backend
-  const fetchUserFromBackend = useCallback(async () => {
+  const fetchUserFromBackend = useCallback(async (skipHistory = false) => {
+    console.log('[AppContext] fetchUserFromBackend called, isSignedIn:', isSignedIn);
     if (!isSignedIn) {
       setUser(null);
       setIsLoading(false);
@@ -82,12 +83,15 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     try {
       const token = await getToken();
       if (!token) {
+        console.log('[AppContext] No token available');
         setUser(null);
         setIsLoading(false);
         return;
       }
 
+      console.log('[AppContext] Fetching user profile...');
       const profile = await api.fetchUserProfile(token);
+      console.log('[AppContext] Profile received, credits:', profile.credits);
 
       // Map API response to frontend User type
       const mappedUser: User = {
@@ -107,23 +111,26 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         spreadsUsed: [], // TODO: Add to backend if needed
       };
 
+      console.log('[AppContext] Setting user with credits:', mappedUser.credits);
       setUser(mappedUser);
       setLanguageState(mappedUser.language);
 
-      // Fetch reading history
-      const { readings } = await api.fetchUserReadings(token);
-      const mappedHistory: ReadingHistoryItem[] = readings.map(r => ({
-        id: r.id,
-        date: r.createdAt,
-        spreadType: r.spreadType as SpreadType,
-        question: r.question,
-        cards: r.cards,
-        interpretation: r.interpretation,
-      }));
-      setHistory(mappedHistory);
+      // Fetch reading history (skip on refreshUser calls to speed up credit updates)
+      if (!skipHistory) {
+        const { readings } = await api.fetchUserReadings(token);
+        const mappedHistory: ReadingHistoryItem[] = readings.map(r => ({
+          id: r.id,
+          date: r.createdAt,
+          spreadType: r.spreadType as SpreadType,
+          question: r.question,
+          cards: r.cards,
+          interpretation: r.interpretation,
+        }));
+        setHistory(mappedHistory);
+      }
 
     } catch (error) {
-      console.error('Error fetching user from backend:', error);
+      console.error('[AppContext] Error fetching user from backend:', error);
       // User might not exist in our DB yet (Clerk webhook will create them)
       // Create a temporary user object from Clerk data
       if (clerkUser) {
@@ -159,7 +166,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   }, [clerkLoaded, isSignedIn, fetchUserFromBackend]);
 
   const refreshUser = useCallback(async () => {
-    await fetchUserFromBackend();
+    console.log('[AppContext] refreshUser called');
+    // Skip history fetch for faster credit updates
+    await fetchUserFromBackend(true);
+    console.log('[AppContext] refreshUser completed');
   }, [fetchUserFromBackend]);
 
   const setLanguage = useCallback(async (lang: Language) => {
@@ -208,32 +218,16 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     return { success: true };
   }, [user, language]);
 
-  // History
-  const addToHistory = useCallback(async (item: ReadingHistoryItem) => {
-    // Add to local state immediately
+  // History - local state only, backend save handled by component
+  const addToHistory = useCallback((item: ReadingHistoryItem) => {
+    // Add to local state only - backend save is handled by ActiveReading.startReading
+    // which has access to properly formatted card data and correct credit costs
     setHistory(prev => [item, ...prev]);
     setUser(prev => prev ? {
       ...prev,
       totalReadings: prev.totalReadings + 1
     } : null);
-
-    // Save to backend
-    try {
-      const token = await getToken();
-      if (token) {
-        await api.createReading(token, {
-          spreadType: item.spreadType,
-          interpretationStyle: 'CLASSIC',
-          question: item.question,
-          cards: item.cards,
-          interpretation: item.interpretation,
-          creditCost: item.cards?.length || 1,
-        });
-      }
-    } catch (error) {
-      console.error('Error saving reading to backend:', error);
-    }
-  }, [getToken]);
+  }, []);
 
   // Daily Bonus
   const claimDailyBonus = useCallback(async (): Promise<{ success: boolean; amount: number }> => {

@@ -74,47 +74,59 @@ const createReadingSchema = z.object({
 router.post('/', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
+    console.log('[Reading API] POST /readings - userId:', userId);
+    console.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
 
     // Validate input
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
+      console.log('[Reading API] Validation failed:', validation.error.errors);
       return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
     const { spreadType: rawSpreadType, interpretationStyle: rawInterpretationStyle, question, cards, interpretation } = validation.data;
+    console.log('[Reading API] Validated - spreadType:', rawSpreadType, 'interpretationStyle:', rawInterpretationStyle);
 
     // Convert spread type to uppercase Prisma enum value
     const spreadType = SPREAD_TYPE_MAP[rawSpreadType];
     if (!spreadType) {
+      console.log('[Reading API] Invalid spread type:', rawSpreadType);
       return res.status(400).json({ error: `Invalid spread type: ${rawSpreadType}` });
     }
+    console.log('[Reading API] Mapped spreadType:', spreadType);
 
     // Convert interpretation style to uppercase if provided
     const interpretationStyle = rawInterpretationStyle
       ? INTERPRETATION_STYLE_MAP[rawInterpretationStyle]
       : InterpretationStyle.CLASSIC;
     if (rawInterpretationStyle && !interpretationStyle) {
+      console.log('[Reading API] Invalid interpretation style:', rawInterpretationStyle);
       return res.status(400).json({ error: `Invalid interpretation style: ${rawInterpretationStyle}` });
     }
 
     // Get credit cost from server-side config (NEVER trust client)
     const creditCost = SPREAD_CREDIT_COSTS[spreadType] || 1;
+    console.log('[Reading API] Credit cost for', spreadType, ':', creditCost);
 
     // Check if user has enough credits
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { credits: true }
     });
+    console.log('[Reading API] User credits before:', user?.credits);
 
     if (!user) {
+      console.log('[Reading API] User not found');
       return res.status(404).json({ error: 'User not found' });
     }
 
     if (user.credits < creditCost) {
+      console.log('[Reading API] Insufficient credits:', user.credits, '<', creditCost);
       return res.status(400).json({ error: 'Insufficient credits' });
     }
 
     // Create reading and deduct credits in a transaction
+    console.log('[Reading API] Starting transaction to create reading and deduct credits...');
     const [reading] = await prisma.$transaction([
       prisma.reading.create({
         data: {
@@ -144,10 +156,18 @@ router.post('/', requireAuth, async (req, res) => {
         }
       })
     ]);
+    console.log('[Reading API] Transaction complete - reading ID:', reading.id);
+
+    // Verify credit deduction
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
+    console.log('[Reading API] User credits after:', updatedUser?.credits);
 
     res.status(201).json(reading);
   } catch (error) {
-    console.error('Error creating reading:', error);
+    console.error('[Reading API] Error creating reading:', error);
     res.status(500).json({ error: 'Failed to create reading' });
   }
 });

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService from '../services/cache.js';
+import { clearAISettingsCache } from '../services/aiSettings.js';
 
 const router = Router();
 
@@ -198,7 +199,18 @@ const adjustCreditsSchema = z.object({
 router.post('/users/:userId/credits', async (req, res) => {
   try {
     const { userId } = req.params;
+    const authUserId = req.auth.userId;
+    console.log('[Admin Credits] Request - target userId:', userId, 'auth userId:', authUserId);
+
     const { amount, reason } = adjustCreditsSchema.parse(req.body);
+    console.log('[Admin Credits] Amount:', amount, 'Reason:', reason);
+
+    // First check current credits
+    const beforeUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
+    console.log('[Admin Credits] Credits BEFORE update:', beforeUser?.credits);
 
     const [user] = await prisma.$transaction([
       prisma.user.update({
@@ -217,10 +229,18 @@ router.post('/users/:userId/credits', async (req, res) => {
         }
       })
     ]);
+    console.log('[Admin Credits] Credits AFTER update (from transaction):', user.credits);
+
+    // Verify with fresh read
+    const afterUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
+    console.log('[Admin Credits] Credits AFTER update (fresh read):', afterUser?.credits);
 
     res.json({ success: true, newBalance: user.credits });
   } catch (error) {
-    console.error('Error adjusting credits:', error);
+    console.error('[Admin Credits] Error adjusting credits:', error);
     res.status(500).json({ error: 'Failed to adjust credits' });
   }
 });
@@ -1002,6 +1022,11 @@ router.post('/settings', async (req, res) => {
         },
         update: { value }
       });
+    }
+
+    // Clear AI settings cache if an AI-related setting was changed
+    if (key === 'OPENROUTER_API_KEY' || key === 'AI_MODEL') {
+      clearAISettingsCache();
     }
 
     res.json({ success: true });

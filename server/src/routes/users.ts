@@ -8,6 +8,7 @@ const router = Router();
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
+    console.log('[Users /me] Fetching user with ID:', userId);
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -23,12 +24,14 @@ router.get('/me', requireAuth, async (req, res) => {
     });
 
     if (!user) {
+      console.log('[Users /me] User not found for ID:', userId);
       return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('[Users /me] Found user, credits:', user.credits);
     res.json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error('[Users /me] Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user' });
   }
 });

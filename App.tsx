@@ -233,6 +233,11 @@ const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Scroll to top whenever the view or reading mode changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentView, readingMode]);
+
   // Check for low credits and show warning (once per session)
   useEffect(() => {
     const hasShownLowCreditsThisSession = sessionStorage.getItem('low_credits_warning_shown');
@@ -256,7 +261,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!user || hasCheckedDailyBonus || showWelcomeModal) return;
 
-    // Check if user can claim daily bonus (24 hours since last claim)
+    // Check if user can claim daily bonus (different calendar day, matching backend logic)
     const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
     const now = new Date();
 
@@ -265,9 +270,13 @@ const App: React.FC = () => {
       setShowDailyBonusPopup(true);
       setHasCheckedDailyBonus(true);
     } else {
-      // Check if 24 hours have passed
-      const hoursSinceLastClaim = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60);
-      if (hoursSinceLastClaim >= 24) {
+      // Check if it's a different calendar day (matching backend logic)
+      const today = new Date(now);
+      today.setHours(0, 0, 0, 0);
+      const lastLoginDay = new Date(lastLogin);
+      lastLoginDay.setHours(0, 0, 0, 0);
+
+      if (today.getTime() !== lastLoginDay.getTime()) {
         setShowDailyBonusPopup(true);
       }
       setHasCheckedDailyBonus(true);
@@ -277,8 +286,8 @@ const App: React.FC = () => {
   const handleReadingFinish = useCallback(() => {
     setSelectedSpread(null);
     setCurrentView('home');
-    setReadingMode(null);
-    window.history.pushState({ view: 'home', readingMode: null }, '', '/');
+    setReadingMode('tarot');
+    window.history.pushState({ view: 'home', readingMode: 'tarot' }, '', '/tarot');
   }, []);
 
   const handleReadingModeSelect = (mode: string) => {
@@ -289,10 +298,11 @@ const App: React.FC = () => {
   };
 
   const handleClearReadingMode = () => {
-    setReadingMode(null);
     setSelectedSpread(null);
-    window.history.pushState({ view: 'home', readingMode: null }, '', '/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Stay in tarot mode, just go back to spread selector
+    setReadingMode('tarot');
+    setCurrentView('home');
+    window.history.pushState({ view: 'home', readingMode: 'tarot' }, '', '/tarot');
   };
 
   const handleNavigate = (view: string) => {

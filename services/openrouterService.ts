@@ -2,9 +2,83 @@ import OpenAI from 'openai';
 import type { ChatCompletion } from 'openai/resources/chat/completions';
 import { InterpretationStyle, Language, SpreadConfig, TarotCard } from '../types';
 
+// Debug mode key - must match AdminDebug.tsx
+const DEBUG_AI_MODE_KEY = 'mystic_debug_ai_mode';
+
+/**
+ * Check if debug AI mode is enabled
+ */
+function isDebugAIModeEnabled(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(DEBUG_AI_MODE_KEY) === 'true';
+}
+
+/**
+ * Mock reading for debug mode - saves OpenRouter credits during testing
+ */
+const MOCK_READING = {
+  en: `**The Spread Layout**
+
+This reading follows the traditional arrangement where each position reveals a different facet of your journey. The first position speaks to your present circumstances, while subsequent positions illuminate the forces at play around you.
+
+**Card Analysis**
+
+The cards before us tell a compelling story of transformation and choice. The energy flows from past influences through your current crossroads toward potential futures that await your decision.
+
+Each card in this spread connects to its neighbors, creating a tapestry of meaning that speaks directly to your question. The symbolism woven throughout suggests a period of significant personal growth.
+
+**Synthesis**
+
+Looking at the spread as a whole, a clear theme emerges: you stand at a threshold. The cards speak of endings that birth new beginnings, challenges that forge strength, and opportunities that require courage to seize.
+
+The interplay between the cards suggests that external circumstances and internal readiness are aligning. This is not coincidence but rather the natural rhythm of your path unfolding.
+
+**Conclusion**
+
+Trust in your intuition during this time. The cards indicate that you already possess the wisdom needed to navigate what lies ahead. Take measured steps forward, remain open to unexpected guidance, and remember that every ending carries within it the seed of a new beginning.
+
+*[This is a mock reading generated in debug mode. Enable real AI readings in Admin > Debug Tools.]*`,
+
+  fr: `**La Disposition du Tirage**
+
+Cette lecture suit l'arrangement traditionnel où chaque position révèle une facette différente de votre voyage. La première position parle de vos circonstances actuelles, tandis que les positions suivantes illuminent les forces en jeu autour de vous.
+
+**Analyse des Cartes**
+
+Les cartes devant nous racontent une histoire captivante de transformation et de choix. L'énergie coule des influences passées à travers votre carrefour actuel vers des futurs potentiels qui attendent votre décision.
+
+Chaque carte dans ce tirage se connecte à ses voisines, créant une tapisserie de signification qui parle directement à votre question. Le symbolisme tissé tout au long suggère une période de croissance personnelle significative.
+
+**Synthèse**
+
+En regardant le tirage dans son ensemble, un thème clair émerge : vous vous tenez à un seuil. Les cartes parlent de fins qui donnent naissance à de nouveaux débuts, de défis qui forgent la force, et d'opportunités qui nécessitent du courage pour être saisies.
+
+L'interaction entre les cartes suggère que les circonstances extérieures et la préparation intérieure s'alignent. Ce n'est pas une coïncidence mais plutôt le rythme naturel de votre chemin qui se déploie.
+
+**Conclusion**
+
+Faites confiance à votre intuition pendant cette période. Les cartes indiquent que vous possédez déjà la sagesse nécessaire pour naviguer ce qui vous attend. Avancez par étapes mesurées, restez ouvert aux conseils inattendus, et rappelez-vous que chaque fin porte en elle la graine d'un nouveau commencement.
+
+*[Ceci est une lecture fictive générée en mode debug. Activez les vraies lectures IA dans Admin > Outils de Débogage.]*`
+};
+
+const MOCK_FOLLOW_UP = {
+  en: `The cards have already spoken on this matter, and their wisdom remains consistent. What you seek is already within reach, though perhaps not in the form you expected.
+
+The energy surrounding your question suggests patience will serve you well. The path forward becomes clearer with each step you take, not before.
+
+*[Mock follow-up response - debug mode active]*`,
+
+  fr: `Les cartes ont déjà parlé sur cette question, et leur sagesse reste cohérente. Ce que vous cherchez est déjà à portée de main, bien que peut-être pas sous la forme que vous attendiez.
+
+L'énergie entourant votre question suggère que la patience vous servira bien. Le chemin à suivre devient plus clair à chaque pas que vous faites, pas avant.
+
+*[Réponse de suivi fictive - mode debug actif]*`
+};
+
 // Configuration
 const CONFIG = {
-  model: 'google/gemini-2.0-flash-001',  // Stable model (was gemini-2.0-flash-exp:free which is deprecated)
+  model: 'openai/gpt-oss-120b:free',  // Free model via OpenRouter
   maxRetries: 3,
   baseDelayMs: 1000,
   timeoutMs: 60000, // Increased timeout for detailed prompts
@@ -201,6 +275,14 @@ export const generateTarotReading = async ({
   question,
   language
 }: GenerateReadingParams): Promise<string> => {
+  // Check for debug mode - return mock reading to save API credits
+  if (isDebugAIModeEnabled()) {
+    console.log('[Debug Mode] Returning mock tarot reading instead of calling OpenRouter');
+    // Simulate a brief delay to feel more realistic
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return MOCK_READING[language];
+  }
+
   const langName = language === 'en' ? 'English' : 'French';
   const cardsDescription = buildCardsDescription(cards, spread, language);
   const styleInstructions = buildStyleInstructions(style);
@@ -303,6 +385,13 @@ export const generateFollowUpReading = async ({
   newQuestion,
   language
 }: FollowUpParams): Promise<string> => {
+  // Check for debug mode - return mock follow-up to save API credits
+  if (isDebugAIModeEnabled()) {
+    console.log('[Debug Mode] Returning mock follow-up instead of calling OpenRouter');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    return MOCK_FOLLOW_UP[language];
+  }
+
   const langName = language === 'en' ? 'English' : 'French';
 
   const prompt = `

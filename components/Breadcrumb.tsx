@@ -178,7 +178,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         // If we're on home but have a reading mode selected
         if (readingMode === 'tarot') {
           items.push({
-            label: language === 'en' ? 'Choose Your Spread' : 'Choisissez Votre Tirage',
+            label: language === 'en' ? 'Tarot' : 'Tarot',
             icon: <Sparkles className="w-3.5 h-3.5" />,
           });
         } else if (readingMode === 'horoscope') {
