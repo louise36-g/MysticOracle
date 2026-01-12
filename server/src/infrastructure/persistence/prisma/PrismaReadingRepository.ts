@@ -31,6 +31,7 @@ export class PrismaReadingRepository implements IReadingRepository {
   }
 
   async create(data: CreateReadingDTO): Promise<Reading> {
+    // Dual-write: save to both JSON field and normalized ReadingCard table
     return this.prisma.reading.create({
       data: {
         userId: data.userId,
@@ -40,6 +41,14 @@ export class PrismaReadingRepository implements IReadingRepository {
         cards: data.cards as unknown as Prisma.InputJsonValue,
         interpretation: data.interpretation,
         creditCost: data.creditCost,
+        // Create normalized cards for RAG queries
+        normalizedCards: {
+          create: data.cards.map((card, index) => ({
+            cardId: typeof card.cardId === 'string' ? parseInt(card.cardId, 10) : card.cardId,
+            position: card.position ?? index,
+            isReversed: card.isReversed ?? false,
+          })),
+        },
       },
     });
   }

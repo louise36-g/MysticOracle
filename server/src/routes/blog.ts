@@ -154,6 +154,21 @@ router.get('/posts', async (req, res) => {
       featured: z.coerce.boolean().optional()
     }).parse(req.query);
 
+    // Build cache key from sorted params
+    const cacheKey = `blog:posts:${JSON.stringify({
+      p: params.page,
+      l: params.limit,
+      c: params.category || '',
+      t: params.tag || '',
+      f: params.featured ?? ''
+    })}`;
+
+    // Check cache first
+    const cached = await cacheService.get<any>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const where: any = {
       status: 'PUBLISHED',
       publishedAt: { not: null },
@@ -201,7 +216,7 @@ router.get('/posts', async (req, res) => {
       prisma.blogPost.count({ where })
     ]);
 
-    res.json({
+    const response = {
       posts: posts.map(p => ({
         ...p,
         categories: p.categories.map(c => c.category),
@@ -213,7 +228,12 @@ router.get('/posts', async (req, res) => {
         total,
         totalPages: Math.ceil(total / params.limit)
       }
-    });
+    };
+
+    // Cache for 5 minutes
+    await cacheService.set(cacheKey, response, CacheService.TTL.BLOG_POSTS);
+
+    res.json(response);
   } catch (error) {
     console.error('Error fetching posts:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch posts' });
@@ -582,6 +602,9 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       }
     });
 
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
     res.json({ success: true, post });
   } catch (error) {
     console.error('Error creating post:', error instanceof Error ? error.message : String(error));
@@ -645,6 +668,9 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
       }
     });
 
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
     res.json({ success: true, post });
   } catch (error) {
     console.error('Error updating post:', error instanceof Error ? error.message : String(error));
@@ -672,6 +698,9 @@ router.delete('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) =>
         slug: trashedSlug
       }
     });
+
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
 
     res.json({ success: true });
   } catch (error) {
@@ -712,6 +741,9 @@ router.post('/admin/posts/:id/restore', requireAuth, requireAdmin, async (req, r
       }
     });
 
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
     res.json({ success: true, slug: newSlug });
   } catch (error) {
     console.error('Error restoring post:', error instanceof Error ? error.message : String(error));
@@ -731,6 +763,10 @@ router.delete('/admin/posts/:id/permanent', requireAuth, requireAdmin, async (re
     }
 
     await prisma.blogPost.delete({ where: { id: req.params.id } });
+
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error permanently deleting post:', error instanceof Error ? error.message : String(error));
@@ -744,6 +780,10 @@ router.delete('/admin/posts/trash/empty', requireAuth, requireAdmin, async (req,
     const result = await prisma.blogPost.deleteMany({
       where: { deletedAt: { not: null } }
     });
+
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
     res.json({ success: true, deleted: result.count });
   } catch (error) {
     console.error('Error emptying trash:', error instanceof Error ? error.message : String(error));

@@ -1,14 +1,25 @@
 import React from 'react';
-import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users, Layers } from 'lucide-react';
+import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users, Layers, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { SpreadType } from '../types';
 
 interface BreadcrumbProps {
   currentView: string;
   readingMode: string | null;
-  selectedSpread: { nameEn: string; nameFr: string } | null;
+  selectedSpread: { id: SpreadType; nameEn: string; nameFr: string } | null;
   onNavigate: (view: string) => void;
   onClearReadingMode?: () => void;
 }
+
+// Spread icons matching SpreadSelector theme
+const SPREAD_ICONS: Record<SpreadType, React.ReactNode> = {
+  [SpreadType.SINGLE]: <Eye className="w-3.5 h-3.5" />,
+  [SpreadType.THREE_CARD]: <Clock className="w-3.5 h-3.5" />,
+  [SpreadType.LOVE]: <Heart className="w-3.5 h-3.5" />,
+  [SpreadType.CAREER]: <TrendingUp className="w-3.5 h-3.5" />,
+  [SpreadType.HORSESHOE]: <Sparkles className="w-3.5 h-3.5" />,
+  [SpreadType.CELTIC_CROSS]: <Compass className="w-3.5 h-3.5" />,
+};
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({
   currentView,
@@ -156,19 +167,20 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         break;
 
       case 'reading':
-        // Add reading mode crumb
+        // Add reading mode crumb - links to spread selector
         if (readingMode === 'tarot') {
           items.push({
-            label: language === 'en' ? 'Tarot' : 'Tarot',
+            label: language === 'en' ? 'Tarot Readings' : 'Tirages Tarot',
             icon: <Sparkles className="w-3.5 h-3.5" />,
-            onClick: onClearReadingMode,
+            onClick: () => onNavigate('tarot'),
           });
         }
-        // Add spread name
+        // Add spread name with themed icon
         if (selectedSpread) {
+          const spreadIcon = SPREAD_ICONS[selectedSpread.id] || <Star className="w-3.5 h-3.5" />;
           items.push({
             label: language === 'en' ? selectedSpread.nameEn : selectedSpread.nameFr,
-            icon: <Star className="w-3.5 h-3.5" />,
+            icon: spreadIcon,
           });
         }
         break;
@@ -178,7 +190,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         // If we're on home but have a reading mode selected
         if (readingMode === 'tarot') {
           items.push({
-            label: language === 'en' ? 'Tarot' : 'Tarot',
+            label: language === 'en' ? 'Tarot Readings' : 'Tirages Tarot',
             icon: <Sparkles className="w-3.5 h-3.5" />,
           });
         } else if (readingMode === 'horoscope') {
@@ -201,7 +213,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   const breadcrumbs = buildBreadcrumbs();
 
   return (
-    <nav className="bg-slate-900/50 backdrop-blur-sm border-b border-purple-500/10">
+    <nav className="bg-slate-900/50 backdrop-blur-sm border-b border-purple-500/10 relative z-30">
       <div className="max-w-7xl mx-auto px-4 py-2">
         <ol className="flex items-center gap-1 text-sm">
           {breadcrumbs.map((item, index) => {

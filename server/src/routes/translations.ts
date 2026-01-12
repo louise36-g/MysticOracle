@@ -2,8 +2,21 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import cacheService, { CacheService } from '../services/cache.js';
 
 const router = Router();
+
+// Helper to invalidate translation caches and bump version
+async function invalidateTranslationCache(): Promise<void> {
+  await Promise.all([
+    cacheService.flushPattern('translations:'),
+    prisma.cacheVersion.upsert({
+      where: { entity: 'translations' },
+      create: { entity: 'translations', version: 1 },
+      update: { version: { increment: 1 } }
+    })
+  ]);
+}
 
 // ============================================
 // PUBLIC ENDPOINTS (for fetching translations)
@@ -12,6 +25,12 @@ const router = Router();
 // Get all active languages
 router.get('/languages', async (req, res) => {
   try {
+    const cacheKey = 'translations:languages';
+    const cached = await cacheService.get<{ languages: any[] }>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const languages = await prisma.language.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
@@ -23,10 +42,35 @@ router.get('/languages', async (req, res) => {
         isDefault: true
       }
     });
-    res.json({ languages });
+
+    const response = { languages };
+    await cacheService.set(cacheKey, response, CacheService.TTL.TRANSLATIONS);
+    res.json(response);
   } catch (error) {
     console.error('Error fetching languages:', error);
     res.status(500).json({ error: 'Failed to fetch languages' });
+  }
+});
+
+// Get current translation version (for client-side cache invalidation)
+router.get('/version', async (req, res) => {
+  try {
+    const cacheKey = 'translations:version';
+    const cached = await cacheService.get<number>(cacheKey);
+    if (cached !== undefined) {
+      return res.json({ version: cached });
+    }
+
+    const cacheVersion = await prisma.cacheVersion.findUnique({
+      where: { entity: 'translations' }
+    });
+    const version = cacheVersion?.version || 1;
+
+    await cacheService.set(cacheKey, version, CacheService.TTL.TRANSLATIONS);
+    res.json({ version });
+  } catch (error) {
+    console.error('Error fetching translation version:', error);
+    res.status(500).json({ error: 'Failed to fetch version' });
   }
 });
 
@@ -34,15 +78,28 @@ router.get('/languages', async (req, res) => {
 router.get('/:langCode', async (req, res) => {
   try {
     const { langCode } = req.params;
+    const cacheKey = `translations:${langCode}`;
 
-    const language = await prisma.language.findUnique({
-      where: { code: langCode },
-      include: {
-        translations: {
-          select: { key: true, value: true }
+    // Check cache first
+    const cached = await cacheService.get<any>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
+    // Fetch translations and version in parallel
+    const [language, cacheVersion] = await Promise.all([
+      prisma.language.findUnique({
+        where: { code: langCode },
+        include: {
+          translations: {
+            select: { key: true, value: true }
+          }
         }
-      }
-    });
+      }),
+      prisma.cacheVersion.findUnique({
+        where: { entity: 'translations' }
+      })
+    ]);
 
     if (!language) {
       return res.status(404).json({ error: 'Language not found' });
@@ -54,14 +111,18 @@ router.get('/:langCode', async (req, res) => {
       translations[t.key] = t.value;
     }
 
-    res.json({
+    const response = {
       language: {
         code: language.code,
         name: language.name,
         nativeName: language.nativeName
       },
-      translations
-    });
+      translations,
+      version: cacheVersion?.version || 1
+    };
+
+    await cacheService.set(cacheKey, response, CacheService.TTL.TRANSLATIONS);
+    res.json(response);
   } catch (error) {
     console.error('Error fetching translations:', error);
     res.status(500).json({ error: 'Failed to fetch translations' });
@@ -220,6 +281,9 @@ router.post('/admin/translations', requireAuth, requireAdmin, async (req, res) =
       update: { value }
     });
 
+    // Invalidate cache and bump version
+    await invalidateTranslationCache();
+
     res.json({ success: true, translation });
   } catch (error) {
     console.error('Error upserting translation:', error);
@@ -247,6 +311,9 @@ router.post('/admin/translations/bulk', requireAuth, requireAdmin, async (req, r
 
     await prisma.$transaction(operations);
 
+    // Invalidate cache and bump version
+    await invalidateTranslationCache();
+
     res.json({ success: true, count: Object.keys(translations).length });
   } catch (error) {
     console.error('Error bulk upserting translations:', error);
@@ -259,6 +326,10 @@ router.delete('/admin/translations/:id', requireAuth, requireAdmin, async (req, 
   try {
     const { id } = req.params;
     await prisma.translation.delete({ where: { id } });
+
+    // Invalidate cache and bump version
+    await invalidateTranslationCache();
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting translation:', error);
@@ -671,6 +742,9 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
     }
 
     await prisma.$transaction(operations);
+
+    // Invalidate cache and bump version
+    await invalidateTranslationCache();
 
     res.json({
       success: true,

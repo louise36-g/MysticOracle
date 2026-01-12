@@ -291,7 +291,9 @@ const App: React.FC = () => {
   }, []);
 
   const handleReadingModeSelect = (mode: string) => {
+    setCurrentView('home');
     setReadingMode(mode);
+    setSelectedSpread(null);
     const url = mode === 'tarot' ? '/tarot' : mode === 'horoscope' ? '/horoscope' : `/${mode}`;
     window.history.pushState({ view: 'home', readingMode: mode }, '', url);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -306,8 +308,19 @@ const App: React.FC = () => {
   };
 
   const handleNavigate = (view: string) => {
-    setCurrentView(view);
     window.scrollTo(0, 0);
+
+    // Handle special navigation cases
+    if (view === 'tarot') {
+      // Navigate to tarot spread selector
+      setCurrentView('home');
+      setReadingMode('tarot');
+      setSelectedSpread(null);
+      window.history.pushState({ view: 'home', readingMode: 'tarot' }, '', '/tarot');
+      return;
+    }
+
+    setCurrentView(view);
 
     // Push state to history for back button support
     // Handle special URL patterns that don't match simple /${view}

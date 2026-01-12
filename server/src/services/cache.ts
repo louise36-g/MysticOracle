@@ -18,12 +18,16 @@ class CacheService {
 
   // Default TTLs in seconds
   static TTL = {
-    MEDIA: 300,      // 5 minutes
-    ARTICLES: 300,   // 5 minutes
-    ARTICLE: 600,    // 10 minutes
-    HOROSCOPE: 3600, // 1 hour
-    TAGS: 600,       // 10 minutes
-    CATEGORIES: 600, // 10 minutes
+    MEDIA: 300,            // 5 minutes
+    ARTICLES: 300,         // 5 minutes
+    ARTICLE: 600,          // 10 minutes
+    HOROSCOPE: 3600,       // 1 hour
+    TAGS: 600,             // 10 minutes
+    CATEGORIES: 600,       // 10 minutes
+    TRANSLATIONS: 3600,    // 1 hour
+    CREDIT_PACKAGES: 3600, // 1 hour
+    BLOG_POSTS: 300,       // 5 minutes
+    BLOG_POST: 300,        // 5 minutes
   };
 
   constructor() {

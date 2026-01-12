@@ -793,4 +793,47 @@ router.post('/cache/purge', async (req, res) => {
   }
 });
 
+// ============================================
+// MAINTENANCE
+// ============================================
+
+// POST /api/admin/maintenance/normalize-readings
+router.post('/maintenance/normalize-readings', async (req, res) => {
+  try {
+    // Import dynamically to avoid circular dependency issues
+    const { normalizeExistingReadings } = await import('../jobs/normalizeReadingCards.js');
+    const result = await normalizeExistingReadings();
+
+    res.json({
+      success: true,
+      ...result,
+      message: `Normalized ${result.processed} readings (${result.skipped} skipped, ${result.errors} errors)`
+    });
+  } catch (error) {
+    console.error('Error normalizing readings:', error);
+    res.status(500).json({ error: 'Failed to normalize readings' });
+  }
+});
+
+// POST /api/admin/maintenance/cleanup-horoscopes
+router.post('/maintenance/cleanup-horoscopes', async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const result = await prisma.horoscopeCache.deleteMany({
+      where: { date: { lt: sevenDaysAgo } }
+    });
+
+    res.json({
+      success: true,
+      deleted: result.count,
+      message: `Deleted ${result.count} old horoscope cache entries`
+    });
+  } catch (error) {
+    console.error('Error cleaning up horoscopes:', error);
+    res.status(500).json({ error: 'Failed to cleanup horoscope cache' });
+  }
+});
+
 export default router;

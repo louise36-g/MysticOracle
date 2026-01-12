@@ -76,6 +76,7 @@ import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
 import tarotArticleRoutes from './routes/tarot-articles.js';
 import ssrRoutes from './routes/ssr.js';
+import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -167,10 +168,38 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   });
 });
 
+// Schedule horoscope cache cleanup (runs daily at 3 AM UTC)
+function scheduleHoroscopeCleanup(): void {
+  const CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+
+  // Calculate time until next 3 AM UTC
+  const now = new Date();
+  const next3AM = new Date(now);
+  next3AM.setUTCHours(3, 0, 0, 0);
+  if (next3AM <= now) {
+    next3AM.setUTCDate(next3AM.getUTCDate() + 1);
+  }
+
+  const msUntil3AM = next3AM.getTime() - now.getTime();
+
+  setTimeout(() => {
+    cleanupOldHoroscopes().catch(err => console.error('[Scheduled Cleanup] Error:', err));
+    // Then run every 24 hours
+    setInterval(() => {
+      cleanupOldHoroscopes().catch(err => console.error('[Scheduled Cleanup] Error:', err));
+    }, CLEANUP_INTERVAL);
+  }, msUntil3AM);
+
+  console.log(`[Scheduled Cleanup] Horoscope cleanup scheduled for ${next3AM.toISOString()}`);
+}
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🔮 MysticOracle API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Schedule background jobs
+  scheduleHoroscopeCleanup();
 });
 
 export default app;

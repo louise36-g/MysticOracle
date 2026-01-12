@@ -16,7 +16,10 @@ import {
   Lock,
   Coins,
   Heart,
-  Layers
+  Layers,
+  Eye,
+  Clock,
+  TrendingUp
 } from 'lucide-react';
 
 interface SubNavProps {
@@ -71,18 +74,49 @@ const SubNav: React.FC<SubNavProps> = ({
     setOpenDropdown(null);
   };
 
-  // Build Tarot spreads menu items
-  const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => ({
-    id: spread.id,
-    labelEn: spread.nameEn,
-    labelFr: spread.nameFr,
-    descriptionEn: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cards`),
-    descriptionFr: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cartes`),
-    icon: <Sparkles className="w-4 h-4 text-purple-400" />,
-    iconBg: 'bg-purple-500/20',
-    cost: spread.cost,
-    onClick: () => onSelectSpread(spread)
-  }));
+  // Spread theme icons and colors (matching SpreadSelector)
+  const spreadThemes: Record<SpreadType, { icon: React.ReactNode; iconBg: string }> = {
+    [SpreadType.SINGLE]: {
+      icon: <Eye className="w-4 h-4 text-cyan-400" />,
+      iconBg: 'bg-cyan-500/20',
+    },
+    [SpreadType.THREE_CARD]: {
+      icon: <Clock className="w-4 h-4 text-fuchsia-400" />,
+      iconBg: 'bg-fuchsia-500/20',
+    },
+    [SpreadType.LOVE]: {
+      icon: <Heart className="w-4 h-4 text-rose-400" />,
+      iconBg: 'bg-rose-500/20',
+    },
+    [SpreadType.CAREER]: {
+      icon: <TrendingUp className="w-4 h-4 text-yellow-400" />,
+      iconBg: 'bg-yellow-500/20',
+    },
+    [SpreadType.HORSESHOE]: {
+      icon: <Sparkles className="w-4 h-4 text-blue-400" />,
+      iconBg: 'bg-blue-500/20',
+    },
+    [SpreadType.CELTIC_CROSS]: {
+      icon: <Compass className="w-4 h-4 text-emerald-400" />,
+      iconBg: 'bg-emerald-500/20',
+    },
+  };
+
+  // Build Tarot spreads menu items with themed icons
+  const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => {
+    const theme = spreadThemes[spread.id] || { icon: <Sparkles className="w-4 h-4 text-purple-400" />, iconBg: 'bg-purple-500/20' };
+    return {
+      id: spread.id,
+      labelEn: spread.nameEn,
+      labelFr: spread.nameFr,
+      descriptionEn: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cards`),
+      descriptionFr: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cartes`),
+      icon: theme.icon,
+      iconBg: theme.iconBg,
+      cost: spread.cost,
+      onClick: () => onSelectSpread(spread)
+    };
+  });
 
   // Coming Soon items
   const comingSoonItems: DropdownItem[] = [
@@ -259,6 +293,7 @@ const SubNav: React.FC<SubNavProps> = ({
             onMouseLeave={handleMouseLeave}
           >
             <button
+              onClick={() => onNavigate('tarot')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
                   ? 'text-purple-300 bg-purple-500/10'

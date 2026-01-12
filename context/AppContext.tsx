@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/apiService';
+import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
 
 /**
  * DEV MODE - Controls credit bypass for development
@@ -39,6 +40,10 @@ interface AppContextType {
   isLoading: boolean;
   setLanguage: (lang: Language) => void;
 
+  // Translations
+  t: (key: string, fallback?: string) => string;
+  refreshTranslationsCache: () => Promise<void>;
+
   // No more login/register - Clerk handles that
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -70,6 +75,50 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+
+  // Load translations when language changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadLang = async () => {
+      const data = await loadTranslations(language);
+      if (isMounted) {
+        setTranslations(data);
+      }
+    };
+
+    loadLang();
+
+    // Listen for background translation updates
+    const handleTranslationsUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ language: Language }>;
+      if (customEvent.detail.language === language && isMounted) {
+        loadTranslations(language).then(setTranslations);
+      }
+    };
+
+    window.addEventListener('translations-updated', handleTranslationsUpdated);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('translations-updated', handleTranslationsUpdated);
+    };
+  }, [language]);
+
+  // Translation function
+  const t = useCallback(
+    (key: string, fallback?: string): string => {
+      return translate(translations, key, fallback);
+    },
+    [translations]
+  );
+
+  // Refresh translations cache (useful after admin mutations)
+  const refreshTranslationsCache = useCallback(async () => {
+    const data = await refreshTranslations(language);
+    setTranslations(data);
+  }, [language]);
 
   // Fetch user from backend
   const fetchUserFromBackend = useCallback(async (skipHistory = false) => {
@@ -266,6 +315,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       language,
       isLoading,
       setLanguage,
+      t,
+      refreshTranslationsCache,
       logout,
       refreshUser,
       addCredits,

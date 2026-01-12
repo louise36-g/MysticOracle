@@ -94,8 +94,12 @@ model Reading {
   // Follow-up questions
   followUps       FollowUpQuestion[]
 
+  // Normalized cards for RAG queries
+  normalizedCards ReadingCard[]
+
   @@index([userId])
   @@index([createdAt])
+  @@index([spreadType])
 }
 
 model FollowUpQuestion {
@@ -109,6 +113,22 @@ model FollowUpQuestion {
   createdAt   DateTime @default(now())
 
   @@index([readingId])
+}
+
+model ReadingCard {
+  id         String   @id @default(cuid())
+  readingId  String
+  reading    Reading  @relation(fields: [readingId], references: [id], onDelete: Cascade)
+
+  cardId     Int      // References card from constants (0-77)
+  position   Int      // Position in spread (0-indexed)
+  isReversed Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+
+  @@unique([readingId, position])
+  @@index([readingId])
+  @@index([cardId])
 }
 
 enum SpreadType {
@@ -151,6 +171,7 @@ model HoroscopeCache {
 
   @@unique([sign, language, date])
   @@index([sign, date])
+  @@index([date])
 }
 
 model HoroscopeQA {
@@ -191,6 +212,7 @@ model Transaction {
   @@index([userId])
   @@index([paymentId])
   @@index([createdAt])
+  @@index([type])
 }
 
 enum TransactionType {
@@ -365,6 +387,17 @@ model SystemSetting {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ============================================
+// CACHE VERSION TRACKING
+// ============================================
+
+model CacheVersion {
+  id        String   @id @default(cuid())
+  entity    String   @unique  // e.g., "translations", "credit_packages"
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
 }
 
 // ============================================

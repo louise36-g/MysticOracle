@@ -49,3 +49,20 @@ export type {
 
 // System Setting Repository
 export type { ISystemSettingRepository } from './ISystemSettingRepository.js';
+
+// Cache Version Repository
+export type { ICacheVersionRepository } from './ICacheVersionRepository.js';
+
+// Horoscope Cache Repository
+export type {
+  IHoroscopeCacheRepository,
+  CreateHoroscopeCacheDTO,
+} from './IHoroscopeCacheRepository.js';
+
+// Reading Card Repository
+export type {
+  IReadingCardRepository,
+  CreateReadingCardDTO,
+  ReadingCardQueryOptions,
+  ReadingCardWithReading,
+} from './IReadingCardRepository.js';

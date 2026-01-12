@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { optionalAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
+import cacheService, { CacheService } from '../services/cache.js';
 
 const router = Router();
 
@@ -129,9 +130,21 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     const normalizedSign = normalizeSign(sign);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const dateKey = today.toISOString().split('T')[0];
+    const memoryCacheKey = `horoscope:${normalizedSign}:${language}:${dateKey}`;
 
-    // Check cache first
-    const cached = await prisma.horoscopeCache.findUnique({
+    // Check in-memory cache first (reduces DB load)
+    const memoryCached = await cacheService.get<{ horoscope: string; createdAt: Date }>(memoryCacheKey);
+    if (memoryCached) {
+      return res.json({
+        horoscope: memoryCached.horoscope,
+        cached: true,
+        generatedAt: memoryCached.createdAt
+      });
+    }
+
+    // Check database cache
+    const dbCached = await prisma.horoscopeCache.findUnique({
       where: {
         sign_language_date: {
           sign: normalizedSign,
@@ -141,18 +154,25 @@ router.get('/:sign', optionalAuth, async (req, res) => {
       }
     });
 
-    if (cached) {
+    if (dbCached) {
+      // Populate memory cache from DB
+      await cacheService.set(memoryCacheKey, {
+        horoscope: dbCached.horoscope,
+        createdAt: dbCached.createdAt
+      }, CacheService.TTL.HOROSCOPE);
+
       return res.json({
-        horoscope: cached.horoscope,
+        horoscope: dbCached.horoscope,
         cached: true,
-        generatedAt: cached.createdAt
+        generatedAt: dbCached.createdAt
       });
     }
 
     // Generate new horoscope
     const horoscope = await generateHoroscope(normalizedSign, language);
+    const createdAt = new Date();
 
-    // Cache it (upsert to handle race conditions)
+    // Save to database (upsert to handle race conditions)
     await prisma.horoscopeCache.upsert({
       where: {
         sign_language_date: {
@@ -174,10 +194,13 @@ router.get('/:sign', optionalAuth, async (req, res) => {
       }
     });
 
+    // Save to memory cache
+    await cacheService.set(memoryCacheKey, { horoscope, createdAt }, CacheService.TTL.HOROSCOPE);
+
     res.json({
       horoscope,
       cached: false,
-      generatedAt: new Date()
+      generatedAt: createdAt
     });
   } catch (error) {
     console.error('Horoscope error:', error);
