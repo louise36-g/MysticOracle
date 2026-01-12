@@ -190,7 +190,7 @@ const ReadingCompleteCelebration: React.FC<ReadingCompleteCelebrationProps> = ({
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: [0, 1.2, 1] }}
-                        transition={{ delay: 0.4, type: 'spring' }}
+                        transition={{ delay: 0.4, duration: 0.4, ease: 'easeOut' }}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500/30 to-orange-500/30 border border-amber-500/50 rounded-full"
                       >
                         <Sparkles className="w-6 h-6 text-amber-400" />
