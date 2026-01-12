@@ -32,3 +32,20 @@ export type {
   TransactionListOptions,
   TransactionWithUser,
 } from './ITransactionRepository.js';
+
+// Credit Package Repository
+export type {
+  ICreditPackageRepository,
+  CreatePackageDTO,
+  UpdatePackageDTO,
+} from './ICreditPackageRepository.js';
+
+// Email Template Repository
+export type {
+  IEmailTemplateRepository,
+  CreateTemplateDTO,
+  UpdateTemplateDTO,
+} from './IEmailTemplateRepository.js';
+
+// System Setting Repository
+export type { ISystemSettingRepository } from './ISystemSettingRepository.js';

@@ -5,6 +5,11 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService from '../services/cache.js';
 import { clearAISettingsCache } from '../services/aiSettings.js';
 import { creditService } from '../services/CreditService.js';
+import {
+  DEFAULT_PACKAGES,
+  DEFAULT_EMAIL_TEMPLATES,
+  EDITABLE_SETTINGS,
+} from '../shared/constants/index.js';
 
 const router = Router();
 
@@ -18,41 +23,9 @@ router.use(requireAdmin);
 
 router.get('/stats', async (req, res) => {
   try {
-    const [
-      totalUsers,
-      activeUsers,
-      totalReadings,
-      totalRevenue,
-      todayReadings,
-      todaySignups
-    ] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { accountStatus: 'ACTIVE' } }),
-      prisma.reading.count(),
-      prisma.transaction.aggregate({
-        where: { type: 'PURCHASE', paymentStatus: 'COMPLETED' },
-        _sum: { paymentAmount: true }
-      }),
-      prisma.reading.count({
-        where: {
-          createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-        }
-      }),
-      prisma.user.count({
-        where: {
-          createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-        }
-      })
-    ]);
-
-    res.json({
-      totalUsers,
-      activeUsers,
-      totalReadings,
-      totalRevenue: totalRevenue._sum.paymentAmount || 0,
-      todayReadings,
-      todaySignups
-    });
+    const adminStatsService = req.container.resolve('adminStatsService');
+    const stats = await adminStatsService.getDashboardStats();
+    res.json(stats);
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     res.status(500).json({ error: 'Failed to fetch stats' });
@@ -134,35 +107,14 @@ router.get('/users', async (req, res) => {
 // Get single user with full details
 router.get('/users/:userId', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const getUserUseCase = req.container.resolve('getUserUseCase');
+    const result = await getUserUseCase.execute({ userId: req.params.userId });
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        achievements: true,
-        readings: {
-          select: {
-            id: true,
-            spreadType: true,
-            createdAt: true,
-            creditCost: true
-            // Note: NOT including question or interpretation for privacy
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 50
-        },
-        transactions: {
-          orderBy: { createdAt: 'desc' },
-          take: 50
-        }
-      }
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    if (!result.success) {
+      return res.status(404).json({ error: result.error });
     }
 
-    res.json(user);
+    res.json(result.user);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user' });
@@ -176,15 +128,18 @@ const updateStatusSchema = z.object({
 
 router.patch('/users/:userId/status', async (req, res) => {
   try {
-    const { userId } = req.params;
     const { status } = updateStatusSchema.parse(req.body);
-
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: { accountStatus: status }
+    const updateUserStatusUseCase = req.container.resolve('updateUserStatusUseCase');
+    const result = await updateUserStatusUseCase.execute({
+      userId: req.params.userId,
+      status,
     });
 
-    res.json({ success: true, user });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, user: result.user });
   } catch (error) {
     console.error('Error updating user status:', error);
     res.status(500).json({ error: 'Failed to update user status' });
@@ -199,26 +154,18 @@ const adjustCreditsSchema = z.object({
 
 router.post('/users/:userId/credits', async (req, res) => {
   try {
-    const { userId } = req.params;
-    const authUserId = req.auth.userId;
-    console.log('[Admin Credits] Request - target userId:', userId, 'auth userId:', authUserId);
-
     const { amount, reason } = adjustCreditsSchema.parse(req.body);
-    console.log('[Admin Credits] Amount:', amount, 'Reason:', reason);
-
-    // Get current balance before adjustment
-    const beforeBalance = await creditService.getBalance(userId);
-    console.log('[Admin Credits] Credits BEFORE update:', beforeBalance);
-
-    // Use CreditService for credit adjustment
-    const result = await creditService.adjustCredits(userId, amount, reason);
+    const adjustUserCreditsUseCase = req.container.resolve('adjustUserCreditsUseCase');
+    const result = await adjustUserCreditsUseCase.execute({
+      userId: req.params.userId,
+      amount,
+      reason,
+      adminUserId: req.auth.userId,
+    });
 
     if (!result.success) {
-      console.error('[Admin Credits] Adjustment failed:', result.error);
-      return res.status(400).json({ error: result.error || 'Failed to adjust credits' });
+      return res.status(400).json({ error: result.error });
     }
-
-    console.log('[Admin Credits] Credits AFTER update:', result.newBalance);
 
     res.json({ success: true, newBalance: result.newBalance });
   } catch (error) {
@@ -238,17 +185,23 @@ router.patch('/users/:userId/admin', async (req, res) => {
       return res.status(400).json({ error: 'Cannot change your own admin status' });
     }
 
+    // Get current user state to toggle
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const updated = await prisma.user.update({
-      where: { id: userId },
-      data: { isAdmin: !user.isAdmin }
+    const toggleUserAdminUseCase = req.container.resolve('toggleUserAdminUseCase');
+    const result = await toggleUserAdminUseCase.execute({
+      userId,
+      isAdmin: !user.isAdmin,
     });
 
-    res.json({ success: true, isAdmin: updated.isAdmin });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, isAdmin: result.user?.isAdmin });
   } catch (error) {
     console.error('Error toggling admin:', error);
     res.status(500).json({ error: 'Failed to toggle admin status' });
@@ -385,73 +338,9 @@ router.get('/readings/stats', async (req, res) => {
 
 router.get('/analytics', async (req, res) => {
   try {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
-
-    // Get readings grouped by day for last 7 days
-    const readings = await prisma.reading.findMany({
-      where: { createdAt: { gte: sevenDaysAgo } },
-      select: { createdAt: true }
-    });
-
-    // Group readings by day
-    const readingsByDay: { date: string; count: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const dayStart = new Date();
-      dayStart.setDate(dayStart.getDate() - i);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayEnd.getDate() + 1);
-
-      const count = readings.filter(r => {
-        const date = new Date(r.createdAt);
-        return date >= dayStart && date < dayEnd;
-      }).length;
-
-      readingsByDay.push({
-        date: dayStart.toLocaleDateString('en-US', { weekday: 'short' }),
-        count
-      });
-    }
-
-    // Top users by readings
-    const topUsersByReadings = await prisma.user.findMany({
-      orderBy: { totalReadings: 'desc' },
-      take: 5,
-      select: { id: true, username: true, totalReadings: true }
-    });
-
-    // Top users by credits
-    const topUsersByCredits = await prisma.user.findMany({
-      orderBy: { credits: 'desc' },
-      take: 5,
-      select: { username: true, credits: true }
-    });
-
-    // Top users by login streak
-    const topUsersByStreak = await prisma.user.findMany({
-      orderBy: { loginStreak: 'desc' },
-      take: 5,
-      select: { username: true, loginStreak: true }
-    });
-
-    res.json({
-      readingsByDay,
-      topUsers: topUsersByReadings.map(u => ({
-        id: u.id,
-        username: u.username,
-        count: u.totalReadings
-      })),
-      topCreditUsers: topUsersByCredits.map(u => ({
-        username: u.username,
-        credits: u.credits
-      })),
-      topStreakUsers: topUsersByStreak.map(u => ({
-        username: u.username,
-        streak: u.loginStreak
-      }))
-    });
+    const adminAnalyticsService = req.container.resolve('adminAnalyticsService');
+    const analytics = await adminAnalyticsService.getAnalytics(7);
+    res.json(analytics);
   } catch (error) {
     console.error('Error fetching analytics:', error);
     res.status(500).json({ error: 'Failed to fetch analytics' });
@@ -652,38 +541,6 @@ router.delete('/email-templates/:id', async (req, res) => {
 // SEED DEFAULT DATA
 // ============================================
 
-const DEFAULT_PACKAGES = [
-  { credits: 10, priceEur: 5.00, nameEn: 'Starter', nameFr: 'Démarrage', labelEn: 'Try It Out', labelFr: 'Essayez', discount: 0, badge: null, sortOrder: 0 },
-  { credits: 25, priceEur: 10.00, nameEn: 'Basic', nameFr: 'Basique', labelEn: 'Popular', labelFr: 'Populaire', discount: 20, badge: null, sortOrder: 1 },
-  { credits: 60, priceEur: 20.00, nameEn: 'Popular', nameFr: 'Populaire', labelEn: 'Best Value', labelFr: 'Meilleur Valeur', discount: 40, badge: 'POPULAR', sortOrder: 2 },
-  { credits: 100, priceEur: 30.00, nameEn: 'Value', nameFr: 'Valeur', labelEn: 'Most Savings', labelFr: 'Plus d\'économies', discount: 40, badge: 'BEST_VALUE', sortOrder: 3 },
-  { credits: 200, priceEur: 50.00, nameEn: 'Premium', nameFr: 'Premium', labelEn: 'Ultimate Pack', labelFr: 'Pack Ultime', discount: 50, badge: null, sortOrder: 4 },
-];
-
-const DEFAULT_EMAIL_TEMPLATES = [
-  {
-    slug: 'welcome',
-    subjectEn: 'Welcome to MysticOracle - Your Journey Begins!',
-    subjectFr: 'Bienvenue sur MysticOracle - Votre Voyage Commence!',
-    bodyEn: '<h2>Welcome, {{params.username}}!</h2><p>The stars have aligned to welcome you to MysticOracle. Your mystical journey begins now with <strong>10 free credits</strong> to explore the ancient wisdom of Tarot.</p>',
-    bodyFr: '<h2>Bienvenue, {{params.username}}!</h2><p>Les étoiles se sont alignées pour vous accueillir sur MysticOracle. Votre voyage mystique commence maintenant avec <strong>10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.</p>',
-  },
-  {
-    slug: 'purchase_confirmation',
-    subjectEn: 'Payment Confirmed - {{params.credits}} Credits Added',
-    subjectFr: 'Paiement Confirmé - {{params.credits}} Crédits Ajoutés',
-    bodyEn: '<h2>Payment Confirmed!</h2><p>Thank you for your purchase, {{params.username}}. Your credits have been added to your account.</p><p><strong>Credits Added:</strong> +{{params.credits}}<br><strong>Amount Paid:</strong> {{params.amount}}<br><strong>New Balance:</strong> {{params.newBalance}} credits</p>',
-    bodyFr: '<h2>Paiement Confirmé!</h2><p>Merci pour votre achat, {{params.username}}. Vos crédits ont été ajoutés à votre compte.</p><p><strong>Crédits Ajoutés:</strong> +{{params.credits}}<br><strong>Montant Payé:</strong> {{params.amount}}<br><strong>Nouveau Solde:</strong> {{params.newBalance}} crédits</p>',
-  },
-  {
-    slug: 'low_credits_reminder',
-    subjectEn: 'Your MysticOracle Credits are Running Low',
-    subjectFr: 'Vos Crédits MysticOracle sont Presque Épuisés',
-    bodyEn: '<h2>Don\'t let your journey end, {{params.username}}</h2><p>You have only <strong>{{params.credits}} credits</strong> remaining. Top up now to continue receiving mystical guidance.</p>',
-    bodyFr: '<h2>Ne laissez pas votre voyage s\'arrêter, {{params.username}}</h2><p>Il ne vous reste que <strong>{{params.credits}} crédits</strong>. Rechargez maintenant pour continuer à recevoir des conseils mystiques.</p>',
-  },
-];
-
 router.post('/seed/packages', async (req, res) => {
   try {
     const existing = await prisma.creditPackage.count();
@@ -727,84 +584,14 @@ router.post('/seed/email-templates', async (req, res) => {
 // ============================================
 
 router.get('/services', async (req, res) => {
-  // Get database settings to check if they override env vars
-  const dbSettings = await prisma.systemSetting.findMany();
-  const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
-
-  const isConfigured = (envVars: string[]) => {
-    return envVars.some(v => settingsMap.has(v) || !!process.env[v]);
-  };
-
-  res.json({
-    services: [
-      {
-        id: 'database',
-        nameEn: 'Database',
-        nameFr: 'Base de données',
-        descriptionEn: 'PostgreSQL database for storing all application data',
-        descriptionFr: 'Base de données PostgreSQL pour stocker toutes les données',
-        envVars: ['DATABASE_URL'],
-        configured: !!process.env.DATABASE_URL,
-        dashboardUrl: 'https://dashboard.render.com/',
-        docsUrl: 'https://www.prisma.io/docs/concepts/database-connectors/postgresql'
-      },
-      {
-        id: 'clerk',
-        nameEn: 'Clerk Authentication',
-        nameFr: 'Authentification Clerk',
-        descriptionEn: 'User authentication and session management',
-        descriptionFr: 'Authentification utilisateur et gestion de session',
-        envVars: ['CLERK_SECRET_KEY', 'CLERK_WEBHOOK_SECRET'],
-        configured: !!process.env.CLERK_SECRET_KEY,
-        dashboardUrl: 'https://dashboard.clerk.com/',
-        docsUrl: 'https://clerk.com/docs'
-      },
-      {
-        id: 'stripe',
-        nameEn: 'Stripe Payments',
-        nameFr: 'Paiements Stripe',
-        descriptionEn: 'Credit card payments processing',
-        descriptionFr: 'Traitement des paiements par carte',
-        envVars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'],
-        configured: !!process.env.STRIPE_SECRET_KEY,
-        dashboardUrl: 'https://dashboard.stripe.com/',
-        docsUrl: 'https://stripe.com/docs'
-      },
-      {
-        id: 'paypal',
-        nameEn: 'PayPal Payments',
-        nameFr: 'Paiements PayPal',
-        descriptionEn: 'PayPal payment processing',
-        descriptionFr: 'Traitement des paiements PayPal',
-        envVars: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'],
-        configured: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
-        dashboardUrl: 'https://developer.paypal.com/dashboard/',
-        docsUrl: 'https://developer.paypal.com/docs'
-      },
-      {
-        id: 'brevo',
-        nameEn: 'Brevo Email',
-        nameFr: 'Email Brevo',
-        descriptionEn: 'Transactional and marketing emails',
-        descriptionFr: 'Emails transactionnels et marketing',
-        envVars: ['BREVO_API_KEY'],
-        configured: !!process.env.BREVO_API_KEY,
-        dashboardUrl: 'https://app.brevo.com/',
-        docsUrl: 'https://developers.brevo.com/'
-      },
-      {
-        id: 'openrouter',
-        nameEn: 'OpenRouter AI',
-        nameFr: 'OpenRouter IA',
-        descriptionEn: 'AI model for tarot readings and horoscopes',
-        descriptionFr: 'Modèle IA pour les lectures de tarot et horoscopes',
-        envVars: ['OPENROUTER_API_KEY', 'AI_MODEL'],
-        configured: isConfigured(['OPENROUTER_API_KEY']),
-        dashboardUrl: 'https://openrouter.ai/keys',
-        docsUrl: 'https://openrouter.ai/docs'
-      }
-    ]
-  });
+  try {
+    const systemHealthService = req.container.resolve('systemHealthService');
+    const services = await systemHealthService.getServiceStatuses();
+    res.json({ services });
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    res.status(500).json({ error: 'Failed to fetch services' });
+  }
 });
 
 // ============================================
@@ -876,98 +663,26 @@ router.delete('/error-logs', (req, res) => {
 // ============================================
 
 router.get('/health', async (req, res) => {
-  const health: Record<string, { status: string; message?: string }> = {};
-
-  // Check database settings for overrides
-  let dbSettings: Map<string, string> = new Map();
   try {
-    const settings = await prisma.systemSetting.findMany();
-    dbSettings = new Map(settings.map(s => [s.key, s.value]));
-  } catch {
-    // Ignore - will use env vars only
-  }
-
-  // Helper to check if a setting is configured (DB or env)
-  const isConfigured = (key: string) => !!(dbSettings.get(key) || process.env[key]);
-
-  // Database
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    health.database = { status: 'ok' };
+    const systemHealthService = req.container.resolve('systemHealthService');
+    const health = await systemHealthService.checkHealth();
+    res.json(health);
   } catch (error) {
-    health.database = { status: 'error', message: 'Connection failed' };
+    console.error('Error checking health:', error);
+    res.status(500).json({ error: 'Failed to check health' });
   }
-
-  // Clerk
-  health.clerk = {
-    status: process.env.CLERK_SECRET_KEY ? 'ok' : 'not_configured'
-  };
-
-  // Stripe
-  health.stripe = {
-    status: process.env.STRIPE_SECRET_KEY ? 'ok' : 'not_configured'
-  };
-
-  // PayPal
-  health.paypal = {
-    status: process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET ? 'ok' : 'not_configured'
-  };
-
-  // Brevo (check DB and env)
-  health.brevo = {
-    status: isConfigured('BREVO_API_KEY') ? 'ok' : 'not_configured'
-  };
-
-  // OpenRouter (check DB and env)
-  health.openrouter = {
-    status: isConfigured('OPENROUTER_API_KEY') ? 'ok' : 'not_configured'
-  };
-
-  // Overall status
-  const allOk = Object.values(health).every(h => h.status === 'ok');
-  const hasErrors = Object.values(health).some(h => h.status === 'error');
-
-  res.json({
-    status: hasErrors ? 'degraded' : (allOk ? 'healthy' : 'partial'),
-    services: health,
-    timestamp: new Date().toISOString()
-  });
 });
 
 // ============================================
 // SYSTEM SETTINGS CRUD
 // ============================================
 
-// Editable settings (can be stored in DB to override env vars)
-const EDITABLE_SETTINGS = [
-  { key: 'OPENROUTER_API_KEY', isSecret: true, descriptionEn: 'OpenRouter API Key', descriptionFr: 'Clé API OpenRouter' },
-  { key: 'AI_MODEL', isSecret: false, descriptionEn: 'AI Model (e.g., openai/gpt-4o-mini)', descriptionFr: 'Modèle IA' },
-  { key: 'BREVO_API_KEY', isSecret: true, descriptionEn: 'Brevo Email API Key', descriptionFr: 'Clé API Brevo' },
-];
-
 // Get all editable settings
 router.get('/settings', async (req, res) => {
   try {
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settingsMap = new Map(dbSettings.map(s => [s.key, s]));
-
-    const settings = EDITABLE_SETTINGS.map(setting => {
-      const dbSetting = settingsMap.get(setting.key);
-      const envValue = process.env[setting.key];
-      const value = dbSetting?.value || envValue || '';
-
-      return {
-        key: setting.key,
-        value: setting.isSecret && value ? '••••••••' + value.slice(-4) : value,
-        hasValue: !!value,
-        isSecret: setting.isSecret,
-        source: dbSetting ? 'database' : (envValue ? 'environment' : 'none'),
-        descriptionEn: setting.descriptionEn,
-        descriptionFr: setting.descriptionFr
-      };
-    });
-
-    res.json({ settings });
+    const getSettingsUseCase = req.container.resolve('getSettingsUseCase');
+    const result = await getSettingsUseCase.execute();
+    res.json(result);
   } catch (error) {
     console.error('Error fetching settings:', error);
     res.status(500).json({ error: 'Failed to fetch settings' });
@@ -984,26 +699,20 @@ router.post('/settings', async (req, res) => {
   try {
     const { key, value } = updateSettingSchema.parse(req.body);
 
-    // Verify it's an allowed setting
-    const settingDef = EDITABLE_SETTINGS.find(s => s.key === key);
-    if (!settingDef) {
-      return res.status(400).json({ error: 'Setting not allowed' });
+    // Handle empty value (delete setting to fall back to env var)
+    if (value === '') {
+      await prisma.systemSetting.deleteMany({ where: { key } });
+      if (key === 'OPENROUTER_API_KEY' || key === 'AI_MODEL') {
+        clearAISettingsCache();
+      }
+      return res.json({ success: true });
     }
 
-    if (value === '') {
-      // Delete setting if empty (fall back to env var)
-      await prisma.systemSetting.deleteMany({ where: { key } });
-    } else {
-      await prisma.systemSetting.upsert({
-        where: { key },
-        create: {
-          key,
-          value,
-          isSecret: settingDef.isSecret,
-          description: settingDef.descriptionEn
-        },
-        update: { value }
-      });
+    const updateSettingUseCase = req.container.resolve('updateSettingUseCase');
+    const result = await updateSettingUseCase.execute({ key, value });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
 
     // Clear AI settings cache if an AI-related setting was changed
@@ -1029,55 +738,12 @@ router.get('/revenue/export', async (req, res) => {
       month: z.coerce.number().min(1).max(12)
     }).parse(req.query);
 
-    const startDate = new Date(params.year, params.month - 1, 1);
-    const endDate = new Date(params.year, params.month, 0, 23, 59, 59, 999);
-
-    const transactions = await prisma.transaction.findMany({
-      where: {
-        type: 'PURCHASE',
-        paymentStatus: 'COMPLETED',
-        createdAt: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
-      include: {
-        user: { select: { email: true, username: true } }
-      },
-      orderBy: { createdAt: 'asc' }
-    });
-
-    // Calculate totals
-    const totals = {
-      count: transactions.length,
-      revenue: transactions.reduce((sum, t) => sum + (Number(t.paymentAmount) || 0), 0),
-      credits: transactions.reduce((sum, t) => sum + t.amount, 0)
-    };
-
-    // Generate CSV
-    const monthName = new Date(params.year, params.month - 1).toLocaleString('en', { month: 'long', year: 'numeric' });
-    const csv = [
-      `MysticOracle Revenue Report - ${monthName}`,
-      '',
-      'Date,User,Email,Payment Provider,Amount (EUR),Credits,Transaction ID',
-      ...transactions.map(t => [
-        new Date(t.createdAt).toISOString().split('T')[0],
-        `"${t.user.username}"`,
-        `"${t.user.email}"`,
-        t.paymentProvider || 'N/A',
-        Number(t.paymentAmount).toFixed(2),
-        t.amount,
-        t.paymentId || t.id
-      ].join(',')),
-      '',
-      `Total Transactions,${totals.count}`,
-      `Total Revenue (EUR),${totals.revenue.toFixed(2)}`,
-      `Total Credits Sold,${totals.credits}`
-    ].join('\n');
+    const revenueExportService = req.container.resolve('revenueExportService');
+    const data = await revenueExportService.exportToCSV(params.year, params.month);
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="mysticoracle-revenue-${params.year}-${String(params.month).padStart(2, '0')}.csv"`);
-    res.send(csv);
+    res.setHeader('Content-Disposition', `attachment; filename="${data.filename}"`);
+    res.send(data.csv);
   } catch (error) {
     console.error('Error exporting revenue:', error);
     res.status(500).json({ error: 'Failed to export revenue' });
@@ -1087,30 +753,9 @@ router.get('/revenue/export', async (req, res) => {
 // Get available months for export
 router.get('/revenue/months', async (req, res) => {
   try {
-    const firstTransaction = await prisma.transaction.findFirst({
-      where: { type: 'PURCHASE', paymentStatus: 'COMPLETED' },
-      orderBy: { createdAt: 'asc' }
-    });
-
-    if (!firstTransaction) {
-      return res.json({ months: [] });
-    }
-
-    const months: { year: number; month: number; label: string }[] = [];
-    const start = new Date(firstTransaction.createdAt);
-    const now = new Date();
-
-    let current = new Date(start.getFullYear(), start.getMonth(), 1);
-    while (current <= now) {
-      months.push({
-        year: current.getFullYear(),
-        month: current.getMonth() + 1,
-        label: current.toLocaleString('en', { month: 'long', year: 'numeric' })
-      });
-      current.setMonth(current.getMonth() + 1);
-    }
-
-    res.json({ months: months.reverse() }); // Most recent first
+    const revenueExportService = req.container.resolve('revenueExportService');
+    const months = await revenueExportService.getAvailableMonths();
+    res.json({ months });
   } catch (error) {
     console.error('Error fetching revenue months:', error);
     res.status(500).json({ error: 'Failed to fetch months' });

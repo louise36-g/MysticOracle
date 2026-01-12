@@ -19,9 +19,16 @@ import prismaClient from '../../db/prisma.js';
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/PrismaUserRepository.js';
 import { PrismaReadingRepository } from '../../infrastructure/persistence/prisma/PrismaReadingRepository.js';
 import { PrismaTransactionRepository } from '../../infrastructure/persistence/prisma/PrismaTransactionRepository.js';
+import { PrismaCreditPackageRepository } from '../../infrastructure/persistence/prisma/PrismaCreditPackageRepository.js';
+import { PrismaEmailTemplateRepository } from '../../infrastructure/persistence/prisma/PrismaEmailTemplateRepository.js';
+import { PrismaSystemSettingRepository } from '../../infrastructure/persistence/prisma/PrismaSystemSettingRepository.js';
 
 // Services
 import { CreditService } from '../../services/CreditService.js';
+import { AdminStatsService } from '../../services/AdminStatsService.js';
+import { AdminAnalyticsService } from '../../services/AdminAnalyticsService.js';
+import { SystemHealthService } from '../../services/SystemHealthService.js';
+import { RevenueExportService } from '../../services/RevenueExportService.js';
 
 // Payment Gateways
 import { StripeGateway } from '../../infrastructure/payment/StripeGateway.js';
@@ -38,6 +45,27 @@ import { UpdateReflectionUseCase } from '../../application/use-cases/readings/Up
 import { CreateCheckoutUseCase } from '../../application/use-cases/payments/CreateCheckout.js';
 import { CapturePaymentUseCase } from '../../application/use-cases/payments/CapturePayment.js';
 import { ProcessPaymentWebhookUseCase } from '../../application/use-cases/payments/ProcessPaymentWebhook.js';
+
+// Use Cases - Admin
+import {
+  ListUsersUseCase,
+  GetUserUseCase,
+  UpdateUserStatusUseCase,
+  AdjustUserCreditsUseCase,
+  ToggleUserAdminUseCase,
+  ListPackagesUseCase,
+  CreatePackageUseCase,
+  UpdatePackageUseCase,
+  DeletePackageUseCase,
+  SeedPackagesUseCase,
+  ListTemplatesUseCase,
+  CreateTemplateUseCase,
+  UpdateTemplateUseCase,
+  DeleteTemplateUseCase,
+  SeedTemplatesUseCase,
+  GetSettingsUseCase,
+  UpdateSettingUseCase,
+} from '../../application/use-cases/admin/index.js';
 
 // Container type for type safety
 import type { ContainerDependencies } from './types.js';
@@ -72,11 +100,18 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     userRepository: asClass(PrismaUserRepository).singleton(),
     readingRepository: asClass(PrismaReadingRepository).singleton(),
     transactionRepository: asClass(PrismaTransactionRepository).singleton(),
+    creditPackageRepository: asClass(PrismaCreditPackageRepository).singleton(),
+    emailTemplateRepository: asClass(PrismaEmailTemplateRepository).singleton(),
+    systemSettingRepository: asClass(PrismaSystemSettingRepository).singleton(),
   });
 
   // Register services (singletons)
   container.register({
     creditService: asClass(CreditService).singleton(),
+    adminStatsService: asClass(AdminStatsService).singleton(),
+    adminAnalyticsService: asClass(AdminAnalyticsService).singleton(),
+    systemHealthService: asClass(SystemHealthService).singleton(),
+    revenueExportService: asClass(RevenueExportService).singleton(),
   });
 
   // Register payment gateways (singletons)
@@ -122,6 +157,34 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     createCheckoutUseCase: asClass(CreateCheckoutUseCase).scoped(),
     capturePaymentUseCase: asClass(CapturePaymentUseCase).scoped(),
     processPaymentWebhookUseCase: asClass(ProcessPaymentWebhookUseCase).scoped(),
+  });
+
+  // Register admin use cases (scoped)
+  container.register({
+    // User management
+    listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+    getUserUseCase: asClass(GetUserUseCase).scoped(),
+    updateUserStatusUseCase: asClass(UpdateUserStatusUseCase).scoped(),
+    adjustUserCreditsUseCase: asClass(AdjustUserCreditsUseCase).scoped(),
+    toggleUserAdminUseCase: asClass(ToggleUserAdminUseCase).scoped(),
+
+    // Package management
+    listPackagesUseCase: asClass(ListPackagesUseCase).scoped(),
+    createPackageUseCase: asClass(CreatePackageUseCase).scoped(),
+    updatePackageUseCase: asClass(UpdatePackageUseCase).scoped(),
+    deletePackageUseCase: asClass(DeletePackageUseCase).scoped(),
+    seedPackagesUseCase: asClass(SeedPackagesUseCase).scoped(),
+
+    // Template management
+    listTemplatesUseCase: asClass(ListTemplatesUseCase).scoped(),
+    createTemplateUseCase: asClass(CreateTemplateUseCase).scoped(),
+    updateTemplateUseCase: asClass(UpdateTemplateUseCase).scoped(),
+    deleteTemplateUseCase: asClass(DeleteTemplateUseCase).scoped(),
+    seedTemplatesUseCase: asClass(SeedTemplatesUseCase).scoped(),
+
+    // Settings management
+    getSettingsUseCase: asClass(GetSettingsUseCase).scoped(),
+    updateSettingUseCase: asClass(UpdateSettingUseCase).scoped(),
   });
 
   return container;
