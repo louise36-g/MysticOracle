@@ -4,6 +4,7 @@ import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService from '../services/cache.js';
 import { clearAISettingsCache } from '../services/aiSettings.js';
+import { creditService } from '../services/CreditService.js';
 
 const router = Router();
 
@@ -205,40 +206,21 @@ router.post('/users/:userId/credits', async (req, res) => {
     const { amount, reason } = adjustCreditsSchema.parse(req.body);
     console.log('[Admin Credits] Amount:', amount, 'Reason:', reason);
 
-    // First check current credits
-    const beforeUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-    console.log('[Admin Credits] Credits BEFORE update:', beforeUser?.credits);
+    // Get current balance before adjustment
+    const beforeBalance = await creditService.getBalance(userId);
+    console.log('[Admin Credits] Credits BEFORE update:', beforeBalance);
 
-    const [user] = await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: { increment: amount },
-          ...(amount > 0 ? { totalCreditsEarned: { increment: amount } } : {})
-        }
-      }),
-      prisma.transaction.create({
-        data: {
-          userId,
-          type: amount > 0 ? 'REFUND' : 'READING', // Use REFUND for admin adjustments
-          amount,
-          description: `Admin adjustment: ${reason}`
-        }
-      })
-    ]);
-    console.log('[Admin Credits] Credits AFTER update (from transaction):', user.credits);
+    // Use CreditService for credit adjustment
+    const result = await creditService.adjustCredits(userId, amount, reason);
 
-    // Verify with fresh read
-    const afterUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-    console.log('[Admin Credits] Credits AFTER update (fresh read):', afterUser?.credits);
+    if (!result.success) {
+      console.error('[Admin Credits] Adjustment failed:', result.error);
+      return res.status(400).json({ error: result.error || 'Failed to adjust credits' });
+    }
 
-    res.json({ success: true, newBalance: user.credits });
+    console.log('[Admin Credits] Credits AFTER update:', result.newBalance);
+
+    res.json({ success: true, newBalance: result.newBalance });
   } catch (error) {
     console.error('[Admin Credits] Error adjusting credits:', error);
     res.status(500).json({ error: 'Failed to adjust credits' });

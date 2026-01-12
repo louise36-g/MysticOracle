@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
+import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
 
 const router = Router();
 
@@ -21,9 +22,6 @@ const getOpenAIClient = async () => {
     model: settings.model
   };
 };
-
-// Cost for summarizing a question
-const SUMMARIZE_QUESTION_COST = 1;
 
 // Validation schema
 const summarizeQuestionSchema = z.object({
@@ -50,18 +48,15 @@ router.post('/summarize-question', requireAuth, async (req, res) => {
     }
 
     const { question, language } = validation.data;
+    const creditCost = CREDIT_COSTS.SUMMARIZE_QUESTION;
 
-    // Check if user has enough credits
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-
-    if (!user) {
+    // Check if user has enough credits using CreditService
+    const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
+    if (balanceCheck.balance === 0 && !balanceCheck.sufficient) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (user.credits < SUMMARIZE_QUESTION_COST) {
+    if (!balanceCheck.sufficient) {
       return res.status(400).json({ error: 'Insufficient credits' });
     }
 
@@ -89,28 +84,17 @@ Question originale: "${question}"`;
       return res.status(500).json({ error: 'Failed to generate summary' });
     }
 
-    // Deduct credits in a transaction
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: { decrement: SUMMARIZE_QUESTION_COST },
-          totalCreditsSpent: { increment: SUMMARIZE_QUESTION_COST }
-        }
-      }),
-      prisma.transaction.create({
-        data: {
-          userId,
-          type: 'QUESTION',
-          amount: -SUMMARIZE_QUESTION_COST,
-          description: 'Question summary'
-        }
-      })
-    ]);
+    // Deduct credits using CreditService (handles transaction + audit)
+    await creditService.deductCredits({
+      userId,
+      amount: creditCost,
+      type: 'QUESTION',
+      description: 'Question summary'
+    });
 
     res.json({
       summary,
-      creditsUsed: SUMMARIZE_QUESTION_COST
+      creditsUsed: creditCost
     });
 
   } catch (error) {

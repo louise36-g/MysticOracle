@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
 
 const router = Router();
 
@@ -159,35 +160,31 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
     const isConsecutive = lastLogin.getTime() === yesterday.getTime();
     const newStreak = isConsecutive ? user.loginStreak + 1 : 1;
 
-    // Calculate bonus
-    let bonusCredits = 2; // Base daily bonus
-    if (newStreak % 7 === 0) bonusCredits += 5; // Weekly streak bonus
+    // Calculate bonus using CreditService constants
+    let bonusCredits = CREDIT_COSTS.DAILY_BONUS_BASE;
+    if (newStreak % 7 === 0) bonusCredits += CREDIT_COSTS.WEEKLY_STREAK_BONUS;
 
-    // Update user and create transaction
-    const [updatedUser] = await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: { increment: bonusCredits },
-          totalCreditsEarned: { increment: bonusCredits },
-          loginStreak: newStreak,
-          lastLoginDate: new Date()
-        }
-      }),
-      prisma.transaction.create({
-        data: {
-          userId,
-          type: 'DAILY_BONUS',
-          amount: bonusCredits,
-          description: `Daily login bonus (${newStreak} day streak)`
-        }
-      })
-    ]);
+    // Add credits using CreditService (handles transaction + audit)
+    const result = await creditService.addCredits({
+      userId,
+      amount: bonusCredits,
+      type: 'DAILY_BONUS',
+      description: `Daily login bonus (${newStreak} day streak)`
+    });
+
+    // Update streak and last login date
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        loginStreak: newStreak,
+        lastLoginDate: new Date()
+      }
+    });
 
     res.json({
       success: true,
       creditsAwarded: bonusCredits,
-      newBalance: updatedUser.credits,
+      newBalance: result.newBalance,
       streak: newStreak
     });
   } catch (error) {

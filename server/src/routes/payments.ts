@@ -1,268 +1,66 @@
-import { Router } from 'express';
-import Stripe from 'stripe';
-import { createClerkClient } from '@clerk/backend';
-import { z } from 'zod';
-import {
-  Client,
-  Environment,
-  OrdersController,
-  LogLevel,
-  ApiError,
-  CheckoutPaymentIntent,
-  OrderApplicationContextLandingPage,
-  OrderApplicationContextUserAction,
-  Order,
-} from '@paypal/paypal-server-sdk';
-import prisma from '../db/prisma.js';
-import { requireAuth } from '../middleware/auth.js';
-import { sendWelcomeEmail } from '../services/email.js';
+/**
+ * Payments Routes
+ * Thin controller layer that delegates to use cases
+ * Dependencies injected via DI container
+ */
 
-// Zod validation schemas
+import { Router } from 'express';
+import { z } from 'zod';
+import { requireAuth } from '../middleware/auth.js';
+import { CREDIT_PACKAGES } from '../application/use-cases/payments/index.js';
+
+const router = Router();
+
+// Validation schemas
 const stripeCheckoutSchema = z.object({
-  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium'], {
-    errorMap: () => ({ message: 'Invalid package ID' })
-  }),
+  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium']),
   useStripeLink: z.boolean().optional().default(false),
 });
 
 const paypalOrderSchema = z.object({
-  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium'], {
-    errorMap: () => ({ message: 'Invalid package ID' })
-  }),
+  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium']),
 });
 
 const paypalCaptureSchema = z.object({
   orderId: z.string().min(1, 'Order ID is required'),
 });
 
-// Initialize Clerk client for fetching user info
-const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY!
-});
-
-// Helper to get or create user in database
-async function getOrCreateUser(userId: string) {
-  let user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, email: true, credits: true }
-  });
-
-  if (!user) {
-    // User doesn't exist in our DB yet - fetch from Clerk and create
-    try {
-      const clerkUser = await clerk.users.getUser(userId);
-      const email = clerkUser.emailAddresses[0]?.emailAddress || '';
-      const username = clerkUser.username || clerkUser.firstName || 'User';
-
-      user = await prisma.user.create({
-        data: {
-          id: userId,
-          email,
-          username,
-          credits: 3, // Starting credits
-          language: 'en',
-          referralCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
-        },
-        select: { id: true, email: true, credits: true }
-      });
-      console.log(`Created user ${userId} from Clerk data`);
-
-      // Send welcome email (non-blocking)
-      sendWelcomeEmail(email, username, 'en').catch(err =>
-        console.error('Failed to send welcome email:', err)
-      );
-    } catch (error) {
-      console.error('Failed to create user from Clerk:', error);
-      return null;
-    }
-  }
-
-  return user;
-}
-
-const router = Router();
-
-// Check for required environment variables
-const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
-const PAYPAL_ID = process.env.PAYPAL_CLIENT_ID;
-const PAYPAL_SECRET = process.env.PAYPAL_CLIENT_SECRET;
-
-if (!STRIPE_KEY) {
-  console.warn('⚠️ STRIPE_SECRET_KEY not configured - Stripe payments will fail');
-}
-if (!PAYPAL_ID || !PAYPAL_SECRET) {
-  console.warn('⚠️ PayPal credentials not configured - PayPal payments will fail');
-}
-
-// Initialize Stripe (only if key exists)
-const stripe = STRIPE_KEY
-  ? new Stripe(STRIPE_KEY, { apiVersion: '2023-10-16' })
-  : null;
-
-// Initialize PayPal (only if credentials exist)
-const paypalClient = (PAYPAL_ID && PAYPAL_SECRET)
-  ? new Client({
-      clientCredentialsAuthCredentials: {
-        oAuthClientId: PAYPAL_ID,
-        oAuthClientSecret: PAYPAL_SECRET,
-      },
-      environment: process.env.PAYPAL_MODE === 'live'
-        ? Environment.Production
-        : Environment.Sandbox,
-      logging: {
-        logLevel: LogLevel.Info,
-        logRequest: { logBody: true },
-        logResponse: { logBody: true },
-      },
-    })
-  : null;
-
-const ordersController = paypalClient ? new OrdersController(paypalClient) : null;
-
-// Credit packages
-export const CREDIT_PACKAGES = [
-  {
-    id: 'starter',
-    credits: 10,
-    priceEur: 5.00,
-    name: 'Starter',
-    nameEn: 'Starter',
-    nameFr: 'Démarrage',
-    labelEn: 'Try It Out',
-    labelFr: 'Essayez',
-    discount: 0,
-    badge: null,
-  },
-  {
-    id: 'basic',
-    credits: 25,
-    priceEur: 10.00,
-    name: 'Basic',
-    nameEn: 'Basic',
-    nameFr: 'Basique',
-    labelEn: 'Popular',
-    labelFr: 'Populaire',
-    discount: 20,
-    badge: null,
-  },
-  {
-    id: 'popular',
-    credits: 60,
-    priceEur: 20.00,
-    name: 'Popular',
-    nameEn: 'Popular',
-    nameFr: 'Populaire',
-    labelEn: '⭐ MOST POPULAR',
-    labelFr: '⭐ LE PLUS POPULAIRE',
-    discount: 34,
-    badge: 'popular',
-  },
-  {
-    id: 'value',
-    credits: 100,
-    priceEur: 30.00,
-    name: 'Value',
-    nameEn: 'Value',
-    nameFr: 'Avantage',
-    labelEn: '💰 BEST VALUE',
-    labelFr: '💰 MEILLEUR PRIX',
-    discount: 40,
-    badge: 'value',
-  },
-  {
-    id: 'premium',
-    credits: 200,
-    priceEur: 50.00,
-    name: 'Premium',
-    nameEn: 'Premium',
-    nameFr: 'Premium',
-    labelEn: '👑 POWER USER',
-    labelFr: '👑 UTILISATEUR PRO',
-    discount: 50,
-    badge: 'premium',
-  },
-];
-
 // Get available credit packages
-router.get('/packages', (req, res) => {
+router.get('/packages', (_req, res) => {
   res.json(CREDIT_PACKAGES);
 });
 
 // Create Stripe checkout session
 router.post('/stripe/checkout', requireAuth, async (req, res) => {
   try {
-    if (!stripe) {
-      return res.status(503).json({ error: 'Stripe payments not configured' });
-    }
-
-    // Validate request body
     const validation = stripeCheckoutSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message)
+        details: validation.error.errors.map(e => e.message),
       });
     }
 
-    const userId = req.auth.userId;
     const { packageId, useStripeLink } = validation.data;
+    const createCheckoutUseCase = req.container.resolve('createCheckoutUseCase');
+    const frontendUrl = req.container.resolve('frontendUrl');
 
-    const creditPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
-    if (!creditPackage) {
-      return res.status(400).json({ error: 'Invalid package' });
-    }
-
-    // Get or create user
-    const user = await getOrCreateUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found - please try signing out and back in' });
-    }
-
-    // Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: useStripeLink
-        ? ['card', 'link']
-        : ['card'],
-      mode: 'payment',
-      customer_email: user.email,
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: creditPackage.name,
-              description: `${creditPackage.credits} credits for MysticOracle`,
-            },
-            unit_amount: Math.round(creditPackage.priceEur * 100), // Stripe uses cents
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        userId,
-        packageId: creditPackage.id,
-        credits: creditPackage.credits.toString(),
-      },
-      success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment/cancelled`,
+    const result = await createCheckoutUseCase.execute({
+      userId: req.auth.userId,
+      packageId,
+      provider: useStripeLink ? 'stripe_link' : 'stripe',
+      frontendUrl,
     });
 
-    // Create pending transaction
-    await prisma.transaction.create({
-      data: {
-        userId,
-        type: 'PURCHASE',
-        amount: creditPackage.credits,
-        description: `Purchase: ${creditPackage.name}`,
-        paymentProvider: useStripeLink ? 'STRIPE_LINK' : 'STRIPE',
-        paymentId: session.id,
-        paymentAmount: creditPackage.priceEur,
-        currency: 'EUR',
-        paymentStatus: 'PENDING'
-      }
-    });
+    if (!result.success) {
+      const statusCode =
+        result.errorCode === 'USER_NOT_FOUND' ? 404 :
+        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
+        result.errorCode === 'INVALID_PACKAGE' ? 400 : 500;
+      return res.status(statusCode).json({ error: result.error });
+    }
 
-    res.json({ sessionId: session.id, url: session.url });
+    res.json({ sessionId: result.sessionId, url: result.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
@@ -272,25 +70,14 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
 // Verify Stripe payment
 router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
   try {
-    if (!stripe) {
+    const stripeGateway = req.container.resolve('stripeGateway');
+
+    if (!stripeGateway.isConfigured()) {
       return res.status(503).json({ error: 'Stripe payments not configured' });
     }
 
-    const { sessionId } = req.params;
-
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    if (session.payment_status === 'paid') {
-      res.json({
-        success: true,
-        credits: parseInt(session.metadata?.credits || '0')
-      });
-    } else {
-      res.json({
-        success: false,
-        status: session.payment_status
-      });
-    }
+    const verification = await stripeGateway.verifyPayment(req.params.sessionId);
+    res.json(verification);
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ error: 'Failed to verify payment' });
@@ -300,198 +87,96 @@ router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
 // Create PayPal order
 router.post('/paypal/order', requireAuth, async (req, res) => {
   try {
-    if (!ordersController) {
-      return res.status(503).json({ error: 'PayPal payments not configured' });
-    }
-
-    // Validate request body
     const validation = paypalOrderSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message)
+        details: validation.error.errors.map(e => e.message),
       });
     }
 
-    const userId = req.auth.userId;
-    const { packageId } = validation.data;
+    const createCheckoutUseCase = req.container.resolve('createCheckoutUseCase');
+    const frontendUrl = req.container.resolve('frontendUrl');
 
-    const creditPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
-    if (!creditPackage) {
-      return res.status(400).json({ error: 'Invalid package' });
-    }
-
-    // Ensure user exists in database
-    const user = await getOrCreateUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found - please try signing out and back in' });
-    }
-
-    // Create PayPal order
-    const { body } = await ordersController.createOrder({
-      body: {
-        intent: CheckoutPaymentIntent.Capture,
-        purchaseUnits: [
-          {
-            amount: {
-              currencyCode: 'EUR',
-              value: creditPackage.priceEur.toFixed(2),
-            },
-            description: `${creditPackage.credits} credits for MysticOracle`,
-            customId: JSON.stringify({ userId, packageId: creditPackage.id, credits: creditPackage.credits }),
-          },
-        ],
-        applicationContext: {
-          brandName: 'MysticOracle',
-          landingPage: OrderApplicationContextLandingPage.Login,
-          userAction: OrderApplicationContextUserAction.PayNow,
-          returnUrl: `${process.env.FRONTEND_URL}/payment/success?provider=paypal`,
-          cancelUrl: `${process.env.FRONTEND_URL}/payment/cancelled`,
-        },
-      },
+    const result = await createCheckoutUseCase.execute({
+      userId: req.auth.userId,
+      packageId: validation.data.packageId,
+      provider: 'paypal',
+      frontendUrl,
     });
 
-    // PayPal SDK returns body as JSON string, need to parse it
-    const order: Order = typeof body === 'string' ? JSON.parse(body) : body;
-
-    // Log the full order response for debugging
-    console.log('PayPal order response:', order);
-
-    // Find approval URL
-    const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
-
-    if (!approvalUrl) {
-      console.error('No approval URL in PayPal response. Links:', order.links);
-      return res.status(500).json({ error: 'PayPal did not return an approval URL' });
+    if (!result.success) {
+      const statusCode =
+        result.errorCode === 'USER_NOT_FOUND' ? 404 :
+        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
+        result.errorCode === 'INVALID_PACKAGE' ? 400 : 500;
+      return res.status(statusCode).json({ error: result.error });
     }
 
-    // Create pending transaction
-    await prisma.transaction.create({
-      data: {
-        userId,
-        type: 'PURCHASE',
-        amount: creditPackage.credits,
-        description: `Purchase: ${creditPackage.name}`,
-        paymentProvider: 'PAYPAL',
-        paymentId: order.id!,
-        paymentAmount: creditPackage.priceEur,
-        currency: 'EUR',
-        paymentStatus: 'PENDING'
-      }
-    });
-
-    res.json({
-      orderId: order.id,
-      approvalUrl,
-    });
+    res.json({ orderId: result.sessionId, approvalUrl: result.url });
   } catch (error) {
     console.error('Error creating PayPal order:', error);
-    if (error instanceof ApiError) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'Failed to create PayPal order' });
-    }
+    res.status(500).json({ error: 'Failed to create PayPal order' });
   }
 });
 
 // Capture PayPal order (after user approves)
 router.post('/paypal/capture', requireAuth, async (req, res) => {
   try {
-    if (!ordersController) {
-      return res.status(503).json({ error: 'PayPal payments not configured' });
-    }
-
-    // Validate request body
     const validation = paypalCaptureSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message)
+        details: validation.error.errors.map(e => e.message),
       });
     }
 
-    const userId = req.auth.userId;
-    const { orderId } = validation.data;
+    const capturePaymentUseCase = req.container.resolve('capturePaymentUseCase');
 
-    // Capture the order
-    const { body } = await ordersController.captureOrder({
-      id: orderId,
+    const result = await capturePaymentUseCase.execute({
+      userId: req.auth.userId,
+      orderId: validation.data.orderId,
+      provider: 'paypal',
     });
 
-    // PayPal SDK returns body as JSON string, need to parse it
-    const captureData: Order = typeof body === 'string' ? JSON.parse(body) : body;
-
-    if (captureData.status === 'COMPLETED') {
-      // Parse custom data to get credits
-      const customId = (captureData.purchaseUnits?.[0] as any)?.payments?.captures?.[0]?.customId
-        || captureData.purchaseUnits?.[0]?.customId;
-
-      let credits = 0;
-      if (customId) {
-        try {
-          const customData = JSON.parse(customId);
-          credits = customData.credits || 0;
-        } catch {
-          console.error('Failed to parse customId');
-        }
-      }
-
-      // Update user credits and transaction
-      await prisma.$transaction([
-        prisma.user.update({
-          where: { id: userId },
-          data: {
-            credits: { increment: credits },
-            totalCreditsEarned: { increment: credits }
-          }
-        }),
-        prisma.transaction.updateMany({
-          where: { paymentId: orderId },
-          data: { paymentStatus: 'COMPLETED' }
-        })
-      ]);
-
-      res.json({
-        success: true,
-        credits,
-        captureId: captureData.id,
-      });
-    } else {
-      res.json({
-        success: false,
-        status: captureData.status,
-      });
+    if (!result.success) {
+      const statusCode =
+        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
+        result.errorCode === 'CAPTURE_FAILED' ? 400 : 500;
+      return res.status(statusCode).json({ error: result.error });
     }
+
+    res.json({
+      success: true,
+      credits: result.credits,
+      captureId: result.captureId,
+      newBalance: result.newBalance,
+    });
   } catch (error) {
     console.error('Error capturing PayPal order:', error);
-    if (error instanceof ApiError) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'Failed to capture PayPal order' });
-    }
+    res.status(500).json({ error: 'Failed to capture PayPal order' });
   }
 });
 
 // Get user's purchase history
 router.get('/history', requireAuth, async (req, res) => {
   try {
-    const userId = req.auth.userId;
+    const transactionRepository = req.container.resolve('transactionRepository');
 
-    const purchases = await prisma.transaction.findMany({
-      where: {
-        userId,
-        type: 'PURCHASE',
-        paymentStatus: 'COMPLETED'
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 50
+    const purchases = await transactionRepository.findByUser(req.auth.userId, {
+      type: 'PURCHASE',
     });
 
-    res.json(purchases);
+    // Filter to only completed purchases
+    const completed = purchases.filter(p => p.paymentStatus === 'COMPLETED');
+    res.json(completed);
   } catch (error) {
     console.error('Error fetching purchase history:', error);
     res.status(500).json({ error: 'Failed to fetch purchase history' });
   }
 });
+
+// Re-export CREDIT_PACKAGES for backward compatibility
+export { CREDIT_PACKAGES };
 
 export default router;

@@ -1,63 +1,17 @@
+/**
+ * Readings Routes
+ * Thin controller layer that delegates to use cases
+ * Dependencies injected via DI container
+ */
+
 import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
-import { SpreadType, InterpretationStyle } from '@prisma/client';
 
 const router = Router();
 
-// Server-side credit costs by spread type (NEVER trust client)
-const SPREAD_CREDIT_COSTS: Record<string, number> = {
-  SINGLE: 1,
-  THREE_CARD: 3,
-  LOVE: 5,
-  CAREER: 5,
-  HORSESHOE: 7,
-  CELTIC_CROSS: 10,
-};
-
-// Follow-up question cost
-const FOLLOW_UP_CREDIT_COST = 1;
-
-// Spread types matching Prisma schema (uppercase)
-const SPREAD_TYPES = ['SINGLE', 'THREE_CARD', 'LOVE', 'CAREER', 'HORSESHOE', 'CELTIC_CROSS'] as const;
-
-// Map lowercase frontend values to uppercase Prisma enum values
-const SPREAD_TYPE_MAP: Record<string, SpreadType> = {
-  'single': SpreadType.SINGLE,
-  'three_card': SpreadType.THREE_CARD,
-  'love': SpreadType.LOVE,
-  'career': SpreadType.CAREER,
-  'horseshoe': SpreadType.HORSESHOE,
-  'celtic_cross': SpreadType.CELTIC_CROSS,
-  // Also support uppercase directly
-  'SINGLE': SpreadType.SINGLE,
-  'THREE_CARD': SpreadType.THREE_CARD,
-  'LOVE': SpreadType.LOVE,
-  'CAREER': SpreadType.CAREER,
-  'HORSESHOE': SpreadType.HORSESHOE,
-  'CELTIC_CROSS': SpreadType.CELTIC_CROSS,
-};
-
-// Interpretation styles matching Prisma schema
-const INTERPRETATION_STYLES = ['CLASSIC', 'SPIRITUAL', 'PSYCHO_EMOTIONAL', 'NUMEROLOGY', 'ELEMENTAL'] as const;
-
-// Map lowercase frontend values to uppercase Prisma enum values
-const INTERPRETATION_STYLE_MAP: Record<string, InterpretationStyle> = {
-  'classic': InterpretationStyle.CLASSIC,
-  'spiritual': InterpretationStyle.SPIRITUAL,
-  'psycho_emotional': InterpretationStyle.PSYCHO_EMOTIONAL,
-  'numerology': InterpretationStyle.NUMEROLOGY,
-  'elemental': InterpretationStyle.ELEMENTAL,
-  // Also support uppercase directly
-  'CLASSIC': InterpretationStyle.CLASSIC,
-  'SPIRITUAL': InterpretationStyle.SPIRITUAL,
-  'PSYCHO_EMOTIONAL': InterpretationStyle.PSYCHO_EMOTIONAL,
-  'NUMEROLOGY': InterpretationStyle.NUMEROLOGY,
-  'ELEMENTAL': InterpretationStyle.ELEMENTAL,
-};
-
-// Validation schema for reading creation (accepts lowercase or uppercase)
+// Validation schemas
 const createReadingSchema = z.object({
   spreadType: z.string(),
   interpretationStyle: z.string().optional(),
@@ -70,102 +24,40 @@ const createReadingSchema = z.object({
   interpretation: z.string().min(1, 'Interpretation is required'),
 });
 
+const followUpSchema = z.object({
+  question: z.string().min(1).max(1000),
+  answer: z.string(),
+});
+
+const reflectionSchema = z.object({
+  userReflection: z.string().max(1000),
+});
+
 // Create a new reading
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    console.log('[Reading API] POST /readings - userId:', userId);
-    console.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
-
-    // Validate input
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
-      console.log('[Reading API] Validation failed:', validation.error.errors);
       return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
-    const { spreadType: rawSpreadType, interpretationStyle: rawInterpretationStyle, question, cards, interpretation } = validation.data;
-    console.log('[Reading API] Validated - spreadType:', rawSpreadType, 'interpretationStyle:', rawInterpretationStyle);
+    // Resolve use case from DI container
+    const createReadingUseCase = req.container.resolve('createReadingUseCase');
 
-    // Convert spread type to uppercase Prisma enum value
-    const spreadType = SPREAD_TYPE_MAP[rawSpreadType];
-    if (!spreadType) {
-      console.log('[Reading API] Invalid spread type:', rawSpreadType);
-      return res.status(400).json({ error: `Invalid spread type: ${rawSpreadType}` });
-    }
-    console.log('[Reading API] Mapped spreadType:', spreadType);
-
-    // Convert interpretation style to uppercase if provided
-    const interpretationStyle = rawInterpretationStyle
-      ? INTERPRETATION_STYLE_MAP[rawInterpretationStyle]
-      : InterpretationStyle.CLASSIC;
-    if (rawInterpretationStyle && !interpretationStyle) {
-      console.log('[Reading API] Invalid interpretation style:', rawInterpretationStyle);
-      return res.status(400).json({ error: `Invalid interpretation style: ${rawInterpretationStyle}` });
-    }
-
-    // Get credit cost from server-side config (NEVER trust client)
-    const creditCost = SPREAD_CREDIT_COSTS[spreadType] || 1;
-    console.log('[Reading API] Credit cost for', spreadType, ':', creditCost);
-
-    // Check if user has enough credits
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
+    const result = await createReadingUseCase.execute({
+      userId: req.auth.userId,
+      ...validation.data,
     });
-    console.log('[Reading API] User credits before:', user?.credits);
 
-    if (!user) {
-      console.log('[Reading API] User not found');
-      return res.status(404).json({ error: 'User not found' });
+    if (!result.success) {
+      const statusCode = result.errorCode === 'USER_NOT_FOUND' ? 404
+        : result.errorCode === 'INSUFFICIENT_CREDITS' ? 400
+        : result.errorCode === 'VALIDATION_ERROR' ? 400
+        : 500;
+      return res.status(statusCode).json({ error: result.error });
     }
 
-    if (user.credits < creditCost) {
-      console.log('[Reading API] Insufficient credits:', user.credits, '<', creditCost);
-      return res.status(400).json({ error: 'Insufficient credits' });
-    }
-
-    // Create reading and deduct credits in a transaction
-    console.log('[Reading API] Starting transaction to create reading and deduct credits...');
-    const [reading] = await prisma.$transaction([
-      prisma.reading.create({
-        data: {
-          userId,
-          spreadType,
-          interpretationStyle,
-          question,
-          cards,
-          interpretation,
-          creditCost
-        }
-      }),
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: { decrement: creditCost },
-          totalCreditsSpent: { increment: creditCost },
-          totalReadings: { increment: 1 }
-        }
-      }),
-      prisma.transaction.create({
-        data: {
-          userId,
-          type: 'READING',
-          amount: -creditCost,
-          description: `${spreadType} reading`
-        }
-      })
-    ]);
-    console.log('[Reading API] Transaction complete - reading ID:', reading.id);
-
-    // Verify credit deduction
-    const updatedUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-    console.log('[Reading API] User credits after:', updatedUser?.credits);
-
-    res.status(201).json(reading);
+    res.status(201).json(result.reading);
   } catch (error) {
     console.error('[Reading API] Error creating reading:', error);
     res.status(500).json({ error: 'Failed to create reading' });
@@ -175,108 +67,89 @@ router.post('/', requireAuth, async (req, res) => {
 // Get a specific reading
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    const { id } = req.params;
+    const getReadingUseCase = req.container.resolve('getReadingUseCase');
 
-    const reading = await prisma.reading.findFirst({
-      where: {
-        id,
-        userId // Ensure user owns this reading
-      },
-      include: {
-        followUps: {
-          orderBy: { createdAt: 'asc' }
-        }
-      }
+    const result = await getReadingUseCase.execute({
+      userId: req.auth.userId,
+      readingId: req.params.id,
     });
 
-    if (!reading) {
-      return res.status(404).json({ error: 'Reading not found' });
+    if (!result.success) {
+      return res.status(404).json({ error: result.error });
     }
 
-    res.json(reading);
+    res.json(result.reading);
   } catch (error) {
     console.error('Error fetching reading:', error);
     res.status(500).json({ error: 'Failed to fetch reading' });
   }
 });
 
-// Validation schema for follow-up questions
-const followUpSchema = z.object({
-  question: z.string().min(1).max(1000),
-  answer: z.string(),
-});
-
 // Add follow-up question to a reading
 router.post('/:id/follow-up', requireAuth, async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    const { id } = req.params;
-
-    // Validate input
     const validation = followUpSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
-    const { question, answer } = validation.data;
+    const addFollowUpUseCase = req.container.resolve('addFollowUpUseCase');
 
-    // Use server-side credit cost (NEVER trust client)
-    const creditCost = FOLLOW_UP_CREDIT_COST;
-
-    // Verify reading belongs to user
-    const reading = await prisma.reading.findFirst({
-      where: { id, userId }
+    const result = await addFollowUpUseCase.execute({
+      userId: req.auth.userId,
+      readingId: req.params.id,
+      ...validation.data,
     });
 
-    if (!reading) {
-      return res.status(404).json({ error: 'Reading not found' });
+    if (!result.success) {
+      const statusCode = result.errorCode === 'READING_NOT_FOUND' ? 404
+        : result.errorCode === 'INSUFFICIENT_CREDITS' ? 400
+        : result.errorCode === 'VALIDATION_ERROR' ? 400
+        : 500;
+      return res.status(statusCode).json({ error: result.error });
     }
 
-    // Check credits
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { credits: true }
-    });
-
-    if (!user || user.credits < creditCost) {
-      return res.status(400).json({ error: 'Insufficient credits' });
-    }
-
-    // Create follow-up and deduct credits in a transaction
-    const [followUp] = await prisma.$transaction([
-      prisma.followUpQuestion.create({
-        data: {
-          readingId: id,
-          question,
-          answer,
-          creditCost
-        }
-      }),
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: { decrement: creditCost },
-          totalCreditsSpent: { increment: creditCost },
-          totalQuestions: { increment: 1 }
-        }
-      }),
-      prisma.transaction.create({
-        data: {
-          userId,
-          type: 'QUESTION',
-          amount: -creditCost,
-          description: 'Follow-up question'
-        }
-      })
-    ]);
-
-    res.status(201).json(followUp);
+    res.status(201).json(result.followUp);
   } catch (error) {
     console.error('Error creating follow-up:', error);
     res.status(500).json({ error: 'Failed to create follow-up' });
   }
 });
+
+// Update reading with user reflection
+router.patch('/:id', requireAuth, async (req, res) => {
+  try {
+    const validation = reflectionSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+    }
+
+    const updateReflectionUseCase = req.container.resolve('updateReflectionUseCase');
+
+    const result = await updateReflectionUseCase.execute({
+      userId: req.auth.userId,
+      readingId: req.params.id,
+      userReflection: validation.data.userReflection,
+    });
+
+    if (!result.success) {
+      const statusCode = result.errorCode === 'NOT_FOUND' ? 404
+        : result.errorCode === 'VALIDATION_ERROR' ? 400
+        : 500;
+      return res.status(statusCode).json({ error: result.error });
+    }
+
+    res.json({ success: true, reading: result.reading });
+  } catch (error) {
+    console.error('Error updating reading reflection:', error);
+    res.status(500).json({ error: 'Failed to update reading' });
+  }
+});
+
+// ============================================================
+// Horoscope endpoints (kept in readings.ts for now, will be
+// extracted to separate use cases in a future refactoring)
+// ============================================================
 
 // Get or create cached horoscope
 router.get('/horoscope/:sign', requireAuth, async (req, res) => {
@@ -287,7 +160,6 @@ router.get('/horoscope/:sign', requireAuth, async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Check cache
     const cached = await prisma.horoscopeCache.findUnique({
       where: {
         sign_language_date: {
@@ -305,7 +177,6 @@ router.get('/horoscope/:sign', requireAuth, async (req, res) => {
       return res.json(cached);
     }
 
-    // No cache - client needs to generate and POST
     res.status(404).json({ error: 'No cached horoscope', needsGeneration: true });
   } catch (error) {
     console.error('Error fetching horoscope:', error);
@@ -349,52 +220,5 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to cache horoscope' });
   }
 });
-
-// Validation schema for reflection update
-const reflectionSchema = z.object({
-  userReflection: z.string().max(1000),
-});
-
-// Update reading with user reflection
-router.patch('/:id', requireAuth, async (req, res) => {
-  try {
-    const userId = req.auth.userId;
-    const { id } = req.params;
-
-    // Validate input
-    const validation = reflectionSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
-    }
-
-    const { userReflection } = validation.data;
-
-    // Verify reading belongs to user
-    const reading = await prisma.reading.findFirst({
-      where: { id, userId }
-    });
-
-    if (!reading) {
-      return res.status(404).json({ error: 'Reading not found' });
-    }
-
-    // Update the reading with reflection
-    const updatedReading = await prisma.reading.update({
-      where: { id },
-      data: { userReflection }
-    });
-
-    res.json({ success: true, reading: updatedReading });
-  } catch (error) {
-    console.error('Error updating reading reflection:', error);
-    res.status(500).json({ error: 'Failed to update reading' });
-  }
-});
-
-// NOTE: Generic deduct-credits endpoint removed for security
-// Credit deductions should only happen through specific endpoints:
-// - POST /readings (new reading)
-// - POST /readings/:id/follow-up (follow-up question)
-// This prevents client-side manipulation of credit amounts
 
 export default router;

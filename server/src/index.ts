@@ -5,12 +5,22 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { scopePerRequest } from 'awilix-express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
+
+// Import DI container
+import { createAppContainer } from './shared/di/container.js';
+
+// Initialize DI container
+const container = createAppContainer();
+
+// Log container initialization
+console.log('🔧 DI Container initialized');
 
 // Rate limiting configurations
 const generalLimiter = rateLimit({
@@ -101,6 +111,9 @@ app.use(cors({
   },
   credentials: true,
 }));
+
+// Attach scoped DI container to each request (before routes)
+app.use(scopePerRequest(container));
 
 // Webhook routes need raw body (before express.json())
 app.use('/api/webhooks', webhookRoutes);
