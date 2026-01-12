@@ -8,19 +8,67 @@
 
 ---
 
-## High Priority
+## Recently Completed (Phase 1 - January 2026)
 
-### 1. Removed API Endpoint Still Referenced
+### ✅ Stripe Updated to v20
+- Updated from v14.0.0 to v20.1.2
+- API version updated to `2025-12-15.clover`
+- All 82 tests pass
 
-**Location:** `services/apiService.ts`
+### ✅ Dead Code Removed
+- Removed unused `deductCredits` function from `services/apiService.ts`
+- Function called non-existent `/api/readings/deduct-credits` endpoint
 
-The `/api/readings/deduct-credits` endpoint was removed from backend for security, but `apiService.ts` still has the function. Currently harmless (endpoint returns 404, frontend catches and continues), but should be cleaned up.
+### ✅ LocalStorage Cleanup
+- Added `cleanupDeprecatedStorage()` utility in `storageService.ts`
+- Called on app initialization to remove stale keys
+- Deprecated keys: `readingHistory`, `oldUserCredits`, `mystic_reading_history`, `user_session`
 
-**Fix:** Remove `deductCredits` function from apiService.ts, update any remaining callers.
+### ✅ Critical `any` Types Fixed
+- `admin.ts`: Replaced `any` with `Prisma.UserWhereInput` and `Prisma.TransactionWhereInput`
+- `tarot-articles.ts`: Replaced `any` with `Prisma.TarotArticleWhereInput` and typed sort function
+
+### ✅ ESLint & Prettier Configured
+- ESLint 9 with flat config (`eslint.config.js`)
+- Prettier with consistent formatting (`.prettierrc`)
+- Scripts: `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`
+- 81 lint issues identified (13 errors, 68 warnings) - to be fixed incrementally
+
+### ✅ Test Coverage Expanded
+- Added 29 new tests (53 → 82 total)
+- `ProcessPaymentWebhook.test.ts` - 14 tests for webhook handling and idempotency
+- `IdempotencyService.test.ts` - 15 tests for idempotency key management
 
 ---
 
-### 2. Horoscope Generation Fails Without Clear Error
+## Pending Upgrades (Phase 4)
+
+### Clerk Backend v1 → v2
+**Estimated Effort:** 1-2 hours
+
+Changes needed:
+- Import `verifyToken` from `@clerk/backend/jwt` (new path in Core 2)
+- Test webhook signature verification
+- Minimum Node.js 18.17.0+ (likely already met)
+
+### Prisma v5 → v7
+**Estimated Effort:** 6-10 hours
+
+⚠️ **HIGH RISK: Mapped Enums** - The `CardType` enum with `@map` values will change behavior. `CardType.MAJOR_ARCANA` will equal `"Major Arcana"` instead of `"MAJOR_ARCANA"`.
+
+Changes needed:
+- Install `@prisma/adapter-pg` and `pg` driver
+- Create `prisma.config.ts` with database connection
+- Update schema generator: `prisma-client-js` → `prisma-client` + `output` field
+- Update all Prisma client imports
+- Node.js 20.19.0+ minimum
+- Test all enum comparisons after upgrade
+
+---
+
+## High Priority
+
+### 1. Horoscope Generation Fails Without Clear Error
 
 **Location:** `server/src/routes/horoscopes.ts`
 
@@ -32,7 +80,7 @@ When `OPENROUTER_API_KEY` is missing, the error message wasn't clear. Improved i
 
 ## Medium Priority
 
-### 3. Large Component Files
+### 2. Large Component Files
 
 **Locations:**
 - `components/ActiveReading.tsx` (~900 lines)
@@ -45,30 +93,35 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 4. Inconsistent Credit Deduction Patterns
+### 3. Inconsistent Credit Deduction Patterns
 
 **Issue:** Some features deduct credits on frontend (validation only), others rely entirely on backend.
 
 **Current State:**
-- Tarot readings: Frontend validates → Backend deducts
-- Follow-up questions: Frontend validates → Backend deducts
-- Horoscope questions: Frontend deducts locally
+- Tarot readings: Frontend validates → Backend deducts ✅
+- Follow-up questions: Frontend validates → Backend deducts ✅
+- Horoscope questions: Frontend deducts locally (needs review)
 
 **Fix:** Standardize all credit operations to backend-only with frontend validation.
 
 ---
 
-### 5. LocalStorage vs Backend History
+### 4. ESLint Warnings to Address
 
-**Issue:** Some code still references `history` from AppContext (localStorage-based) while reading history now comes from backend.
+**Current Count:** 81 issues (13 errors, 68 warnings)
 
-**Fix:** Audit all `useApp()` calls for `history` usage, remove localStorage history code.
+Main categories:
+- `@typescript-eslint/no-explicit-any`: ~50 warnings (mostly in tarot-articles.ts, validation files)
+- `@typescript-eslint/no-unused-vars`: ~15 warnings
+- `prefer-const`: ~5 warnings
+
+**Fix:** Run `npm run lint:fix` for auto-fixable issues, then address remaining manually.
 
 ---
 
 ## Low Priority
 
-### 6. Missing Error Boundaries
+### 5. Missing Error Boundaries
 
 **Issue:** React components don't have error boundaries. Uncaught errors crash entire app.
 
@@ -76,15 +129,7 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 7. No Test Coverage
-
-**Issue:** No unit tests, integration tests, or E2E tests.
-
-**Fix:** Add Jest for unit tests, consider Playwright for E2E.
-
----
-
-### 8. Console Warnings in Development
+### 6. Console Warnings in Development
 
 **Issue:** Various React warnings about keys, dependencies, etc.
 
@@ -92,7 +137,7 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 9. Hardcoded Strings
+### 7. Hardcoded Strings
 
 **Issue:** Some UI strings are hardcoded instead of using translation system.
 
@@ -100,7 +145,7 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 10. No API Versioning
+### 8. No API Versioning
 
 **Issue:** API endpoints don't have version prefix (`/api/v1/`).
 
@@ -110,15 +155,22 @@ These components handle too many concerns and are difficult to maintain.
 
 ## Tracking
 
-| Issue | Priority | Status | Assigned |
-|-------|----------|--------|----------|
-| Removed endpoint reference | High | Open | - |
-| Horoscope error messages | High | Improved | - |
+| Issue | Priority | Status | Notes |
+|-------|----------|--------|-------|
+| Stripe upgrade v14→v20 | Critical | ✅ Done | Upgraded to v20.1.2 |
+| Dead code (deductCredits) | High | ✅ Done | Removed from apiService.ts |
+| LocalStorage cleanup | Medium | ✅ Done | Added cleanup utility |
+| Critical `any` types | High | ✅ Done | Fixed in admin.ts, tarot-articles.ts |
+| ESLint/Prettier setup | Medium | ✅ Done | Configured with flat config |
+| Payment webhook tests | Critical | ✅ Done | 14 tests added |
+| Idempotency tests | High | ✅ Done | 15 tests added |
+| Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
+| Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
+| Horoscope error messages | High | Improved | Needs verification |
 | Large components | Medium | Open | - |
 | Credit deduction patterns | Medium | Partial | - |
-| LocalStorage history | Medium | Open | - |
+| ESLint warnings | Medium | Open | 81 issues to fix |
 | Error boundaries | Low | Open | - |
-| Test coverage | Low | Open | - |
 | Console warnings | Low | Open | - |
 | Hardcoded strings | Low | Open | - |
 | API versioning | Low | Open | - |

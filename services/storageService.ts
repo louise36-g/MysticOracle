@@ -138,6 +138,30 @@ class StorageService {
 export const storageService = new StorageService();
 export { STORAGE_KEYS };
 
+/**
+ * Clean up deprecated localStorage keys
+ * Call this on app initialization to remove stale data from older versions
+ */
+export const cleanupDeprecatedStorage = (): void => {
+  const deprecatedKeys = [
+    'readingHistory',           // Old reading history (now in database)
+    'oldUserCredits',           // Old credit tracking
+    'mystic_reading_history',   // Legacy key variant
+    'user_session',             // Old session key
+  ];
+
+  deprecatedKeys.forEach(key => {
+    try {
+      if (localStorage.getItem(key) !== null) {
+        localStorage.removeItem(key);
+        console.log(`[StorageService] Cleaned up deprecated key: ${key}`);
+      }
+    } catch {
+      // Ignore errors (e.g., localStorage unavailable)
+    }
+  });
+};
+
 // Horoscope caching functions
 const getHoroscopeCacheKey = (sign: string, language: string): string => {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD

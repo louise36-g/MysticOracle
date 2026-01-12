@@ -3,6 +3,7 @@ import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/apiService';
 import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
+import { cleanupDeprecatedStorage } from '../services/storageService';
 
 /**
  * DEV MODE - Controls credit bypass for development
@@ -76,6 +77,11 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
   const [translations, setTranslations] = useState<Record<string, string>>({});
+
+  // Clean up deprecated localStorage keys on mount
+  useEffect(() => {
+    cleanupDeprecatedStorage();
+  }, []);
 
   // Load translations when language changes
   useEffect(() => {

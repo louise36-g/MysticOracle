@@ -4,6 +4,20 @@ import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService, { CacheService } from '../services/cache.js';
 
+// Types for cached translation data
+interface CachedLanguage {
+  id: string;
+  code: string;
+  name: string;
+  nativeName: string;
+  isDefault: boolean;
+}
+
+interface TranslationsResponse {
+  translations: Record<string, string>;
+  version: number;
+}
+
 const router = Router();
 
 // Helper to invalidate translation caches and bump version
@@ -26,7 +40,7 @@ async function invalidateTranslationCache(): Promise<void> {
 router.get('/languages', async (req, res) => {
   try {
     const cacheKey = 'translations:languages';
-    const cached = await cacheService.get<{ languages: any[] }>(cacheKey);
+    const cached = await cacheService.get<{ languages: CachedLanguage[] }>(cacheKey);
     if (cached) {
       return res.json(cached);
     }
@@ -81,7 +95,7 @@ router.get('/:langCode', async (req, res) => {
     const cacheKey = `translations:${langCode}`;
 
     // Check cache first
-    const cached = await cacheService.get<any>(cacheKey);
+    const cached = await cacheService.get<TranslationsResponse>(cacheKey);
     if (cached) {
       return res.json(cached);
     }

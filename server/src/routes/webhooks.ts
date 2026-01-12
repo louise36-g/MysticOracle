@@ -7,8 +7,22 @@
 import { Router, raw, json } from 'express';
 import { Webhook } from 'svix';
 import prisma from '../db/prisma.js';
-import { sendWelcomeEmail, sendPurchaseConfirmation } from '../services/email.js';
+import { sendWelcomeEmail } from '../services/email.js';
 import { CREDIT_COSTS } from '../services/CreditService.js';
+
+// Clerk webhook payload types
+interface ClerkWebhookData {
+  id: string;
+  username?: string;
+  first_name?: string;
+  email_addresses?: Array<{ email_address: string }>;
+  deleted?: boolean;
+}
+
+interface ClerkWebhookPayload {
+  type: string;
+  data: ClerkWebhookData;
+}
 
 const router = Router();
 
@@ -60,14 +74,14 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
     return res.status(400).json({ error: 'Missing svix headers' });
   }
 
-  let payload: any;
+  let payload: ClerkWebhookPayload;
   try {
     const wh = new Webhook(WEBHOOK_SECRET);
     payload = wh.verify(req.body.toString(), {
       'svix-id': svix_id,
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature,
-    });
+    }) as ClerkWebhookPayload;
   } catch (err) {
     console.error('Clerk webhook verification failed:', err);
     return res.status(400).json({ error: 'Invalid signature' });
@@ -83,10 +97,11 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
         const referralCode = generateReferralCode(username);
 
         // Create user first (without credits)
+        const email = data.email_addresses?.[0]?.email_address || '';
         await prisma.user.create({
           data: {
             id: data.id,
-            email: data.email_addresses[0]?.email_address || '',
+            email,
             username,
             referralCode,
             credits: 0,
@@ -106,7 +121,6 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
         console.log(`✅ User created: ${data.id}`);
 
         // Send welcome email
-        const email = data.email_addresses[0]?.email_address;
         if (email) {
           sendWelcomeEmail(email, username, 'en').catch(err =>
             console.error('Failed to send welcome email:', err)
@@ -123,7 +137,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
         await prisma.user.update({
           where: { id: data.id },
           data: {
-            email: data.email_addresses[0]?.email_address,
+            email: data.email_addresses?.[0]?.email_address,
             username: data.username,
           },
         });

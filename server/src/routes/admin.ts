@@ -1,16 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { SpreadType, InterpretationStyle } from '@prisma/client';
+import { SpreadType, InterpretationStyle, Prisma } from '@prisma/client';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService from '../services/cache.js';
 import { clearAISettingsCache } from '../services/aiSettings.js';
 import { creditService } from '../services/CreditService.js';
-import {
-  DEFAULT_PACKAGES,
-  DEFAULT_EMAIL_TEMPLATES,
-  EDITABLE_SETTINGS,
-} from '../shared/constants/index.js';
 
 const router = Router();
 
@@ -49,56 +44,9 @@ const listUsersSchema = z.object({
 router.get('/users', async (req, res) => {
   try {
     const params = listUsersSchema.parse(req.query);
-    const { page, limit, search, status, sortBy, sortOrder } = params;
-
-    const where: any = {};
-    if (search) {
-      where.OR = [
-        { username: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { id: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-    if (status) {
-      where.accountStatus = status;
-    }
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          email: true,
-          username: true,
-          credits: true,
-          totalReadings: true,
-          totalCreditsEarned: true,
-          totalCreditsSpent: true,
-          loginStreak: true,
-          lastLoginDate: true,
-          accountStatus: true,
-          isAdmin: true,
-          createdAt: true,
-          _count: {
-            select: { achievements: true, readings: true }
-          }
-        },
-        orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit
-      }),
-      prisma.user.count({ where })
-    ]);
-
-    res.json({
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    });
+    const listUsersUseCase = req.container.resolve('listUsersUseCase');
+    const result = await listUsersUseCase.execute(params);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -221,7 +169,7 @@ router.get('/transactions', async (req, res) => {
       type: z.enum(['PURCHASE', 'READING', 'QUESTION', 'DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND']).optional()
     }).parse(req.query);
 
-    const where: any = {};
+    const where: Prisma.TransactionWhereInput = {};
     if (params.type) {
       where.type = params.type;
     }
@@ -382,10 +330,9 @@ router.get('/config/ai', async (req, res) => {
 // List all packages
 router.get('/packages', async (req, res) => {
   try {
-    const packages = await prisma.creditPackage.findMany({
-      orderBy: { sortOrder: 'asc' }
-    });
-    res.json({ packages });
+    const listPackagesUseCase = req.container.resolve('listPackagesUseCase');
+    const result = await listPackagesUseCase.execute();
+    res.json(result);
   } catch (error) {
     console.error('Error fetching packages:', error);
     res.status(500).json({ error: 'Failed to fetch packages' });
@@ -409,38 +356,58 @@ const createPackageSchema = z.object({
 router.post('/packages', async (req, res) => {
   try {
     const data = createPackageSchema.parse(req.body);
-    const pkg = await prisma.creditPackage.create({
-      data: {
-        credits: data.credits,
-        priceEur: data.priceEur,
-        nameEn: data.nameEn,
-        nameFr: data.nameFr,
-        labelEn: data.labelEn,
-        labelFr: data.labelFr,
-        discount: data.discount,
-        badge: data.badge,
-        isActive: data.isActive,
-        sortOrder: data.sortOrder
-      }
+    const createPackageUseCase = req.container.resolve('createPackageUseCase');
+    const result = await createPackageUseCase.execute({
+      credits: data.credits,
+      priceEur: data.priceEur,
+      nameEn: data.nameEn,
+      nameFr: data.nameFr,
+      labelEn: data.labelEn,
+      labelFr: data.labelFr,
+      discount: data.discount,
+      badge: data.badge,
+      sortOrder: data.sortOrder,
+      isActive: data.isActive,
     });
-    res.json({ success: true, package: pkg });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, package: result.package });
   } catch (error) {
     console.error('Error creating package:', error);
     res.status(500).json({ error: 'Failed to create package' });
   }
 });
 
+// Update package schema (all fields optional)
+const updatePackageSchema = z.object({
+  credits: z.number().int().min(1).optional(),
+  priceEur: z.number().min(0.01).optional(),
+  nameEn: z.string().min(1).optional(),
+  nameFr: z.string().min(1).optional(),
+  labelEn: z.string().optional(),
+  labelFr: z.string().optional(),
+  discount: z.number().int().min(0).max(100).optional(),
+  badge: z.string().nullable().optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().int().optional()
+});
+
 // Update package
 router.patch('/packages/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const data = createPackageSchema.partial().parse(req.body);
+    const data = updatePackageSchema.parse(req.body);
+    const updatePackageUseCase = req.container.resolve('updatePackageUseCase');
+    const result = await updatePackageUseCase.execute({ id, ...data });
 
-    const pkg = await prisma.creditPackage.update({
-      where: { id },
-      data
-    });
-    res.json({ success: true, package: pkg });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, package: result.package });
   } catch (error) {
     console.error('Error updating package:', error);
     res.status(500).json({ error: 'Failed to update package' });
@@ -451,7 +418,13 @@ router.patch('/packages/:id', async (req, res) => {
 router.delete('/packages/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.creditPackage.delete({ where: { id } });
+    const deletePackageUseCase = req.container.resolve('deletePackageUseCase');
+    const result = await deletePackageUseCase.execute({ id });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting package:', error);
@@ -466,13 +439,9 @@ router.delete('/packages/:id', async (req, res) => {
 // List all templates
 router.get('/email-templates', async (req, res) => {
   try {
-    const templates = await prisma.emailTemplate.findMany({
-      orderBy: { slug: 'asc' }
-    });
-    res.json({
-      templates,
-      brevoConfigured: !!process.env.BREVO_API_KEY
-    });
+    const listTemplatesUseCase = req.container.resolve('listTemplatesUseCase');
+    const result = await listTemplatesUseCase.execute();
+    res.json(result);
   } catch (error) {
     console.error('Error fetching templates:', error);
     res.status(500).json({ error: 'Failed to fetch templates' });
@@ -492,34 +461,50 @@ const createTemplateSchema = z.object({
 router.post('/email-templates', async (req, res) => {
   try {
     const data = createTemplateSchema.parse(req.body);
-    const template = await prisma.emailTemplate.create({
-      data: {
-        slug: data.slug,
-        subjectEn: data.subjectEn,
-        bodyEn: data.bodyEn,
-        subjectFr: data.subjectFr,
-        bodyFr: data.bodyFr,
-        isActive: data.isActive
-      }
+    const createTemplateUseCase = req.container.resolve('createTemplateUseCase');
+    const result = await createTemplateUseCase.execute({
+      slug: data.slug,
+      subjectEn: data.subjectEn,
+      subjectFr: data.subjectFr,
+      bodyEn: data.bodyEn,
+      bodyFr: data.bodyFr,
+      isActive: data.isActive,
     });
-    res.json({ success: true, template });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, template: result.template });
   } catch (error) {
     console.error('Error creating template:', error);
     res.status(500).json({ error: 'Failed to create template' });
   }
 });
 
+// Update template schema (all fields optional)
+const updateTemplateSchema = z.object({
+  slug: z.string().min(1).regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only').optional(),
+  subjectEn: z.string().min(1).optional(),
+  bodyEn: z.string().min(1).optional(),
+  subjectFr: z.string().min(1).optional(),
+  bodyFr: z.string().min(1).optional(),
+  isActive: z.boolean().optional()
+});
+
 // Update template
 router.patch('/email-templates/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const data = createTemplateSchema.partial().parse(req.body);
+    const data = updateTemplateSchema.parse(req.body);
+    const updateTemplateUseCase = req.container.resolve('updateTemplateUseCase');
+    const result = await updateTemplateUseCase.execute({ id, ...data });
 
-    const template = await prisma.emailTemplate.update({
-      where: { id },
-      data
-    });
-    res.json({ success: true, template });
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ success: true, template: result.template });
   } catch (error) {
     console.error('Error updating template:', error);
     res.status(500).json({ error: 'Failed to update template' });
@@ -530,7 +515,13 @@ router.patch('/email-templates/:id', async (req, res) => {
 router.delete('/email-templates/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.emailTemplate.delete({ where: { id } });
+    const deleteTemplateUseCase = req.container.resolve('deleteTemplateUseCase');
+    const result = await deleteTemplateUseCase.execute({ id });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting template:', error);
@@ -544,17 +535,14 @@ router.delete('/email-templates/:id', async (req, res) => {
 
 router.post('/seed/packages', async (req, res) => {
   try {
-    const existing = await prisma.creditPackage.count();
-    if (existing > 0) {
-      return res.status(400).json({ error: 'Packages already exist. Delete them first if you want to reseed.' });
+    const seedPackagesUseCase = req.container.resolve('seedPackagesUseCase');
+    const result = await seedPackagesUseCase.execute();
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
 
-    await prisma.creditPackage.createMany({
-      data: DEFAULT_PACKAGES.map(pkg => ({ ...pkg, isActive: true }))
-    });
-
-    const packages = await prisma.creditPackage.findMany({ orderBy: { sortOrder: 'asc' } });
-    res.json({ success: true, packages, count: packages.length });
+    res.json({ success: true, packages: result.packages, count: result.count });
   } catch (error) {
     console.error('Error seeding packages:', error);
     res.status(500).json({ error: 'Failed to seed packages' });
@@ -563,17 +551,14 @@ router.post('/seed/packages', async (req, res) => {
 
 router.post('/seed/email-templates', async (req, res) => {
   try {
-    const existing = await prisma.emailTemplate.count();
-    if (existing > 0) {
-      return res.status(400).json({ error: 'Email templates already exist. Delete them first if you want to reseed.' });
+    const seedTemplatesUseCase = req.container.resolve('seedTemplatesUseCase');
+    const result = await seedTemplatesUseCase.execute();
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
 
-    await prisma.emailTemplate.createMany({
-      data: DEFAULT_EMAIL_TEMPLATES.map(t => ({ ...t, isActive: true }))
-    });
-
-    const templates = await prisma.emailTemplate.findMany({ orderBy: { slug: 'asc' } });
-    res.json({ success: true, templates, count: templates.length });
+    res.json({ success: true, templates: result.templates, count: result.count });
   } catch (error) {
     console.error('Error seeding email templates:', error);
     res.status(500).json({ error: 'Failed to seed email templates' });

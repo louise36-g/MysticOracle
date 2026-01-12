@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
@@ -16,24 +16,30 @@ import {
   CreateBlogPostData,
 } from '../../services/apiService';
 import {
-  ArrowLeft,
-  Save,
-  Eye,
-  Star,
-  StarOff,
   Settings,
   FileText,
   Image as ImageIcon,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Code,
-  Upload,
-  X,
+  Eye,
+  Star,
+  StarOff,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
 import MarkdownEditor from './MarkdownEditor';
+import {
+  EditorTopBar,
+  EditorLayout,
+  SidebarSection,
+  CoverImageSection,
+  TaxonomySelector,
+  EditorField,
+  TitleInput,
+  ExcerptInput,
+  SidebarInput,
+  SidebarSelect,
+  SidebarLabel,
+  SidebarTextArea,
+  AVAILABLE_LANGUAGES,
+} from './editor';
 
 interface BlogPostEditorProps {
   post: BlogPost;
@@ -41,11 +47,6 @@ interface BlogPostEditorProps {
   onSave: () => void;
   onCancel: () => void;
 }
-
-const AVAILABLE_LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-];
 
 const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   post: initialPost,
@@ -61,9 +62,6 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('visual');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadingCover, setUploadingCover] = useState(false);
-  const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Sidebar data
   const [categories, setCategories] = useState<BlogCategory[]>([]);
@@ -108,18 +106,6 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       setMedia(result.media);
     } catch (err) {
       console.error('Failed to load media:', err);
-    }
-  };
-
-  const handleMediaDelete = async (id: string): Promise<void> => {
-    const token = await getToken();
-    if (!token) throw new Error('No token');
-    setDeletingMediaId(id);
-    try {
-      await deleteBlogMedia(token, id);
-      await loadMedia();
-    } finally {
-      setDeletingMediaId(null);
     }
   };
 
@@ -189,600 +175,276 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     return result.media.url;
   };
 
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleMediaDelete = async (id: string): Promise<void> => {
+    const token = await getToken();
+    if (!token) throw new Error('No token');
+    await deleteBlogMedia(token, id);
+    await loadMedia();
+  };
 
-    setUploadingCover(true);
-    try {
-      const url = await handleMediaUpload(file);
-      const alt = file.name.replace(/\.[^/.]+$/, '');
-      setPost({ ...post, coverImage: url, coverImageAlt: alt });
-    } catch (err) {
-      console.error('Failed to upload cover image:', err);
-      setError('Failed to upload cover image');
-    } finally {
-      setUploadingCover(false);
-      if (coverInputRef.current) {
-        coverInputRef.current.value = '';
-      }
+  const handleTitleChange = (value: string) => {
+    if (editLanguage === 'en') {
+      setPost({
+        ...post,
+        titleEn: value,
+        slug: post.slug || generateSlug(value),
+      });
+    } else {
+      setPost({ ...post, titleFr: value });
     }
   };
 
-  const SidebarSection: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    isOpen: boolean;
-    onToggle: () => void;
-    children: React.ReactNode;
-  }> = ({ title, icon, isOpen, onToggle, children }) => (
-    <div className="border-b border-slate-700/50 last:border-b-0">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-slate-800/50 transition-colors"
+  const previewUrl = !isNew
+    ? (post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`)
+    : undefined;
+
+  const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
+
+  const topBar = (
+    <EditorTopBar
+      title={isNew
+        ? (language === 'en' ? 'New Post' : 'Nouvel article')
+        : (language === 'en' ? 'Edit Post' : 'Modifier article')}
+      isNew={isNew}
+      onBack={onCancel}
+      onSave={() => handleSave(false)}
+      saving={saving}
+      language={language}
+      editLanguage={editLanguage}
+      onEditLanguageChange={setEditLanguage}
+      editorMode={editorMode}
+      onEditorModeChange={setEditorMode}
+      previewUrl={previewUrl}
+      isPublished={post.status === 'PUBLISHED'}
+      showPublish={post.status !== 'PUBLISHED'}
+      onPublish={() => handleSave(true)}
+    />
+  );
+
+  const mainContent = (
+    <>
+      {/* Title */}
+      <EditorField
+        label={language === 'en' ? 'Title' : 'Titre'}
+        languageFlag={currentLangFlag}
       >
-        <div className="flex items-center gap-2 text-slate-300">
-          {icon}
-          <span className="text-sm font-medium">{title}</span>
+        <TitleInput
+          value={editLanguage === 'en' ? post.titleEn : (post.titleFr || '')}
+          onChange={handleTitleChange}
+          placeholder={editLanguage === 'en' ? 'Enter your post title...' : 'Entrez le titre de votre article...'}
+        />
+      </EditorField>
+
+      {/* Excerpt */}
+      <EditorField
+        label={language === 'en' ? 'Excerpt' : 'Extrait'}
+        languageFlag={currentLangFlag}
+      >
+        <ExcerptInput
+          value={editLanguage === 'en' ? (post.excerptEn || '') : (post.excerptFr || '')}
+          onChange={(value) => setPost({
+            ...post,
+            ...(editLanguage === 'en' ? { excerptEn: value } : { excerptFr: value }),
+          })}
+          placeholder={editLanguage === 'en' ? 'Brief summary for listings and SEO...' : 'Bref résumé pour les listes et le SEO...'}
+        />
+      </EditorField>
+
+      {/* Content */}
+      <EditorField
+        label={language === 'en' ? 'Content' : 'Contenu'}
+        languageFlag={currentLangFlag}
+      >
+        {editorMode === 'markdown' ? (
+          <MarkdownEditor
+            content={editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '')}
+            onChange={(html) => setPost({
+              ...post,
+              ...(editLanguage === 'en' ? { contentEn: html } : { contentFr: html }),
+            })}
+            placeholder={editLanguage === 'en' ? 'Write your post in Markdown...' : 'Écrivez votre article en Markdown...'}
+            mediaLibrary={media}
+            onMediaUpload={handleMediaUpload}
+            onMediaDelete={handleMediaDelete}
+          />
+        ) : (
+          <RichTextEditor
+            content={editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '')}
+            onChange={(html) => setPost({
+              ...post,
+              ...(editLanguage === 'en' ? { contentEn: html } : { contentFr: html }),
+            })}
+            placeholder={editLanguage === 'en' ? 'Start writing your post...' : 'Commencez à écrire votre article...'}
+            mediaLibrary={media}
+            onMediaUpload={handleMediaUpload}
+            onMediaDelete={handleMediaDelete}
+          />
+        )}
+      </EditorField>
+    </>
+  );
+
+  const sidebar = (
+    <>
+      {/* Settings */}
+      <SidebarSection
+        title={language === 'en' ? 'Settings' : 'Paramètres'}
+        icon={<Settings className="w-4 h-4" />}
+        isOpen={showSettings}
+        onToggle={() => setShowSettings(!showSettings)}
+      >
+        <div className="space-y-3">
+          <div>
+            <SidebarLabel>Slug (URL)</SidebarLabel>
+            <SidebarInput
+              value={post.slug}
+              onChange={(value) => setPost({ ...post, slug: value })}
+            />
+          </div>
+          <div>
+            <SidebarLabel>{language === 'en' ? 'Status' : 'Statut'}</SidebarLabel>
+            <SidebarSelect
+              value={post.status}
+              onChange={(value) => setPost({ ...post, status: value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })}
+              options={[
+                { value: 'DRAFT', label: language === 'en' ? 'Draft' : 'Brouillon' },
+                { value: 'PUBLISHED', label: language === 'en' ? 'Published' : 'Publié' },
+                { value: 'ARCHIVED', label: language === 'en' ? 'Archived' : 'Archivé' },
+              ]}
+            />
+          </div>
+          <div>
+            <SidebarLabel>{language === 'en' ? 'Author' : 'Auteur'}</SidebarLabel>
+            <SidebarInput
+              value={post.authorName}
+              onChange={(value) => setPost({ ...post, authorName: value })}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <SidebarLabel>{language === 'en' ? 'Featured' : 'À la une'}</SidebarLabel>
+            <button
+              onClick={() => setPost({ ...post, featured: !post.featured })}
+              className={`p-1.5 rounded ${post.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-500'}`}
+            >
+              {post.featured ? <Star className="w-4 h-4" /> : <StarOff className="w-4 h-4" />}
+            </button>
+          </div>
+          <div>
+            <SidebarLabel>{language === 'en' ? 'Read time (min)' : 'Temps lecture (min)'}</SidebarLabel>
+            <SidebarInput
+              type="number"
+              value={String(post.readTimeMinutes)}
+              onChange={(value) => setPost({ ...post, readTimeMinutes: parseInt(value) || 5 })}
+              min={1}
+            />
+          </div>
         </div>
-        {isOpen ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-      </button>
-      {isOpen && <div className="px-3 pb-3">{children}</div>}
-    </div>
+      </SidebarSection>
+
+      {/* Cover Image */}
+      <SidebarSection
+        title={language === 'en' ? 'Cover Image' : 'Image couverture'}
+        icon={<ImageIcon className="w-4 h-4" />}
+        isOpen={showCoverImage}
+        onToggle={() => setShowCoverImage(!showCoverImage)}
+      >
+        <CoverImageSection
+          imageUrl={post.coverImage}
+          imageAlt={post.coverImageAlt}
+          onImageChange={(url, alt) => setPost({
+            ...post,
+            coverImage: url,
+            coverImageAlt: alt || post.coverImageAlt,
+          })}
+          mediaLibrary={media}
+          onMediaUpload={handleMediaUpload}
+          onMediaDelete={handleMediaDelete}
+          language={language}
+        />
+      </SidebarSection>
+
+      {/* Categories */}
+      <SidebarSection
+        title={language === 'en' ? 'Categories' : 'Catégories'}
+        icon={<FileText className="w-4 h-4" />}
+        isOpen={showCategories}
+        onToggle={() => setShowCategories(!showCategories)}
+      >
+        <TaxonomySelector
+          items={categories.map(c => ({ id: c.id, nameEn: c.nameEn, nameFr: c.nameFr }))}
+          selectedIds={post.categoryIds || []}
+          onChange={(ids) => setPost({ ...post, categoryIds: ids })}
+          language={language}
+          emptyMessage={language === 'en' ? 'No categories yet' : 'Aucune catégorie'}
+        />
+      </SidebarSection>
+
+      {/* Tags */}
+      <SidebarSection
+        title="Tags"
+        icon={<FileText className="w-4 h-4" />}
+        isOpen={showTags}
+        onToggle={() => setShowTags(!showTags)}
+      >
+        <TaxonomySelector
+          items={tags.map(t => ({ id: t.id, nameEn: t.nameEn, nameFr: t.nameFr }))}
+          selectedIds={post.tagIds || []}
+          onChange={(ids) => setPost({ ...post, tagIds: ids })}
+          language={language}
+          emptyMessage={language === 'en' ? 'No tags yet' : 'Aucun tag'}
+        />
+      </SidebarSection>
+
+      {/* SEO */}
+      <SidebarSection
+        title="SEO"
+        icon={<Eye className="w-4 h-4" />}
+        isOpen={showSEO}
+        onToggle={() => setShowSEO(!showSEO)}
+      >
+        <div className="space-y-3">
+          <div>
+            <SidebarLabel>Meta Title ({editLanguage.toUpperCase()})</SidebarLabel>
+            <SidebarInput
+              value={editLanguage === 'en' ? (post.metaTitleEn || '') : (post.metaTitleFr || '')}
+              onChange={(value) => setPost({
+                ...post,
+                ...(editLanguage === 'en' ? { metaTitleEn: value } : { metaTitleFr: value }),
+              })}
+              placeholder={editLanguage === 'en' ? post.titleEn : post.titleFr}
+            />
+          </div>
+          <div>
+            <SidebarLabel>Meta Description ({editLanguage.toUpperCase()})</SidebarLabel>
+            <SidebarTextArea
+              value={editLanguage === 'en' ? (post.metaDescEn || '') : (post.metaDescFr || '')}
+              onChange={(value) => setPost({
+                ...post,
+                ...(editLanguage === 'en' ? { metaDescEn: value } : { metaDescFr: value }),
+              })}
+              placeholder={editLanguage === 'en' ? post.excerptEn : post.excerptFr}
+            />
+          </div>
+          <div>
+            <SidebarLabel>OG Image URL</SidebarLabel>
+            <SidebarInput
+              value={post.ogImage || ''}
+              onChange={(value) => setPost({ ...post, ogImage: value })}
+              placeholder={post.coverImage || 'https://...'}
+            />
+          </div>
+        </div>
+      </SidebarSection>
+    </>
   );
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-purple-500/20">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onCancel}
-              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">{language === 'en' ? 'Back to Posts' : 'Retour aux articles'}</span>
-            </button>
-            <div className="h-6 w-px bg-slate-700" />
-            <h1 className="text-lg font-heading text-purple-200">
-              {isNew
-                ? language === 'en' ? 'New Post' : 'Nouvel article'
-                : language === 'en' ? 'Edit Post' : 'Modifier article'}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <div className="flex items-center gap-1 bg-slate-800 rounded-lg p-1">
-              {AVAILABLE_LANGUAGES.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => setEditLanguage(lang.code)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    editLanguage === lang.code
-                      ? 'bg-purple-600 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  }`}
-                >
-                  <span>{lang.flag}</span>
-                  <span className="hidden sm:inline">{lang.name}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Preview button */}
-            {!isNew && (
-              <a
-                href={post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
-              >
-                {post.status === 'PUBLISHED' ? (
-                  <ExternalLink className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                <span className="hidden sm:inline">
-                  {post.status === 'PUBLISHED'
-                    ? (language === 'en' ? 'View' : 'Voir')
-                    : (language === 'en' ? 'Preview' : 'Apercu')}
-                </span>
-              </a>
-            )}
-
-            {/* Save button */}
-            <button
-              onClick={() => handleSave(false)}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 text-sm font-medium"
-            >
-              {saving ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              {language === 'en' ? 'Save' : 'Enregistrer'}
-            </button>
-
-            {/* Publish & Save button */}
-            {post.status !== 'PUBLISHED' && (
-              <button
-                onClick={() => handleSave(true)}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 disabled:opacity-50 text-sm font-medium"
-              >
-                {saving ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                {language === 'en' ? 'Publish' : 'Publier'}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="mx-4 mt-4 bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300">
-          {error}
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="flex">
-        {/* Editor Area */}
-        <div className="flex-1 p-4 lg:p-6 max-w-4xl">
-          {/* Title */}
-          <div className="mb-6">
-            <label className="block text-sm text-slate-400 mb-2">
-              {AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag} {language === 'en' ? 'Title' : 'Titre'}
-            </label>
-            {editLanguage === 'en' ? (
-              <input
-                type="text"
-                value={post.titleEn}
-                onChange={(e) => {
-                  const title = e.target.value;
-                  setPost({
-                    ...post,
-                    titleEn: title,
-                    slug: post.slug || generateSlug(title),
-                  });
-                }}
-                placeholder="Enter your post title..."
-                className="w-full px-4 py-3 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 text-xl font-medium placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
-              />
-            ) : (
-              <input
-                type="text"
-                value={post.titleFr}
-                onChange={(e) => setPost({ ...post, titleFr: e.target.value })}
-                placeholder="Entrez le titre de votre article..."
-                className="w-full px-4 py-3 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 text-xl font-medium placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
-              />
-            )}
-          </div>
-
-          {/* Excerpt */}
-          <div className="mb-6">
-            <label className="block text-sm text-slate-400 mb-2">
-              {AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag} {language === 'en' ? 'Excerpt' : 'Extrait'}
-            </label>
-            {editLanguage === 'en' ? (
-              <textarea
-                value={post.excerptEn}
-                onChange={(e) => setPost({ ...post, excerptEn: e.target.value })}
-                rows={2}
-                placeholder="Brief summary for listings and SEO..."
-                className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-purple-500/50"
-              />
-            ) : (
-              <textarea
-                value={post.excerptFr}
-                onChange={(e) => setPost({ ...post, excerptFr: e.target.value })}
-                rows={2}
-                placeholder="Bref résumé pour les listes et le SEO..."
-                className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-purple-500/50"
-              />
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm text-slate-400">
-                {AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag} {language === 'en' ? 'Content' : 'Contenu'}
-              </label>
-              {/* Editor Mode Toggle */}
-              <div className="flex items-center gap-1 bg-slate-800 rounded-lg p-0.5">
-                <button
-                  onClick={() => setEditorMode('markdown')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
-                    editorMode === 'markdown'
-                      ? 'bg-purple-600 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  }`}
-                  title="Markdown editor"
-                >
-                  <Code className="w-3.5 h-3.5" />
-                  <span>Markdown</span>
-                </button>
-                <button
-                  onClick={() => setEditorMode('visual')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
-                    editorMode === 'visual'
-                      ? 'bg-purple-600 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  }`}
-                  title="Visual editor"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Visual</span>
-                </button>
-              </div>
-            </div>
-            {editorMode === 'markdown' ? (
-              editLanguage === 'en' ? (
-                <MarkdownEditor
-                  content={post.contentEn}
-                  onChange={(html) => setPost({ ...post, contentEn: html })}
-                  placeholder="Write your post in Markdown..."
-                  mediaLibrary={media}
-                  onMediaUpload={handleMediaUpload}
-                  onMediaDelete={handleMediaDelete}
-                />
-              ) : (
-                <MarkdownEditor
-                  content={post.contentFr}
-                  onChange={(html) => setPost({ ...post, contentFr: html })}
-                  placeholder="Écrivez votre article en Markdown..."
-                  mediaLibrary={media}
-                  onMediaUpload={handleMediaUpload}
-                  onMediaDelete={handleMediaDelete}
-                />
-              )
-            ) : (
-              editLanguage === 'en' ? (
-                <RichTextEditor
-                  content={post.contentEn}
-                  onChange={(html) => setPost({ ...post, contentEn: html })}
-                  placeholder="Start writing your post..."
-                  mediaLibrary={media}
-                  onMediaUpload={handleMediaUpload}
-                  onMediaDelete={handleMediaDelete}
-                />
-              ) : (
-                <RichTextEditor
-                  content={post.contentFr}
-                  onChange={(html) => setPost({ ...post, contentFr: html })}
-                  placeholder="Commencez à écrire votre article..."
-                  mediaLibrary={media}
-                  onMediaUpload={handleMediaUpload}
-                  onMediaDelete={handleMediaDelete}
-                />
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="hidden lg:block w-80 border-l border-slate-800 bg-slate-900/50">
-          <div className="sticky top-[57px] max-h-[calc(100vh-57px)] overflow-y-auto">
-            {/* Settings */}
-            <SidebarSection
-              title={language === 'en' ? 'Settings' : 'Paramètres'}
-              icon={<Settings className="w-4 h-4" />}
-              isOpen={showSettings}
-              onToggle={() => setShowSettings(!showSettings)}
-            >
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">Slug (URL)</label>
-                  <input
-                    type="text"
-                    value={post.slug}
-                    onChange={(e) => setPost({ ...post, slug: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Status' : 'Statut'}</label>
-                  <select
-                    value={post.status}
-                    onChange={(e) => setPost({ ...post, status: e.target.value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  >
-                    <option value="DRAFT">{language === 'en' ? 'Draft' : 'Brouillon'}</option>
-                    <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publié'}</option>
-                    <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archivé'}</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Author' : 'Auteur'}</label>
-                  <input
-                    type="text"
-                    value={post.authorName}
-                    onChange={(e) => setPost({ ...post, authorName: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-slate-500">{language === 'en' ? 'Featured' : 'À la une'}</label>
-                  <button
-                    onClick={() => setPost({ ...post, featured: !post.featured })}
-                    className={`p-1.5 rounded ${post.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-500'}`}
-                  >
-                    {post.featured ? <Star className="w-4 h-4" /> : <StarOff className="w-4 h-4" />}
-                  </button>
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Read time (min)' : 'Temps lecture (min)'}</label>
-                  <input
-                    type="number"
-                    value={post.readTimeMinutes}
-                    onChange={(e) => setPost({ ...post, readTimeMinutes: parseInt(e.target.value) || 5 })}
-                    min={1}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-              </div>
-            </SidebarSection>
-
-            {/* Cover Image */}
-            <SidebarSection
-              title={language === 'en' ? 'Cover Image' : 'Image couverture'}
-              icon={<ImageIcon className="w-4 h-4" />}
-              isOpen={showCoverImage}
-              onToggle={() => setShowCoverImage(!showCoverImage)}
-            >
-              <div className="space-y-3">
-                {post.coverImage && (
-                  <img
-                    src={post.coverImage}
-                    alt={post.coverImageAlt || 'Cover'}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                )}
-
-                {/* Upload Button */}
-                <div>
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverUpload}
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => coverInputRef.current?.click()}
-                    disabled={uploadingCover}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
-                  >
-                    {uploadingCover ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {language === 'en' ? 'Uploading...' : 'Envoi...'}
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4" />
-                        {language === 'en' ? 'Upload Image' : 'Télécharger image'}
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-700"></div>
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="px-2 bg-slate-900 text-slate-500">
-                      {language === 'en' ? 'or use URL' : 'ou utiliser URL'}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <input
-                    type="text"
-                    value={post.coverImage || ''}
-                    onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-                {media.length > 0 && (
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">{language === 'en' ? 'Or select from library' : 'Ou choisir depuis bibliothèque'}</label>
-                    <div className="grid grid-cols-4 gap-1 max-h-24 overflow-y-auto">
-                      {media.slice(0, 12).map((item) => (
-                        <div key={item.id} className="relative group">
-                          <button
-                            onClick={() => setPost({ ...post, coverImage: item.url, coverImageAlt: item.originalName })}
-                            className={`aspect-square rounded overflow-hidden border-2 w-full ${
-                              post.coverImage === item.url ? 'border-purple-500' : 'border-transparent'
-                            }`}
-                          >
-                            <img src={item.url} alt="" className="w-full h-full object-cover" />
-                          </button>
-                          <button
-                            onClick={() => handleMediaDelete(item.id)}
-                            disabled={deletingMediaId === item.id}
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            title="Delete image"
-                          >
-                            {deletingMediaId === item.id ? (
-                              <div className="w-2.5 h-2.5 border border-white border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <X className="w-2.5 h-2.5" />
-                            )}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">Alt text</label>
-                  <input
-                    type="text"
-                    value={post.coverImageAlt || ''}
-                    onChange={(e) => setPost({ ...post, coverImageAlt: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-              </div>
-            </SidebarSection>
-
-            {/* Categories */}
-            <SidebarSection
-              title={language === 'en' ? 'Categories' : 'Catégories'}
-              icon={<FileText className="w-4 h-4" />}
-              isOpen={showCategories}
-              onToggle={() => setShowCategories(!showCategories)}
-            >
-              <div className="flex flex-wrap gap-1.5">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => {
-                      const ids = post.categoryIds || [];
-                      setPost({
-                        ...post,
-                        categoryIds: ids.includes(cat.id)
-                          ? ids.filter((id) => id !== cat.id)
-                          : [...ids, cat.id],
-                      });
-                    }}
-                    className={`px-2 py-1 rounded text-xs transition-colors ${
-                      (post.categoryIds || []).includes(cat.id)
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                    }`}
-                  >
-                    {language === 'en' ? cat.nameEn : cat.nameFr}
-                  </button>
-                ))}
-                {categories.length === 0 && (
-                  <p className="text-xs text-slate-500">{language === 'en' ? 'No categories yet' : 'Aucune catégorie'}</p>
-                )}
-              </div>
-            </SidebarSection>
-
-            {/* Tags */}
-            <SidebarSection
-              title="Tags"
-              icon={<FileText className="w-4 h-4" />}
-              isOpen={showTags}
-              onToggle={() => setShowTags(!showTags)}
-            >
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => {
-                      const ids = post.tagIds || [];
-                      setPost({
-                        ...post,
-                        tagIds: ids.includes(tag.id)
-                          ? ids.filter((id) => id !== tag.id)
-                          : [...ids, tag.id],
-                      });
-                    }}
-                    className={`px-2 py-1 rounded text-xs transition-colors ${
-                      (post.tagIds || []).includes(tag.id)
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                    }`}
-                  >
-                    {language === 'en' ? tag.nameEn : tag.nameFr}
-                  </button>
-                ))}
-                {tags.length === 0 && (
-                  <p className="text-xs text-slate-500">{language === 'en' ? 'No tags yet' : 'Aucun tag'}</p>
-                )}
-              </div>
-            </SidebarSection>
-
-            {/* SEO */}
-            <SidebarSection
-              title="SEO"
-              icon={<Eye className="w-4 h-4" />}
-              isOpen={showSEO}
-              onToggle={() => setShowSEO(!showSEO)}
-            >
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">Meta Title ({editLanguage.toUpperCase()})</label>
-                  {editLanguage === 'en' ? (
-                    <input
-                      type="text"
-                      value={post.metaTitleEn || ''}
-                      onChange={(e) => setPost({ ...post, metaTitleEn: e.target.value })}
-                      placeholder={post.titleEn}
-                      className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={post.metaTitleFr || ''}
-                      onChange={(e) => setPost({ ...post, metaTitleFr: e.target.value })}
-                      placeholder={post.titleFr}
-                      className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                    />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">Meta Description ({editLanguage.toUpperCase()})</label>
-                  {editLanguage === 'en' ? (
-                    <textarea
-                      value={post.metaDescEn || ''}
-                      onChange={(e) => setPost({ ...post, metaDescEn: e.target.value })}
-                      placeholder={post.excerptEn}
-                      rows={2}
-                      className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200 resize-none"
-                    />
-                  ) : (
-                    <textarea
-                      value={post.metaDescFr || ''}
-                      onChange={(e) => setPost({ ...post, metaDescFr: e.target.value })}
-                      placeholder={post.excerptFr}
-                      rows={2}
-                      className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200 resize-none"
-                    />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">OG Image URL</label>
-                  <input
-                    type="text"
-                    value={post.ogImage || ''}
-                    onChange={(e) => setPost({ ...post, ogImage: e.target.value })}
-                    placeholder={post.coverImage || 'https://...'}
-                    className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200"
-                  />
-                </div>
-              </div>
-            </SidebarSection>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Sidebar Toggle */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50">
-        <button
-          onClick={() => {/* Could implement mobile sidebar */}}
-          className="p-4 bg-purple-600 text-white rounded-full shadow-lg"
-        >
-          <Settings className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
+    <EditorLayout
+      topBar={topBar}
+      mainContent={mainContent}
+      sidebar={sidebar}
+      error={error}
+    />
   );
 };
 

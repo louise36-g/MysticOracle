@@ -3,6 +3,8 @@
  * Uses Clerk for authentication tokens
  */
 
+import { apiEndpoint, type ParamValue } from './apiHelpers';
+
 // VITE_API_URL should be base URL (e.g., http://localhost:3001)
 // Remove trailing /api if present to avoid duplication with endpoint paths
 const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -502,15 +504,7 @@ export async function fetchAdminUsers(
     sortOrder?: 'asc' | 'desc';
   } = {}
 ): Promise<AdminUserList> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.search) queryParams.set('search', params.search);
-  if (params.status) queryParams.set('status', params.status);
-  if (params.sortBy) queryParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) queryParams.set('sortOrder', params.sortOrder);
-
-  return apiRequest(`/api/admin/users?${queryParams.toString()}`, { token });
+  return apiRequest(apiEndpoint('/api/admin/users', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminUserDetail(token: string, userId: string): Promise<any> {
@@ -559,12 +553,7 @@ export async function fetchAdminTransactions(
   transactions: Array<Transaction & { user: { username: string; email: string } }>;
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.type) queryParams.set('type', params.type);
-
-  return apiRequest(`/api/admin/transactions?${queryParams.toString()}`, { token });
+  return apiRequest(apiEndpoint('/api/admin/transactions', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminRevenue(token: string): Promise<AdminRevenue> {
@@ -748,11 +737,7 @@ export async function fetchAdminErrorLogs(
   token: string,
   params: { limit?: number; level?: string; source?: string } = {}
 ): Promise<ErrorLogsResponse> {
-  const queryParams = new URLSearchParams();
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.level) queryParams.set('level', params.level);
-  if (params.source) queryParams.set('source', params.source);
-  return apiRequest(`/api/admin/error-logs?${queryParams.toString()}`, { token });
+  return apiRequest(apiEndpoint('/api/admin/error-logs', params as Record<string, ParamValue>), { token });
 }
 
 export async function clearAdminErrorLogs(token: string): Promise<{ success: boolean }> {
@@ -875,14 +860,7 @@ export async function fetchTarotArticles(params: {
   status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   sortBy?: 'datePublished' | 'cardNumber';
 } = {}): Promise<TarotArticlesListResponse> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.cardType) queryParams.set('cardType', params.cardType);
-  if (params.status) queryParams.set('status', params.status);
-  if (params.sortBy) queryParams.set('sortBy', params.sortBy);
-
-  return apiRequest(`/api/tarot-articles?${queryParams.toString()}`);
+  return apiRequest(apiEndpoint('/api/tarot-articles', params as Record<string, ParamValue>));
 }
 
 // Tarot Overview types
@@ -977,17 +955,7 @@ export async function fetchAdminTarotArticles(
     deleted?: boolean;
   }
 ): Promise<AdminTarotArticlesListResponse> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.search) queryParams.set('search', params.search);
-  if (params.cardType) queryParams.set('cardType', params.cardType);
-  if (params.status) queryParams.set('status', params.status);
-  if (params.deleted !== undefined) queryParams.set('deleted', params.deleted.toString());
-
-  return apiRequest(`/api/tarot-articles/admin/list?${queryParams.toString()}`, {
-    token,
-  });
+  return apiRequest(apiEndpoint('/api/tarot-articles/admin/list', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminTarotArticle(
@@ -1278,13 +1246,7 @@ export async function fetchBlogPosts(params: {
   tag?: string;
   featured?: boolean;
 } = {}): Promise<BlogPostListResponse> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.category) queryParams.set('category', params.category);
-  if (params.tag) queryParams.set('tag', params.tag);
-  if (params.featured !== undefined) queryParams.set('featured', params.featured.toString());
-  return apiRequest(`/api/blog/posts?${queryParams.toString()}`);
+  return apiRequest(apiEndpoint('/api/blog/posts', params as Record<string, ParamValue>));
 }
 
 export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
@@ -1308,13 +1270,7 @@ export async function fetchAdminBlogPosts(
   token: string,
   params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean } = {}
 ): Promise<BlogPostListResponse> {
-  const queryParams = new URLSearchParams();
-  if (params.page) queryParams.set('page', params.page.toString());
-  if (params.limit) queryParams.set('limit', params.limit.toString());
-  if (params.status) queryParams.set('status', params.status);
-  if (params.search) queryParams.set('search', params.search);
-  if (params.deleted !== undefined) queryParams.set('deleted', params.deleted.toString());
-  return apiRequest(`/api/blog/admin/posts?${queryParams.toString()}`, { token });
+  return apiRequest(apiEndpoint('/api/blog/admin/posts', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminBlogPost(token: string, id: string): Promise<{ post: BlogPost }> {
