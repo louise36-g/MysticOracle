@@ -29,6 +29,10 @@ import { AdminStatsService } from '../../services/AdminStatsService.js';
 import { AdminAnalyticsService } from '../../services/AdminAnalyticsService.js';
 import { SystemHealthService } from '../../services/SystemHealthService.js';
 import { RevenueExportService } from '../../services/RevenueExportService.js';
+import { AuditService } from '../../services/AuditService.js';
+
+// Audit Repository
+import { PrismaAuditLogRepository } from '../../infrastructure/persistence/prisma/PrismaAuditLogRepository.js';
 
 // Payment Gateways
 import { StripeGateway } from '../../infrastructure/payment/StripeGateway.js';
@@ -67,6 +71,10 @@ import {
   UpdateSettingUseCase,
 } from '../../application/use-cases/admin/index.js';
 
+// Use Cases - User GDPR Compliance
+import { ExportUserDataUseCase } from '../../application/use-cases/users/ExportUserData.js';
+import { DeleteUserAccountUseCase } from '../../application/use-cases/users/DeleteUserAccount.js';
+
 // Container type for type safety
 import type { ContainerDependencies } from './types.js';
 
@@ -103,6 +111,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     creditPackageRepository: asClass(PrismaCreditPackageRepository).singleton(),
     emailTemplateRepository: asClass(PrismaEmailTemplateRepository).singleton(),
     systemSettingRepository: asClass(PrismaSystemSettingRepository).singleton(),
+    auditLogRepository: asClass(PrismaAuditLogRepository).singleton(),
   });
 
   // Register services (singletons)
@@ -112,6 +121,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     adminAnalyticsService: asClass(AdminAnalyticsService).singleton(),
     systemHealthService: asClass(SystemHealthService).singleton(),
     revenueExportService: asClass(RevenueExportService).singleton(),
+    auditService: asClass(AuditService).singleton(),
   });
 
   // Register payment gateways (singletons)
@@ -185,6 +195,12 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     // Settings management
     getSettingsUseCase: asClass(GetSettingsUseCase).scoped(),
     updateSettingUseCase: asClass(UpdateSettingUseCase).scoped(),
+  });
+
+  // Register user GDPR compliance use cases (scoped)
+  container.register({
+    exportUserDataUseCase: asClass(ExportUserDataUseCase).scoped(),
+    deleteUserAccountUseCase: asClass(DeleteUserAccountUseCase).scoped(),
   });
 
   return container;

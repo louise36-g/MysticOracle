@@ -731,3 +731,59 @@ model TarotMedia {
   @@index([deletedAt])
   @@map("tarot_media")
 }
+
+// ============================================
+// AUDIT LOGGING (GDPR & SOC2 Compliance)
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+
+  // Who performed the action
+  userId      String?  // Nullable for system actions
+  adminUserId String?  // For admin-initiated actions
+
+  // What happened
+  action      String   // e.g., "USER_DATA_EXPORT", "ACCOUNT_DELETED", "CREDIT_ADJUSTMENT"
+  entityType  String   // e.g., "User", "Reading", "Transaction"
+  entityId    String?  // ID of affected entity
+
+  // Details
+  details     Json?    // Flexible metadata (before/after state, reason, etc.)
+  ipAddress   String?
+  userAgent   String?
+
+  // Timestamp
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([adminUserId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+
+  @@map("audit_logs")
+}
+
+model ConsentAuditLog {
+  id             String   @id @default(cuid())
+
+  userId         String
+
+  // Consent details
+  consentType    String   // e.g., "marketing", "newsletter", "terms", "privacy", "cookies"
+  consented      Boolean
+  consentVersion String?  // Version of terms/policy agreed to
+
+  // Context
+  ipAddress      String?
+  userAgent      String?
+
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([consentType])
+  @@index([createdAt])
+
+  @@map("consent_audit_logs")
+}

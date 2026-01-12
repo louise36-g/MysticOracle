@@ -19,6 +19,10 @@ import type { AdminStatsService } from '../../services/AdminStatsService.js';
 import type { AdminAnalyticsService } from '../../services/AdminAnalyticsService.js';
 import type { SystemHealthService } from '../../services/SystemHealthService.js';
 import type { RevenueExportService } from '../../services/RevenueExportService.js';
+import type { AuditService } from '../../services/AuditService.js';
+
+// Audit Repository
+import type { IAuditLogRepository } from '../../application/ports/repositories/IAuditLogRepository.js';
 
 // Payment Gateways
 import type { IPaymentGateway } from '../../application/ports/services/IPaymentGateway.js';
@@ -58,6 +62,10 @@ import type {
   UpdateSettingUseCase,
 } from '../../application/use-cases/admin/index.js';
 
+// Use Cases - User GDPR Compliance
+import type { ExportUserDataUseCase } from '../../application/use-cases/users/ExportUserData.js';
+import type { DeleteUserAccountUseCase } from '../../application/use-cases/users/DeleteUserAccount.js';
+
 /**
  * All registered dependencies in the container
  */
@@ -88,6 +96,10 @@ export interface ContainerDependencies {
   adminAnalyticsService: AdminAnalyticsService;
   systemHealthService: SystemHealthService;
   revenueExportService: RevenueExportService;
+  auditService: AuditService;
+
+  // Audit Repository
+  auditLogRepository: IAuditLogRepository;
 
   // Payment Gateways
   stripeGateway: StripeGateway;
@@ -131,6 +143,10 @@ export interface ContainerDependencies {
   // Admin Use Cases - Settings
   getSettingsUseCase: GetSettingsUseCase;
   updateSettingUseCase: UpdateSettingUseCase;
+
+  // User GDPR Compliance Use Cases
+  exportUserDataUseCase: ExportUserDataUseCase;
+  deleteUserAccountUseCase: DeleteUserAccountUseCase;
 }
 
 /**

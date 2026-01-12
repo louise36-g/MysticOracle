@@ -81,10 +81,37 @@ import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware - configure helmet to allow cross-origin for uploads
+// Security middleware - configure helmet with CSP and HSTS for compliance
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://openrouter.ai", process.env.FRONTEND_URL].filter(Boolean) as string[],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      objectSrc: ["'none'"],
+    },
+  },
+  strictTransportSecurity: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
 }));
+
+// HTTPS enforcement in production (Render sets x-forwarded-proto)
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    next();
+  });
+}
 
 // CORS configuration
 const allowedOrigins = [

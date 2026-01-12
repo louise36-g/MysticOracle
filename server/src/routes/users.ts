@@ -215,4 +215,121 @@ router.post('/me/reset-daily-bonus', requireAuth, async (req, res) => {
   }
 });
 
+// ============================================
+// GDPR COMPLIANCE ENDPOINTS
+// ============================================
+
+/**
+ * GET /api/users/me/export
+ * GDPR Article 20 - Right to data portability
+ * Returns all user data in a portable JSON format
+ */
+router.get('/me/export', requireAuth, async (req, res) => {
+  try {
+    const exportUserDataUseCase = req.container.resolve('exportUserDataUseCase');
+    const auditService = req.container.resolve('auditService');
+
+    const result = await exportUserDataUseCase.execute({
+      userId: req.auth.userId,
+    });
+
+    if (!result.success) {
+      const statusCode = result.errorCode === 'USER_NOT_FOUND' ? 404 : 500;
+      return res.status(statusCode).json({ error: result.error });
+    }
+
+    // Log the export for audit trail
+    await auditService.log(
+      'USER_DATA_EXPORT',
+      'User',
+      req.auth.userId,
+      {
+        userId: req.auth.userId,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
+    );
+
+    // Set headers for file download
+    const filename = `mysticoracle-data-${new Date().toISOString().split('T')[0]}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    res.json(result.data);
+  } catch (error) {
+    console.error('[Users /me/export] Error:', error);
+    res.status(500).json({ error: 'Failed to export data' });
+  }
+});
+
+/**
+ * DELETE /api/users/me
+ * GDPR Article 17 - Right to erasure ("Right to be forgotten")
+ * Anonymizes user data and deactivates account
+ *
+ * Required body: { confirmEmail: string }
+ */
+router.delete('/me', requireAuth, async (req, res) => {
+  try {
+    const { confirmEmail } = req.body;
+
+    if (!confirmEmail || typeof confirmEmail !== 'string') {
+      return res.status(400).json({
+        error: 'Email confirmation required. Please provide your account email to confirm deletion.',
+      });
+    }
+
+    const deleteUserAccountUseCase = req.container.resolve('deleteUserAccountUseCase');
+    const auditService = req.container.resolve('auditService');
+
+    // Log deletion request first (in case something fails)
+    await auditService.log(
+      'ACCOUNT_DELETION_REQUESTED',
+      'User',
+      req.auth.userId,
+      {
+        userId: req.auth.userId,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
+    );
+
+    const result = await deleteUserAccountUseCase.execute({
+      userId: req.auth.userId,
+      confirmEmail,
+    });
+
+    if (!result.success) {
+      const statusCodes: Record<string, number> = {
+        USER_NOT_FOUND: 404,
+        EMAIL_MISMATCH: 400,
+        ADMIN_PROTECTED: 403,
+        INTERNAL_ERROR: 500,
+      };
+      const statusCode = statusCodes[result.errorCode || 'INTERNAL_ERROR'] || 500;
+      return res.status(statusCode).json({ error: result.error });
+    }
+
+    // Log successful deletion
+    await auditService.log(
+      'ACCOUNT_DELETED',
+      'User',
+      req.auth.userId,
+      {
+        userId: req.auth.userId,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
+    );
+
+    res.json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error('[Users DELETE /me] Error:', error);
+    res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 export default router;
