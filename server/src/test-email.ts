@@ -10,7 +10,12 @@ import path from 'path';
 // Load .env from server directory
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-console.log('BREVO_API_KEY loaded:', process.env.BREVO_API_KEY ? 'Yes (starts with ' + process.env.BREVO_API_KEY.slice(0,10) + '...)' : 'No');
+console.log(
+  'BREVO_API_KEY loaded:',
+  process.env.BREVO_API_KEY
+    ? 'Yes (starts with ' + process.env.BREVO_API_KEY.slice(0, 10) + '...)'
+    : 'No'
+);
 
 // Dynamic import after env is loaded
 async function main() {
@@ -36,9 +41,9 @@ async function main() {
   const purchaseResult = await sendPurchaseConfirmation(
     TEST_EMAIL,
     'TestUser',
-    25,      // credits
-    10.00,   // amount
-    35,      // new balance
+    25, // credits
+    10.0, // amount
+    35, // new balance
     'en'
   );
   console.log(purchaseResult ? '   ✅ Purchase email sent!' : '   ❌ Purchase email failed');

@@ -68,10 +68,14 @@ describe('ProcessPaymentWebhookUseCase', () => {
 
     it('should process valid Stripe webhook', async () => {
       const event = createMockStripeEvent('payment.completed');
-      const pendingTx = createMockTransaction({ paymentId: event.paymentId, paymentStatus: 'PENDING' });
+      const pendingTx = createMockTransaction({
+        paymentId: event.paymentId,
+        paymentStatus: 'PENDING',
+      });
 
       mockStripeGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
+      mockTransactionRepo.findByPaymentIdAndStatus = vi
+        .fn()
         .mockResolvedValueOnce(null) // No completed transaction (idempotency check)
         .mockResolvedValueOnce(pendingTx); // Pending transaction exists
 
@@ -95,7 +99,8 @@ describe('ProcessPaymentWebhookUseCase', () => {
       });
 
       mockPayPalGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
+      mockTransactionRepo.findByPaymentIdAndStatus = vi
+        .fn()
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(pendingTx);
 
@@ -126,7 +131,8 @@ describe('ProcessPaymentWebhookUseCase', () => {
       });
 
       mockStripeGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
+      mockTransactionRepo.findByPaymentIdAndStatus = vi
+        .fn()
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(pendingTx);
       mockCreditService.addCredits = vi.fn().mockResolvedValue({
@@ -164,8 +170,7 @@ describe('ProcessPaymentWebhookUseCase', () => {
       });
 
       mockStripeGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
-        .mockResolvedValueOnce(completedTx); // Already completed
+      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn().mockResolvedValueOnce(completedTx); // Already completed
 
       mockCreditService.addCredits = vi.fn();
 
@@ -185,7 +190,8 @@ describe('ProcessPaymentWebhookUseCase', () => {
       const event = createMockStripeEvent('payment.completed');
 
       mockStripeGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
+      mockTransactionRepo.findByPaymentIdAndStatus = vi
+        .fn()
         .mockResolvedValueOnce(null) // No completed
         .mockResolvedValueOnce(null); // No pending either
 
@@ -339,7 +345,8 @@ describe('ProcessPaymentWebhookUseCase', () => {
       const event = createMockStripeEvent('payment.completed');
 
       mockStripeGateway.verifyWebhook = vi.fn().mockResolvedValue(event);
-      mockTransactionRepo.findByPaymentIdAndStatus = vi.fn()
+      mockTransactionRepo.findByPaymentIdAndStatus = vi
+        .fn()
         .mockRejectedValue(new Error('Database error'));
 
       const result = await useCase.execute({

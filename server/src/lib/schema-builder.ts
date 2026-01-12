@@ -96,22 +96,26 @@ interface CompleteSchema {
 export const SITE_CONFIG: SiteConfig = {
   name: process.env.SITE_NAME || 'MysticOracle',
   url: process.env.SITE_URL || 'https://mysticoracle.com',
-  logo: process.env.SITE_LOGO || `${process.env.SITE_URL || 'https://mysticoracle.com'}/images/logo.png`,
+  logo:
+    process.env.SITE_LOGO ||
+    `${process.env.SITE_URL || 'https://mysticoracle.com'}/images/logo.png`,
   defaultAuthor: {
     name: process.env.DEFAULT_AUTHOR_NAME || 'MysticOracle',
-    url: process.env.DEFAULT_AUTHOR_URL || `${process.env.SITE_URL || 'https://mysticoracle.com'}/about`,
+    url:
+      process.env.DEFAULT_AUTHOR_URL ||
+      `${process.env.SITE_URL || 'https://mysticoracle.com'}/about`,
   },
   categoryUrls: {
     'Major Arcana': '/tarot/major-arcana',
-    'MAJOR_ARCANA': '/tarot/major-arcana',
+    MAJOR_ARCANA: '/tarot/major-arcana',
     'Suit of Wands': '/tarot/wands',
-    'SUIT_OF_WANDS': '/tarot/wands',
+    SUIT_OF_WANDS: '/tarot/wands',
     'Suit of Cups': '/tarot/cups',
-    'SUIT_OF_CUPS': '/tarot/cups',
+    SUIT_OF_CUPS: '/tarot/cups',
     'Suit of Swords': '/tarot/swords',
-    'SUIT_OF_SWORDS': '/tarot/swords',
+    SUIT_OF_SWORDS: '/tarot/swords',
     'Suit of Pentacles': '/tarot/pentacles',
-    'SUIT_OF_PENTACLES': '/tarot/pentacles',
+    SUIT_OF_PENTACLES: '/tarot/pentacles',
   },
 };
 
@@ -122,19 +126,17 @@ export const SITE_CONFIG: SiteConfig = {
 /**
  * Build Article schema
  */
-function buildArticleSchema(
-  data: TarotArticleData,
-  articleUrl: string
-): ArticleSchema {
+function buildArticleSchema(data: TarotArticleData, articleUrl: string): ArticleSchema {
   // Ensure dates are ISO strings
-  const datePublished = typeof data.datePublished === 'string'
-    ? data.datePublished
-    : new Date(data.datePublished).toISOString();
+  const datePublished =
+    typeof data.datePublished === 'string'
+      ? data.datePublished
+      : new Date(data.datePublished).toISOString();
 
   const dateModified = data.dateModified
-    ? (typeof data.dateModified === 'string'
-        ? data.dateModified
-        : new Date(data.dateModified).toISOString())
+    ? typeof data.dateModified === 'string'
+      ? data.dateModified
+      : new Date(data.dateModified).toISOString()
     : datePublished;
 
   return {
@@ -174,7 +176,7 @@ function buildFAQSchema(faqItems: FAQItem[]): FAQSchema | null {
 
   return {
     '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: faqItems.map(item => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -188,15 +190,9 @@ function buildFAQSchema(faqItems: FAQItem[]): FAQSchema | null {
 /**
  * Build BreadcrumbList schema
  */
-function buildBreadcrumbSchema(
-  data: TarotArticleData,
-  articleUrl: string
-): BreadcrumbSchema {
+function buildBreadcrumbSchema(data: TarotArticleData, articleUrl: string): BreadcrumbSchema {
   const category = data.breadcrumbCategory || data.cardType;
-  const categoryPath =
-    data.breadcrumbCategoryUrl ||
-    SITE_CONFIG.categoryUrls[category] ||
-    '/tarot';
+  const categoryPath = data.breadcrumbCategoryUrl || SITE_CONFIG.categoryUrls[category] || '/tarot';
 
   // Extract card name from title (before the colon if present)
   const cardName = data.title.split(':')[0].trim();

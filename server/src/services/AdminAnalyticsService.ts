@@ -57,7 +57,7 @@ export class AdminAnalyticsService {
       const dayEnd = new Date(dayStart);
       dayEnd.setDate(dayEnd.getDate() + 1);
 
-      const count = readings.filter((r) => {
+      const count = readings.filter(r => {
         const date = new Date(r.createdAt);
         return date >= dayStart && date < dayEnd;
       }).length;
@@ -89,16 +89,16 @@ export class AdminAnalyticsService {
 
     return {
       readingsByDay,
-      topUsers: topUsersByReadings.map((u) => ({
+      topUsers: topUsersByReadings.map(u => ({
         id: u.id,
         username: u.username,
         count: u.totalReadings,
       })),
-      topCreditUsers: topUsersByCredits.map((u) => ({
+      topCreditUsers: topUsersByCredits.map(u => ({
         username: u.username,
         credits: u.credits,
       })),
-      topStreakUsers: topUsersByStreak.map((u) => ({
+      topStreakUsers: topUsersByStreak.map(u => ({
         username: u.username,
         streak: u.loginStreak,
       })),
@@ -129,7 +129,7 @@ export class AdminAnalyticsService {
     ]);
 
     return {
-      bySpread: bySpread.map((r) => ({
+      bySpread: bySpread.map(r => ({
         spreadType: r.spreadType,
         count: r._count,
       })),

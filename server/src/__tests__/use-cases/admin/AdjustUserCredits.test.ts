@@ -4,7 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
-import { AdjustUserCreditsUseCase, type AdjustUserCreditsInput } from '../../../application/use-cases/admin/users/AdjustUserCredits.js';
+import {
+  AdjustUserCreditsUseCase,
+  type AdjustUserCreditsInput,
+} from '../../../application/use-cases/admin/users/AdjustUserCredits.js';
 import type { IUserRepository } from '../../../application/ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
 
@@ -19,14 +22,15 @@ const createMockUserRepository = (): IUserRepository => ({
   count: vi.fn(),
 });
 
-const createMockCreditService = (): CreditService => ({
-  checkSufficientCredits: vi.fn(),
-  deductCredits: vi.fn(),
-  addCredits: vi.fn(),
-  refundCredits: vi.fn(),
-  getBalance: vi.fn(),
-  adjustCredits: vi.fn(),
-} as unknown as CreditService);
+const createMockCreditService = (): CreditService =>
+  ({
+    checkSufficientCredits: vi.fn(),
+    deductCredits: vi.fn(),
+    addCredits: vi.fn(),
+    refundCredits: vi.fn(),
+    getBalance: vi.fn(),
+    adjustCredits: vi.fn(),
+  }) as unknown as CreditService;
 
 describe('AdjustUserCreditsUseCase', () => {
   let useCase: AdjustUserCreditsUseCase;

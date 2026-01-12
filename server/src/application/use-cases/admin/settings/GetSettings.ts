@@ -25,9 +25,9 @@ export class GetSettingsUseCase {
 
   async execute(): Promise<GetSettingsResult> {
     const dbSettings = await this.settingRepository.findAll();
-    const settingsMap = new Map(dbSettings.map((s) => [s.key, s]));
+    const settingsMap = new Map(dbSettings.map(s => [s.key, s]));
 
-    const settings = EDITABLE_SETTINGS.map((setting) => {
+    const settings = EDITABLE_SETTINGS.map(setting => {
       const dbSetting = settingsMap.get(setting.key);
       const envValue = process.env[setting.key];
       const value = dbSetting?.value || envValue || '';

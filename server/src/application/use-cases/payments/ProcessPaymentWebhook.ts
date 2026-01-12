@@ -51,11 +51,7 @@ export class ProcessPaymentWebhookUseCase {
       }
 
       // 2. Verify and parse webhook
-      const event = await gateway.verifyWebhook(
-        input.payload,
-        input.signature,
-        input.headers
-      );
+      const event = await gateway.verifyWebhook(input.payload, input.signature, input.headers);
 
       if (!event) {
         return {

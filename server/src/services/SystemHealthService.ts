@@ -41,7 +41,7 @@ export class SystemHealthService {
     let dbSettings: Map<string, string> = new Map();
     try {
       const settings = await this.prisma.systemSetting.findMany();
-      dbSettings = new Map(settings.map((s) => [s.key, s.value]));
+      dbSettings = new Map(settings.map(s => [s.key, s.value]));
     } catch {
       // Ignore - will use env vars only
     }
@@ -70,9 +70,7 @@ export class SystemHealthService {
     // PayPal
     health.paypal = {
       status:
-        process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET
-          ? 'ok'
-          : 'not_configured',
+        process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET ? 'ok' : 'not_configured',
     };
 
     // Brevo (check DB and env)
@@ -86,8 +84,8 @@ export class SystemHealthService {
     };
 
     // Overall status
-    const allOk = Object.values(health).every((h) => h.status === 'ok');
-    const hasErrors = Object.values(health).some((h) => h.status === 'error');
+    const allOk = Object.values(health).every(h => h.status === 'ok');
+    const hasErrors = Object.values(health).some(h => h.status === 'error');
 
     return {
       status: hasErrors ? 'degraded' : allOk ? 'healthy' : 'partial',
@@ -102,10 +100,10 @@ export class SystemHealthService {
   async getServiceStatuses(): Promise<ServiceInfo[]> {
     // Get database settings to check if they override env vars
     const dbSettings = await this.prisma.systemSetting.findMany();
-    const settingsMap = new Map(dbSettings.map((s) => [s.key, s.value]));
+    const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
 
     const isConfigured = (envVars: string[]) => {
-      return envVars.some((v) => settingsMap.has(v) || !!process.env[v]);
+      return envVars.some(v => settingsMap.has(v) || !!process.env[v]);
     };
 
     return [

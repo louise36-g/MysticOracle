@@ -48,7 +48,7 @@ export class PrismaCreditPackageRepository implements ICreditPackageRepository {
 
   async createMany(data: CreatePackageDTO[]): Promise<void> {
     await this.prisma.creditPackage.createMany({
-      data: data.map((pkg) => ({
+      data: data.map(pkg => ({
         credits: pkg.credits,
         priceEur: pkg.priceEur,
         nameEn: pkg.nameEn,

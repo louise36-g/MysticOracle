@@ -82,10 +82,7 @@ class CreditService {
   /**
    * Check if user has sufficient credits for an operation
    */
-  async checkSufficientCredits(
-    userId: string,
-    required: number
-  ): Promise<BalanceCheck> {
+  async checkSufficientCredits(userId: string, required: number): Promise<BalanceCheck> {
     const balance = await this.getBalance(userId);
 
     if (balance === null) {
@@ -151,7 +148,7 @@ class CreditService {
 
       console.log(
         `[CreditService] Deducted ${op.amount} credits from user ${op.userId}. ` +
-        `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
+          `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
 
       return {
@@ -212,7 +209,7 @@ class CreditService {
 
       console.log(
         `[CreditService] Added ${op.amount} credits to user ${op.userId}. ` +
-        `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
+          `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
 
       return {
@@ -235,11 +232,7 @@ class CreditService {
    * Adjust credits (admin operation) - can add or remove
    * Uses REFUND type for additions, READING type for deductions (matching existing behavior)
    */
-  async adjustCredits(
-    userId: string,
-    amount: number,
-    reason: string
-  ): Promise<CreditResult> {
+  async adjustCredits(userId: string, amount: number, reason: string): Promise<CreditResult> {
     if (amount === 0) {
       const balance = await this.getBalance(userId);
       return {
@@ -302,7 +295,7 @@ class CreditService {
 
       console.log(
         `[CreditService] Processed refund of ${originalAmount} credits for user ${userId}. ` +
-        `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
+          `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
 
       return {
@@ -364,7 +357,7 @@ class CreditService {
 
       console.log(
         `[CreditService] Refunded ${amount} credits to user ${userId}. ` +
-        `Reason: ${reason}. New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
+          `Reason: ${reason}. New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
 
       return {

@@ -18,16 +18,16 @@ class CacheService {
 
   // Default TTLs in seconds
   static TTL = {
-    MEDIA: 300,            // 5 minutes
-    ARTICLES: 300,         // 5 minutes
-    ARTICLE: 600,          // 10 minutes
-    HOROSCOPE: 3600,       // 1 hour
-    TAGS: 600,             // 10 minutes
-    CATEGORIES: 600,       // 10 minutes
-    TRANSLATIONS: 3600,    // 1 hour
+    MEDIA: 300, // 5 minutes
+    ARTICLES: 300, // 5 minutes
+    ARTICLE: 600, // 10 minutes
+    HOROSCOPE: 3600, // 1 hour
+    TAGS: 600, // 10 minutes
+    CATEGORIES: 600, // 10 minutes
+    TRANSLATIONS: 3600, // 1 hour
     CREDIT_PACKAGES: 3600, // 1 hour
-    BLOG_POSTS: 300,       // 5 minutes
-    BLOG_POST: 300,        // 5 minutes
+    BLOG_POSTS: 300, // 5 minutes
+    BLOG_POST: 300, // 5 minutes
   };
 
   constructor() {
@@ -82,9 +82,10 @@ class CacheService {
       const val = this.cache.get(key);
       return acc + (JSON.stringify(val)?.length || 0);
     }, 0);
-    const memoryUsage = memBytes > 1024 * 1024
-      ? `${(memBytes / 1024 / 1024).toFixed(1)} MB`
-      : `${(memBytes / 1024).toFixed(1)} KB`;
+    const memoryUsage =
+      memBytes > 1024 * 1024
+        ? `${(memBytes / 1024 / 1024).toFixed(1)} MB`
+        : `${(memBytes / 1024).toFixed(1)} KB`;
 
     const total = this.hits + this.misses;
     const hitRate = total > 0 ? Math.round((this.hits / total) * 100) : 0;

@@ -25,7 +25,7 @@ export async function getAISettings(): Promise<AISettings> {
   try {
     // Query database for settings
     const dbSettings = await prisma.systemSetting.findMany({
-      where: { key: { in: ['OPENROUTER_API_KEY', 'AI_MODEL'] } }
+      where: { key: { in: ['OPENROUTER_API_KEY', 'AI_MODEL'] } },
     });
     const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
 
@@ -42,7 +42,7 @@ export async function getAISettings(): Promise<AISettings> {
     // Fall back to env vars if DB query fails
     return {
       apiKey: process.env.OPENROUTER_API_KEY || null,
-      model: process.env.AI_MODEL || 'openai/gpt-oss-120b:free'
+      model: process.env.AI_MODEL || 'openai/gpt-oss-120b:free',
     };
   }
 }

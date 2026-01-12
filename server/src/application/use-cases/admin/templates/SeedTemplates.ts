@@ -30,7 +30,7 @@ export class SeedTemplatesUseCase {
 
       // Create default templates
       await this.templateRepository.createMany(
-        DEFAULT_EMAIL_TEMPLATES.map((t) => ({ ...t, isActive: true }))
+        DEFAULT_EMAIL_TEMPLATES.map(t => ({ ...t, isActive: true }))
       );
 
       // Fetch created templates

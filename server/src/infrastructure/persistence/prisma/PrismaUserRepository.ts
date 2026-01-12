@@ -139,7 +139,9 @@ export class PrismaUserRepository implements IUserRepository {
     });
   }
 
-  async count(options?: Omit<UserListOptions, 'limit' | 'offset' | 'sortBy' | 'sortOrder'>): Promise<number> {
+  async count(
+    options?: Omit<UserListOptions, 'limit' | 'offset' | 'sortBy' | 'sortOrder'>
+  ): Promise<number> {
     const where: any = {};
 
     if (options?.search) {
@@ -169,7 +171,10 @@ export class PrismaUserRepository implements IUserRepository {
     });
   }
 
-  async findByIdWithReadings(id: string, readingLimit = 50): Promise<(User & { readings: any[] }) | null> {
+  async findByIdWithReadings(
+    id: string,
+    readingLimit = 50
+  ): Promise<(User & { readings: any[] }) | null> {
     return this.prisma.user.findUnique({
       where: { id },
       include: {

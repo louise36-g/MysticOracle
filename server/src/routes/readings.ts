@@ -17,11 +17,15 @@ const createReadingSchema = z.object({
   spreadType: z.string(),
   interpretationStyle: z.string().optional(),
   question: z.string().max(1000).optional(),
-  cards: z.array(z.object({
-    cardId: z.string(),
-    position: z.number(),
-    isReversed: z.boolean().optional(),
-  })).min(1, 'At least one card is required'),
+  cards: z
+    .array(
+      z.object({
+        cardId: z.string(),
+        position: z.number(),
+        isReversed: z.boolean().optional(),
+      })
+    )
+    .min(1, 'At least one card is required'),
   interpretation: z.string().min(1, 'Interpretation is required'),
 });
 
@@ -40,7 +44,9 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
   try {
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+      return res
+        .status(400)
+        .json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
     // Resolve use case from DI container
@@ -52,10 +58,14 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
     });
 
     if (!result.success) {
-      const statusCode = result.errorCode === 'USER_NOT_FOUND' ? 404
-        : result.errorCode === 'INSUFFICIENT_CREDITS' ? 400
-        : result.errorCode === 'VALIDATION_ERROR' ? 400
-        : 500;
+      const statusCode =
+        result.errorCode === 'USER_NOT_FOUND'
+          ? 404
+          : result.errorCode === 'INSUFFICIENT_CREDITS'
+            ? 400
+            : result.errorCode === 'VALIDATION_ERROR'
+              ? 400
+              : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
@@ -93,7 +103,9 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
   try {
     const validation = followUpSchema.safeParse(req.body);
     if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+      return res
+        .status(400)
+        .json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
     const addFollowUpUseCase = req.container.resolve('addFollowUpUseCase');
@@ -105,10 +117,14 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
     });
 
     if (!result.success) {
-      const statusCode = result.errorCode === 'READING_NOT_FOUND' ? 404
-        : result.errorCode === 'INSUFFICIENT_CREDITS' ? 400
-        : result.errorCode === 'VALIDATION_ERROR' ? 400
-        : 500;
+      const statusCode =
+        result.errorCode === 'READING_NOT_FOUND'
+          ? 404
+          : result.errorCode === 'INSUFFICIENT_CREDITS'
+            ? 400
+            : result.errorCode === 'VALIDATION_ERROR'
+              ? 400
+              : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
@@ -124,7 +140,9 @@ router.patch('/:id', requireAuth, async (req, res) => {
   try {
     const validation = reflectionSchema.safeParse(req.body);
     if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid request data', details: validation.error.errors });
+      return res
+        .status(400)
+        .json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
     const updateReflectionUseCase = req.container.resolve('updateReflectionUseCase');
@@ -136,9 +154,12 @@ router.patch('/:id', requireAuth, async (req, res) => {
     });
 
     if (!result.success) {
-      const statusCode = result.errorCode === 'NOT_FOUND' ? 404
-        : result.errorCode === 'VALIDATION_ERROR' ? 400
-        : 500;
+      const statusCode =
+        result.errorCode === 'NOT_FOUND'
+          ? 404
+          : result.errorCode === 'VALIDATION_ERROR'
+            ? 400
+            : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
@@ -168,12 +189,12 @@ router.get('/horoscope/:sign', requireAuth, async (req, res) => {
         sign_language_date: {
           sign,
           language: language as string,
-          date: today
-        }
+          date: today,
+        },
       },
       include: {
-        questions: true
-      }
+        questions: true,
+      },
     });
 
     if (cached) {
@@ -202,19 +223,19 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
         sign_language_date: {
           sign,
           language,
-          date: today
-        }
+          date: today,
+        },
       },
       update: {
-        horoscope
+        horoscope,
       },
       create: {
         userId,
         sign,
         language,
         date: today,
-        horoscope
-      }
+        horoscope,
+      },
     });
 
     res.json(cached);

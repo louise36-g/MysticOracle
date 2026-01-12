@@ -3,7 +3,10 @@
  * Handles the business logic for retrieving a user's reading history
  */
 
-import type { IReadingRepository, ReadingWithFollowUps } from '../../ports/repositories/IReadingRepository.js';
+import type {
+  IReadingRepository,
+  ReadingWithFollowUps,
+} from '../../ports/repositories/IReadingRepository.js';
 
 // Input DTO
 export interface GetReadingHistoryInput {

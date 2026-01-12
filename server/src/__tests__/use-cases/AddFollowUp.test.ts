@@ -5,7 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
-import { AddFollowUpUseCase, type AddFollowUpInput } from '../../application/use-cases/readings/AddFollowUp.js';
+import {
+  AddFollowUpUseCase,
+  type AddFollowUpInput,
+} from '../../application/use-cases/readings/AddFollowUp.js';
 import type { IReadingRepository } from '../../application/ports/repositories/IReadingRepository.js';
 import type { IUserRepository } from '../../application/ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../services/CreditService.js';
@@ -37,14 +40,15 @@ const createMockUserRepository = (): IUserRepository => ({
   count: vi.fn(),
 });
 
-const createMockCreditService = (): CreditService => ({
-  checkSufficientCredits: vi.fn(),
-  deductCredits: vi.fn(),
-  addCredits: vi.fn(),
-  refundCredits: vi.fn(),
-  getBalance: vi.fn(),
-  adjustCredits: vi.fn(),
-} as unknown as CreditService);
+const createMockCreditService = (): CreditService =>
+  ({
+    checkSufficientCredits: vi.fn(),
+    deductCredits: vi.fn(),
+    addCredits: vi.fn(),
+    refundCredits: vi.fn(),
+    getBalance: vi.fn(),
+    adjustCredits: vi.fn(),
+  }) as unknown as CreditService;
 
 describe('AddFollowUpUseCase', () => {
   let useCase: AddFollowUpUseCase;
@@ -84,11 +88,7 @@ describe('AddFollowUpUseCase', () => {
     mockUserRepo = createMockUserRepository();
     mockCreditService = createMockCreditService();
 
-    useCase = new AddFollowUpUseCase(
-      mockReadingRepo,
-      mockUserRepo,
-      mockCreditService
-    );
+    useCase = new AddFollowUpUseCase(mockReadingRepo, mockUserRepo, mockCreditService);
   });
 
   describe('Input Validation', () => {
@@ -129,10 +129,7 @@ describe('AddFollowUpUseCase', () => {
 
       const result = await useCase.execute(validInput);
 
-      expect(mockReadingRepo.findByIdAndUser).toHaveBeenCalledWith(
-        'reading-456',
-        'user-123'
-      );
+      expect(mockReadingRepo.findByIdAndUser).toHaveBeenCalledWith('reading-456', 'user-123');
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('READING_NOT_FOUND');
     });
@@ -179,9 +176,7 @@ describe('AddFollowUpUseCase', () => {
 
       const result = await useCase.execute(validInput);
 
-      expect(result.error).toBe(
-        `Insufficient credits: have 0, need ${CREDIT_COSTS.FOLLOW_UP}`
-      );
+      expect(result.error).toBe(`Insufficient credits: have 0, need ${CREDIT_COSTS.FOLLOW_UP}`);
     });
   });
 
@@ -235,9 +230,7 @@ describe('AddFollowUpUseCase', () => {
         newBalance: 9,
       });
 
-      (mockReadingRepo.addFollowUp as Mock).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockReadingRepo.addFollowUp as Mock).mockRejectedValue(new Error('Database error'));
 
       (mockCreditService.refundCredits as Mock).mockResolvedValue({
         success: true,
@@ -263,9 +256,7 @@ describe('AddFollowUpUseCase', () => {
         newBalance: 9,
       });
 
-      (mockReadingRepo.addFollowUp as Mock).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockReadingRepo.addFollowUp as Mock).mockRejectedValue(new Error('Database error'));
 
       (mockCreditService.refundCredits as Mock).mockResolvedValue({
         success: false,
@@ -324,9 +315,7 @@ describe('AddFollowUpUseCase', () => {
     });
 
     it('should not fail if question count update fails', async () => {
-      (mockUserRepo.update as Mock).mockRejectedValue(
-        new Error('Update failed')
-      );
+      (mockUserRepo.update as Mock).mockRejectedValue(new Error('Update failed'));
 
       const result = await useCase.execute(validInput);
 
@@ -354,9 +343,7 @@ describe('AddFollowUpUseCase', () => {
     });
 
     it('should handle unexpected errors before credit deduction', async () => {
-      (mockCreditService.deductCredits as Mock).mockRejectedValue(
-        new Error('Unexpected error')
-      );
+      (mockCreditService.deductCredits as Mock).mockRejectedValue(new Error('Unexpected error'));
 
       const result = await useCase.execute(validInput);
 

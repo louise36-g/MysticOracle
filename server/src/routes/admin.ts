@@ -38,7 +38,7 @@ const listUsersSchema = z.object({
   search: z.string().optional(),
   status: z.enum(['ACTIVE', 'FLAGGED', 'SUSPENDED']).optional(),
   sortBy: z.enum(['createdAt', 'credits', 'totalReadings', 'username']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc')
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 router.get('/users', async (req, res) => {
@@ -72,7 +72,7 @@ router.get('/users/:userId', async (req, res) => {
 
 // Update user status
 const updateStatusSchema = z.object({
-  status: z.enum(['ACTIVE', 'FLAGGED', 'SUSPENDED'])
+  status: z.enum(['ACTIVE', 'FLAGGED', 'SUSPENDED']),
 });
 
 router.patch('/users/:userId/status', async (req, res) => {
@@ -98,7 +98,7 @@ router.patch('/users/:userId/status', async (req, res) => {
 // Adjust user credits
 const adjustCreditsSchema = z.object({
   amount: z.number().int(),
-  reason: z.string().min(1)
+  reason: z.string().min(1),
 });
 
 router.post('/users/:userId/credits', async (req, res) => {
@@ -163,11 +163,23 @@ router.patch('/users/:userId/admin', async (req, res) => {
 
 router.get('/transactions', async (req, res) => {
   try {
-    const params = z.object({
-      page: z.coerce.number().min(1).default(1),
-      limit: z.coerce.number().min(1).max(100).default(50),
-      type: z.enum(['PURCHASE', 'READING', 'QUESTION', 'DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND']).optional()
-    }).parse(req.query);
+    const params = z
+      .object({
+        page: z.coerce.number().min(1).default(1),
+        limit: z.coerce.number().min(1).max(100).default(50),
+        type: z
+          .enum([
+            'PURCHASE',
+            'READING',
+            'QUESTION',
+            'DAILY_BONUS',
+            'ACHIEVEMENT',
+            'REFERRAL_BONUS',
+            'REFUND',
+          ])
+          .optional(),
+      })
+      .parse(req.query);
 
     const where: Prisma.TransactionWhereInput = {};
     if (params.type) {
@@ -178,13 +190,13 @@ router.get('/transactions', async (req, res) => {
       prisma.transaction.findMany({
         where,
         include: {
-          user: { select: { username: true, email: true } }
+          user: { select: { username: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (params.page - 1) * params.limit,
-        take: params.limit
+        take: params.limit,
       }),
-      prisma.transaction.count({ where })
+      prisma.transaction.count({ where }),
     ]);
 
     res.json({
@@ -193,8 +205,8 @@ router.get('/transactions', async (req, res) => {
         page: params.page,
         limit: params.limit,
         total,
-        totalPages: Math.ceil(total / params.limit)
-      }
+        totalPages: Math.ceil(total / params.limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -212,23 +224,23 @@ router.get('/revenue', async (req, res) => {
       prisma.transaction.aggregate({
         where: { type: 'PURCHASE', paymentStatus: 'COMPLETED' },
         _sum: { paymentAmount: true },
-        _count: true
+        _count: true,
       }),
       prisma.transaction.aggregate({
         where: {
           type: 'PURCHASE',
           paymentStatus: 'COMPLETED',
-          createdAt: { gte: thirtyDaysAgo }
+          createdAt: { gte: thirtyDaysAgo },
         },
         _sum: { paymentAmount: true },
-        _count: true
+        _count: true,
       }),
       prisma.transaction.groupBy({
         by: ['paymentProvider'],
         where: { type: 'PURCHASE', paymentStatus: 'COMPLETED' },
         _sum: { paymentAmount: true },
-        _count: true
-      })
+        _count: true,
+      }),
     ]);
 
     res.json({
@@ -236,9 +248,9 @@ router.get('/revenue', async (req, res) => {
       totalTransactions: total._count,
       last30Days: {
         revenue: last30Days._sum.paymentAmount || 0,
-        transactions: last30Days._count
+        transactions: last30Days._count,
       },
-      byProvider
+      byProvider,
     });
   } catch (error) {
     console.error('Error fetching revenue:', error);
@@ -255,7 +267,7 @@ router.get('/readings/stats', async (req, res) => {
     const [bySpreadType, recentReadings] = await Promise.all([
       prisma.reading.groupBy({
         by: ['spreadType'],
-        _count: true
+        _count: true,
       }),
       prisma.reading.findMany({
         select: {
@@ -263,17 +275,17 @@ router.get('/readings/stats', async (req, res) => {
           spreadType: true,
           creditCost: true,
           createdAt: true,
-          user: { select: { username: true } }
+          user: { select: { username: true } },
           // Note: NOT including question or interpretation for privacy
         },
         orderBy: { createdAt: 'desc' },
-        take: 20
-      })
+        take: 20,
+      }),
     ]);
 
     res.json({
       bySpreadType,
-      recentReadings
+      recentReadings,
     });
   } catch (error) {
     console.error('Error fetching reading stats:', error);
@@ -305,7 +317,7 @@ router.get('/config/ai', async (req, res) => {
   try {
     // Check database for overridden settings
     const dbSettings = await prisma.systemSetting.findMany({
-      where: { key: { in: ['AI_MODEL', 'OPENROUTER_API_KEY'] } }
+      where: { key: { in: ['AI_MODEL', 'OPENROUTER_API_KEY'] } },
     });
     const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
 
@@ -315,7 +327,7 @@ router.get('/config/ai', async (req, res) => {
     res.json({
       model,
       provider: process.env.AI_PROVIDER || 'openrouter',
-      hasApiKey
+      hasApiKey,
     });
   } catch (error) {
     console.error('Error fetching AI config:', error);
@@ -350,7 +362,7 @@ const createPackageSchema = z.object({
   discount: z.number().int().min(0).max(100).default(0),
   badge: z.string().nullable().optional(),
   isActive: z.boolean().default(true),
-  sortOrder: z.number().int().default(0)
+  sortOrder: z.number().int().default(0),
 });
 
 router.post('/packages', async (req, res) => {
@@ -392,7 +404,7 @@ const updatePackageSchema = z.object({
   discount: z.number().int().min(0).max(100).optional(),
   badge: z.string().nullable().optional(),
   isActive: z.boolean().optional(),
-  sortOrder: z.number().int().optional()
+  sortOrder: z.number().int().optional(),
 });
 
 // Update package
@@ -450,12 +462,15 @@ router.get('/email-templates', async (req, res) => {
 
 // Create template
 const createTemplateSchema = z.object({
-  slug: z.string().min(1).regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only'),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only'),
   subjectEn: z.string().min(1),
   bodyEn: z.string().min(1),
   subjectFr: z.string().min(1),
   bodyFr: z.string().min(1),
-  isActive: z.boolean().default(true)
+  isActive: z.boolean().default(true),
 });
 
 router.post('/email-templates', async (req, res) => {
@@ -484,12 +499,16 @@ router.post('/email-templates', async (req, res) => {
 
 // Update template schema (all fields optional)
 const updateTemplateSchema = z.object({
-  slug: z.string().min(1).regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only').optional(),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z_]+$/, 'Slug must be lowercase with underscores only')
+    .optional(),
   subjectEn: z.string().min(1).optional(),
   bodyEn: z.string().min(1).optional(),
   subjectFr: z.string().min(1).optional(),
   bodyFr: z.string().min(1).optional(),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
 });
 
 // Update template
@@ -628,7 +647,9 @@ router.get('/error-logs', (req, res) => {
   }
 
   if (source) {
-    filteredLogs = filteredLogs.filter(log => log.source.toLowerCase().includes(source.toLowerCase()));
+    filteredLogs = filteredLogs.filter(log =>
+      log.source.toLowerCase().includes(source.toLowerCase())
+    );
   }
 
   res.json({
@@ -678,7 +699,7 @@ router.get('/settings', async (req, res) => {
 // Update a setting
 const updateSettingSchema = z.object({
   key: z.string().min(1),
-  value: z.string()
+  value: z.string(),
 });
 
 router.post('/settings', async (req, res) => {
@@ -719,10 +740,12 @@ router.post('/settings', async (req, res) => {
 
 router.get('/revenue/export', async (req, res) => {
   try {
-    const params = z.object({
-      year: z.coerce.number().min(2020).max(2100),
-      month: z.coerce.number().min(1).max(12)
-    }).parse(req.query);
+    const params = z
+      .object({
+        year: z.coerce.number().min(2020).max(2100),
+        month: z.coerce.number().min(1).max(12),
+      })
+      .parse(req.query);
 
     const revenueExportService = req.container.resolve('revenueExportService');
     const data = await revenueExportService.exportToCSV(params.year, params.month);
@@ -793,7 +816,7 @@ router.post('/maintenance/normalize-readings', async (req, res) => {
     res.json({
       success: true,
       ...result,
-      message: `Normalized ${result.processed} readings (${result.skipped} skipped, ${result.errors} errors)`
+      message: `Normalized ${result.processed} readings (${result.skipped} skipped, ${result.errors} errors)`,
     });
   } catch (error) {
     console.error('Error normalizing readings:', error);
@@ -808,13 +831,13 @@ router.post('/maintenance/cleanup-horoscopes', async (req, res) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const result = await prisma.horoscopeCache.deleteMany({
-      where: { date: { lt: sevenDaysAgo } }
+      where: { date: { lt: sevenDaysAgo } },
     });
 
     res.json({
       success: true,
       deleted: result.count,
-      message: `Deleted ${result.count} old horoscope cache entries`
+      message: `Deleted ${result.count} old horoscope cache entries`,
     });
   } catch (error) {
     console.error('Error cleaning up horoscopes:', error);
@@ -871,13 +894,23 @@ router.get('/debug/info', (req, res) => {
         method: 'POST',
         path: '/debug/credit-refund',
         description: 'Test manual credit refund',
-        params: { userId: 'string', amount: 'number', reason: 'string', originalTransactionId: 'string?' },
+        params: {
+          userId: 'string',
+          amount: 'number',
+          reason: 'string',
+          originalTransactionId: 'string?',
+        },
       },
       {
         method: 'POST',
         path: '/debug/reading-creation',
         description: 'Test reading creation with optional failures',
-        params: { userId: 'string', spreadType: 'string?', simulateReadingFailure: 'boolean?', simulateAIFailure: 'boolean?' },
+        params: {
+          userId: 'string',
+          spreadType: 'string?',
+          simulateReadingFailure: 'boolean?',
+          simulateAIFailure: 'boolean?',
+        },
       },
       {
         method: 'POST',
@@ -1003,7 +1036,8 @@ router.post('/debug/credit-refund', async (req, res) => {
 // Test reading creation with deduct-first pattern
 router.post('/debug/reading-creation', async (req, res) => {
   try {
-    const { userId, spreadType, simulateReadingFailure, simulateAIFailure } = debugReadingSchema.parse(req.body);
+    const { userId, spreadType, simulateReadingFailure, simulateAIFailure } =
+      debugReadingSchema.parse(req.body);
 
     // Check user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });

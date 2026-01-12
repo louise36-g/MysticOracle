@@ -18,10 +18,10 @@ router.get('/me', requireAuth, async (req, res) => {
         _count: {
           select: {
             readings: true,
-            referrals: true
-          }
-        }
-      }
+            referrals: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -48,7 +48,7 @@ router.patch('/me', requireAuth, async (req, res) => {
       data: {
         language: language || undefined,
         welcomeCompleted: typeof welcomeCompleted === 'boolean' ? welcomeCompleted : undefined,
-      }
+      },
     });
 
     res.json(user);
@@ -68,8 +68,8 @@ router.get('/me/credits', requireAuth, async (req, res) => {
       select: {
         credits: true,
         totalCreditsEarned: true,
-        totalCreditsSpent: true
-      }
+        totalCreditsSpent: true,
+      },
     });
 
     if (!user) {
@@ -95,8 +95,8 @@ router.get('/me/readings', requireAuth, async (req, res) => {
       take: Number(limit),
       skip: Number(offset),
       include: {
-        followUps: true
-      }
+        followUps: true,
+      },
     });
 
     const total = await prisma.reading.count({ where: { userId } });
@@ -118,7 +118,7 @@ router.get('/me/transactions', requireAuth, async (req, res) => {
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: Number(limit),
-      skip: Number(offset)
+      skip: Number(offset),
     });
 
     const total = await prisma.transaction.count({ where: { userId } });
@@ -136,7 +136,7 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
     const userId = req.auth.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -169,7 +169,7 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
       userId,
       amount: bonusCredits,
       type: 'DAILY_BONUS',
-      description: `Daily login bonus (${newStreak} day streak)`
+      description: `Daily login bonus (${newStreak} day streak)`,
     });
 
     // Update streak and last login date
@@ -177,15 +177,15 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
       where: { id: userId },
       data: {
         loginStreak: newStreak,
-        lastLoginDate: new Date()
-      }
+        lastLoginDate: new Date(),
+      },
     });
 
     res.json({
       success: true,
       creditsAwarded: bonusCredits,
       newBalance: result.newBalance,
-      streak: newStreak
+      streak: newStreak,
     });
   } catch (error) {
     console.error('Error claiming daily bonus:', error);
@@ -205,7 +205,7 @@ router.post('/me/reset-daily-bonus', requireAuth, async (req, res) => {
 
     await prisma.user.update({
       where: { id: req.auth.userId },
-      data: { lastLoginDate: yesterday }
+      data: { lastLoginDate: yesterday },
     });
 
     return res.json({ success: true, message: 'Daily bonus reset - you can claim again!' });
@@ -239,16 +239,11 @@ router.get('/me/export', requireAuth, async (req, res) => {
     }
 
     // Log the export for audit trail
-    await auditService.log(
-      'USER_DATA_EXPORT',
-      'User',
-      req.auth.userId,
-      {
-        userId: req.auth.userId,
-        ipAddress: req.ip,
-        userAgent: req.headers['user-agent'],
-      }
-    );
+    await auditService.log('USER_DATA_EXPORT', 'User', req.auth.userId, {
+      userId: req.auth.userId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
 
     // Set headers for file download
     const filename = `mysticoracle-data-${new Date().toISOString().split('T')[0]}.json`;
@@ -275,7 +270,8 @@ router.delete('/me', requireAuth, async (req, res) => {
 
     if (!confirmEmail || typeof confirmEmail !== 'string') {
       return res.status(400).json({
-        error: 'Email confirmation required. Please provide your account email to confirm deletion.',
+        error:
+          'Email confirmation required. Please provide your account email to confirm deletion.',
       });
     }
 
@@ -283,16 +279,11 @@ router.delete('/me', requireAuth, async (req, res) => {
     const auditService = req.container.resolve('auditService');
 
     // Log deletion request first (in case something fails)
-    await auditService.log(
-      'ACCOUNT_DELETION_REQUESTED',
-      'User',
-      req.auth.userId,
-      {
-        userId: req.auth.userId,
-        ipAddress: req.ip,
-        userAgent: req.headers['user-agent'],
-      }
-    );
+    await auditService.log('ACCOUNT_DELETION_REQUESTED', 'User', req.auth.userId, {
+      userId: req.auth.userId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
 
     const result = await deleteUserAccountUseCase.execute({
       userId: req.auth.userId,
@@ -311,16 +302,11 @@ router.delete('/me', requireAuth, async (req, res) => {
     }
 
     // Log successful deletion
-    await auditService.log(
-      'ACCOUNT_DELETED',
-      'User',
-      req.auth.userId,
-      {
-        userId: req.auth.userId,
-        ipAddress: req.ip,
-        userAgent: req.headers['user-agent'],
-      }
-    );
+    await auditService.log('ACCOUNT_DELETED', 'User', req.auth.userId, {
+      userId: req.auth.userId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
 
     res.json({
       success: true,

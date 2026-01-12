@@ -48,7 +48,11 @@ export class AdjustUserCreditsUseCase {
       }
 
       // Perform the adjustment
-      const result = await this.creditService.adjustCredits(input.userId, input.amount, input.reason);
+      const result = await this.creditService.adjustCredits(
+        input.userId,
+        input.amount,
+        input.reason
+      );
 
       if (!result.success) {
         return {

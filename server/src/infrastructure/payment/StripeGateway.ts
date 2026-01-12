@@ -93,10 +93,7 @@ export class StripeGateway implements IPaymentGateway {
     };
   }
 
-  async verifyWebhook(
-    payload: Buffer | string,
-    signature: string
-  ): Promise<WebhookEvent | null> {
+  async verifyWebhook(payload: Buffer | string, signature: string): Promise<WebhookEvent | null> {
     if (!this.stripe || !this.webhookSecret) {
       throw new Error('Stripe webhook is not configured');
     }
@@ -104,11 +101,7 @@ export class StripeGateway implements IPaymentGateway {
     let event: Stripe.Event;
 
     try {
-      event = this.stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        this.webhookSecret
-      );
+      event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
     } catch (err) {
       console.error('Stripe webhook signature verification failed:', err);
       return null;

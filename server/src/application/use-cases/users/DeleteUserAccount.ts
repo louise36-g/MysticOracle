@@ -51,7 +51,8 @@ export class DeleteUserAccountUseCase {
       if (user.isAdmin) {
         return {
           success: false,
-          error: 'Admin accounts cannot be deleted. Please contact support or remove admin status first.',
+          error:
+            'Admin accounts cannot be deleted. Please contact support or remove admin status first.',
           errorCode: 'ADMIN_PROTECTED',
         };
       }
@@ -61,7 +62,7 @@ export class DeleteUserAccountUseCase {
       const anonymizedEmail = `deleted_${timestamp}@deleted.local`;
       const anonymizedUsername = `deleted_${timestamp}`;
 
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         // 4a. Anonymize readings - preserve for analytics, remove PII
         await tx.reading.updateMany({
           where: { userId: input.userId },
@@ -113,7 +114,8 @@ export class DeleteUserAccountUseCase {
 
       return {
         success: true,
-        message: 'Your account data has been anonymized and your account has been deactivated. This action cannot be undone.',
+        message:
+          'Your account data has been anonymized and your account has been deactivated. This action cannot be undone.',
       };
     } catch (error) {
       console.error('[DeleteUserAccount] Error:', error);

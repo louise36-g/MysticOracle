@@ -15,17 +15,13 @@ declare global {
 }
 
 const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY!
+  secretKey: process.env.CLERK_SECRET_KEY!,
 });
 
 /**
  * Middleware to verify Clerk JWT token
  */
-export async function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 
@@ -47,7 +43,7 @@ export async function requireAuth(
     // Attach auth info to request
     req.auth = {
       userId: payload.sub,
-      sessionId: payload.sid as string || ''
+      sessionId: (payload.sid as string) || '',
     };
 
     next();
@@ -60,11 +56,7 @@ export async function requireAuth(
 /**
  * Middleware to optionally attach auth info (doesn't require auth)
  */
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 
@@ -78,7 +70,7 @@ export async function optionalAuth(
       if (payload && payload.sub) {
         req.auth = {
           userId: payload.sub,
-          sessionId: payload.sid as string || ''
+          sessionId: (payload.sid as string) || '',
         };
       }
     }
@@ -94,11 +86,7 @@ export async function optionalAuth(
  * Middleware to require admin access (use after requireAuth)
  * Admin status must be explicitly set in the database - no auto-granting
  */
-export async function requireAdmin(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     // requireAuth should have already set req.auth
     if (!req.auth?.userId) {
@@ -108,7 +96,7 @@ export async function requireAdmin(
     // Check if user is admin in our database
     const user = await prisma.user.findUnique({
       where: { id: req.auth.userId },
-      select: { isAdmin: true }
+      select: { isAdmin: true },
     });
 
     if (!user) {

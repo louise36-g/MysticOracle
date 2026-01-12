@@ -82,26 +82,38 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Security middleware - configure helmet with CSP and HSTS for compliance
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://checkout.stripe.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://openrouter.ai", process.env.FRONTEND_URL].filter(Boolean) as string[],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
-      objectSrc: ["'none'"],
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://js.stripe.com',
+          'https://checkout.stripe.com',
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+        connectSrc: [
+          "'self'",
+          'https://api.stripe.com',
+          'https://openrouter.ai',
+          process.env.FRONTEND_URL,
+        ].filter(Boolean) as string[],
+        frameSrc: ["'self'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
+        objectSrc: ["'none'"],
+      },
     },
-  },
-  strictTransportSecurity: {
-    maxAge: 31536000, // 1 year
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
+    strictTransportSecurity: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+  })
+);
 
 // HTTPS enforcement in production (Render sets x-forwarded-proto)
 if (process.env.NODE_ENV === 'production') {
@@ -125,20 +137,22 @@ const allowedOrigins = [
   'http://127.0.0.1:3002',
 ].filter(Boolean) as string[];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked request from: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+      if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked request from: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // Attach scoped DI container to each request (before routes)
 app.use(scopePerRequest(container));
@@ -153,10 +167,14 @@ app.use(express.json());
 app.use(generalLimiter);
 
 // Static uploads with long cache (files are immutable - include hash/timestamp)
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  next();
-}, express.static(path.join(process.cwd(), 'public', 'uploads')));
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    next();
+  },
+  express.static(path.join(process.cwd(), 'public', 'uploads'))
+);
 
 // Add middleware for API cache headers (before routes)
 app.use('/api', (req, res, next) => {
@@ -189,9 +207,7 @@ app.use('/', ssrRoutes);
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({
-    error: process.env.NODE_ENV === 'production'
-      ? 'Internal server error'
-      : err.message
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
   });
 });
 

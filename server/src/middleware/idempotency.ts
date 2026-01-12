@@ -29,11 +29,7 @@ declare global {
 /**
  * Middleware that enforces idempotency for POST requests
  */
-export async function idempotent(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function idempotent(req: Request, res: Response, next: NextFunction): Promise<void> {
   // Only apply to POST/PUT/PATCH requests
   if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
     return next();
@@ -62,11 +58,7 @@ export async function idempotent(
   const endpoint = `${req.method} ${req.baseUrl}${req.path}`;
 
   // Check if this key was already used
-  const markResult = await idempotencyService.markPending(
-    idempotencyKey,
-    endpoint,
-    userId
-  );
+  const markResult = await idempotencyService.markPending(idempotencyKey, endpoint, userId);
 
   if (!markResult.success && markResult.existingRecord) {
     const existing = markResult.existingRecord;
@@ -83,9 +75,7 @@ export async function idempotent(
 
     // If completed, return the cached result
     if (existing.state === 'completed') {
-      console.log(
-        `[Idempotency] Returning cached result for key: ${idempotencyKey}`
-      );
+      console.log(`[Idempotency] Returning cached result for key: ${idempotencyKey}`);
 
       // Set header to indicate this is a cached response
       res.setHeader('X-Idempotency-Replayed', 'true');

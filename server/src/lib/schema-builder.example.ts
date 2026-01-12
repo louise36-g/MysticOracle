@@ -82,7 +82,8 @@ export async function regenerateArticleSchema(article: TarotArticle): Promise<{
 export const EXAMPLE_ARTICLE_DATA: TarotArticleData = {
   title: 'The Fool: Meaning, Symbolism & Interpretation',
   slug: 'the-fool-meaning',
-  excerpt: 'Discover the profound meaning of The Fool tarot card, its symbolism, and how it guides you toward new beginnings.',
+  excerpt:
+    'Discover the profound meaning of The Fool tarot card, its symbolism, and how it guides you toward new beginnings.',
   author: 'MysticOracle Team',
   datePublished: new Date().toISOString(),
   dateModified: new Date().toISOString(),
@@ -92,11 +93,13 @@ export const EXAMPLE_ARTICLE_DATA: TarotArticleData = {
   faq: [
     {
       question: 'What does The Fool card mean in a reading?',
-      answer: 'The Fool represents new beginnings, innocence, and taking a leap of faith. It encourages you to embrace uncertainty and trust in the journey ahead.',
+      answer:
+        'The Fool represents new beginnings, innocence, and taking a leap of faith. It encourages you to embrace uncertainty and trust in the journey ahead.',
     },
     {
       question: 'Is The Fool a positive card?',
-      answer: 'Yes, The Fool is generally considered a positive card. It symbolizes potential, freedom, and the excitement of starting something new.',
+      answer:
+        'Yes, The Fool is generally considered a positive card. It symbolizes potential, freedom, and the excitement of starting something new.',
     },
   ],
   breadcrumbCategory: 'Major Arcana',

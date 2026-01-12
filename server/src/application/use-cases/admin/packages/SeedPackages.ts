@@ -30,7 +30,7 @@ export class SeedPackagesUseCase {
 
       // Create default packages
       await this.packageRepository.createMany(
-        DEFAULT_PACKAGES.map((pkg) => ({ ...pkg, isActive: true }))
+        DEFAULT_PACKAGES.map(pkg => ({ ...pkg, isActive: true }))
       );
 
       // Fetch created packages

@@ -15,8 +15,8 @@ router.get('/', async (req, res) => {
       timestamp: new Date().toISOString(),
       services: {
         database: 'connected',
-        api: 'running'
-      }
+        api: 'running',
+      },
     });
   } catch (error) {
     res.status(503).json({
@@ -24,9 +24,9 @@ router.get('/', async (req, res) => {
       timestamp: new Date().toISOString(),
       services: {
         database: 'disconnected',
-        api: 'running'
+        api: 'running',
       },
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -41,7 +41,7 @@ router.post('/bootstrap', requireAuth, async (req, res) => {
     // Must have bootstrap key configured
     if (!bootstrapKey) {
       return res.status(403).json({
-        error: 'Bootstrap not configured. Set ADMIN_BOOTSTRAP_KEY environment variable.'
+        error: 'Bootstrap not configured. Set ADMIN_BOOTSTRAP_KEY environment variable.',
       });
     }
 
@@ -54,7 +54,7 @@ router.post('/bootstrap', requireAuth, async (req, res) => {
     const user = await prisma.user.update({
       where: { id: req.auth.userId },
       data: { isAdmin: true },
-      select: { id: true, username: true, email: true, isAdmin: true }
+      select: { id: true, username: true, email: true, isAdmin: true },
     });
 
     console.log(`Bootstrap: Granted admin access to ${user.username} (${user.email})`);
@@ -62,7 +62,7 @@ router.post('/bootstrap', requireAuth, async (req, res) => {
     res.json({
       success: true,
       message: `Admin access granted to ${user.username}`,
-      user
+      user,
     });
   } catch (error) {
     console.error('Bootstrap error:', error);
@@ -75,7 +75,7 @@ router.get('/admin-status', requireAuth, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.auth.userId },
-      select: { id: true, username: true, email: true, isAdmin: true }
+      select: { id: true, username: true, email: true, isAdmin: true },
     });
 
     if (!user) {

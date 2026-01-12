@@ -4,8 +4,15 @@
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
-import { CreateCheckoutUseCase, CREDIT_PACKAGES, type CreateCheckoutInput } from '../../../application/use-cases/payments/CreateCheckout.js';
-import type { IPaymentGateway, CheckoutSession } from '../../../application/ports/services/IPaymentGateway.js';
+import {
+  CreateCheckoutUseCase,
+  CREDIT_PACKAGES,
+  type CreateCheckoutInput,
+} from '../../../application/use-cases/payments/CreateCheckout.js';
+import type {
+  IPaymentGateway,
+  CheckoutSession,
+} from '../../../application/ports/services/IPaymentGateway.js';
 import type { IUserRepository } from '../../../application/ports/repositories/IUserRepository.js';
 import type { ITransactionRepository } from '../../../application/ports/repositories/ITransactionRepository.js';
 
@@ -31,7 +38,10 @@ const createMockTransactionRepository = (): ITransactionRepository => ({
   count: vi.fn(),
 });
 
-const createMockPaymentGateway = (provider: string, configured: boolean = true): IPaymentGateway => ({
+const createMockPaymentGateway = (
+  provider: string,
+  configured: boolean = true
+): IPaymentGateway => ({
   provider,
   isConfigured: vi.fn().mockReturnValue(configured),
   createCheckoutSession: vi.fn(),
@@ -73,21 +83,16 @@ describe('CreateCheckoutUseCase', () => {
     mockStripeGateway = createMockPaymentGateway('stripe');
     mockPayPalGateway = createMockPaymentGateway('paypal');
 
-    useCase = new CreateCheckoutUseCase(
-      mockUserRepo,
-      mockTransactionRepo,
-      [mockStripeGateway, mockPayPalGateway]
-    );
+    useCase = new CreateCheckoutUseCase(mockUserRepo, mockTransactionRepo, [
+      mockStripeGateway,
+      mockPayPalGateway,
+    ]);
   });
 
   describe('Provider Selection', () => {
     it('should return error when provider is not configured', async () => {
       const unconfiguredGateway = createMockPaymentGateway('stripe', false);
-      useCase = new CreateCheckoutUseCase(
-        mockUserRepo,
-        mockTransactionRepo,
-        [unconfiguredGateway]
-      );
+      useCase = new CreateCheckoutUseCase(mockUserRepo, mockTransactionRepo, [unconfiguredGateway]);
 
       const result = await useCase.execute(validInput);
 
@@ -196,7 +201,8 @@ describe('CreateCheckoutUseCase', () => {
         userEmail: 'test@example.com',
         packageId: 'basic',
         creditPackage: basicPackage,
-        successUrl: 'https://example.com/payment/success?session_id={CHECKOUT_SESSION_ID}&provider=stripe',
+        successUrl:
+          'https://example.com/payment/success?session_id={CHECKOUT_SESSION_ID}&provider=stripe',
         cancelUrl: 'https://example.com/payment/cancelled',
       });
     });
@@ -255,9 +261,7 @@ describe('CreateCheckoutUseCase', () => {
 
     it('should handle transaction creation errors', async () => {
       (mockStripeGateway.createCheckoutSession as Mock).mockResolvedValue(mockCheckoutSession);
-      (mockTransactionRepo.create as Mock).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockTransactionRepo.create as Mock).mockRejectedValue(new Error('Database error'));
 
       const result = await useCase.execute(validInput);
 

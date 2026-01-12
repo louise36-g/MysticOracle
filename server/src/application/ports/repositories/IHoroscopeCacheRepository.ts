@@ -22,11 +22,7 @@ export interface IHoroscopeCacheRepository {
   /**
    * Find a cached horoscope by sign, language, and date
    */
-  findBySignAndDate(
-    sign: string,
-    language: string,
-    date: Date
-  ): Promise<HoroscopeCache | null>;
+  findBySignAndDate(sign: string, language: string, date: Date): Promise<HoroscopeCache | null>;
 
   /**
    * Create a new cached horoscope

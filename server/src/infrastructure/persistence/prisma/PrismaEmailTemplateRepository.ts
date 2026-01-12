@@ -48,7 +48,7 @@ export class PrismaEmailTemplateRepository implements IEmailTemplateRepository {
 
   async createMany(data: CreateTemplateDTO[]): Promise<void> {
     await this.prisma.emailTemplate.createMany({
-      data: data.map((template) => ({
+      data: data.map(template => ({
         slug: template.slug,
         subjectEn: template.subjectEn,
         subjectFr: template.subjectFr,

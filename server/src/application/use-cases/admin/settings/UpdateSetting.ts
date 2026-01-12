@@ -24,7 +24,7 @@ export class UpdateSettingUseCase {
   async execute(input: UpdateSettingInput): Promise<UpdateSettingResult> {
     try {
       // Validate the key is editable
-      const editableSetting = EDITABLE_SETTINGS.find((s) => s.key === input.key);
+      const editableSetting = EDITABLE_SETTINGS.find(s => s.key === input.key);
       if (!editableSetting) {
         return {
           success: false,

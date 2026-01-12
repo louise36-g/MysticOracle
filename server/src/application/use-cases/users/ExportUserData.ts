@@ -109,7 +109,7 @@ export class ExportUserDataUseCase {
           loginStreak: user.loginStreak,
           lastLoginDate: user.lastLoginDate.toISOString(),
         },
-        readings: user.readings.map((r) => ({
+        readings: user.readings.map(r => ({
           id: r.id,
           spreadType: r.spreadType,
           interpretationStyle: r.interpretationStyle,
@@ -119,19 +119,19 @@ export class ExportUserDataUseCase {
           userReflection: r.userReflection,
           creditCost: r.creditCost,
           createdAt: r.createdAt.toISOString(),
-          followUps: r.followUps.map((f) => ({
+          followUps: r.followUps.map(f => ({
             question: f.question,
             answer: f.answer,
             createdAt: f.createdAt.toISOString(),
           })),
         })),
-        transactions: user.transactions.map((t) => ({
+        transactions: user.transactions.map(t => ({
           type: t.type,
           amount: t.amount,
           description: t.description,
           createdAt: t.createdAt.toISOString(),
         })),
-        achievements: user.achievements.map((a) => ({
+        achievements: user.achievements.map(a => ({
           achievementId: a.achievementId,
           unlockedAt: a.unlockedAt.toISOString(),
         })),

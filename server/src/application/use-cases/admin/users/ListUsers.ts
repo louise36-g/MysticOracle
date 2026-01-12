@@ -4,7 +4,10 @@
  */
 
 import { AccountStatus, User } from '@prisma/client';
-import type { IUserRepository, UserListOptions } from '../../../ports/repositories/IUserRepository.js';
+import type {
+  IUserRepository,
+  UserListOptions,
+} from '../../../ports/repositories/IUserRepository.js';
 
 export interface ListUsersInput {
   page?: number;

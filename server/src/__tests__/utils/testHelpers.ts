@@ -3,8 +3,17 @@
  * Utility functions for creating test data and mocks
  */
 
-import type { Transaction, User, PaymentStatus, TransactionType, PaymentProvider } from '@prisma/client';
-import type { WebhookEvent, WebhookEventType } from '../../application/ports/services/IPaymentGateway.js';
+import type {
+  Transaction,
+  User,
+  PaymentStatus,
+  TransactionType,
+  PaymentProvider,
+} from '@prisma/client';
+import type {
+  WebhookEvent,
+  WebhookEventType,
+} from '../../application/ports/services/IPaymentGateway.js';
 
 /**
  * Create a mock user for testing
@@ -176,7 +185,11 @@ export function createMockCreditService() {
     getBalance: async () => 10,
     checkSufficientCredits: async () => ({ sufficient: true, balance: 10, required: 1 }),
     addCredits: async () => ({ success: true, newBalance: 20, transactionId: `tx_${Date.now()}` }),
-    deductCredits: async () => ({ success: true, newBalance: 5, transactionId: `tx_${Date.now()}` }),
+    deductCredits: async () => ({
+      success: true,
+      newBalance: 5,
+      transactionId: `tx_${Date.now()}`,
+    }),
     adjustCredits: async () => ({ success: true, newBalance: 15 }),
     processRefund: async () => ({ success: true, newBalance: 0 }),
     getSpreadCost: () => 1,

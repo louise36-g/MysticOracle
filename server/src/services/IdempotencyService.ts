@@ -83,11 +83,7 @@ class IdempotencyService {
   /**
    * Mark an idempotency key as completed with result
    */
-  async markCompleted(
-    idempotencyKey: string,
-    result: unknown,
-    statusCode: number
-  ): Promise<void> {
+  async markCompleted(idempotencyKey: string, result: unknown, statusCode: number): Promise<void> {
     const cacheKey = this.getCacheKey(idempotencyKey);
     const existing = await cacheService.get<IdempotencyRecord>(cacheKey);
 

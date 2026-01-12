@@ -59,7 +59,10 @@ export interface ITransactionRepository {
 
   // User's transactions
   findByUser(userId: string, options?: TransactionListOptions): Promise<Transaction[]>;
-  countByUser(userId: string, options?: Omit<TransactionListOptions, 'limit' | 'offset'>): Promise<number>;
+  countByUser(
+    userId: string,
+    options?: Omit<TransactionListOptions, 'limit' | 'offset'>
+  ): Promise<number>;
 
   // Admin listing
   findMany(options?: TransactionListOptions): Promise<TransactionWithUser[]>;
@@ -68,7 +71,9 @@ export interface ITransactionRepository {
   // Aggregations
   sumCompletedPurchases(): Promise<number>;
   sumCompletedPurchasesLast30Days(): Promise<number>;
-  groupByProvider(): Promise<{ paymentProvider: PaymentProvider | null; total: number; count: number }[]>;
+  groupByProvider(): Promise<
+    { paymentProvider: PaymentProvider | null; total: number; count: number }[]
+  >;
 }
 
 export default ITransactionRepository;

@@ -25,10 +25,10 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
     // Find readings that don't have normalized cards yet
     const readings = await prisma.reading.findMany({
       where: {
-        normalizedCards: { none: {} }
+        normalizedCards: { none: {} },
       },
       take: batchSize,
-      select: { id: true, cards: true }
+      select: { id: true, cards: true },
     });
 
     if (readings.length === 0) {
@@ -62,10 +62,14 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
       }
     }
 
-    console.log(`[Normalize Readings] Progress: ${processed} processed, ${skipped} skipped, ${errors} errors`);
+    console.log(
+      `[Normalize Readings] Progress: ${processed} processed, ${skipped} skipped, ${errors} errors`
+    );
   }
 
-  console.log(`[Normalize Readings] Complete: ${processed} processed, ${skipped} skipped, ${errors} errors`);
+  console.log(
+    `[Normalize Readings] Complete: ${processed} processed, ${skipped} skipped, ${errors} errors`
+  );
 
   return { processed, skipped, errors };
 }

@@ -50,7 +50,9 @@ export class AuditService {
           details: details as object | undefined,
         },
       });
-      console.log(`[AuditService] Logged: ${action} on ${entityType}${entityId ? `:${entityId}` : ''}`);
+      console.log(
+        `[AuditService] Logged: ${action} on ${entityType}${entityId ? `:${entityId}` : ''}`
+      );
     } catch (error) {
       // Log but don't fail the main operation - audit logging should not block business logic
       console.error('[AuditService] Failed to create audit log:', error);

@@ -36,9 +36,7 @@ export class PayPalGateway implements IPaymentGateway {
     isLive: boolean = false
   ) {
     this.webhookId = webhookId || null;
-    this.apiBase = isLive
-      ? 'https://api-m.paypal.com'
-      : 'https://api-m.sandbox.paypal.com';
+    this.apiBase = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 
     if (clientId && clientSecret) {
       this.client = new Client({
@@ -218,7 +216,8 @@ export class PayPalGateway implements IPaymentGateway {
       return null;
     }
 
-    const event = typeof payload === 'string' ? JSON.parse(payload) : JSON.parse(payload.toString());
+    const event =
+      typeof payload === 'string' ? JSON.parse(payload) : JSON.parse(payload.toString());
     const eventType = event.event_type;
 
     switch (eventType) {
@@ -268,9 +267,7 @@ export class PayPalGateway implements IPaymentGateway {
   ): Promise<boolean> {
     try {
       // Get PayPal access token
-      const authString = Buffer.from(
-        `${this.clientId}:${this.clientSecret}`
-      ).toString('base64');
+      const authString = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
       const tokenRes = await fetch(`${this.apiBase}/v1/oauth2/token`, {
         method: 'POST',
@@ -290,25 +287,22 @@ export class PayPalGateway implements IPaymentGateway {
       const accessToken = tokenData.access_token;
 
       // Verify webhook signature with PayPal
-      const verifyRes = await fetch(
-        `${this.apiBase}/v1/notifications/verify-webhook-signature`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            auth_algo: headers['paypal-auth-algo'],
-            cert_url: headers['paypal-cert-url'],
-            transmission_id: headers['paypal-transmission-id'],
-            transmission_sig: headers['paypal-transmission-sig'],
-            transmission_time: headers['paypal-transmission-time'],
-            webhook_id: this.webhookId,
-            webhook_event: eventBody,
-          }),
-        }
-      );
+      const verifyRes = await fetch(`${this.apiBase}/v1/notifications/verify-webhook-signature`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          auth_algo: headers['paypal-auth-algo'],
+          cert_url: headers['paypal-cert-url'],
+          transmission_id: headers['paypal-transmission-id'],
+          transmission_sig: headers['paypal-transmission-sig'],
+          transmission_time: headers['paypal-transmission-time'],
+          webhook_id: this.webhookId,
+          webhook_event: eventBody,
+        }),
+      });
 
       if (!verifyRes.ok) {
         console.error('PayPal webhook verification request failed');

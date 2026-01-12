@@ -79,7 +79,8 @@ const TEMPLATES = {
   WELCOME: {
     en: {
       subject: 'Welcome to MysticOracle - Your Journey Begins! 🔮',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Welcome, {{params.username}}!
         </h2>
@@ -100,11 +101,14 @@ const TEMPLATES = {
             Begin Your First Reading →
           </a>
         </div>
-      `, 'en')
+      `,
+        'en'
+      ),
     },
     fr: {
       subject: 'Bienvenue sur MysticOracle - Votre Voyage Commence! 🔮',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Bienvenue, {{params.username}}!
         </h2>
@@ -125,14 +129,17 @@ const TEMPLATES = {
             Commencer Votre Première Lecture →
           </a>
         </div>
-      `, 'fr')
-    }
+      `,
+        'fr'
+      ),
+    },
   },
 
   PURCHASE_CONFIRMATION: {
     en: {
       subject: 'Payment Confirmed - {{params.credits}} Credits Added ✨',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <div style="text-align: center; margin-bottom: 25px;">
           <div style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 50%; padding: 15px;">
             <span style="font-size: 32px;">✓</span>
@@ -165,11 +172,14 @@ const TEMPLATES = {
             Continue Your Journey →
           </a>
         </div>
-      `, 'en')
+      `,
+        'en'
+      ),
     },
     fr: {
       subject: 'Paiement Confirmé - {{params.credits}} Crédits Ajoutés ✨',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <div style="text-align: center; margin-bottom: 25px;">
           <div style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 50%; padding: 15px;">
             <span style="font-size: 32px;">✓</span>
@@ -202,14 +212,17 @@ const TEMPLATES = {
             Continuer Votre Voyage →
           </a>
         </div>
-      `, 'fr')
-    }
+      `,
+        'fr'
+      ),
+    },
   },
 
   LOW_CREDITS_REMINDER: {
     en: {
       subject: 'Your MysticOracle Credits are Running Low 🔮',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Don't let your journey end, {{params.username}}
         </h2>
@@ -226,11 +239,14 @@ const TEMPLATES = {
             Get More Credits →
           </a>
         </div>
-      `, 'en')
+      `,
+        'en'
+      ),
     },
     fr: {
       subject: 'Vos Crédits MysticOracle sont Presque Épuisés 🔮',
-      htmlContent: emailWrapper(`
+      htmlContent: emailWrapper(
+        `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Ne laissez pas votre voyage s'arrêter, {{params.username}}
         </h2>
@@ -247,9 +263,11 @@ const TEMPLATES = {
             Obtenir Plus de Crédits →
           </a>
         </div>
-      `, 'fr')
-    }
-  }
+      `,
+        'fr'
+      ),
+    },
+  },
 };
 
 // ============================================
@@ -273,13 +291,15 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 
     sendSmtpEmail.sender = {
       name: 'MysticOracle',
-      email: 'louise.charlotte.griffin@gmail.com' // Update with your verified domain
+      email: 'louise.charlotte.griffin@gmail.com', // Update with your verified domain
     };
 
-    sendSmtpEmail.to = [{
-      email: options.to,
-      name: options.toName || options.to
-    }];
+    sendSmtpEmail.to = [
+      {
+        email: options.to,
+        name: options.toName || options.to,
+      },
+    ];
 
     sendSmtpEmail.subject = options.subject;
     sendSmtpEmail.htmlContent = options.htmlContent;
@@ -315,8 +335,8 @@ export async function sendWelcomeEmail(
     params: {
       username,
       siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com',
-      unsubscribeUrl: `${process.env.FRONTEND_URL}/unsubscribe`
-    }
+      unsubscribeUrl: `${process.env.FRONTEND_URL}/unsubscribe`,
+    },
   });
 }
 
@@ -343,8 +363,8 @@ export async function sendPurchaseConfirmation(
       credits: credits.toString(),
       amount: `€${amount.toFixed(2)}`,
       newBalance: newBalance.toString(),
-      siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com'
-    }
+      siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com',
+    },
   });
 }
 
@@ -393,11 +413,7 @@ export async function subscribeToNewsletter(
   // List ID 1 = Newsletter (update with your actual list ID)
   const NEWSLETTER_LIST_ID = 1;
 
-  return upsertContact(
-    email,
-    { LANGUAGE: language },
-    [NEWSLETTER_LIST_ID]
-  );
+  return upsertContact(email, { LANGUAGE: language }, [NEWSLETTER_LIST_ID]);
 }
 
 /**
@@ -423,5 +439,5 @@ export default {
   sendPurchaseConfirmation,
   upsertContact,
   subscribeToNewsletter,
-  unsubscribeContact
+  unsubscribeContact,
 };

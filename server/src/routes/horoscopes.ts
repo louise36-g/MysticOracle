@@ -8,27 +8,55 @@ import cacheService, { CacheService } from '../services/cache.js';
 const router = Router();
 
 const zodiacSigns = [
-  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
+  'Aries',
+  'Taurus',
+  'Gemini',
+  'Cancer',
+  'Leo',
+  'Virgo',
+  'Libra',
+  'Scorpio',
+  'Sagittarius',
+  'Capricorn',
+  'Aquarius',
+  'Pisces',
   // French names
-  'Bélier', 'Taureau', 'Gémeaux', 'Cancer', 'Lion', 'Vierge',
-  'Balance', 'Scorpion', 'Sagittaire', 'Capricorne', 'Verseau', 'Poissons'
+  'Bélier',
+  'Taureau',
+  'Gémeaux',
+  'Cancer',
+  'Lion',
+  'Vierge',
+  'Balance',
+  'Scorpion',
+  'Sagittaire',
+  'Capricorne',
+  'Verseau',
+  'Poissons',
 ];
 
 // Normalize sign to English for caching consistency
 const normalizeSign = (sign: string): string => {
   const frToEn: Record<string, string> = {
-    'Bélier': 'Aries', 'Taureau': 'Taurus', 'Gémeaux': 'Gemini',
-    'Cancer': 'Cancer', 'Lion': 'Leo', 'Vierge': 'Virgo',
-    'Balance': 'Libra', 'Scorpion': 'Scorpio', 'Sagittaire': 'Sagittarius',
-    'Capricorne': 'Capricorn', 'Verseau': 'Aquarius', 'Poissons': 'Pisces'
+    Bélier: 'Aries',
+    Taureau: 'Taurus',
+    Gémeaux: 'Gemini',
+    Cancer: 'Cancer',
+    Lion: 'Leo',
+    Vierge: 'Virgo',
+    Balance: 'Libra',
+    Scorpion: 'Scorpio',
+    Sagittaire: 'Sagittarius',
+    Capricorne: 'Capricorn',
+    Verseau: 'Aquarius',
+    Poissons: 'Pisces',
   };
   return frToEn[sign] || sign;
 };
 
 const getHoroscopeSchema = z.object({
   sign: z.string().refine(s => zodiacSigns.includes(s), 'Invalid zodiac sign'),
-  language: z.enum(['en', 'fr']).default('en')
+  language: z.enum(['en', 'fr']).default('en'),
 });
 
 // Generate horoscope via OpenRouter
@@ -36,13 +64,18 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
   const aiSettings = await getAISettings();
 
   if (!aiSettings.apiKey) {
-    console.error('OpenRouter API key not configured (check database settings or OPENROUTER_API_KEY env var)');
+    console.error(
+      'OpenRouter API key not configured (check database settings or OPENROUTER_API_KEY env var)'
+    );
     throw new Error('AI service not configured. Please contact support.');
   }
 
   const langName = language === 'en' ? 'English' : 'French';
   const today = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   });
 
   const prompt = `
@@ -85,16 +118,16 @@ Tone: Professional, informative, respectful, and direct.
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${aiSettings.apiKey}`,
+      Authorization: `Bearer ${aiSettings.apiKey}`,
       'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
-      'X-Title': 'MysticOracle'
+      'X-Title': 'MysticOracle',
     },
     body: JSON.stringify({
       model: aiSettings.model,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.8,
-      max_tokens: 1000
-    })
+      max_tokens: 1000,
+    }),
   });
 
   if (!response.ok) {
@@ -110,7 +143,7 @@ Tone: Professional, informative, respectful, and direct.
     throw new Error(`AI service error (${response.status}). Please try again.`);
   }
 
-  const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+  const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
   return data.choices[0]?.message?.content || 'Unable to generate horoscope';
 }
 
@@ -134,12 +167,14 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     const memoryCacheKey = `horoscope:${normalizedSign}:${language}:${dateKey}`;
 
     // Check in-memory cache first (reduces DB load)
-    const memoryCached = await cacheService.get<{ horoscope: string; createdAt: Date }>(memoryCacheKey);
+    const memoryCached = await cacheService.get<{ horoscope: string; createdAt: Date }>(
+      memoryCacheKey
+    );
     if (memoryCached) {
       return res.json({
         horoscope: memoryCached.horoscope,
         cached: true,
-        generatedAt: memoryCached.createdAt
+        generatedAt: memoryCached.createdAt,
       });
     }
 
@@ -149,22 +184,26 @@ router.get('/:sign', optionalAuth, async (req, res) => {
         sign_language_date: {
           sign: normalizedSign,
           language,
-          date: today
-        }
-      }
+          date: today,
+        },
+      },
     });
 
     if (dbCached) {
       // Populate memory cache from DB
-      await cacheService.set(memoryCacheKey, {
-        horoscope: dbCached.horoscope,
-        createdAt: dbCached.createdAt
-      }, CacheService.TTL.HOROSCOPE);
+      await cacheService.set(
+        memoryCacheKey,
+        {
+          horoscope: dbCached.horoscope,
+          createdAt: dbCached.createdAt,
+        },
+        CacheService.TTL.HOROSCOPE
+      );
 
       return res.json({
         horoscope: dbCached.horoscope,
         cached: true,
-        generatedAt: dbCached.createdAt
+        generatedAt: dbCached.createdAt,
       });
     }
 
@@ -178,20 +217,20 @@ router.get('/:sign', optionalAuth, async (req, res) => {
         sign_language_date: {
           sign: normalizedSign,
           language,
-          date: today
-        }
+          date: today,
+        },
       },
       create: {
         sign: normalizedSign,
         language,
         date: today,
         horoscope,
-        userId: req.auth?.userId || null
+        userId: req.auth?.userId || null,
       },
       update: {
         horoscope,
-        userId: req.auth?.userId || null
-      }
+        userId: req.auth?.userId || null,
+      },
     });
 
     // Save to memory cache
@@ -200,7 +239,7 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     res.json({
       horoscope,
       cached: false,
-      generatedAt: createdAt
+      generatedAt: createdAt,
     });
   } catch (error) {
     console.error('Horoscope error:', error);
@@ -230,10 +269,10 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
         sign_language_date: {
           sign: normalizedSign,
           language,
-          date: today
-        }
+          date: today,
+        },
       },
-      include: { questions: true }
+      include: { questions: true },
     });
 
     // Look for cached answer
@@ -245,7 +284,7 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
     if (cachedAnswer) {
       return res.json({
         answer: cachedAnswer.answer,
-        cached: true
+        cached: true,
       });
     }
 
@@ -257,12 +296,19 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
 
     const langName = language === 'en' ? 'English' : 'French';
     const todayStr = new Date().toLocaleDateString('en-GB', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
 
-    const historyText = history?.map((h: { role: string; content: string }) =>
-      `${h.role === 'user' ? 'Seeker' : 'Astrologer'}: ${h.content}`
-    ).join('\n') || '';
+    const historyText =
+      history
+        ?.map(
+          (h: { role: string; content: string }) =>
+            `${h.role === 'user' ? 'Seeker' : 'Astrologer'}: ${h.content}`
+        )
+        .join('\n') || '';
 
     const prompt = `
 You are an expert astrologer continuing a conversation about a horoscope reading.
@@ -297,23 +343,23 @@ IMPORTANT STYLE RULES:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${aiSettings.apiKey}`,
+        Authorization: `Bearer ${aiSettings.apiKey}`,
         'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
-        'X-Title': 'MysticOracle'
+        'X-Title': 'MysticOracle',
       },
       body: JSON.stringify({
         model: aiSettings.model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 500
-      })
+        max_tokens: 500,
+      }),
     });
 
     if (!response.ok) {
       throw new Error('Failed to generate answer');
     }
 
-    const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+    const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
     const answer = data.choices[0]?.message?.content || 'Unable to answer';
 
     // Cache the Q&A if we have a horoscope cache entry
@@ -322,8 +368,8 @@ IMPORTANT STYLE RULES:
         data: {
           horoscopeCacheId: cachedHoroscope.id,
           question: question.trim(),
-          answer
-        }
+          answer,
+        },
       });
     }
 

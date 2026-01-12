@@ -34,7 +34,8 @@ export function exampleBasicValidation() {
     seo: {
       focusKeyword: 'the fool tarot card',
       metaTitle: 'The Fool Tarot Card: Meaning & Interpretation',
-      metaDescription: 'Discover the meaning of The Fool tarot card, its symbolism, and how it guides you toward new beginnings.',
+      metaDescription:
+        'Discover the meaning of The Fool tarot card, its symbolism, and how it guides you toward new beginnings.',
     },
     faq: [
       {
@@ -102,10 +103,7 @@ export function exampleExtendedValidation() {
 /**
  * Example 3: Complete API route flow
  */
-export async function exampleCompleteFlow(
-  prisma: PrismaClient,
-  rawInput: unknown
-) {
+export async function exampleCompleteFlow(prisma: PrismaClient, rawInput: unknown) {
   // Step 1: Validate input
   const validationResult = validateArticleExtended(rawInput);
 
@@ -222,10 +220,7 @@ export function exampleAPIRoute() {
 /**
  * Example 5: Bulk import with validation
  */
-export async function exampleBulkImport(
-  prisma: PrismaClient,
-  articles: unknown[]
-) {
+export async function exampleBulkImport(prisma: PrismaClient, articles: unknown[]) {
   const results = {
     success: [] as any[],
     failed: [] as any[],

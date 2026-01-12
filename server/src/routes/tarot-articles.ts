@@ -3,7 +3,12 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
-import { validateTarotArticle, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
+import {
+  validateTarotArticle,
+  validateArticleWithWarnings,
+  convertToPrismaFormat,
+  convertToPrismaFormatLenient,
+} from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
 import { cacheService, CacheService } from '../services/cache.js';
 
@@ -159,10 +164,12 @@ router.get('/:slug', async (req, res) => {
 const listArticlesSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
-  cardType: z.enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES']).optional(),
+  cardType: z
+    .enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'])
+    .optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   search: z.string().optional(),
-  deleted: z.coerce.boolean().optional(),  // true = show trash, false/undefined = show active
+  deleted: z.coerce.boolean().optional(), // true = show trash, false/undefined = show active
   sortBy: z.enum(['datePublished', 'cardNumber']).optional(), // cardNumber for tarot card order
 });
 
@@ -360,14 +367,16 @@ router.post('/admin/import', async (req, res) => {
         schemaHtml = schemaResult.schemaHtml;
       } catch (schemaError) {
         // Schema generation failed - add as warning but continue
-        warningsResult.warnings.push('[Schema] Could not generate structured data - article may need additional fields');
+        warningsResult.warnings.push(
+          '[Schema] Could not generate structured data - article may need additional fields'
+        );
       }
 
       // Create the article in the database
       const article = await prisma.tarotArticle.create({
         data: {
           ...prismaData,
-          schemaJson: schema as any || {},
+          schemaJson: (schema as any) || {},
           schemaHtml,
           status: 'DRAFT', // Force-saved articles always start as draft
           createdAt: new Date(),
@@ -446,7 +455,7 @@ router.post('/admin/import', async (req, res) => {
     const article = await prisma.tarotArticle.create({
       data: {
         ...prismaData,
-        schemaJson: schema as any || {},
+        schemaJson: (schema as any) || {},
         schemaHtml,
         status: 'DRAFT', // Import as draft by default
         createdAt: new Date(),
@@ -492,9 +501,9 @@ router.get('/admin/list', async (req, res) => {
 
     // Filter by trash status
     if (deleted === true) {
-      where.deletedAt = { not: null };  // Show only trashed articles
+      where.deletedAt = { not: null }; // Show only trashed articles
     } else {
-      where.deletedAt = null;  // Show only active articles (default)
+      where.deletedAt = null; // Show only active articles (default)
     }
 
     if (cardType) {
@@ -630,12 +639,30 @@ router.patch('/admin/:id', async (req, res) => {
 
       // Whitelist allowed fields for visual editor updates
       const allowedFields = [
-        'title', 'excerpt', 'content', 'slug', 'author', 'readTime',
-        'featuredImage', 'featuredImageAlt', 'cardType', 'cardNumber',
-        'astrologicalCorrespondence', 'element', 'categories', 'tags',
-        'faq', 'breadcrumbCategory', 'breadcrumbCategoryUrl', 'relatedCards',
-        'isCourtCard', 'isChallengeCard', 'status',
-        'seoFocusKeyword', 'seoMetaTitle', 'seoMetaDescription',
+        'title',
+        'excerpt',
+        'content',
+        'slug',
+        'author',
+        'readTime',
+        'featuredImage',
+        'featuredImageAlt',
+        'cardType',
+        'cardNumber',
+        'astrologicalCorrespondence',
+        'element',
+        'categories',
+        'tags',
+        'faq',
+        'breadcrumbCategory',
+        'breadcrumbCategoryUrl',
+        'relatedCards',
+        'isCourtCard',
+        'isChallengeCard',
+        'status',
+        'seoFocusKeyword',
+        'seoMetaTitle',
+        'seoMetaDescription',
       ];
 
       const sanitizedUpdates: Record<string, any> = {};
@@ -646,7 +673,10 @@ router.patch('/admin/:id', async (req, res) => {
       }
 
       // Validate status if present
-      if (sanitizedUpdates.status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)) {
+      if (
+        sanitizedUpdates.status &&
+        !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)
+      ) {
         return res.status(400).json({ error: 'Invalid status value' });
       }
 
@@ -687,7 +717,9 @@ router.patch('/admin/:id', async (req, res) => {
           schemaHtml = schemaResult.schemaHtml;
         } catch (schemaError) {
           // Schema generation failed - add as warning but continue
-          warningsResult.warnings.push('[Schema] Could not generate structured data - article may need additional fields');
+          warningsResult.warnings.push(
+            '[Schema] Could not generate structured data - article may need additional fields'
+          );
         }
 
         // Update with validated data
@@ -695,7 +727,7 @@ router.patch('/admin/:id', async (req, res) => {
           where: { id },
           data: {
             ...prismaData,
-            schemaJson: schema as any || existingArticle.schemaJson,
+            schemaJson: (schema as any) || existingArticle.schemaJson,
             schemaHtml: schemaHtml || existingArticle.schemaHtml,
             updatedAt: new Date(),
           },
@@ -750,7 +782,7 @@ router.patch('/admin/:id', async (req, res) => {
         where: { id },
         data: {
           ...prismaData,
-          schemaJson: schema as any || existingArticle.schemaJson,
+          schemaJson: (schema as any) || existingArticle.schemaJson,
           schemaHtml: schemaHtml || existingArticle.schemaHtml,
           updatedAt: new Date(),
         },
@@ -781,7 +813,10 @@ router.patch('/admin/:id', async (req, res) => {
     }
 
     // Validate status value if present
-    if (sanitizedUpdates.status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)) {
+    if (
+      sanitizedUpdates.status &&
+      !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status)
+    ) {
       return res.status(400).json({ error: 'Invalid status value' });
     }
 
@@ -935,7 +970,11 @@ router.delete('/admin/trash/empty', async (req, res) => {
       where: { deletedAt: { not: null } },
     });
 
-    res.json({ success: true, deleted: result.count, message: `${result.count} articles permanently deleted` });
+    res.json({
+      success: true,
+      deleted: result.count,
+      message: `${result.count} articles permanently deleted`,
+    });
   } catch (error) {
     console.error('Error emptying trash:', error);
     res.status(500).json({ error: 'Failed to empty trash' });
@@ -968,7 +1007,11 @@ router.get('/admin/categories', async (req, res) => {
  */
 const createCategorySchema = z.object({
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/),
   description: z.string().max(500).optional(),
 });
 
@@ -1053,7 +1096,11 @@ router.get('/admin/tags', async (req, res) => {
  */
 const createTagSchema = z.object({
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/),
 });
 
 router.post('/admin/tags', async (req, res) => {

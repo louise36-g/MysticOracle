@@ -49,10 +49,10 @@ function sanitizeFilename(filename: string): string {
 
   const sanitized = base
     .toLowerCase()
-    .replace(/\s+/g, '-')           // spaces to hyphens
-    .replace(/[^a-z0-9-]/g, '')     // remove special chars
-    .replace(/-+/g, '-')            // collapse multiple hyphens
-    .replace(/^-|-$/g, '');         // trim hyphens from ends
+    .replace(/\s+/g, '-') // spaces to hyphens
+    .replace(/[^a-z0-9-]/g, '') // remove special chars
+    .replace(/-+/g, '-') // collapse multiple hyphens
+    .replace(/^-|-$/g, ''); // trim hyphens from ends
 
   return `${sanitized || 'image'}${ext}`;
 }
@@ -127,7 +127,7 @@ const storage = multer.diskStorage({
     } catch (error) {
       cb(error as Error, '');
     }
-  }
+  },
 });
 
 const upload = multer({
@@ -136,7 +136,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     cb(null, allowed.includes(file.mimetype));
-  }
+  },
 });
 
 // ============================================
@@ -146,13 +146,15 @@ const upload = multer({
 // List published posts with pagination
 router.get('/posts', async (req, res) => {
   try {
-    const params = z.object({
-      page: z.coerce.number().min(1).default(1),
-      limit: z.coerce.number().min(1).max(50).default(12),
-      category: z.string().optional(),
-      tag: z.string().optional(),
-      featured: z.coerce.boolean().optional()
-    }).parse(req.query);
+    const params = z
+      .object({
+        page: z.coerce.number().min(1).default(1),
+        limit: z.coerce.number().min(1).max(50).default(12),
+        category: z.string().optional(),
+        tag: z.string().optional(),
+        featured: z.coerce.boolean().optional(),
+      })
+      .parse(req.query);
 
     // Build cache key from sorted params
     const cacheKey = `blog:posts:${JSON.stringify({
@@ -160,7 +162,7 @@ router.get('/posts', async (req, res) => {
       l: params.limit,
       c: params.category || '',
       t: params.tag || '',
-      f: params.featured ?? ''
+      f: params.featured ?? '',
     })}`;
 
     // Check cache first
@@ -172,7 +174,7 @@ router.get('/posts', async (req, res) => {
     const where: any = {
       status: 'PUBLISHED',
       publishedAt: { not: null },
-      deletedAt: null  // Exclude deleted posts
+      deletedAt: null, // Exclude deleted posts
     };
 
     if (params.category) {
@@ -203,31 +205,33 @@ router.get('/posts', async (req, res) => {
           readTimeMinutes: true,
           publishedAt: true,
           categories: {
-            include: { category: { select: { slug: true, nameEn: true, nameFr: true, color: true } } }
+            include: {
+              category: { select: { slug: true, nameEn: true, nameFr: true, color: true } },
+            },
           },
           tags: {
-            include: { tag: { select: { slug: true, nameEn: true, nameFr: true } } }
-          }
+            include: { tag: { select: { slug: true, nameEn: true, nameFr: true } } },
+          },
         },
         orderBy: [{ featured: 'desc' }, { publishedAt: 'desc' }],
         skip: (params.page - 1) * params.limit,
-        take: params.limit
+        take: params.limit,
       }),
-      prisma.blogPost.count({ where })
+      prisma.blogPost.count({ where }),
     ]);
 
     const response = {
       posts: posts.map(p => ({
         ...p,
         categories: p.categories.map(c => c.category),
-        tags: p.tags.map(t => t.tag)
+        tags: p.tags.map(t => t.tag),
       })),
       pagination: {
         page: params.page,
         limit: params.limit,
         total,
-        totalPages: Math.ceil(total / params.limit)
-      }
+        totalPages: Math.ceil(total / params.limit),
+      },
     };
 
     // Cache for 5 minutes
@@ -249,16 +253,16 @@ router.get('/posts/:slug', async (req, res) => {
       where: {
         slug,
         status: 'PUBLISHED',
-        publishedAt: { not: null }
+        publishedAt: { not: null },
       },
       include: {
         categories: {
-          include: { category: true }
+          include: { category: true },
         },
         tags: {
-          include: { tag: true }
-        }
-      }
+          include: { tag: true },
+        },
+      },
     });
 
     if (!post) {
@@ -266,10 +270,12 @@ router.get('/posts/:slug', async (req, res) => {
     }
 
     // Increment view count (non-blocking)
-    prisma.blogPost.update({
-      where: { id: post.id },
-      data: { viewCount: { increment: 1 } }
-    }).catch(() => {});
+    prisma.blogPost
+      .update({
+        where: { id: post.id },
+        data: { viewCount: { increment: 1 } },
+      })
+      .catch(() => {});
 
     // Get related posts (same category, excluding current and deleted)
     const relatedPosts = await prisma.blogPost.findMany({
@@ -280,9 +286,9 @@ router.get('/posts/:slug', async (req, res) => {
         id: { not: post.id },
         categories: {
           some: {
-            categoryId: { in: post.categories.map(c => c.categoryId) }
-          }
-        }
+            categoryId: { in: post.categories.map(c => c.categoryId) },
+          },
+        },
       },
       select: {
         slug: true,
@@ -292,19 +298,19 @@ router.get('/posts/:slug', async (req, res) => {
         excerptFr: true,
         coverImage: true,
         publishedAt: true,
-        readTimeMinutes: true
+        readTimeMinutes: true,
       },
       take: 3,
-      orderBy: { publishedAt: 'desc' }
+      orderBy: { publishedAt: 'desc' },
     });
 
     res.json({
       post: {
         ...post,
         categories: post.categories.map(c => c.category),
-        tags: post.tags.map(t => t.tag)
+        tags: post.tags.map(t => t.tag),
       },
-      relatedPosts
+      relatedPosts,
     });
   } catch (error) {
     console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
@@ -324,23 +330,26 @@ router.get('/categories', async (req, res) => {
               where: {
                 post: {
                   status: 'PUBLISHED',
-                  publishedAt: { not: null }
-                }
-              }
-            }
-          }
-        }
-      }
+                  publishedAt: { not: null },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     res.json({
       categories: categories.map(c => ({
         ...c,
-        postCount: c._count.posts
-      }))
+        postCount: c._count.posts,
+      })),
     });
   } catch (error) {
-    console.error('Error fetching categories:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error fetching categories:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
@@ -357,20 +366,20 @@ router.get('/tags', async (req, res) => {
               where: {
                 post: {
                   status: 'PUBLISHED',
-                  publishedAt: { not: null }
-                }
-              }
-            }
-          }
-        }
-      }
+                  publishedAt: { not: null },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     res.json({
       tags: tags.map(t => ({
         ...t,
-        postCount: t._count.posts
-      }))
+        postCount: t._count.posts,
+      })),
     });
   } catch (error) {
     console.error('Error fetching tags:', error instanceof Error ? error.message : String(error));
@@ -389,12 +398,12 @@ router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => 
       where: { id: req.params.id, deletedAt: null },
       include: {
         categories: {
-          include: { category: true }
+          include: { category: true },
         },
         tags: {
-          include: { tag: true }
-        }
-      }
+          include: { tag: true },
+        },
+      },
     });
 
     if (!post) {
@@ -405,7 +414,7 @@ router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => 
     const transformedPost = {
       ...post,
       categories: post.categories.map(pc => pc.category),
-      tags: post.tags.map(pt => pt.tag)
+      tags: post.tags.map(pt => pt.tag),
     };
 
     // Get related posts (same category) for preview
@@ -417,9 +426,9 @@ router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => 
         id: { not: post.id },
         categories: {
           some: {
-            categoryId: { in: post.categories.map(c => c.categoryId) }
-          }
-        }
+            categoryId: { in: post.categories.map(c => c.categoryId) },
+          },
+        },
       },
       select: {
         slug: true,
@@ -428,10 +437,10 @@ router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => 
         excerptEn: true,
         excerptFr: true,
         coverImage: true,
-        readTimeMinutes: true
+        readTimeMinutes: true,
       },
       take: 3,
-      orderBy: { publishedAt: 'desc' }
+      orderBy: { publishedAt: 'desc' },
     });
 
     res.json({ post: transformedPost, relatedPosts });
@@ -444,13 +453,15 @@ router.get('/admin/preview/:id', requireAuth, requireAdmin, async (req, res) => 
 // List all posts (including drafts) for admin
 router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const params = z.object({
-      page: z.coerce.number().min(1).default(1),
-      limit: z.coerce.number().min(1).max(100).default(20),
-      status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
-      search: z.string().optional(),
-      deleted: z.coerce.boolean().optional()  // true = show trash, false/undefined = show active
-    }).parse(req.query);
+    const params = z
+      .object({
+        page: z.coerce.number().min(1).default(1),
+        limit: z.coerce.number().min(1).max(100).default(20),
+        status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+        search: z.string().optional(),
+        deleted: z.coerce.boolean().optional(), // true = show trash, false/undefined = show active
+      })
+      .parse(req.query);
 
     const where: any = {};
 
@@ -466,7 +477,7 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       where.OR = [
         { titleEn: { contains: params.search, mode: 'insensitive' } },
         { titleFr: { contains: params.search, mode: 'insensitive' } },
-        { slug: { contains: params.search, mode: 'insensitive' } }
+        { slug: { contains: params.search, mode: 'insensitive' } },
       ];
     }
 
@@ -475,30 +486,33 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         where,
         include: {
           categories: { include: { category: true } },
-          tags: { include: { tag: true } }
+          tags: { include: { tag: true } },
         },
         orderBy: { updatedAt: 'desc' },
         skip: (params.page - 1) * params.limit,
-        take: params.limit
+        take: params.limit,
       }),
-      prisma.blogPost.count({ where })
+      prisma.blogPost.count({ where }),
     ]);
 
     res.json({
       posts: posts.map(p => ({
         ...p,
         categories: p.categories.map(c => c.category),
-        tags: p.tags.map(t => t.tag)
+        tags: p.tags.map(t => t.tag),
       })),
       pagination: {
         page: params.page,
         limit: params.limit,
         total,
-        totalPages: Math.ceil(total / params.limit)
-      }
+        totalPages: Math.ceil(total / params.limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching admin posts:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error fetching admin posts:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -510,8 +524,8 @@ router.get('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
       where: { id: req.params.id },
       include: {
         categories: { include: { category: true } },
-        tags: { include: { tag: true } }
-      }
+        tags: { include: { tag: true } },
+      },
     });
 
     if (!post) {
@@ -522,8 +536,8 @@ router.get('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
       post: {
         ...post,
         categoryIds: post.categories.map(c => c.categoryId),
-        tagIds: post.tags.map(t => t.tagId)
-      }
+        tagIds: post.tags.map(t => t.tagId),
+      },
     });
   } catch (error) {
     console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
@@ -534,26 +548,71 @@ router.get('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
 // Create post - use nullish() for optional fields to handle null from frontend
 // Note: Only titleEn and authorName are required - all other language fields are optional
 const createPostSchema = z.object({
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   titleEn: z.string().min(1),
-  titleFr: z.string().nullish().transform(v => v || ''),
-  excerptEn: z.string().nullish().transform(v => v || ''),
-  excerptFr: z.string().nullish().transform(v => v || ''),
-  contentEn: z.string().nullish().transform(v => v || ''),
-  contentFr: z.string().nullish().transform(v => v || ''),
-  coverImage: z.string().nullish().transform(v => v || undefined),
-  coverImageAlt: z.string().nullish().transform(v => v || undefined),
-  metaTitleEn: z.string().nullish().transform(v => v || undefined),
-  metaTitleFr: z.string().nullish().transform(v => v || undefined),
-  metaDescEn: z.string().nullish().transform(v => v || undefined),
-  metaDescFr: z.string().nullish().transform(v => v || undefined),
-  ogImage: z.string().nullish().transform(v => v || undefined),
+  titleFr: z
+    .string()
+    .nullish()
+    .transform(v => v || ''),
+  excerptEn: z
+    .string()
+    .nullish()
+    .transform(v => v || ''),
+  excerptFr: z
+    .string()
+    .nullish()
+    .transform(v => v || ''),
+  contentEn: z
+    .string()
+    .nullish()
+    .transform(v => v || ''),
+  contentFr: z
+    .string()
+    .nullish()
+    .transform(v => v || ''),
+  coverImage: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  coverImageAlt: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  metaTitleEn: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  metaTitleFr: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  metaDescEn: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  metaDescFr: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  ogImage: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
   authorName: z.string().min(1),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
   featured: z.boolean().default(false),
   readTimeMinutes: z.number().int().min(1).default(5),
-  categoryIds: z.array(z.string()).nullish().transform(v => v || []),
-  tagIds: z.array(z.string()).nullish().transform(v => v || [])
+  categoryIds: z
+    .array(z.string())
+    .nullish()
+    .transform(v => v || []),
+  tagIds: z
+    .array(z.string())
+    .nullish()
+    .transform(v => v || []),
 });
 
 router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
@@ -590,16 +649,16 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         readTimeMinutes: data.readTimeMinutes,
         publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
         categories: {
-          create: categoryIds.map(categoryId => ({ categoryId }))
+          create: categoryIds.map(categoryId => ({ categoryId })),
         },
         tags: {
-          create: tagIds.map(tagId => ({ tagId }))
-        }
+          create: tagIds.map(tagId => ({ tagId })),
+        },
       },
       include: {
         categories: { include: { category: true } },
-        tags: { include: { tag: true } }
-      }
+        tags: { include: { tag: true } },
+      },
     });
 
     // Invalidate blog cache
@@ -622,7 +681,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
     // Check slug uniqueness if changing
     if (postData.slug) {
       const existing = await prisma.blogPost.findFirst({
-        where: { slug: postData.slug, id: { not: id } }
+        where: { slug: postData.slug, id: { not: id } },
       });
       if (existing) {
         return res.status(400).json({ error: 'Slug already exists' });
@@ -647,7 +706,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
     if (categoryIds !== undefined) {
       await prisma.blogPostCategory.deleteMany({ where: { postId: id } });
       updateData.categories = {
-        create: categoryIds.map(categoryId => ({ categoryId }))
+        create: categoryIds.map(categoryId => ({ categoryId })),
       };
     }
 
@@ -655,7 +714,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
     if (tagIds !== undefined) {
       await prisma.blogPostTag.deleteMany({ where: { postId: id } });
       updateData.tags = {
-        create: tagIds.map(tagId => ({ tagId }))
+        create: tagIds.map(tagId => ({ tagId })),
       };
     }
 
@@ -664,8 +723,8 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
       data: updateData,
       include: {
         categories: { include: { category: true } },
-        tags: { include: { tag: true } }
-      }
+        tags: { include: { tag: true } },
+      },
     });
 
     // Invalidate blog cache
@@ -695,8 +754,8 @@ router.delete('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) =>
       data: {
         deletedAt: new Date(),
         originalSlug: post.slug,
-        slug: trashedSlug
-      }
+        slug: trashedSlug,
+      },
     });
 
     // Invalidate blog cache
@@ -723,7 +782,7 @@ router.post('/admin/posts/:id/restore', requireAuth, requireAdmin, async (req, r
     // Check if original slug is available
     const originalSlug = post.originalSlug || post.slug.replace(/^_deleted_\d+_/, '');
     const existingWithSlug = await prisma.blogPost.findFirst({
-      where: { slug: originalSlug, id: { not: post.id } }
+      where: { slug: originalSlug, id: { not: post.id } },
     });
 
     // If original slug is taken, generate a new one
@@ -737,8 +796,8 @@ router.post('/admin/posts/:id/restore', requireAuth, requireAdmin, async (req, r
       data: {
         deletedAt: null,
         originalSlug: null,
-        slug: newSlug
-      }
+        slug: newSlug,
+      },
     });
 
     // Invalidate blog cache
@@ -769,7 +828,10 @@ router.delete('/admin/posts/:id/permanent', requireAuth, requireAdmin, async (re
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Error permanently deleting post:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error permanently deleting post:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to permanently delete post' });
   }
 });
@@ -778,7 +840,7 @@ router.delete('/admin/posts/:id/permanent', requireAuth, requireAdmin, async (re
 router.delete('/admin/posts/trash/empty', requireAuth, requireAdmin, async (req, res) => {
   try {
     const result = await prisma.blogPost.deleteMany({
-      where: { deletedAt: { not: null } }
+      where: { deletedAt: { not: null } },
     });
 
     // Invalidate blog cache
@@ -799,24 +861,42 @@ router.get('/admin/categories', requireAuth, requireAdmin, async (req, res) => {
   try {
     const categories = await prisma.blogCategory.findMany({
       orderBy: { sortOrder: 'asc' },
-      include: { _count: { select: { posts: true } } }
+      include: { _count: { select: { posts: true } } },
     });
     res.json({ categories });
   } catch (error) {
-    console.error('Error fetching categories:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error fetching categories:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
 
 const categorySchema = z.object({
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/),
   nameEn: z.string().min(1),
   nameFr: z.string().min(1),
-  descEn: z.string().nullish().transform(v => v || undefined),
-  descFr: z.string().nullish().transform(v => v || undefined),
-  color: z.string().nullish().transform(v => v || undefined),
-  icon: z.string().nullish().transform(v => v || undefined),
-  sortOrder: z.number().int().default(0)
+  descEn: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  descFr: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  color: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  icon: z
+    .string()
+    .nullish()
+    .transform(v => v || undefined),
+  sortOrder: z.number().int().default(0),
 });
 
 router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => {
@@ -839,11 +919,14 @@ router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => 
         color: data.color,
         icon: data.icon,
         sortOrder: data.sortOrder,
-      }
+      },
     });
     res.json({ success: true, category });
   } catch (error) {
-    console.error('Error creating category:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error creating category:',
+      error instanceof Error ? error.message : String(error)
+    );
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
     }
@@ -858,7 +941,7 @@ router.patch('/admin/categories/:id', requireAuth, requireAdmin, async (req, res
     // Check for duplicate slug if changing
     if (data.slug) {
       const existing = await prisma.blogCategory.findFirst({
-        where: { slug: data.slug, id: { not: req.params.id } }
+        where: { slug: data.slug, id: { not: req.params.id } },
       });
       if (existing) {
         return res.status(400).json({ error: 'A category with this slug already exists' });
@@ -867,11 +950,14 @@ router.patch('/admin/categories/:id', requireAuth, requireAdmin, async (req, res
 
     const category = await prisma.blogCategory.update({
       where: { id: req.params.id },
-      data
+      data,
     });
     res.json({ success: true, category });
   } catch (error) {
-    console.error('Error updating category:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error updating category:',
+      error instanceof Error ? error.message : String(error)
+    );
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
     }
@@ -884,7 +970,10 @@ router.delete('/admin/categories/:id', requireAuth, requireAdmin, async (req, re
     await prisma.blogCategory.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting category:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error deleting category:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to delete category' });
   }
 });
@@ -897,7 +986,7 @@ router.get('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
   try {
     const tags = await prisma.blogTag.findMany({
       orderBy: { nameEn: 'asc' },
-      include: { _count: { select: { posts: true } } }
+      include: { _count: { select: { posts: true } } },
     });
     res.json({ tags });
   } catch (error) {
@@ -907,9 +996,12 @@ router.get('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
 });
 
 const tagSchema = z.object({
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/),
   nameEn: z.string().min(1),
-  nameFr: z.string().min(1)
+  nameFr: z.string().min(1),
 });
 
 router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
@@ -927,7 +1019,7 @@ router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
         slug: data.slug,
         nameEn: data.nameEn,
         nameFr: data.nameFr,
-      }
+      },
     });
     res.json({ success: true, tag });
   } catch (error) {
@@ -946,7 +1038,7 @@ router.patch('/admin/tags/:id', requireAuth, requireAdmin, async (req, res) => {
     // Check for duplicate slug if changing
     if (data.slug) {
       const existing = await prisma.blogTag.findFirst({
-        where: { slug: data.slug, id: { not: req.params.id } }
+        where: { slug: data.slug, id: { not: req.params.id } },
       });
       if (existing) {
         return res.status(400).json({ error: 'A tag with this slug already exists' });
@@ -955,7 +1047,7 @@ router.patch('/admin/tags/:id', requireAuth, requireAdmin, async (req, res) => {
 
     const tag = await prisma.blogTag.update({
       where: { id: req.params.id },
-      data
+      data,
     });
     res.json({ success: true, tag });
   } catch (error) {
@@ -981,40 +1073,49 @@ router.delete('/admin/tags/:id', requireAuth, requireAdmin, async (req, res) => 
 // MEDIA UPLOAD
 // ============================================
 
-router.post('/admin/upload', requireAuth, requireAdmin, upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    // Get folder from request body, validate to prevent path traversal
-    const folder = validateFolder(req.body.folder || 'blog');
-
-    const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
-    const url = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
-
-    const media = await prisma.mediaUpload.create({
-      data: {
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
-        url,
-        altText: req.body.altText || null,
-        caption: req.body.caption || null,
-        folder
+router.post(
+  '/admin/upload',
+  requireAuth,
+  requireAdmin,
+  upload.single('image'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
       }
-    });
 
-    // Invalidate media cache after successful upload
-    await cacheService.flushPattern('media:');
+      // Get folder from request body, validate to prevent path traversal
+      const folder = validateFolder(req.body.folder || 'blog');
 
-    res.json({ success: true, media });
-  } catch (error) {
-    console.error('Error uploading file:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to upload file' });
+      const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3001}`;
+      const url = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
+
+      const media = await prisma.mediaUpload.create({
+        data: {
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          mimeType: req.file.mimetype,
+          size: req.file.size,
+          url,
+          altText: req.body.altText || null,
+          caption: req.body.caption || null,
+          folder,
+        },
+      });
+
+      // Invalidate media cache after successful upload
+      await cacheService.flushPattern('media:');
+
+      res.json({ success: true, media });
+    } catch (error) {
+      console.error(
+        'Error uploading file:',
+        error instanceof Error ? error.message : String(error)
+      );
+      res.status(500).json({ error: 'Failed to upload file' });
+    }
   }
-});
+);
 
 router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -1034,7 +1135,7 @@ router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
     const media = await prisma.mediaUpload.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 100
+      take: 100,
     });
 
     // Cache result
@@ -1079,19 +1180,24 @@ const importArticleSchema = z.object({
   title: z.string().min(1),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   author: z.string().optional(),
   read_time: z.union([z.string(), z.number()]).optional(),
   image_alt_text: z.string().optional(),
   categories: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  seo_meta: z.object({
-    focus_keyword: z.string().optional(),
-    meta_title: z.string().optional(),
-    meta_description: z.string().optional(),
-    og_title: z.string().optional(),
-    og_description: z.string().optional(),
-  }).optional(),
+  seo_meta: z
+    .object({
+      focus_keyword: z.string().optional(),
+      meta_title: z.string().optional(),
+      meta_description: z.string().optional(),
+      og_title: z.string().optional(),
+      og_description: z.string().optional(),
+    })
+    .optional(),
 });
 
 // Import one or more articles from JSON
@@ -1120,7 +1226,7 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
         if (!validation.success) {
           results.errors.push({
             slug: articleData.slug || 'unknown',
-            error: validation.error.errors.map(e => e.message).join(', ')
+            error: validation.error.errors.map(e => e.message).join(', '),
           });
           continue;
         }
@@ -1144,7 +1250,10 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
         const categoryIds: string[] = [];
         if (article.categories && article.categories.length > 0) {
           for (const catName of article.categories) {
-            const catSlug = catName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+            const catSlug = catName
+              .toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '')
+              .replace(/\s+/g, '-');
 
             let category = await prisma.blogCategory.findUnique({ where: { slug: catSlug } });
 
@@ -1154,7 +1263,7 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
                   slug: catSlug,
                   nameEn: catName,
                   nameFr: catName, // Default same, can edit later
-                }
+                },
               });
               results.createdCategories.push(catName);
             }
@@ -1169,7 +1278,10 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
         const tagIds: string[] = [];
         if (article.tags && article.tags.length > 0) {
           for (const tagName of article.tags) {
-            const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+            const tagSlug = tagName
+              .toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '')
+              .replace(/\s+/g, '-');
 
             let tag = await prisma.blogTag.findUnique({ where: { slug: tagSlug } });
 
@@ -1179,7 +1291,7 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
                   slug: tagSlug,
                   nameEn: tagName,
                   nameFr: tagName, // Default same, can edit later
-                }
+                },
               });
               results.createdTags.push(tagName);
             }
@@ -1219,29 +1331,32 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
             metaTitleEn: article.seo_meta?.meta_title || article.seo_meta?.og_title,
             metaDescEn: article.seo_meta?.meta_description || article.seo_meta?.og_description,
             categories: {
-              create: categoryIds.map(categoryId => ({ categoryId }))
+              create: categoryIds.map(categoryId => ({ categoryId })),
             },
             tags: {
-              create: tagIds.map(tagId => ({ tagId }))
-            }
-          }
+              create: tagIds.map(tagId => ({ tagId })),
+            },
+          },
         });
 
         results.imported++;
       } catch (err) {
         results.errors.push({
           slug: articleData.slug || 'unknown',
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error',
         });
       }
     }
 
     res.json({
       success: true,
-      results
+      results,
     });
   } catch (error) {
-    console.error('Error importing articles:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error importing articles:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to import articles' });
   }
 });
@@ -1256,45 +1371,112 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
     const categories = await Promise.all([
       prisma.blogCategory.upsert({
         where: { slug: 'tarot-guides' },
-        create: { slug: 'tarot-guides', nameEn: 'Tarot Guides', nameFr: 'Guides Tarot', descEn: 'Learn about tarot cards and spreads', descFr: 'Apprenez sur les cartes et tirages', color: '#8b5cf6', sortOrder: 0 },
-        update: {}
+        create: {
+          slug: 'tarot-guides',
+          nameEn: 'Tarot Guides',
+          nameFr: 'Guides Tarot',
+          descEn: 'Learn about tarot cards and spreads',
+          descFr: 'Apprenez sur les cartes et tirages',
+          color: '#8b5cf6',
+          sortOrder: 0,
+        },
+        update: {},
       }),
       prisma.blogCategory.upsert({
         where: { slug: 'astrology' },
-        create: { slug: 'astrology', nameEn: 'Astrology', nameFr: 'Astrologie', descEn: 'Zodiac signs and horoscopes', descFr: 'Signes du zodiaque et horoscopes', color: '#f59e0b', sortOrder: 1 },
-        update: {}
+        create: {
+          slug: 'astrology',
+          nameEn: 'Astrology',
+          nameFr: 'Astrologie',
+          descEn: 'Zodiac signs and horoscopes',
+          descFr: 'Signes du zodiaque et horoscopes',
+          color: '#f59e0b',
+          sortOrder: 1,
+        },
+        update: {},
       }),
       prisma.blogCategory.upsert({
         where: { slug: 'spirituality' },
-        create: { slug: 'spirituality', nameEn: 'Spirituality', nameFr: 'Spiritualité', descEn: 'Mindfulness and spiritual growth', descFr: 'Pleine conscience et croissance spirituelle', color: '#10b981', sortOrder: 2 },
-        update: {}
+        create: {
+          slug: 'spirituality',
+          nameEn: 'Spirituality',
+          nameFr: 'Spiritualité',
+          descEn: 'Mindfulness and spiritual growth',
+          descFr: 'Pleine conscience et croissance spirituelle',
+          color: '#10b981',
+          sortOrder: 2,
+        },
+        update: {},
       }),
       prisma.blogCategory.upsert({
         where: { slug: 'news' },
-        create: { slug: 'news', nameEn: 'News & Updates', nameFr: 'Actualités', descEn: 'Platform news and updates', descFr: 'Nouvelles et mises à jour', color: '#3b82f6', sortOrder: 3 },
-        update: {}
-      })
+        create: {
+          slug: 'news',
+          nameEn: 'News & Updates',
+          nameFr: 'Actualités',
+          descEn: 'Platform news and updates',
+          descFr: 'Nouvelles et mises à jour',
+          color: '#3b82f6',
+          sortOrder: 3,
+        },
+        update: {},
+      }),
     ]);
 
     // Create default tags
     const tags = await Promise.all([
-      prisma.blogTag.upsert({ where: { slug: 'beginners' }, create: { slug: 'beginners', nameEn: 'Beginners', nameFr: 'Débutants' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'advanced' }, create: { slug: 'advanced', nameEn: 'Advanced', nameFr: 'Avancé' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'major-arcana' }, create: { slug: 'major-arcana', nameEn: 'Major Arcana', nameFr: 'Arcanes Majeurs' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'minor-arcana' }, create: { slug: 'minor-arcana', nameEn: 'Minor Arcana', nameFr: 'Arcanes Mineurs' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'love' }, create: { slug: 'love', nameEn: 'Love', nameFr: 'Amour' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'career' }, create: { slug: 'career', nameEn: 'Career', nameFr: 'Carrière' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'meditation' }, create: { slug: 'meditation', nameEn: 'Meditation', nameFr: 'Méditation' }, update: {} }),
-      prisma.blogTag.upsert({ where: { slug: 'zodiac' }, create: { slug: 'zodiac', nameEn: 'Zodiac', nameFr: 'Zodiaque' }, update: {} })
+      prisma.blogTag.upsert({
+        where: { slug: 'beginners' },
+        create: { slug: 'beginners', nameEn: 'Beginners', nameFr: 'Débutants' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'advanced' },
+        create: { slug: 'advanced', nameEn: 'Advanced', nameFr: 'Avancé' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'major-arcana' },
+        create: { slug: 'major-arcana', nameEn: 'Major Arcana', nameFr: 'Arcanes Majeurs' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'minor-arcana' },
+        create: { slug: 'minor-arcana', nameEn: 'Minor Arcana', nameFr: 'Arcanes Mineurs' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'love' },
+        create: { slug: 'love', nameEn: 'Love', nameFr: 'Amour' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'career' },
+        create: { slug: 'career', nameEn: 'Career', nameFr: 'Carrière' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'meditation' },
+        create: { slug: 'meditation', nameEn: 'Meditation', nameFr: 'Méditation' },
+        update: {},
+      }),
+      prisma.blogTag.upsert({
+        where: { slug: 'zodiac' },
+        create: { slug: 'zodiac', nameEn: 'Zodiac', nameFr: 'Zodiaque' },
+        update: {},
+      }),
     ]);
 
     res.json({
       success: true,
       categories: categories.length,
-      tags: tags.length
+      tags: tags.length,
     });
   } catch (error) {
-    console.error('Error seeding blog data:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error seeding blog data:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).json({ error: 'Failed to seed blog data' });
   }
 });
@@ -1311,23 +1493,23 @@ router.get('/sitemap.xml', async (req, res) => {
     const posts = await prisma.blogPost.findMany({
       where: {
         status: 'PUBLISHED',
-        publishedAt: { not: null }
+        publishedAt: { not: null },
       },
       select: {
         slug: true,
-        updatedAt: true
+        updatedAt: true,
       },
-      orderBy: { publishedAt: 'desc' }
+      orderBy: { publishedAt: 'desc' },
     });
 
     // Get all categories
     const categories = await prisma.blogCategory.findMany({
-      select: { slug: true, updatedAt: true }
+      select: { slug: true, updatedAt: true },
     });
 
     // Get all tags
     const tags = await prisma.blogTag.findMany({
-      select: { slug: true, updatedAt: true }
+      select: { slug: true, updatedAt: true },
     });
 
     const today = new Date().toISOString().split('T')[0];
@@ -1418,7 +1600,10 @@ router.get('/sitemap.xml', async (req, res) => {
     res.set('Content-Type', 'application/xml');
     res.send(xml);
   } catch (error) {
-    console.error('Error generating sitemap:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error generating sitemap:',
+      error instanceof Error ? error.message : String(error)
+    );
     res.status(500).send('Error generating sitemap');
   }
 });

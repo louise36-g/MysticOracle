@@ -36,10 +36,7 @@ export class UpdateReflectionUseCase {
       }
 
       // 2. Verify reading exists and belongs to user
-      const reading = await this.readingRepository.findByIdAndUser(
-        input.readingId,
-        input.userId
-      );
+      const reading = await this.readingRepository.findByIdAndUser(input.readingId, input.userId);
 
       if (!reading) {
         return {

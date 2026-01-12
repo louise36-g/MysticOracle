@@ -40,7 +40,9 @@ export const TarotArticleCoreSchema = z.object({
     .string({ required_error: 'Content is required' })
     .min(100, 'Content must be at least 100 characters'),
   cardType: CardTypeEnum,
-  cardNumber: z.string({ required_error: 'Card number is required' }).min(1, 'Card number is required'),
+  cardNumber: z
+    .string({ required_error: 'Card number is required' })
+    .min(1, 'Card number is required'),
   element: ElementEnum,
   author: z.string({ required_error: 'Author is required' }).min(1, 'Author is required'),
 
@@ -57,15 +59,21 @@ export const TarotArticleCoreSchema = z.object({
   astrologicalCorrespondence: z.string().optional(),
   categories: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  seo: z.object({
-    focusKeyword: z.string().optional(),
-    metaTitle: z.string().optional(),
-    metaDescription: z.string().optional(),
-  }).optional(),
-  faq: z.array(z.object({
-    question: z.string().optional(),
-    answer: z.string().optional(),
-  })).optional(),
+  seo: z
+    .object({
+      focusKeyword: z.string().optional(),
+      metaTitle: z.string().optional(),
+      metaDescription: z.string().optional(),
+    })
+    .optional(),
+  faq: z
+    .array(
+      z.object({
+        question: z.string().optional(),
+        answer: z.string().optional(),
+      })
+    )
+    .optional(),
   breadcrumbCategory: z.string().optional(),
   breadcrumbCategoryUrl: z.string().optional(),
   relatedCards: z.array(z.string()).optional(),
@@ -328,9 +336,7 @@ export function validateTarotArticle(input: unknown): TarotArticleValidationResu
 
   if (!coreResult.success) {
     // Extract error messages
-    const errors = coreResult.error.errors.map(
-      (err) => `${err.path.join('.')}: ${err.message}`
-    );
+    const errors = coreResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
 
     return {
       success: false,
@@ -367,10 +373,7 @@ const FAQItemSchema = z.object({
 });
 
 const SEOSchema = z.object({
-  focusKeyword: z
-    .string()
-    .min(5, 'Focus keyword required')
-    .max(100),
+  focusKeyword: z.string().min(5, 'Focus keyword required').max(100),
   metaTitle: z
     .string()
     .min(20, 'Meta title too short')
@@ -387,35 +390,20 @@ const SEOSchema = z.object({
 
 export const TarotArticleSchema = z.object({
   // Content fields
-  title: z
-    .string()
-    .min(10, 'Title too short')
-    .max(100, 'Title too long'),
-  excerpt: z
-    .string()
-    .min(50, 'Excerpt too short')
-    .max(300, 'Excerpt too long'),
-  content: z
-    .string()
-    .min(5000, 'Content too short (minimum ~2500 words)'),
+  title: z.string().min(10, 'Title too short').max(100, 'Title too long'),
+  excerpt: z.string().min(50, 'Excerpt too short').max(300, 'Excerpt too long'),
+  content: z.string().min(5000, 'Content too short (minimum ~2500 words)'),
   slug: z
     .string()
     .min(5)
     .max(100)
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Slug must be lowercase with hyphens only'
-    ),
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens only'),
   author: z.string().min(2).max(100),
   readTime: z.string().regex(/^\d+\s*min\s*read$/i, 'Format: "X min read"'),
 
   // Dates (will be converted to Date objects for Prisma)
-  datePublished: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
-  dateModified: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
+  datePublished: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
+  dateModified: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
 
   // Images
   featuredImage: z.string().min(1, 'Featured image URL required'),
@@ -424,7 +412,7 @@ export const TarotArticleSchema = z.object({
     .min(20, 'Alt text too short')
     .max(200, 'Alt text too long')
     .refine(
-      (alt) => !alt.toLowerCase().startsWith('image of'),
+      alt => !alt.toLowerCase().startsWith('image of'),
       'Alt text should not start with "image of"'
     ),
 
@@ -593,9 +581,7 @@ export function validateArticle(input: unknown): ValidationResult {
   return {
     success: false,
     errors: result.error.errors,
-    errorMessages: result.error.errors.map(
-      (err) => `${err.path.join('.')}: ${err.message}`
-    ),
+    errorMessages: result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`),
   };
 }
 
@@ -606,10 +592,7 @@ export function validateArticle(input: unknown): ValidationResult {
 /**
  * Check if content has answer-first opening
  */
-export function validateAnswerFirstOpening(
-  content: string,
-  cardName: string
-): boolean {
+export function validateAnswerFirstOpening(content: string, cardName: string): boolean {
   // Get first ~80 words
   const firstParagraph = content.split('</p>')[0] || '';
   const textOnly = firstParagraph.replace(/<[^>]*>/g, '').trim();
@@ -625,7 +608,7 @@ export function validateAnswerFirstOpening(
     `${cardName.toLowerCase()} symbolizes`,
   ];
 
-  return patterns.some((pattern) => opening.includes(pattern));
+  return patterns.some(pattern => opening.includes(pattern));
 }
 
 /**
@@ -633,7 +616,7 @@ export function validateAnswerFirstOpening(
  */
 export function getWordCount(content: string): number {
   const textOnly = content.replace(/<[^>]*>/g, ' ');
-  const words = textOnly.split(/\s+/).filter((word) => word.length > 0);
+  const words = textOnly.split(/\s+/).filter(word => word.length > 0);
   return words.length;
 }
 
@@ -659,7 +642,7 @@ export function checkForbiddenWords(content: string): string[] {
   ];
 
   const textOnly = content.toLowerCase().replace(/<[^>]*>/g, ' ');
-  return forbidden.filter((word) => textOnly.includes(word));
+  return forbidden.filter(word => textOnly.includes(word));
 }
 
 /**
@@ -705,7 +688,10 @@ export function validateArticleExtended(
   // Em dash check (warning only) - exclude blockquotes
   if (data.content.includes('—')) {
     // Remove blockquote content before checking for em dashes
-    const contentWithoutBlockquotes = data.content.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '');
+    const contentWithoutBlockquotes = data.content.replace(
+      /<blockquote[\s\S]*?<\/blockquote>/gi,
+      ''
+    );
     if (contentWithoutBlockquotes.includes('—')) {
       warnings.push('Content contains em dashes (—) which may affect readability');
     }
@@ -715,7 +701,9 @@ export function validateArticleExtended(
   try {
     new URL(data.featuredImage);
   } catch {
-    warnings.push('Featured image URL may not be valid - ensure it is a proper URL before publishing');
+    warnings.push(
+      'Featured image URL may not be valid - ensure it is a proper URL before publishing'
+    );
   }
 
   // Answer-first check
@@ -780,7 +768,9 @@ export function validateArticleWithWarnings(
 
   // Run lenient validation to get parseable data
   const lenientResult = TarotArticleLenientSchema.safeParse(normalized);
-  const data = lenientResult.success ? lenientResult.data : (normalized as TarotArticleLenientInput);
+  const data = lenientResult.success
+    ? lenientResult.data
+    : (normalized as TarotArticleLenientInput);
 
   // Content quality warnings
   const content = data.content || '';
@@ -822,7 +812,9 @@ export function validateArticleWithWarnings(
       warnings.push(`[SEO] Meta title is ${seo.metaTitle.length} characters, should be 60 or less`);
     }
     if (seo.metaDescription && seo.metaDescription.length > 155) {
-      warnings.push(`[SEO] Meta description is ${seo.metaDescription.length} characters, should be 155 or less`);
+      warnings.push(
+        `[SEO] Meta description is ${seo.metaDescription.length} characters, should be 155 or less`
+      );
     }
   }
 
@@ -958,7 +950,7 @@ export function convertToPrismaFormatLenient(data: TarotArticleLenientInput) {
     featuredImageAlt: data.featuredImageAlt || '',
 
     // Card metadata - convert to Prisma enum keys
-    cardType: data.cardType ? mapCardTypeToPrisma(data.cardType) as any : 'MAJOR_ARCANA',
+    cardType: data.cardType ? (mapCardTypeToPrisma(data.cardType) as any) : 'MAJOR_ARCANA',
     cardNumber: data.cardNumber || '0',
     astrologicalCorrespondence: data.astrologicalCorrespondence || '',
     element: data.element || 'FIRE',

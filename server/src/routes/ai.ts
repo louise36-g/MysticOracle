@@ -19,7 +19,7 @@ const getOpenAIClient = async () => {
       apiKey: settings.apiKey,
       baseURL: 'https://openrouter.ai/api/v1',
     }),
-    model: settings.model
+    model: settings.model,
   };
 };
 
@@ -43,7 +43,7 @@ router.post('/summarize-question', requireAuth, async (req, res) => {
     if (!validation.success) {
       return res.status(400).json({
         error: 'Invalid request data',
-        details: validation.error.errors
+        details: validation.error.errors,
       });
     }
 
@@ -61,11 +61,12 @@ router.post('/summarize-question', requireAuth, async (req, res) => {
     }
 
     // Build the prompt
-    const prompt = language === 'en'
-      ? `Summarize this tarot question while preserving the core intent and emotional context. Keep it under 400 characters. Return only the summarized question, nothing else.
+    const prompt =
+      language === 'en'
+        ? `Summarize this tarot question while preserving the core intent and emotional context. Keep it under 400 characters. Return only the summarized question, nothing else.
 
 Original question: "${question}"`
-      : `Résumez cette question de tarot en préservant l'intention principale et le contexte émotionnel. Gardez moins de 400 caractères. Retournez uniquement la question résumée, rien d'autre.
+        : `Résumez cette question de tarot en préservant l'intention principale et le contexte émotionnel. Gardez moins de 400 caractères. Retournez uniquement la question résumée, rien d'autre.
 
 Question originale: "${question}"`;
 
@@ -89,14 +90,13 @@ Question originale: "${question}"`;
       userId,
       amount: creditCost,
       type: 'QUESTION',
-      description: 'Question summary'
+      description: 'Question summary',
     });
 
     res.json({
       summary,
-      creditsUsed: creditCost
+      creditsUsed: creditCost,
     });
-
   } catch (error) {
     console.error('Error summarizing question:', error);
     res.status(500).json({ error: 'Failed to summarize question' });

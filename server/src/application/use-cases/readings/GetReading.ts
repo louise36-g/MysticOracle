@@ -3,7 +3,10 @@
  * Handles the business logic for retrieving a specific reading
  */
 
-import type { IReadingRepository, ReadingWithFollowUps } from '../../ports/repositories/IReadingRepository.js';
+import type {
+  IReadingRepository,
+  ReadingWithFollowUps,
+} from '../../ports/repositories/IReadingRepository.js';
 
 // Input DTO
 export interface GetReadingInput {
@@ -25,10 +28,7 @@ export class GetReadingUseCase {
   async execute(input: GetReadingInput): Promise<GetReadingResult> {
     try {
       // 1. Verify reading exists and belongs to user
-      const reading = await this.readingRepository.findByIdAndUser(
-        input.readingId,
-        input.userId
-      );
+      const reading = await this.readingRepository.findByIdAndUser(input.readingId, input.userId);
 
       if (!reading) {
         return {

@@ -62,7 +62,7 @@ export class RevenueExportService {
       `MysticOracle Revenue Report - ${monthName}`,
       '',
       'Date,User,Email,Payment Provider,Amount (EUR),Credits,Transaction ID',
-      ...transactions.map((t) =>
+      ...transactions.map(t =>
         [
           new Date(t.createdAt).toISOString().split('T')[0],
           `"${t.user.username}"`,

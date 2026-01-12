@@ -61,11 +61,7 @@ describe('IdempotencyService', () => {
       vi.mocked(cacheService.get).mockResolvedValue(undefined);
       vi.mocked(cacheService.set).mockResolvedValue(undefined);
 
-      const result = await service.markPending(
-        'new-key',
-        'POST /api/readings',
-        'user-123'
-      );
+      const result = await service.markPending('new-key', 'POST /api/readings', 'user-123');
 
       expect(result.success).toBe(true);
       expect(result.existingRecord).toBeUndefined();
@@ -89,11 +85,7 @@ describe('IdempotencyService', () => {
       };
       vi.mocked(cacheService.get).mockResolvedValue(existingRecord);
 
-      const result = await service.markPending(
-        'pending-key',
-        'POST /api/readings',
-        'user-123'
-      );
+      const result = await service.markPending('pending-key', 'POST /api/readings', 'user-123');
 
       expect(result.success).toBe(false);
       expect(result.existingRecord).toEqual(existingRecord);
@@ -112,11 +104,7 @@ describe('IdempotencyService', () => {
       };
       vi.mocked(cacheService.get).mockResolvedValue(existingRecord);
 
-      const result = await service.markPending(
-        'completed-key',
-        'POST /api/readings',
-        'user-123'
-      );
+      const result = await service.markPending('completed-key', 'POST /api/readings', 'user-123');
 
       expect(result.success).toBe(false);
       expect(result.existingRecord).toEqual(existingRecord);
@@ -199,11 +187,7 @@ describe('IdempotencyService', () => {
       vi.mocked(cacheService.get).mockResolvedValue(undefined);
       vi.mocked(cacheService.set).mockResolvedValue(undefined);
 
-      const result = await service.markPending(
-        'retry-key',
-        'POST /api/readings',
-        'user-123'
-      );
+      const result = await service.markPending('retry-key', 'POST /api/readings', 'user-123');
 
       expect(result.success).toBe(true);
     });

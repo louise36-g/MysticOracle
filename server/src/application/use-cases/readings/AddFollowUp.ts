@@ -27,7 +27,12 @@ export interface AddFollowUpResult {
   success: boolean;
   followUp?: FollowUpQuestion;
   error?: string;
-  errorCode?: 'VALIDATION_ERROR' | 'READING_NOT_FOUND' | 'INSUFFICIENT_CREDITS' | 'CREDIT_DEDUCTION_FAILED' | 'INTERNAL_ERROR';
+  errorCode?:
+    | 'VALIDATION_ERROR'
+    | 'READING_NOT_FOUND'
+    | 'INSUFFICIENT_CREDITS'
+    | 'CREDIT_DEDUCTION_FAILED'
+    | 'INTERNAL_ERROR';
   transactionId?: string;
   refunded?: boolean;
 }
@@ -62,10 +67,7 @@ export class AddFollowUpUseCase {
       }
 
       // 2. Verify reading exists and belongs to user
-      const reading = await this.readingRepository.findByIdAndUser(
-        input.readingId,
-        input.userId
-      );
+      const reading = await this.readingRepository.findByIdAndUser(input.readingId, input.userId);
 
       if (!reading) {
         return {
@@ -98,9 +100,7 @@ export class AddFollowUpUseCase {
       });
 
       if (!deductResult.success) {
-        console.error(
-          `[AddFollowUp] Credit deduction failed: ${deductResult.error}`
-        );
+        console.error(`[AddFollowUp] Credit deduction failed: ${deductResult.error}`);
         return {
           success: false,
           error: deductResult.error || 'Failed to process credits',

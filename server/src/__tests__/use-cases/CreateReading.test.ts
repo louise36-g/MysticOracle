@@ -49,20 +49,12 @@ describe('CreateReadingUseCase', () => {
     mockUserRepo = createMockUserRepository();
     mockCreditService = createMockCreditService();
 
-    useCase = new CreateReadingUseCase(
-      mockReadingRepo,
-      mockUserRepo,
-      mockCreditService as any
-    );
+    useCase = new CreateReadingUseCase(mockReadingRepo, mockUserRepo, mockCreditService as any);
 
     // Default successful mocks
     mockCreditService.getSpreadCost.mockReturnValue(1);
-    mockCreditService.checkSufficientCredits.mockResolvedValue(
-      createBalanceCheck(10, 1)
-    );
-    mockCreditService.deductCredits.mockResolvedValue(
-      createSuccessfulCreditResult(9)
-    );
+    mockCreditService.checkSufficientCredits.mockResolvedValue(createBalanceCheck(10, 1));
+    mockCreditService.deductCredits.mockResolvedValue(createSuccessfulCreditResult(9));
     mockReadingRepo.create.mockResolvedValue(mockReading);
     mockUserRepo.findById.mockResolvedValue({
       id: 'user-1',
@@ -91,10 +83,7 @@ describe('CreateReadingUseCase', () => {
     it('should check sufficient credits before creating', async () => {
       await useCase.execute(validInput);
 
-      expect(mockCreditService.checkSufficientCredits).toHaveBeenCalledWith(
-        'user-1',
-        1
-      );
+      expect(mockCreditService.checkSufficientCredits).toHaveBeenCalledWith('user-1', 1);
     });
 
     it('should deduct credits after creating reading', async () => {
@@ -210,9 +199,7 @@ describe('CreateReadingUseCase', () => {
     spreadTypes.forEach(({ type, cost, name }) => {
       it(`should handle ${type} spread correctly`, async () => {
         // Mock sufficient credits for the specific cost
-        mockCreditService.checkSufficientCredits.mockResolvedValue(
-          createBalanceCheck(100, cost)
-        );
+        mockCreditService.checkSufficientCredits.mockResolvedValue(createBalanceCheck(100, cost));
 
         const input = { ...validInput, spreadType: type };
         const result = await useCase.execute(input);

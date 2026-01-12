@@ -55,9 +55,13 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
 
     if (!result.success) {
       const statusCode =
-        result.errorCode === 'USER_NOT_FOUND' ? 404 :
-        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
-        result.errorCode === 'INVALID_PACKAGE' ? 400 : 500;
+        result.errorCode === 'USER_NOT_FOUND'
+          ? 404
+          : result.errorCode === 'PROVIDER_NOT_CONFIGURED'
+            ? 503
+            : result.errorCode === 'INVALID_PACKAGE'
+              ? 400
+              : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
@@ -108,9 +112,13 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
 
     if (!result.success) {
       const statusCode =
-        result.errorCode === 'USER_NOT_FOUND' ? 404 :
-        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
-        result.errorCode === 'INVALID_PACKAGE' ? 400 : 500;
+        result.errorCode === 'USER_NOT_FOUND'
+          ? 404
+          : result.errorCode === 'PROVIDER_NOT_CONFIGURED'
+            ? 503
+            : result.errorCode === 'INVALID_PACKAGE'
+              ? 400
+              : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
@@ -143,8 +151,11 @@ router.post('/paypal/capture', requireAuth, idempotent, async (req, res) => {
 
     if (!result.success) {
       const statusCode =
-        result.errorCode === 'PROVIDER_NOT_CONFIGURED' ? 503 :
-        result.errorCode === 'CAPTURE_FAILED' ? 400 : 500;
+        result.errorCode === 'PROVIDER_NOT_CONFIGURED'
+          ? 503
+          : result.errorCode === 'CAPTURE_FAILED'
+            ? 400
+            : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 

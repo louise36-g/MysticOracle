@@ -11,8 +11,8 @@ export async function cleanupOldHoroscopes(): Promise<number> {
   try {
     const result = await prisma.horoscopeCache.deleteMany({
       where: {
-        date: { lt: sevenDaysAgo }
-      }
+        date: { lt: sevenDaysAgo },
+      },
     });
 
     console.log(`[Horoscope Cleanup] Deleted ${result.count} old cache entries`);

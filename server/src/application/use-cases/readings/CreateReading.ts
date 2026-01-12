@@ -9,7 +9,10 @@
  */
 
 import { InterpretationStyle, Reading } from '@prisma/client';
-import type { IReadingRepository, CardPosition } from '../../ports/repositories/IReadingRepository.js';
+import type {
+  IReadingRepository,
+  CardPosition,
+} from '../../ports/repositories/IReadingRepository.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
 
@@ -37,23 +40,28 @@ export interface CreateReadingResult {
   success: boolean;
   reading?: Reading;
   error?: string;
-  errorCode?: 'VALIDATION_ERROR' | 'USER_NOT_FOUND' | 'INSUFFICIENT_CREDITS' | 'CREDIT_DEDUCTION_FAILED' | 'INTERNAL_ERROR';
+  errorCode?:
+    | 'VALIDATION_ERROR'
+    | 'USER_NOT_FOUND'
+    | 'INSUFFICIENT_CREDITS'
+    | 'CREDIT_DEDUCTION_FAILED'
+    | 'INTERNAL_ERROR';
   transactionId?: string; // For tracking/debugging
   refunded?: boolean; // True if credits were refunded due to failure
 }
 
 // Interpretation style mapping
 const INTERPRETATION_STYLE_MAP: Record<string, InterpretationStyle> = {
-  'classic': InterpretationStyle.CLASSIC,
-  'spiritual': InterpretationStyle.SPIRITUAL,
-  'psycho_emotional': InterpretationStyle.PSYCHO_EMOTIONAL,
-  'numerology': InterpretationStyle.NUMEROLOGY,
-  'elemental': InterpretationStyle.ELEMENTAL,
-  'CLASSIC': InterpretationStyle.CLASSIC,
-  'SPIRITUAL': InterpretationStyle.SPIRITUAL,
-  'PSYCHO_EMOTIONAL': InterpretationStyle.PSYCHO_EMOTIONAL,
-  'NUMEROLOGY': InterpretationStyle.NUMEROLOGY,
-  'ELEMENTAL': InterpretationStyle.ELEMENTAL,
+  classic: InterpretationStyle.CLASSIC,
+  spiritual: InterpretationStyle.SPIRITUAL,
+  psycho_emotional: InterpretationStyle.PSYCHO_EMOTIONAL,
+  numerology: InterpretationStyle.NUMEROLOGY,
+  elemental: InterpretationStyle.ELEMENTAL,
+  CLASSIC: InterpretationStyle.CLASSIC,
+  SPIRITUAL: InterpretationStyle.SPIRITUAL,
+  PSYCHO_EMOTIONAL: InterpretationStyle.PSYCHO_EMOTIONAL,
+  NUMEROLOGY: InterpretationStyle.NUMEROLOGY,
+  ELEMENTAL: InterpretationStyle.ELEMENTAL,
 };
 
 export class CreateReadingUseCase {
@@ -142,9 +150,7 @@ export class CreateReadingUseCase {
 
       if (!deductResult.success) {
         // Credit deduction failed - do NOT create reading
-        console.error(
-          `[CreateReading] Credit deduction failed: ${deductResult.error}`
-        );
+        console.error(`[CreateReading] Credit deduction failed: ${deductResult.error}`);
         return {
           success: false,
           error: deductResult.error || 'Failed to process credits',
@@ -185,7 +191,7 @@ export class CreateReadingUseCase {
           // Critical: refund also failed - log for manual intervention
           console.error(
             `[CreateReading] CRITICAL: Refund failed after reading creation failure! ` +
-            `User: ${input.userId}, Amount: ${creditCost}, Original TX: ${transactionId}`
+              `User: ${input.userId}, Amount: ${creditCost}, Original TX: ${transactionId}`
           );
         }
 
@@ -208,10 +214,7 @@ export class CreateReadingUseCase {
         }
       } catch (updateError) {
         // Log but don't fail - reading was created successfully
-        console.warn(
-          `[CreateReading] Failed to update user reading count:`,
-          updateError
-        );
+        console.warn(`[CreateReading] Failed to update user reading count:`, updateError);
       }
 
       return {
@@ -224,9 +227,7 @@ export class CreateReadingUseCase {
 
       // If we already deducted credits, try to refund
       if (transactionId && creditCost > 0) {
-        console.log(
-          `[CreateReading] Attempting refund after unexpected error...`
-        );
+        console.log(`[CreateReading] Attempting refund after unexpected error...`);
         const refundResult = await this.creditService.refundCredits(
           input.userId,
           creditCost,

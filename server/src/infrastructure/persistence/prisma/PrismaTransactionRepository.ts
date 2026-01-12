@@ -2,7 +2,13 @@
  * PrismaTransactionRepository - Prisma implementation of ITransactionRepository
  */
 
-import { PrismaClient, Transaction, TransactionType, PaymentProvider, PaymentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  Transaction,
+  TransactionType,
+  PaymentProvider,
+  PaymentStatus,
+} from '@prisma/client';
 import type {
   ITransactionRepository,
   CreateTransactionDTO,
@@ -50,13 +56,19 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     });
   }
 
-  async findByPaymentIdAndStatus(paymentId: string, status: PaymentStatus): Promise<Transaction | null> {
+  async findByPaymentIdAndStatus(
+    paymentId: string,
+    status: PaymentStatus
+  ): Promise<Transaction | null> {
     return this.prisma.transaction.findFirst({
       where: { paymentId, paymentStatus: status },
     });
   }
 
-  async findByPaymentIdAndType(paymentId: string, type: TransactionType): Promise<Transaction | null> {
+  async findByPaymentIdAndType(
+    paymentId: string,
+    type: TransactionType
+  ): Promise<Transaction | null> {
     return this.prisma.transaction.findFirst({
       where: { paymentId, type },
     });
@@ -97,7 +109,10 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     });
   }
 
-  async countByUser(userId: string, options?: Omit<TransactionListOptions, 'limit' | 'offset'>): Promise<number> {
+  async countByUser(
+    userId: string,
+    options?: Omit<TransactionListOptions, 'limit' | 'offset'>
+  ): Promise<number> {
     const where: any = { userId };
     if (options?.type) {
       where.type = options.type;
@@ -164,7 +179,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     return Number(result._sum.paymentAmount) || 0;
   }
 
-  async groupByProvider(): Promise<{ paymentProvider: PaymentProvider | null; total: number; count: number }[]> {
+  async groupByProvider(): Promise<
+    { paymentProvider: PaymentProvider | null; total: number; count: number }[]
+  > {
     const results = await this.prisma.transaction.groupBy({
       by: ['paymentProvider'],
       where: {
@@ -175,7 +192,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       _count: true,
     });
 
-    return results.map((r) => ({
+    return results.map(r => ({
       paymentProvider: r.paymentProvider,
       total: Number(r._sum.paymentAmount) || 0,
       count: r._count,

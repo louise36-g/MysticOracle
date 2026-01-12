@@ -136,21 +136,14 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
 
     paypalGateway: asFunction(
       ({ paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive }) => {
-        return new PayPalGateway(
-          paypalClientId,
-          paypalClientSecret,
-          paypalWebhookId,
-          paypalIsLive
-        );
+        return new PayPalGateway(paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive);
       }
     ).singleton(),
 
     // Array of all payment gateways for use cases
-    paymentGateways: asFunction(
-      ({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
-        return [stripeGateway, stripeLinkGateway, paypalGateway];
-      }
-    ).singleton(),
+    paymentGateways: asFunction(({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
+      return [stripeGateway, stripeLinkGateway, paypalGateway];
+    }).singleton(),
   });
 
   // Register reading use cases (scoped - new instance per request)

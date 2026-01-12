@@ -62,12 +62,7 @@ export class ValidationError extends ApplicationError {
  */
 export class NotFoundError extends ApplicationError {
   constructor(resource: string, id?: string) {
-    super(
-      `${resource} not found`,
-      'NOT_FOUND',
-      404,
-      { resource, ...(id && { id }) }
-    );
+    super(`${resource} not found`, 'NOT_FOUND', 404, { resource, ...(id && { id }) });
   }
 }
 
@@ -107,17 +102,11 @@ export class InsufficientCreditsError extends ApplicationError {
  * Credit operation failed - deduction or refund failed
  */
 export class CreditOperationError extends ApplicationError {
-  constructor(
-    operation: 'deduct' | 'refund' | 'add',
-    reason: string,
-    details: ErrorDetails = {}
-  ) {
-    super(
-      `Credit ${operation} failed: ${reason}`,
-      'CREDIT_OPERATION_FAILED',
-      500,
-      { operation, ...details }
-    );
+  constructor(operation: 'deduct' | 'refund' | 'add', reason: string, details: ErrorDetails = {}) {
+    super(`Credit ${operation} failed: ${reason}`, 'CREDIT_OPERATION_FAILED', 500, {
+      operation,
+      ...details,
+    });
   }
 }
 
@@ -128,12 +117,7 @@ export class ExternalServiceError extends ApplicationError {
   public readonly service: string;
   public readonly originalError?: Error;
 
-  constructor(
-    service: string,
-    message: string,
-    originalError?: Error,
-    details: ErrorDetails = {}
-  ) {
+  constructor(service: string, message: string, originalError?: Error, details: ErrorDetails = {}) {
     super(
       `${service} error: ${message}`,
       'EXTERNAL_SERVICE_ERROR',
@@ -168,12 +152,7 @@ export class AIGenerationError extends ApplicationError {
  */
 export class RateLimitError extends ApplicationError {
   constructor(retryAfter?: number) {
-    super(
-      'Rate limit exceeded',
-      'RATE_LIMIT_EXCEEDED',
-      429,
-      retryAfter ? { retryAfter } : {}
-    );
+    super('Rate limit exceeded', 'RATE_LIMIT_EXCEEDED', 429, retryAfter ? { retryAfter } : {});
   }
 }
 
@@ -191,12 +170,10 @@ export class ConflictError extends ApplicationError {
  */
 export class IdempotencyError extends ApplicationError {
   constructor(idempotencyKey: string, existingResourceId?: string) {
-    super(
-      'Duplicate request detected',
-      'DUPLICATE_REQUEST',
-      409,
-      { idempotencyKey, ...(existingResourceId && { existingResourceId }) }
-    );
+    super('Duplicate request detected', 'DUPLICATE_REQUEST', 409, {
+      idempotencyKey,
+      ...(existingResourceId && { existingResourceId }),
+    });
   }
 }
 
@@ -215,9 +192,7 @@ export function wrapError(error: unknown, context?: string): ApplicationError {
     return error;
   }
 
-  const message = error instanceof Error
-    ? error.message
-    : 'An unexpected error occurred';
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
 
   return new ApplicationError(
     context ? `${context}: ${message}` : message,

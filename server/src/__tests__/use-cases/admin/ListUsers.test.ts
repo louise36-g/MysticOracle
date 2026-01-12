@@ -4,7 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
-import { ListUsersUseCase, type ListUsersInput } from '../../../application/use-cases/admin/users/ListUsers.js';
+import {
+  ListUsersUseCase,
+  type ListUsersInput,
+} from '../../../application/use-cases/admin/users/ListUsers.js';
 import type { IUserRepository } from '../../../application/ports/repositories/IUserRepository.js';
 import { AccountStatus } from '@prisma/client';
 

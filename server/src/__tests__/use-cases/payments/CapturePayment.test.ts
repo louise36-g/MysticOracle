@@ -4,8 +4,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
-import { CapturePaymentUseCase, type CapturePaymentInput } from '../../../application/use-cases/payments/CapturePayment.js';
-import type { IPaymentGateway, CaptureResult } from '../../../application/ports/services/IPaymentGateway.js';
+import {
+  CapturePaymentUseCase,
+  type CapturePaymentInput,
+} from '../../../application/use-cases/payments/CapturePayment.js';
+import type {
+  IPaymentGateway,
+  CaptureResult,
+} from '../../../application/ports/services/IPaymentGateway.js';
 import type { ITransactionRepository } from '../../../application/ports/repositories/ITransactionRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
 
@@ -20,17 +26,22 @@ const createMockTransactionRepository = (): ITransactionRepository => ({
   count: vi.fn(),
 });
 
-const createMockCreditService = (): CreditService => ({
-  checkSufficientCredits: vi.fn(),
-  deductCredits: vi.fn(),
-  addCredits: vi.fn(),
-  refundCredits: vi.fn(),
-  getBalance: vi.fn(),
-  adjustCredits: vi.fn(),
-  updateTransactionStatus: vi.fn(),
-} as unknown as CreditService);
+const createMockCreditService = (): CreditService =>
+  ({
+    checkSufficientCredits: vi.fn(),
+    deductCredits: vi.fn(),
+    addCredits: vi.fn(),
+    refundCredits: vi.fn(),
+    getBalance: vi.fn(),
+    adjustCredits: vi.fn(),
+    updateTransactionStatus: vi.fn(),
+  }) as unknown as CreditService;
 
-const createMockPaymentGateway = (provider: string, configured: boolean = true, hasCapture: boolean = true): IPaymentGateway => {
+const createMockPaymentGateway = (
+  provider: string,
+  configured: boolean = true,
+  hasCapture: boolean = true
+): IPaymentGateway => {
   const gateway: IPaymentGateway = {
     provider,
     isConfigured: vi.fn().mockReturnValue(configured),
@@ -69,21 +80,17 @@ describe('CapturePaymentUseCase', () => {
     mockCreditService = createMockCreditService();
     mockPayPalGateway = createMockPaymentGateway('paypal');
 
-    useCase = new CapturePaymentUseCase(
-      mockTransactionRepo,
-      mockCreditService,
-      [mockPayPalGateway]
-    );
+    useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
+      mockPayPalGateway,
+    ]);
   });
 
   describe('Provider Selection', () => {
     it('should return error when provider is not configured', async () => {
       const unconfiguredGateway = createMockPaymentGateway('paypal', false);
-      useCase = new CapturePaymentUseCase(
-        mockTransactionRepo,
-        mockCreditService,
-        [unconfiguredGateway]
-      );
+      useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
+        unconfiguredGateway,
+      ]);
 
       const result = await useCase.execute(validInput);
 
@@ -107,11 +114,9 @@ describe('CapturePaymentUseCase', () => {
 
     it('should return error when gateway does not support capture', async () => {
       const noCaptureGateway = createMockPaymentGateway('paypal', true, false);
-      useCase = new CapturePaymentUseCase(
-        mockTransactionRepo,
-        mockCreditService,
-        [noCaptureGateway]
-      );
+      useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
+        noCaptureGateway,
+      ]);
 
       const result = await useCase.execute(validInput);
 
@@ -250,9 +255,7 @@ describe('CapturePaymentUseCase', () => {
 
   describe('Error Handling', () => {
     it('should handle gateway errors', async () => {
-      (mockPayPalGateway.capturePayment as Mock).mockRejectedValue(
-        new Error('PayPal API error')
-      );
+      (mockPayPalGateway.capturePayment as Mock).mockRejectedValue(new Error('PayPal API error'));
 
       const result = await useCase.execute(validInput);
 
@@ -263,9 +266,7 @@ describe('CapturePaymentUseCase', () => {
 
     it('should handle credit service errors', async () => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
-      (mockCreditService.addCredits as Mock).mockRejectedValue(
-        new Error('Credit service error')
-      );
+      (mockCreditService.addCredits as Mock).mockRejectedValue(new Error('Credit service error'));
 
       const result = await useCase.execute(validInput);
 

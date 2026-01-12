@@ -35,7 +35,7 @@ export interface UpdateUserDTO {
 export interface CreditUpdateDTO {
   creditsDelta: number;
   updateEarned?: boolean; // If true, also update totalCreditsEarned
-  updateSpent?: boolean;  // If true, also update totalCreditsSpent
+  updateSpent?: boolean; // If true, also update totalCreditsSpent
 }
 
 export interface UserWithCounts extends User {
@@ -79,11 +79,16 @@ export interface IUserRepository {
 
   // Listing
   findMany(options?: UserListOptions): Promise<UserWithCounts[]>;
-  count(options?: Omit<UserListOptions, 'limit' | 'offset' | 'sortBy' | 'sortOrder'>): Promise<number>;
+  count(
+    options?: Omit<UserListOptions, 'limit' | 'offset' | 'sortBy' | 'sortOrder'>
+  ): Promise<number>;
 
   // With relations
   findByIdWithAchievements(id: string): Promise<UserWithCounts | null>;
-  findByIdWithReadings(id: string, readingLimit?: number): Promise<User & { readings: any[] } | null>;
+  findByIdWithReadings(
+    id: string,
+    readingLimit?: number
+  ): Promise<(User & { readings: any[] }) | null>;
 }
 
 export default IUserRepository;

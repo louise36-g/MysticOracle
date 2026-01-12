@@ -39,10 +39,7 @@ export function createFailedCreditResult(error: string): CreditResult {
 }
 
 // Helper to create a balance check result
-export function createBalanceCheck(
-  balance: number,
-  required: number
-): BalanceCheck {
+export function createBalanceCheck(balance: number, required: number): BalanceCheck {
   return {
     sufficient: balance >= required,
     balance,
