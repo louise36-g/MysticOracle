@@ -275,18 +275,6 @@ export async function addFollowUpQuestion(
   });
 }
 
-export async function deductCredits(
-  token: string,
-  amount: number,
-  description: string
-): Promise<{ success: boolean; newBalance: number }> {
-  return apiRequest('/api/readings/deduct-credits', {
-    method: 'POST',
-    body: { amount, description },
-    token,
-  });
-}
-
 export async function updateReadingReflection(
   token: string,
   readingId: string,
@@ -885,12 +873,14 @@ export async function fetchTarotArticles(params: {
   limit?: number;
   cardType?: string;
   status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  sortBy?: 'datePublished' | 'cardNumber';
 } = {}): Promise<TarotArticlesListResponse> {
   const queryParams = new URLSearchParams();
   if (params.page) queryParams.set('page', params.page.toString());
   if (params.limit) queryParams.set('limit', params.limit.toString());
   if (params.cardType) queryParams.set('cardType', params.cardType);
   if (params.status) queryParams.set('status', params.status);
+  if (params.sortBy) queryParams.set('sortBy', params.sortBy);
 
   return apiRequest(`/api/tarot-articles?${queryParams.toString()}`);
 }
@@ -1513,7 +1503,6 @@ export default {
   fetchUserReadings,
   createReading,
   addFollowUpQuestion,
-  deductCredits,
   fetchUserTransactions,
   fetchCreditPackages,
   createStripeCheckout,

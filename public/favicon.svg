@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1e3f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f0c29;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="256" height="256" fill="url(#bgGradient)"/>
+
+  <!-- Outer circle border (mystical) -->
+  <circle cx="128" cy="128" r="120" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0.6"/>
+  <circle cx="128" cy="128" r="115" fill="none" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+
+  <!-- Main tarot card shape (rounded rectangle) -->
+  <rect x="70" y="50" width="116" height="160" rx="8" ry="8" fill="url(#cardGradient)" filter="url(#glow)"/>
+
+  <!-- Card border -->
+  <rect x="70" y="50" width="116" height="160" rx="8" ry="8" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.8"/>
+
+  <!-- Star symbol (representing divinity/guidance) -->
+  <g transform="translate(128, 90)">
+    <!-- Central star -->
+    <path d="M 0,-20 L 6,-8 L 20,-8 L 10,0 L 15,15 L 0,7 L -15,15 L -10,0 L -20,-8 L -6,-8 Z" fill="#ffffff" opacity="0.95"/>
+    <!-- Smaller surrounding stars -->
+    <circle cx="-30" cy="-10" r="2.5" fill="#ddd6fe" opacity="0.7"/>
+    <circle cx="30" cy="-10" r="2.5" fill="#ddd6fe" opacity="0.7"/>
+    <circle cx="-22" cy="15" r="2" fill="#c4b5fd" opacity="0.6"/>
+    <circle cx="22" cy="15" r="2" fill="#c4b5fd" opacity="0.6"/>
+  </g>
+
+  <!-- Mystical circle lines -->
+  <circle cx="128" cy="120" r="35" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="128" cy="120" r="45" fill="none" stroke="#ddd6fe" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Moon crescent (spiritual symbol) -->
+  <g transform="translate(128, 155)">
+    <path d="M -8,0 Q -12,-6 -8,-12 Q -2,-8 -2,0 Q -2,8 -8,12 Q -12,6 -8,0" fill="none" stroke="#e9d5ff" stroke-width="1.5" opacity="0.8"/>
+  </g>
+
+  <!-- Bottom mystical accent -->
+  <line x1="90" y1="200" x2="166" y2="200" stroke="#a78bfa" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="100" cy="200" r="1.5" fill="#ddd6fe" opacity="0.7"/>
+  <circle cx="128" cy="200" r="1.5" fill="#c4b5fd" opacity="0.7"/>
+  <circle cx="156" cy="200" r="1.5" fill="#ddd6fe" opacity="0.7"/>
+
+  <!-- Decorative corners (mystical symbols) -->
+  <g opacity="0.5">
+    <!-- Top-left symbol -->
+    <circle cx="85" cy="65" r="3" fill="#e9d5ff"/>
+    <circle cx="85" cy="65" r="5" fill="none" stroke="#c4b5fd" stroke-width="0.5"/>
+    <!-- Top-right symbol -->
+    <circle cx="171" cy="65" r="3" fill="#e9d5ff"/>
+    <circle cx="171" cy="65" r="5" fill="none" stroke="#c4b5fd" stroke-width="0.5"/>
+    <!-- Bottom-left symbol -->
+    <circle cx="85" cy="191" r="3" fill="#e9d5ff"/>
+    <circle cx="85" cy="191" r="5" fill="none" stroke="#c4b5fd" stroke-width="0.5"/>
+    <!-- Bottom-right symbol -->
+    <circle cx="171" cy="191" r="3" fill="#e9d5ff"/>
+    <circle cx="171" cy="191" r="5" fill="none" stroke="#c4b5fd" stroke-width="0.5"/>
+  </g>
+</svg>

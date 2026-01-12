@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { validateTarotArticle, validateArticleWithWarnings, convertToPrismaFormat, convertToPrismaFormatLenient } from '../lib/validation.js';
@@ -50,69 +51,56 @@ router.get('/overview', async (req, res) => {
       readTime: true,
     };
 
-    // Fetch first 6 cards per category (5 visible + 1 peeking) and counts in parallel
-    const [majorArcana, wands, cups, swords, pentacles, counts] = await Promise.all([
+    // Fetch all cards per category in parallel (no DB sorting - done in JS for numeric correctness)
+    const [majorArcana, wands, cups, swords, pentacles] = await Promise.all([
       prisma.tarotArticle.findMany({
         where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { cardNumber: 'asc' },
-        take: 22,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { cardNumber: 'asc' },
-        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { cardNumber: 'asc' },
-        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { cardNumber: 'asc' },
-        take: 14,
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { cardNumber: 'asc' },
-        take: 14,
       }),
-      Promise.all(
-        cardTypes.map(async (type) => ({
-          type,
-          count: await prisma.tarotArticle.count({
-            where: { cardType: type, status: 'PUBLISHED', deletedAt: null },
-          }),
-        }))
-      ),
     ]);
 
-    const countsMap = Object.fromEntries(counts.map((c) => [c.type, c.count]));
-
     // Sort numerically (cardNumber is stored as string)
-    const sortByCardNumber = (a: any, b: any) => {
+    const sortByCardNumber = (a: { cardNumber: string }, b: { cardNumber: string }) => {
       const numA = parseInt(a.cardNumber, 10) || 0;
       const numB = parseInt(b.cardNumber, 10) || 0;
       return numA - numB;
     };
 
+    // Sort all arrays numerically by cardNumber
+    const sortedMajorArcana = majorArcana.sort(sortByCardNumber);
+    const sortedWands = wands.sort(sortByCardNumber);
+    const sortedCups = cups.sort(sortByCardNumber);
+    const sortedSwords = swords.sort(sortByCardNumber);
+    const sortedPentacles = pentacles.sort(sortByCardNumber);
+
     const result = {
-      majorArcana: majorArcana.sort(sortByCardNumber),
-      wands: wands.sort(sortByCardNumber),
-      cups: cups.sort(sortByCardNumber),
-      swords: swords.sort(sortByCardNumber),
-      pentacles: pentacles.sort(sortByCardNumber),
+      majorArcana: sortedMajorArcana,
+      wands: sortedWands,
+      cups: sortedCups,
+      swords: sortedSwords,
+      pentacles: sortedPentacles,
       counts: {
-        majorArcana: countsMap.MAJOR_ARCANA || 0,
-        wands: countsMap.SUIT_OF_WANDS || 0,
-        cups: countsMap.SUIT_OF_CUPS || 0,
-        swords: countsMap.SUIT_OF_SWORDS || 0,
-        pentacles: countsMap.SUIT_OF_PENTACLES || 0,
+        majorArcana: sortedMajorArcana.length,
+        wands: sortedWands.length,
+        cups: sortedCups.length,
+        swords: sortedSwords.length,
+        pentacles: sortedPentacles.length,
       },
     };
 
@@ -175,14 +163,15 @@ const listArticlesSchema = z.object({
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   search: z.string().optional(),
   deleted: z.coerce.boolean().optional(),  // true = show trash, false/undefined = show active
+  sortBy: z.enum(['datePublished', 'cardNumber']).optional(), // cardNumber for tarot card order
 });
 
 router.get('/', async (req, res) => {
   try {
     const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status } = params;
+    const { page, limit, cardType, status, sortBy } = params;
 
-    const where: any = {
+    const where: Prisma.TarotArticleWhereInput = {
       status: status || 'PUBLISHED', // Default to published only
       deletedAt: null, // Exclude deleted articles from public list
     };
@@ -191,24 +180,56 @@ router.get('/', async (req, res) => {
       where.cardType = cardType;
     }
 
+    const selectFields = {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      featuredImage: true,
+      featuredImageAlt: true,
+      cardType: true,
+      cardNumber: true,
+      datePublished: true,
+      readTime: true,
+      tags: true,
+      categories: true,
+      status: true,
+    };
+
+    // For cardNumber sorting, we need to fetch all and sort in JS (cardNumber is stored as string)
+    if (sortBy === 'cardNumber') {
+      const [allArticles, total] = await Promise.all([
+        prisma.tarotArticle.findMany({
+          where,
+          select: selectFields,
+        }),
+        prisma.tarotArticle.count({ where }),
+      ]);
+
+      // Sort numerically by cardNumber
+      const sorted = allArticles.sort((a, b) => {
+        const numA = parseInt(a.cardNumber || '0', 10);
+        const numB = parseInt(b.cardNumber || '0', 10);
+        return numA - numB;
+      });
+
+      // Apply pagination after sorting
+      const paginated = sorted.slice((page - 1) * limit, page * limit);
+
+      return res.json({
+        articles: paginated,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      });
+    }
+
+    // Default: sort by datePublished desc with DB pagination
     const [articles, total] = await Promise.all([
       prisma.tarotArticle.findMany({
         where,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featuredImage: true,
-          featuredImageAlt: true,
-          cardType: true,
-          cardNumber: true,
-          datePublished: true,
-          readTime: true,
-          tags: true,
-          categories: true,
-          status: true,
-        },
+        select: selectFields,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { datePublished: 'desc' },
@@ -467,7 +488,7 @@ router.get('/admin/list', async (req, res) => {
     const params = listArticlesSchema.parse(req.query);
     const { page, limit, cardType, status, search, deleted } = params;
 
-    const where: any = {};
+    const where: Prisma.TarotArticleWhereInput = {};
 
     // Filter by trash status
     if (deleted === true) {

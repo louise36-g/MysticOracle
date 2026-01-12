@@ -36,7 +36,12 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchTarotArticles({ status: 'PUBLISHED' });
+      // Fetch all articles (78 tarot cards total) with proper numeric sorting
+      const data = await fetchTarotArticles({
+        status: 'PUBLISHED',
+        limit: 100,
+        sortBy: 'cardNumber',
+      });
       setArticles(data.articles || []);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load articles';
