@@ -8,6 +8,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { idempotent } from '../middleware/idempotency.js';
 
 const router = Router();
 
@@ -34,7 +35,8 @@ const reflectionSchema = z.object({
 });
 
 // Create a new reading
-router.post('/', requireAuth, async (req, res) => {
+// Uses idempotency middleware to prevent duplicate charges on retried requests
+router.post('/', requireAuth, idempotent, async (req, res) => {
   try {
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
@@ -86,7 +88,8 @@ router.get('/:id', requireAuth, async (req, res) => {
 });
 
 // Add follow-up question to a reading
-router.post('/:id/follow-up', requireAuth, async (req, res) => {
+// Uses idempotency middleware to prevent duplicate charges on retried requests
+router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
   try {
     const validation = followUpSchema.safeParse(req.body);
     if (!validation.success) {

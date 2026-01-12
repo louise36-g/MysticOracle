@@ -7,6 +7,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
+import { idempotent } from '../middleware/idempotency.js';
 import { CREDIT_PACKAGES } from '../application/use-cases/payments/index.js';
 
 const router = Router();
@@ -121,7 +122,8 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
 });
 
 // Capture PayPal order (after user approves)
-router.post('/paypal/capture', requireAuth, async (req, res) => {
+// Uses idempotency middleware to prevent double-crediting on retried requests
+router.post('/paypal/capture', requireAuth, idempotent, async (req, res) => {
   try {
     const validation = paypalCaptureSchema.safeParse(req.body);
     if (!validation.success) {

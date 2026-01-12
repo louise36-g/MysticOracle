@@ -1,6 +1,11 @@
 /**
  * CreateReading Use Case
  * Handles the business logic for creating a new tarot reading
+ *
+ * CREDIT SAFETY: Uses deduct-first pattern
+ * 1. Deduct credits BEFORE creating reading
+ * 2. If reading creation fails, REFUND credits
+ * 3. Never return success if credits weren't properly charged
  */
 
 import { InterpretationStyle, Reading } from '@prisma/client';
@@ -24,6 +29,7 @@ export interface CreateReadingInput {
   question?: string;
   cards: CardPosition[];
   interpretation: string;
+  idempotencyKey?: string; // Optional key to prevent duplicate charges
 }
 
 // Output DTO
@@ -31,7 +37,9 @@ export interface CreateReadingResult {
   success: boolean;
   reading?: Reading;
   error?: string;
-  errorCode?: 'VALIDATION_ERROR' | 'USER_NOT_FOUND' | 'INSUFFICIENT_CREDITS' | 'INTERNAL_ERROR';
+  errorCode?: 'VALIDATION_ERROR' | 'USER_NOT_FOUND' | 'INSUFFICIENT_CREDITS' | 'CREDIT_DEDUCTION_FAILED' | 'INTERNAL_ERROR';
+  transactionId?: string; // For tracking/debugging
+  refunded?: boolean; // True if credits were refunded due to failure
 }
 
 // Interpretation style mapping
@@ -56,6 +64,9 @@ export class CreateReadingUseCase {
   ) {}
 
   async execute(input: CreateReadingInput): Promise<CreateReadingResult> {
+    let transactionId: string | undefined;
+    let creditCost = 0;
+
     try {
       // 1. Validate and normalize spread type using domain value object
       let spreadType: SpreadType;
@@ -95,9 +106,9 @@ export class CreateReadingUseCase {
       }
 
       // 4. Get credit cost from domain SpreadType value object
-      const creditCost = spreadType.costValue;
+      creditCost = spreadType.costValue;
 
-      // 5. Check if user has sufficient credits
+      // 5. Check if user exists and has sufficient credits
       const balanceCheck = await this.creditService.checkSufficientCredits(
         input.userId,
         creditCost
@@ -112,7 +123,6 @@ export class CreateReadingUseCase {
       }
 
       if (!balanceCheck.sufficient) {
-        // Use domain error for better error information
         const error = new InsufficientCreditsError(creditCost, balanceCheck.balance);
         return {
           success: false,
@@ -121,18 +131,8 @@ export class CreateReadingUseCase {
         };
       }
 
-      // 6. Create the reading
-      const reading = await this.readingRepository.create({
-        userId: input.userId,
-        spreadType: spreadType.value, // Use Prisma enum value
-        interpretationStyle,
-        question: input.question,
-        cards: input.cards,
-        interpretation: input.interpretation,
-        creditCost,
-      });
-
-      // 7. Deduct credits (handles transaction + audit logging)
+      // 6. DEDUCT CREDITS FIRST (before creating reading)
+      // This ensures we never give away free readings
       const deductResult = await this.creditService.deductCredits({
         userId: input.userId,
         amount: creditCost,
@@ -141,24 +141,107 @@ export class CreateReadingUseCase {
       });
 
       if (!deductResult.success) {
-        // Reading was created but credit deduction failed
-        // Log this for investigation but don't fail the request
+        // Credit deduction failed - do NOT create reading
         console.error(
-          `[CreateReading] Credit deduction failed after reading creation: ${deductResult.error}`
+          `[CreateReading] Credit deduction failed: ${deductResult.error}`
         );
+        return {
+          success: false,
+          error: deductResult.error || 'Failed to process credits',
+          errorCode: 'CREDIT_DEDUCTION_FAILED',
+        };
       }
 
-      // 8. Update user's reading count
-      await this.userRepository.update(input.userId, {
-        totalReadings: (await this.userRepository.findById(input.userId))?.totalReadings ?? 0 + 1,
-      });
+      // Store transaction ID for potential refund
+      transactionId = deductResult.transactionId;
+
+      // 7. Create the reading (credits already deducted)
+      let reading: Reading;
+      try {
+        reading = await this.readingRepository.create({
+          userId: input.userId,
+          spreadType: spreadType.value,
+          interpretationStyle,
+          question: input.question,
+          cards: input.cards,
+          interpretation: input.interpretation,
+          creditCost,
+        });
+      } catch (readingError) {
+        // Reading creation failed - REFUND the credits
+        console.error(
+          `[CreateReading] Reading creation failed, refunding ${creditCost} credits:`,
+          readingError
+        );
+
+        const refundResult = await this.creditService.refundCredits(
+          input.userId,
+          creditCost,
+          'Reading creation failed',
+          transactionId
+        );
+
+        if (!refundResult.success) {
+          // Critical: refund also failed - log for manual intervention
+          console.error(
+            `[CreateReading] CRITICAL: Refund failed after reading creation failure! ` +
+            `User: ${input.userId}, Amount: ${creditCost}, Original TX: ${transactionId}`
+          );
+        }
+
+        return {
+          success: false,
+          error: 'Failed to save reading. Credits have been refunded.',
+          errorCode: 'INTERNAL_ERROR',
+          transactionId,
+          refunded: refundResult.success,
+        };
+      }
+
+      // 8. Update user's reading count (non-critical, don't fail if this fails)
+      try {
+        const user = await this.userRepository.findById(input.userId);
+        if (user) {
+          await this.userRepository.update(input.userId, {
+            totalReadings: user.totalReadings + 1,
+          });
+        }
+      } catch (updateError) {
+        // Log but don't fail - reading was created successfully
+        console.warn(
+          `[CreateReading] Failed to update user reading count:`,
+          updateError
+        );
+      }
 
       return {
         success: true,
         reading,
+        transactionId,
       };
     } catch (error) {
-      console.error('[CreateReading] Error:', error);
+      console.error('[CreateReading] Unexpected error:', error);
+
+      // If we already deducted credits, try to refund
+      if (transactionId && creditCost > 0) {
+        console.log(
+          `[CreateReading] Attempting refund after unexpected error...`
+        );
+        const refundResult = await this.creditService.refundCredits(
+          input.userId,
+          creditCost,
+          'Unexpected error during reading creation',
+          transactionId
+        );
+
+        return {
+          success: false,
+          error: 'An unexpected error occurred. Credits have been refunded.',
+          errorCode: 'INTERNAL_ERROR',
+          transactionId,
+          refunded: refundResult.success,
+        };
+      }
 
       // Handle domain errors specifically
       if (error instanceof DomainError) {

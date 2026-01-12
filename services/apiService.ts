@@ -55,16 +55,28 @@ interface ApiOptions {
   body?: unknown;
   token?: string | null;
   retry?: boolean; // Enable retry for this request (default: true for GET, false for others)
+  idempotencyKey?: string; // For POST requests, enables safe retries
+}
+
+/**
+ * Generate a unique idempotency key for a request
+ * Format: timestamp-random
+ */
+export function generateIdempotencyKey(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `${timestamp}-${random}`;
 }
 
 /**
  * Make an authenticated API request with optional retry logic
  */
 async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-  const { method = 'GET', body, token, retry } = options;
+  const { method = 'GET', body, token, retry, idempotencyKey } = options;
 
-  // Enable retry by default for GET requests only (idempotent)
-  const shouldRetry = retry ?? method === 'GET';
+  // Enable retry by default for GET requests, or for POST with idempotency key
+  const hasIdempotency = !!idempotencyKey;
+  const shouldRetry = retry ?? (method === 'GET' || hasIdempotency);
   const maxAttempts = shouldRetry ? RETRY_CONFIG.maxRetries : 1;
 
   let lastError: Error | null = null;
@@ -78,6 +90,11 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Add idempotency key header for safe POST retries
+      if (idempotencyKey) {
+        headers['X-Idempotency-Key'] = idempotencyKey;
       }
 
       const response = await fetch(`${API_URL}${endpoint}`, {
@@ -232,10 +249,13 @@ export async function createReading(
     creditCost: number;
   }
 ): Promise<ReadingData> {
+  // Use idempotency key to prevent duplicate charges on network retries
+  const idempotencyKey = generateIdempotencyKey();
   return apiRequest('/api/readings', {
     method: 'POST',
     body: data,
     token,
+    idempotencyKey,
   });
 }
 
@@ -245,10 +265,13 @@ export async function addFollowUpQuestion(
   question: string,
   answer: string
 ): Promise<{ id: string; question: string; answer: string; creditCost: number; createdAt: string }> {
+  // Use idempotency key to prevent duplicate charges on network retries
+  const idempotencyKey = generateIdempotencyKey();
   return apiRequest(`/api/readings/${readingId}/follow-up`, {
     method: 'POST',
     body: { question, answer },
     token,
+    idempotencyKey,
   });
 }
 
@@ -353,10 +376,13 @@ export async function capturePayPalOrder(
   token: string,
   orderId: string
 ): Promise<{ success: boolean; credits?: number; captureId?: string; status?: string }> {
+  // Use idempotency key to prevent double-crediting on network retries
+  const idempotencyKey = generateIdempotencyKey();
   return apiRequest('/api/payments/paypal/capture', {
     method: 'POST',
     body: { orderId },
     token,
+    idempotencyKey,
   });
 }
 

@@ -322,6 +322,68 @@ class CreditService {
   }
 
   /**
+   * Refund credits for a failed operation (reading, follow-up, etc.)
+   * Creates a REFUND transaction linked to the original transaction
+   */
+  async refundCredits(
+    userId: string,
+    amount: number,
+    reason: string,
+    originalTransactionId?: string
+  ): Promise<CreditResult> {
+    try {
+      if (amount <= 0) {
+        return {
+          success: false,
+          newBalance: 0,
+          transactionId: '',
+          error: 'Refund amount must be positive',
+        };
+      }
+
+      // Atomic transaction: add credits back + create refund record
+      const [transaction, updatedUser] = await this.prisma.$transaction([
+        this.prisma.transaction.create({
+          data: {
+            userId,
+            type: 'REFUND',
+            amount: amount, // Positive for refund (adding credits back)
+            description: `Refund: ${reason}`,
+            paymentId: originalTransactionId, // Link to original transaction
+            paymentStatus: 'COMPLETED',
+          },
+        }),
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            credits: { increment: amount },
+            totalCreditsSpent: { decrement: amount }, // Reduce spent count
+          },
+        }),
+      ]);
+
+      console.log(
+        `[CreditService] Refunded ${amount} credits to user ${userId}. ` +
+        `Reason: ${reason}. New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
+      );
+
+      return {
+        success: true,
+        newBalance: updatedUser.credits,
+        transactionId: transaction.id,
+      };
+    } catch (error) {
+      console.error('[CreditService] Error refunding credits:', error);
+      return {
+        success: false,
+        newBalance: 0,
+        transactionId: '',
+        error: error instanceof Error ? error.message : 'Failed to refund credits',
+      };
+    }
+  }
+
+  /**
    * Update existing transaction status (for payment completion)
    * Uses repository if available, falls back to Prisma
    */
