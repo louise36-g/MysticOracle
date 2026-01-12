@@ -4,7 +4,7 @@ import { InterpretationStyle, Language, SpreadConfig, TarotCard } from '../types
 
 // Configuration
 const CONFIG = {
-  model: 'google/gemini-2.0-flash-exp:free',
+  model: 'google/gemini-2.0-flash-001',  // Stable model (was gemini-2.0-flash-exp:free which is deprecated)
   maxRetries: 3,
   baseDelayMs: 1000,
   timeoutMs: 60000, // Increased timeout for detailed prompts
@@ -279,6 +279,11 @@ Tone: Mystical, supportive, insightful, warm, and conversational.
     if (error instanceof Error) {
       if (error.message === 'Request timeout') {
         return ERROR_MESSAGES[language].timeout;
+      }
+      // In development, show actual error for debugging
+      if (import.meta.env.DEV) {
+        console.error('Full error details:', JSON.stringify(error, null, 2));
+        return `API Error: ${error.message}. Check console for details.`;
       }
     }
     return ERROR_MESSAGES[language].apiError;
