@@ -25,6 +25,7 @@ interface User {
   isAdmin: boolean;
   language: Language;
   achievements: string[];
+  achievementsData?: Array<{ achievementId: string; unlockedAt: string }>;
   spreadsUsed: SpreadType[];
 }
 
@@ -162,7 +163,11 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         referralCode: profile.referralCode,
         isAdmin: profile.isAdmin,
         language: profile.language as Language,
-        achievements: (profile.achievements || []).map(a => a.achievementId),
+        achievements: (profile.achievements || []).map((a: any) => a.achievementId),
+        achievementsData: (profile.achievements || []).map((a: any) => ({
+          achievementId: a.achievementId,
+          unlockedAt: a.unlockedAt,
+        })),
         spreadsUsed: [], // TODO: Add to backend if needed
       };
 
@@ -172,8 +177,9 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
 
       // Fetch reading history (skip on refreshUser calls to speed up credit updates)
       if (!skipHistory) {
-        const { readings } = await api.fetchUserReadings(token);
-        const mappedHistory: ReadingHistoryItem[] = (readings || []).map(r => ({
+        const result = await api.fetchUserReadings(token);
+        const readings = result.data || [];
+        const mappedHistory: ReadingHistoryItem[] = readings.map(r => ({
           id: r.id,
           date: r.createdAt,
           spreadType: r.spreadType as SpreadType,
@@ -264,7 +270,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     if (user.credits < amount) {
       return {
         success: false,
-        message: language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants'
+        message: 'Insufficient credits'
       };
     }
 

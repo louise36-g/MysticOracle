@@ -271,7 +271,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     const result = await deductCredits(totalCost);
     if (!result.success) {
-      setValidationMessage(result.message || t('ActiveReading.tsx.ActiveReading.transaction_failed', "Transaction failed."));
+      setValidationMessage(t('error.insufficientCredits', 'Insufficient credits'));
       return;
     }
 
@@ -407,7 +407,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     if (cost > 0) {
       const result = await deductCredits(cost);
       if (!result.success) {
-        alert(result.message || t('ActiveReading.tsx.ActiveReading.insufficient_credits_2', "Insufficient credits!"));
+        alert(t('error.insufficientCredits', 'Insufficient credits'));
         return;
       }
     }

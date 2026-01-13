@@ -257,9 +257,7 @@ const HoroscopeReading: React.FC = () => {
           { role: 'user', content: question },
           {
             role: 'model',
-            content: language === 'en'
-              ? "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars."
-              : "Vous avez utilisé votre question gratuite pour cette paire. Chaque crédit débloque 2 questions - gagnez plus de crédits via les connexions quotidiennes, les succès ou les parrainages pour continuer à explorer les étoiles."
+            content: t('horoscope.HoroscopeReading.insufficient_credits_message', "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars.")
           }
         ]);
         setUserQuestion('');
