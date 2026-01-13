@@ -234,11 +234,23 @@ export function createTranslationFunction(
 
 /**
  * Get translation with fallback
+ * In development mode, logs warnings for missing translation keys
  */
 export function translate(
   translations: Record<string, string>,
   key: string,
   fallback?: string
 ): string {
-  return translations[key] || fallback || key;
+  const value = translations[key];
+
+  // Development warning for missing translations
+  if (import.meta.env.DEV && !value && fallback !== key) {
+    console.warn(
+      `[Translation Missing] Key: "${key}" | Fallback: "${fallback || key}"`,
+      '\nAdd to backend seed:',
+      `'${key}': { en: '${fallback || key}', fr: 'TODO' },`
+    );
+  }
+
+  return value || fallback || key;
 }
