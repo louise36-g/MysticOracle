@@ -464,7 +464,7 @@ const App: React.FC = () => {
 
         {/* Logo/Brand */}
         <div className="relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-10 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
             MysticOracle
           </h1>
 
