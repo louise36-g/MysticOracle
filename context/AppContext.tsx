@@ -162,7 +162,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         referralCode: profile.referralCode,
         isAdmin: profile.isAdmin,
         language: profile.language as Language,
-        achievements: profile.achievements.map(a => a.achievementId),
+        achievements: (profile.achievements || []).map(a => a.achievementId),
         spreadsUsed: [], // TODO: Add to backend if needed
       };
 
@@ -173,7 +173,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       // Fetch reading history (skip on refreshUser calls to speed up credit updates)
       if (!skipHistory) {
         const { readings } = await api.fetchUserReadings(token);
-        const mappedHistory: ReadingHistoryItem[] = readings.map(r => ({
+        const mappedHistory: ReadingHistoryItem[] = (readings || []).map(r => ({
           id: r.id,
           date: r.createdAt,
           spreadType: r.spreadType as SpreadType,

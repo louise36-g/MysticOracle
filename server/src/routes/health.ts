@@ -4,7 +4,52 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-// Health check endpoint
+/**
+ * @openapi
+ * /api/v1/health:
+ *   get:
+ *     tags:
+ *       - Health
+ *     summary: Health check endpoint
+ *     description: Check if the API and database are healthy and responding
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: healthy
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 services:
+ *                   type: object
+ *                   properties:
+ *                     database:
+ *                       type: string
+ *                       example: connected
+ *                     api:
+ *                       type: string
+ *                       example: running
+ *       503:
+ *         description: Service is unhealthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: unhealthy
+ *                 services:
+ *                   type: object
+ *                 error:
+ *                   type: string
+ */
 router.get('/', async (req, res) => {
   try {
     // Check database connection

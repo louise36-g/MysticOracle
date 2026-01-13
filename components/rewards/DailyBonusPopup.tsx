@@ -13,6 +13,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
   const [claimedAmount, setClaimedAmount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const [flyingCoins, setFlyingCoins] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -29,6 +30,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
     const startY = rect.top + rect.height / 2;
 
     setIsClaiming(true);
+    setError(null);
 
     try {
       const result = await claimDailyBonus();
@@ -55,15 +57,39 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
           setTimeout(() => {
             setClaimed(false);
             setClaimedAmount(0);
+            setError(null);
+          }, 300);
+        }, 2500);
+      } else {
+        // Handle failure case
+        setError(language === 'en'
+          ? 'Already claimed today. Come back tomorrow!'
+          : 'Déjà réclamé aujourd\'hui. Revenez demain !');
+        setTimeout(() => {
+          onClose();
+          setTimeout(() => {
+            setError(null);
           }, 300);
         }, 2500);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to claim bonus:', error);
+      const errorMessage = error?.message || (language === 'en'
+        ? 'Already claimed today. Come back tomorrow!'
+        : 'Déjà réclamé aujourd\'hui. Revenez demain !');
+      setError(errorMessage);
+
+      // Auto-close after error
+      setTimeout(() => {
+        onClose();
+        setTimeout(() => {
+          setError(null);
+        }, 300);
+      }, 2500);
     } finally {
       setIsClaiming(false);
     }
-  }, [isClaiming, claimDailyBonus, onClose]);
+  }, [isClaiming, claimDailyBonus, onClose, language]);
 
   return (
     <>
@@ -154,6 +180,17 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                     </div>
                   )}
 
+                  {/* Error message */}
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-red-400 font-medium mb-4"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+
                   {/* Claim button or success message */}
                   {claimed ? (
                     <motion.div
@@ -163,7 +200,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                     >
                       {language === 'en' ? 'Credits added to your account!' : 'Crédits ajoutés à votre compte !'}
                     </motion.div>
-                  ) : (
+                  ) : error ? null : (
                     <motion.button
                       ref={buttonRef}
                       onClick={handleClaim}

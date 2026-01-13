@@ -30,7 +30,10 @@ export async function getAISettings(): Promise<AISettings> {
     const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
 
     // Database values take priority over env vars
-    const apiKey = settingsMap.get('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY || null;
+    // Trim whitespace from API key to avoid authentication issues
+    const rawApiKey =
+      settingsMap.get('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY || null;
+    const apiKey = rawApiKey?.trim() || null;
     const model = settingsMap.get('AI_MODEL') || process.env.AI_MODEL || 'openai/gpt-oss-120b:free';
 
     cachedSettings = { apiKey, model };
@@ -41,7 +44,7 @@ export async function getAISettings(): Promise<AISettings> {
     console.error('Error fetching AI settings from database:', error);
     // Fall back to env vars if DB query fails
     return {
-      apiKey: process.env.OPENROUTER_API_KEY || null,
+      apiKey: process.env.OPENROUTER_API_KEY?.trim() || null,
       model: process.env.AI_MODEL || 'openai/gpt-oss-120b:free',
     };
   }

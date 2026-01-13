@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import OpenAI from 'openai';
-import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
@@ -30,9 +29,62 @@ const summarizeQuestionSchema = z.object({
 });
 
 /**
- * POST /api/ai/summarize-question
- * Summarizes a long question while preserving intent and emotional context
- * Costs 1 credit
+ * @openapi
+ * /api/v1/ai/summarize-question:
+ *   post:
+ *     tags:
+ *       - AI
+ *     summary: Summarize a tarot question
+ *     description: Uses AI to condense long questions while preserving intent and emotional context. Costs 1 credit.
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - question
+ *               - language
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 2000
+ *                 description: The question to summarize
+ *               language:
+ *                 type: string
+ *                 enum: [en, fr]
+ *                 description: Language of the question
+ *     responses:
+ *       200:
+ *         description: Question summarized successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: string
+ *                   description: Summarized question
+ *                 creditsUsed:
+ *                   type: integer
+ *                   example: 1
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       402:
+ *         description: Insufficient credits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Insufficient credits
  */
 router.post('/summarize-question', requireAuth, async (req, res) => {
   try {

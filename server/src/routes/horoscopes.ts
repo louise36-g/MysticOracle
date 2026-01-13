@@ -4,6 +4,7 @@ import prisma from '../db/prisma.js';
 import { optionalAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
 import cacheService, { CacheService } from '../services/cache.js';
+import { getHoroscopePrompt, getHoroscopeFollowUpPrompt } from '../services/promptService.js';
 
 const router = Router();
 
@@ -70,7 +71,12 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
     throw new Error('AI service not configured. Please contact support.');
   }
 
-  const langName = language === 'en' ? 'English' : 'French';
+  console.log('[Horoscope] Using AI settings:', {
+    model: aiSettings.model,
+    apiKeyLength: aiSettings.apiKey?.length,
+    apiKeyPrefix: aiSettings.apiKey?.substring(0, 10) + '...',
+  });
+
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -78,41 +84,12 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
     year: 'numeric',
   });
 
-  const prompt = `
-You are an expert astrologer providing a daily horoscope reading.
-
-Task: Write a concise daily horoscope.
-Language: ${langName}
-Zodiac Sign: ${sign}
-Today's Date: ${today}
-
-Structure your horoscope with these sections (use **bold** for section headings):
-
-**Overall Energy**
-The key planetary influences affecting ${sign} today. Reference specific transits and aspects concisely.
-
-**Personal & Relationships**
-Love, family, friendships, and emotional wellbeing. Connect to relevant planetary positions.
-
-**Career & Finances**
-Professional life, money matters, and ambitions. Reference relevant planetary influences.
-
-**Wellbeing & Advice**
-Practical guidance for the day, tied to the astrological influences mentioned.
-
-IMPORTANT STYLE RULES:
-- Be CONCISE - get to the point without padding or filler
-- Write for intelligent adults who are new to astrology - explain astrological terms when needed, but never be condescending or overly simplistic
-- DO NOT use overly familiar phrases like "my dear ${sign}", "well now", "as you know", or similar patronizing language
-- DO NOT over-explain basic concepts (e.g., don't explain what the Sun or Moon are)
-- Reference planetary positions and transits naturally without excessive preamble
-- Be direct and informative, not chatty
-- DO NOT include lucky charms, lucky numbers, or lucky colours
-- DO NOT use tables, emojis, or icons
-- DO NOT use bullet points
-
-Tone: Professional, informative, respectful, and direct.
-`;
+  // Get prompt from service (with caching and fallback to defaults)
+  const prompt = await getHoroscopePrompt({
+    sign,
+    today,
+    language,
+  });
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -131,8 +108,14 @@ Tone: Professional, informative, respectful, and direct.
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    console.error('OpenRouter API error:', response.status, error);
+    const errorText = await response.text();
+    console.error('[Horoscope] OpenRouter API error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
     if (response.status === 401) {
       throw new Error('AI service authentication failed. Please check API key.');
     } else if (response.status === 429) {
@@ -294,7 +277,6 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
       return res.status(500).json({ error: 'AI not configured' });
     }
 
-    const langName = language === 'en' ? 'English' : 'French';
     const todayStr = new Date().toLocaleDateString('en-GB', {
       weekday: 'long',
       day: 'numeric',
@@ -310,34 +292,15 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
         )
         .join('\n') || '';
 
-    const prompt = `
-You are an expert astrologer continuing a conversation about a horoscope reading.
-
-Today's Date: ${todayStr}
-Zodiac Sign: ${normalizedSign}
-
-Original Horoscope Reading:
-${horoscope}
-
-${historyText ? `Conversation History:\n${historyText}\n` : ''}
-Current Question: "${question}"
-
-Language: ${langName}
-
-Task: Answer the question concisely and informatively. Draw upon:
-- The planetary positions and transits mentioned in the original reading
-- Current lunar phases and their significance
-- The specific characteristics of ${normalizedSign} and how they interact with current cosmic energies
-- Practical advice tied to astrological influences
-
-Explain astrological concepts when relevant, but assume the reader is an intelligent adult - never be patronizing or overly simplistic.
-
-IMPORTANT STYLE RULES:
-- Be concise and direct
-- DO NOT use phrases like "my dear", "well now", "as you know"
-- No tables, emojis, or icons
-- Write in flowing prose
-`;
+    // Get prompt from service (with caching and fallback to defaults)
+    const prompt = await getHoroscopeFollowUpPrompt({
+      sign: normalizedSign,
+      today: todayStr,
+      horoscope,
+      history: historyText,
+      question,
+      language,
+    });
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -356,7 +319,17 @@ IMPORTANT STYLE RULES:
     });
 
     if (!response.ok) {
-      throw new Error('Failed to generate answer');
+      const errorText = await response.text();
+      console.error('[Horoscope Follow-up] OpenRouter API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+
+      if (response.status === 401) {
+        throw new Error('AI service authentication failed. Please check API key.');
+      }
+      throw new Error(`Failed to generate answer (${response.status})`);
     }
 
     const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };

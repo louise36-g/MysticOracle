@@ -6,6 +6,7 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService from '../services/cache.js';
 import { clearAISettingsCache } from '../services/aiSettings.js';
 import { creditService } from '../services/CreditService.js';
+import promptsRouter from './prompts.js';
 
 const router = Router();
 
@@ -1370,5 +1371,11 @@ router.get('/debug/user-credit-history/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user credit history' });
   }
 });
+
+// ============================================
+// PROMPTS MANAGEMENT
+// ============================================
+
+router.use('/prompts', promptsRouter);
 
 export default router;

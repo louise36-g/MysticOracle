@@ -4,6 +4,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
 import { AchievementService } from '../services/AchievementService.js';
 import { NotFoundError, ConflictError } from '../shared/errors/ApplicationError.js';
+import { parsePaginationParams, createPaginatedResponse } from '../shared/pagination/pagination.js';
+import { validateQuery, paginationQuerySchema } from '../middleware/validateQuery.js';
 
 // Create achievement service instance
 const achievementService = new AchievementService(prisma);
@@ -109,32 +111,58 @@ router.get('/me/credits', requireAuth, async (req, res) => {
   }
 });
 
-// Get user reading history
-router.get('/me/readings', requireAuth, async (req, res) => {
+/**
+ * @openapi
+ * /api/v1/users/me/readings:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get user reading history
+ *     description: Retrieve paginated list of user's tarot readings
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/OffsetParam'
+ *     responses:
+ *       200:
+ *         description: Reading history retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Reading'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get('/me/readings', requireAuth, validateQuery(paginationQuerySchema), async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { limit = 20, offset = 0 } = req.query;
+    const params = parsePaginationParams(req.query, 20, 100);
 
-    console.log(
-      '[User API] Fetching readings for userId:',
-      userId,
-      'limit:',
-      limit,
-      'offset:',
-      offset
-    );
+    console.log('[User API] Fetching readings for userId:', userId, 'params:', params);
 
-    const readings = await prisma.reading.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: Number(limit),
-      skip: Number(offset),
-      include: {
-        followUps: true,
-      },
-    });
-
-    const total = await prisma.reading.count({ where: { userId } });
+    const [readings, total] = await Promise.all([
+      prisma.reading.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: params.take,
+        skip: params.skip,
+        include: {
+          followUps: true,
+        },
+      }),
+      prisma.reading.count({ where: { userId } }),
+    ]);
 
     console.log(
       '[User API] Found',
@@ -144,39 +172,83 @@ router.get('/me/readings', requireAuth, async (req, res) => {
       'total for user:',
       userId
     );
-    console.log(
-      '[User API] Reading IDs:',
-      readings.map(r => r.id)
-    );
 
-    res.json({ readings, total });
+    res.json(createPaginatedResponse(readings, params, total));
   } catch (error) {
     console.error('[User API] Error fetching readings:', error);
     res.status(500).json({ error: 'Failed to fetch readings' });
   }
 });
 
-// Get user transactions
-router.get('/me/transactions', requireAuth, async (req, res) => {
-  try {
-    const userId = req.auth.userId;
-    const { limit = 50, offset = 0 } = req.query;
+/**
+ * @openapi
+ * /api/v1/users/me/transactions:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get user transaction history
+ *     description: Retrieve paginated list of user's credit transactions
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/OffsetParam'
+ *     responses:
+ *       200:
+ *         description: Transaction history retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       amount:
+ *                         type: integer
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get(
+  '/me/transactions',
+  requireAuth,
+  validateQuery(paginationQuerySchema),
+  async (req, res) => {
+    try {
+      const userId = req.auth.userId;
+      const params = parsePaginationParams(req.query, 50, 100);
 
-    const transactions = await prisma.transaction.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: Number(limit),
-      skip: Number(offset),
-    });
+      const [transactions, total] = await Promise.all([
+        prisma.transaction.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: params.take,
+          skip: params.skip,
+        }),
+        prisma.transaction.count({ where: { userId } }),
+      ]);
 
-    const total = await prisma.transaction.count({ where: { userId } });
-
-    res.json({ transactions, total });
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    res.status(500).json({ error: 'Failed to fetch transactions' });
+      res.json(createPaginatedResponse(transactions, params, total));
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      res.status(500).json({ error: 'Failed to fetch transactions' });
+    }
   }
-});
+);
 
 /**
  * @openapi

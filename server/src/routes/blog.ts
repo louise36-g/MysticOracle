@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService, { CacheService } from '../services/cache.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { ConflictError } from '../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -166,12 +168,12 @@ router.get('/posts', async (req, res) => {
     })}`;
 
     // Check cache first
-    const cached = await cacheService.get<any>(cacheKey);
+    const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
     if (cached) {
       return res.json(cached);
     }
 
-    const where: any = {
+    const where: Prisma.BlogPostWhereInput = {
       status: 'PUBLISHED',
       publishedAt: { not: null },
       deletedAt: null, // Exclude deleted posts
@@ -463,7 +465,7 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       })
       .parse(req.query);
 
-    const where: any = {};
+    const where: Prisma.BlogPostWhereInput = {};
 
     // Filter by deleted status
     if (params.deleted) {
@@ -623,7 +625,7 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
     // Check slug uniqueness
     const existing = await prisma.blogPost.findUnique({ where: { slug: data.slug } });
     if (existing) {
-      return res.status(400).json({ error: 'Slug already exists' });
+      throw new ConflictError(`Post with slug "${data.slug}" already exists`);
     }
 
     const post = await prisma.blogPost.create({
@@ -684,7 +686,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
         where: { slug: postData.slug, id: { not: id } },
       });
       if (existing) {
-        return res.status(400).json({ error: 'Slug already exists' });
+        throw new ConflictError(`Post with slug "${postData.slug}" already exists`);
       }
     }
 
@@ -696,11 +698,11 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
 
     // Set publishedAt if transitioning to published
     if (postData.status === 'PUBLISHED' && current.status !== 'PUBLISHED') {
-      (postData as any).publishedAt = new Date();
+      (postData as Record<string, unknown>).publishedAt = new Date();
     }
 
     // Update post
-    const updateData: any = { ...postData };
+    const updateData: Prisma.BlogPostUpdateInput = { ...postData };
 
     // Handle category updates
     if (categoryIds !== undefined) {
@@ -906,7 +908,7 @@ router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => 
     // Check for duplicate slug
     const existing = await prisma.blogCategory.findUnique({ where: { slug: data.slug } });
     if (existing) {
-      return res.status(400).json({ error: 'A category with this slug already exists' });
+      throw new ConflictError(`Category with slug "${data.slug}" already exists`);
     }
 
     const category = await prisma.blogCategory.create({
@@ -1011,7 +1013,7 @@ router.post('/admin/tags', requireAuth, requireAdmin, async (req, res) => {
     // Check for duplicate slug
     const existing = await prisma.blogTag.findUnique({ where: { slug: data.slug } });
     if (existing) {
-      return res.status(400).json({ error: 'A tag with this slug already exists' });
+      throw new ConflictError(`Tag with slug "${data.slug}" already exists`);
     }
 
     const tag = await prisma.blogTag.create({
@@ -1125,7 +1127,7 @@ router.get('/admin/media', requireAuth, requireAdmin, async (req, res) => {
     const cacheKey = folder ? `media:list:${folder}` : 'media:list';
 
     // Check cache first
-    const cached = await cacheService.get<any[]>(cacheKey);
+    const cached = await cacheService.get<Record<string, unknown>[]>(cacheKey);
     if (cached) {
       return res.json({ media: cached });
     }

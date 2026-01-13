@@ -171,14 +171,14 @@ export interface UserProfile {
 }
 
 export async function fetchUserProfile(token: string): Promise<UserProfile> {
-  return apiRequest<UserProfile>('/api/users/me', { token });
+  return apiRequest<UserProfile>('/api/v1/users/me', { token });
 }
 
 export async function updateUserProfile(
   token: string,
   data: { language?: string; welcomeCompleted?: boolean }
 ): Promise<UserProfile> {
-  return apiRequest<UserProfile>('/api/users/me', {
+  return apiRequest<UserProfile>('/api/v1/users/me', {
     method: 'PATCH',
     body: data,
     token,
@@ -194,7 +194,7 @@ export async function fetchUserCredits(token: string): Promise<{
   totalCreditsEarned: number;
   totalCreditsSpent: number;
 }> {
-  return apiRequest('/api/users/me/credits', { token });
+  return apiRequest('/api/v1/users/me/credits', { token });
 }
 
 export async function claimDailyBonus(token: string): Promise<{
@@ -203,7 +203,7 @@ export async function claimDailyBonus(token: string): Promise<{
   newBalance: number;
   streak: number;
 }> {
-  return apiRequest('/api/users/me/daily-bonus', {
+  return apiRequest('/api/v1/users/me/daily-bonus', {
     method: 'POST',
     token,
   });
@@ -237,7 +237,7 @@ export async function fetchUserReadings(
   limit = 20,
   offset = 0
 ): Promise<{ readings: ReadingData[]; total: number }> {
-  return apiRequest(`/api/users/me/readings?limit=${limit}&offset=${offset}`, { token });
+  return apiRequest(`/api/v1/users/me/readings?limit=${limit}&offset=${offset}`, { token });
 }
 
 export async function createReading(
@@ -308,7 +308,7 @@ export async function fetchUserTransactions(
   limit = 50,
   offset = 0
 ): Promise<{ transactions: Transaction[]; total: number }> {
-  return apiRequest(`/api/users/me/transactions?limit=${limit}&offset=${offset}`, { token });
+  return apiRequest(`/api/v1/users/me/transactions?limit=${limit}&offset=${offset}`, { token });
 }
 
 // ============================================
@@ -397,7 +397,7 @@ export async function fetchHoroscope(
   language: 'en' | 'fr' = 'en',
   token?: string | null
 ): Promise<{ horoscope: string; cached: boolean; generatedAt: string }> {
-  return apiRequest(`/api/horoscopes/${encodeURIComponent(sign)}?language=${language}`, {
+  return apiRequest(`/api/v1/horoscopes/${encodeURIComponent(sign)}?language=${language}`, {
     token: token || undefined
   });
 }
@@ -410,7 +410,7 @@ export async function askHoroscopeQuestion(
   language: 'en' | 'fr' = 'en',
   token?: string | null
 ): Promise<{ answer: string; cached: boolean }> {
-  return apiRequest(`/api/horoscopes/${encodeURIComponent(sign)}/followup?language=${language}`, {
+  return apiRequest(`/api/v1/horoscopes/${encodeURIComponent(sign)}/followup?language=${language}`, {
     method: 'POST',
     body: { question, horoscope, history },
     token: token || undefined
@@ -750,6 +750,66 @@ export async function seedAdminPackages(token: string): Promise<{ success: boole
 
 export async function seedAdminEmailTemplates(token: string): Promise<{ success: boolean; templates: AdminEmailTemplate[]; count: number }> {
   return apiRequest('/api/admin/seed/email-templates', { method: 'POST', token });
+}
+
+// ============================================
+// ADMIN AI PROMPTS
+// ============================================
+
+export interface AdminPrompt {
+  key: string;
+  value: string;
+  description: string;
+  category: 'tarot' | 'horoscope';
+  isBase?: boolean;
+  variables: string[];
+  characterCount: number;
+  updatedAt: string | null;
+  isCustom?: boolean;
+  defaultValue?: string;
+}
+
+export async function fetchAdminPrompts(token: string): Promise<{
+  prompts: AdminPrompt[];
+}> {
+  return apiRequest('/api/admin/prompts', { token });
+}
+
+export async function fetchAdminPrompt(
+  token: string,
+  key: string
+): Promise<AdminPrompt> {
+  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}`, { token });
+}
+
+export async function updateAdminPrompt(
+  token: string,
+  key: string,
+  data: { value: string }
+): Promise<{ success: boolean; prompt: AdminPrompt }> {
+  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}`, {
+    method: 'PUT',
+    body: data,
+    token,
+  });
+}
+
+export async function resetAdminPrompt(
+  token: string,
+  key: string
+): Promise<{ success: boolean; prompt: AdminPrompt }> {
+  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}/reset`, {
+    method: 'POST',
+    token,
+  });
+}
+
+export async function seedAdminPrompts(token: string): Promise<{
+  success: boolean;
+  seeded: Array<{ key: string; created: boolean }>;
+  count: number;
+}> {
+  return apiRequest('/api/admin/prompts/seed', { method: 'POST', token });
 }
 
 export interface ServiceConfig {
@@ -1480,4 +1540,10 @@ export default {
   fetchAdminAIConfig,
   fetchAdminAnalytics,
   fetchAdminEmailTemplates,
+  // Admin Prompts
+  fetchAdminPrompts,
+  fetchAdminPrompt,
+  updateAdminPrompt,
+  resetAdminPrompt,
+  seedAdminPrompts,
 };

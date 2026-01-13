@@ -76,7 +76,14 @@ import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
 import tarotArticleRoutes from './routes/tarot-articles.js';
 import ssrRoutes from './routes/ssr.js';
+import devRoutes from './routes/dev.js';
+import promptRoutes from './routes/prompts.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
+import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
+import { Router } from 'express';
+import { errorHandler } from './middleware/errorHandler.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -187,29 +194,60 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// Routes with specific rate limits
-app.use('/api/health', healthRoutes);
-app.use('/api/users', authLimiter, userRoutes);
-app.use('/api/readings', strictLimiter, readingRoutes);
-app.use('/api/payments', paymentLimiter, paymentRoutes);
-app.use('/api/admin', adminLimiter, adminRoutes);
-app.use('/api/horoscopes', generalLimiter, horoscopeRoutes);
-app.use('/api/translations', generalLimiter, translationRoutes);
-app.use('/api/blog', adminLimiter, blogRoutes);
-app.use('/api/tarot-articles', generalLimiter, tarotArticleRoutes);
-app.use('/api/ai', strictLimiter, aiRoutes);
+// Swagger API Documentation
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'MysticOracle API Docs',
+  })
+);
+
+// OpenAPI JSON endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Register v1 routes (current API as v1)
+const v1Router = Router();
+v1Router.use('/health', healthRoutes);
+v1Router.use('/users', authLimiter, userRoutes);
+v1Router.use('/readings', strictLimiter, readingRoutes);
+v1Router.use('/payments', paymentLimiter, paymentRoutes);
+v1Router.use('/admin', adminLimiter, adminRoutes);
+v1Router.use('/admin/prompts', adminLimiter, promptRoutes);
+v1Router.use('/horoscopes', generalLimiter, horoscopeRoutes);
+v1Router.use('/translations', generalLimiter, translationRoutes);
+v1Router.use('/blog', generalLimiter, blogRoutes);
+v1Router.use('/tarot-articles', generalLimiter, tarotArticleRoutes);
+v1Router.use('/ai', strictLimiter, aiRoutes);
+
+// Mount v1 at /api/v1
+app.use('/api/v1', v1Router);
+
+// DEV ONLY: Mount development routes (only in non-production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/v1/dev', generalLimiter, devRoutes);
+  console.log('🔧 Dev endpoints enabled at /api/v1/dev');
+}
+
+// DEPRECATED: Mount same routes at /api/* for backward compatibility
+// Deprecation date: 2 weeks from now, Sunset: 2 months from now
+const deprecatedRouter = createVersionedRouter(v1Router, {
+  version: 'v1',
+  deprecationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+  sunsetDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+});
+app.use('/api', deprecatedRouter);
 
 // Server-Side Rendering routes (for SEO)
 // Must come AFTER API routes to avoid conflicts
 app.use('/', ssrRoutes);
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-  });
-});
+app.use(errorHandler);
 
 // Schedule horoscope cache cleanup (runs daily at 3 AM UTC)
 function scheduleHoroscopeCleanup(): void {
