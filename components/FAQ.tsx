@@ -5,6 +5,7 @@ import { useTranslation } from '../context/TranslationContext';
 import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
+import { SmartLink } from './SmartLink';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
@@ -104,12 +105,13 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
 
   // Helper to create links
   const Link = ({ to, children }: { to: string; children: React.ReactNode }) => (
-    <button
+    <SmartLink
+      href={`/${to}`}
       onClick={() => onNavigate(to)}
       className="text-purple-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
     >
       {children}
-    </button>
+    </SmartLink>
   );
 
   return (
@@ -311,12 +313,12 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {t('faq.readings.a3', 'We offer several spread types to suit different needs:')}<br /><br />
-                  <strong className="text-slate-300">{t('faq.readings.spread1', 'Single Card')}</strong> ({singleCardCost} {language === 'en' ? 'credit' : 'crédit'}) — {t('faq.readings.spread1desc', 'Quick guidance for simple questions')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread2', 'Three Card')}</strong> ({threeCardCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread2desc', 'Past, present, and future perspective')}<br />
-                  <strong className="text-slate-300">{language === 'en' ? 'Love & Relationships' : 'Amour & Relations'}</strong> ({loveCost} {language === 'en' ? 'credits' : 'crédits'}) — {language === 'en' ? '5-card spread exploring matters of the heart' : 'Tirage à 5 cartes explorant les affaires du cœur'}<br />
-                  <strong className="text-slate-300">{language === 'en' ? 'Career Path' : 'Chemin de Carrière'}</strong> ({careerCost} {language === 'en' ? 'credits' : 'crédits'}) — {language === 'en' ? '5-card spread for professional guidance' : 'Tirage à 5 cartes pour orientation professionnelle'}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread3', 'Horseshoe')}</strong> ({horseshoeCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread3desc', 'Deeper situation analysis with 7 cards')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread4', 'Celtic Cross')}</strong> ({celticCrossCost} {language === 'en' ? 'credits' : 'crédits'}) — {t('faq.readings.spread4desc', 'Comprehensive 10-card reading for complex questions')}
+                  <strong className="text-slate-300">{t('faq.readings.spread1', 'Single Card')}</strong> ({singleCardCost} {t(singleCardCost === 1 ? 'faq.credit' : 'faq.credits', singleCardCost === 1 ? 'credit' : 'credits')}) — {t('faq.readings.spread1desc', 'Quick guidance for simple questions')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread2', 'Three Card')}</strong> ({threeCardCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread2desc', 'Past, present, and future perspective')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread5', 'Love & Relationships')}</strong> ({loveCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread5desc', '5-card spread exploring matters of the heart')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread6', 'Career Path')}</strong> ({careerCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread6desc', '5-card spread for professional guidance')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread3', 'Horseshoe')}</strong> ({horseshoeCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread3desc', 'Deeper situation analysis with 7 cards')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread4', 'Celtic Cross')}</strong> ({celticCrossCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread4desc', 'Comprehensive 10-card reading for complex questions')}
                 </span>
               }
               isOpen={openItems.has('yr-3')}
