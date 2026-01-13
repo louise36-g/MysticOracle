@@ -119,7 +119,8 @@ MysticOracle/
 │   ├── apiService.ts          # All API calls with retry logic
 │   ├── openrouterService.ts   # OpenRouter AI integration
 │   ├── paymentService.ts      # Frontend payment helpers
-│   └── storageService.ts      # LocalStorage wrapper
+│   ├── storageService.ts      # LocalStorage wrapper
+│   └── translationService.ts  # Translation loading and caching
 │
 ├── utils/
 │   ├── crypto.ts              # Token generation
@@ -143,7 +144,8 @@ MysticOracle/
     │   │   ├── webhooks.ts    # Stripe + Clerk webhooks
     │   │   ├── admin.ts       # Admin endpoints
     │   │   ├── blog.ts        # Blog CMS endpoints
-    │   │   └── horoscopes.ts  # Horoscope generation
+    │   │   ├── horoscopes.ts  # Horoscope generation
+    │   │   └── translations.ts # Translation API & admin endpoints
     │   └── services/
     │       └── email.ts       # Brevo email templates
     └── .env.example           # Environment template
@@ -179,6 +181,24 @@ MysticOracle/
 - SEO meta fields and Open Graph support
 - Multi-language support (EN/FR)
 
+### Translation System
+- **Dynamic translations** - All UI text editable from Admin panel
+- **Database-backed** - Translations stored in PostgreSQL with version tracking
+- **Client-side caching** - localStorage cache (5min TTL) for fast loads
+- **English default** - All text defaults to English, French when explicitly selected
+- **Admin editable** - Manage translations via Admin → Translations (no code changes needed)
+- **Version tracking** - Automatic cache invalidation when translations update
+- **Development warnings** - Console alerts for missing translation keys (DEV mode only)
+- **Fallback system** - Never shows blank text (key → fallback → English)
+- **Type safe** - Full TypeScript support with `t(key, fallback)` function
+- **Coverage** - 43% of codebase refactored (~75-80% of user-facing components)
+
+**Quick Reference:**
+- Usage in components: `const { t } = useApp(); t('nav.home', 'Home')`
+- Key naming: `category.Component.semantic_key` (e.g., `profile.achievements.unlocked`)
+- Documentation: See `docs/TRANSLATIONS.md` for full guide
+- Testing: See `docs/TRANSLATION_TESTING_CHECKLIST.md`
+
 ### Admin Dashboard
 - User management with status controls
 - Transaction history
@@ -193,6 +213,9 @@ MysticOracle/
 
 ### Public
 - `GET /api/health` - Health check
+- `GET /api/translations/:lang` - Get all translations for a language
+- `GET /api/translations/version` - Get cache version
+- `GET /api/translations/languages` - Get list of active languages
 - `GET /api/blog/posts` - List published posts
 - `GET /api/blog/posts/:slug` - Get single post
 - `GET /api/blog/categories` - List categories
@@ -209,6 +232,11 @@ MysticOracle/
 - `GET /api/admin/stats` - Dashboard stats
 - `GET /api/admin/users` - List users
 - `PATCH /api/admin/users/:id/status` - Update user status
+- `GET /api/translations/admin/languages` - Get all languages with translation counts
+- `GET /api/translations/admin/:lang` - Get translations for editing
+- `POST /api/translations/admin/translations` - Create/update translation
+- `DELETE /api/translations/admin/translations/:id` - Delete translation
+- `POST /api/translations/admin/seed` - Seed/update all translations from defaults
 - `GET /api/blog/admin/posts` - List all posts (inc. drafts)
 - `GET /api/blog/admin/preview/:id` - Preview any post
 - `POST /api/blog/admin/import` - Import JSON articles
