@@ -42,12 +42,18 @@ const reflectionSchema = z.object({
 // Uses idempotency middleware to prevent duplicate charges on retried requests
 router.post('/', requireAuth, idempotent, async (req, res) => {
   try {
+    console.log('[Reading API] Received reading creation request from userId:', req.auth.userId);
+    console.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
+
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
+      console.error('[Reading API] Validation failed:', validation.error.errors);
       return res
         .status(400)
         .json({ error: 'Invalid request data', details: validation.error.errors });
     }
+
+    console.log('[Reading API] Validation passed, executing use case...');
 
     // Resolve use case from DI container
     const createReadingUseCase = req.container.resolve('createReadingUseCase');
@@ -58,20 +64,22 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
     });
 
     if (!result.success) {
+      console.error('[Reading API] Use case failed:', result.error, 'Code:', result.errorCode);
       const statusCode =
         result.errorCode === 'USER_NOT_FOUND'
           ? 404
           : result.errorCode === 'INSUFFICIENT_CREDITS'
-            ? 400
+            ? 402 // ✅ Payment Required
             : result.errorCode === 'VALIDATION_ERROR'
               ? 400
               : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
+    console.log('[Reading API] ✅ Reading created successfully! ID:', result.reading?.id);
     res.status(201).json(result.reading);
   } catch (error) {
-    console.error('[Reading API] Error creating reading:', error);
+    console.error('[Reading API] Unexpected error creating reading:', error);
     res.status(500).json({ error: 'Failed to create reading' });
   }
 });
@@ -121,7 +129,7 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
         result.errorCode === 'READING_NOT_FOUND'
           ? 404
           : result.errorCode === 'INSUFFICIENT_CREDITS'
-            ? 400
+            ? 402 // ✅ Payment Required
             : result.errorCode === 'VALIDATION_ERROR'
               ? 400
               : 500;

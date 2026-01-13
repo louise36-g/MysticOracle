@@ -20,6 +20,7 @@ import type { AdminAnalyticsService } from '../../services/AdminAnalyticsService
 import type { SystemHealthService } from '../../services/SystemHealthService.js';
 import type { RevenueExportService } from '../../services/RevenueExportService.js';
 import type { AuditService } from '../../services/AuditService.js';
+import type { AchievementService } from '../../services/AchievementService.js';
 
 // Audit Repository
 import type { IAuditLogRepository } from '../../application/ports/repositories/IAuditLogRepository.js';
@@ -97,6 +98,7 @@ export interface ContainerDependencies {
   systemHealthService: SystemHealthService;
   revenueExportService: RevenueExportService;
   auditService: AuditService;
+  achievementService: AchievementService;
 
   // Audit Repository
   auditLogRepository: IAuditLogRepository;

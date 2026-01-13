@@ -13,11 +13,19 @@ import {
 } from '../mocks/creditService.js';
 import type { SpreadType, InterpretationStyle } from '@prisma/client';
 
+// Mock achievement service
+const createMockAchievementService = () => ({
+  checkAndUnlockAchievements: vi.fn().mockResolvedValue([]),
+  unlockAchievement: vi.fn().mockResolvedValue(null),
+  getUserAchievements: vi.fn().mockResolvedValue([]),
+});
+
 describe('CreateReadingUseCase', () => {
   let useCase: CreateReadingUseCase;
   let mockReadingRepo: ReturnType<typeof createMockReadingRepository>;
   let mockUserRepo: ReturnType<typeof createMockUserRepository>;
   let mockCreditService: ReturnType<typeof createMockCreditService>;
+  let mockAchievementService: ReturnType<typeof createMockAchievementService>;
 
   const validInput = {
     userId: 'user-1',
@@ -48,8 +56,14 @@ describe('CreateReadingUseCase', () => {
     mockReadingRepo = createMockReadingRepository();
     mockUserRepo = createMockUserRepository();
     mockCreditService = createMockCreditService();
+    mockAchievementService = createMockAchievementService();
 
-    useCase = new CreateReadingUseCase(mockReadingRepo, mockUserRepo, mockCreditService as any);
+    useCase = new CreateReadingUseCase(
+      mockReadingRepo,
+      mockUserRepo,
+      mockCreditService as any,
+      mockAchievementService as any
+    );
 
     // Default successful mocks
     mockCreditService.getSpreadCost.mockReturnValue(1);

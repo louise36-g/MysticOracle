@@ -82,6 +82,9 @@ const UserProfile: React.FC = () => {
     if (!isSignedIn) return null;
 
     // Combine Clerk and AppContext data
+    // Map achievements to just the achievementId strings for easier checking
+    const achievementIds = user?.achievements?.map((a: any) => a.achievementId) || [];
+
     const displayUser = {
         username: user?.username || clerkUser?.username || clerkUser?.firstName || 'User',
         email: user?.email || clerkUser?.primaryEmailAddress?.emailAddress || '',
@@ -90,7 +93,7 @@ const UserProfile: React.FC = () => {
         joinDate: clerkUser?.createdAt?.toISOString() || new Date().toISOString(),
         referralCode: user?.referralCode || 'MYSTIC' + Math.random().toString(36).substring(2, 6).toUpperCase(),
         emailVerified: clerkUser?.primaryEmailAddress?.verification?.status === 'verified',
-        achievements: user?.achievements || [],
+        achievements: achievementIds,
         isAdmin: user?.isAdmin || false,
     };
 
@@ -206,13 +209,30 @@ const UserProfile: React.FC = () => {
                         return (
                             <div
                                 key={achievement.id}
-                                className={`p-3 rounded-lg border text-center transition-all ${
+                                className={`p-3 rounded-lg border text-center transition-all duration-300 ${
                                     isUnlocked
-                                        ? 'bg-amber-900/20 border-amber-500/30'
+                                        ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30 hover:scale-105'
                                         : 'bg-slate-800/30 border-slate-700/30'
                                 }`}
                             >
-                                <Star className={`w-6 h-6 mx-auto mb-2 ${isUnlocked ? 'text-amber-400' : 'text-slate-600'}`} />
+                                <div className="relative inline-block mb-2">
+                                    <Star
+                                        className={`w-12 h-12 mx-auto transition-all duration-300 ${
+                                            isUnlocked
+                                                ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
+                                                : 'text-slate-600'
+                                        }`}
+                                        fill={isUnlocked ? 'currentColor' : 'none'}
+                                    />
+                                    {isUnlocked && (
+                                        <div className="absolute inset-0 animate-pulse">
+                                            <Star
+                                                className="w-12 h-12 text-amber-300 opacity-40"
+                                                fill="currentColor"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                                 <p className={`text-sm font-medium ${isUnlocked ? 'text-amber-100' : 'text-slate-400'}`}>
                                     {language === 'en' ? achievement.nameEn : achievement.nameFr}
                                 </p>
@@ -276,9 +296,11 @@ const UserProfile: React.FC = () => {
                             const isExpanded = expandedReading === reading.id;
                             const cards = Array.isArray(reading.cards) ? reading.cards : [];
                             const cardDetails = cards.map((c: any) => {
-                                const card = FULL_DECK.find(fc => fc.id === c.cardId);
+                                // cardId may be string or number depending on when reading was saved
+                                const cardId = typeof c.cardId === 'string' ? parseInt(c.cardId, 10) : c.cardId;
+                                const card = FULL_DECK.find(fc => fc.id === cardId);
                                 return { ...card, isReversed: c.isReversed, position: c.position };
-                            }).filter(c => c.id);
+                            }).filter(c => c.id !== undefined);
 
                             return (
                                 <motion.div

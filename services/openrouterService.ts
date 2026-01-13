@@ -19,17 +19,29 @@ function isDebugAIModeEnabled(): boolean {
 const MOCK_READING = {
   en: `**The Spread Layout**
 
-This reading follows the traditional arrangement where each position reveals a different facet of your journey. The first position speaks to your present circumstances, while subsequent positions illuminate the forces at play around you.
+This reading follows the traditional arrangement where each position reveals a different facet of your journey. The first position speaks about past circumstances which led up to the second card, present circumstances and the third card is the likely outcome in the future if you keep on this trajectory.
 
-**Card Analysis**
+**Individual Card Meanings**
 
-The cards before us tell a compelling story of transformation and choice. The energy flows from past influences through your current crossroads toward potential futures that await your decision.
+**The Fool**
 
-Each card in this spread connects to its neighbors, creating a tapestry of meaning that speaks directly to your question. The symbolism woven throughout suggests a period of significant personal growth.
+The Fool represents infinite potential, new beginnings, and the courageous leap into the unknown. This card embodies innocence, spontaneity, and the willingness to trust in the journey ahead without knowing the destination. In the Past position, The Fool suggests that your journey began with a bold step into unfamiliar territory - a time when you embraced possibility over certainty. This energy of fresh starts and open-hearted curiosity has shaped the path that led you to where you stand today.
 
-**Synthesis**
+**The Tower**
 
-Looking at the spread as a whole, a clear theme emerges: you stand at a threshold. The cards speak of endings that birth new beginnings, challenges that forge strength, and opportunities that require courage to seize.
+The Tower signifies sudden change, revelation, and the necessary destruction of false structures. Lightning strikes the tower, toppling illusions and forcing transformation. In the Present position, The Tower indicates you are currently experiencing or about to experience a significant shift - old patterns, beliefs, or situations are crumbling to make way for truth. While this energy can feel chaotic, it clears ground for authentic rebuilding.
+
+**The Star**
+
+The Star brings hope, healing, inspiration, and renewed faith after crisis. This card shines with promise, showing the light at the end of darkness. In the Future position, The Star reveals that beyond the current upheaval lies a period of peace, clarity, and spiritual renewal. This card assures you that the challenges you face are leading toward a brighter, more aligned future.
+
+**How the Cards Work Together**
+
+The narrative arc of your reading tells a powerful story of transformation through crisis toward renewal. The Fool's innocent beginning set you on a path that inevitably led to The Tower's necessary destruction. What you thought was your journey needed to be shaken to reveal its true foundation. The Tower's chaos isn't random - it's the universe clearing away what The Fool's naive optimism couldn't see needed releasing.
+
+Looking at these three cards together, we see a classic journey from innocence through trial to wisdom. The Fool's leap led you into experiences that built structures - some true, some false. Now The Tower reveals which structures were built on solid ground and which must fall. The Star promises that this painful clarity leads to genuine hope, not the blind optimism of The Fool, but the earned wisdom of someone who has walked through fire and emerged transformed.
+
+The progression shows that your current disruption (The Tower) is actually the fulfillment of the journey The Fool began - you are becoming more authentically yourself. The Star's future isn't a return to The Fool's innocence but an ascension to conscious, grounded hope that knows the value of what remains after the storm.
 
 The interplay between the cards suggests that external circumstances and internal readiness are aligning. This is not coincidence but rather the natural rhythm of your path unfolding.
 
@@ -41,17 +53,29 @@ Trust in your intuition during this time. The cards indicate that you already po
 
   fr: `**La Disposition du Tirage**
 
-Cette lecture suit l'arrangement traditionnel où chaque position révèle une facette différente de votre voyage. La première position parle de vos circonstances actuelles, tandis que les positions suivantes illuminent les forces en jeu autour de vous.
+Cette lecture suit l'arrangement traditionnel où chaque position révèle une facette différente de votre voyage. La première position parle des circonstances passées qui ont mené à la deuxième carte, les circonstances présentes, et la troisième carte est le résultat probable dans le futur si vous continuez sur cette trajectoire.
 
-**Analyse des Cartes**
+**Signification des Cartes Individuelles**
 
-Les cartes devant nous racontent une histoire captivante de transformation et de choix. L'énergie coule des influences passées à travers votre carrefour actuel vers des futurs potentiels qui attendent votre décision.
+**Le Mat**
 
-Chaque carte dans ce tirage se connecte à ses voisines, créant une tapisserie de signification qui parle directement à votre question. Le symbolisme tissé tout au long suggère une période de croissance personnelle significative.
+Le Mat représente le potentiel infini, les nouveaux départs, et le saut courageux vers l'inconnu. Cette carte incarne l'innocence, la spontanéité, et la volonté de faire confiance au voyage sans connaître la destination. Dans la position Passé, Le Mat suggère que votre voyage a commencé par un pas audacieux en territoire inconnu - un moment où vous avez embrassé la possibilité plutôt que la certitude. Cette énergie de nouveaux commencements et de curiosité à cœur ouvert a façonné le chemin qui vous a mené là où vous êtes aujourd'hui.
 
-**Synthèse**
+**La Maison Dieu**
 
-En regardant le tirage dans son ensemble, un thème clair émerge : vous vous tenez à un seuil. Les cartes parlent de fins qui donnent naissance à de nouveaux débuts, de défis qui forgent la force, et d'opportunités qui nécessitent du courage pour être saisies.
+La Maison Dieu signifie le changement soudain, la révélation, et la destruction nécessaire des fausses structures. La foudre frappe la tour, renversant les illusions et forçant la transformation. Dans la position Présent, La Maison Dieu indique que vous vivez actuellement ou êtes sur le point de vivre un changement significatif - d'anciens schémas, croyances ou situations s'effondrent pour faire place à la vérité. Bien que cette énergie puisse sembler chaotique, elle dégage le terrain pour une reconstruction authentique.
+
+**L'Étoile**
+
+L'Étoile apporte l'espoir, la guérison, l'inspiration, et la foi renouvelée après la crise. Cette carte brille de promesse, montrant la lumière au bout des ténèbres. Dans la position Futur, L'Étoile révèle qu'au-delà du bouleversement actuel se trouve une période de paix, de clarté et de renouveau spirituel. Cette carte vous assure que les défis auxquels vous faites face mènent vers un avenir plus lumineux et plus aligné.
+
+**Comment les Cartes Fonctionnent Ensemble**
+
+L'arc narratif de votre lecture raconte une histoire puissante de transformation à travers la crise vers le renouveau. Le commencement innocent du Mat vous a mis sur un chemin qui a inévitablement mené à la destruction nécessaire de La Maison Dieu. Ce que vous pensiez être votre voyage devait être secoué pour révéler sa vraie fondation. Le chaos de La Maison Dieu n'est pas aléatoire - c'est l'univers qui dégage ce que l'optimisme naïf du Mat ne pouvait pas voir devait être libéré.
+
+En regardant ces trois cartes ensemble, nous voyons un voyage classique de l'innocence à travers l'épreuve vers la sagesse. Le saut du Mat vous a conduit dans des expériences qui ont construit des structures - certaines vraies, certaines fausses. Maintenant La Maison Dieu révèle quelles structures étaient construites sur un sol solide et lesquelles doivent tomber. L'Étoile promet que cette clarté douloureuse mène à un espoir véritable, non l'optimisme aveugle du Mat, mais la sagesse gagnée de quelqu'un qui a traversé le feu et émergé transformé.
+
+La progression montre que votre perturbation actuelle (La Maison Dieu) est en fait l'accomplissement du voyage que Le Mat a commencé - vous devenez plus authentiquement vous-même. Le futur de L'Étoile n'est pas un retour à l'innocence du Mat mais une ascension vers un espoir conscient et ancré qui connaît la valeur de ce qui reste après la tempête.
 
 L'interaction entre les cartes suggère que les circonstances extérieures et la préparation intérieure s'alignent. Ce n'est pas une coïncidence mais plutôt le rythme naturel de votre chemin qui se déploie.
 
@@ -292,6 +316,13 @@ export const generateTarotReading = async ({
     .map((meaning, i) => `${i + 1} - ${meaning}`)
     .join(', ');
 
+  // Build spread-specific layout description
+  const spreadLayoutGuidance = spread.positions === 3
+    ? (language === 'en'
+      ? 'Explain that this is the traditional Past-Present-Future spread: The first position speaks about past circumstances which led up to the second card representing present circumstances, and the third card is the likely outcome in the future if you keep on this trajectory.'
+      : 'Expliquez qu\'il s\'agit du tirage traditionnel Passé-Présent-Futur : La première position parle des circonstances passées qui ont mené à la deuxième carte représentant les circonstances présentes, et la troisième carte est le résultat probable dans le futur si vous continuez sur cette trajectoire.')
+    : `Explain the positions in this spread: ${positionGuide}. Explain what each position represents.`;
+
   const prompt = `
 You are a mystical, wise, and empathetic Tarot Reader.
 
@@ -314,16 +345,18 @@ Important Guidelines:
 
 Structure your response naturally with these sections:
 
-1. **The Spread Layout** - Begin with a brief explanation of the positions in this spread: ${positionGuide}. Explain what each position represents so the seeker understands the framework of the reading.
+1. **The Spread Layout** - ${spreadLayoutGuidance}
 
-2. **Card Analysis** - Go through each card, explaining:
-   - The card's traditional meaning
-   - How its position in the spread shapes or modifies this meaning
-   - How it relates to neighbouring cards and the overall narrative
+2. **Individual Card Meanings** - Analyze EACH card that was drawn. For each card, create a subheading with the card name (e.g., "**The Fool**" or "**Three of Cups**") and explain:
+   - What this specific card means in Tarot (its core symbolism, energy, and traditional interpretation)
+   - What this card means specifically in its position in this spread
+   - If the card is reversed, explain the reversed meaning
 
-3. **Synthesis** - How the cards interact with each other as a whole. Identify any themes, progressions, or tensions across the spread.
+   DO NOT use generic labels like "The First Card" or "Card 1". Use the ACTUAL card names as headings.
 
-4. **Conclusion** - Actionable guidance and advice drawn from the reading.
+3. **How the Cards Work Together** - Write ONE concise paragraph that synthesizes the cards into a unified narrative. Show the natural progression and flow between the cards, revealing the complete story they tell together. Be direct and avoid repetition - state each insight once clearly rather than rephrasing the same idea multiple times. AVOID contrasting constructions like "not X, but Y" or "X, not Y; rather Z" - simply state what IS. Focus on the forward movement and transformation across the spread.
+
+4. **Conclusion** - Actionable guidance and advice drawn from the complete reading. Naturally weave the themes and topics from the user's question throughout this section. Use vocabulary and language specific to their situation (relationships, career, personal growth, etc.) to make the guidance feel directly tailored to what they asked about. Do not mechanically restate their question - instead, let the advice resonate with their concern through thematic alignment and relevant terminology.
 
 IMPORTANT FORMATTING RULES:
 - Write in flowing, natural prose paragraphs

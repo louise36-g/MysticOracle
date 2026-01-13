@@ -2,10 +2,36 @@ import { Router } from 'express';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
+import { AchievementService } from '../services/AchievementService.js';
+import { NotFoundError, ConflictError } from '../shared/errors/ApplicationError.js';
+
+// Create achievement service instance
+const achievementService = new AchievementService(prisma);
 
 const router = Router();
 
-// Get current user profile
+/**
+ * @openapi
+ * /api/v1/users/me:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get current user profile
+ *     description: Retrieve the authenticated user's profile including credits, achievements, and reading count
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
@@ -26,7 +52,7 @@ router.get('/me', requireAuth, async (req, res) => {
 
     if (!user) {
       console.log('[Users /me] User not found for ID:', userId);
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     console.log('[Users /me] Found user, credits:', user.credits);
@@ -73,7 +99,7 @@ router.get('/me/credits', requireAuth, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     res.json(user);
@@ -89,6 +115,15 @@ router.get('/me/readings', requireAuth, async (req, res) => {
     const userId = req.auth.userId;
     const { limit = 20, offset = 0 } = req.query;
 
+    console.log(
+      '[User API] Fetching readings for userId:',
+      userId,
+      'limit:',
+      limit,
+      'offset:',
+      offset
+    );
+
     const readings = await prisma.reading.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -101,9 +136,22 @@ router.get('/me/readings', requireAuth, async (req, res) => {
 
     const total = await prisma.reading.count({ where: { userId } });
 
+    console.log(
+      '[User API] Found',
+      readings.length,
+      'readings out of',
+      total,
+      'total for user:',
+      userId
+    );
+    console.log(
+      '[User API] Reading IDs:',
+      readings.map(r => r.id)
+    );
+
     res.json({ readings, total });
   } catch (error) {
-    console.error('Error fetching readings:', error);
+    console.error('[User API] Error fetching readings:', error);
     res.status(500).json({ error: 'Failed to fetch readings' });
   }
 });
@@ -130,8 +178,46 @@ router.get('/me/transactions', requireAuth, async (req, res) => {
   }
 });
 
-// Claim daily bonus
-router.post('/me/daily-bonus', requireAuth, async (req, res) => {
+/**
+ * @openapi
+ * /api/v1/users/me/daily-bonus:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Claim daily login bonus
+ *     description: Claim the daily login bonus. Awards 2 credits daily, with an additional 5 credit bonus every 7 days (7-day streak)
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Daily bonus claimed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 creditsAwarded:
+ *                   type: integer
+ *                   example: 7
+ *                 newBalance:
+ *                   type: integer
+ *                   example: 50
+ *                 streak:
+ *                   type: integer
+ *                   example: 7
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       409:
+ *         description: Daily bonus already claimed today
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/me/daily-bonus', requireAuth, async (req, res, next) => {
   try {
     const userId = req.auth.userId;
 
@@ -140,7 +226,7 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     const today = new Date();
@@ -150,7 +236,7 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
     lastLogin.setHours(0, 0, 0, 0);
 
     if (today.getTime() === lastLogin.getTime()) {
-      return res.status(400).json({ error: 'Already claimed today' });
+      throw new ConflictError('Daily bonus already claimed for today');
     }
 
     // Calculate streak
@@ -181,37 +267,26 @@ router.post('/me/daily-bonus', requireAuth, async (req, res) => {
       },
     });
 
+    // Check for streak-based achievements (non-critical)
+    let unlockedAchievements: { achievementId: string; reward: number }[] = [];
+    try {
+      unlockedAchievements = await achievementService.checkAndUnlockAchievements(userId, {
+        loginStreak: newStreak,
+      });
+    } catch (achievementError) {
+      console.warn('[Daily Bonus] Failed to check achievements:', achievementError);
+    }
+
     res.json({
       success: true,
       creditsAwarded: bonusCredits,
-      newBalance: result.newBalance,
+      newBalance: result.newBalance + unlockedAchievements.reduce((sum, a) => sum + a.reward, 0),
       streak: newStreak,
+      unlockedAchievements,
     });
   } catch (error) {
     console.error('Error claiming daily bonus:', error);
-    res.status(500).json({ error: 'Failed to claim daily bonus' });
-  }
-});
-
-// DEV ONLY - Reset daily bonus for testing
-router.post('/me/reset-daily-bonus', requireAuth, async (req, res) => {
-  try {
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({ error: 'Not allowed in production' });
-    }
-
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    await prisma.user.update({
-      where: { id: req.auth.userId },
-      data: { lastLoginDate: yesterday },
-    });
-
-    return res.json({ success: true, message: 'Daily bonus reset - you can claim again!' });
-  } catch (error) {
-    console.error('Error resetting daily bonus:', error);
-    return res.status(500).json({ error: 'Failed to reset daily bonus' });
+    next(error); // Pass to error handler middleware
   }
 });
 

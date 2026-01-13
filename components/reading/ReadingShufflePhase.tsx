@@ -81,7 +81,7 @@ const NUM_CARDS = 7;
 const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   language,
   onStop,
-  minDuration = 2000,
+  minDuration = 5000,
   spreadType = SpreadType.THREE_CARD,
 }) => {
   const theme = SHUFFLE_THEMES[spreadType];

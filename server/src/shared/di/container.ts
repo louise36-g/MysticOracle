@@ -30,6 +30,7 @@ import { AdminAnalyticsService } from '../../services/AdminAnalyticsService.js';
 import { SystemHealthService } from '../../services/SystemHealthService.js';
 import { RevenueExportService } from '../../services/RevenueExportService.js';
 import { AuditService } from '../../services/AuditService.js';
+import { AchievementService } from '../../services/AchievementService.js';
 
 // Audit Repository
 import { PrismaAuditLogRepository } from '../../infrastructure/persistence/prisma/PrismaAuditLogRepository.js';
@@ -122,6 +123,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     systemHealthService: asClass(SystemHealthService).singleton(),
     revenueExportService: asClass(RevenueExportService).singleton(),
     auditService: asClass(AuditService).singleton(),
+    achievementService: asClass(AchievementService).singleton(),
   });
 
   // Register payment gateways (singletons)

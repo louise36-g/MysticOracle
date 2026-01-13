@@ -288,7 +288,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     if (drawnCards.length >= spread.positions) return;
 
     const newCard = deck[drawnCards.length];
-    const isReversed = Math.random() < 0.3;
+    const isReversed = Math.random() < 0.1;
 
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 
@@ -337,6 +337,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       const token = await getToken();
       if (token) {
         console.log('[Reading] Saving to backend with spreadType:', spread.id);
+        console.log('[Reading] Card data:', drawnCards.map((item, idx) => ({
+          cardId: String(item.card.id),
+          position: idx,
+          isReversed: item.isReversed,
+        })));
         const savedReading = await createReading(token, {
           spreadType: spread.id,
           interpretationStyle: isAdvanced && selectedStyles.length > 0
@@ -344,24 +349,29 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
             : 'CLASSIC',
           question,
           cards: drawnCards.map((item, idx) => ({
-            cardId: item.card.id,
+            cardId: String(item.card.id),
             position: idx,
             isReversed: item.isReversed,
           })),
           interpretation: result,
           creditCost: totalCost,
         });
-        console.log('[Reading] Saved successfully, ID:', savedReading.id);
+        console.log('[Reading] Saved successfully! Reading:', savedReading);
         setBackendReadingId(savedReading.id);
         // Refresh user to get updated credit balance from backend
         await refreshUser();
         console.log('[Reading] User refreshed after credit deduction');
       } else {
-        console.error('[Reading] No auth token available - credits will not be deducted!');
+        console.error('[Reading] No auth token available - reading will NOT be saved to backend!');
       }
     } catch (error) {
       // Log the full error for debugging
-      console.error('[Reading] Failed to save reading to backend:', error);
+      console.error('[Reading] FAILED to save reading to backend:', error);
+      if (error instanceof Error) {
+        console.error('[Reading] Error message:', error.message);
+        console.error('[Reading] Error stack:', error.stack);
+      }
+      console.error('[Reading] Full error object:', JSON.stringify(error, null, 2));
       // Note: Reading still works locally, but credits weren't deducted
     }
   }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser]);

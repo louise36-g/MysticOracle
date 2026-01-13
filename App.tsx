@@ -261,6 +261,15 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!user || hasCheckedDailyBonus || showWelcomeModal) return;
 
+    // Check sessionStorage to prevent showing multiple times in the same session
+    const sessionClaimCheck = sessionStorage.getItem('daily_bonus_checked_today');
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+    if (sessionClaimCheck === today) {
+      setHasCheckedDailyBonus(true);
+      return;
+    }
+
     // Check if user can claim daily bonus (different calendar day, matching backend logic)
     const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
     const now = new Date();
@@ -269,15 +278,17 @@ const App: React.FC = () => {
       // Never claimed before
       setShowDailyBonusPopup(true);
       setHasCheckedDailyBonus(true);
+      sessionStorage.setItem('daily_bonus_checked_today', today);
     } else {
       // Check if it's a different calendar day (matching backend logic)
-      const today = new Date(now);
-      today.setHours(0, 0, 0, 0);
+      const todayDate = new Date(now);
+      todayDate.setHours(0, 0, 0, 0);
       const lastLoginDay = new Date(lastLogin);
       lastLoginDay.setHours(0, 0, 0, 0);
 
-      if (today.getTime() !== lastLoginDay.getTime()) {
+      if (todayDate.getTime() !== lastLoginDay.getTime()) {
         setShowDailyBonusPopup(true);
+        sessionStorage.setItem('daily_bonus_checked_today', today);
       }
       setHasCheckedDailyBonus(true);
     }
@@ -647,6 +658,7 @@ const App: React.FC = () => {
       return (
         <ErrorBoundary>
           <ActiveReading
+            key={selectedSpread.id}
             spread={selectedSpread}
             style={InterpretationStyle.CLASSIC}
             onFinish={handleReadingFinish}

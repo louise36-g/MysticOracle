@@ -15,6 +15,8 @@ import type {
 } from '../../ports/repositories/IReadingRepository.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
+import type { AchievementService } from '../../../services/AchievementService.js';
+import { SpreadType as PrismaSpreadType } from '@prisma/client';
 
 // Domain types
 import {
@@ -68,7 +70,8 @@ export class CreateReadingUseCase {
   constructor(
     private readingRepository: IReadingRepository,
     private userRepository: IUserRepository,
-    private creditService: CreditService
+    private creditService: CreditService,
+    private achievementService: AchievementService
   ) {}
 
   async execute(input: CreateReadingInput): Promise<CreateReadingResult> {
@@ -205,16 +208,29 @@ export class CreateReadingUseCase {
       }
 
       // 8. Update user's reading count (non-critical, don't fail if this fails)
+      let newTotalReadings = 1;
       try {
         const user = await this.userRepository.findById(input.userId);
         if (user) {
+          newTotalReadings = user.totalReadings + 1;
           await this.userRepository.update(input.userId, {
-            totalReadings: user.totalReadings + 1,
+            totalReadings: newTotalReadings,
           });
         }
       } catch (updateError) {
         // Log but don't fail - reading was created successfully
         console.warn(`[CreateReading] Failed to update user reading count:`, updateError);
+      }
+
+      // 9. Check and unlock achievements (non-critical, don't fail if this fails)
+      try {
+        await this.achievementService.checkAndUnlockAchievements(input.userId, {
+          totalReadings: newTotalReadings,
+          spreadType: spreadType.value as PrismaSpreadType,
+        });
+      } catch (achievementError) {
+        // Log but don't fail - reading was created successfully
+        console.warn(`[CreateReading] Failed to check achievements:`, achievementError);
       }
 
       return {
