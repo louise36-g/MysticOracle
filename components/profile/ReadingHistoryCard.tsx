@@ -5,30 +5,16 @@ import { SpreadType } from '../../types';
 import { SPREADS, FULL_DECK } from '../../constants';
 import { ReadingData } from '../../services/apiService';
 import { useApp } from '../../context/AppContext';
+import { formatRelativeDate } from '../../utils/dateFormatters';
+
+// Constants
+const MAX_INTERPRETATION_HEIGHT_PX = 300;
 
 interface ReadingHistoryCardProps {
     reading: ReadingData;
     isExpanded: boolean;
     onToggle: () => void;
 }
-
-// Format date in a friendly way
-const formatDate = (dateString: string, language: 'en' | 'fr'): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return language === 'en' ? 'Today' : "Aujourd'hui";
-    if (diffDays === 1) return language === 'en' ? 'Yesterday' : 'Hier';
-    if (diffDays < 7) return language === 'en' ? `${diffDays} days ago` : `Il y a ${diffDays} jours`;
-
-    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-    });
-};
 
 // Helper to safely get cards array (handles JSON string or array)
 const getCardsArray = (cards: any): any[] => {
@@ -96,7 +82,7 @@ const ReadingHistoryCard: React.FC<ReadingHistoryCardProps> = ({
                     {/* Date & Expand */}
                     <div className="flex items-center gap-3 shrink-0">
                         <span className="text-sm text-slate-400">
-                            {formatDate(reading.createdAt, language)}
+                            {formatRelativeDate(reading.createdAt, t, language)}
                         </span>
                         <ChevronDown
                             className={`w-5 h-5 text-slate-500 transition-transform duration-200
@@ -174,7 +160,7 @@ const ReadingHistoryCard: React.FC<ReadingHistoryCardProps> = ({
                                         <BookOpen className="w-4 h-4" />
                                         {t('profile.ReadingHistoryCard.interpretation', 'Interpretation')}
                                     </p>
-                                    <div className="bg-slate-900/50 rounded-lg p-4 max-h-[300px] overflow-y-auto">
+                                    <div className="bg-slate-900/50 rounded-lg p-4 overflow-y-auto" style={{ maxHeight: `${MAX_INTERPRETATION_HEIGHT_PX}px` }}>
                                         <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
                                             {reading.interpretation.split('\n').map((line, i) => {
                                                 if (line.startsWith('**')) {

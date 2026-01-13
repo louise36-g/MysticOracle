@@ -3,9 +3,10 @@ import { Search, Filter, ArrowUpDown, X, Calendar } from 'lucide-react';
 import { SpreadType } from '../../types';
 import { SPREADS } from '../../constants';
 import { useApp } from '../../context/AppContext';
+import { type DateRangeOption } from '../../utils/dateFilters';
 
 export type SortOption = 'newest' | 'oldest';
-export type DateRangeOption = 'all' | 'today' | 'week' | 'month';
+export type { DateRangeOption };
 
 interface ReadingFiltersProps {
     searchQuery: string;

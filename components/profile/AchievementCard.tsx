@@ -78,6 +78,20 @@ const DEFAULT_ICON_CONFIG = {
     bgColor: 'from-amber-500/30 to-amber-600/20',
 };
 
+// Constants
+const HOURS_FOR_NEW_BADGE = 24;
+const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
+const ACHIEVEMENT_CARD_HEIGHT_PX = 280;
+
+/**
+ * Calculates hours since achievement was unlocked
+ */
+const calculateHoursSinceUnlock = (unlockedAt: string): number => {
+    const unlockDate = new Date(unlockedAt);
+    const now = new Date();
+    return (now.getTime() - unlockDate.getTime()) / MILLISECONDS_PER_HOUR;
+};
+
 const AchievementCard: React.FC<AchievementCardProps> = ({
     achievement,
     isUnlocked,
@@ -91,12 +105,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
     const description = language === 'en' ? achievement.descriptionEn : achievement.descriptionFr;
 
     // Check if unlocked within last 24 hours
-    const isNew = unlockedAt ? (() => {
-        const unlockDate = new Date(unlockedAt);
-        const now = new Date();
-        const hoursSinceUnlock = (now.getTime() - unlockDate.getTime()) / (1000 * 60 * 60);
-        return hoursSinceUnlock < 24;
-    })() : false;
+    const isNew = unlockedAt ? calculateHoursSinceUnlock(unlockedAt) < HOURS_FOR_NEW_BADGE : false;
 
     // Format unlock date
     const formattedUnlockDate = unlockedAt ? new Date(unlockedAt).toLocaleDateString(
@@ -117,7 +126,8 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            className={`relative p-4 rounded-xl border text-center transition-colors duration-200 flex flex-col h-[280px] ${
+            style={{ height: `${ACHIEVEMENT_CARD_HEIGHT_PX}px` }}
+            className={`relative p-4 rounded-xl border text-center transition-colors duration-200 flex flex-col ${
                 isUnlocked
                     ? 'bg-gradient-to-b from-slate-800/80 to-slate-900/60 border-slate-600/50 hover:border-slate-500/60'
                     : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-600/50'

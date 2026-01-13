@@ -2,6 +2,10 @@ import React from 'react';
 import { CreditCard, Gift, Award, Share2, Sparkles, MessageCircle, TrendingUp, TrendingDown, Coins } from 'lucide-react';
 import { Transaction } from '../../services/apiService';
 import { useApp } from '../../context/AppContext';
+import { formatRelativeDate } from '../../utils/dateFormatters';
+
+// Constants
+const MAX_DESCRIPTION_WIDTH_PX = 200;
 
 interface TransactionItemProps {
     transaction: Transaction;
@@ -65,24 +69,8 @@ const TRANSACTION_CONFIG: Record<string, {
     },
 };
 
-const formatDate = (dateString: string, language: 'en' | 'fr'): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return language === 'en' ? 'Today' : "Aujourd'hui";
-    if (diffDays === 1) return language === 'en' ? 'Yesterday' : 'Hier';
-    if (diffDays < 7) return language === 'en' ? `${diffDays}d ago` : `Il y a ${diffDays}j`;
-
-    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
-        month: 'short',
-        day: 'numeric',
-    });
-};
-
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
-    const { language } = useApp();
+    const { t, language } = useApp();
     const config = TRANSACTION_CONFIG[transaction.type] || {
         icon: <Coins className="w-4 h-4" />,
         labelEn: transaction.type,
@@ -110,7 +98,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
                 <div>
                     <p className="text-sm font-medium text-slate-200">{label}</p>
                     {transaction.description && (
-                        <p className="text-xs text-slate-500 mt-0.5 max-w-[200px] truncate">
+                        <p className="text-xs text-slate-500 mt-0.5 truncate" style={{ maxWidth: `${MAX_DESCRIPTION_WIDTH_PX}px` }}>
                             {transaction.description}
                         </p>
                     )}
@@ -125,7 +113,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
                     {isPositive ? '+' : ''}{transaction.amount}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                    {formatDate(transaction.createdAt, language)}
+                    {formatRelativeDate(transaction.createdAt, t, language)}
                 </p>
             </div>
         </div>

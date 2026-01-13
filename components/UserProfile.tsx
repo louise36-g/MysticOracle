@@ -9,8 +9,10 @@ import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
 import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/apiService';
-import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, DateRangeOption, TransactionTypeFilter } from './profile';
+import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, TransactionTypeFilter } from './profile';
 import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
+import { filterByDateRange, type DateRangeOption } from '../utils/dateFilters';
+import { createShareUrl, type SharePlatform } from '../utils/socialShare';
 
 // Constants
 const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
@@ -72,32 +74,30 @@ const UserProfile: React.FC = () => {
         loadData();
     }, [isSignedIn, getToken, t]);
 
+    // Helper functions for reading filtering
+    const searchMatchesReading = (reading: ReadingData, query: string): boolean => {
+        const searchLower = query.toLowerCase();
+        return reading.question?.toLowerCase().includes(searchLower) ||
+               reading.interpretation?.toLowerCase().includes(searchLower) ||
+               false;
+    };
+
+    const sortReadings = (readings: ReadingData[], order: SortOption): ReadingData[] => {
+        const sorted = [...readings];
+        sorted.sort((a, b) => {
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return order === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        return sorted;
+    };
+
     // Filter and sort readings
     const filteredReadings = useMemo(() => {
         let result = [...(backendReadings || [])];
 
         // Apply date range filter
-        if (dateRange !== 'all') {
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            result = result.filter(r => {
-                const readingDate = new Date(r.createdAt);
-
-                if (dateRange === 'today') {
-                    return readingDate >= today;
-                } else if (dateRange === 'week') {
-                    const weekAgo = new Date(today);
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return readingDate >= weekAgo;
-                } else if (dateRange === 'month') {
-                    const monthAgo = new Date(today);
-                    monthAgo.setMonth(monthAgo.getMonth() - 1);
-                    return readingDate >= monthAgo;
-                }
-                return true;
-            });
-        }
+        result = filterByDateRange(result, dateRange, 'createdAt');
 
         // Apply spread filter (case-insensitive - backend uses UPPERCASE, frontend uses lowercase)
         if (spreadFilter !== 'all') {
@@ -106,19 +106,11 @@ const UserProfile: React.FC = () => {
 
         // Apply search filter
         if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            result = result.filter(r =>
-                r.question?.toLowerCase().includes(query) ||
-                r.interpretation?.toLowerCase().includes(query)
-            );
+            result = result.filter(r => searchMatchesReading(r, searchQuery));
         }
 
         // Apply sort
-        result.sort((a, b) => {
-            const dateA = new Date(a.createdAt).getTime();
-            const dateB = new Date(b.createdAt).getTime();
-            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-        });
+        result = sortReadings(result, sortOrder);
 
         return result;
     }, [backendReadings, spreadFilter, searchQuery, sortOrder, dateRange]);
@@ -139,27 +131,7 @@ const UserProfile: React.FC = () => {
         }
 
         // Apply date range filter
-        if (transactionDateRange !== 'all') {
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            result = result.filter(t => {
-                const transactionDate = new Date(t.createdAt);
-
-                if (transactionDateRange === 'today') {
-                    return transactionDate >= today;
-                } else if (transactionDateRange === 'week') {
-                    const weekAgo = new Date(today);
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return transactionDate >= weekAgo;
-                } else if (transactionDateRange === 'month') {
-                    const monthAgo = new Date(today);
-                    monthAgo.setMonth(monthAgo.getMonth() - 1);
-                    return transactionDate >= monthAgo;
-                }
-                return true;
-            });
-        }
+        result = filterByDateRange(result, transactionDateRange, 'createdAt');
 
         return result;
     }, [transactions, transactionTypeFilter, transactionDateRange]);
@@ -341,8 +313,7 @@ const UserProfile: React.FC = () => {
                                     const text = language === 'en'
                                         ? `Join me on MysticOracle and get 5 free credits! Use code: ${displayUser.referralCode}`
                                         : `Rejoignez-moi sur MysticOracle et obtenez 5 crédits gratuits ! Code: ${displayUser.referralCode}`;
-                                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-                                    window.open(url, '_blank');
+                                    window.open(createShareUrl('whatsapp', text), '_blank');
                                 }}
                                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-500
                                            text-white rounded-lg transition-colors duration-200 text-sm"
@@ -357,8 +328,7 @@ const UserProfile: React.FC = () => {
                                     const text = language === 'en'
                                         ? `Join me on MysticOracle! Use code ${displayUser.referralCode} for 5 free credits 🔮✨`
                                         : `Rejoignez-moi sur MysticOracle ! Code ${displayUser.referralCode} pour 5 crédits gratuits 🔮✨`;
-                                    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-                                    window.open(url, '_blank');
+                                    window.open(createShareUrl('twitter', text), '_blank');
                                 }}
                                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-400
                                            text-white rounded-lg transition-colors duration-200 text-sm"
