@@ -211,6 +211,19 @@ const AdminTranslations: React.FC = () => {
             </p>
           </div>
         </div>
+
+        {/* Seed/Update Translations Button */}
+        <button
+          onClick={handleSeedTranslations}
+          disabled={seeding}
+          className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title={currentLang === 'en' ? 'Update translations from seed data' : 'Mettre à jour les traductions depuis les données de seed'}
+        >
+          <Download className="w-4 h-4" />
+          {seeding
+            ? (currentLang === 'en' ? 'Updating...' : 'Mise à jour...')
+            : (currentLang === 'en' ? 'Update Translations' : 'Mettre à jour les traductions')}
+        </button>
       </div>
 
       {error && (
