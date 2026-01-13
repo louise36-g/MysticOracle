@@ -8,7 +8,7 @@ import AdminHealth from './AdminHealth';
 import AdminSettings from './AdminSettings';
 import AdminCache from './AdminCache';
 import AdminDebug from './AdminDebug';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database, Bug } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database, Bug, MessageSquare } from 'lucide-react';
 
 // Lazy load heavy admin components
 const AdminAnalytics = lazy(() => import('./AdminAnalytics'));
@@ -17,6 +17,7 @@ const AdminTranslations = lazy(() => import('./AdminTranslations'));
 const AdminBlog = lazy(() => import('./AdminBlog'));
 const ImportArticle = lazy(() => import('./ImportArticle'));
 const AdminTarotArticles = lazy(() => import('./AdminTarotArticles'));
+const AdminPrompts = lazy(() => import('./AdminPrompts'));
 
 // Admin tab loading fallback
 const AdminTabLoader = () => (
@@ -25,7 +26,7 @@ const AdminTabLoader = () => (
   </div>
 );
 
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'health' | 'cache' | 'translations' | 'settings' | 'debug';
+type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'prompts' | 'health' | 'cache' | 'translations' | 'settings' | 'debug';
 
 const AdminDashboard: React.FC = () => {
   const { language } = useApp();
@@ -48,6 +49,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'blog', labelEn: 'Blog', labelFr: 'Blog', icon: <FileText className="w-4 h-4" /> },
     { id: 'import-article', labelEn: 'Import Article', labelFr: 'Importer Article', icon: <Upload className="w-4 h-4" /> },
     { id: 'tarot-articles', labelEn: 'Tarot Articles', labelFr: 'Articles Tarot', icon: <FileText className="w-4 h-4" /> },
+    { id: 'prompts', labelEn: 'AI Prompts', labelFr: 'Prompts IA', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
     { id: 'cache', labelEn: 'Cache', labelFr: 'Cache', icon: <Database className="w-4 h-4" /> },
@@ -120,6 +122,7 @@ const AdminDashboard: React.FC = () => {
               }}
             />
           )}
+          {activeTab === 'prompts' && <AdminPrompts />}
           {activeTab === 'analytics' && <AdminAnalytics />}
           {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
           {activeTab === 'cache' && <AdminCache />}

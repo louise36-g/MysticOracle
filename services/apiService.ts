@@ -232,11 +232,24 @@ export interface ReadingData {
   }[];
 }
 
+// Standardized pagination response from backend
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+    hasPrevious: boolean;
+  };
+}
+
 export async function fetchUserReadings(
   token: string,
   limit = 20,
   offset = 0
-): Promise<{ readings: ReadingData[]; total: number }> {
+): Promise<PaginatedResponse<ReadingData>> {
   return apiRequest(`/api/v1/users/me/readings?limit=${limit}&offset=${offset}`, { token });
 }
 
@@ -307,7 +320,7 @@ export async function fetchUserTransactions(
   token: string,
   limit = 50,
   offset = 0
-): Promise<{ transactions: Transaction[]; total: number }> {
+): Promise<PaginatedResponse<Transaction>> {
   return apiRequest(`/api/v1/users/me/transactions?limit=${limit}&offset=${offset}`, { token });
 }
 
