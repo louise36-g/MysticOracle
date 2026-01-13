@@ -13,7 +13,7 @@ import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronR
 import { motion } from 'framer-motion';
 
 const AdminUsers: React.FC = () => {
-  const { language } = useApp();
+  const { t } = useApp();
   const { getToken } = useAuth();
 
   const [data, setData] = useState<AdminUserList | null>(null);
@@ -127,7 +127,7 @@ const AdminUsers: React.FC = () => {
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder={language === 'en' ? 'Search users...' : 'Rechercher...'}
+            placeholder={t('admin.AdminUsers.search_users', 'Search users...')}
             className="w-full pl-10 pr-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
           />
         </div>
@@ -137,10 +137,10 @@ const AdminUsers: React.FC = () => {
           onChange={(e) => { setStatusFilter(e.target.value as 'ACTIVE' | 'FLAGGED' | 'SUSPENDED' | ''); setPage(1); }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none"
         >
-          <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
-          <option value="ACTIVE">{language === 'en' ? 'Active' : 'Actif'}</option>
-          <option value="FLAGGED">{language === 'en' ? 'Flagged' : 'Signalé'}</option>
-          <option value="SUSPENDED">{language === 'en' ? 'Suspended' : 'Suspendu'}</option>
+          <option value="">{t('admin.AdminUsers.all_status', 'All Status')}</option>
+          <option value="ACTIVE">{t('admin.AdminUsers.active', 'Active')}</option>
+          <option value="FLAGGED">{t('admin.AdminUsers.flagged', 'Flagged')}</option>
+          <option value="SUSPENDED">{t('admin.AdminUsers.suspended', 'Suspended')}</option>
         </select>
 
         <select
@@ -153,11 +153,11 @@ const AdminUsers: React.FC = () => {
           }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none"
         >
-          <option value="createdAt-desc">{language === 'en' ? 'Newest First' : 'Plus recents'}</option>
-          <option value="createdAt-asc">{language === 'en' ? 'Oldest First' : 'Plus anciens'}</option>
-          <option value="credits-desc">{language === 'en' ? 'Most Credits' : 'Plus de credits'}</option>
-          <option value="totalReadings-desc">{language === 'en' ? 'Most Readings' : 'Plus de lectures'}</option>
-          <option value="username-asc">{language === 'en' ? 'Name A-Z' : 'Nom A-Z'}</option>
+          <option value="createdAt-desc">{t('admin.AdminUsers.newest_first', 'Newest First')}</option>
+          <option value="createdAt-asc">{t('admin.AdminUsers.oldest_first', 'Oldest First')}</option>
+          <option value="credits-desc">{t('admin.AdminUsers.most_credits', 'Most Credits')}</option>
+          <option value="totalReadings-desc">{t('admin.AdminUsers.most_readings', 'Most Readings')}</option>
+          <option value="username-asc">{t('admin.AdminUsers.name_az', 'Name A-Z')}</option>
         </select>
       </div>
 
@@ -183,19 +183,19 @@ const AdminUsers: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'User' : 'Utilisateur'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Credits' : 'Credits'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Readings' : 'Lectures'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Joined' : 'Inscrit'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.user', 'User')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.credits', 'Credits')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.readings', 'Readings')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.status', 'Status')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.joined', 'Joined')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminUsers.actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.users.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-8 text-center text-slate-400">
-                        {language === 'en' ? 'No users found' : 'Aucun utilisateur trouve'}
+                        {t('admin.AdminUsers.no_users_found', 'No users found')}
                       </td>
                     </tr>
                   ) : (
@@ -221,7 +221,7 @@ const AdminUsers: React.FC = () => {
                             <button
                               onClick={() => setCreditModal({ userId: user.id, username: user.username })}
                               className="p-1 text-slate-400 hover:text-purple-300 hover:bg-purple-500/20 rounded"
-                              title={language === 'en' ? 'Adjust credits' : 'Ajuster credits'}
+                              title={t('admin.AdminUsers.adjust_credits', 'Adjust credits')}
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -241,7 +241,7 @@ const AdminUsers: React.FC = () => {
                             <button
                               onClick={() => setSelectedUser(user)}
                               className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg"
-                              title={language === 'en' ? 'View details' : 'Voir details'}
+                              title={t('admin.AdminUsers.view_details', 'View details')}
                             >
                               <Eye className="w-4 h-4" />
                             </button>
@@ -249,7 +249,7 @@ const AdminUsers: React.FC = () => {
                               <button
                                 onClick={() => handleStatusChange(user.id, 'SUSPENDED')}
                                 className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
-                                title={language === 'en' ? 'Suspend user' : 'Suspendre'}
+                                title={t('admin.AdminUsers.suspend_user', 'Suspend user')}
                               >
                                 <ShieldOff className="w-4 h-4" />
                               </button>
@@ -257,7 +257,7 @@ const AdminUsers: React.FC = () => {
                               <button
                                 onClick={() => handleStatusChange(user.id, 'ACTIVE')}
                                 className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg"
-                                title={language === 'en' ? 'Activate user' : 'Activer'}
+                                title={t('admin.AdminUsers.activate_user', 'Activate user')}
                               >
                                 <Shield className="w-4 h-4" />
                               </button>
@@ -265,7 +265,7 @@ const AdminUsers: React.FC = () => {
                             <button
                               onClick={() => handleToggleAdmin(user.id)}
                               className={`p-2 rounded-lg ${user.isAdmin ? 'text-amber-400 hover:bg-amber-500/20' : 'text-slate-400 hover:bg-slate-500/20'}`}
-                              title={user.isAdmin ? (language === 'en' ? 'Remove admin' : 'Retirer admin') : (language === 'en' ? 'Make admin' : 'Rendre admin')}
+                              title={user.isAdmin ? t('admin.AdminUsers.remove_admin', 'Remove admin') : t('admin.AdminUsers.make_admin', 'Make admin')}
                             >
                               <Crown className="w-4 h-4" />
                             </button>
@@ -282,9 +282,7 @@ const AdminUsers: React.FC = () => {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <p className="text-slate-400 text-sm">
-              {language === 'en'
-                ? `Showing ${data.users.length} of ${data.pagination.total} users`
-                : `Affichage de ${data.users.length} sur ${data.pagination.total} utilisateurs`}
+              {t('admin.AdminUsers.showing_users', `Showing ${data.users.length} of ${data.pagination.total} users`)}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -318,12 +316,12 @@ const AdminUsers: React.FC = () => {
             className="bg-slate-900 border border-purple-500/30 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-lg font-heading text-purple-200 mb-4">
-              {language === 'en' ? 'Adjust Credits' : 'Ajuster Credits'}: {creditModal.username}
+              {t('admin.AdminUsers.adjust_credits_2', 'Adjust Credits')}: {creditModal.username}
             </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-slate-400 mb-1">
-                  {language === 'en' ? 'Amount (+/-)' : 'Montant (+/-)'}
+                  {t('admin.AdminUsers.amount', 'Amount (+/-)')}
                 </label>
                 <input
                   type="number"
@@ -335,13 +333,13 @@ const AdminUsers: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm text-slate-400 mb-1">
-                  {language === 'en' ? 'Reason' : 'Raison'}
+                  {t('admin.AdminUsers.reason', 'Reason')}
                 </label>
                 <input
                   type="text"
                   value={creditReason}
                   onChange={(e) => setCreditReason(e.target.value)}
-                  placeholder={language === 'en' ? 'Bonus, refund, etc.' : 'Bonus, remboursement, etc.'}
+                  placeholder={t('admin.AdminUsers.bonus_refund_etc', 'Bonus, refund, etc.')}
                   className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
                 />
               </div>
@@ -350,14 +348,14 @@ const AdminUsers: React.FC = () => {
                   onClick={() => setCreditModal(null)}
                   className="flex-1 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
                 >
-                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                  {t('admin.AdminUsers.cancel', 'Cancel')}
                 </button>
                 <button
                   onClick={handleCreditAdjust}
                   disabled={!creditAmount || !creditReason}
                   className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 disabled:opacity-50"
                 >
-                  {language === 'en' ? 'Apply' : 'Appliquer'}
+                  {t('admin.AdminUsers.apply', 'Apply')}
                 </button>
               </div>
             </div>
@@ -391,27 +389,27 @@ const AdminUsers: React.FC = () => {
                 <span className="text-purple-300">{selectedUser.credits}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Total Earned' : 'Total gagne'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.total_earned', 'Total Earned')}</span>
                 <span className="text-green-400">{selectedUser.totalCreditsEarned}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Total Spent' : 'Total depense'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.total_spent', 'Total Spent')}</span>
                 <span className="text-red-400">{selectedUser.totalCreditsSpent}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Readings' : 'Lectures'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.readings_2', 'Readings')}</span>
                 <span className="text-slate-200">{selectedUser.totalReadings}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Login Streak' : 'Jours consecutifs'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.login_streak', 'Login Streak')}</span>
                 <span className="text-amber-400">{selectedUser.loginStreak} days</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Last Login' : 'Derniere connexion'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.last_login', 'Last Login')}</span>
                 <span className="text-slate-200">{new Date(selectedUser.lastLoginDate).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Achievements' : 'Realisations'}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.achievements', 'Achievements')}</span>
                 <span className="text-slate-200">{selectedUser._count.achievements}</span>
               </div>
             </div>

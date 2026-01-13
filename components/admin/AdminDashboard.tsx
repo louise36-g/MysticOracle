@@ -29,7 +29,7 @@ const AdminTabLoader = () => (
 type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'prompts' | 'health' | 'cache' | 'translations' | 'settings' | 'debug';
 
 const AdminDashboard: React.FC = () => {
-  const { language } = useApp();
+  const { t, language } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
@@ -63,12 +63,10 @@ const AdminDashboard: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-heading text-amber-400 mb-2">
-          {language === 'en' ? 'Admin Dashboard' : 'Tableau de Bord Admin'}
+          {t('admin.AdminDashboard.admin_dashboard', 'Admin Dashboard')}
         </h1>
         <p className="text-purple-300/70">
-          {language === 'en'
-            ? 'Manage users, view analytics, and configure the platform'
-            : 'Gerez les utilisateurs, consultez les analyses et configurez la plateforme'}
+          {t('admin.AdminDashboard.manage_users_view_analytics', 'Manage users, view analytics, and configure the platform')}
         </p>
       </div>
 
@@ -91,7 +89,7 @@ const AdminDashboard: React.FC = () => {
             }`}
           >
             {tab.icon}
-            <span className="hidden sm:inline">{language === 'en' ? tab.labelEn : tab.labelFr}</span>
+            <span className="hidden sm:inline">{t(`admin.AdminDashboard.tab_${tab.id}`, tab.labelEn)}</span>
           </button>
         ))}
       </div>

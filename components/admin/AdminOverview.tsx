@@ -6,7 +6,7 @@ import { Users, Coins, BookOpen, TrendingUp, UserPlus, Calendar } from 'lucide-r
 import { motion } from 'framer-motion';
 
 const AdminOverview: React.FC = () => {
-  const { language } = useApp();
+  const { t } = useApp();
   const { getToken } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [revenue, setRevenue] = useState<AdminRevenue | null>(null);
@@ -57,43 +57,43 @@ const AdminOverview: React.FC = () => {
 
   const statCards = [
     {
+      labelKey: 'admin.AdminOverview.total_users',
       labelEn: 'Total Users',
-      labelFr: 'Utilisateurs',
       value: stats?.totalUsers || 0,
       icon: <Users className="w-6 h-6" />,
       color: 'purple'
     },
     {
+      labelKey: 'admin.AdminOverview.active_users',
       labelEn: 'Active Users',
-      labelFr: 'Actifs',
       value: stats?.activeUsers || 0,
       icon: <UserPlus className="w-6 h-6" />,
       color: 'green'
     },
     {
+      labelKey: 'admin.AdminOverview.total_readings',
       labelEn: 'Total Readings',
-      labelFr: 'Lectures',
       value: stats?.totalReadings || 0,
       icon: <BookOpen className="w-6 h-6" />,
       color: 'blue'
     },
     {
+      labelKey: 'admin.AdminOverview.total_revenue',
       labelEn: 'Total Revenue',
-      labelFr: 'Revenus',
       value: `€${Number(stats?.totalRevenue || 0).toFixed(2)}`,
       icon: <Coins className="w-6 h-6" />,
       color: 'amber'
     },
     {
+      labelKey: 'admin.AdminOverview.today_readings',
       labelEn: 'Today Readings',
-      labelFr: "Lectures aujourd'hui",
       value: stats?.todayReadings || 0,
       icon: <Calendar className="w-6 h-6" />,
       color: 'cyan'
     },
     {
+      labelKey: 'admin.AdminOverview.today_signups',
       labelEn: 'Today Signups',
-      labelFr: "Inscriptions aujourd'hui",
       value: stats?.todaySignups || 0,
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'pink'
@@ -126,7 +126,7 @@ const AdminOverview: React.FC = () => {
             </div>
             <p className="text-2xl font-bold text-white">{stat.value}</p>
             <p className="text-xs text-slate-400">
-              {language === 'en' ? stat.labelEn : stat.labelFr}
+              {t(stat.labelKey, stat.labelEn)}
             </p>
           </motion.div>
         ))}
@@ -138,19 +138,19 @@ const AdminOverview: React.FC = () => {
         {revenue && (
           <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-6">
             <h3 className="text-lg font-heading text-purple-200 mb-4">
-              {language === 'en' ? 'Revenue (Last 30 Days)' : 'Revenus (30 derniers jours)'}
+              {t('admin.AdminOverview.revenue_last_30', 'Revenue (Last 30 Days)')}
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Revenue' : 'Revenus'}</span>
+                <span className="text-slate-400">{t('admin.AdminOverview.revenue', 'Revenue')}</span>
                 <span className="text-amber-400 font-bold">€{Number(revenue.last30Days.revenue).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'en' ? 'Transactions' : 'Transactions'}</span>
+                <span className="text-slate-400">{t('admin.AdminOverview.transactions', 'Transactions')}</span>
                 <span className="text-purple-300 font-medium">{revenue.last30Days.transactions}</span>
               </div>
               <div className="border-t border-slate-700 pt-3 mt-3">
-                <p className="text-xs text-slate-500 mb-2">{language === 'en' ? 'By Provider' : 'Par fournisseur'}</p>
+                <p className="text-xs text-slate-500 mb-2">{t('admin.AdminOverview.by_provider', 'By Provider')}</p>
                 {revenue.byProvider.map((provider) => (
                   <div key={provider.paymentProvider || 'unknown'} className="flex justify-between text-sm">
                     <span className="text-slate-400">{provider.paymentProvider || 'Other'}</span>
@@ -168,7 +168,7 @@ const AdminOverview: React.FC = () => {
         {readingStats && (
           <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-6">
             <h3 className="text-lg font-heading text-purple-200 mb-4">
-              {language === 'en' ? 'Readings by Spread Type' : 'Lectures par type'}
+              {t('admin.AdminOverview.readings_by_spread', 'Readings by Spread Type')}
             </h3>
             <div className="space-y-3">
               {readingStats.bySpreadType.map((item) => {
@@ -189,7 +189,7 @@ const AdminOverview: React.FC = () => {
               })}
               {readingStats.bySpreadType.length === 0 && (
                 <p className="text-slate-500 text-sm">
-                  {language === 'en' ? 'No readings yet' : 'Pas encore de lectures'}
+                  {t('admin.AdminOverview.no_readings_yet', 'No readings yet')}
                 </p>
               )}
             </div>

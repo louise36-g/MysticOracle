@@ -6,7 +6,7 @@ import { TrendingUp, Award, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminAnalytics: React.FC = () => {
-  const { language } = useApp();
+  const { t } = useApp();
   const { getToken } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ const AdminAnalytics: React.FC = () => {
   return (
     <div className="space-y-8">
       <h2 className="text-xl font-heading text-purple-200">
-        {language === 'en' ? 'Analytics' : 'Analytique'}
+        {t('admin.AdminAnalytics.analytics', 'Analytics')}
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -64,7 +64,7 @@ const AdminAnalytics: React.FC = () => {
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-purple-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Readings (Last 7 Days)' : 'Lectures (7 Derniers Jours)'}
+              {t('admin.AdminAnalytics.readings_last_7', 'Readings (Last 7 Days)')}
             </h3>
           </div>
           <div className="flex items-end justify-between gap-2 h-32">
@@ -97,11 +97,11 @@ const AdminAnalytics: React.FC = () => {
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-green-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Most Active Users' : 'Utilisateurs les Plus Actifs'}
+              {t('admin.AdminAnalytics.most_active_users', 'Most Active Users')}
             </h3>
           </div>
           {analytics.topUsers.length === 0 ? (
-            <p className="text-slate-400">{language === 'en' ? 'No data yet' : 'Pas de donnees'}</p>
+            <p className="text-slate-400">{t('admin.AdminAnalytics.no_data_yet', 'No data yet')}</p>
           ) : (
             <div className="space-y-3">
               {analytics.topUsers.map((user, i) => (
@@ -123,7 +123,7 @@ const AdminAnalytics: React.FC = () => {
                     <span className="text-slate-200">{user.username}</span>
                   </div>
                   <span className="text-purple-300 font-medium">
-                    {user.count} {language === 'en' ? 'readings' : 'lectures'}
+                    {user.count} {t('admin.AdminAnalytics.readings', 'readings')}
                   </span>
                 </div>
               ))}
@@ -141,11 +141,11 @@ const AdminAnalytics: React.FC = () => {
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5 text-amber-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Top Credit Holders' : 'Top Detenteurs de Credits'}
+              {t('admin.AdminAnalytics.top_credit_holders', 'Top Credit Holders')}
             </h3>
           </div>
           {analytics.topCreditUsers.length === 0 ? (
-            <p className="text-slate-400">{language === 'en' ? 'No users yet' : 'Pas d\'utilisateurs'}</p>
+            <p className="text-slate-400">{t('admin.AdminAnalytics.no_users_yet', 'No users yet')}</p>
           ) : (
             <div className="space-y-3">
               {analytics.topCreditUsers.map((user, i) => (
@@ -168,18 +168,18 @@ const AdminAnalytics: React.FC = () => {
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-pink-400" />
             <h3 className="text-lg font-medium text-purple-200">
-              {language === 'en' ? 'Longest Login Streaks' : 'Plus Longues Series de Connexion'}
+              {t('admin.AdminAnalytics.longest_login_streaks', 'Longest Login Streaks')}
             </h3>
           </div>
           {analytics.topStreakUsers.length === 0 ? (
-            <p className="text-slate-400">{language === 'en' ? 'No users yet' : 'Pas d\'utilisateurs'}</p>
+            <p className="text-slate-400">{t('admin.AdminAnalytics.no_users_yet_2', 'No users yet')}</p>
           ) : (
             <div className="space-y-3">
               {analytics.topStreakUsers.map((user, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <span className="text-slate-200">{user.username}</span>
                   <span className="text-pink-300 font-medium">
-                    {user.streak} {language === 'en' ? 'days' : 'jours'}
+                    {user.streak} {t('admin.AdminAnalytics.days', 'days')}
                   </span>
                 </div>
               ))}

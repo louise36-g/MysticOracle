@@ -25,7 +25,7 @@ interface RevenueMonth {
 }
 
 const AdminTransactions: React.FC = () => {
-  const { language } = useApp();
+  const { t } = useApp();
   const { getToken } = useAuth();
 
   const [transactions, setTransactions] = useState<TransactionWithUser[]>([]);
@@ -142,10 +142,10 @@ const AdminTransactions: React.FC = () => {
             </div>
             <div>
               <h3 className="text-green-200 font-medium">
-                {language === 'en' ? 'Revenue Export' : 'Export des revenus'}
+                {t('admin.AdminTransactions.revenue_export', 'Revenue Export')}
               </h3>
               <p className="text-green-400/60 text-sm">
-                {language === 'en' ? 'Download monthly revenue reports' : 'Télécharger les rapports mensuels'}
+                {t('admin.AdminTransactions.download_monthly_revenue', 'Download monthly revenue reports')}
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ const AdminTransactions: React.FC = () => {
                 className="bg-transparent text-slate-200 text-sm focus:outline-none"
               >
                 {availableMonths.length === 0 ? (
-                  <option value="">{language === 'en' ? 'No data available' : 'Aucune donnée'}</option>
+                  <option value="">{t('admin.AdminTransactions.no_data_available', 'No data available')}</option>
                 ) : (
                   availableMonths.map((m) => (
                     <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>
@@ -178,7 +178,7 @@ const AdminTransactions: React.FC = () => {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {language === 'en' ? 'Export CSV' : 'Exporter CSV'}
+              {t('admin.AdminTransactions.export_csv', 'Export CSV')}
             </button>
           </div>
         </div>
@@ -192,13 +192,13 @@ const AdminTransactions: React.FC = () => {
           onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200 focus:outline-none"
         >
-          <option value="">{language === 'en' ? 'All Types' : 'Tous les types'}</option>
-          <option value="PURCHASE">{language === 'en' ? 'Purchases' : 'Achats'}</option>
-          <option value="READING">{language === 'en' ? 'Readings' : 'Lectures'}</option>
-          <option value="DAILY_BONUS">{language === 'en' ? 'Daily Bonus' : 'Bonus quotidien'}</option>
-          <option value="ACHIEVEMENT">{language === 'en' ? 'Achievements' : 'Realisations'}</option>
-          <option value="REFERRAL_BONUS">{language === 'en' ? 'Referrals' : 'Parrainages'}</option>
-          <option value="REFUND">{language === 'en' ? 'Refunds' : 'Remboursements'}</option>
+          <option value="">{t('admin.AdminTransactions.all_types', 'All Types')}</option>
+          <option value="PURCHASE">{t('admin.AdminTransactions.purchases', 'Purchases')}</option>
+          <option value="READING">{t('admin.AdminTransactions.readings', 'Readings')}</option>
+          <option value="DAILY_BONUS">{t('admin.AdminTransactions.daily_bonus', 'Daily Bonus')}</option>
+          <option value="ACHIEVEMENT">{t('admin.AdminTransactions.achievements', 'Achievements')}</option>
+          <option value="REFERRAL_BONUS">{t('admin.AdminTransactions.referrals', 'Referrals')}</option>
+          <option value="REFUND">{t('admin.AdminTransactions.refunds', 'Refunds')}</option>
         </select>
       </div>
 
@@ -221,19 +221,19 @@ const AdminTransactions: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Date' : 'Date'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'User' : 'Utilisateur'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Type' : 'Type'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Description' : 'Description'}</th>
-                    <th className="text-right p-4 text-slate-300 font-medium">{language === 'en' ? 'Amount' : 'Montant'}</th>
-                    <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.date', 'Date')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.user', 'User')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.type', 'Type')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.description', 'Description')}</th>
+                    <th className="text-right p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.amount', 'Amount')}</th>
+                    <th className="text-left p-4 text-slate-300 font-medium">{t('admin.AdminTransactions.status', 'Status')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-8 text-center text-slate-400">
-                        {language === 'en' ? 'No transactions found' : 'Aucune transaction trouvee'}
+                        {t('admin.AdminTransactions.no_transactions_found', 'No transactions found')}
                       </td>
                     </tr>
                   ) : (
@@ -287,9 +287,7 @@ const AdminTransactions: React.FC = () => {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <p className="text-slate-400 text-sm">
-              {language === 'en'
-                ? `Showing ${transactions.length} of ${total} transactions`
-                : `Affichage de ${transactions.length} sur ${total} transactions`}
+              {t('admin.AdminTransactions.showing_transactions', `Showing ${transactions.length} of ${total} transactions`)}
             </p>
             <div className="flex items-center gap-2">
               <button
