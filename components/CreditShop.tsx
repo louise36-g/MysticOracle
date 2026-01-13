@@ -60,7 +60,7 @@ interface CreditShopProps {
 }
 
 const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) => {
-  const { language, user } = useApp();
+  const { language, user, t } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
   const {
@@ -173,7 +173,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
   const checkSpendingLimits = useCallback((amount: number): boolean => {
     const result = canSpend(amount);
     if (!result.allowed) {
-      setError(result.reason || (language === 'en' ? 'Purchase not allowed' : 'Achat non autorisé'));
+      setError(result.reason || t('CreditShop.tsx.CreditShop.purchase_not_allowed', 'Purchase not allowed'));
       return false;
     }
     if (result.warningLevel === 'soft' && result.reason) {
@@ -213,9 +213,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
       const message = err instanceof Error ? err.message : 'Payment failed';
       // Provide more helpful error for network failures
       if (message === 'Failed to fetch') {
-        setError(language === 'en'
-          ? 'Unable to connect to payment server. Please check your connection and try again.'
-          : 'Impossible de se connecter au serveur de paiement. Veuillez vérifier votre connexion et réessayer.');
+        setError(t('CreditShop.tsx.CreditShop.unable_to_connect', 'Unable to connect to payment server. Please check your connection and try again.'));
       } else {
         setError(message);
       }
@@ -255,9 +253,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
       console.error('PayPal checkout error:', err);
       const message = err instanceof Error ? err.message : 'Payment failed';
       if (message === 'Failed to fetch') {
-        setError(language === 'en'
-          ? 'Unable to connect to payment server. Please check your connection and try again.'
-          : 'Impossible de se connecter au serveur de paiement. Veuillez vérifier votre connexion et réessayer.');
+        setError(t('CreditShop.tsx.CreditShop.unable_to_connect', 'Unable to connect to payment server. Please check your connection and try again.'));
       } else {
         setError(message);
       }
@@ -307,7 +303,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 <Coins className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-lg font-heading text-white">
-                {language === 'en' ? 'Credit Shop' : 'Boutique de Crédits'}
+                {t('CreditShop.tsx.CreditShop.credit_shop', 'Credit Shop')}
               </h2>
             </div>
             <div className="flex items-center gap-2">
@@ -316,7 +312,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-white text-sm border border-slate-600"
               >
                 <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline">{language === 'en' ? 'Limits' : 'Limites'}</span>
+                <span className="hidden sm:inline">{t('CreditShop.tsx.CreditShop.limits', 'Limits')}</span>
               </button>
               <button
                 onClick={onClose}
@@ -336,7 +332,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 </div>
                 <div>
                   <p className="font-medium text-red-100">
-                    {language === 'en' ? 'Payment Error' : 'Erreur de Paiement'}
+                    {t('CreditShop.tsx.CreditShop.payment_error', 'Payment Error')}
                   </p>
                   <p className="mt-1">{error}</p>
                 </div>
@@ -351,14 +347,14 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-amber-100">
-                    {language === 'en' ? 'Spending Reminder' : 'Rappel de Dépenses'}
+                    {t('CreditShop.tsx.CreditShop.spending_reminder', 'Spending Reminder')}
                   </p>
                   <p className="mt-1">{spendingWarning}</p>
                   <button
                     onClick={() => setShowSpendingLimits(true)}
                     className="mt-2 text-xs text-amber-400 hover:text-amber-300 underline"
                   >
-                    {language === 'en' ? 'Manage spending limits' : 'Gérer les limites de dépenses'}
+                    {t('CreditShop.tsx.CreditShop.manage_spending_limits', 'Manage spending limits')}
                   </button>
                 </div>
               </div>
@@ -389,11 +385,11 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                     <div className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-amber-400" />
                       <span className="font-bold text-amber-200">
-                        +{FIRST_PURCHASE_BONUS_PERCENT}% {language === 'en' ? 'BONUS' : 'BONUS'}
+                        +{FIRST_PURCHASE_BONUS_PERCENT}% {t('CreditShop.tsx.CreditShop.bonus', 'BONUS')}
                       </span>
                     </div>
                     <span className="text-xs text-amber-200/70">
-                      {language === 'en' ? 'Extra credits on your first purchase!' : 'Crédits bonus sur votre premier achat !'}
+                      {t('CreditShop.tsx.CreditShop.extra_credits_on', 'Extra credits on your first purchase!')}
                     </span>
                   </div>
                 </div>
@@ -413,9 +409,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-slate-300">
-                      {language === 'en'
-                        ? `You have ${user?.credits ?? 0} credits remaining. Top up to continue your mystical journey!`
-                        : `Il vous reste ${user?.credits ?? 0} crédits. Rechargez pour continuer votre voyage mystique !`}
+                      {t('CreditShop.tsx.CreditShop.you_have_credits', `You have ${user?.credits ?? 0} credits remaining. Top up to continue your mystical journey!`)}
                     </p>
                   </div>
                 </div>
@@ -452,7 +446,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         <div className="flex flex-wrap gap-1.5">
                           {isStarter && (
                             <span className="px-2 py-0.5 bg-slate-600 rounded text-xs font-bold text-white">
-                              {language === 'en' ? 'Starter' : 'Découverte'}
+                              {t('CreditShop.tsx.CreditShop.starter', 'Starter')}
                             </span>
                           )}
                           {pkg.badge && (
@@ -478,7 +472,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         <div className="flex items-center gap-1.5">
                           <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
                           <span className="text-2xl font-bold text-white">{pkg.credits}</span>
-                          <span className="text-xs text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
+                          <span className="text-xs text-slate-400">{t('CreditShop.tsx.CreditShop.credits', 'credits')}</span>
                         </div>
                         <p className={`text-xl font-bold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
                           €{pkg.priceEur.toFixed(2)}
@@ -533,7 +527,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                           {isBestValue && !pkg.badge && (
                             <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded text-xs font-bold text-white flex items-center gap-1">
                               <TrendingUp className="w-3 h-3" />
-                              {language === 'en' ? 'Best Value' : 'Meilleur'}
+                              {t('CreditShop.tsx.CreditShop.best_value', 'Best Value')}
                             </span>
                           )}
                           {pkg.discount > 0 && (
@@ -554,7 +548,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                       <div className="flex items-center gap-2 mb-1">
                         <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-purple-400'}`} />
                         <span className="text-3xl font-bold text-white">{pkg.credits}</span>
-                        <span className="text-sm text-slate-400">{language === 'en' ? 'credits' : 'crédits'}</span>
+                        <span className="text-sm text-slate-400">{t('CreditShop.tsx.CreditShop.credits_2', 'credits')}</span>
                       </div>
 
                       {/* First purchase bonus */}
@@ -576,7 +570,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                             €{pkg.priceEur.toFixed(2)}
                           </p>
                           <span className="text-xs text-slate-500">
-                            €{pricePerCredit.toFixed(2)}/{language === 'en' ? 'credit' : 'crédit'}
+                            €{pricePerCredit.toFixed(2)}/{t('CreditShop.tsx.CreditShop.credit', 'credit')}
                           </span>
                         </div>
                       </div>
@@ -598,13 +592,13 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-heading text-white flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-purple-400" />
-                      {language === 'en' ? 'Complete Purchase' : 'Finaliser l\'Achat'}
+                      {t('CreditShop.tsx.CreditShop.complete_purchase', 'Complete Purchase')}
                     </h3>
                     <div className="flex items-center gap-2 bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-500/30">
                       <Coins className="w-4 h-4 text-amber-400" />
                       <span className="font-bold text-amber-300">{selectedPackage.credits}</span>
                       <span className="text-amber-200/70 text-sm">
-                        {language === 'en' ? 'credits' : 'crédits'}
+                        {t('CreditShop.tsx.CreditShop.credits_3', 'credits')}
                       </span>
                     </div>
                   </div>
@@ -626,11 +620,11 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                           <p className="font-bold text-white flex items-center gap-2">
                             Stripe Link
                             <span className="px-2 py-0.5 bg-green-500/30 rounded-full text-xs text-green-300 font-medium">
-                              {language === 'en' ? 'Recommended' : 'Recommandé'}
+                              {t('CreditShop.tsx.CreditShop.recommended', 'Recommended')}
                             </span>
                           </p>
                           <p className="text-sm text-slate-300">
-                            {language === 'en' ? 'One-click checkout' : 'Paiement en un clic'}
+                            {t('CreditShop.tsx.CreditShop.oneclick_checkout', 'One-click checkout')}
                           </p>
                         </div>
                       </div>
@@ -657,7 +651,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         </div>
                         <div className="text-left">
                           <p className="font-bold text-white">
-                            {language === 'en' ? 'Credit / Debit Card' : 'Carte Bancaire'}
+                            {t('CreditShop.tsx.CreditShop.credit_debit_card', 'Credit / Debit Card')}
                           </p>
                           <p className="text-sm text-slate-400">
                             Visa, Mastercard, Amex
@@ -686,7 +680,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         <div className="text-left">
                           <p className="font-bold text-white">PayPal</p>
                           <p className="text-sm text-slate-400">
-                            {language === 'en' ? 'Pay with PayPal' : 'Payer avec PayPal'}
+                            {t('CreditShop.tsx.CreditShop.pay_with_paypal', 'Pay with PayPal')}
                           </p>
                         </div>
                       </div>
@@ -702,9 +696,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                   <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mt-4">
                     <Shield className="w-4 h-4" />
                     <span>
-                      {language === 'en'
-                        ? 'Secure payment processed by Stripe & PayPal'
-                        : 'Paiement sécurisé par Stripe & PayPal'}
+                      {t('CreditShop.tsx.CreditShop.secure_payment_processed', 'Secure payment processed by Stripe & PayPal')}
                     </span>
                   </div>
                 </motion.div>
@@ -713,9 +705,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 <div className="text-center py-6 text-slate-400">
                   <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-50" />
                   <p className="text-sm">
-                    {language === 'en'
-                      ? 'Select a credit package above to continue'
-                      : 'Sélectionnez un forfait ci-dessus pour continuer'}
+                    {t('CreditShop.tsx.CreditShop.select_a_credit', 'Select a credit package above to continue')}
                   </p>
                 </div>
               )}
@@ -727,19 +717,19 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                 <div className="text-slate-400">
                   <Sparkles className="w-6 h-6 mx-auto mb-2 text-amber-400" />
                   <p className="text-xs">
-                    {language === 'en' ? 'Instant delivery' : 'Livraison instantanée'}
+                    {t('CreditShop.tsx.CreditShop.instant_delivery', 'Instant delivery')}
                   </p>
                 </div>
                 <div className="text-slate-400">
                   <Shield className="w-6 h-6 mx-auto mb-2 text-green-400" />
                   <p className="text-xs">
-                    {language === 'en' ? 'Secure payment' : 'Paiement sécurisé'}
+                    {t('CreditShop.tsx.CreditShop.secure_payment', 'Secure payment')}
                   </p>
                 </div>
                 <div className="text-slate-400">
                   <Coins className="w-6 h-6 mx-auto mb-2 text-purple-400" />
                   <p className="text-xs">
-                    {language === 'en' ? 'No expiration' : 'Sans expiration'}
+                    {t('CreditShop.tsx.CreditShop.no_expiration', 'No expiration')}
                   </p>
                 </div>
               </div>
@@ -754,7 +744,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                     }}
                     className="text-sm text-slate-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
                   >
-                    {language === 'en' ? 'How do credits work?' : 'Comment fonctionnent les crédits ?'}
+                    {t('CreditShop.tsx.CreditShop.how_do_credits', 'How do credits work?')}
                   </button>
                 </div>
               )}
@@ -787,12 +777,10 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                     <Coffee className="w-8 h-8 text-amber-400" />
                   </div>
                   <h3 className="text-xl font-heading text-white mb-2">
-                    {language === 'en' ? 'Time for a Break?' : 'Temps de Faire une Pause ?'}
+                    {t('CreditShop.tsx.CreditShop.time_for_a', 'Time for a Break?')}
                   </h3>
                   <p className="text-slate-400 mb-6">
-                    {language === 'en'
-                      ? "You've made several purchases recently. Would you like to take a moment before continuing?"
-                      : "Vous avez effectué plusieurs achats récemment. Souhaitez-vous prendre un moment avant de continuer ?"}
+                    {t('CreditShop.tsx.CreditShop.youve_made_several', "You've made several purchases recently. Would you like to take a moment before continuing?")}
                   </p>
                   <div className="flex gap-3">
                     <Button
@@ -804,7 +792,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         setShowSpendingLimits(true);
                       }}
                     >
-                      {language === 'en' ? 'Set Limits' : 'Définir des Limites'}
+                      {t('CreditShop.tsx.CreditShop.set_limits', 'Set Limits')}
                     </Button>
                     <Button
                       variant="primary"
@@ -814,7 +802,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
                         dismissBreakReminder();
                       }}
                     >
-                      {language === 'en' ? 'Continue' : 'Continuer'}
+                      {t('CreditShop.tsx.CreditShop.continue', 'Continue')}
                     </Button>
                   </div>
                 </div>

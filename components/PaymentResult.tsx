@@ -6,6 +6,7 @@ import Button from './Button';
 import { CheckCircle, XCircle, Loader2, Coins, Sparkles, Gift } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
 import { hasCompletedFirstPurchase, markFirstPurchaseComplete } from '../utils/firstPurchaseBonus';
+import { SmartLink } from './SmartLink';
 
 interface PaymentResultProps {
   type: 'success' | 'cancelled';
@@ -13,7 +14,7 @@ interface PaymentResultProps {
 }
 
 const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
-  const { language } = useApp();
+  const { language, t } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
   const [loading, setLoading] = useState(type === 'success');
@@ -91,7 +92,7 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           <Loader2 className="w-16 h-16 text-purple-400" />
         </motion.div>
         <p className="mt-4 text-lg text-slate-300">
-          {language === 'en' ? 'Verifying your payment...' : 'Vérification de votre paiement...'}
+          {t('PaymentResult.tsx.PaymentResult.verifying_your_payment', 'Verifying your payment...')}
         </p>
       </div>
     );
@@ -114,22 +115,24 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
         </motion.div>
 
         <h1 className="text-2xl font-heading text-white mb-2">
-          {language === 'en' ? 'Payment Cancelled' : 'Paiement Annulé'}
+          {t('PaymentResult.tsx.PaymentResult.payment_cancelled', 'Payment Cancelled')}
         </h1>
 
         <p className="text-slate-400 mb-8 text-center max-w-md">
-          {language === 'en'
-            ? "No worries! Your payment was cancelled and you haven't been charged."
-            : "Pas de souci ! Votre paiement a été annulé et vous n'avez pas été débité."}
+          {t('PaymentResult.tsx.PaymentResult.no_worries_your', "No worries! Your payment was cancelled and you haven't been charged.")}
         </p>
 
         <div className="flex gap-4">
-          <Button variant="outline" onClick={() => onNavigate('profile')}>
-            {language === 'en' ? 'Back to Profile' : 'Retour au Profil'}
-          </Button>
-          <Button onClick={() => onNavigate('home')}>
-            {language === 'en' ? 'Go Home' : 'Accueil'}
-          </Button>
+          <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+            <Button variant="outline">
+              {t('PaymentResult.tsx.PaymentResult.back_to_profile', 'Back to Profile')}
+            </Button>
+          </SmartLink>
+          <SmartLink href="/" onClick={() => onNavigate('home')}>
+            <Button>
+              {t('PaymentResult.tsx.PaymentResult.go_home', 'Go Home')}
+            </Button>
+          </SmartLink>
         </div>
       </div>
     );
@@ -161,7 +164,7 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           </motion.div>
 
           <h1 className="text-3xl font-heading text-white mb-2">
-            {language === 'en' ? 'Payment Successful!' : 'Paiement Réussi !'}
+            {t('PaymentResult.tsx.PaymentResult.payment_successful', 'Payment Successful!')}
           </h1>
 
           {result?.credits && result.credits > 0 && (
@@ -174,7 +177,7 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
               <Coins className="w-8 h-8 text-amber-400" />
               <div>
                 <p className="text-sm text-slate-400">
-                  {language === 'en' ? 'Credits Added' : 'Crédits Ajoutés'}
+                  {t('PaymentResult.tsx.PaymentResult.credits_added', 'Credits Added')}
                 </p>
                 <p className="text-3xl font-bold text-amber-400">+{result.credits}</p>
               </div>
@@ -191,26 +194,26 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
             >
               <Gift className="w-5 h-5 text-amber-400" />
               <p className="text-sm text-amber-200">
-                {language === 'en'
-                  ? 'First purchase bonus included!'
-                  : 'Bonus de premier achat inclus !'}
+                {t('PaymentResult.tsx.PaymentResult.first_purchase_bonus', 'First purchase bonus included!')}
               </p>
             </motion.div>
           )}
 
           <p className="text-slate-400 mb-8 text-center max-w-md">
-            {language === 'en'
-              ? 'Your credits have been added to your account. Start your mystical journey!'
-              : 'Vos crédits ont été ajoutés à votre compte. Commencez votre voyage mystique !'}
+            {t('PaymentResult.tsx.PaymentResult.your_credits_have', 'Your credits have been added to your account. Start your mystical journey!')}
           </p>
 
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => onNavigate('profile')}>
-              {language === 'en' ? 'View Profile' : 'Voir le Profil'}
-            </Button>
-            <Button onClick={() => onNavigate('home')}>
-              {language === 'en' ? 'Start Reading' : 'Commencer une Lecture'}
-            </Button>
+            <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+              <Button variant="outline">
+                {t('PaymentResult.tsx.PaymentResult.view_profile', 'View Profile')}
+              </Button>
+            </SmartLink>
+            <SmartLink href="/" onClick={() => onNavigate('home')}>
+              <Button>
+                {t('PaymentResult.tsx.PaymentResult.start_reading', 'Start Reading')}
+              </Button>
+            </SmartLink>
           </div>
         </>
       ) : (
@@ -224,22 +227,24 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           </motion.div>
 
           <h1 className="text-2xl font-heading text-white mb-2">
-            {language === 'en' ? 'Payment Failed' : 'Paiement Échoué'}
+            {t('PaymentResult.tsx.PaymentResult.payment_failed', 'Payment Failed')}
           </h1>
 
           <p className="text-slate-400 mb-4 text-center max-w-md">
-            {result?.error || (language === 'en'
-              ? 'There was an issue processing your payment. Please try again.'
-              : 'Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer.')}
+            {result?.error || t('PaymentResult.tsx.PaymentResult.there_was_an', 'There was an issue processing your payment. Please try again.')}
           </p>
 
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => onNavigate('profile')}>
-              {language === 'en' ? 'Back to Profile' : 'Retour au Profil'}
-            </Button>
-            <Button onClick={() => onNavigate('home')}>
-              {language === 'en' ? 'Go Home' : 'Accueil'}
-            </Button>
+            <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+              <Button variant="outline">
+                {t('PaymentResult.tsx.PaymentResult.back_to_profile_2', 'Back to Profile')}
+              </Button>
+            </SmartLink>
+            <SmartLink href="/" onClick={() => onNavigate('home')}>
+              <Button>
+                {t('PaymentResult.tsx.PaymentResult.go_home_2', 'Go Home')}
+              </Button>
+            </SmartLink>
           </div>
         </>
       )}

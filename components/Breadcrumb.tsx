@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users, Layers, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SpreadType } from '../types';
+import { SmartLink } from './SmartLink';
 
 interface BreadcrumbProps {
   currentView: string;
@@ -28,52 +29,73 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   onNavigate,
   onClearReadingMode,
 }) => {
-  const { language } = useApp();
+  const { language, t } = useApp();
+
+  // Helper to map view names to URLs
+  const getViewHref = (view: string): string => {
+    const viewMap: Record<string, string> = {
+      'home': '/',
+      'blog': '/blog',
+      'tarot': '/tarot',
+      'tarot-cards': '/tarot/cards',
+      'tarot-cards-all': '/tarot/cards/all',
+      'profile': '/profile',
+      'admin': '/admin',
+      'faq': '/faq',
+      'how-credits-work': '/how-credits-work',
+      'about': '/about',
+      'privacy': '/privacy',
+      'terms': '/terms',
+      'cookies': '/cookies',
+    };
+    return viewMap[view] || `/${view}`;
+  };
 
   // Build breadcrumb items based on current state
   const buildBreadcrumbs = () => {
-    const items: { label: string; icon?: React.ReactNode; onClick?: () => void }[] = [];
+    const items: { label: string; icon?: React.ReactNode; onClick?: () => void; href?: string }[] = [];
 
     // Always start with Home
     items.push({
-      label: language === 'en' ? 'Home' : 'Accueil',
+      label: t('Breadcrumb.tsx.Breadcrumb.home', 'Home'),
       icon: <Home className="w-3.5 h-3.5" />,
       onClick: () => onNavigate('home'),
+      href: getViewHref('home'),
     });
 
     // Handle different views
     switch (currentView) {
       case 'profile':
         items.push({
-          label: language === 'en' ? 'Profile' : 'Profil',
+          label: t('Breadcrumb.tsx.Breadcrumb.profile', 'Profile'),
           icon: <User className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'admin':
         items.push({
-          label: language === 'en' ? 'Admin Dashboard' : 'Tableau de Bord',
+          label: t('Breadcrumb.tsx.Breadcrumb.admin_dashboard', 'Admin Dashboard'),
           icon: <Shield className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'privacy':
         items.push({
-          label: language === 'en' ? 'Privacy Policy' : 'Politique de Confidentialité',
+          label: t('Breadcrumb.tsx.Breadcrumb.privacy_policy', 'Privacy Policy'),
           icon: <FileText className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'terms':
         items.push({
-          label: language === 'en' ? 'Terms of Service' : 'Conditions d\'Utilisation',
+          label: t('Breadcrumb.tsx.Breadcrumb.terms_of_service', 'Terms of Service'),
           icon: <FileText className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'cookies':
         items.push({
-          label: language === 'en' ? 'Cookie Policy' : 'Politique des Cookies',
+          label: t('Breadcrumb.tsx.Breadcrumb.cookie_policy', 'Cookie Policy'),
           icon: <FileText className="w-3.5 h-3.5" />,
         });
         break;
@@ -90,78 +112,83 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           label: 'Blog',
           icon: <BookOpen className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('blog'),
+          href: getViewHref('blog'),
         });
         items.push({
-          label: language === 'en' ? 'Article' : 'Article',
+          label: t('Breadcrumb.tsx.Breadcrumb.article', 'Article'),
           icon: <FileText className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'faq':
         items.push({
-          label: language === 'en' ? 'Help & FAQ' : 'Aide & FAQ',
+          label: t('Breadcrumb.tsx.Breadcrumb.help_faq', 'Help & FAQ'),
           icon: <HelpCircle className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'how-credits-work':
         items.push({
-          label: language === 'en' ? 'How Credits Work' : 'Comment fonctionnent les crédits',
+          label: t('Breadcrumb.tsx.Breadcrumb.how_credits_work', 'How Credits Work'),
           icon: <CreditCard className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'about':
         items.push({
-          label: language === 'en' ? 'About Us' : 'À Propos',
+          label: t('Breadcrumb.tsx.Breadcrumb.about_us', 'About Us'),
           icon: <Users className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-article':
         items.push({
-          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'Tarot Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
+          href: getViewHref('tarot-cards'),
         });
         items.push({
-          label: language === 'en' ? 'All Cards' : 'Toutes les Cartes',
+          label: t('Breadcrumb.tsx.Breadcrumb.all_cards', 'All Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards-all'),
+          href: getViewHref('tarot-cards-all'),
         });
         items.push({
-          label: language === 'en' ? 'Card Details' : 'Détails',
+          label: t('Breadcrumb.tsx.Breadcrumb.card_details', 'Card Details'),
           icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards':
         items.push({
-          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_2', 'Tarot Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards-all':
         items.push({
-          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_3', 'Tarot Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
+          href: getViewHref('tarot-cards'),
         });
         items.push({
-          label: language === 'en' ? 'All Cards' : 'Toutes les Cartes',
+          label: t('Breadcrumb.tsx.Breadcrumb.all_cards_2', 'All Cards'),
           icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards-category':
         items.push({
-          label: language === 'en' ? 'Tarot Cards' : 'Cartes de Tarot',
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_4', 'Tarot Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
+          href: getViewHref('tarot-cards'),
         });
         items.push({
-          label: language === 'en' ? 'Category' : 'Catégorie',
+          label: t('Breadcrumb.tsx.Breadcrumb.category', 'Category'),
           icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
@@ -170,9 +197,10 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         // Add reading mode crumb - links to spread selector
         if (readingMode === 'tarot') {
           items.push({
-            label: language === 'en' ? 'Tarot Readings' : 'Tirages Tarot',
+            label: t('Breadcrumb.tsx.Breadcrumb.tarot_readings', 'Tarot Readings'),
             icon: <Sparkles className="w-3.5 h-3.5" />,
             onClick: () => onNavigate('tarot'),
+            href: getViewHref('tarot'),
           });
         }
         // Add spread name with themed icon
@@ -190,17 +218,17 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         // If we're on home but have a reading mode selected
         if (readingMode === 'tarot') {
           items.push({
-            label: language === 'en' ? 'Tarot Readings' : 'Tirages Tarot',
+            label: t('Breadcrumb.tsx.Breadcrumb.tarot_readings_2', 'Tarot Readings'),
             icon: <Sparkles className="w-3.5 h-3.5" />,
           });
         } else if (readingMode === 'horoscope') {
           items.push({
-            label: language === 'en' ? 'Horoscope' : 'Horoscope',
+            label: t('Breadcrumb.tsx.Breadcrumb.horoscope', 'Horoscope'),
             icon: <Moon className="w-3.5 h-3.5" />,
           });
         } else if (readingMode === 'oracle') {
           items.push({
-            label: language === 'en' ? 'Oracle' : 'Oracle',
+            label: t('Breadcrumb.tsx.Breadcrumb.oracle', 'Oracle'),
             icon: <Eye className="w-3.5 h-3.5" />,
           });
         }
@@ -226,13 +254,14 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   <ChevronRight className="w-4 h-4 text-slate-600 mx-1" />
                 )}
                 {isClickable ? (
-                  <button
-                    onClick={item.onClick}
+                  <SmartLink
+                    href={item.href || '/'}
+                    onClick={item.onClick || (() => {})}
                     className="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors"
                   >
                     {item.icon}
                     <span>{item.label}</span>
-                  </button>
+                  </SmartLink>
                 ) : (
                   <span
                     className={`flex items-center gap-1.5 px-2 py-1 ${
