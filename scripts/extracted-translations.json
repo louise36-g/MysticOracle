@@ -1,0 +1,4929 @@
+{
+  "translations": [
+    {
+      "key": "app.App.access_denied",
+      "en": "Access Denied",
+      "fr": "Accès Refusé",
+      "file": "App.tsx",
+      "line": 535
+    },
+    {
+      "key": "app.App.sign_in",
+      "en": "Sign In",
+      "fr": "Se connecter",
+      "file": "App.tsx",
+      "line": 545
+    },
+    {
+      "key": "app.App.go_home",
+      "en": "Go Home",
+      "fr": "Retour à l'accueil",
+      "file": "App.tsx",
+      "line": 551
+    },
+    {
+      "key": "app.App.start_your_reading",
+      "en": "Start Your Reading",
+      "fr": "Commencer Votre Lecture",
+      "file": "App.tsx",
+      "line": 708
+    },
+    {
+      "key": "app.App.ai_powered_insights",
+      "en": "AI Powered Insights",
+      "fr": "Insights par IA",
+      "file": "App.tsx",
+      "line": 721
+    },
+    {
+      "key": "app.App.deep_contextaware_interpretations",
+      "en": "Deep, context-aware interpretations powered by AI.",
+      "fr": "Interprétations profondes et contextuelles alimentées par l'IA.",
+      "file": "App.tsx",
+      "line": 724
+    },
+    {
+      "key": "app.App.private_secure",
+      "en": "Private & Secure",
+      "fr": "Privé & Sécurisé",
+      "file": "App.tsx",
+      "line": 730
+    },
+    {
+      "key": "app.App.your_spiritual_journey",
+      "en": "Your spiritual journey is personal. We respect your privacy.",
+      "fr": "Votre voyage spirituel est personnel. Nous respectons votre vie privée.",
+      "file": "App.tsx",
+      "line": 733
+    },
+    {
+      "key": "app.App.instant_clarity",
+      "en": "Instant Clarity",
+      "fr": "Clarté Instantanée",
+      "file": "App.tsx",
+      "line": 739
+    },
+    {
+      "key": "app.App.get_answers_to",
+      "en": "Get answers to life's pressing questions in seconds.",
+      "fr": "Obtenez des réponses à vos questions en quelques secondes.",
+      "file": "App.tsx",
+      "line": 742
+    },
+    {
+      "key": "app.App.oracle_reading_coming",
+      "en": "Oracle Reading Coming Soon...",
+      "fr": "Lecture Oracle Bientôt Disponible...",
+      "file": "App.tsx",
+      "line": 766
+    },
+    {
+      "key": "app.App.not_enough_credits",
+      "en": "Not Enough Credits",
+      "fr": "Crédits Insuffisants",
+      "file": "App.tsx",
+      "line": 849
+    },
+    {
+      "key": "app.App.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "App.tsx",
+      "line": 867
+    },
+    {
+      "key": "app.App.buy_credits",
+      "en": "Buy Credits",
+      "fr": "Acheter des Crédits",
+      "file": "App.tsx",
+      "line": 875
+    },
+    {
+      "key": "app.App.running_low_on",
+      "en": "Running Low on Credits",
+      "fr": "Crédits Bientôt Épuisés",
+      "file": "App.tsx",
+      "line": 912
+    },
+    {
+      "key": "app.App.later",
+      "en": "Later",
+      "fr": "Plus Tard",
+      "file": "App.tsx",
+      "line": 925
+    },
+    {
+      "key": "app.App.buy_credits_2",
+      "en": "Buy Credits",
+      "fr": "Acheter des Crédits",
+      "file": "App.tsx",
+      "line": 933
+    },
+    {
+      "key": "AboutUs.tsx.AboutUs.about_mysticoracle",
+      "en": "About MysticOracle",
+      "fr": "À Propos de MysticOracle",
+      "file": "components/AboutUs.tsx",
+      "line": 59
+    },
+    {
+      "key": "AboutUs.tsx.AboutUs.our_story",
+      "en": "Our Story",
+      "fr": "Notre Histoire",
+      "file": "components/AboutUs.tsx",
+      "line": 77
+    },
+    {
+      "key": "AboutUs.tsx.AboutUs.our_values",
+      "en": "Our Values",
+      "fr": "Nos Valeurs",
+      "file": "components/AboutUs.tsx",
+      "line": 101
+    },
+    {
+      "key": "AboutUs.tsx.AboutUs.ready_to_begin",
+      "en": "Ready to begin your journey?",
+      "fr": "Prêt à commencer votre voyage ?",
+      "file": "components/AboutUs.tsx",
+      "line": 148
+    },
+    {
+      "key": "AboutUs.tsx.AboutUs.start_your_reading",
+      "en": "Start Your Reading",
+      "fr": "Commencer Votre Lecture",
+      "file": "components/AboutUs.tsx",
+      "line": 153
+    },
+    {
+      "key": "ActiveReading.tsx.ActiveReading.insufficient_credits",
+      "en": "Insufficient credits",
+      "fr": "Crédits insuffisants",
+      "file": "components/ActiveReading.tsx",
+      "line": 210
+    },
+    {
+      "key": "ActiveReading.tsx.ActiveReading.guidance_from_the",
+      "en": "Guidance from the Tarot",
+      "fr": "Guidance du Tarot",
+      "file": "components/ActiveReading.tsx",
+      "line": 224
+    },
+    {
+      "key": "ActiveReading.tsx.ActiveReading.transaction_failed",
+      "en": "Transaction failed.",
+      "fr": "La transaction a échoué.",
+      "file": "components/ActiveReading.tsx",
+      "line": 274
+    },
+    {
+      "key": "ActiveReading.tsx.ActiveReading.insufficient_credits_2",
+      "en": "Insufficient credits!",
+      "fr": "Crédits insuffisants!",
+      "file": "components/ActiveReading.tsx",
+      "line": 410
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.home",
+      "en": "Home",
+      "fr": "Accueil",
+      "file": "components/Breadcrumb.tsx",
+      "line": 60
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.profile",
+      "en": "Profile",
+      "fr": "Profil",
+      "file": "components/Breadcrumb.tsx",
+      "line": 70
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.admin_dashboard",
+      "en": "Admin Dashboard",
+      "fr": "Tableau de Bord",
+      "file": "components/Breadcrumb.tsx",
+      "line": 77
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.privacy_policy",
+      "en": "Privacy Policy",
+      "fr": "Politique de Confidentialité",
+      "file": "components/Breadcrumb.tsx",
+      "line": 84
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.terms_of_service",
+      "en": "Terms of Service",
+      "fr": "Conditions d'Utilisation",
+      "file": "components/Breadcrumb.tsx",
+      "line": 91
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.cookie_policy",
+      "en": "Cookie Policy",
+      "fr": "Politique des Cookies",
+      "file": "components/Breadcrumb.tsx",
+      "line": 98
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.article",
+      "en": "Article",
+      "fr": "Article",
+      "file": "components/Breadcrumb.tsx",
+      "line": 118
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.help_faq",
+      "en": "Help & FAQ",
+      "fr": "Aide & FAQ",
+      "file": "components/Breadcrumb.tsx",
+      "line": 125
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.how_credits_work",
+      "en": "How Credits Work",
+      "fr": "Comment fonctionnent les crédits",
+      "file": "components/Breadcrumb.tsx",
+      "line": 132
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.about_us",
+      "en": "About Us",
+      "fr": "À Propos",
+      "file": "components/Breadcrumb.tsx",
+      "line": 139
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_cards",
+      "en": "Tarot Cards",
+      "fr": "Cartes de Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 146
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.all_cards",
+      "en": "All Cards",
+      "fr": "Toutes les Cartes",
+      "file": "components/Breadcrumb.tsx",
+      "line": 152
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.card_details",
+      "en": "Card Details",
+      "fr": "Détails",
+      "file": "components/Breadcrumb.tsx",
+      "line": 158
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_cards_2",
+      "en": "Tarot Cards",
+      "fr": "Cartes de Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 165
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_cards_3",
+      "en": "Tarot Cards",
+      "fr": "Cartes de Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 172
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.all_cards_2",
+      "en": "All Cards",
+      "fr": "Toutes les Cartes",
+      "file": "components/Breadcrumb.tsx",
+      "line": 178
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_cards_4",
+      "en": "Tarot Cards",
+      "fr": "Cartes de Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 185
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.category",
+      "en": "Category",
+      "fr": "Catégorie",
+      "file": "components/Breadcrumb.tsx",
+      "line": 191
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_readings",
+      "en": "Tarot Readings",
+      "fr": "Tirages Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 200
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.tarot_readings_2",
+      "en": "Tarot Readings",
+      "fr": "Tirages Tarot",
+      "file": "components/Breadcrumb.tsx",
+      "line": 221
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.horoscope",
+      "en": "Horoscope",
+      "fr": "Horoscope",
+      "file": "components/Breadcrumb.tsx",
+      "line": 226
+    },
+    {
+      "key": "Breadcrumb.tsx.Breadcrumb.oracle",
+      "en": "Oracle",
+      "fr": "Oracle",
+      "file": "components/Breadcrumb.tsx",
+      "line": 231
+    },
+    {
+      "key": "CookieConsent.tsx.CookieConsent.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/CookieConsent.tsx",
+      "line": 212
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.purchase_not_allowed",
+      "en": "Purchase not allowed",
+      "fr": "Achat non autorisé",
+      "file": "components/CreditShop.tsx",
+      "line": 176
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credit_shop",
+      "en": "Credit Shop",
+      "fr": "Boutique de Crédits",
+      "file": "components/CreditShop.tsx",
+      "line": 310
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.limits",
+      "en": "Limits",
+      "fr": "Limites",
+      "file": "components/CreditShop.tsx",
+      "line": 319
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.payment_error",
+      "en": "Payment Error",
+      "fr": "Erreur de Paiement",
+      "file": "components/CreditShop.tsx",
+      "line": 339
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.spending_reminder",
+      "en": "Spending Reminder",
+      "fr": "Rappel de Dépenses",
+      "file": "components/CreditShop.tsx",
+      "line": 354
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.manage_spending_limits",
+      "en": "Manage spending limits",
+      "fr": "Gérer les limites de dépenses",
+      "file": "components/CreditShop.tsx",
+      "line": 361
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.bonus",
+      "en": "BONUS",
+      "fr": "BONUS",
+      "file": "components/CreditShop.tsx",
+      "line": 392
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.extra_credits_on",
+      "en": "Extra credits on your first purchase!",
+      "fr": "Crédits bonus sur votre premier achat !",
+      "file": "components/CreditShop.tsx",
+      "line": 396
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.starter",
+      "en": "Starter",
+      "fr": "Découverte",
+      "file": "components/CreditShop.tsx",
+      "line": 455
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/CreditShop.tsx",
+      "line": 481
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.best_value",
+      "en": "Best Value",
+      "fr": "Meilleur",
+      "file": "components/CreditShop.tsx",
+      "line": 536
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credits_2",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/CreditShop.tsx",
+      "line": 557
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credit",
+      "en": "credit",
+      "fr": "crédit",
+      "file": "components/CreditShop.tsx",
+      "line": 579
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.complete_purchase",
+      "en": "Complete Purchase",
+      "fr": "Finaliser l'Achat",
+      "file": "components/CreditShop.tsx",
+      "line": 601
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credits_3",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/CreditShop.tsx",
+      "line": 607
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.recommended",
+      "en": "Recommended",
+      "fr": "Recommandé",
+      "file": "components/CreditShop.tsx",
+      "line": 629
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.oneclick_checkout",
+      "en": "One-click checkout",
+      "fr": "Paiement en un clic",
+      "file": "components/CreditShop.tsx",
+      "line": 633
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.credit_debit_card",
+      "en": "Credit / Debit Card",
+      "fr": "Carte Bancaire",
+      "file": "components/CreditShop.tsx",
+      "line": 660
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.pay_with_paypal",
+      "en": "Pay with PayPal",
+      "fr": "Payer avec PayPal",
+      "file": "components/CreditShop.tsx",
+      "line": 689
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.instant_delivery",
+      "en": "Instant delivery",
+      "fr": "Livraison instantanée",
+      "file": "components/CreditShop.tsx",
+      "line": 730
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.secure_payment",
+      "en": "Secure payment",
+      "fr": "Paiement sécurisé",
+      "file": "components/CreditShop.tsx",
+      "line": 736
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.no_expiration",
+      "en": "No expiration",
+      "fr": "Sans expiration",
+      "file": "components/CreditShop.tsx",
+      "line": 742
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.how_do_credits",
+      "en": "How do credits work?",
+      "fr": "Comment fonctionnent les crédits ?",
+      "file": "components/CreditShop.tsx",
+      "line": 757
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.time_for_a",
+      "en": "Time for a Break?",
+      "fr": "Temps de Faire une Pause ?",
+      "file": "components/CreditShop.tsx",
+      "line": 790
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.set_limits",
+      "en": "Set Limits",
+      "fr": "Définir des Limites",
+      "file": "components/CreditShop.tsx",
+      "line": 807
+    },
+    {
+      "key": "CreditShop.tsx.CreditShop.continue",
+      "en": "Continue",
+      "fr": "Continuer",
+      "file": "components/CreditShop.tsx",
+      "line": 817
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credit",
+      "en": "credit",
+      "fr": "crédit",
+      "file": "components/FAQ.tsx",
+      "line": 316
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/FAQ.tsx",
+      "line": 317
+    },
+    {
+      "key": "FAQ.tsx.FAQ.love_relationships",
+      "en": "Love & Relationships",
+      "fr": "Amour & Relations",
+      "file": "components/FAQ.tsx",
+      "line": 318
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credits_2",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/FAQ.tsx",
+      "line": 318
+    },
+    {
+      "key": "FAQ.tsx.FAQ.5card_spread_exploring",
+      "en": "5-card spread exploring matters of the heart",
+      "fr": "Tirage à 5 cartes explorant les affaires du cœur",
+      "file": "components/FAQ.tsx",
+      "line": 318
+    },
+    {
+      "key": "FAQ.tsx.FAQ.career_path",
+      "en": "Career Path",
+      "fr": "Chemin de Carrière",
+      "file": "components/FAQ.tsx",
+      "line": 319
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credits_3",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/FAQ.tsx",
+      "line": 319
+    },
+    {
+      "key": "FAQ.tsx.FAQ.5card_spread_for",
+      "en": "5-card spread for professional guidance",
+      "fr": "Tirage à 5 cartes pour orientation professionnelle",
+      "file": "components/FAQ.tsx",
+      "line": 319
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credits_4",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/FAQ.tsx",
+      "line": 320
+    },
+    {
+      "key": "FAQ.tsx.FAQ.credits_5",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/FAQ.tsx",
+      "line": 321
+    },
+    {
+      "key": "Footer.tsx.Footer.help",
+      "en": "Help",
+      "fr": "Aide",
+      "file": "components/Footer.tsx",
+      "line": 39
+    },
+    {
+      "key": "Footer.tsx.Footer.faq",
+      "en": "FAQ",
+      "fr": "FAQ",
+      "file": "components/Footer.tsx",
+      "line": 47
+    },
+    {
+      "key": "Footer.tsx.Footer.how_credits_work",
+      "en": "How Credits Work",
+      "fr": "Comment fonctionnent les crédits",
+      "file": "components/Footer.tsx",
+      "line": 54
+    },
+    {
+      "key": "Footer.tsx.Footer.legal",
+      "en": "Legal",
+      "fr": "Mentions Légales",
+      "file": "components/Footer.tsx",
+      "line": 62
+    },
+    {
+      "key": "Footer.tsx.Footer.privacy_policy",
+      "en": "Privacy Policy",
+      "fr": "Politique de Confidentialité",
+      "file": "components/Footer.tsx",
+      "line": 70
+    },
+    {
+      "key": "Footer.tsx.Footer.terms_of_service",
+      "en": "Terms of Service",
+      "fr": "Conditions d'Utilisation",
+      "file": "components/Footer.tsx",
+      "line": 77
+    },
+    {
+      "key": "Footer.tsx.Footer.cookie_policy",
+      "en": "Cookie Policy",
+      "fr": "Politique des Cookies",
+      "file": "components/Footer.tsx",
+      "line": 84
+    },
+    {
+      "key": "Footer.tsx.Footer.contact",
+      "en": "Contact",
+      "fr": "Contact",
+      "file": "components/Footer.tsx",
+      "line": 92
+    },
+    {
+      "key": "Footer.tsx.Footer.all_rights_reserved",
+      "en": "All rights reserved.",
+      "fr": "Tous droits réservés.",
+      "file": "components/Footer.tsx",
+      "line": 106
+    },
+    {
+      "key": "Header.tsx.Header.fr",
+      "en": "fr",
+      "fr": "en",
+      "file": "components/Header.tsx",
+      "line": 28
+    },
+    {
+      "key": "Header.tsx.Header.fr_2",
+      "en": "fr",
+      "fr": "en",
+      "file": "components/Header.tsx",
+      "line": 41
+    },
+    {
+      "key": "Header.tsx.Header.switch_to_french",
+      "en": "Switch to French",
+      "fr": "Switch to English",
+      "file": "components/Header.tsx",
+      "line": 90
+    },
+    {
+      "key": "Header.tsx.Header.switch_to_french_2",
+      "en": "Switch to French",
+      "fr": "Passer en anglais",
+      "file": "components/Header.tsx",
+      "line": 91
+    },
+    {
+      "key": "Header.tsx.Header.sign_in",
+      "en": "Sign In",
+      "fr": "Connexion",
+      "file": "components/Header.tsx",
+      "line": 99
+    },
+    {
+      "key": "Header.tsx.Header.credits",
+      "en": "Credits",
+      "fr": "Crédits",
+      "file": "components/Header.tsx",
+      "line": 159
+    },
+    {
+      "key": "Header.tsx.Header.home",
+      "en": "Home",
+      "fr": "Accueil",
+      "file": "components/Header.tsx",
+      "line": 170
+    },
+    {
+      "key": "Header.tsx.Header.how_credits_work",
+      "en": "How Credits Work",
+      "fr": "Comment fonctionnent les crédits",
+      "file": "components/Header.tsx",
+      "line": 188
+    },
+    {
+      "key": "Header.tsx.Header.help_faq",
+      "en": "Help & FAQ",
+      "fr": "Aide & FAQ",
+      "file": "components/Header.tsx",
+      "line": 197
+    },
+    {
+      "key": "Header.tsx.Header.my_account",
+      "en": "My Account",
+      "fr": "Mon Compte",
+      "file": "components/Header.tsx",
+      "line": 207
+    },
+    {
+      "key": "Header.tsx.Header.sign_in_2",
+      "en": "Sign In",
+      "fr": "Connexion",
+      "file": "components/Header.tsx",
+      "line": 245
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.daily_horoscope",
+      "en": "Daily Horoscope",
+      "fr": "Horoscope du Jour",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 398
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.ask_the_stars",
+      "en": "Ask the Stars",
+      "fr": "Interrogez les Étoiles",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 422
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.suggested_questions",
+      "en": "Suggested questions:",
+      "fr": "Questions suggérées:",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 429
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.you",
+      "en": "You",
+      "fr": "Vous",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 462
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.the_stars",
+      "en": "The Stars",
+      "fr": "Les Étoiles",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 463
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.the_stars_2",
+      "en": "The Stars",
+      "fr": "Les Étoiles",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 481
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.consulting_the_cosmos",
+      "en": "Consulting the cosmos...",
+      "fr": "Consultation du cosmos...",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 485
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.ask_about_planetary",
+      "en": "Ask about planetary influences, moon phases, or your forecast...",
+      "fr": "Posez une question sur les influences planétaires, les phases lunaires...",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 511
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.choose_another_sign",
+      "en": "Choose another sign",
+      "fr": "Choisir un autre signe",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 527
+    },
+    {
+      "key": "HoroscopeReading.tsx.HoroscopeReading.select_your_zodiac",
+      "en": "Select Your Zodiac Sign",
+      "fr": "Sélectionnez Votre Signe du Zodiaque",
+      "file": "components/HoroscopeReading.tsx",
+      "line": 537
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.verifying_your_payment",
+      "en": "Verifying your payment...",
+      "fr": "Vérification de votre paiement...",
+      "file": "components/PaymentResult.tsx",
+      "line": 95
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.payment_cancelled",
+      "en": "Payment Cancelled",
+      "fr": "Paiement Annulé",
+      "file": "components/PaymentResult.tsx",
+      "line": 118
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.back_to_profile",
+      "en": "Back to Profile",
+      "fr": "Retour au Profil",
+      "file": "components/PaymentResult.tsx",
+      "line": 130
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.go_home",
+      "en": "Go Home",
+      "fr": "Accueil",
+      "file": "components/PaymentResult.tsx",
+      "line": 135
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.payment_successful",
+      "en": "Payment Successful!",
+      "fr": "Paiement Réussi !",
+      "file": "components/PaymentResult.tsx",
+      "line": 169
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.credits_added",
+      "en": "Credits Added",
+      "fr": "Crédits Ajoutés",
+      "file": "components/PaymentResult.tsx",
+      "line": 182
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.view_profile",
+      "en": "View Profile",
+      "fr": "Voir le Profil",
+      "file": "components/PaymentResult.tsx",
+      "line": 215
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.start_reading",
+      "en": "Start Reading",
+      "fr": "Commencer une Lecture",
+      "file": "components/PaymentResult.tsx",
+      "line": 220
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.payment_failed",
+      "en": "Payment Failed",
+      "fr": "Paiement Échoué",
+      "file": "components/PaymentResult.tsx",
+      "line": 236
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.back_to_profile_2",
+      "en": "Back to Profile",
+      "fr": "Retour au Profil",
+      "file": "components/PaymentResult.tsx",
+      "line": 248
+    },
+    {
+      "key": "PaymentResult.tsx.PaymentResult.go_home_2",
+      "en": "Go Home",
+      "fr": "Accueil",
+      "file": "components/PaymentResult.tsx",
+      "line": 253
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.long_question_detected",
+      "en": "Long Question Detected",
+      "fr": "Question Longue Détectée",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 63
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.your_question",
+      "en": "Your question:",
+      "fr": "Votre question:",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 78
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.characters",
+      "en": "characters",
+      "fr": "caractères",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 86
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.limit_is_500",
+      "en": "limit is 500 for free",
+      "fr": "limite de 500 pour gratuit",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 89
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.your_balance",
+      "en": "Your balance:",
+      "fr": "Votre solde:",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 99
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 103
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.edit_your_question",
+      "en": "Edit your question manually",
+      "fr": "Modifier votre question manuellement",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 129
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.free",
+      "en": "Free",
+      "fr": "Gratuit",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 133
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.ai_rewrite",
+      "en": "AI rewrite",
+      "fr": "Réécriture IA",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 152
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.credit",
+      "en": "credit",
+      "fr": "crédit",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 161
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.use_full_question",
+      "en": "Use full question",
+      "fr": "Utiliser la question complète",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 177
+    },
+    {
+      "key": "QuestionLengthModal.tsx.QuestionLengthModal.credit_2",
+      "en": "credit",
+      "fr": "crédit",
+      "file": "components/QuestionLengthModal.tsx",
+      "line": 186
+    },
+    {
+      "key": "ReadingModeSelector.tsx.ReadingModeSelector.choose_your_reading",
+      "en": "Choose Your Reading",
+      "fr": "Choisissez Votre Lecture",
+      "file": "components/ReadingModeSelector.tsx",
+      "line": 43
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.spent",
+      "en": "Spent",
+      "fr": "Dépensé",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 108
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.no_limit",
+      "en": "No limit",
+      "fr": "Pas de limite",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 163
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.custom_amount",
+      "en": "Custom amount",
+      "fr": "Montant personnalisé",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 171
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.set",
+      "en": "Set",
+      "fr": "Définir",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 184
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.responsible_play",
+      "en": "Responsible Play",
+      "fr": "Jeu Responsable",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 222
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.manage_your_spending",
+      "en": "Manage your spending limits",
+      "fr": "Gérez vos limites de dépenses",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 225
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.selfexclusion_active",
+      "en": "Self-Exclusion Active",
+      "fr": "Auto-exclusion Active",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 263
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.purchases_paused_until",
+      "en": "Purchases paused until",
+      "fr": "Achats suspendus jusqu'au",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 267
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.purchases_paused_indefinitely",
+      "en": "Purchases paused indefinitely",
+      "fr": "Achats suspendus indéfiniment",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 268
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.spending_limits",
+      "en": "Spending Limits",
+      "fr": "Limites de Dépenses",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 284
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.daily_limit",
+      "en": "Daily Limit",
+      "fr": "Limite Quotidienne",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 304
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.weekly_limit",
+      "en": "Weekly Limit",
+      "fr": "Limite Hebdomadaire",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 306
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.monthly_limit",
+      "en": "Monthly Limit",
+      "fr": "Limite Mensuelle",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 309
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.take_a_break",
+      "en": "Take a Break",
+      "fr": "Faire une Pause",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 325
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 372
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.yes_take_a",
+      "en": "Yes, take a break",
+      "fr": "Oui, faire une pause",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 375
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.enable_break",
+      "en": "Enable Break",
+      "fr": "Activer la Pause",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 385
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.break_is_active",
+      "en": "Break is active.",
+      "fr": "La pause est active.",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 392
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.ends",
+      "en": "Ends",
+      "fr": "Fin",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 396
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.history_resources",
+      "en": "History & Resources",
+      "fr": "Historique & Ressources",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 414
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.export_spending_history",
+      "en": "Export Spending History",
+      "fr": "Exporter l'Historique",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 435
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.support_resources",
+      "en": "Support Resources",
+      "fr": "Ressources de Soutien",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 441
+    },
+    {
+      "key": "SpendingLimitsSettings.tsx.SpendingLimitsSettings.done",
+      "en": "Done",
+      "fr": "Terminé",
+      "file": "components/SpendingLimitsSettings.tsx",
+      "line": 475
+    },
+    {
+      "key": "SpreadSelector.tsx.SpreadSelector.choose_your_spread",
+      "en": "Choose Your Spread",
+      "fr": "Choisissez Votre Tirage",
+      "file": "components/SpreadSelector.tsx",
+      "line": 289
+    },
+    {
+      "key": "SpreadSelector.tsx.SpreadSelector.cards",
+      "en": "Cards",
+      "fr": "Cartes",
+      "file": "components/SpreadSelector.tsx",
+      "line": 354
+    },
+    {
+      "key": "SpreadSelector.tsx.SpreadSelector.cost",
+      "en": "Cost",
+      "fr": "Coût",
+      "file": "components/SpreadSelector.tsx",
+      "line": 368
+    },
+    {
+      "key": "SpreadSelector.tsx.SpreadSelector.insufficient_credits",
+      "en": "Insufficient Credits",
+      "fr": "Crédits Insuffisants",
+      "file": "components/SpreadSelector.tsx",
+      "line": 385
+    },
+    {
+      "key": "SpreadSelector.tsx.SpreadSelector.buy_credits",
+      "en": "Buy Credits",
+      "fr": "Acheter des Crédits",
+      "file": "components/SpreadSelector.tsx",
+      "line": 392
+    },
+    {
+      "key": "SubNav.tsx.SubNav.soon",
+      "en": "Soon",
+      "fr": "Bientôt",
+      "file": "components/SubNav.tsx",
+      "line": 257
+    },
+    {
+      "key": "SubNav.tsx.SubNav.tarot_readings",
+      "en": "Tarot Readings",
+      "fr": "Tirages Tarot",
+      "file": "components/SubNav.tsx",
+      "line": 338
+    },
+    {
+      "key": "SubNav.tsx.SubNav.coming_soon",
+      "en": "Coming Soon",
+      "fr": "Bientôt",
+      "file": "components/SubNav.tsx",
+      "line": 374
+    },
+    {
+      "key": "SubNav.tsx.SubNav.learn",
+      "en": "Learn",
+      "fr": "Découvrir",
+      "file": "components/SubNav.tsx",
+      "line": 399
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.article_not_found",
+      "en": "Article Not Found",
+      "fr": "Article Non Trouvé",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 139
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.back",
+      "en": "Back",
+      "fr": "Retour",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 147
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.back_2",
+      "en": "Back",
+      "fr": "Retour",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 221
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 260
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.court_card",
+      "en": "Court Card",
+      "fr": "Carte de Cour",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 284
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.related_topics",
+      "en": "Related Topics",
+      "fr": "Sujets Connexes",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 338
+    },
+    {
+      "key": "TarotArticlePage.tsx.TarotArticlePage.related_cards",
+      "en": "Related Cards",
+      "fr": "Cartes Liées",
+      "file": "components/TarotArticlePage.tsx",
+      "line": 362
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.loading_articles",
+      "en": "Loading articles...",
+      "fr": "Chargement des articles...",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 94
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.try_again",
+      "en": "Try Again",
+      "fr": "Réessayer",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 111
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.tarot_card_meanings",
+      "en": "Tarot Card Meanings",
+      "fr": "Significations des Cartes de Tarot",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 123
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.search_articles",
+      "en": "Search articles...",
+      "fr": "Rechercher des articles...",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 140
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.all_cards",
+      "en": "All Cards",
+      "fr": "Toutes les Cartes",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 154
+    },
+    {
+      "key": "TarotArticlesList.tsx.TarotArticlesList.no_articles_found",
+      "en": "No articles found",
+      "fr": "Aucun article trouvé",
+      "file": "components/TarotArticlesList.tsx",
+      "line": 175
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.failed_to_load",
+      "en": "Failed to load history",
+      "fr": "Échec du chargement",
+      "file": "components/UserProfile.tsx",
+      "line": 66
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.member_since",
+      "en": "Member since",
+      "fr": "Membre depuis",
+      "file": "components/UserProfile.tsx",
+      "line": 260
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.credits",
+      "en": "Credits",
+      "fr": "Crédits",
+      "file": "components/UserProfile.tsx",
+      "line": 271
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.day_streak",
+      "en": "Day Streak",
+      "fr": "Jours consécutifs",
+      "file": "components/UserProfile.tsx",
+      "line": 287
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.readings",
+      "en": "Readings",
+      "fr": "Lectures",
+      "file": "components/UserProfile.tsx",
+      "line": 294
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.achievements",
+      "en": "Achievements",
+      "fr": "Succès",
+      "file": "components/UserProfile.tsx",
+      "line": 301
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.referral_code",
+      "en": "Referral Code",
+      "fr": "Code Parrainage",
+      "file": "components/UserProfile.tsx",
+      "line": 320
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.share_both_get",
+      "en": "Share & both get +5 credits",
+      "fr": "Partagez et gagnez +5 crédits chacun",
+      "file": "components/UserProfile.tsx",
+      "line": 323
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.achievements_2",
+      "en": "Achievements",
+      "fr": "Succès",
+      "file": "components/UserProfile.tsx",
+      "line": 384
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.reading_history",
+      "en": "Reading History",
+      "fr": "Historique des Lectures",
+      "file": "components/UserProfile.tsx",
+      "line": 415
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.loading",
+      "en": "Loading...",
+      "fr": "Chargement...",
+      "file": "components/UserProfile.tsx",
+      "line": 439
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.credit_history",
+      "en": "Credit History",
+      "fr": "Historique des Crédits",
+      "file": "components/UserProfile.tsx",
+      "line": 477
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.low_on_credits",
+      "en": "Low on Credits",
+      "fr": "Crédits faibles",
+      "file": "components/UserProfile.tsx",
+      "line": 492
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.get_credits",
+      "en": "Get Credits",
+      "fr": "Obtenir des crédits",
+      "file": "components/UserProfile.tsx",
+      "line": 507
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.purchased",
+      "en": "Purchased",
+      "fr": "Achetés",
+      "file": "components/UserProfile.tsx",
+      "line": 531
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.earned",
+      "en": "Earned",
+      "fr": "Gagnés",
+      "file": "components/UserProfile.tsx",
+      "line": 535
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.spent",
+      "en": "Spent",
+      "fr": "Dépensés",
+      "file": "components/UserProfile.tsx",
+      "line": 539
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.loading_2",
+      "en": "Loading...",
+      "fr": "Chargement...",
+      "file": "components/UserProfile.tsx",
+      "line": 549
+    },
+    {
+      "key": "UserProfile.tsx.UserProfile.log_out",
+      "en": "Log Out",
+      "fr": "Déconnexion",
+      "file": "components/UserProfile.tsx",
+      "line": 587
+    },
+    {
+      "key": "admin.AdminAnalytics.analytics",
+      "en": "Analytics",
+      "fr": "Analytique",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 54
+    },
+    {
+      "key": "admin.AdminAnalytics.readings_last_7",
+      "en": "Readings (Last 7 Days)",
+      "fr": "Lectures (7 Derniers Jours)",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 67
+    },
+    {
+      "key": "admin.AdminAnalytics.most_active_users",
+      "en": "Most Active Users",
+      "fr": "Utilisateurs les Plus Actifs",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 100
+    },
+    {
+      "key": "admin.AdminAnalytics.no_data_yet",
+      "en": "No data yet",
+      "fr": "Pas de donnees",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 104
+    },
+    {
+      "key": "admin.AdminAnalytics.readings",
+      "en": "readings",
+      "fr": "lectures",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 126
+    },
+    {
+      "key": "admin.AdminAnalytics.top_credit_holders",
+      "en": "Top Credit Holders",
+      "fr": "Top Detenteurs de Credits",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 144
+    },
+    {
+      "key": "admin.AdminAnalytics.no_users_yet",
+      "en": "No users yet",
+      "fr": "Pas d'utilisateurs",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 148
+    },
+    {
+      "key": "admin.AdminAnalytics.longest_login_streaks",
+      "en": "Longest Login Streaks",
+      "fr": "Plus Longues Series de Connexion",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 171
+    },
+    {
+      "key": "admin.AdminAnalytics.no_users_yet_2",
+      "en": "No users yet",
+      "fr": "Pas d'utilisateurs",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 175
+    },
+    {
+      "key": "admin.AdminAnalytics.days",
+      "en": "days",
+      "fr": "jours",
+      "file": "components/admin/AdminAnalytics.tsx",
+      "line": 182
+    },
+    {
+      "key": "admin.AdminBlog.posts",
+      "en": "Posts",
+      "fr": "Articles",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 80
+    },
+    {
+      "key": "admin.AdminBlog.categories",
+      "en": "Categories",
+      "fr": "Categories",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 83
+    },
+    {
+      "key": "admin.AdminBlog.tags",
+      "en": "Tags",
+      "fr": "Tags",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 86
+    },
+    {
+      "key": "admin.AdminBlog.media",
+      "en": "Media",
+      "fr": "Medias",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 87
+    },
+    {
+      "key": "admin.AdminBlog.trash",
+      "en": "Trash",
+      "fr": "Corbeille",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 90
+    },
+    {
+      "key": "admin.AdminBlog.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 204
+    },
+    {
+      "key": "admin.AdminBlog.confirm",
+      "en": "Confirm",
+      "fr": "Confirmer",
+      "file": "components/admin/AdminBlog.tsx",
+      "line": 217
+    },
+    {
+      "key": "admin.AdminCache.purge_all_cache",
+      "en": "Purge all cache?",
+      "fr": "Vider tout le cache?",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 43
+    },
+    {
+      "key": "admin.AdminCache.cache_purged_successfully",
+      "en": "Cache purged successfully",
+      "fr": "Cache vide avec succes",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 54
+    },
+    {
+      "key": "admin.AdminCache.failed_to_purge",
+      "en": "Failed to purge cache",
+      "fr": "Echec du vidage du cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 57
+    },
+    {
+      "key": "admin.AdminCache.failed_to_purge_2",
+      "en": "Failed to purge cache",
+      "fr": "Echec du vidage du cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 60
+    },
+    {
+      "key": "admin.AdminCache.never",
+      "en": "Never",
+      "fr": "Jamais",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 72
+    },
+    {
+      "key": "admin.AdminCache.just_now",
+      "en": "Just now",
+      "fr": "A l'instant",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 80
+    },
+    {
+      "key": "admin.AdminCache.diffmins_min_ago",
+      "en": "${diffMins} min ago",
+      "fr": "Il y a ${diffMins} min",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 81
+    },
+    {
+      "key": "admin.AdminCache.diffhours_hours_ago",
+      "en": "${diffHours} hours ago",
+      "fr": "Il y a ${diffHours} heures",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 82
+    },
+    {
+      "key": "admin.AdminCache.diffdays_days_ago",
+      "en": "${diffDays} days ago",
+      "fr": "Il y a ${diffDays} jours",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 83
+    },
+    {
+      "key": "admin.AdminCache.cache_management",
+      "en": "Cache Management",
+      "fr": "Gestion du Cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 100
+    },
+    {
+      "key": "admin.AdminCache.refresh",
+      "en": "Refresh",
+      "fr": "Actualiser",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 105
+    },
+    {
+      "key": "admin.AdminCache.cached_items",
+      "en": "Cached Items",
+      "fr": "Elements en cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 122
+    },
+    {
+      "key": "admin.AdminCache.hit_rate",
+      "en": "Hit Rate",
+      "fr": "Taux de succes",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 126
+    },
+    {
+      "key": "admin.AdminCache.memory_usage",
+      "en": "Memory Usage",
+      "fr": "Utilisation memoire",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 130
+    },
+    {
+      "key": "admin.AdminCache.cache_breakdown",
+      "en": "Cache Breakdown",
+      "fr": "Repartition du cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 138
+    },
+    {
+      "key": "admin.AdminCache.items",
+      "en": "items",
+      "fr": "elements",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 144
+    },
+    {
+      "key": "admin.AdminCache.purge_all_cache_2",
+      "en": "Purge All Cache",
+      "fr": "Vider tout le cache",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 163
+    },
+    {
+      "key": "admin.AdminCache.last_purged",
+      "en": "Last purged:",
+      "fr": "Dernier vidage:",
+      "file": "components/admin/AdminCache.tsx",
+      "line": 166
+    },
+    {
+      "key": "admin.AdminDashboard.admin_dashboard",
+      "en": "Admin Dashboard",
+      "fr": "Tableau de Bord Admin",
+      "file": "components/admin/AdminDashboard.tsx",
+      "line": 66
+    },
+    {
+      "key": "admin.AdminDebug.debug_tools",
+      "en": "Debug Tools",
+      "fr": "Outils de Débogage",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 89
+    },
+    {
+      "key": "admin.AdminDebug.credit_management",
+      "en": "Credit Management",
+      "fr": "Gestion des Crédits",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 122
+    },
+    {
+      "key": "admin.AdminDebug.current_balance",
+      "en": "Current Balance",
+      "fr": "Solde Actuel",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 128
+    },
+    {
+      "key": "admin.AdminDebug.ai_debug_mode",
+      "en": "AI Debug Mode",
+      "fr": "Mode Debug IA",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 168
+    },
+    {
+      "key": "admin.AdminDebug.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 182
+    },
+    {
+      "key": "admin.AdminDebug.mock_mode_active",
+      "en": "Mock Mode Active",
+      "fr": "Mode Fictif Actif",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 186
+    },
+    {
+      "key": "admin.AdminDebug.using_openrouter",
+      "en": "Using OpenRouter",
+      "fr": "Utilisation d'OpenRouter",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 187
+    },
+    {
+      "key": "admin.AdminDebug.disable_debug_mode",
+      "en": "Disable Debug Mode",
+      "fr": "Désactiver le Mode Debug",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 204
+    },
+    {
+      "key": "admin.AdminDebug.enable_debug_mode",
+      "en": "Enable Debug Mode",
+      "fr": "Activer le Mode Debug",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 205
+    },
+    {
+      "key": "admin.AdminDebug.environment_info",
+      "en": "Environment Info",
+      "fr": "Info Environnement",
+      "file": "components/admin/AdminDebug.tsx",
+      "line": 227
+    },
+    {
+      "key": "admin.AdminEmailTemplates.delete_this_template",
+      "en": "Delete this template?",
+      "fr": "Supprimer ce modele?",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 101
+    },
+    {
+      "key": "admin.AdminEmailTemplates.active",
+      "en": "Active",
+      "fr": "Actif",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 196
+    },
+    {
+      "key": "admin.AdminEmailTemplates.create",
+      "en": "Create",
+      "fr": "Creer",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 257
+    },
+    {
+      "key": "admin.AdminEmailTemplates.save",
+      "en": "Save",
+      "fr": "Sauvegarder",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 257
+    },
+    {
+      "key": "admin.AdminEmailTemplates.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 264
+    },
+    {
+      "key": "admin.AdminEmailTemplates.email_templates",
+      "en": "Email Templates",
+      "fr": "Modeles d'Email",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 277
+    },
+    {
+      "key": "admin.AdminEmailTemplates.brevo_connected",
+      "en": "Brevo connected",
+      "fr": "Brevo connecte",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 281
+    },
+    {
+      "key": "admin.AdminEmailTemplates.brevo_not_configured",
+      "en": "Brevo not configured",
+      "fr": "Brevo non configure",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 282
+    },
+    {
+      "key": "admin.AdminEmailTemplates.add_template",
+      "en": "Add Template",
+      "fr": "Ajouter Modele",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 292
+    },
+    {
+      "key": "admin.AdminEmailTemplates.no_templates_yet",
+      "en": "No templates yet.",
+      "fr": "Aucun modèle.",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 316
+    },
+    {
+      "key": "admin.AdminEmailTemplates.loading",
+      "en": "Loading...",
+      "fr": "Chargement...",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 325
+    },
+    {
+      "key": "admin.AdminEmailTemplates.load_default_templates",
+      "en": "Load Default Templates",
+      "fr": "Charger les modèles par défaut",
+      "file": "components/admin/AdminEmailTemplates.tsx",
+      "line": 326
+    },
+    {
+      "key": "admin.AdminHealth.clear_all_error",
+      "en": "Clear all error logs?",
+      "fr": "Effacer tous les logs d'erreur?",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 89
+    },
+    {
+      "key": "admin.AdminHealth.operational",
+      "en": "Operational",
+      "fr": "Operationnel",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 149
+    },
+    {
+      "key": "admin.AdminHealth.error",
+      "en": "Error",
+      "fr": "Erreur",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 151
+    },
+    {
+      "key": "admin.AdminHealth.not_configured",
+      "en": "Not Configured",
+      "fr": "Non configure",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 153
+    },
+    {
+      "key": "admin.AdminHealth.system_health",
+      "en": "System Health",
+      "fr": "Sante du Systeme",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 196
+    },
+    {
+      "key": "admin.AdminHealth.refresh",
+      "en": "Refresh",
+      "fr": "Actualiser",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 217
+    },
+    {
+      "key": "admin.AdminHealth.overall_status",
+      "en": "Overall Status",
+      "fr": "Statut General",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 231
+    },
+    {
+      "key": "admin.AdminHealth.healthy",
+      "en": "Healthy",
+      "fr": "Sain",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 238
+    },
+    {
+      "key": "admin.AdminHealth.partial",
+      "en": "Partial",
+      "fr": "Partiel",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 239
+    },
+    {
+      "key": "admin.AdminHealth.degraded",
+      "en": "Degraded",
+      "fr": "Degrade",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 240
+    },
+    {
+      "key": "admin.AdminHealth.services",
+      "en": "services",
+      "fr": "services",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 243
+    },
+    {
+      "key": "admin.AdminHealth.last_checked",
+      "en": "Last checked",
+      "fr": "Derniere verification",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 249
+    },
+    {
+      "key": "admin.AdminHealth.error_log",
+      "en": "Error Log",
+      "fr": "Journal des erreurs",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 312
+    },
+    {
+      "key": "admin.AdminHealth.all_levels",
+      "en": "All Levels",
+      "fr": "Tous les niveaux",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 329
+    },
+    {
+      "key": "admin.AdminHealth.errors",
+      "en": "Errors",
+      "fr": "Erreurs",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 330
+    },
+    {
+      "key": "admin.AdminHealth.warnings",
+      "en": "Warnings",
+      "fr": "Avertissements",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 331
+    },
+    {
+      "key": "admin.AdminHealth.clear_logs",
+      "en": "Clear logs",
+      "fr": "Effacer les logs",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 338
+    },
+    {
+      "key": "admin.AdminHealth.no_errors_logged",
+      "en": "No errors logged",
+      "fr": "Aucune erreur enregistree",
+      "file": "components/admin/AdminHealth.tsx",
+      "line": 364
+    },
+    {
+      "key": "admin.AdminOverview.revenue_last_30",
+      "en": "Revenue (Last 30 Days)",
+      "fr": "Revenus (30 derniers jours)",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 141
+    },
+    {
+      "key": "admin.AdminOverview.revenue",
+      "en": "Revenue",
+      "fr": "Revenus",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 145
+    },
+    {
+      "key": "admin.AdminOverview.transactions",
+      "en": "Transactions",
+      "fr": "Transactions",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 149
+    },
+    {
+      "key": "admin.AdminOverview.by_provider",
+      "en": "By Provider",
+      "fr": "Par fournisseur",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 153
+    },
+    {
+      "key": "admin.AdminOverview.readings_by_spread",
+      "en": "Readings by Spread Type",
+      "fr": "Lectures par type",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 171
+    },
+    {
+      "key": "admin.AdminOverview.no_readings_yet",
+      "en": "No readings yet",
+      "fr": "Pas encore de lectures",
+      "file": "components/admin/AdminOverview.tsx",
+      "line": 192
+    },
+    {
+      "key": "admin.AdminPackages.active",
+      "en": "Active",
+      "fr": "Actif",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 161
+    },
+    {
+      "key": "admin.AdminPackages.create",
+      "en": "Create",
+      "fr": "Creer",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 172
+    },
+    {
+      "key": "admin.AdminPackages.save",
+      "en": "Save",
+      "fr": "Sauvegarder",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 172
+    },
+    {
+      "key": "admin.AdminPackages.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 179
+    },
+    {
+      "key": "admin.AdminPackages.delete_this_package",
+      "en": "Delete this package?",
+      "fr": "Supprimer ce forfait?",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 264
+    },
+    {
+      "key": "admin.AdminPackages.credit_packages",
+      "en": "Credit Packages",
+      "fr": "Forfaits de Credits",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 345
+    },
+    {
+      "key": "admin.AdminPackages.add_package",
+      "en": "Add Package",
+      "fr": "Ajouter Forfait",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 354
+    },
+    {
+      "key": "admin.AdminPackages.no_packages_yet",
+      "en": "No packages yet.",
+      "fr": "Aucun forfait.",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 380
+    },
+    {
+      "key": "admin.AdminPackages.loading",
+      "en": "Loading...",
+      "fr": "Chargement...",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 389
+    },
+    {
+      "key": "admin.AdminPackages.load_default_packages",
+      "en": "Load Default Packages",
+      "fr": "Charger les forfaits par défaut",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 390
+    },
+    {
+      "key": "admin.AdminPackages.credits",
+      "en": "credits",
+      "fr": "credits",
+      "file": "components/admin/AdminPackages.tsx",
+      "line": 420
+    },
+    {
+      "key": "admin.AdminPrompts.prompt_content",
+      "en": "Prompt Content",
+      "fr": "Contenu du Prompt",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 133
+    },
+    {
+      "key": "admin.AdminPrompts.available_variables",
+      "en": "Available Variables:",
+      "fr": "Variables Disponibles:",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 148
+    },
+    {
+      "key": "admin.AdminPrompts.characters",
+      "en": "Characters:",
+      "fr": "Caractères:",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 162
+    },
+    {
+      "key": "admin.AdminPrompts.minimum_50_required",
+      "en": "Minimum 50 required",
+      "fr": "Minimum 50 requis",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 165
+    },
+    {
+      "key": "admin.AdminPrompts.maximum_10000",
+      "en": "Maximum 10,000",
+      "fr": "Maximum 10 000",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 170
+    },
+    {
+      "key": "admin.AdminPrompts.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 196
+    },
+    {
+      "key": "admin.AdminPrompts.reset_to_default",
+      "en": "Reset to Default",
+      "fr": "Réinitialiser",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 204
+    },
+    {
+      "key": "admin.AdminPrompts.ai_prompts",
+      "en": "AI Prompts",
+      "fr": "Prompts IA",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 217
+    },
+    {
+      "key": "admin.AdminPrompts.tarot_prompts",
+      "en": "Tarot Prompts",
+      "fr": "Prompts Tarot",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 237
+    },
+    {
+      "key": "admin.AdminPrompts.no_prompts_yet",
+      "en": "No prompts yet.",
+      "fr": "Aucun prompt.",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 243
+    },
+    {
+      "key": "admin.AdminPrompts.base_template",
+      "en": "Base Template",
+      "fr": "Modèle de Base",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 277
+    },
+    {
+      "key": "admin.AdminPrompts.custom",
+      "en": "Custom",
+      "fr": "Personnalisé",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 282
+    },
+    {
+      "key": "admin.AdminPrompts.horoscope_prompts",
+      "en": "Horoscope Prompts",
+      "fr": "Prompts Horoscope",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 309
+    },
+    {
+      "key": "admin.AdminPrompts.custom_2",
+      "en": "Custom",
+      "fr": "Personnalisé",
+      "file": "components/admin/AdminPrompts.tsx",
+      "line": 327
+    },
+    {
+      "key": "admin.AdminSettings.api_keys_settings",
+      "en": "API Keys & Settings",
+      "fr": "Clés API & Paramètres",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 173
+    },
+    {
+      "key": "admin.AdminSettings.not_set",
+      "en": "Not set",
+      "fr": "Non défini",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 244
+    },
+    {
+      "key": "admin.AdminSettings.edit",
+      "en": "Edit",
+      "fr": "Modifier",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 252
+    },
+    {
+      "key": "admin.AdminSettings.service_dashboards",
+      "en": "Service Dashboards",
+      "fr": "Tableaux de Bord",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 282
+    },
+    {
+      "key": "admin.AdminSettings.revenue_export",
+      "en": "Revenue Export",
+      "fr": "Export des Revenus",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 366
+    },
+    {
+      "key": "admin.AdminSettings.ai_configuration",
+      "en": "AI Configuration",
+      "fr": "Configuration IA",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 419
+    },
+    {
+      "key": "admin.AdminSettings.provider",
+      "en": "Provider",
+      "fr": "Fournisseur",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 433
+    },
+    {
+      "key": "admin.AdminSettings.model",
+      "en": "Model",
+      "fr": "Modèle",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 439
+    },
+    {
+      "key": "admin.AdminSettings.api_key_status",
+      "en": "API Key Status",
+      "fr": "Statut Clé API",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 445
+    },
+    {
+      "key": "admin.AdminSettings.configured",
+      "en": "Configured",
+      "fr": "Configuré",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 452
+    },
+    {
+      "key": "admin.AdminSettings.not_set_2",
+      "en": "Not Set",
+      "fr": "Non configuré",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 459
+    },
+    {
+      "key": "admin.AdminSettings.system_information",
+      "en": "System Information",
+      "fr": "Informations Système",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 479
+    },
+    {
+      "key": "admin.AdminSettings.authentication",
+      "en": "Authentication",
+      "fr": "Authentification",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 493
+    },
+    {
+      "key": "admin.AdminSettings.payments",
+      "en": "Payments",
+      "fr": "Paiements",
+      "file": "components/admin/AdminSettings.tsx",
+      "line": 499
+    },
+    {
+      "key": "admin.AdminTarotArticles.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 90
+    },
+    {
+      "key": "admin.AdminTarotArticles.draft",
+      "en": "Draft",
+      "fr": "Brouillon",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 108
+    },
+    {
+      "key": "admin.AdminTarotArticles.published",
+      "en": "Published",
+      "fr": "Publié",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 109
+    },
+    {
+      "key": "admin.AdminTarotArticles.archived",
+      "en": "Archived",
+      "fr": "Archivé",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 110
+    },
+    {
+      "key": "admin.AdminTarotArticles.move_to_trash",
+      "en": "Move to Trash?",
+      "fr": "Déplacer vers la corbeille?",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 224
+    },
+    {
+      "key": "admin.AdminTarotArticles.permanently_delete",
+      "en": "Permanently Delete?",
+      "fr": "Supprimer définitivement?",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 276
+    },
+    {
+      "key": "admin.AdminTarotArticles.empty_trash",
+      "en": "Empty Trash?",
+      "fr": "Vider la corbeille?",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 307
+    },
+    {
+      "key": "admin.AdminTarotArticles.articles",
+      "en": "Articles",
+      "fr": "Articles",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 367
+    },
+    {
+      "key": "admin.AdminTarotArticles.categories",
+      "en": "Categories",
+      "fr": "Catégories",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 379
+    },
+    {
+      "key": "admin.AdminTarotArticles.media",
+      "en": "Media",
+      "fr": "Médias",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 397
+    },
+    {
+      "key": "admin.AdminTarotArticles.trash",
+      "en": "Trash",
+      "fr": "Corbeille",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 406
+    },
+    {
+      "key": "admin.AdminTarotArticles.search_by_title",
+      "en": "Search by title or slug...",
+      "fr": "Rechercher par titre ou slug...",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 424
+    },
+    {
+      "key": "admin.AdminTarotArticles.all_types",
+      "en": "All Types",
+      "fr": "Tous les types",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 436
+    },
+    {
+      "key": "admin.AdminTarotArticles.all_status",
+      "en": "All Status",
+      "fr": "Tous les statuts",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 449
+    },
+    {
+      "key": "admin.AdminTarotArticles.draft_2",
+      "en": "Draft",
+      "fr": "Brouillon",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 450
+    },
+    {
+      "key": "admin.AdminTarotArticles.published_2",
+      "en": "Published",
+      "fr": "Publié",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 451
+    },
+    {
+      "key": "admin.AdminTarotArticles.archived_2",
+      "en": "Archived",
+      "fr": "Archivé",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 452
+    },
+    {
+      "key": "admin.AdminTarotArticles.import_json",
+      "en": "Import JSON",
+      "fr": "Importer JSON",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 460
+    },
+    {
+      "key": "admin.AdminTarotArticles.article",
+      "en": "Article",
+      "fr": "Article",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 475
+    },
+    {
+      "key": "admin.AdminTarotArticles.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 476
+    },
+    {
+      "key": "admin.AdminTarotArticles.stats",
+      "en": "Stats",
+      "fr": "Stats",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 477
+    },
+    {
+      "key": "admin.AdminTarotArticles.actions",
+      "en": "Actions",
+      "fr": "Actions",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 478
+    },
+    {
+      "key": "admin.AdminTarotArticles.no_articles_yet",
+      "en": "No articles yet. Import your first article!",
+      "fr": "Aucun article. Importez votre premier article!",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 485
+    },
+    {
+      "key": "admin.AdminTarotArticles.view",
+      "en": "View",
+      "fr": "Voir",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 547
+    },
+    {
+      "key": "admin.AdminTarotArticles.preview",
+      "en": "Preview",
+      "fr": "Aperçu",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 547
+    },
+    {
+      "key": "admin.AdminTarotArticles.edit",
+      "en": "Edit",
+      "fr": "Modifier",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 554
+    },
+    {
+      "key": "admin.AdminTarotArticles.unpublish",
+      "en": "Unpublish",
+      "fr": "Dépublier",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 566
+    },
+    {
+      "key": "admin.AdminTarotArticles.publish",
+      "en": "Publish",
+      "fr": "Publier",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 566
+    },
+    {
+      "key": "admin.AdminTarotArticles.delete",
+      "en": "Delete",
+      "fr": "Supprimer",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 580
+    },
+    {
+      "key": "admin.AdminTarotArticles.empty_trash_2",
+      "en": "Empty Trash",
+      "fr": "Vider la corbeille",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 645
+    },
+    {
+      "key": "admin.AdminTarotArticles.trash_is_empty",
+      "en": "Trash is empty",
+      "fr": "La corbeille est vide",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 658
+    },
+    {
+      "key": "admin.AdminTarotArticles.deleted_articles_will",
+      "en": "Deleted articles will appear here",
+      "fr": "Les articles supprimés apparaîtront ici",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 661
+    },
+    {
+      "key": "admin.AdminTarotArticles.article_2",
+      "en": "Article",
+      "fr": "Article",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 670
+    },
+    {
+      "key": "admin.AdminTarotArticles.original_slug",
+      "en": "Original Slug",
+      "fr": "Slug original",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 671
+    },
+    {
+      "key": "admin.AdminTarotArticles.deleted",
+      "en": "Deleted",
+      "fr": "Supprimé",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 672
+    },
+    {
+      "key": "admin.AdminTarotArticles.actions_2",
+      "en": "Actions",
+      "fr": "Actions",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 673
+    },
+    {
+      "key": "admin.AdminTarotArticles.restore",
+      "en": "Restore",
+      "fr": "Restaurer",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 711
+    },
+    {
+      "key": "admin.AdminTarotArticles.restore_2",
+      "en": "Restore",
+      "fr": "Restaurer",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 715
+    },
+    {
+      "key": "admin.AdminTarotArticles.delete_permanently",
+      "en": "Delete permanently",
+      "fr": "Supprimer définitivement",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 720
+    },
+    {
+      "key": "admin.AdminTarotArticles.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 819
+    },
+    {
+      "key": "admin.AdminTarotArticles.confirm",
+      "en": "Confirm",
+      "fr": "Confirmer",
+      "file": "components/admin/AdminTarotArticles.tsx",
+      "line": 829
+    },
+    {
+      "key": "admin.AdminTransactions.revenue_export",
+      "en": "Revenue Export",
+      "fr": "Export des revenus",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 145
+    },
+    {
+      "key": "admin.AdminTransactions.download_monthly_revenue",
+      "en": "Download monthly revenue reports",
+      "fr": "Télécharger les rapports mensuels",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 148
+    },
+    {
+      "key": "admin.AdminTransactions.no_data_available",
+      "en": "No data available",
+      "fr": "Aucune donnée",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 161
+    },
+    {
+      "key": "admin.AdminTransactions.export_csv",
+      "en": "Export CSV",
+      "fr": "Exporter CSV",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 181
+    },
+    {
+      "key": "admin.AdminTransactions.all_types",
+      "en": "All Types",
+      "fr": "Tous les types",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 195
+    },
+    {
+      "key": "admin.AdminTransactions.purchases",
+      "en": "Purchases",
+      "fr": "Achats",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 196
+    },
+    {
+      "key": "admin.AdminTransactions.readings",
+      "en": "Readings",
+      "fr": "Lectures",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 197
+    },
+    {
+      "key": "admin.AdminTransactions.daily_bonus",
+      "en": "Daily Bonus",
+      "fr": "Bonus quotidien",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 198
+    },
+    {
+      "key": "admin.AdminTransactions.achievements",
+      "en": "Achievements",
+      "fr": "Realisations",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 199
+    },
+    {
+      "key": "admin.AdminTransactions.referrals",
+      "en": "Referrals",
+      "fr": "Parrainages",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 200
+    },
+    {
+      "key": "admin.AdminTransactions.refunds",
+      "en": "Refunds",
+      "fr": "Remboursements",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 201
+    },
+    {
+      "key": "admin.AdminTransactions.date",
+      "en": "Date",
+      "fr": "Date",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 224
+    },
+    {
+      "key": "admin.AdminTransactions.user",
+      "en": "User",
+      "fr": "Utilisateur",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 225
+    },
+    {
+      "key": "admin.AdminTransactions.type",
+      "en": "Type",
+      "fr": "Type",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 226
+    },
+    {
+      "key": "admin.AdminTransactions.description",
+      "en": "Description",
+      "fr": "Description",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 227
+    },
+    {
+      "key": "admin.AdminTransactions.amount",
+      "en": "Amount",
+      "fr": "Montant",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 228
+    },
+    {
+      "key": "admin.AdminTransactions.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 229
+    },
+    {
+      "key": "admin.AdminTransactions.no_transactions_found",
+      "en": "No transactions found",
+      "fr": "Aucune transaction trouvee",
+      "file": "components/admin/AdminTransactions.tsx",
+      "line": 236
+    },
+    {
+      "key": "admin.AdminUsers.search_users",
+      "en": "Search users...",
+      "fr": "Rechercher...",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 130
+    },
+    {
+      "key": "admin.AdminUsers.all_status",
+      "en": "All Status",
+      "fr": "Tous les statuts",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 140
+    },
+    {
+      "key": "admin.AdminUsers.active",
+      "en": "Active",
+      "fr": "Actif",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 141
+    },
+    {
+      "key": "admin.AdminUsers.flagged",
+      "en": "Flagged",
+      "fr": "Signalé",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 142
+    },
+    {
+      "key": "admin.AdminUsers.suspended",
+      "en": "Suspended",
+      "fr": "Suspendu",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 143
+    },
+    {
+      "key": "admin.AdminUsers.newest_first",
+      "en": "Newest First",
+      "fr": "Plus recents",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 156
+    },
+    {
+      "key": "admin.AdminUsers.oldest_first",
+      "en": "Oldest First",
+      "fr": "Plus anciens",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 157
+    },
+    {
+      "key": "admin.AdminUsers.most_credits",
+      "en": "Most Credits",
+      "fr": "Plus de credits",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 158
+    },
+    {
+      "key": "admin.AdminUsers.most_readings",
+      "en": "Most Readings",
+      "fr": "Plus de lectures",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 159
+    },
+    {
+      "key": "admin.AdminUsers.name_az",
+      "en": "Name A-Z",
+      "fr": "Nom A-Z",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 160
+    },
+    {
+      "key": "admin.AdminUsers.user",
+      "en": "User",
+      "fr": "Utilisateur",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 186
+    },
+    {
+      "key": "admin.AdminUsers.credits",
+      "en": "Credits",
+      "fr": "Credits",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 187
+    },
+    {
+      "key": "admin.AdminUsers.readings",
+      "en": "Readings",
+      "fr": "Lectures",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 188
+    },
+    {
+      "key": "admin.AdminUsers.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 189
+    },
+    {
+      "key": "admin.AdminUsers.joined",
+      "en": "Joined",
+      "fr": "Inscrit",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 190
+    },
+    {
+      "key": "admin.AdminUsers.actions",
+      "en": "Actions",
+      "fr": "Actions",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 191
+    },
+    {
+      "key": "admin.AdminUsers.no_users_found",
+      "en": "No users found",
+      "fr": "Aucun utilisateur trouve",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 198
+    },
+    {
+      "key": "admin.AdminUsers.adjust_credits",
+      "en": "Adjust credits",
+      "fr": "Ajuster credits",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 224
+    },
+    {
+      "key": "admin.AdminUsers.view_details",
+      "en": "View details",
+      "fr": "Voir details",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 244
+    },
+    {
+      "key": "admin.AdminUsers.suspend_user",
+      "en": "Suspend user",
+      "fr": "Suspendre",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 252
+    },
+    {
+      "key": "admin.AdminUsers.activate_user",
+      "en": "Activate user",
+      "fr": "Activer",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 260
+    },
+    {
+      "key": "admin.AdminUsers.remove_admin",
+      "en": "Remove admin",
+      "fr": "Retirer admin",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 268
+    },
+    {
+      "key": "admin.AdminUsers.make_admin",
+      "en": "Make admin",
+      "fr": "Rendre admin",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 268
+    },
+    {
+      "key": "admin.AdminUsers.adjust_credits_2",
+      "en": "Adjust Credits",
+      "fr": "Ajuster Credits",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 321
+    },
+    {
+      "key": "admin.AdminUsers.amount",
+      "en": "Amount (+/-)",
+      "fr": "Montant (+/-)",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 326
+    },
+    {
+      "key": "admin.AdminUsers.reason",
+      "en": "Reason",
+      "fr": "Raison",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 338
+    },
+    {
+      "key": "admin.AdminUsers.bonus_refund_etc",
+      "en": "Bonus, refund, etc.",
+      "fr": "Bonus, remboursement, etc.",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 344
+    },
+    {
+      "key": "admin.AdminUsers.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 353
+    },
+    {
+      "key": "admin.AdminUsers.apply",
+      "en": "Apply",
+      "fr": "Appliquer",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 360
+    },
+    {
+      "key": "admin.AdminUsers.total_earned",
+      "en": "Total Earned",
+      "fr": "Total gagne",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 394
+    },
+    {
+      "key": "admin.AdminUsers.total_spent",
+      "en": "Total Spent",
+      "fr": "Total depense",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 398
+    },
+    {
+      "key": "admin.AdminUsers.readings_2",
+      "en": "Readings",
+      "fr": "Lectures",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 402
+    },
+    {
+      "key": "admin.AdminUsers.login_streak",
+      "en": "Login Streak",
+      "fr": "Jours consecutifs",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 406
+    },
+    {
+      "key": "admin.AdminUsers.last_login",
+      "en": "Last Login",
+      "fr": "Derniere connexion",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 410
+    },
+    {
+      "key": "admin.AdminUsers.achievements",
+      "en": "Achievements",
+      "fr": "Realisations",
+      "file": "components/admin/AdminUsers.tsx",
+      "line": 414
+    },
+    {
+      "key": "admin.BlogPostEditor.new_post",
+      "en": "New Post",
+      "fr": "Nouvel article",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 206
+    },
+    {
+      "key": "admin.BlogPostEditor.edit_post",
+      "en": "Edit Post",
+      "fr": "Modifier article",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 207
+    },
+    {
+      "key": "admin.BlogPostEditor.title",
+      "en": "Title",
+      "fr": "Titre",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 228
+    },
+    {
+      "key": "admin.BlogPostEditor.excerpt",
+      "en": "Excerpt",
+      "fr": "Extrait",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 240
+    },
+    {
+      "key": "admin.BlogPostEditor.content",
+      "en": "Content",
+      "fr": "Contenu",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 255
+    },
+    {
+      "key": "admin.BlogPostEditor.settings",
+      "en": "Settings",
+      "fr": "Paramètres",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 291
+    },
+    {
+      "key": "admin.BlogPostEditor.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 305
+    },
+    {
+      "key": "admin.BlogPostEditor.draft",
+      "en": "Draft",
+      "fr": "Brouillon",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 310
+    },
+    {
+      "key": "admin.BlogPostEditor.published",
+      "en": "Published",
+      "fr": "Publié",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 311
+    },
+    {
+      "key": "admin.BlogPostEditor.archived",
+      "en": "Archived",
+      "fr": "Archivé",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 312
+    },
+    {
+      "key": "admin.BlogPostEditor.author",
+      "en": "Author",
+      "fr": "Auteur",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 317
+    },
+    {
+      "key": "admin.BlogPostEditor.featured",
+      "en": "Featured",
+      "fr": "À la une",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 324
+    },
+    {
+      "key": "admin.BlogPostEditor.read_time_min",
+      "en": "Read time (min)",
+      "fr": "Temps lecture (min)",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 333
+    },
+    {
+      "key": "admin.BlogPostEditor.cover_image",
+      "en": "Cover Image",
+      "fr": "Image couverture",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 346
+    },
+    {
+      "key": "admin.BlogPostEditor.categories",
+      "en": "Categories",
+      "fr": "Catégories",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 368
+    },
+    {
+      "key": "admin.BlogPostEditor.no_categories_yet",
+      "en": "No categories yet",
+      "fr": "Aucune catégorie",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 378
+    },
+    {
+      "key": "admin.BlogPostEditor.no_tags_yet",
+      "en": "No tags yet",
+      "fr": "Aucun tag",
+      "file": "components/admin/BlogPostEditor.tsx",
+      "line": 394
+    },
+    {
+      "key": "admin.ImportArticle.close",
+      "en": "Close",
+      "fr": "Fermer",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 341
+    },
+    {
+      "key": "admin.ImportArticle.import_tarot_article",
+      "en": "Import Tarot Article",
+      "fr": "Importer un Article Tarot",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 349
+    },
+    {
+      "key": "admin.ImportArticle.preview_article",
+      "en": "Preview article",
+      "fr": "Prévisualiser l'article",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 367
+    },
+    {
+      "key": "admin.ImportArticle.preview",
+      "en": "Preview",
+      "fr": "Aperçu",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 370
+    },
+    {
+      "key": "admin.ImportArticle.validating",
+      "en": "Validating...",
+      "fr": "Validation...",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 383
+    },
+    {
+      "key": "admin.ImportArticle.validate",
+      "en": "Validate",
+      "fr": "Valider",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 388
+    },
+    {
+      "key": "admin.ImportArticle.updating",
+      "en": "Updating...",
+      "fr": "Mise à jour...",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 404
+    },
+    {
+      "key": "admin.ImportArticle.importing",
+      "en": "Importing...",
+      "fr": "Importation...",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 405
+    },
+    {
+      "key": "admin.ImportArticle.update_article",
+      "en": "Update Article",
+      "fr": "Mettre à jour",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 411
+    },
+    {
+      "key": "admin.ImportArticle.import_article",
+      "en": "Import Article",
+      "fr": "Importer",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 412
+    },
+    {
+      "key": "admin.ImportArticle.save_despite_validation",
+      "en": "Save despite validation errors",
+      "fr": "Enregistrer malgré les erreurs",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 424
+    },
+    {
+      "key": "admin.ImportArticle.forcing",
+      "en": "Forcing...",
+      "fr": "Forçage...",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 429
+    },
+    {
+      "key": "admin.ImportArticle.force_save",
+      "en": "Force Save",
+      "fr": "Forcer",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 434
+    },
+    {
+      "key": "admin.ImportArticle.json_editor",
+      "en": "JSON Editor",
+      "fr": "Éditeur JSON",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 450
+    },
+    {
+      "key": "admin.ImportArticle.article_json",
+      "en": "Article JSON",
+      "fr": "JSON de l'Article",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 470
+    },
+    {
+      "key": "admin.ImportArticle.format_json",
+      "en": "Format JSON",
+      "fr": "Formater JSON",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 476
+    },
+    {
+      "key": "admin.ImportArticle.paste_your_article",
+      "en": "Paste your article JSON here...",
+      "fr": "Collez votre JSON d'article ici...",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 483
+    },
+    {
+      "key": "admin.ImportArticle.valid_json",
+      "en": "Valid JSON",
+      "fr": "JSON Valide",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 513
+    },
+    {
+      "key": "admin.ImportArticle.validation_failed",
+      "en": "Validation Failed",
+      "fr": "Validation Échouée",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 518
+    },
+    {
+      "key": "admin.ImportArticle.words",
+      "en": "Words",
+      "fr": "Mots",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 531
+    },
+    {
+      "key": "admin.ImportArticle.faqs",
+      "en": "FAQs",
+      "fr": "FAQs",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 539
+    },
+    {
+      "key": "admin.ImportArticle.answerfirst",
+      "en": "Answer-First",
+      "fr": "Réponse Direct",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 553
+    },
+    {
+      "key": "admin.ImportArticle.errors",
+      "en": "Errors:",
+      "fr": "Erreurs:",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 564
+    },
+    {
+      "key": "admin.ImportArticle.warnings",
+      "en": "Warnings:",
+      "fr": "Avertissements:",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 583
+    },
+    {
+      "key": "admin.ImportArticle.hide",
+      "en": "Hide",
+      "fr": "Masquer",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 591
+    },
+    {
+      "key": "admin.ImportArticle.show",
+      "en": "Show",
+      "fr": "Afficher",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 592
+    },
+    {
+      "key": "admin.ImportArticle.preview_generated_schema",
+      "en": "Preview Generated Schema",
+      "fr": "Aperçu du Schéma Généré",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 612
+    },
+    {
+      "key": "admin.ImportArticle.article_imported_successfully",
+      "en": "Article Imported Successfully",
+      "fr": "Article Importé avec Succès",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 640
+    },
+    {
+      "key": "admin.ImportArticle.status",
+      "en": "Status:",
+      "fr": "Statut:",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 650
+    },
+    {
+      "key": "admin.ImportArticle.view",
+      "en": "View",
+      "fr": "Voir",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 666
+    },
+    {
+      "key": "admin.ImportArticle.preview_2",
+      "en": "Preview",
+      "fr": "Aperçu",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 667
+    },
+    {
+      "key": "admin.ImportArticle.imported_with_warnings",
+      "en": "Imported with warnings:",
+      "fr": "Importé avec avertissements:",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 676
+    },
+    {
+      "key": "admin.ImportArticle.import_failed",
+      "en": "Import Failed",
+      "fr": "Importation Échouée",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 693
+    },
+    {
+      "key": "admin.ImportArticle.article_preview",
+      "en": "Article Preview",
+      "fr": "Aperçu de l'Article",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 737
+    },
+    {
+      "key": "admin.ImportArticle.faq",
+      "en": "FAQ",
+      "fr": "Questions Fréquentes",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 799
+    },
+    {
+      "key": "admin.ImportArticle.close_2",
+      "en": "Close",
+      "fr": "Fermer",
+      "file": "components/admin/ImportArticle.tsx",
+      "line": 840
+    },
+    {
+      "key": "admin.TarotArticleEditor.title",
+      "en": "Title",
+      "fr": "Titre",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 194
+    },
+    {
+      "key": "admin.TarotArticleEditor.excerpt",
+      "en": "Excerpt",
+      "fr": "Extrait",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 201
+    },
+    {
+      "key": "admin.TarotArticleEditor.content",
+      "en": "Content",
+      "fr": "Contenu",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 208
+    },
+    {
+      "key": "admin.TarotArticleEditor.featured_image",
+      "en": "Featured Image",
+      "fr": "Image principale",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 224
+    },
+    {
+      "key": "admin.TarotArticleEditor.categories",
+      "en": "Categories",
+      "fr": "Catégories",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 245
+    },
+    {
+      "key": "admin.TarotArticleEditor.no_categories",
+      "en": "No categories",
+      "fr": "Aucune catégorie",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 257
+    },
+    {
+      "key": "admin.TarotArticleEditor.no_tags",
+      "en": "No tags",
+      "fr": "Aucun tag",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 274
+    },
+    {
+      "key": "admin.TarotArticleEditor.related_cards",
+      "en": "Related Cards",
+      "fr": "Cartes liées",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 291
+    },
+    {
+      "key": "admin.TarotArticleEditor.one_slug_per",
+      "en": "One slug per line...",
+      "fr": "Un slug par ligne...",
+      "file": "components/admin/TarotArticleEditor.tsx",
+      "line": 302
+    },
+    {
+      "key": "admin.TarotCategoriesManager.delete_this_category",
+      "en": "Delete this category?",
+      "fr": "Supprimer cette catégorie?",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 91
+    },
+    {
+      "key": "admin.TarotCategoriesManager.new_category",
+      "en": "New Category",
+      "fr": "Nouvelle catégorie",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 120
+    },
+    {
+      "key": "admin.TarotCategoriesManager.edit",
+      "en": "Edit",
+      "fr": "Modifier",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 147
+    },
+    {
+      "key": "admin.TarotCategoriesManager.no_categories_yet",
+      "en": "No categories yet",
+      "fr": "Aucune catégorie",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 160
+    },
+    {
+      "key": "admin.TarotCategoriesManager.new_category_2",
+      "en": "New Category",
+      "fr": "Nouvelle catégorie",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 177
+    },
+    {
+      "key": "admin.TarotCategoriesManager.edit_category",
+      "en": "Edit Category",
+      "fr": "Modifier catégorie",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 177
+    },
+    {
+      "key": "admin.TarotCategoriesManager.name",
+      "en": "Name",
+      "fr": "Nom",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 185
+    },
+    {
+      "key": "admin.TarotCategoriesManager.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 223
+    },
+    {
+      "key": "admin.TarotCategoriesManager.save",
+      "en": "Save",
+      "fr": "Enregistrer",
+      "file": "components/admin/TarotCategoriesManager.tsx",
+      "line": 230
+    },
+    {
+      "key": "admin.TarotFAQManager.question",
+      "en": "Question",
+      "fr": "Question",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 43
+    },
+    {
+      "key": "admin.TarotFAQManager.enter_question",
+      "en": "Enter question...",
+      "fr": "Entrez la question...",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 49
+    },
+    {
+      "key": "admin.TarotFAQManager.answer",
+      "en": "Answer",
+      "fr": "Réponse",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 62
+    },
+    {
+      "key": "admin.TarotFAQManager.enter_answer",
+      "en": "Enter answer...",
+      "fr": "Entrez la réponse...",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 67
+    },
+    {
+      "key": "admin.TarotFAQManager.add_faq",
+      "en": "Add FAQ",
+      "fr": "Ajouter FAQ",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 80
+    },
+    {
+      "key": "admin.TarotFAQManager.no_faq_items",
+      "en": "No FAQ items yet",
+      "fr": "Aucune FAQ",
+      "file": "components/admin/TarotFAQManager.tsx",
+      "line": 85
+    },
+    {
+      "key": "admin.TarotMediaManager.delete_this_image",
+      "en": "Delete this image?",
+      "fr": "Supprimer cette image?",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 94
+    },
+    {
+      "key": "admin.TarotMediaManager.upload_to",
+      "en": "Upload to:",
+      "fr": "Dossier:",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 164
+    },
+    {
+      "key": "admin.TarotMediaManager.upload_images",
+      "en": "Upload Images",
+      "fr": "Telecharger images",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 207
+    },
+    {
+      "key": "admin.TarotMediaManager.copy_url",
+      "en": "Copy URL",
+      "fr": "Copier URL",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 228
+    },
+    {
+      "key": "admin.TarotMediaManager.delete",
+      "en": "Delete",
+      "fr": "Supprimer",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 235
+    },
+    {
+      "key": "admin.TarotMediaManager.no_images_uploaded",
+      "en": "No images uploaded yet",
+      "fr": "Aucune image",
+      "file": "components/admin/TarotMediaManager.tsx",
+      "line": 258
+    },
+    {
+      "key": "admin.TarotTagsManager.delete_this_tag",
+      "en": "Delete this tag?",
+      "fr": "Supprimer ce tag?",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 87
+    },
+    {
+      "key": "admin.TarotTagsManager.new_tag",
+      "en": "New Tag",
+      "fr": "Nouveau tag",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 116
+    },
+    {
+      "key": "admin.TarotTagsManager.no_tags_yet",
+      "en": "No tags yet",
+      "fr": "Aucun tag",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 146
+    },
+    {
+      "key": "admin.TarotTagsManager.new_tag_2",
+      "en": "New Tag",
+      "fr": "Nouveau tag",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 163
+    },
+    {
+      "key": "admin.TarotTagsManager.edit_tag",
+      "en": "Edit Tag",
+      "fr": "Modifier tag",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 163
+    },
+    {
+      "key": "admin.TarotTagsManager.name",
+      "en": "Name",
+      "fr": "Nom",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 171
+    },
+    {
+      "key": "admin.TarotTagsManager.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 200
+    },
+    {
+      "key": "admin.TarotTagsManager.save",
+      "en": "Save",
+      "fr": "Enregistrer",
+      "file": "components/admin/TarotTagsManager.tsx",
+      "line": 207
+    },
+    {
+      "key": "admin.BlogImportModal.import_articles_from",
+      "en": "Import Articles from JSON",
+      "fr": "Importer articles depuis JSON",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 134
+    },
+    {
+      "key": "admin.BlogImportModal.import_complete",
+      "en": "Import Complete",
+      "fr": "Import terminé",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 157
+    },
+    {
+      "key": "admin.BlogImportModal.imported",
+      "en": "Imported",
+      "fr": "Importés",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 166
+    },
+    {
+      "key": "admin.BlogImportModal.skipped",
+      "en": "Skipped",
+      "fr": "Ignorés",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 173
+    },
+    {
+      "key": "admin.BlogImportModal.errors",
+      "en": "Errors",
+      "fr": "Erreurs",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 179
+    },
+    {
+      "key": "admin.BlogImportModal.skipped_already_exist",
+      "en": "Skipped (already exist):",
+      "fr": "Ignorés (existent déjà):",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 184
+    },
+    {
+      "key": "admin.BlogImportModal.created_categories",
+      "en": "Created categories:",
+      "fr": "Catégories créées:",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 192
+    },
+    {
+      "key": "admin.BlogImportModal.created_tags",
+      "en": "Created tags:",
+      "fr": "Tags créés:",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 200
+    },
+    {
+      "key": "admin.BlogImportModal.errors_2",
+      "en": "Errors:",
+      "fr": "Erreurs:",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 209
+    },
+    {
+      "key": "admin.BlogImportModal.upload_json_file",
+      "en": "Upload JSON file",
+      "fr": "Télécharger fichier JSON",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 239
+    },
+    {
+      "key": "admin.BlogImportModal.or_paste_json",
+      "en": "or paste JSON",
+      "fr": "ou coller JSON",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 249
+    },
+    {
+      "key": "admin.BlogImportModal.importing",
+      "en": "Importing...",
+      "fr": "Import en cours...",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 309
+    },
+    {
+      "key": "admin.BlogImportModal.import",
+      "en": "Import",
+      "fr": "Importer",
+      "file": "components/admin/blog/BlogImportModal.tsx",
+      "line": 314
+    },
+    {
+      "key": "admin.BlogMediaTab.delete_image",
+      "en": "Delete Image",
+      "fr": "Supprimer l",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 80
+    },
+    {
+      "key": "admin.BlogMediaTab.failed_to_delete",
+      "en": "Failed to delete media",
+      "fr": "Échec de la suppression",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 93
+    },
+    {
+      "key": "admin.BlogMediaTab.upload_images",
+      "en": "Upload Images",
+      "fr": "Telecharger images",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 120
+    },
+    {
+      "key": "admin.BlogMediaTab.copy_url",
+      "en": "Copy URL",
+      "fr": "Copier URL",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 144
+    },
+    {
+      "key": "admin.BlogMediaTab.delete",
+      "en": "Delete",
+      "fr": "Supprimer",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 155
+    },
+    {
+      "key": "admin.BlogMediaTab.no_images_uploaded",
+      "en": "No images uploaded yet",
+      "fr": "Aucune image telecharge",
+      "file": "components/admin/blog/BlogMediaTab.tsx",
+      "line": 167
+    },
+    {
+      "key": "admin.BlogPostsTab.move_to_trash",
+      "en": "Move to Trash",
+      "fr": "Déplacer vers la corbeille",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 182
+    },
+    {
+      "key": "admin.BlogPostsTab.failed_to_delete",
+      "en": "Failed to delete post",
+      "fr": "Échec de la suppression",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 195
+    },
+    {
+      "key": "admin.BlogPostsTab.search_posts",
+      "en": "Search posts...",
+      "fr": "Rechercher...",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 243
+    },
+    {
+      "key": "admin.BlogPostsTab.all_status",
+      "en": "All Status",
+      "fr": "Tous les statuts",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 252
+    },
+    {
+      "key": "admin.BlogPostsTab.draft",
+      "en": "Draft",
+      "fr": "Brouillon",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 253
+    },
+    {
+      "key": "admin.BlogPostsTab.published",
+      "en": "Published",
+      "fr": "Publie",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 254
+    },
+    {
+      "key": "admin.BlogPostsTab.archived",
+      "en": "Archived",
+      "fr": "Archive",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 255
+    },
+    {
+      "key": "admin.BlogPostsTab.import_json",
+      "en": "Import JSON",
+      "fr": "Importer JSON",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 262
+    },
+    {
+      "key": "admin.BlogPostsTab.new_post",
+      "en": "New Post",
+      "fr": "Nouvel article",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 269
+    },
+    {
+      "key": "admin.BlogPostsTab.title",
+      "en": "Title",
+      "fr": "Titre",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 285
+    },
+    {
+      "key": "admin.BlogPostsTab.status",
+      "en": "Status",
+      "fr": "Statut",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 288
+    },
+    {
+      "key": "admin.BlogPostsTab.categories",
+      "en": "Categories",
+      "fr": "Categories",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 291
+    },
+    {
+      "key": "admin.BlogPostsTab.views",
+      "en": "Views",
+      "fr": "Vues",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 294
+    },
+    {
+      "key": "admin.BlogPostsTab.updated",
+      "en": "Updated",
+      "fr": "Mis a jour",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 297
+    },
+    {
+      "key": "admin.BlogPostsTab.actions",
+      "en": "Actions",
+      "fr": "Actions",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 300
+    },
+    {
+      "key": "admin.BlogPostsTab.edit",
+      "en": "Edit",
+      "fr": "Modifier",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 382
+    },
+    {
+      "key": "admin.BlogPostsTab.delete",
+      "en": "Delete",
+      "fr": "Supprimer",
+      "file": "components/admin/blog/BlogPostsTab.tsx",
+      "line": 389
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.delete_category",
+      "en": "Delete Category",
+      "fr": "Supprimer la catégorie",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 150
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.failed_to_delete",
+      "en": "Failed to delete category",
+      "fr": "Échec de la suppression",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 163
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.delete_tag",
+      "en": "Delete Tag",
+      "fr": "Supprimer le tag",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 213
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.failed_to_delete_2",
+      "en": "Failed to delete tag",
+      "fr": "Échec de la suppression",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 226
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.new_category",
+      "en": "New Category",
+      "fr": "Nouvelle categorie",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 242
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.edit",
+      "en": "Edit",
+      "fr": "Modifier",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 285
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.color",
+      "en": "Color",
+      "fr": "Couleur",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 333
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.cancel",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 403
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.new_tag",
+      "en": "New Tag",
+      "fr": "Nouveau tag",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 437
+    },
+    {
+      "key": "admin.BlogTaxonomyTab.cancel_2",
+      "en": "Cancel",
+      "fr": "Annuler",
+      "file": "components/admin/blog/BlogTaxonomyTab.tsx",
+      "line": 538
+    },
+    {
+      "key": "admin.BlogTrashTab.failed_to_restore",
+      "en": "Failed to restore post",
+      "fr": "Échec de la restauration",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 78
+    },
+    {
+      "key": "admin.BlogTrashTab.permanently_delete",
+      "en": "Permanently Delete",
+      "fr": "Supprimer définitivement",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 84
+    },
+    {
+      "key": "admin.BlogTrashTab.failed_to_delete",
+      "en": "Failed to delete post",
+      "fr": "Échec de la suppression",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 97
+    },
+    {
+      "key": "admin.BlogTrashTab.empty_trash",
+      "en": "Empty Trash",
+      "fr": "Vider la corbeille",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 105
+    },
+    {
+      "key": "admin.BlogTrashTab.failed_to_empty",
+      "en": "Failed to empty trash",
+      "fr": "Échec du vidage de la corbeille",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 119
+    },
+    {
+      "key": "admin.BlogTrashTab.empty_trash_2",
+      "en": "Empty Trash",
+      "fr": "Vider la corbeille",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 135
+    },
+    {
+      "key": "admin.BlogTrashTab.trash_is_empty",
+      "en": "Trash is empty",
+      "fr": "La corbeille est vide",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 148
+    },
+    {
+      "key": "admin.BlogTrashTab.title",
+      "en": "Title",
+      "fr": "Titre",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 163
+    },
+    {
+      "key": "admin.BlogTrashTab.original_slug",
+      "en": "Original Slug",
+      "fr": "Slug original",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 166
+    },
+    {
+      "key": "admin.BlogTrashTab.deleted",
+      "en": "Deleted",
+      "fr": "Supprimé",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 169
+    },
+    {
+      "key": "admin.BlogTrashTab.actions",
+      "en": "Actions",
+      "fr": "Actions",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 172
+    },
+    {
+      "key": "admin.BlogTrashTab.restore",
+      "en": "Restore",
+      "fr": "Restaurer",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 195
+    },
+    {
+      "key": "admin.BlogTrashTab.restore_2",
+      "en": "Restore",
+      "fr": "Restaurer",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 198
+    },
+    {
+      "key": "admin.BlogTrashTab.delete_permanently",
+      "en": "Delete permanently",
+      "fr": "Supprimer définitivement",
+      "file": "components/admin/blog/BlogTrashTab.tsx",
+      "line": 204
+    },
+    {
+      "key": "admin.CoverImageSection.uploading",
+      "en": "Uploading...",
+      "fr": "Envoi...",
+      "file": "components/admin/editor/CoverImageSection.tsx",
+      "line": 78
+    },
+    {
+      "key": "admin.CoverImageSection.upload_image",
+      "en": "Upload Image",
+      "fr": "Télécharger image",
+      "file": "components/admin/editor/CoverImageSection.tsx",
+      "line": 83
+    },
+    {
+      "key": "admin.CoverImageSection.or_use_url",
+      "en": "or use URL",
+      "fr": "ou utiliser URL",
+      "file": "components/admin/editor/CoverImageSection.tsx",
+      "line": 96
+    },
+    {
+      "key": "admin.CoverImageSection.or_select_from",
+      "en": "Or select from library",
+      "fr": "Ou choisir depuis bibliothèque",
+      "file": "components/admin/editor/CoverImageSection.tsx",
+      "line": 114
+    },
+    {
+      "key": "admin.EditorTopBar.back",
+      "en": "Back",
+      "fr": "Retour",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 30
+    },
+    {
+      "key": "admin.EditorTopBar.view",
+      "en": "View",
+      "fr": "Voir",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 104
+    },
+    {
+      "key": "admin.EditorTopBar.preview",
+      "en": "Preview",
+      "fr": "Aperçu",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 105
+    },
+    {
+      "key": "admin.EditorTopBar.save",
+      "en": "Save",
+      "fr": "Enregistrer",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 121
+    },
+    {
+      "key": "admin.EditorTopBar.unpublish",
+      "en": "Unpublish",
+      "fr": "Dépublier",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 141
+    },
+    {
+      "key": "admin.EditorTopBar.publish",
+      "en": "Publish",
+      "fr": "Publier",
+      "file": "components/admin/editor/EditorTopBar.tsx",
+      "line": 142
+    },
+    {
+      "key": "admin.TaxonomySelector.none_available",
+      "en": "None available",
+      "fr": "Aucun disponible",
+      "file": "components/admin/editor/TaxonomySelector.tsx",
+      "line": 47
+    },
+    {
+      "key": "blog.BlogList.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/blog/BlogList.tsx",
+      "line": 103
+    },
+    {
+      "key": "blog.BlogList.mystic_insights",
+      "en": "Mystic Insights",
+      "fr": "Revelations Mystiques",
+      "file": "components/blog/BlogList.tsx",
+      "line": 115
+    },
+    {
+      "key": "blog.BlogList.featured_articles",
+      "en": "Featured Articles",
+      "fr": "Articles a la Une",
+      "file": "components/blog/BlogList.tsx",
+      "line": 129
+    },
+    {
+      "key": "blog.BlogList.filtering_by",
+      "en": "Filtering by:",
+      "fr": "Filtrer par:",
+      "file": "components/blog/BlogList.tsx",
+      "line": 252
+    },
+    {
+      "key": "blog.BlogList.nameen",
+      "en": "nameEn",
+      "fr": "nameFr",
+      "file": "components/blog/BlogList.tsx",
+      "line": 259
+    },
+    {
+      "key": "blog.BlogList.nameen_2",
+      "en": "nameEn",
+      "fr": "nameFr",
+      "file": "components/blog/BlogList.tsx",
+      "line": 268
+    },
+    {
+      "key": "blog.BlogList.filtered_articles",
+      "en": "Filtered Articles",
+      "fr": "Articles Filtres",
+      "file": "components/blog/BlogList.tsx",
+      "line": 279
+    },
+    {
+      "key": "blog.BlogList.all_articles",
+      "en": "All Articles",
+      "fr": "Tous les Articles",
+      "file": "components/blog/BlogList.tsx",
+      "line": 280
+    },
+    {
+      "key": "blog.BlogList.no_articles_found",
+      "en": "No articles found.",
+      "fr": "Aucun article trouve.",
+      "file": "components/blog/BlogList.tsx",
+      "line": 290
+    },
+    {
+      "key": "blog.BlogList.page_page_of",
+      "en": "Page ${page} of ${totalPages}",
+      "fr": "Page ${page} sur ${totalPages}",
+      "file": "components/blog/BlogList.tsx",
+      "line": 361
+    },
+    {
+      "key": "blog.BlogPost.enus",
+      "en": "en_US",
+      "fr": "fr_FR",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 103
+    },
+    {
+      "key": "blog.BlogPost.enus_2",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 197
+    },
+    {
+      "key": "blog.BlogPost.article_not_found",
+      "en": "Article Not Found",
+      "fr": "Article Non Trouve",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 262
+    },
+    {
+      "key": "blog.BlogPost.back_to_blog",
+      "en": "Back to Blog",
+      "fr": "Retour au Blog",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 268
+    },
+    {
+      "key": "blog.BlogPost.preview_mode",
+      "en": "Preview Mode",
+      "fr": "Mode Apercu",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 286
+    },
+    {
+      "key": "blog.BlogPost.back_to_blog_2",
+      "en": "Back to Blog",
+      "fr": "Retour au Blog",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 301
+    },
+    {
+      "key": "blog.BlogPost.read",
+      "en": "read",
+      "fr": "lecture",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 343
+    },
+    {
+      "key": "blog.BlogPost.views",
+      "en": "views",
+      "fr": "vues",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 347
+    },
+    {
+      "key": "blog.BlogPost.share",
+      "en": "Share:",
+      "fr": "Partager:",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 355
+    },
+    {
+      "key": "blog.BlogPost.tags",
+      "en": "Tags:",
+      "fr": "Tags:",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 440
+    },
+    {
+      "key": "blog.BlogPost.related_articles",
+      "en": "Related Articles",
+      "fr": "Articles Similaires",
+      "file": "components/blog/BlogPost.tsx",
+      "line": 465
+    },
+    {
+      "key": "profile.AchievementCard.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 103
+    },
+    {
+      "key": "profile.AchievementCard.unlocked",
+      "en": "Unlocked: ",
+      "fr": "Débloqué: ",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 143
+    },
+    {
+      "key": "profile.AchievementCard.progress",
+      "en": "Progress: ",
+      "fr": "Progrès: ",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 149
+    },
+    {
+      "key": "profile.AchievementCard.new",
+      "en": "NEW!",
+      "fr": "NOUVEAU!",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 172
+    },
+    {
+      "key": "profile.AchievementCard.unlocked_2",
+      "en": "Unlocked",
+      "fr": "Débloqué",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 225
+    },
+    {
+      "key": "profile.AchievementCard.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 228
+    },
+    {
+      "key": "profile.AchievementCard.credits_2",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/profile/AchievementCard.tsx",
+      "line": 233
+    },
+    {
+      "key": "profile.ReadingFilters.search_by_question",
+      "en": "Search by question...",
+      "fr": "Rechercher par question...",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 67
+    },
+    {
+      "key": "profile.ReadingFilters.all_spreads",
+      "en": "All Spreads",
+      "fr": "Tous les tirages",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 94
+    },
+    {
+      "key": "profile.ReadingFilters.newest",
+      "en": "Newest",
+      "fr": "Récent",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 117
+    },
+    {
+      "key": "profile.ReadingFilters.oldest",
+      "en": "Oldest",
+      "fr": "Ancien",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 118
+    },
+    {
+      "key": "profile.ReadingFilters.date_range",
+      "en": "Date Range",
+      "fr": "Période",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 127
+    },
+    {
+      "key": "profile.ReadingFilters.readings",
+      "en": "readings",
+      "fr": "lectures",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 158
+    },
+    {
+      "key": "profile.ReadingFilters.clear_filters",
+      "en": "Clear filters",
+      "fr": "Effacer les filtres",
+      "file": "components/profile/ReadingFilters.tsx",
+      "line": 169
+    },
+    {
+      "key": "profile.ReadingHistoryCard.today",
+      "en": "Today",
+      "fr": "Aujourd",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 22
+    },
+    {
+      "key": "profile.ReadingHistoryCard.yesterday",
+      "en": "Yesterday",
+      "fr": "Hier",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 23
+    },
+    {
+      "key": "profile.ReadingHistoryCard.diffdays_days_ago",
+      "en": "${diffDays} days ago",
+      "fr": "Il y a ${diffDays} jours",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 24
+    },
+    {
+      "key": "profile.ReadingHistoryCard.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 26
+    },
+    {
+      "key": "profile.ReadingHistoryCard.cards",
+      "en": "cards",
+      "fr": "cartes",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 78
+    },
+    {
+      "key": "profile.ReadingHistoryCard.cards_drawn",
+      "en": "Cards Drawn",
+      "fr": "Cartes Tirées",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 123
+    },
+    {
+      "key": "profile.ReadingHistoryCard.positions",
+      "en": "Positions",
+      "fr": "Positions",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 145
+    },
+    {
+      "key": "profile.ReadingHistoryCard.interpretation",
+      "en": "Interpretation",
+      "fr": "Interprétation",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 175
+    },
+    {
+      "key": "profile.ReadingHistoryCard.followup_questions",
+      "en": "Follow-up Questions",
+      "fr": "Questions de Suivi",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 208
+    },
+    {
+      "key": "profile.ReadingHistoryCard.your_reflection",
+      "en": "Your Reflection",
+      "fr": "Votre Réflexion",
+      "file": "components/profile/ReadingHistoryCard.tsx",
+      "line": 231
+    },
+    {
+      "key": "profile.TransactionFilters.type",
+      "en": "Type",
+      "fr": "Type",
+      "file": "components/profile/TransactionFilters.tsx",
+      "line": 53
+    },
+    {
+      "key": "profile.TransactionFilters.date_range",
+      "en": "Date Range",
+      "fr": "Période",
+      "file": "components/profile/TransactionFilters.tsx",
+      "line": 76
+    },
+    {
+      "key": "profile.TransactionFilters.transactions",
+      "en": "transactions",
+      "fr": "transactions",
+      "file": "components/profile/TransactionFilters.tsx",
+      "line": 107
+    },
+    {
+      "key": "profile.TransactionFilters.clear_filters",
+      "en": "Clear filters",
+      "fr": "Effacer les filtres",
+      "file": "components/profile/TransactionFilters.tsx",
+      "line": 118
+    },
+    {
+      "key": "profile.TransactionItem.today",
+      "en": "Today",
+      "fr": "Aujourd",
+      "file": "components/profile/TransactionItem.tsx",
+      "line": 74
+    },
+    {
+      "key": "profile.TransactionItem.yesterday",
+      "en": "Yesterday",
+      "fr": "Hier",
+      "file": "components/profile/TransactionItem.tsx",
+      "line": 75
+    },
+    {
+      "key": "profile.TransactionItem.diffdaysd_ago",
+      "en": "${diffDays}d ago",
+      "fr": "Il y a ${diffDays}j",
+      "file": "components/profile/TransactionItem.tsx",
+      "line": 76
+    },
+    {
+      "key": "profile.TransactionItem.enus",
+      "en": "en-US",
+      "fr": "fr-FR",
+      "file": "components/profile/TransactionItem.tsx",
+      "line": 78
+    },
+    {
+      "key": "reading.OracleChat.ask_the_oracle",
+      "en": "Ask the Oracle",
+      "fr": "Demandez à l",
+      "file": "components/reading/OracleChat.tsx",
+      "line": 47
+    },
+    {
+      "key": "reading.OracleChat.balance",
+      "en": "Balance:",
+      "fr": "Solde:",
+      "file": "components/reading/OracleChat.tsx",
+      "line": 51
+    },
+    {
+      "key": "reading.OracleChat.ask_a_followup",
+      "en": "Ask a follow-up question...",
+      "fr": "Posez une question de suivi...",
+      "file": "components/reading/OracleChat.tsx",
+      "line": 98
+    },
+    {
+      "key": "reading.OracleChat.free",
+      "en": "Free",
+      "fr": "Gratuit",
+      "file": "components/reading/OracleChat.tsx",
+      "line": 110
+    },
+    {
+      "key": "reading.OracleChat.credit",
+      "en": "Credit",
+      "fr": "Crédit",
+      "file": "components/reading/OracleChat.tsx",
+      "line": 111
+    },
+    {
+      "key": "reading.ReadingShufflePhase.shuffling_the_deck",
+      "en": "Shuffling the deck...",
+      "fr": "Mélange des cartes...",
+      "file": "components/reading/ReadingShufflePhase.tsx",
+      "line": 288
+    },
+    {
+      "key": "reading.ReadingShufflePhase.draw_cards",
+      "en": "Draw Cards",
+      "fr": "Tirer les Cartes",
+      "file": "components/reading/ReadingShufflePhase.tsx",
+      "line": 316
+    },
+    {
+      "key": "reading.DrawingPhase.draw_your_cards",
+      "en": "Draw Your Cards",
+      "fr": "Tirez Vos Cartes",
+      "file": "components/reading/phases/DrawingPhase.tsx",
+      "line": 48
+    },
+    {
+      "key": "reading.DrawingPhase.remaining",
+      "en": "remaining",
+      "fr": "restantes",
+      "file": "components/reading/phases/DrawingPhase.tsx",
+      "line": 57
+    },
+    {
+      "key": "reading.DrawingPhase.tap",
+      "en": "TAP",
+      "fr": "TOUCHER",
+      "file": "components/reading/phases/DrawingPhase.tsx",
+      "line": 106
+    },
+    {
+      "key": "reading.InterpretationPhase.r",
+      "en": " (R)",
+      "fr": " (R)",
+      "file": "components/reading/phases/InterpretationPhase.tsx",
+      "line": 195
+    },
+    {
+      "key": "reading.InterpretationPhase.the_oracle_speaks",
+      "en": "The Oracle Speaks",
+      "fr": "L'Oracle Parle",
+      "file": "components/reading/phases/InterpretationPhase.tsx",
+      "line": 217
+    },
+    {
+      "key": "reading.InterpretationPhase.start_new_reading",
+      "en": "Start New Reading",
+      "fr": "Nouvelle Lecture",
+      "file": "components/reading/phases/InterpretationPhase.tsx",
+      "line": 255
+    },
+    {
+      "key": "reading.QuestionIntroPhase.cards",
+      "en": "cards",
+      "fr": "cartes",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 101
+    },
+    {
+      "key": "reading.QuestionIntroPhase.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 107
+    },
+    {
+      "key": "reading.QuestionIntroPhase.your_question",
+      "en": "Your Question",
+      "fr": "Votre Question",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 117
+    },
+    {
+      "key": "reading.QuestionIntroPhase.what_weighs_on",
+      "en": "What weighs on your heart?",
+      "fr": "Qu'est-ce qui pèse sur votre cœur?",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 122
+    },
+    {
+      "key": "reading.QuestionIntroPhase.use_general_guidance",
+      "en": "Use General Guidance",
+      "fr": "Guidance Générale",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 139
+    },
+    {
+      "key": "reading.QuestionIntroPhase.advanced_options",
+      "en": "Advanced Options",
+      "fr": "Options Avancées",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 156
+    },
+    {
+      "key": "reading.QuestionIntroPhase.begin_reading",
+      "en": "Begin Reading",
+      "fr": "Commencer la Lecture",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 221
+    },
+    {
+      "key": "reading.QuestionIntroPhase.credits_2",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/reading/phases/QuestionIntroPhase.tsx",
+      "line": 225
+    },
+    {
+      "key": "reading.RevealingPhase.the_cards_are",
+      "en": "The cards are laid.",
+      "fr": "Les cartes sont posées.",
+      "file": "components/reading/phases/RevealingPhase.tsx",
+      "line": 51
+    },
+    {
+      "key": "reading.RevealingPhase.reversed",
+      "en": "Reversed",
+      "fr": "Renversée",
+      "file": "components/reading/phases/RevealingPhase.tsx",
+      "line": 87
+    },
+    {
+      "key": "reading.RevealingPhase.reveal_interpretation",
+      "en": "Reveal Interpretation",
+      "fr": "Révéler l",
+      "file": "components/reading/phases/RevealingPhase.tsx",
+      "line": 105
+    },
+    {
+      "key": "rewards.AchievementUnlockModal.achievement_unlocked",
+      "en": "Achievement Unlocked!",
+      "fr": "Succès Débloqué !",
+      "file": "components/rewards/AchievementUnlockModal.tsx",
+      "line": 171
+    },
+    {
+      "key": "rewards.AchievementUnlockModal.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/rewards/AchievementUnlockModal.tsx",
+      "line": 203
+    },
+    {
+      "key": "rewards.AchievementUnlockModal.awesome",
+      "en": "Awesome!",
+      "fr": "Super !",
+      "file": "components/rewards/AchievementUnlockModal.tsx",
+      "line": 214
+    },
+    {
+      "key": "rewards.DailyBonusCard.daily_bonus",
+      "en": "Daily Bonus",
+      "fr": "Bonus Quotidien",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 153
+    },
+    {
+      "key": "rewards.DailyBonusCard.day_streak",
+      "en": "day streak",
+      "fr": "jours consécutifs",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 159
+    },
+    {
+      "key": "rewards.DailyBonusCard.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 172
+    },
+    {
+      "key": "rewards.DailyBonusCard.7day_streak_bonus",
+      "en": "7-day streak bonus: +5",
+      "fr": "Bonus 7 jours: +5",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 181
+    },
+    {
+      "key": "rewards.DailyBonusCard.bonus_claimed",
+      "en": "Bonus Claimed!",
+      "fr": "Bonus Réclamé !",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 196
+    },
+    {
+      "key": "rewards.DailyBonusCard.claiming",
+      "en": "Claiming...",
+      "fr": "Réclamation...",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 220
+    },
+    {
+      "key": "rewards.DailyBonusCard.claim_bonus",
+      "en": "Claim Bonus",
+      "fr": "Réclamer le Bonus",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 225
+    },
+    {
+      "key": "rewards.DailyBonusCard.next_bonus_in",
+      "en": "Next bonus in",
+      "fr": "Prochain bonus dans",
+      "file": "components/rewards/DailyBonusCard.tsx",
+      "line": 239
+    },
+    {
+      "key": "rewards.DailyBonusPopup.bonus_claimed",
+      "en": "Bonus Claimed!",
+      "fr": "Bonus Réclamé !",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 149
+    },
+    {
+      "key": "rewards.DailyBonusPopup.daily_bonus_available",
+      "en": "Daily Bonus Available!",
+      "fr": "Bonus Quotidien Disponible !",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 150
+    },
+    {
+      "key": "rewards.DailyBonusPopup.day_streak",
+      "en": "day streak",
+      "fr": "jours consécutifs",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 159
+    },
+    {
+      "key": "rewards.DailyBonusPopup.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 171
+    },
+    {
+      "key": "rewards.DailyBonusPopup.includes_7day_streak",
+      "en": "Includes 7-day streak bonus!",
+      "fr": "Inclut le bonus de 7 jours !",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 179
+    },
+    {
+      "key": "rewards.DailyBonusPopup.credits_added_to",
+      "en": "Credits added to your account!",
+      "fr": "Crédits ajoutés à votre compte !",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 201
+    },
+    {
+      "key": "rewards.DailyBonusPopup.claiming",
+      "en": "Claiming...",
+      "fr": "Réclamation...",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 221
+    },
+    {
+      "key": "rewards.DailyBonusPopup.claim_your_bonus",
+      "en": "Claim Your Bonus",
+      "fr": "Réclamer Votre Bonus",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 226
+    },
+    {
+      "key": "rewards.DailyBonusPopup.maybe_later",
+      "en": "Maybe later",
+      "fr": "Peut-être plus tard",
+      "file": "components/rewards/DailyBonusPopup.tsx",
+      "line": 238
+    },
+    {
+      "key": "rewards.ReadingCompleteCelebration.mystery_bonus",
+      "en": "Mystery Bonus!",
+      "fr": "Bonus Mystère !",
+      "file": "components/rewards/ReadingCompleteCelebration.tsx",
+      "line": 178
+    },
+    {
+      "key": "rewards.ReadingCompleteCelebration.credits",
+      "en": "credits",
+      "fr": "crédits",
+      "file": "components/rewards/ReadingCompleteCelebration.tsx",
+      "line": 201
+    },
+    {
+      "key": "tarot.TarotCardsOverview.try_again",
+      "en": "Try Again",
+      "fr": "Réessayer",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 106
+    },
+    {
+      "key": "tarot.TarotCardsOverview.complete_guide",
+      "en": "Complete Guide",
+      "fr": "Guide Complet",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 137
+    },
+    {
+      "key": "tarot.TarotCardsOverview.the_tarot_deck",
+      "en": "The Tarot Deck",
+      "fr": "Le Tarot",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 142
+    },
+    {
+      "key": "tarot.TarotCardsOverview.ready_to_explore",
+      "en": "Ready to explore the full deck?",
+      "fr": "Prêt à explorer le jeu complet ?",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 208
+    },
+    {
+      "key": "tarot.TarotCardsOverview.browse_all_cards",
+      "en": "Browse All Cards",
+      "fr": "Parcourir Toutes les Cartes",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 213
+    },
+    {
+      "key": "tarot.TarotCardsOverview.get_a_reading",
+      "en": "Get a Reading",
+      "fr": "Faire un Tirage",
+      "file": "components/tarot/TarotCardsOverview.tsx",
+      "line": 217
+    },
+    {
+      "key": "tarot.TarotCategorySection.view_all_count",
+      "en": "View All ${count}",
+      "fr": "Voir les ${count}",
+      "file": "components/tarot/TarotCategorySection.tsx",
+      "line": 156
+    },
+    {
+      "key": "services.openrouterService.reversed",
+      "en": "(Reversed)",
+      "fr": "(Renversée)",
+      "file": "services/openrouterService.ts",
+      "line": 289
+    },
+    {
+      "key": "services.openrouterService.english",
+      "en": "English",
+      "fr": "French",
+      "file": "services/openrouterService.ts",
+      "line": 310
+    },
+    {
+      "key": "services.openrouterService.general_guidance",
+      "en": "General guidance",
+      "fr": "Guidance générale",
+      "file": "services/openrouterService.ts",
+      "line": 336
+    },
+    {
+      "key": "services.openrouterService.english_2",
+      "en": "English",
+      "fr": "French",
+      "file": "services/openrouterService.ts",
+      "line": 428
+    },
+    {
+      "key": "services.openrouterService.english_3",
+      "en": "English",
+      "fr": "French",
+      "file": "services/openrouterService.ts",
+      "line": 485
+    },
+    {
+      "key": "services.openrouterService.english_4",
+      "en": "English",
+      "fr": "French",
+      "file": "services/openrouterService.ts",
+      "line": 543
+    },
+    {
+      "key": "context.AppContext.insufficient_credits",
+      "en": "Insufficient credits",
+      "fr": "Crédits insuffisants",
+      "file": "context/AppContext.tsx",
+      "line": 273
+    }
+  ],
+  "summary": {
+    "total": 693,
+    "byFile": {
+      "App.tsx": 17,
+      "components/AboutUs.tsx": 5,
+      "components/ActiveReading.tsx": 4,
+      "components/Breadcrumb.tsx": 22,
+      "components/CookieConsent.tsx": 1,
+      "components/CreditShop.tsx": 26,
+      "components/FAQ.tsx": 10,
+      "components/Footer.tsx": 9,
+      "components/Header.tsx": 11,
+      "components/HoroscopeReading.tsx": 10,
+      "components/PaymentResult.tsx": 11,
+      "components/QuestionLengthModal.tsx": 12,
+      "components/ReadingModeSelector.tsx": 1,
+      "components/SpendingLimitsSettings.tsx": 23,
+      "components/SpreadSelector.tsx": 5,
+      "components/SubNav.tsx": 4,
+      "components/TarotArticlePage.tsx": 7,
+      "components/TarotArticlesList.tsx": 6,
+      "components/UserProfile.tsx": 19,
+      "components/admin/AdminAnalytics.tsx": 10,
+      "components/admin/AdminBlog.tsx": 7,
+      "components/admin/AdminCache.tsx": 18,
+      "components/admin/AdminDashboard.tsx": 1,
+      "components/admin/AdminDebug.tsx": 10,
+      "components/admin/AdminEmailTemplates.tsx": 12,
+      "components/admin/AdminHealth.tsx": 18,
+      "components/admin/AdminOverview.tsx": 6,
+      "components/admin/AdminPackages.tsx": 11,
+      "components/admin/AdminPrompts.tsx": 14,
+      "components/admin/AdminSettings.tsx": 14,
+      "components/admin/AdminTarotArticles.tsx": 41,
+      "components/admin/AdminTransactions.tsx": 18,
+      "components/admin/AdminUsers.tsx": 35,
+      "components/admin/BlogPostEditor.tsx": 17,
+      "components/admin/ImportArticle.tsx": 36,
+      "components/admin/TarotArticleEditor.tsx": 9,
+      "components/admin/TarotCategoriesManager.tsx": 9,
+      "components/admin/TarotFAQManager.tsx": 6,
+      "components/admin/TarotMediaManager.tsx": 6,
+      "components/admin/TarotTagsManager.tsx": 8,
+      "components/admin/blog/BlogImportModal.tsx": 13,
+      "components/admin/blog/BlogMediaTab.tsx": 6,
+      "components/admin/blog/BlogPostsTab.tsx": 17,
+      "components/admin/blog/BlogTaxonomyTab.tsx": 10,
+      "components/admin/blog/BlogTrashTab.tsx": 14,
+      "components/admin/editor/CoverImageSection.tsx": 4,
+      "components/admin/editor/EditorTopBar.tsx": 6,
+      "components/admin/editor/TaxonomySelector.tsx": 1,
+      "components/blog/BlogList.tsx": 10,
+      "components/blog/BlogPost.tsx": 11,
+      "components/profile/AchievementCard.tsx": 7,
+      "components/profile/ReadingFilters.tsx": 7,
+      "components/profile/ReadingHistoryCard.tsx": 10,
+      "components/profile/TransactionFilters.tsx": 4,
+      "components/profile/TransactionItem.tsx": 4,
+      "components/reading/OracleChat.tsx": 5,
+      "components/reading/ReadingShufflePhase.tsx": 2,
+      "components/reading/phases/DrawingPhase.tsx": 3,
+      "components/reading/phases/InterpretationPhase.tsx": 3,
+      "components/reading/phases/QuestionIntroPhase.tsx": 8,
+      "components/reading/phases/RevealingPhase.tsx": 3,
+      "components/rewards/AchievementUnlockModal.tsx": 3,
+      "components/rewards/DailyBonusCard.tsx": 8,
+      "components/rewards/DailyBonusPopup.tsx": 9,
+      "components/rewards/ReadingCompleteCelebration.tsx": 2,
+      "components/tarot/TarotCardsOverview.tsx": 6,
+      "components/tarot/TarotCategorySection.tsx": 1,
+      "services/openrouterService.ts": 6,
+      "context/AppContext.tsx": 1
+    }
+  }
+}
