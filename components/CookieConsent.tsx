@@ -18,7 +18,7 @@ interface CookieConsentProps {
 }
 
 const CookieConsent: React.FC<CookieConsentProps> = ({ onNavigate }) => {
-  const { language } = useApp();
+  const { language, t: translate } = useApp();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<ConsentSettings>({
@@ -209,7 +209,7 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ onNavigate }) => {
                 className="flex-1"
                 onClick={() => setShowSettings(false)}
               >
-                {language === 'en' ? 'Cancel' : 'Annuler'}
+                {translate('common.cancel', 'Cancel')}
               </Button>
               <Button
                 variant="primary"
