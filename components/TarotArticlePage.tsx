@@ -6,6 +6,8 @@ import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { fetchTarotArticle, previewTarotArticle, TarotArticle } from '../services/apiService';
 import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn } from 'lucide-react';
+import { SmartLink } from './SmartLink';
+import { useTranslation } from '../context/TranslationContext';
 
 interface TarotArticlePageProps {
   slug?: string;
@@ -37,21 +39,22 @@ function Breadcrumbs({ category, title, onNavigate }: { category: string; title:
     <nav aria-label="Breadcrumb" className="text-sm text-slate-400 mb-6">
       <ol className="flex items-center space-x-2">
         <li>
-          <button
-            onClick={() => onNavigate('/')}
-            className="hover:text-purple-400 transition-colors"
-          >
-            Home
-          </button>
+          <SmartLink href="/" onClick={() => onNavigate('/')}>
+            <button className="hover:text-purple-400 transition-colors">
+              Home
+            </button>
+          </SmartLink>
         </li>
         <li>/</li>
         <li>
-          <button
+          <SmartLink
+            href={`/tarot/${category.toLowerCase().replace(/\s+/g, '-')}`}
             onClick={() => onNavigate(`/tarot/${category.toLowerCase().replace(/\s+/g, '-')}`)}
-            className="hover:text-purple-400 transition-colors"
           >
-            {category}
-          </button>
+            <button className="hover:text-purple-400 transition-colors">
+              {category}
+            </button>
+          </SmartLink>
         </li>
         <li>/</li>
         <li className="text-purple-200 font-medium">{cardName}</li>
@@ -62,6 +65,7 @@ function Breadcrumbs({ category, title, onNavigate }: { category: string; title:
 
 const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, onBack }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
   const { getToken } = useAuth();
   const [article, setArticle] = useState<TarotArticle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -134,7 +138,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-heading text-red-400 mb-4">
-          {language === 'en' ? 'Article Not Found' : 'Article Non Trouvé'}
+          {t('tarot.TarotArticlePage.not_found', 'Article Not Found')}
         </h2>
         <p className="text-slate-400 mb-8">{error || 'Article not found'}</p>
         <button
@@ -142,7 +146,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          {language === 'en' ? 'Back' : 'Retour'}
+          {t('common.back', 'Back')}
         </button>
       </div>
     );
@@ -216,7 +220,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          {language === 'en' ? 'Back' : 'Retour'}
+          {t('common.back', 'Back')}
         </button>
 
         {/* Breadcrumbs */}
@@ -279,7 +283,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
             {article.isCourtCard && (
               <span className="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs rounded-full border border-amber-500/30 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                {language === 'en' ? 'Court Card' : 'Carte de Cour'}
+                {t('tarot.TarotArticlePage.court_card', 'Court Card')}
               </span>
             )}
           </div>
@@ -333,7 +337,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           >
             <h3 className="text-lg text-slate-400 mb-3 flex items-center gap-2">
               <Tag className="w-4 h-4" />
-              {language === 'en' ? 'Related Topics' : 'Sujets Connexes'}
+              {t('tarot.TarotArticlePage.related_topics', 'Related Topics')}
             </h3>
             <div className="flex flex-wrap gap-2">
               {article.tags.map((tag) => (
@@ -357,19 +361,20 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
             className="border-t border-purple-500/20 pt-12"
           >
             <h2 className="text-2xl font-heading text-purple-200 mb-6">
-              {language === 'en' ? 'Related Cards' : 'Cartes Liées'}
+              {t('tarot.TarotArticlePage.related_cards', 'Related Cards')}
             </h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               {article.relatedCards.map((card) => (
-                <button
+                <SmartLink
                   key={card}
+                  href={`/tarot/articles/${card.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => handleNavigate(`/tarot/${card.toLowerCase().replace(/\s+/g, '-')}`)}
                   className="px-4 py-3 bg-slate-900/60 border border-purple-500/20 rounded-lg
                     hover:border-purple-500/40 hover:bg-slate-800/60 transition-all
-                    text-purple-300 hover:text-purple-200 font-medium"
+                    text-purple-300 hover:text-purple-200 font-medium block text-center"
                 >
                   {card}
-                </button>
+                </SmartLink>
               ))}
             </div>
           </motion.section>

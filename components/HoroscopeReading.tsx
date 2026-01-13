@@ -7,6 +7,7 @@ import { fetchHoroscope, askHoroscopeQuestion } from '../services/apiService';
 import { willNextQuestionCostCredit, incrementHoroscopeQuestionCount } from '../services/storageService';
 import Button from './Button';
 import { Send } from 'lucide-react';
+import { useTranslation } from '../context/TranslationContext';
 
 const zodiacSigns = {
   en: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
@@ -196,6 +197,7 @@ interface ChatMessage {
 
 const HoroscopeReading: React.FC = () => {
   const { language, deductCredits, user } = useApp();
+  const { t } = useTranslation();
   const { getToken } = useAuth();
   const [selectedSign, setSelectedSign] = useState<string | null>(null);
   const [selectedSignIndex, setSelectedSignIndex] = useState<number | null>(null);
@@ -395,7 +397,7 @@ const HoroscopeReading: React.FC = () => {
       <div className="max-w-2xl mx-auto p-8 bg-slate-900/80 rounded-2xl border border-purple-500/20 shadow-2xl">
         <h2 className="text-3xl font-heading text-amber-400 mb-6 text-center">{displaySignName}</h2>
         <p className="text-center text-purple-300/70 text-sm uppercase tracking-widest mb-8">
-          {language === 'en' ? 'Daily Horoscope' : 'Horoscope du Jour'}
+          {t('horoscope.HoroscopeReading.daily_horoscope', 'Daily Horoscope')}
         </p>
 
         <div className="font-sans text-lg leading-relaxed text-slate-300">
@@ -419,14 +421,14 @@ const HoroscopeReading: React.FC = () => {
         {/* Ask the Stars Chat Section */}
         <div className="mt-10 pt-6 border-t border-white/10">
           <h3 className="text-xl font-heading text-purple-300 mb-4 text-center">
-            {language === 'en' ? 'Ask the Stars' : 'Interrogez les Étoiles'}
+            {t('horoscope.HoroscopeReading.ask_the_stars', 'Ask the Stars')}
           </h3>
 
           {/* Suggested Questions */}
           {suggestedQuestions.length > 0 && chatHistory.length === 0 && (
             <div className="mb-6">
               <p className="text-sm text-purple-300/70 mb-3 text-center">
-                {language === 'en' ? 'Suggested questions:' : 'Questions suggérées:'}
+                {t('horoscope.HoroscopeReading.suggested_questions', 'Suggested questions:')}
               </p>
               <div className="space-y-2">
                 {suggestedQuestions.map((question, index) => (
@@ -459,8 +461,8 @@ const HoroscopeReading: React.FC = () => {
                     message.role === 'user' ? 'text-purple-400' : 'text-amber-400'
                   }`}>
                     {message.role === 'user'
-                      ? (language === 'en' ? 'You' : 'Vous')
-                      : (language === 'en' ? 'The Stars' : 'Les Étoiles')}
+                      ? (t('horoscope.HoroscopeReading.you', 'You'))
+                      : (t('horoscope.HoroscopeReading.the_stars', 'The Stars'))}
                   </p>
                   <div className="text-slate-300 text-sm leading-relaxed">
                     <ReactMarkdown
@@ -478,11 +480,11 @@ const HoroscopeReading: React.FC = () => {
               {isChatLoading && (
                 <div className="mr-8 bg-slate-800/60 border-amber-500/20 p-4 rounded-lg border">
                   <p className="text-xs uppercase tracking-wider mb-2 text-amber-400">
-                    {language === 'en' ? 'The Stars' : 'Les Étoiles'}
+                    {t('horoscope.HoroscopeReading.the_stars', 'The Stars')}
                   </p>
                   <div className="flex items-center space-x-2">
                     <div className="animate-pulse text-purple-300">
-                      {language === 'en' ? 'Consulting the cosmos...' : 'Consultation du cosmos...'}
+                      {t('horoscope.HoroscopeReading.consulting_cosmos', 'Consulting the cosmos...')}
                     </div>
                   </div>
                 </div>
@@ -524,7 +526,7 @@ const HoroscopeReading: React.FC = () => {
 
         <div className="text-center mt-8 pt-6 border-t border-white/10">
           <Button onClick={handleBack}>
-            {language === 'en' ? 'Choose another sign' : 'Choisir un autre signe'}
+            {t('horoscope.HoroscopeReading.choose_another_sign', 'Choose another sign')}
           </Button>
         </div>
       </div>
@@ -534,7 +536,7 @@ const HoroscopeReading: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4">
       <h2 className="text-3xl font-heading text-center text-purple-200 mb-8">
-        {language === 'en' ? 'Select Your Zodiac Sign' : 'Sélectionnez Votre Signe du Zodiaque'}
+        {t('horoscope.HoroscopeReading.select_zodiac_sign', 'Select Your Zodiac Sign')}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {currentZodiacSigns.map((sign, index) => (

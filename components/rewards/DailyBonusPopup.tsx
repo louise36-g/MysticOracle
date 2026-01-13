@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, X, Flame, Sparkles, Coins, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../context/TranslationContext';
 
 interface DailyBonusPopupProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface DailyBonusPopupProps {
 
 const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) => {
   const { user, language, claimDailyBonus } = useApp();
+  const { t } = useTranslation();
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
   const [claimedAmount, setClaimedAmount] = useState(0);
@@ -146,8 +148,8 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                   {/* Title */}
                   <h2 className="text-2xl font-heading font-bold text-amber-100 mb-2">
                     {claimed
-                      ? (language === 'en' ? 'Bonus Claimed!' : 'Bonus Réclamé !')
-                      : (language === 'en' ? 'Daily Bonus Available!' : 'Bonus Quotidien Disponible !')
+                      ? (t('rewards.DailyBonusPopup.bonus_claimed', 'Bonus Claimed!'))
+                      : (t('rewards.DailyBonusPopup.daily_bonus_available', 'Daily Bonus Available!'))
                     }
                   </h2>
 
@@ -156,7 +158,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-sm mb-4">
                       <Flame className="w-4 h-4" />
                       <span>
-                        {user.loginStreak} {language === 'en' ? 'day streak' : 'jours consécutifs'}
+                        {user.loginStreak} {t('rewards.DailyBonusPopup.day_streak', 'day streak')}
                       </span>
                     </div>
                   )}
@@ -168,7 +170,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                       +{claimed ? claimedAmount : totalCredits}
                     </div>
                     <div className="text-slate-400 mt-1">
-                      {language === 'en' ? 'credits' : 'crédits'}
+                      {t('rewards.DailyBonusPopup.credits', 'credits')}
                     </div>
                   </div>
 
@@ -176,7 +178,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                   {!claimed && streakBonus && (
                     <div className="mb-4 flex items-center justify-center gap-2 text-sm text-orange-300">
                       <Sparkles className="w-4 h-4" />
-                      <span>{language === 'en' ? 'Includes 7-day streak bonus!' : 'Inclut le bonus de 7 jours !'}</span>
+                      <span>{t('rewards.DailyBonusPopup.includes_7day_streak', 'Includes 7-day streak bonus!')}</span>
                     </div>
                   )}
 
@@ -198,7 +200,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                       animate={{ opacity: 1 }}
                       className="text-green-400 font-medium"
                     >
-                      {language === 'en' ? 'Credits added to your account!' : 'Crédits ajoutés à votre compte !'}
+                      {t('rewards.DailyBonusPopup.credits_added_to', 'Credits added to your account!')}
                     </motion.div>
                   ) : error ? null : (
                     <motion.button
@@ -218,12 +220,12 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                           />
-                          <span>{language === 'en' ? 'Claiming...' : 'Réclamation...'}</span>
+                          <span>{t('rewards.DailyBonusPopup.claiming', 'Claiming...')}</span>
                         </>
                       ) : (
                         <>
                           <Gift className="w-5 h-5" />
-                          <span>{language === 'en' ? 'Claim Your Bonus' : 'Réclamer Votre Bonus'}</span>
+                          <span>{t('rewards.DailyBonusPopup.claim_your_bonus', 'Claim Your Bonus')}</span>
                         </>
                       )}
                     </motion.button>
@@ -235,7 +237,7 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
                       onClick={onClose}
                       className="mt-4 text-sm text-slate-500 hover:text-slate-300 transition-colors"
                     >
-                      {language === 'en' ? 'Maybe later' : 'Peut-être plus tard'}
+                      {t('rewards.DailyBonusPopup.maybe_later', 'Maybe later')}
                     </button>
                   )}
                 </div>

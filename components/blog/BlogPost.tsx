@@ -5,6 +5,8 @@ import { useApp } from '../../context/AppContext';
 import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
 import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle, X, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SmartLink } from '../SmartLink';
+import { useTranslation } from '../../context/TranslationContext';
 
 interface BlogPostProps {
   slug?: string;
@@ -17,6 +19,7 @@ interface BlogPostProps {
 
 const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavigateToPost, onCategoryClick, onTagClick }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
   const { getToken } = useAuth();
   const isPreview = !!previewId;
   const [post, setPost] = useState<BlogPostType | null>(null);
@@ -258,16 +261,15 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-heading text-red-400 mb-4">
-          {language === 'en' ? 'Article Not Found' : 'Article Non Trouve'}
+          {t('blog.BlogPost.article_not_found', 'Article Not Found')}
         </h2>
         <p className="text-slate-400 mb-8">{error}</p>
-        <button
-          onClick={onBack}
-          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 inline mr-2" />
-          {language === 'en' ? 'Back to Blog' : 'Retour au Blog'}
-        </button>
+        <SmartLink href="/blog" onClick={onBack}>
+          <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors">
+            <ArrowLeft className="w-4 h-4 inline mr-2" />
+            {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
+          </button>
+        </SmartLink>
       </div>
     );
   }
@@ -283,25 +285,22 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <div>
             <p className="text-amber-200 font-medium">
-              {language === 'en' ? 'Preview Mode' : 'Mode Apercu'}
+              {t('blog.BlogPost.preview_mode', 'Preview Mode')}
             </p>
             <p className="text-amber-200/70 text-sm">
-              {language === 'en'
-                ? 'This is a preview. The post is not published yet.'
-                : 'Ceci est un apercu. L\'article n\'est pas encore publie.'}
+              {t('blog.BlogPost.preview_description', 'This is a preview. The post is not published yet.')}
             </p>
           </div>
         </div>
       )}
 
       {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        {language === 'en' ? 'Back to Blog' : 'Retour au Blog'}
-      </button>
+      <SmartLink href="/blog" onClick={onBack}>
+        <button className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
+        </button>
+      </SmartLink>
 
       {/* Header */}
       <motion.header
@@ -312,14 +311,15 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         {/* Categories */}
         <div className="flex flex-wrap justify-center gap-2 mb-4">
           {post.categories.map((cat) => (
-            <button
+            <SmartLink
               key={cat.id}
+              href={`/blog/category/${cat.slug}`}
               onClick={() => onCategoryClick(cat.slug)}
               className="px-3 py-1 rounded-full text-sm font-medium hover:opacity-80 transition-opacity"
               style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
             >
               {language === 'en' ? cat.nameEn : cat.nameFr}
-            </button>
+            </SmartLink>
           ))}
         </div>
 
@@ -340,11 +340,11 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            {post.readTimeMinutes} min {language === 'en' ? 'read' : 'lecture'}
+            {post.readTimeMinutes} min {t('blog.BlogPost.read', 'read')}
           </span>
           <span className="flex items-center gap-1">
             <Eye className="w-4 h-4" />
-            {post.viewCount.toLocaleString()} {language === 'en' ? 'views' : 'vues'}
+            {post.viewCount.toLocaleString()} {t('blog.BlogPost.views', 'views')}
           </span>
         </div>
 
@@ -352,7 +352,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         <div className="flex justify-center items-center gap-3">
           <span className="text-slate-500 flex items-center gap-1">
             <Share2 className="w-4 h-4" />
-            {language === 'en' ? 'Share:' : 'Partager:'}
+            {t('blog.BlogPost.share', 'Share:')}
           </span>
           <button
             onClick={() => handleShare('twitter')}
@@ -437,16 +437,17 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-slate-400 flex items-center gap-1">
               <Tag className="w-4 h-4" />
-              {language === 'en' ? 'Tags:' : 'Tags:'}
+              {t('blog.BlogPost.tags', 'Tags:')}
             </span>
             {post.tags.map((tag) => (
-              <button
+              <SmartLink
                 key={tag.id}
+                href={`/blog/tag/${tag.slug}`}
                 onClick={() => onTagClick(tag.slug)}
                 className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-sm hover:bg-purple-600 hover:text-white transition-colors"
               >
                 #{language === 'en' ? tag.nameEn : tag.nameFr}
-              </button>
+              </SmartLink>
             ))}
           </div>
         </motion.section>
@@ -461,14 +462,15 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           className="border-t border-purple-500/20 pt-12"
         >
           <h2 className="text-2xl font-heading text-purple-200 mb-6">
-            {language === 'en' ? 'Related Articles' : 'Articles Similaires'}
+            {t('blog.BlogPost.related_articles', 'Related Articles')}
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {relatedPosts.map((related) => (
-              <article
+              <SmartLink
                 key={related.id}
+                href={`/blog/${related.slug}`}
                 onClick={() => onNavigateToPost(related.slug)}
-                className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all"
+                className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all block"
               >
                 {related.coverImage && (
                   <div className="aspect-video overflow-hidden">
@@ -487,7 +489,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
                     {language === 'en' ? related.excerptEn : related.excerptFr}
                   </p>
                 </div>
-              </article>
+              </SmartLink>
             ))}
           </div>
         </motion.section>

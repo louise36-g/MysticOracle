@@ -2,6 +2,8 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Moon, Sparkles, Heart, Shield, Zap, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SmartLink } from './SmartLink';
+import { useTranslation } from '../context/TranslationContext';
 
 interface AboutUsProps {
   onNavigate: (view: string) => void;
@@ -10,6 +12,7 @@ interface AboutUsProps {
 
 const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
 
   const values = [
     {
@@ -55,7 +58,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
             <Moon className="w-10 h-10 text-white fill-current" />
           </div>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-purple-200 mb-4">
-            {language === 'en' ? 'About MysticOracle' : 'À Propos de MysticOracle'}
+            {t('about.AboutUs.title', 'About MysticOracle')}
           </h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
             {language === 'en'
@@ -73,7 +76,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
         >
           <h2 className="text-2xl font-heading text-purple-200 mb-4 flex items-center gap-3">
             <Users className="w-6 h-6 text-purple-400" />
-            {language === 'en' ? 'Our Story' : 'Notre Histoire'}
+            {t('about.AboutUs.our_story', 'Our Story')}
           </h2>
           <div className="prose prose-invert max-w-none">
             <p className="text-slate-300 leading-relaxed mb-4">
@@ -97,7 +100,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
           className="mb-12"
         >
           <h2 className="text-2xl font-heading text-purple-200 mb-8 text-center">
-            {language === 'en' ? 'Our Values' : 'Nos Valeurs'}
+            {t('about.AboutUs.our_values', 'Our Values')}
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {values.map((value, index) => (
@@ -144,15 +147,14 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
           className="text-center mt-12"
         >
           <p className="text-slate-400 mb-4">
-            {language === 'en' ? 'Ready to begin your journey?' : 'Prêt à commencer votre voyage ?'}
+            {t('about.AboutUs.ready_to_begin', 'Ready to begin your journey?')}
           </p>
-          <button
-            onClick={onNavigateToTarot}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-amber-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-amber-500 transition-all shadow-lg hover:shadow-purple-500/25"
-          >
-            <Sparkles className="w-5 h-5" />
-            {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
-          </button>
+          <SmartLink href="/tarot" onClick={onNavigateToTarot}>
+            <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-amber-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-amber-500 transition-all shadow-lg hover:shadow-purple-500/25">
+              <Sparkles className="w-5 h-5" />
+              {t('about.AboutUs.start_reading', 'Start Your Reading')}
+            </button>
+          </SmartLink>
         </motion.div>
       </div>
     </div>

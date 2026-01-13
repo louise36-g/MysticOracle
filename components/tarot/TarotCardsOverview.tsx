@@ -5,6 +5,8 @@ import { useApp } from '../../context/AppContext';
 import { fetchTarotOverview, TarotOverviewData } from '../../services/apiService';
 import TarotCategorySection, { CategoryType } from './TarotCategorySection';
 import Button from '../Button';
+import { SmartLink } from '../SmartLink';
+import { useTranslation } from '../../context/TranslationContext';
 
 interface TarotCardsOverviewProps {
   onCardClick: (slug: string) => void;
@@ -18,6 +20,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   onViewCategory,
 }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
   const [data, setData] = useState<TarotOverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +105,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
             className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg flex items-center gap-2 mx-auto"
           >
             <RefreshCw className="w-4 h-4" />
-            {language === 'en' ? 'Try Again' : 'Réessayer'}
+            {t('tarot.TarotCardsOverview.try_again', 'Try Again')}
           </button>
         </div>
       </div>
@@ -133,25 +136,23 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
           <div className="flex items-center justify-center gap-2 mb-4">
             <Layers className="w-6 h-6 text-purple-400" />
             <span className="text-purple-400 text-sm font-medium uppercase tracking-wider">
-              {language === 'en' ? 'Complete Guide' : 'Guide Complet'}
+              {t('tarot.TarotCardsOverview.complete_guide', 'Complete Guide')}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-purple-200 mb-4">
-            {language === 'en' ? 'The Tarot Deck' : 'Le Tarot'}
+            {t('tarot.TarotCardsOverview.the_tarot_deck', 'The Tarot Deck')}
           </h1>
 
           <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
-            {language === 'en'
-              ? 'Explore the ancient wisdom of all 78 cards. Discover their meanings, symbolism, and guidance for your journey.'
-              : 'Explorez la sagesse ancienne des 78 cartes. Découvrez leurs significations, leur symbolisme et leurs conseils pour votre voyage.'}
+            {t('tarot.TarotCardsOverview.explore_ancient_wisdom', 'Explore the ancient wisdom of all 78 cards. Discover their meanings, symbolism, and guidance for your journey.')}
           </p>
 
-          <Button variant="primary" size="lg" onClick={onViewAllCards}>
-            {language === 'en'
-              ? `Browse All ${totalCards} Cards`
-              : `Parcourir les ${totalCards} Cartes`}
-          </Button>
+          <SmartLink href="/tarot/cards/all" onClick={onViewAllCards}>
+            <Button variant="primary" size="lg">
+              {t('tarot.TarotCardsOverview.browse_all_cards', `Browse All ${totalCards} Cards`, { totalCards })}
+            </Button>
+          </SmartLink>
         </motion.div>
       </div>
 
@@ -202,14 +203,16 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
       <div className="text-center py-12 px-4">
         <div className="max-w-xl mx-auto">
           <h2 className="text-2xl font-heading text-white mb-4">
-            {language === 'en' ? 'Ready to explore the full deck?' : 'Prêt à explorer le jeu complet ?'}
+            {t('tarot.TarotCardsOverview.ready_to_explore', 'Ready to explore the full deck?')}
           </h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" size="lg" onClick={onViewAllCards}>
-              {language === 'en' ? 'Browse All Cards' : 'Parcourir Toutes les Cartes'}
-            </Button>
+            <SmartLink href="/tarot/cards/all" onClick={onViewAllCards}>
+              <Button variant="primary" size="lg">
+                {t('tarot.TarotCardsOverview.browse_all_cards', 'Browse All Cards')}
+              </Button>
+            </SmartLink>
             <Button variant="outline" size="lg" onClick={() => window.location.href = '/tarot'}>
-              {language === 'en' ? 'Get a Reading' : 'Faire un Tirage'}
+              {t('tarot.TarotCardsOverview.get_a_reading', 'Get a Reading')}
             </Button>
           </div>
         </div>

@@ -4,6 +4,8 @@ import { ChevronRight, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-
 import { useApp } from '../../context/AppContext';
 import { TarotOverviewCard } from '../../services/apiService';
 import TarotCardPreview from './TarotCardPreview';
+import { SmartLink } from '../SmartLink';
+import { useTranslation } from '../../context/TranslationContext';
 
 export type CategoryType = 'majorArcana' | 'wands' | 'cups' | 'swords' | 'pentacles';
 
@@ -75,6 +77,7 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
   onViewAll,
 }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
   const config = CATEGORY_CONFIG[category];
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -147,13 +150,14 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
           </div>
         </div>
 
-        <button
+        <SmartLink
+          href={`/tarot/cards/${config.slug}`}
           onClick={() => onViewAll(category)}
           className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
         >
-          {language === 'en' ? `View All ${count}` : `Voir les ${count}`}
+          {t('tarot.TarotCategorySection.view_all_count', `View All ${count}`, { count })}
           <ChevronRight className="w-4 h-4" />
-        </button>
+        </SmartLink>
       </div>
 
       {/* Scrollable Cards */}

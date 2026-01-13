@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
 import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
 import { fetchTarotArticles, TarotArticle } from '../services/apiService';
+import { SmartLink } from './SmartLink';
+import { useTranslation } from '../context/TranslationContext';
 
 interface TarotArticlesListProps {
   onArticleClick: (slug: string) => void;
@@ -20,6 +22,7 @@ const categorySlugToType: Record<string, string> = {
 
 const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, defaultCategory }) => {
   const { language } = useApp();
+  const { t } = useTranslation();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +93,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
     return (
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center text-purple-300">
-          {language === 'en' ? 'Loading articles...' : 'Chargement des articles...'}
+          {t('tarot.TarotArticlesList.loading', 'Loading articles...')}
         </div>
       </div>
     );
@@ -119,7 +122,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-heading text-transparent bg-clip-text bg-gradient-to-b from-white to-purple-200 mb-4">
-          {language === 'en' ? 'Tarot Card Meanings' : 'Significations des Cartes de Tarot'}
+          {t('tarot.TarotArticlesList.title', 'Tarot Card Meanings')}
         </h1>
         <p className="text-lg text-purple-300/70 max-w-2xl mx-auto">
           {language === 'en'
@@ -136,7 +139,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={language === 'en' ? 'Search articles...' : 'Rechercher des articles...'}
+            placeholder={t('tarot.TarotArticlesList.search_placeholder', 'Search articles...')}
             className="w-full pl-12 pr-4 py-3 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
           />
         </div>
@@ -150,7 +153,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
                 : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
             }`}
           >
-            {language === 'en' ? 'All Cards' : 'Toutes les Cartes'}
+            {t('tarot.TarotArticlesList.all_cards', 'All Cards')}
           </button>
           {cardTypes.map((type) => (
             <button
@@ -171,62 +174,67 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
       {/* Articles Grid */}
       {filteredArticles.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
-          {language === 'en' ? 'No articles found' : 'Aucun article trouvé'}
+          {t('tarot.TarotArticlesList.no_articles', 'No articles found')}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredArticles.map((article, index) => (
-            <motion.div
+            <SmartLink
               key={article.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.2 }}
-              whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
-              whileTap={{ scale: 0.98 }}
+              href={`/tarot/articles/${article.slug}`}
               onClick={() => onArticleClick(article.slug)}
-              className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40"
+              className="block"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
-                {article.featuredImage ? (
-                  <img
-                    src={article.featuredImage}
-                    alt={article.featuredImageAlt || article.title}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
-                      if (placeholder) placeholder.classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <div className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}>
-                  <div className="text-center">
-                    <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
-                    <span className="text-xs text-purple-300/50">No Image</span>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.2 }}
+                whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                whileTap={{ scale: 0.98 }}
+                className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40"
+              >
+                <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
+                  {article.featuredImage ? (
+                    <img
+                      src={article.featuredImage}
+                      alt={article.featuredImageAlt || article.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
+                        if (placeholder) placeholder.classList.remove('hidden');
+                      }}
+                    />
+                  ) : null}
+                  <div className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}>
+                    <div className="text-center">
+                      <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
+                      <span className="text-xs text-purple-300/50">No Image</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="p-3">
-                {/* Category label */}
-                <div className="text-xs text-slate-400 mb-1">
-                  {cardTypeLabels[article.cardType] || article.cardType}
+                <div className="p-3">
+                  {/* Category label */}
+                  <div className="text-xs text-slate-400 mb-1">
+                    {cardTypeLabels[article.cardType] || article.cardType}
+                  </div>
+                  {/* Title with card number inline */}
+                  <h3 className="font-heading text-sm text-purple-100 mb-1.5 line-clamp-2 group-hover:text-white transition-colors">
+                    <span className="font-bold text-purple-400">
+                      {article.cardNumber}
+                    </span>
+                    {article.cardNumber !== undefined && article.cardNumber !== null && ' - '}
+                    {article.title}
+                  </h3>
+                  {/* Excerpt */}
+                  <p className="text-xs text-slate-400 line-clamp-2">
+                    {article.excerpt}
+                  </p>
                 </div>
-                {/* Title with card number inline */}
-                <h3 className="font-heading text-sm text-purple-100 mb-1.5 line-clamp-2 group-hover:text-white transition-colors">
-                  <span className="font-bold text-purple-400">
-                    {article.cardNumber}
-                  </span>
-                  {article.cardNumber !== undefined && article.cardNumber !== null && ' - '}
-                  {article.title}
-                </h3>
-                {/* Excerpt */}
-                <p className="text-xs text-slate-400 line-clamp-2">
-                  {article.excerpt}
-                </p>
-              </div>
-            </motion.div>
+              </motion.div>
+            </SmartLink>
           ))}
         </div>
       )}
