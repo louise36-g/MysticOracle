@@ -12,6 +12,9 @@ import { join } from 'path';
 const INPUT_FILE = 'scripts/extracted-translations.json';
 const OUTPUT_FILE = 'scripts/seed-data-additions.txt';
 const MAX_COMMENT_LENGTH = 50;
+const ELLIPSIS_LENGTH = 3; // Length of '...'
+const TARGET_FILE_LINE_START = 380;
+const TARGET_FILE_LINE_END = 1027;
 
 interface Translation {
   key: string;
@@ -43,7 +46,7 @@ function escapeString(text: string): string {
 function formatComment(file: string, line: number): string {
   const location = `${file}:${line}`;
   if (location.length > MAX_COMMENT_LENGTH) {
-    return `${location.substring(0, MAX_COMMENT_LENGTH - 3)}...`;
+    return `${location.substring(0, MAX_COMMENT_LENGTH - ELLIPSIS_LENGTH)}...`;
   }
   return location;
 }
@@ -61,53 +64,71 @@ function generateEntry(translation: Translation): string {
 }
 
 /**
- * Main generator function
+ * Read and parse translations from input file
  */
-function generateSeedData(): void {
+function readTranslationsFile(): ExtractedData {
   const inputPath = join(process.cwd(), INPUT_FILE);
+  const jsonContent = readFileSync(inputPath, 'utf-8');
+  return JSON.parse(jsonContent);
+}
+
+/**
+ * Format translations to TypeScript entries
+ */
+function formatSeedEntries(translations: Translation[]): string {
+  return translations.map(generateEntry).join('\n');
+}
+
+/**
+ * Write output files with seed data
+ */
+function writeSeedFiles(entries: string, count: number): void {
   const outputPath = join(process.cwd(), OUTPUT_FILE);
 
-  // Read input file
-  const jsonContent = readFileSync(inputPath, 'utf-8');
-  const data: ExtractedData = JSON.parse(jsonContent);
-
-  // Generate seed entries
-  const entries = data.translations
-    .map(generateEntry)
-    .join('\n');
-
-  // Prepare output with instructions
   const output = [
     '// ============================================',
     '// EXTRACTED TRANSLATIONS - AUTO-GENERATED',
     '// ============================================',
     '// Copy the following lines and paste them into server/src/routes/translations.ts',
-    '// Location: Inside defaultTranslations object, BEFORE the closing brace (line ~1027)',
+    `// Location: Inside defaultTranslations object, BEFORE the closing brace (line ~${TARGET_FILE_LINE_END})`,
     '// Preserve existing translations, add these new ones',
     '',
     entries,
     '',
-    `// Total: ${data.translations.length} translations added`,
+    `// Total: ${count} translations added`,
   ].join('\n');
 
-  // Write output
   writeFileSync(outputPath, output, 'utf-8');
+}
 
-  // Print summary
+/**
+ * Print generation summary and next steps
+ */
+function printGenerationSummary(count: number): void {
   console.log('✅ Seed data generation complete!');
   console.log('');
   console.log(`📊 Statistics:`);
   console.log(`   - Input file:  ${INPUT_FILE}`);
   console.log(`   - Output file: ${OUTPUT_FILE}`);
-  console.log(`   - Translations: ${data.translations.length}`);
+  console.log(`   - Translations: ${count}`);
   console.log('');
   console.log(`📋 Next steps:`);
   console.log(`   1. Open server/src/routes/translations.ts`);
-  console.log(`   2. Find the defaultTranslations object (around line 380)`);
-  console.log(`   3. Scroll to BEFORE the closing brace (line ~1027)`);
+  console.log(`   2. Find the defaultTranslations object (around line ${TARGET_FILE_LINE_START})`);
+  console.log(`   3. Scroll to BEFORE the closing brace (line ~${TARGET_FILE_LINE_END})`);
   console.log(`   4. Paste contents of ${OUTPUT_FILE}`);
   console.log(`   5. Verify no duplicate keys with existing translations`);
   console.log('');
+}
+
+/**
+ * Main generator function - orchestrates the seed data generation process
+ */
+function generateSeedData(): void {
+  const data = readTranslationsFile();
+  const entries = formatSeedEntries(data.translations);
+  writeSeedFiles(entries, data.translations.length);
+  printGenerationSummary(data.translations.length);
 }
 
 // Run generator
