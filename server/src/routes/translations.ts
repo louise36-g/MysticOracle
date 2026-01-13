@@ -2307,24 +2307,34 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'services.openrouterService.english_4': { en: 'English', fr: 'French' }, // services/openrouterService.ts:543
     };
 
-    // Insert all translations
-    const operations = [];
-    for (const [key, values] of Object.entries(defaultTranslations)) {
-      operations.push(
-        prisma.translation.upsert({
-          where: { key_languageId: { key, languageId: enLang.id } },
-          create: { key, value: values.en, language: { connect: { id: enLang.id } } },
-          update: { value: values.en },
-        }),
-        prisma.translation.upsert({
-          where: { key_languageId: { key, languageId: frLang.id } },
-          create: { key, value: values.fr, language: { connect: { id: frLang.id } } },
-          update: { value: values.fr },
-        })
-      );
-    }
+    // Insert all translations in batches to avoid timeout
+    const BATCH_SIZE = 100;
+    const entries = Object.entries(defaultTranslations);
+    let processedCount = 0;
 
-    await prisma.$transaction(operations);
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      const operations = [];
+
+      for (const [key, values] of batch) {
+        operations.push(
+          prisma.translation.upsert({
+            where: { key_languageId: { key, languageId: enLang.id } },
+            create: { key, value: values.en, language: { connect: { id: enLang.id } } },
+            update: { value: values.en },
+          }),
+          prisma.translation.upsert({
+            where: { key_languageId: { key, languageId: frLang.id } },
+            create: { key, value: values.fr, language: { connect: { id: frLang.id } } },
+            update: { value: values.fr },
+          })
+        );
+      }
+
+      await prisma.$transaction(operations);
+      processedCount += batch.length;
+      console.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
+    }
 
     // Invalidate cache and bump version
     await invalidateTranslationCache();
