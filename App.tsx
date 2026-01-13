@@ -12,8 +12,9 @@ import Breadcrumb from './components/Breadcrumb';
 import SubNav from './components/SubNav';
 import { DailyBonusPopup } from './components/rewards';
 import { useApp } from './context/AppContext';
-import { SpreadConfig, InterpretationStyle } from './types';
+import { SpreadConfig, InterpretationStyle, SpreadType } from './types';
 import { CategoryType, CATEGORY_CONFIG } from './components/tarot';
+import { SPREADS } from './constants';
 import Button from './components/Button';
 import { Star, Shield, Zap, Coins, X, AlertTriangle } from 'lucide-react';
 
@@ -57,7 +58,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
 
 const App: React.FC = () => {
-  const { user, isLoading, language, refreshUser } = useApp();
+  const { user, isLoading, language, refreshUser, t } = useApp();
   const { isSignedIn, isLoaded: clerkLoaded } = useUser();
   const [currentView, setCurrentView] = useState('home');
   const [selectedSpread, setSelectedSpread] = useState<SpreadConfig | null>(null);
@@ -170,7 +171,23 @@ const App: React.FC = () => {
     // Reading modes
     else if (path === '/tarot' || path.startsWith('/tarot/')) {
       setReadingMode('tarot');
-      window.history.replaceState({ view: 'home', readingMode: 'tarot' }, '', path);
+      // Check if path contains a spread slug (e.g., /tarot/single-card)
+      const spreadSlug = path.replace('/tarot/', '').replace('/tarot', '');
+      if (spreadSlug && spreadSlug !== '' && spreadSlug !== '/') {
+        // Find spread by matching the slug with nameEn
+        const spread = Object.values(SPREADS).find(s =>
+          s.nameEn.toLowerCase().replace(/\s+/g, '-') === spreadSlug
+        );
+        if (spread) {
+          setSelectedSpread(spread);
+          setCurrentView('reading');
+          window.history.replaceState({ view: 'reading', readingMode: 'tarot', selectedSpread: spread }, '', path);
+        } else {
+          window.history.replaceState({ view: 'home', readingMode: 'tarot' }, '', path);
+        }
+      } else {
+        window.history.replaceState({ view: 'home', readingMode: 'tarot' }, '', path);
+      }
     } else if (path === '/horoscope') {
       setReadingMode('horoscope');
       window.history.replaceState({ view: 'home', readingMode: 'horoscope' }, '', '/horoscope');
@@ -515,23 +532,21 @@ const App: React.FC = () => {
                 <Shield className="w-10 h-10 text-red-400" />
               </div>
               <h1 className="text-3xl font-heading text-white mb-4">
-                {language === 'en' ? 'Access Denied' : 'Accès Refusé'}
+                {t('app.App.access_denied', 'Access Denied')}
               </h1>
               <p className="text-slate-400 mb-6">
-                {language === 'en'
-                  ? 'You do not have permission to access this page. This area is restricted to administrators only.'
-                  : 'Vous n\'avez pas la permission d\'accéder à cette page. Cette zone est réservée aux administrateurs.'}
+                {t('app.App.access_denied_description', 'You do not have permission to access this page. This area is restricted to administrators only.')}
               </p>
               {!isSignedIn && (
                 <SignInButton mode="modal">
                   <Button variant="primary">
-                    {language === 'en' ? 'Sign In' : 'Se connecter'}
+                    {t('app.App.sign_in', 'Sign In')}
                   </Button>
                 </SignInButton>
               )}
               {isSignedIn && (
                 <Button variant="outline" onClick={() => handleNavigate('home')}>
-                  {language === 'en' ? 'Go Home' : 'Retour à l\'accueil'}
+                  {t('app.App.go_home', 'Go Home')}
                 </Button>
               )}
             </div>
@@ -688,7 +703,7 @@ const App: React.FC = () => {
             {!user && (
               <SignInButton mode="modal">
                 <Button size="lg">
-                  {language === 'en' ? 'Start Your Reading' : 'Commencer Votre Lecture'}
+                  {t('app.App.start_your_reading', 'Start Your Reading')}
                 </Button>
               </SignInButton>
             )}
@@ -701,28 +716,28 @@ const App: React.FC = () => {
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Star /></div>
                <h3 className="text-xl font-heading text-purple-200 mb-2">
-                 {language === 'en' ? 'AI Powered Insights' : 'Insights par IA'}
+                 {t('app.App.ai_powered_insights', 'AI Powered Insights')}
                </h3>
                <p className="text-slate-400 text-sm">
-                 {language === 'en' ? 'Deep, context-aware interpretations powered by AI.' : 'Interprétations profondes et contextuelles alimentées par l\'IA.'}
+                 {t('app.App.deep_contextaware_interpretations', 'Deep, context-aware interpretations powered by AI.')}
                </p>
             </div>
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Shield /></div>
                <h3 className="text-xl font-heading text-purple-200 mb-2">
-                 {language === 'en' ? 'Private & Secure' : 'Privé & Sécurisé'}
+                 {t('app.App.private_secure', 'Private & Secure')}
                </h3>
                <p className="text-slate-400 text-sm">
-                 {language === 'en' ? 'Your spiritual journey is personal. We respect your privacy.' : 'Votre voyage spirituel est personnel. Nous respectons votre vie privée.'}
+                 {t('app.App.your_spiritual_journey_is_personal', 'Your spiritual journey is personal. We respect your privacy.')}
                </p>
             </div>
             <div className="bg-slate-900/40 p-6 rounded-xl border border-white/5 text-center backdrop-blur-sm hover:border-purple-500/30 transition-colors">
                <div className="w-12 h-12 bg-purple-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400"><Zap /></div>
                <h3 className="text-xl font-heading text-purple-200 mb-2">
-                 {language === 'en' ? 'Instant Clarity' : 'Clarté Instantanée'}
+                 {t('app.App.instant_clarity', 'Instant Clarity')}
                </h3>
                <p className="text-slate-400 text-sm">
-                 {language === 'en' ? 'Get answers to life\'s pressing questions in seconds.' : 'Obtenez des réponses à vos questions en quelques secondes.'}
+                 {t('app.App.get_answers_to_lifes_pressing_questions', 'Get answers to life\'s pressing questions in seconds.')}
                </p>
             </div>
           </div>
@@ -746,7 +761,7 @@ const App: React.FC = () => {
         {/* Oracle Placeholder */}
         {user && currentView === 'home' && readingMode === 'oracle' && (
            <div className="text-center p-8 text-purple-300">
-             {language === 'en' ? 'Oracle Reading Coming Soon...' : 'Lecture Oracle Bientôt Disponible...'}
+             {t('app.App.oracle_reading_coming_soon', 'Oracle Reading Coming Soon...')}
            </div>
         )}
       </div>
@@ -829,17 +844,13 @@ const App: React.FC = () => {
                   <Coins className="w-8 h-8 text-red-400" />
                 </div>
                 <h3 className="text-xl font-heading text-white mb-2">
-                  {language === 'en' ? 'Not Enough Credits' : 'Crédits Insuffisants'}
+                  {t('app.App.not_enough_credits', 'Not Enough Credits')}
                 </h3>
                 <p className="text-slate-400 mb-2">
-                  {language === 'en'
-                    ? `This spread requires ${pendingSpread?.cost} credits.`
-                    : `Ce tirage nécessite ${pendingSpread?.cost} crédits.`}
+                  {t('app.App.spread_requires_credits', `This spread requires ${pendingSpread?.cost} credits.`)}
                 </p>
                 <p className="text-slate-500 text-sm mb-6">
-                  {language === 'en'
-                    ? `You have ${user?.credits ?? 0} credits remaining.`
-                    : `Il vous reste ${user?.credits ?? 0} crédits.`}
+                  {t('app.App.credits_remaining', `You have ${user?.credits ?? 0} credits remaining.`)}
                 </p>
                 <div className="flex gap-3">
                   <Button
@@ -847,7 +858,7 @@ const App: React.FC = () => {
                     className="flex-1"
                     onClick={() => setShowNoCreditsModal(false)}
                   >
-                    {language === 'en' ? 'Cancel' : 'Annuler'}
+                    {t('app.App.cancel', 'Cancel')}
                   </Button>
                   <Button
                     variant="primary"
@@ -855,7 +866,7 @@ const App: React.FC = () => {
                     onClick={handleBuyCredits}
                   >
                     <Coins className="w-4 h-4 mr-2" />
-                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                    {t('app.App.buy_credits', 'Buy Credits')}
                   </Button>
                 </div>
               </div>
@@ -892,12 +903,10 @@ const App: React.FC = () => {
                   <AlertTriangle className="w-8 h-8 text-amber-400" />
                 </div>
                 <h3 className="text-xl font-heading text-white mb-2">
-                  {language === 'en' ? 'Running Low on Credits' : 'Crédits Bientôt Épuisés'}
+                  {t('app.App.running_low_on_credits', 'Running Low on Credits')}
                 </h3>
                 <p className="text-slate-400 mb-6">
-                  {language === 'en'
-                    ? `You only have ${user?.credits ?? 0} credits left. Top up now to continue your mystical journey without interruption.`
-                    : `Il ne vous reste que ${user?.credits ?? 0} crédits. Rechargez maintenant pour continuer votre voyage mystique sans interruption.`}
+                  {t('app.App.only_credits_left', `You only have ${user?.credits ?? 0} credits left. Top up now to continue your mystical journey without interruption.`)}
                 </p>
                 <div className="flex gap-3">
                   <Button
@@ -905,7 +914,7 @@ const App: React.FC = () => {
                     className="flex-1"
                     onClick={() => setShowLowCreditsModal(false)}
                   >
-                    {language === 'en' ? 'Later' : 'Plus Tard'}
+                    {t('app.App.later', 'Later')}
                   </Button>
                   <Button
                     variant="primary"
@@ -913,7 +922,7 @@ const App: React.FC = () => {
                     onClick={handleBuyCredits}
                   >
                     <Coins className="w-4 h-4 mr-2" />
-                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                    {t('app.App.buy_credits', 'Buy Credits')}
                   </Button>
                 </div>
               </div>
