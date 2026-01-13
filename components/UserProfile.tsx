@@ -9,32 +9,15 @@ import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
 import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/apiService';
-import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, SortOption } from './profile';
+import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, DateRangeOption, TransactionTypeFilter } from './profile';
+import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
 
 // Constants
-const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-6";
+const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
 const STAGGER_DELAY = 0.08;
 
-// Achievement progress helper
-const getAchievementProgress = (
-    achievementId: string,
-    user: { totalReadings: number; loginStreak: number; spreadsUsed?: SpreadType[]; achievements?: string[] }
-) => {
-    const totalSpreads = Object.keys(SPREADS).length;
-    switch (achievementId) {
-        case 'first_reading': return { current: Math.min(user.totalReadings, 1), target: 1 };
-        case 'five_readings': return { current: Math.min(user.totalReadings, 5), target: 5 };
-        case 'ten_readings': return { current: Math.min(user.totalReadings, 10), target: 10 };
-        case 'celtic_master': return { current: user.spreadsUsed?.includes(SpreadType.CELTIC_CROSS) ? 1 : 0, target: 1 };
-        case 'all_spreads': return { current: user.spreadsUsed?.length || 0, target: totalSpreads };
-        case 'week_streak': return { current: Math.min(user.loginStreak, 7), target: 7 };
-        case 'share_reading': return { current: user.achievements?.includes('share_reading') ? 1 : 0, target: 1 };
-        default: return { current: 0, target: 1 };
-    }
-};
-
 const UserProfile: React.FC = () => {
-    const { user, language, logout } = useApp();
+    const { user, logout, t, language } = useApp();
     const { user: clerkUser, isSignedIn } = useUser();
     const { signOut } = useClerk();
     const { getToken } = useAuth();
@@ -51,10 +34,15 @@ const UserProfile: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
-    // Filter State
+    // Reading Filter State
     const [searchQuery, setSearchQuery] = useState('');
     const [spreadFilter, setSpreadFilter] = useState<SpreadType | 'all'>('all');
     const [sortOrder, setSortOrder] = useState<SortOption>('newest');
+    const [dateRange, setDateRange] = useState<DateRangeOption>('all');
+
+    // Transaction Filter State
+    const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionTypeFilter>('all');
+    const [transactionDateRange, setTransactionDateRange] = useState<DateRangeOption>('all');
 
     // Fetch data on mount
     useEffect(() => {
@@ -75,18 +63,41 @@ const UserProfile: React.FC = () => {
                 }
             } catch (error) {
                 console.error('Failed to load data:', error);
-                setReadingsError(language === 'en' ? 'Failed to load history' : 'Échec du chargement');
+                setReadingsError(t('UserProfile.tsx.UserProfile.failed_to_load', 'Failed to load history'));
             } finally {
                 setIsLoadingReadings(false);
                 setIsLoadingTransactions(false);
             }
         };
         loadData();
-    }, [isSignedIn, getToken, language]);
+    }, [isSignedIn, getToken, t]);
 
     // Filter and sort readings
     const filteredReadings = useMemo(() => {
         let result = [...(backendReadings || [])];
+
+        // Apply date range filter
+        if (dateRange !== 'all') {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            result = result.filter(r => {
+                const readingDate = new Date(r.createdAt);
+
+                if (dateRange === 'today') {
+                    return readingDate >= today;
+                } else if (dateRange === 'week') {
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return readingDate >= weekAgo;
+                } else if (dateRange === 'month') {
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    return readingDate >= monthAgo;
+                }
+                return true;
+            });
+        }
 
         // Apply spread filter (case-insensitive - backend uses UPPERCASE, frontend uses lowercase)
         if (spreadFilter !== 'all') {
@@ -110,9 +121,78 @@ const UserProfile: React.FC = () => {
         });
 
         return result;
-    }, [backendReadings, spreadFilter, searchQuery, sortOrder]);
+    }, [backendReadings, spreadFilter, searchQuery, sortOrder, dateRange]);
+
+    // Filter transactions
+    const filteredTransactions = useMemo(() => {
+        let result = [...(transactions || [])];
+
+        // Apply type filter
+        if (transactionTypeFilter !== 'all') {
+            if (transactionTypeFilter === 'purchases') {
+                result = result.filter(t => t.type === 'PURCHASE');
+            } else if (transactionTypeFilter === 'bonuses') {
+                result = result.filter(t => ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type));
+            } else if (transactionTypeFilter === 'readings') {
+                result = result.filter(t => ['READING', 'QUESTION'].includes(t.type));
+            }
+        }
+
+        // Apply date range filter
+        if (transactionDateRange !== 'all') {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            result = result.filter(t => {
+                const transactionDate = new Date(t.createdAt);
+
+                if (transactionDateRange === 'today') {
+                    return transactionDate >= today;
+                } else if (transactionDateRange === 'week') {
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return transactionDate >= weekAgo;
+                } else if (transactionDateRange === 'month') {
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    return transactionDate >= monthAgo;
+                }
+                return true;
+            });
+        }
+
+        return result;
+    }, [transactions, transactionTypeFilter, transactionDateRange]);
 
     const totalValidReadings = (backendReadings || []).length;
+
+    // Calculate achievements with progress using the service
+    const achievementsWithProgress = useMemo(() => {
+        if (!user) return [];
+
+        try {
+            const userData = {
+                totalReadings: user.totalReadings || 0,
+                loginStreak: user.loginStreak || 0,
+                unlockedAchievements: user.achievements || [],
+                readings: backendReadings || [],
+            };
+
+            // Debug achievement status in development (disabled - check console manually if needed)
+            // if (process.env.NODE_ENV === 'development') {
+            //     debugAchievementStatus(userData);
+            // }
+
+            return getAchievementsWithProgress(userData);
+        } catch (error) {
+            console.error('[UserProfile] Error calculating achievements:', error);
+            return ACHIEVEMENTS.map(achievement => ({
+                ...achievement,
+                isUnlocked: user.achievements?.includes(achievement.id) || false,
+                progress: { current: 0, target: 1 },
+            }));
+        }
+    }, [user, backendReadings]);
 
     if (!isSignedIn) return null;
 
@@ -145,7 +225,7 @@ const UserProfile: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950">
-            <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-4 sm:space-y-6">
 
                 {/* Profile Header */}
                 <motion.section
@@ -177,7 +257,7 @@ const UserProfile: React.FC = () => {
                             <p className="text-slate-400 mb-2">{displayUser.email}</p>
                             <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-slate-500">
                                 <Calendar className="w-4 h-4" />
-                                <span>{language === 'en' ? 'Member since' : 'Membre depuis'} {new Date(displayUser.joinDate).toLocaleDateString()}</span>
+                                <span>{t('UserProfile.tsx.UserProfile.member_since', 'Member since')} {new Date(displayUser.joinDate).toLocaleDateString()}</span>
                             </div>
                         </div>
 
@@ -188,7 +268,7 @@ const UserProfile: React.FC = () => {
                                        hover:border-amber-400/50 hover:bg-slate-800 transition-all duration-200 group"
                         >
                             <p className="text-sm text-slate-400 uppercase tracking-wider mb-1">
-                                {language === 'en' ? 'Credits' : 'Crédits'}
+                                {t('UserProfile.tsx.UserProfile.credits', 'Credits')}
                             </p>
                             <p className="text-3xl font-bold text-amber-400 flex items-center justify-center gap-2 group-hover:text-amber-300 transition-colors">
                                 {displayUser.credits}
@@ -198,27 +278,27 @@ const UserProfile: React.FC = () => {
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-700/40">
+                    <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-700/40">
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-1.5 text-orange-400 mb-1">
-                                <Flame className="w-5 h-5" />
-                                <span className="text-2xl font-bold">{displayUser.loginStreak}</span>
+                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-orange-400 mb-1">
+                                <Flame className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="text-xl sm:text-2xl font-bold">{displayUser.loginStreak}</span>
                             </div>
-                            <p className="text-sm text-slate-500">{language === 'en' ? 'Day Streak' : 'Jours consécutifs'}</p>
+                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.day_streak', 'Day Streak')}</p>
                         </div>
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-1.5 text-purple-400 mb-1">
-                                <BookOpen className="w-5 h-5" />
-                                <span className="text-2xl font-bold">{user?.totalReadings || 0}</span>
+                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-purple-400 mb-1">
+                                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="text-xl sm:text-2xl font-bold">{user?.totalReadings || 0}</span>
                             </div>
-                            <p className="text-sm text-slate-500">{language === 'en' ? 'Readings' : 'Lectures'}</p>
+                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.readings', 'Readings')}</p>
                         </div>
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-1.5 text-amber-400 mb-1">
-                                <Award className="w-5 h-5" />
-                                <span className="text-2xl font-bold">{displayUser.achievements.length}</span>
+                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-amber-400 mb-1">
+                                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="text-xl sm:text-2xl font-bold">{displayUser.achievements.length}</span>
                             </div>
-                            <p className="text-sm text-slate-500">{language === 'en' ? 'Achievements' : 'Succès'}</p>
+                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.achievements', 'Achievements')}</p>
                         </div>
                     </div>
                 </motion.section>
@@ -237,12 +317,12 @@ const UserProfile: React.FC = () => {
                     >
                         <h3 className="text-base font-medium text-purple-200 mb-1 flex items-center gap-2">
                             <Share2 className="w-4 h-4" />
-                            {language === 'en' ? 'Referral Code' : 'Code Parrainage'}
+                            {t('UserProfile.tsx.UserProfile.referral_code', 'Referral Code')}
                         </h3>
                         <p className="text-sm text-slate-400 mb-3">
-                            {language === 'en' ? 'Share & both get +5 credits' : 'Partagez et gagnez +5 crédits chacun'}
+                            {t('UserProfile.tsx.UserProfile.share_both_get', 'Share & both get +5 credits')}
                         </p>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mb-3">
                             <div className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 font-mono text-purple-200 tracking-wider">
                                 {displayUser.referralCode}
                             </div>
@@ -251,6 +331,42 @@ const UserProfile: React.FC = () => {
                                 className="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-lg transition-colors duration-200"
                             >
                                 {isCopied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                        </div>
+
+                        {/* Social Share Buttons */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const text = language === 'en'
+                                        ? `Join me on MysticOracle and get 5 free credits! Use code: ${displayUser.referralCode}`
+                                        : `Rejoignez-moi sur MysticOracle et obtenez 5 crédits gratuits ! Code: ${displayUser.referralCode}`;
+                                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                                    window.open(url, '_blank');
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-500
+                                           text-white rounded-lg transition-colors duration-200 text-sm"
+                            >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                </svg>
+                                WhatsApp
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const text = language === 'en'
+                                        ? `Join me on MysticOracle! Use code ${displayUser.referralCode} for 5 free credits 🔮✨`
+                                        : `Rejoignez-moi sur MysticOracle ! Code ${displayUser.referralCode} pour 5 crédits gratuits 🔮✨`;
+                                    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                                    window.open(url, '_blank');
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-400
+                                           text-white rounded-lg transition-colors duration-200 text-sm"
+                            >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                                X (Twitter)
                             </button>
                         </div>
                     </motion.div>
@@ -265,23 +381,24 @@ const UserProfile: React.FC = () => {
                 >
                     <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
                         <Award className="w-5 h-5 text-amber-400" />
-                        {language === 'en' ? 'Achievements' : 'Succès'}
+                        {t('UserProfile.tsx.UserProfile.achievements_2', 'Achievements')}
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {ACHIEVEMENTS.map((achievement) => (
-                            <AchievementCard
-                                key={achievement.id}
-                                achievement={achievement}
-                                isUnlocked={displayUser.achievements.includes(achievement.id)}
-                                progress={getAchievementProgress(achievement.id, {
-                                    totalReadings: user?.totalReadings || 0,
-                                    loginStreak: user?.loginStreak || 0,
-                                    spreadsUsed: user?.spreadsUsed,
-                                    achievements: displayUser.achievements
-                                })}
-                                language={language}
-                            />
-                        ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        {achievementsWithProgress.map((achievement) => {
+                            // Find unlock date from backend data
+                            const userAchievement = user?.achievementsData?.find(
+                                (a: any) => a.achievementId === achievement.id
+                            );
+                            return (
+                                <AchievementCard
+                                    key={achievement.id}
+                                    achievement={achievement}
+                                    isUnlocked={achievement.isUnlocked}
+                                    progress={achievement.progress}
+                                    unlockedAt={userAchievement?.unlockedAt}
+                                />
+                            );
+                        })}
                     </div>
                 </motion.section>
 
@@ -294,7 +411,7 @@ const UserProfile: React.FC = () => {
                 >
                     <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
                         <History className="w-5 h-5 text-purple-400" />
-                        {language === 'en' ? 'Reading History' : 'Historique des Lectures'}
+                        {t('UserProfile.tsx.UserProfile.reading_history', 'Reading History')}
                     </h2>
 
                     {/* Filters */}
@@ -306,7 +423,8 @@ const UserProfile: React.FC = () => {
                             onSpreadFilterChange={setSpreadFilter}
                             sortOrder={sortOrder}
                             onSortChange={setSortOrder}
-                            language={language}
+                            dateRange={dateRange}
+                            onDateRangeChange={setDateRange}
                             resultCount={filteredReadings.length}
                             totalCount={totalValidReadings}
                         />
@@ -316,20 +434,19 @@ const UserProfile: React.FC = () => {
                     {isLoadingReadings ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                            <span className="ml-3 text-slate-400">{language === 'en' ? 'Loading...' : 'Chargement...'}</span>
+                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading', 'Loading...')}</span>
                         </div>
                     ) : readingsError ? (
                         <p className="text-red-400 text-center py-12">{readingsError}</p>
                     ) : filteredReadings.length === 0 ? (
-                        <div className="text-center py-12">
-                            <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                            <p className="text-slate-500">
-                                {totalValidReadings === 0
-                                    ? (language === 'en' ? 'No readings yet. Start your journey!' : 'Pas encore de lectures.')
-                                    : (language === 'en' ? 'No readings match your filters.' : 'Aucune lecture ne correspond.')
-                                }
-                            </p>
-                        </div>
+                        <EmptyState
+                            type={totalValidReadings === 0 ? 'readings' : 'filtered'}
+                            onAction={totalValidReadings === 0 ? undefined : () => {
+                                setSearchQuery('');
+                                setSpreadFilter('all');
+                                setDateRange('all');
+                            }}
+                        />
                     ) : (
                         <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                             {filteredReadings.map((reading) => (
@@ -338,7 +455,6 @@ const UserProfile: React.FC = () => {
                                     reading={reading}
                                     isExpanded={expandedReading === reading.id}
                                     onToggle={() => setExpandedReading(expandedReading === reading.id ? null : reading.id)}
-                                    language={language}
                                 />
                             ))}
                         </div>
@@ -354,22 +470,65 @@ const UserProfile: React.FC = () => {
                 >
                     <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
                         <CreditCard className="w-5 h-5 text-green-400" />
-                        {language === 'en' ? 'Credit History' : 'Historique des Crédits'}
+                        {t('UserProfile.tsx.UserProfile.credit_history', 'Credit History')}
                     </h2>
+
+                    {/* Low Credits Warning */}
+                    {displayUser.credits < 3 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-5 p-4 rounded-lg bg-gradient-to-r from-amber-900/30 to-orange-900/30
+                                       border border-amber-500/30 flex items-center justify-between gap-4"
+                        >
+                            <div className="flex items-center gap-3">
+                                <Coins className="w-5 h-5 text-amber-400" />
+                                <div>
+                                    <p className="text-sm font-medium text-amber-200">
+                                        {t('UserProfile.tsx.UserProfile.low_on_credits', 'Low on Credits')}
+                                    </p>
+                                    <p className="text-xs text-amber-300/70">
+                                        {t('UserProfile.tsx.UserProfile.get_more_credits', 'Get more credits to continue your readings')}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsShopOpen(true)}
+                                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+                                           transition-colors duration-200 text-sm font-medium whitespace-nowrap"
+                            >
+                                {t('UserProfile.tsx.UserProfile.get_credits', 'Get Credits')}
+                            </button>
+                        </motion.div>
+                    )}
+
+                    {/* Filters */}
+                    {transactions && transactions.length > 0 && (
+                        <div className="mb-5">
+                            <TransactionFilters
+                                typeFilter={transactionTypeFilter}
+                                onTypeFilterChange={setTransactionTypeFilter}
+                                dateRange={transactionDateRange}
+                                onDateRangeChange={setTransactionDateRange}
+                                resultCount={filteredTransactions.length}
+                                totalCount={transactions.length}
+                            />
+                        </div>
+                    )}
 
                     {/* Summary */}
                     {transactions && transactions.length > 0 && (
                         <div className="grid grid-cols-3 gap-3 mb-5">
                             <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{language === 'en' ? 'Purchased' : 'Achetés'}</p>
+                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.purchased', 'Purchased')}</p>
                                 <p className="text-xl font-bold text-green-400">+{purchasedCredits}</p>
                             </div>
                             <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{language === 'en' ? 'Earned' : 'Gagnés'}</p>
+                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.earned', 'Earned')}</p>
                                 <p className="text-xl font-bold text-amber-400">+{earnedCredits}</p>
                             </div>
                             <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{language === 'en' ? 'Spent' : 'Dépensés'}</p>
+                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.spent', 'Spent')}</p>
                                 <p className="text-xl font-bold text-red-400">{spentCredits}</p>
                             </div>
                         </div>
@@ -379,17 +538,24 @@ const UserProfile: React.FC = () => {
                     {isLoadingTransactions ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                            <span className="ml-3 text-slate-400">{language === 'en' ? 'Loading...' : 'Chargement...'}</span>
+                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading_2', 'Loading...')}</span>
                         </div>
                     ) : !transactions || transactions.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Coins className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                            <p className="text-slate-500">{language === 'en' ? 'No transactions yet.' : 'Pas encore de transactions.'}</p>
-                        </div>
+                        <EmptyState
+                            type="transactions"
+                        />
+                    ) : filteredTransactions.length === 0 ? (
+                        <EmptyState
+                            type="filtered"
+                            onAction={() => {
+                                setTransactionTypeFilter('all');
+                                setTransactionDateRange('all');
+                            }}
+                        />
                     ) : (
                         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-                            {transactions.map((transaction) => (
-                                <TransactionItem key={transaction.id} transaction={transaction} language={language} />
+                            {filteredTransactions.map((transaction) => (
+                                <TransactionItem key={transaction.id} transaction={transaction} />
                             ))}
                         </div>
                     )}
@@ -408,7 +574,7 @@ const UserProfile: React.FC = () => {
                         className="text-red-400 hover:text-red-300 hover:bg-red-900/20 border-red-900/30"
                     >
                         <LogOut className="w-4 h-4 mr-2" />
-                        {language === 'en' ? 'Log Out' : 'Déconnexion'}
+                        {t('UserProfile.tsx.UserProfile.log_out', 'Log Out')}
                     </Button>
                 </motion.div>
 
