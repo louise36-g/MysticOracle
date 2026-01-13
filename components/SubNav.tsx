@@ -21,6 +21,7 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
+import { SmartLink } from './SmartLink';
 
 interface SubNavProps {
   onNavigate: (view: string) => void;
@@ -41,6 +42,7 @@ interface DropdownItem {
   cost?: number;
   comingSoon?: boolean;
   onClick: () => void;
+  href?: string; // Optional href for navigation items
 }
 
 const SubNav: React.FC<SubNavProps> = ({
@@ -105,6 +107,7 @@ const SubNav: React.FC<SubNavProps> = ({
   // Build Tarot spreads menu items with themed icons
   const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => {
     const theme = spreadThemes[spread.id] || { icon: <Sparkles className="w-4 h-4 text-purple-400" />, iconBg: 'bg-purple-500/20' };
+    const spreadSlug = spread.nameEn.toLowerCase().replace(/\s+/g, '-');
     return {
       id: spread.id,
       labelEn: spread.nameEn,
@@ -114,6 +117,7 @@ const SubNav: React.FC<SubNavProps> = ({
       icon: theme.icon,
       iconBg: theme.iconBg,
       cost: spread.cost,
+      href: `/tarot/${spreadSlug}`,
       onClick: () => onSelectSpread(spread)
     };
   });
@@ -176,6 +180,7 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.about.desc', 'Notre histoire'),
       icon: <Users className="w-4 h-4 text-pink-400" />,
       iconBg: 'bg-pink-500/20',
+      href: '/about',
       onClick: () => onNavigate('about')
     },
     {
@@ -186,6 +191,7 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.tarotCards.desc', 'Explorez les 78 cartes'),
       icon: <Layers className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
+      href: '/tarot/cards',
       onClick: () => onNavigate('tarot-cards')
     },
     {
@@ -196,6 +202,7 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.blog.desc', 'Articles & guides'),
       icon: <BookOpen className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
+      href: '/blog',
       onClick: () => onNavigate('blog')
     },
     {
@@ -206,6 +213,7 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.credits.desc', 'Tarifs & forfaits'),
       icon: <CreditCard className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
+      href: '/how-credits-work',
       onClick: () => onNavigate('how-credits-work')
     },
     {
@@ -216,6 +224,7 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.faq.desc', 'Trouvez des réponses'),
       icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
+      href: '/faq',
       onClick: () => onNavigate('faq')
     }
   ];
@@ -231,37 +240,27 @@ const SubNav: React.FC<SubNavProps> = ({
       <div className="p-2 max-h-[400px] overflow-y-auto">
         {items.map(item => {
           const hasEnoughCredits = !item.cost || !user || user.credits >= item.cost;
+          const isDisabled = item.comingSoon || !hasEnoughCredits;
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => !item.comingSoon && hasEnoughCredits && handleItemClick(item.onClick)}
-              disabled={item.comingSoon || !hasEnoughCredits}
-              className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all ${
-                item.comingSoon
-                  ? 'opacity-50 cursor-not-allowed'
-                  : !hasEnoughCredits
-                    ? 'opacity-60 cursor-not-allowed'
-                    : 'hover:bg-white/5 hover:scale-[1.02] cursor-pointer'
-              }`}
-            >
+          const content = (
+            <>
               <div className={`w-9 h-9 rounded-lg ${item.iconBg} flex items-center justify-center flex-shrink-0`}>
                 {item.comingSoon ? <Lock className="w-4 h-4 text-slate-400" /> : item.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className={`font-medium text-sm ${item.comingSoon ? 'text-slate-400' : 'text-slate-200'}`}>
-                    {language === 'en' ? item.labelEn : item.labelFr}
+                    {t(`subnav.${item.id}.label`, language === 'en' ? item.labelEn : item.labelFr)}
                   </span>
                   {item.comingSoon && (
                     <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-700 text-slate-400">
-                      {language === 'en' ? 'Soon' : 'Bientôt'}
+                      {t('subnav.soon', 'Soon')}
                     </span>
                   )}
                 </div>
                 {(item.descriptionEn || item.descriptionFr) && (
                   <div className="text-xs text-slate-500 truncate">
-                    {language === 'en' ? item.descriptionEn : item.descriptionFr}
+                    {t(`subnav.${item.id}.description`, language === 'en' ? item.descriptionEn : item.descriptionFr)}
                   </div>
                 )}
               </div>
@@ -271,6 +270,40 @@ const SubNav: React.FC<SubNavProps> = ({
                   <span className="text-xs font-bold">{item.cost}</span>
                 </div>
               )}
+            </>
+          );
+
+          const className = `flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all ${
+            item.comingSoon
+              ? 'opacity-50 cursor-not-allowed'
+              : !hasEnoughCredits
+                ? 'opacity-60 cursor-not-allowed'
+                : 'hover:bg-white/5 hover:scale-[1.02] cursor-pointer'
+          }`;
+
+          // If item has href and is not disabled, use SmartLink
+          if (item.href && !isDisabled) {
+            return (
+              <SmartLink
+                key={item.id}
+                href={item.href}
+                onClick={() => handleItemClick(item.onClick)}
+                className={className}
+              >
+                {content}
+              </SmartLink>
+            );
+          }
+
+          // Otherwise, use button
+          return (
+            <button
+              key={item.id}
+              onClick={() => !isDisabled && handleItemClick(item.onClick)}
+              disabled={isDisabled}
+              className={className}
+            >
+              {content}
             </button>
           );
         })}
@@ -292,7 +325,8 @@ const SubNav: React.FC<SubNavProps> = ({
             onMouseEnter={() => handleMouseEnter('tarot')}
             onMouseLeave={handleMouseLeave}
           >
-            <button
+            <SmartLink
+              href="/tarot"
               onClick={() => onNavigate('tarot')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
@@ -301,16 +335,17 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>{t('subnav.tarot.title', language === 'en' ? 'Tarot Readings' : 'Tirages Tarot')}</span>
+              <span>{t('subnav.tarot.title', 'Tarot Readings')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'tarot' ? 'rotate-180' : ''}`} />
-            </button>
+            </SmartLink>
             <AnimatePresence>
               {openDropdown === 'tarot' && renderDropdown(tarotItems, true)}
             </AnimatePresence>
           </div>
 
           {/* Horoscope Link */}
-          <button
+          <SmartLink
+            href="/horoscope"
             onClick={() => onSelectReadingMode('horoscope')}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isHoroscopeActive
@@ -320,7 +355,7 @@ const SubNav: React.FC<SubNavProps> = ({
           >
             <Moon className="w-4 h-4" />
             <span>{t('subnav.horoscope.title', 'Horoscope')}</span>
-          </button>
+          </SmartLink>
 
           {/* Coming Soon Dropdown */}
           <div
@@ -336,7 +371,7 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <Compass className="w-4 h-4" />
-              <span>{t('subnav.comingSoon.title', language === 'en' ? 'Coming Soon' : 'Bientôt')}</span>
+              <span>{t('subnav.comingSoon.title', 'Coming Soon')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'comingsoon' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
@@ -361,7 +396,7 @@ const SubNav: React.FC<SubNavProps> = ({
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>{t('subnav.learn.title', language === 'en' ? 'Learn' : 'Découvrir')}</span>
+              <span>{t('subnav.learn.title', 'Learn')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>

@@ -7,6 +7,7 @@ import FlagEN from './icons/FlagEN';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SmartLink } from './SmartLink';
 
 interface HeaderProps {
   onNavigate: (view: string) => void;
@@ -14,7 +15,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
-  const { user, language, setLanguage } = useApp();
+  const { user, language, setLanguage, t } = useApp();
   const { user: clerkUser, isSignedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
@@ -45,11 +46,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a
+        <SmartLink
           href="/"
+          onClick={() => handleNavigate('home')}
           className="flex items-center gap-2 cursor-pointer"
-          onClick={(e) => { e.preventDefault(); handleNavigate('home'); }}
-          aria-label="MysticOracle - Go to homepage"
+          ariaLabel="MysticOracle - Go to homepage"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 flex items-center justify-center" aria-hidden="true">
             <Moon className="w-5 h-5 text-white fill-current" />
@@ -57,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             MysticOracle
           </span>
-        </a>
+        </SmartLink>
 
         {/* Desktop Nav - Simplified */}
         <nav className="hidden md:flex items-center gap-3" role="navigation" aria-label="Main navigation">
@@ -73,20 +74,21 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           )}
 
           {isAdmin && (
-            <button
+            <SmartLink
+              href="/admin"
               onClick={() => handleNavigate('admin')}
               className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${currentView === 'admin' ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
             >
               <Shield className="w-4 h-4" />
               Admin
-            </button>
+            </SmartLink>
           )}
 
           <button
             onClick={toggleLanguage}
             className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors"
-            aria-label={language === 'en' ? 'Switch to French' : 'Switch to English'}
-            title={language === 'en' ? 'Switch to French' : 'Passer en anglais'}
+            aria-label={t('nav.switchLanguageLabel', language === 'en' ? 'Switch to French' : 'Switch to English')}
+            title={t('nav.switchLanguageTitle', language === 'en' ? 'Switch to French' : 'Passer en anglais')}
           >
             {language === 'en' ? <FlagEN className="w-5 h-5" aria-hidden="true" /> : <FlagFR className="w-5 h-5" aria-hidden="true" />}
           </button>
@@ -94,19 +96,20 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           <SignedOut>
             <SignInButton mode="modal">
               <Button variant="primary" size="sm">
-                {language === 'en' ? 'Sign In' : 'Connexion'}
+                {t('nav.signIn', 'Sign In')}
               </Button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-3">
-              <button
+              <SmartLink
+                href="/profile"
                 onClick={() => handleNavigate('profile')}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
               >
                 <User className="w-4 h-4" />
                 <span className="text-sm hidden lg:inline">{displayName}</span>
-              </button>
+              </SmartLink>
               <UserButton
                 appearance={{
                   elements: {
@@ -145,69 +148,75 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             <div className="p-4 space-y-2">
               {isSignedIn && (
                 <div className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg mb-4">
-                  <button onClick={() => handleNavigate('profile', true)} className="text-slate-300 font-bold hover:text-white transition-colors">
+                  <SmartLink href="/profile" onClick={() => handleNavigate('profile', true)} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {displayName}
-                  </button>
+                  </SmartLink>
                   <button
                     onClick={() => { setShowCreditShop(true); setIsMobileMenuOpen(false); }}
                     className="flex items-center gap-2 font-bold text-amber-400 hover:text-amber-300 transition-colors"
                   >
                     <Coins className="w-4 h-4" />
-                    {userCredits} {language === 'en' ? 'Credits' : 'Crédits'}
+                    {userCredits} {t('nav.credits', 'Credits')}
                   </button>
                 </div>
               )}
 
-              <button
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'home' && !isMobileMenuOpen ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <SmartLink
+                href="/"
                 onClick={() => handleNavigate('home', true)}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'home' && !isMobileMenuOpen ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Home className="w-5 h-5" />
-                {language === 'en' ? 'Home' : 'Accueil'}
-              </button>
+                {t('nav.home', 'Home')}
+              </SmartLink>
 
-              <button
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'blog' || currentView === 'blog-post' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <SmartLink
+                href="/blog"
                 onClick={() => handleNavigate('blog', true)}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'blog' || currentView === 'blog-post' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <BookOpen className="w-5 h-5" />
                 Blog
-              </button>
+              </SmartLink>
 
-              <button
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'how-credits-work' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <SmartLink
+                href="/how-credits-work"
                 onClick={() => handleNavigate('how-credits-work', true)}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'how-credits-work' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <CreditCard className="w-5 h-5" />
-                {language === 'en' ? 'How Credits Work' : 'Comment fonctionnent les crédits'}
-              </button>
+                {t('nav.howCreditsWork', 'How Credits Work')}
+              </SmartLink>
 
-              <button
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'faq' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <SmartLink
+                href="/faq"
                 onClick={() => handleNavigate('faq', true)}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'faq' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <HelpCircle className="w-5 h-5" />
-                {language === 'en' ? 'Help & FAQ' : 'Aide & FAQ'}
-              </button>
+                {t('nav.helpFaq', 'Help & FAQ')}
+              </SmartLink>
 
               {isSignedIn && (
-                <button
-                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                <SmartLink
+                  href="/profile"
                   onClick={() => handleNavigate('profile', true)}
+                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <User className="w-5 h-5" />
-                  {language === 'en' ? 'My Account' : 'Mon Compte'}
-                </button>
+                  {t('nav.myAccount', 'My Account')}
+                </SmartLink>
               )}
 
               {isAdmin && (
-                <button
-                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'admin' ? 'bg-white/5 text-amber-400' : 'text-amber-400/80 hover:bg-white/5'}`}
+                <SmartLink
+                  href="/admin"
                   onClick={() => handleNavigate('admin', true)}
+                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'admin' ? 'bg-white/5 text-amber-400' : 'text-amber-400/80 hover:bg-white/5'}`}
                 >
                   <Shield className="w-5 h-5" />
                   Admin
-                </button>
+                </SmartLink>
               )}
 
               <div className="border-t border-white/10 pt-4 mt-4">
@@ -218,12 +227,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                   {language === 'en' ? (
                     <>
                       <FlagFR className="w-5 h-5" />
-                      <span>Passer en Français</span>
+                      <span>{t('nav.switchToFrench', 'Passer en Français')}</span>
                     </>
                   ) : (
                     <>
                       <FlagEN className="w-5 h-5" />
-                      <span>Switch to English</span>
+                      <span>{t('nav.switchToEnglish', 'Switch to English')}</span>
                     </>
                   )}
                 </button>
@@ -233,7 +242,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                 <div className="pt-2">
                   <SignInButton mode="modal">
                     <Button className="w-full" variant="primary">
-                      {language === 'en' ? 'Sign In' : 'Connexion'}
+                      {t('nav.signIn', 'Sign In')}
                     </Button>
                   </SignInButton>
                 </div>
