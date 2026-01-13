@@ -29,6 +29,10 @@ const SCAN_ROOT_FILES = ['App.tsx'];
 const FILE_EXTENSIONS = ['.tsx', '.ts'];
 const TERNARY_PATTERN = /language\s*===\s*['"]en['"]\s*\?\s*['"`]((?:[^'"`\\]|\\.)+)['"`]\s*:\s*['"`]((?:[^'"`\\]|\\.)+)['"`]/g;
 const OUTPUT_FILE_PATH = 'scripts/extracted-translations.json';
+const MAX_KEY_WORDS = 3;
+const INITIAL_SUFFIX_NUMBER = 2;
+const TOP_FILES_TO_DISPLAY = 10;
+const LINE_NUMBER_OFFSET = 1;
 
 function unescapeText(text: string): string {
   return text.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\');
@@ -101,7 +105,7 @@ function createBaseKey(text: string): string {
     .replace(/[^a-z0-9\s]/g, '')
     .trim()
     .split(/\s+/)
-    .slice(0, 3)
+    .slice(0, MAX_KEY_WORDS)
     .join('_');
 
   return normalized || 'text';
@@ -115,7 +119,7 @@ function ensureUniqueKey(
     return key;
   }
 
-  let counter = 2;
+  let counter = INITIAL_SUFFIX_NUMBER;
   while (existingKeys.has(`${key}_${counter}`)) {
     counter++;
   }
@@ -157,7 +161,7 @@ function extractFromFile(
   const translations: Translation[] = [];
 
   lines.forEach((line, index) => {
-    const matches = extractTranslationsFromLine(line, index + 1);
+    const matches = extractTranslationsFromLine(line, index + LINE_NUMBER_OFFSET);
     translations.push(...processLineMatches(filePath, matches, existingKeys));
   });
 
@@ -249,6 +253,23 @@ function extractAllTranslations(): ExtractionResult {
   return { translations, summary };
 }
 
+function printExtractionSummary(result: ExtractionResult): void {
+  console.log(`✅ Extracted ${result.summary.total} translations`);
+  console.log(`📁 Found in ${Object.keys(result.summary.byFile).length} files`);
+  console.log(`💾 Saved to ${OUTPUT_FILE_PATH}\n`);
+}
+
+function printTopFiles(byFile: Record<string, number>, limit: number): void {
+  console.log('Top files by translation count:');
+  const sorted = Object.entries(byFile)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit);
+
+  sorted.forEach(([file, count]) => {
+    console.log(`  ${file}: ${count}`);
+  });
+}
+
 function main(): void {
   console.log('🔍 Scanning codebase for translations...\n');
 
@@ -256,18 +277,8 @@ function main(): void {
 
   saveResults(result);
 
-  console.log(`✅ Extracted ${result.summary.total} translations`);
-  console.log(`📁 Found in ${Object.keys(result.summary.byFile).length} files`);
-  console.log(`💾 Saved to ${OUTPUT_FILE_PATH}\n`);
-
-  console.log('Top files by translation count:');
-  const sorted = Object.entries(result.summary.byFile)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10);
-
-  sorted.forEach(([file, count]) => {
-    console.log(`  ${file}: ${count}`);
-  });
+  printExtractionSummary(result);
+  printTopFiles(result.summary.byFile, TOP_FILES_TO_DISPLAY);
 }
 
 main();
