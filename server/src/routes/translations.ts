@@ -464,6 +464,19 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'common.refresh': { en: 'Refresh', fr: 'Actualiser' },
       'common.active': { en: 'Active', fr: 'Actif' },
       'common.inactive': { en: 'Inactive', fr: 'Inactif' },
+      'common.today': { en: 'Today', fr: "Aujourd'hui" },
+      'common.yesterday': { en: 'Yesterday', fr: 'Hier' },
+      'common.days_ago': { en: 'days ago', fr: 'il y a' },
+
+      // Transaction Types
+      'transaction.type.purchase': { en: 'Purchase', fr: 'Achat' },
+      'transaction.type.daily_bonus': { en: 'Daily Bonus', fr: 'Bonus quotidien' },
+      'transaction.type.achievement': { en: 'Achievement', fr: 'Succès' },
+      'transaction.type.referral': { en: 'Referral', fr: 'Parrainage' },
+      'transaction.type.reading': { en: 'Reading', fr: 'Lecture' },
+      'transaction.type.question': { en: 'Question', fr: 'Question' },
+      'transaction.type.refund': { en: 'Refund', fr: 'Remboursement' },
+      'transaction.type.other': { en: 'Other', fr: 'Autre' },
 
       // Admin
       'admin.title': { en: 'Admin Dashboard', fr: 'Tableau de Bord Admin' },
@@ -501,6 +514,7 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       },
 
       // Errors & Messages
+      'error.insufficientCredits': { en: 'Insufficient credits', fr: 'Crédits insuffisants' },
       'error.notEnoughCredits': { en: 'Not Enough Credits', fr: 'Crédits Insuffisants' },
       'error.lowCredits': { en: 'Running Low on Credits', fr: 'Crédits Bientôt Épuisés' },
       'error.requestFailed': { en: 'Request failed', fr: 'La requête a échoué' },

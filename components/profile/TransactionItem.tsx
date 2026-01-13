@@ -13,57 +13,57 @@ interface TransactionItemProps {
 
 const TRANSACTION_CONFIG: Record<string, {
     icon: React.ReactNode;
-    labelEn: string;
-    labelFr: string;
+    translationKey: string;
+    fallback: string;
     colorClass: string;
     bgClass: string;
 }> = {
     PURCHASE: {
         icon: <CreditCard className="w-4 h-4" />,
-        labelEn: 'Purchase',
-        labelFr: 'Achat',
+        translationKey: 'transaction.type.purchase',
+        fallback: 'Purchase',
         colorClass: 'text-green-400',
         bgClass: 'bg-green-500/20',
     },
     DAILY_BONUS: {
         icon: <Gift className="w-4 h-4" />,
-        labelEn: 'Daily Bonus',
-        labelFr: 'Bonus quotidien',
+        translationKey: 'transaction.type.daily_bonus',
+        fallback: 'Daily Bonus',
         colorClass: 'text-amber-400',
         bgClass: 'bg-amber-500/20',
     },
     ACHIEVEMENT: {
         icon: <Award className="w-4 h-4" />,
-        labelEn: 'Achievement',
-        labelFr: 'Succès',
+        translationKey: 'transaction.type.achievement',
+        fallback: 'Achievement',
         colorClass: 'text-purple-400',
         bgClass: 'bg-purple-500/20',
     },
     REFERRAL_BONUS: {
         icon: <Share2 className="w-4 h-4" />,
-        labelEn: 'Referral',
-        labelFr: 'Parrainage',
+        translationKey: 'transaction.type.referral',
+        fallback: 'Referral',
         colorClass: 'text-blue-400',
         bgClass: 'bg-blue-500/20',
     },
     READING: {
         icon: <Sparkles className="w-4 h-4" />,
-        labelEn: 'Reading',
-        labelFr: 'Lecture',
+        translationKey: 'transaction.type.reading',
+        fallback: 'Reading',
         colorClass: 'text-pink-400',
         bgClass: 'bg-pink-500/20',
     },
     QUESTION: {
         icon: <MessageCircle className="w-4 h-4" />,
-        labelEn: 'Question',
-        labelFr: 'Question',
+        translationKey: 'transaction.type.question',
+        fallback: 'Question',
         colorClass: 'text-cyan-400',
         bgClass: 'bg-cyan-500/20',
     },
     REFUND: {
         icon: <TrendingUp className="w-4 h-4" />,
-        labelEn: 'Refund',
-        labelFr: 'Remboursement',
+        translationKey: 'transaction.type.refund',
+        fallback: 'Refund',
         colorClass: 'text-green-400',
         bgClass: 'bg-green-500/20',
     },
@@ -73,14 +73,14 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
     const { t, language } = useApp();
     const config = TRANSACTION_CONFIG[transaction.type] || {
         icon: <Coins className="w-4 h-4" />,
-        labelEn: transaction.type,
-        labelFr: transaction.type,
+        translationKey: 'transaction.type.other',
+        fallback: transaction.type,
         colorClass: 'text-slate-400',
         bgClass: 'bg-slate-500/20',
     };
 
     const isPositive = transaction.amount > 0;
-    const label = language === 'en' ? config.labelEn : config.labelFr;
+    const label = t(config.translationKey, config.fallback);
 
     return (
         <div className={`flex items-center justify-between p-3 rounded-lg border transition-colors duration-150
