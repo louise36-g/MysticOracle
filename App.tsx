@@ -473,7 +473,7 @@ const App: React.FC = () => {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-10 h-14 rounded-lg bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 shadow-lg"
+                className="w-[46px] h-20 rounded-lg bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 shadow-lg"
                 style={{
                   animation: 'bounce 1s ease-in-out infinite',
                   animationDelay: `${i * 0.15}s`,
