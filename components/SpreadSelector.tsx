@@ -266,7 +266,7 @@ const SpreadVisual: React.FC<{ spreadId: SpreadType }> = ({ spreadId }) => {
 };
 
 const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
-  const { language, user } = useApp();
+  const { language, user, t } = useApp();
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [hoveredSpread, setHoveredSpread] = useState<SpreadType | null>(null);
 
@@ -286,7 +286,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-3xl md:text-4xl font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-200 to-amber-200 mb-3">
-          {language === 'en' ? 'Choose Your Spread' : 'Choisissez Votre Tirage'}
+          {t('SpreadSelector.tsx.SpreadSelector.choose_your_spread', 'Choose Your Spread')}
         </h2>
         <p className="text-slate-400 max-w-xl mx-auto">
           {language === 'en'
@@ -351,7 +351,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] uppercase tracking-wider text-white/40">
-                      {language === 'en' ? 'Cards' : 'Cartes'}
+                      {t('SpreadSelector.tsx.SpreadSelector.cards', 'Cards')}
                     </span>
                     <p className="text-lg font-bold text-white/80">{spread.positions}</p>
                   </div>
@@ -365,7 +365,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                 {/* Footer with credits */}
                 <div className="flex items-center justify-between pt-4 border-t border-white/10">
                   <span className="text-xs text-white/40 uppercase tracking-wider">
-                    {language === 'en' ? 'Cost' : 'Coût'}
+                    {t('SpreadSelector.tsx.SpreadSelector.cost', 'Cost')}
                   </span>
                   <div className={`flex items-center gap-1.5 ${!hasEnoughCredits ? 'text-red-400' : theme.accent}`}>
                     <Coins className="w-4 h-4" />
@@ -382,14 +382,14 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                   animate={{ opacity: 1 }}
                 >
                   <span className="px-4 py-2 bg-red-500/20 border border-red-500/40 rounded-full text-sm text-red-300 font-medium">
-                    {language === 'en' ? 'Insufficient Credits' : 'Crédits Insuffisants'}
+                    {t('SpreadSelector.tsx.SpreadSelector.insufficient_credits', 'Insufficient Credits')}
                   </span>
                   <button
                     onClick={handleBuyCredits}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white text-sm font-semibold hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    {language === 'en' ? 'Buy Credits' : 'Acheter des Crédits'}
+                    {t('SpreadSelector.tsx.SpreadSelector.buy_credits', 'Buy Credits')}
                   </button>
                 </motion.div>
               )}

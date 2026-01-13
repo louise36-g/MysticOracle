@@ -50,7 +50,7 @@ const LOADING_MESSAGES = {
 };
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
-  const { language, user, deductCredits, addToHistory, refreshUser } = useApp();
+  const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
 
   // Phase state
@@ -207,7 +207,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     // Check if user has enough credits for total cost including extended question
     const projectedCost = spread.cost + (isAdvanced ? 1 : 0) + 1; // +1 for extended
     if ((user?.credits || 0) < projectedCost) {
-      setValidationMessage(language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants');
+      setValidationMessage(t('ActiveReading.tsx.ActiveReading.insufficient_credits', 'Insufficient credits'));
       return;
     }
     setExtendedQuestionPaid(true);
@@ -221,7 +221,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   }, []);
 
   const handleGeneralGuidance = useCallback(() => {
-    setQuestion(language === 'en' ? "Guidance from the Tarot" : "Guidance du Tarot");
+    setQuestion(t('ActiveReading.tsx.ActiveReading.guidance_from_the', "Guidance from the Tarot"));
     setQuestionError(false);
     setValidationMessage(null);
   }, [language]);
@@ -271,7 +271,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     const result = await deductCredits(totalCost);
     if (!result.success) {
-      setValidationMessage(result.message || (language === 'en' ? "Transaction failed." : "La transaction a échoué."));
+      setValidationMessage(result.message || t('ActiveReading.tsx.ActiveReading.transaction_failed', "Transaction failed."));
       return;
     }
 
@@ -407,7 +407,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     if (cost > 0) {
       const result = await deductCredits(cost);
       if (!result.success) {
-        alert(result.message || (language === 'en' ? "Insufficient credits!" : "Crédits insuffisants!"));
+        alert(result.message || t('ActiveReading.tsx.ActiveReading.insufficient_credits_2', "Insufficient credits!"));
         return;
       }
     }

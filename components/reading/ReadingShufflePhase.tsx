@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
 import { Language, SpreadType } from '../../types';
+import { useApp } from '../../context/AppContext';
 
 // Theme configuration for shuffle phase (matching ActiveReading & SpreadSelector)
 const SHUFFLE_THEMES: Record<SpreadType, {
@@ -84,6 +85,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   minDuration = 5000,
   spreadType = SpreadType.THREE_CARD,
 }) => {
+  const { t } = useApp();
   const theme = SHUFFLE_THEMES[spreadType];
   const [canStop, setCanStop] = useState(false);
   const [shufflePhase, setShufflePhase] = useState(0);
@@ -285,13 +287,11 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            {language === 'en' ? 'Shuffling the deck...' : 'Mélange des cartes...'}
+            {t('reading.ReadingShufflePhase.shuffling_the_deck', 'Shuffling the deck...')}
           </motion.h3>
 
           <p className="text-sm text-white/50 mb-8 max-w-xs mx-auto">
-            {language === 'en'
-              ? 'Focus on your question as the cards align with your energy'
-              : "Concentrez-vous sur votre question pendant que les cartes s'alignent"}
+            {t('reading.ReadingShufflePhase.focus_on_your', 'Focus on your question as the cards align with your energy')}
           </p>
 
           <AnimatePresence mode="wait">
@@ -313,7 +313,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
               >
                 <span className="flex items-center gap-2">
                   <Hand className="w-5 h-5" />
-                  {language === 'en' ? 'Draw Cards' : 'Tirer les Cartes'}
+                  {t('reading.ReadingShufflePhase.draw_cards', 'Draw Cards')}
                 </span>
               </motion.button>
             )}

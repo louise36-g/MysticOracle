@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Language } from '../../types';
 import Button from '../Button';
 import { Send, Sparkles, Coins } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -29,6 +30,7 @@ const OracleChat: React.FC<OracleChatProps> = ({
   onInputChange,
   onSendMessage
 }) => {
+  const { t } = useApp();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Only auto-scroll when there are messages in the chat
@@ -44,11 +46,11 @@ const OracleChat: React.FC<OracleChatProps> = ({
       <div className="bg-gradient-to-r from-indigo-950/80 to-purple-950/80 px-5 py-4 border-b border-indigo-500/30 flex justify-between items-center">
         <h3 className="font-heading text-lg text-white flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-amber-400" />
-          {language === 'en' ? 'Ask the Oracle' : "Demandez à l'Oracle"}
+          {t('reading.OracleChat.ask_the_oracle', 'Ask the Oracle')}
         </h3>
         <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-600">
           <Coins className="w-4 h-4 text-amber-400" />
-          <span className="text-slate-300 text-sm">{language === 'en' ? 'Balance:' : 'Solde:'}</span>
+          <span className="text-slate-300 text-sm">{t('reading.OracleChat.balance', 'Balance:')}</span>
           <span className="text-amber-300 font-bold text-sm">{credits}</span>
         </div>
       </div>
@@ -95,7 +97,7 @@ const OracleChat: React.FC<OracleChatProps> = ({
           type="text"
           value={chatInput}
           onChange={(e) => onInputChange(e.target.value)}
-          placeholder={language === 'en' ? 'Ask a follow-up question...' : 'Posez une question de suivi...'}
+          placeholder={t('reading.OracleChat.ask_a_followup', 'Ask a follow-up question...')}
           className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
         />
         <Button
@@ -107,8 +109,8 @@ const OracleChat: React.FC<OracleChatProps> = ({
             {isChatLoading ? '...' : <Send className="w-4 h-4" />}
             <span className="text-sm font-medium">
               {questionCost === 0
-                ? (language === 'en' ? 'Free' : 'Gratuit')
-                : `1 ${language === 'en' ? 'Credit' : 'Crédit'}`}
+                ? t('reading.OracleChat.free', 'Free')
+                : `1 ${t('reading.OracleChat.credit', 'Credit')}`}
             </span>
           </span>
         </Button>
