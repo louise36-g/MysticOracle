@@ -1,6 +1,7 @@
 import React from 'react';
 import { Filter, Calendar, X } from 'lucide-react';
 import { type DateRangeOption } from '../../utils/dateFilters';
+import { useApp } from '../../context/AppContext';
 
 export type TransactionTypeFilter = 'all' | 'purchases' | 'bonuses' | 'readings';
 
@@ -9,7 +10,6 @@ interface TransactionFiltersProps {
     onTypeFilterChange: (type: TransactionTypeFilter) => void;
     dateRange: DateRangeOption;
     onDateRangeChange: (range: DateRangeOption) => void;
-    language: 'en' | 'fr';
     resultCount: number;
     totalCount: number;
 }
@@ -19,22 +19,23 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
     onTypeFilterChange,
     dateRange,
     onDateRangeChange,
-    language,
     resultCount,
     totalCount,
 }) => {
-    const typeOptions: { value: TransactionTypeFilter; labelEn: string; labelFr: string }[] = [
-        { value: 'all', labelEn: 'All', labelFr: 'Tout' },
-        { value: 'purchases', labelEn: 'Purchases', labelFr: 'Achats' },
-        { value: 'bonuses', labelEn: 'Bonuses', labelFr: 'Bonus' },
-        { value: 'readings', labelEn: 'Readings', labelFr: 'Lectures' },
+    const { t } = useApp();
+
+    const typeOptions: { value: TransactionTypeFilter; translationKey: string; fallback: string }[] = [
+        { value: 'all', translationKey: 'filter.all', fallback: 'All' },
+        { value: 'purchases', translationKey: 'filter.purchases', fallback: 'Purchases' },
+        { value: 'bonuses', translationKey: 'filter.bonuses', fallback: 'Bonuses' },
+        { value: 'readings', translationKey: 'filter.readings', fallback: 'Readings' },
     ];
 
-    const dateRangeOptions: { value: DateRangeOption; labelEn: string; labelFr: string }[] = [
-        { value: 'all', labelEn: 'All Time', labelFr: 'Tout' },
-        { value: 'today', labelEn: 'Today', labelFr: "Aujourd'hui" },
-        { value: 'week', labelEn: 'This Week', labelFr: 'Cette semaine' },
-        { value: 'month', labelEn: 'This Month', labelFr: 'Ce mois' },
+    const dateRangeOptions: { value: DateRangeOption; translationKey: string; fallback: string }[] = [
+        { value: 'all', translationKey: 'filter.all_time', fallback: 'All Time' },
+        { value: 'today', translationKey: 'common.today', fallback: 'Today' },
+        { value: 'week', translationKey: 'filter.this_week', fallback: 'This Week' },
+        { value: 'month', translationKey: 'filter.this_month', fallback: 'This Month' },
     ];
 
     const hasActiveFilters = typeFilter !== 'all' || dateRange !== 'all';
@@ -50,7 +51,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Filter className="w-3.5 h-3.5" />
-                    {language === 'en' ? 'Type' : 'Type'}
+                    {t('filter.type', 'Type')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {typeOptions.map((option) => (
@@ -63,7 +64,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                     : 'bg-slate-800/60 text-slate-300 border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50'
                             }`}
                         >
-                            {language === 'en' ? option.labelEn : option.labelFr}
+                            {t(option.translationKey, option.fallback)}
                         </button>
                     ))}
                 </div>
@@ -73,7 +74,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" />
-                    {language === 'en' ? 'Date Range' : 'Période'}
+                    {t('filter.date_range', 'Date Range')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {dateRangeOptions.map((option) => (
@@ -86,7 +87,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                     : 'bg-slate-800/60 text-slate-300 border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50'
                             }`}
                         >
-                            {language === 'en' ? option.labelEn : option.labelFr}
+                            {t(option.translationKey, option.fallback)}
                         </button>
                     ))}
                 </div>
@@ -96,16 +97,11 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">
                     {hasActiveFilters ? (
-                        <>
-                            {language === 'en'
-                                ? `Showing ${resultCount} of ${totalCount} transactions`
-                                : `Affichage de ${resultCount} sur ${totalCount} transactions`
-                            }
-                        </>
+                        t('filter.showing_count', `Showing ${resultCount} of ${totalCount} transactions`)
+                            .replace('${resultCount}', resultCount.toString())
+                            .replace('${totalCount}', totalCount.toString())
                     ) : (
-                        <>
-                            {totalCount} {language === 'en' ? 'transactions' : 'transactions'}
-                        </>
+                        `${totalCount} ${t('filter.transactions', 'transactions')}`
                     )}
                 </span>
 
@@ -115,7 +111,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                         className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
                     >
                         <X className="w-3.5 h-3.5" />
-                        {language === 'en' ? 'Clear filters' : 'Effacer les filtres'}
+                        {t('filter.clear_filters', 'Clear filters')}
                     </button>
                 )}
             </div>

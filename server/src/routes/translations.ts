@@ -478,6 +478,23 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
       'transaction.type.refund': { en: 'Refund', fr: 'Remboursement' },
       'transaction.type.other': { en: 'Other', fr: 'Autre' },
 
+      // Filters
+      'filter.type': { en: 'Type', fr: 'Type' },
+      'filter.date_range': { en: 'Date Range', fr: 'Période' },
+      'filter.all': { en: 'All', fr: 'Tout' },
+      'filter.all_time': { en: 'All Time', fr: 'Tout' },
+      'filter.purchases': { en: 'Purchases', fr: 'Achats' },
+      'filter.bonuses': { en: 'Bonuses', fr: 'Bonus' },
+      'filter.readings': { en: 'Readings', fr: 'Lectures' },
+      'filter.this_week': { en: 'This Week', fr: 'Cette semaine' },
+      'filter.this_month': { en: 'This Month', fr: 'Ce mois' },
+      'filter.showing_count': {
+        en: 'Showing ${resultCount} of ${totalCount} transactions',
+        fr: 'Affichage de ${resultCount} sur ${totalCount} transactions',
+      },
+      'filter.transactions': { en: 'transactions', fr: 'transactions' },
+      'filter.clear_filters': { en: 'Clear filters', fr: 'Effacer les filtres' },
+
       // Admin
       'admin.title': { en: 'Admin Dashboard', fr: 'Tableau de Bord Admin' },
       'admin.overview': { en: 'Overview', fr: 'Aperçu' },
