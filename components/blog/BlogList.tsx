@@ -121,6 +121,54 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory, 
         </p>
       </div>
 
+      {/* Category Filter Buttons */}
+      {categories.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <Folder className="w-5 h-5 text-purple-400" />
+            <h2 className="text-lg font-heading text-purple-200">
+              {t('blog.BlogList.browse_by_category', 'Browse by Category')}
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {/* All Categories button */}
+            <button
+              onClick={() => {
+                setSelectedCategory('');
+                setSelectedTag('');
+                setPage(1);
+              }}
+              className={`px-5 py-2.5 rounded-lg font-medium transition-all ${
+                !selectedCategory && !selectedTag
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                  : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-purple-500/20'
+              }`}
+            >
+              {t('blog.BlogList.all_categories', 'All Categories')}
+            </button>
+
+            {/* Individual category buttons */}
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.slug)}
+                className={`px-5 py-2.5 rounded-lg font-medium transition-all ${
+                  selectedCategory === cat.slug
+                    ? 'text-white shadow-lg'
+                    : 'text-slate-300 hover:text-white border hover:shadow-md'
+                }`}
+                style={{
+                  backgroundColor: selectedCategory === cat.slug ? cat.color : 'transparent',
+                  borderColor: cat.color,
+                }}
+              >
+                {language === 'en' ? cat.nameEn : cat.nameFr}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Featured Posts */}
       {featuredPosts.length > 0 && !selectedCategory && !selectedTag && page === 1 && (
         <section className="mb-16">
@@ -191,56 +239,29 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory, 
         </section>
       )}
 
-      {/* Categories & Tags - Compact Filter Bar */}
-      {(categories.length > 0 || tags.length > 0) && (
+      {/* Tags Filter Bar */}
+      {tags.length > 0 && (
         <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-purple-500/10">
           <div className="flex flex-wrap items-center gap-4">
-            {categories.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-slate-500 flex items-center gap-1 text-sm">
-                  <Folder className="w-3.5 h-3.5" />
-                </span>
-                {categories.slice(0, 5).map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategoryClick(cat.slug)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                      selectedCategory === cat.slug
-                        ? 'text-white shadow-md'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                    style={{
-                      backgroundColor: selectedCategory === cat.slug ? cat.color : `${cat.color}15`,
-                    }}
-                  >
-                    {language === 'en' ? cat.nameEn : cat.nameFr}
-                  </button>
-                ))}
-              </div>
-            )}
-            {categories.length > 0 && tags.length > 0 && (
-              <div className="h-4 w-px bg-slate-700" />
-            )}
-            {tags.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-slate-500 flex items-center gap-1 text-sm">
-                  <Tag className="w-3.5 h-3.5" />
-                </span>
-                {tags.slice(0, 6).map((tag) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => handleTagClick(tag.slug)}
-                    className={`px-2.5 py-1 rounded-full text-xs transition-all ${
-                      selectedTag === tag.slug
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white'
-                    }`}
-                  >
-                    {language === 'en' ? tag.nameEn : tag.nameFr}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-slate-500 flex items-center gap-1 text-sm font-medium">
+                <Tag className="w-3.5 h-3.5" />
+                {t('blog.BlogList.tags', 'Tags')}:
+              </span>
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => handleTagClick(tag.slug)}
+                  className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                    selectedTag === tag.slug
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  {language === 'en' ? tag.nameEn : tag.nameFr}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
       )}

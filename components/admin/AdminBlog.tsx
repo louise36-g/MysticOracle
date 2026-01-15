@@ -27,6 +27,7 @@ const AdminBlog: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [trashCount, setTrashCount] = useState(0);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [postsRefreshKey, setPostsRefreshKey] = useState(0);
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState>({
@@ -128,6 +129,7 @@ const AdminBlog: React.FC = () => {
       {/* Tab Content */}
       {activeTab === 'posts' && (
         <BlogPostsTab
+          key={postsRefreshKey}
           onLoadCategories={loadCategories}
           onLoadTags={loadTags}
           onLoadTrash={loadTrash}
@@ -163,7 +165,9 @@ const AdminBlog: React.FC = () => {
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onSuccess={() => {
-          // Will trigger reload in posts tab
+          // Increment refresh key to trigger posts reload
+          setPostsRefreshKey(prev => prev + 1);
+          loadTrash(); // Also refresh trash count
         }}
         onError={setError}
       />
