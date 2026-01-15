@@ -1142,6 +1142,24 @@ export async function emptyTarotArticlesTrash(
   });
 }
 
+/**
+ * Reorder a tarot article within its card type
+ */
+export async function reorderTarotArticle(
+  token: string,
+  params: {
+    articleId: string;
+    cardType: string;
+    newPosition: number;
+  }
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest('/api/tarot-articles/admin/reorder', {
+    method: 'PATCH',
+    body: params,
+    token,
+  });
+}
+
 // ============================================
 // TAROT CATEGORIES
 // ============================================
