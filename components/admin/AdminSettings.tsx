@@ -174,95 +174,79 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ selectedServiceId }) => {
             </h3>
             <p className="text-sm text-slate-400">
               {language === 'en'
-                ? 'Edit API keys and configuration values'
-                : 'Modifier les clés API et valeurs de configuration'}
+                ? 'Configuration values from environment variables'
+                : 'Valeurs de configuration des variables d\'environnement'}
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          {settings.map((setting) => (
-            <div
-              key={setting.key}
-              className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-sm text-purple-300">{setting.key}</span>
-                  {setting.hasValue && (
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      setting.source === 'database'
-                        ? 'bg-blue-500/20 text-blue-300'
-                        : 'bg-green-500/20 text-green-300'
-                    }`}>
-                      {setting.source === 'database' ? 'DB' : 'ENV'}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-400">
-                  {language === 'en' ? setting.descriptionEn : setting.descriptionFr}
-                </p>
-              </div>
+          {settings.map((setting) => {
+            // Environment-only keys (read-only, especially for AI/OpenRouter)
+            const isEnvOnly = setting.key === 'OPENROUTER_API_KEY' || setting.key === 'AI_MODEL' || setting.source === 'environment';
 
-              {editingKey === setting.key ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type={setting.isSecret && !showSecrets[setting.key] ? 'password' : 'text'}
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    placeholder={setting.isSecret ? 'Enter new value...' : 'Enter value...'}
-                    className="w-64 px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white text-sm"
-                    autoFocus
-                  />
-                  {setting.isSecret && (
-                    <button
-                      onClick={() => setShowSecrets(prev => ({ ...prev, [setting.key]: !prev[setting.key] }))}
-                      className="p-2 text-slate-400 hover:text-white"
-                    >
-                      {showSecrets[setting.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleSaveSetting(setting.key)}
-                    disabled={saving}
-                    className="p-2 text-green-400 hover:bg-green-500/20 rounded disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => { setEditingKey(null); setEditValue(''); }}
-                    className="p-2 text-slate-400 hover:text-white"
-                  >
-                    ×
-                  </button>
+            return (
+              <div
+                key={setting.key}
+                className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-sm text-purple-300">{setting.key}</span>
+                    {setting.hasValue && (
+                      <span className="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-300">
+                        ENV
+                      </span>
+                    )}
+                    {isEnvOnly && (
+                      <span className="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-300">
+                        {language === 'en' ? 'Read-Only' : 'Lecture seule'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {language === 'en' ? setting.descriptionEn : setting.descriptionFr}
+                  </p>
                 </div>
-              ) : (
+
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-300 font-mono">
-                    {setting.hasValue ? setting.value : (
+                    {setting.hasValue ? (
+                      setting.isSecret ? '••••••••••••••••' : setting.value
+                    ) : (
                       <span className="text-slate-500 italic">
-                        {language === 'en' ? 'Not set' : 'Non défini'}
+                        {language === 'en' ? 'Not configured' : 'Non configuré'}
                       </span>
                     )}
                   </span>
-                  <button
-                    onClick={() => { setEditingKey(setting.key); setEditValue(''); }}
-                    className="px-3 py-1 text-sm text-purple-300 hover:bg-purple-500/20 rounded"
-                  >
-                    {language === 'en' ? 'Edit' : 'Modifier'}
-                  </button>
+                  {isEnvOnly && setting.hasValue && (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  )}
+                  {isEnvOnly && !setting.hasValue && (
+                    <AlertCircle className="w-4 h-4 text-amber-400" />
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
 
-        <div className="mt-4 p-3 bg-slate-800/30 rounded-lg">
-          <p className="text-xs text-slate-400">
-            {language === 'en'
-              ? 'Values saved here override environment variables. Leave empty to use the environment variable instead.'
-              : 'Les valeurs enregistrées ici remplacent les variables d\'environnement. Laissez vide pour utiliser la variable d\'environnement.'}
-          </p>
+        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+          <div className="flex items-start gap-2">
+            <Settings className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-blue-200/90 space-y-1">
+              <p className="font-medium">
+                {language === 'en'
+                  ? 'Environment Variables Configuration'
+                  : 'Configuration des Variables d\'Environnement'}
+              </p>
+              <p className="text-blue-200/70">
+                {language === 'en'
+                  ? 'All settings are now configured via environment variables for improved security. To update these values, modify your server/.env file and restart the backend.'
+                  : 'Tous les paramètres sont maintenant configurés via des variables d\'environnement pour une sécurité améliorée. Pour modifier ces valeurs, modifiez votre fichier server/.env et redémarrez le backend.'}
+              </p>
+            </div>
+          </div>
         </div>
       </motion.div>
 

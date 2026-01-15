@@ -117,10 +117,8 @@ MysticOracle/
 │
 ├── services/
 │   ├── apiService.ts          # All API calls with retry logic
-│   ├── openrouterService.ts   # OpenRouter AI integration
 │   ├── paymentService.ts      # Frontend payment helpers
-│   ├── storageService.ts      # LocalStorage wrapper
-│   └── translationService.ts  # Translation loading and caching
+│   └── storageService.ts      # LocalStorage wrapper
 │
 ├── utils/
 │   ├── crypto.ts              # Token generation
@@ -247,8 +245,9 @@ MysticOracle/
 ```
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
 VITE_API_URL=http://localhost:3001
-VITE_API_KEY=sk-or-xxxxx  # OpenRouter
 ```
+
+**Note**: API keys are no longer configured in the frontend. All AI generation happens on the backend for improved security.
 
 ### Backend (server/.env)
 ```
@@ -264,6 +263,8 @@ PAYPAL_CLIENT_ID=xxxxx
 PAYPAL_CLIENT_SECRET=xxxxx
 PAYPAL_MODE=sandbox
 BREVO_API_KEY=xkeysib-xxxxx
+OPENROUTER_API_KEY=sk-or-xxxxx
+AI_MODEL=openai/gpt-oss-120b:free  # Optional, defaults to free tier
 ```
 
 ## Commands
