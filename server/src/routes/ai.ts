@@ -4,6 +4,8 @@ import OpenAI from 'openai';
 import { requireAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
+import { openRouterService } from '../services/openRouterService.js';
+import { getTarotReadingPrompt, getTarotFollowUpPrompt } from '../services/promptService.js';
 
 const router = Router();
 
@@ -152,6 +154,160 @@ Question originale: "${question}"`;
   } catch (error) {
     console.error('Error summarizing question:', error);
     res.status(500).json({ error: 'Failed to summarize question' });
+  }
+});
+
+// Validation schemas for tarot generation
+const generateTarotSchema = z.object({
+  spread: z.object({
+    id: z.string(),
+    nameEn: z.string(),
+    nameFr: z.string(),
+    positions: z.number(),
+    positionMeaningsEn: z.array(z.string()),
+    positionMeaningsFr: z.array(z.string()),
+    creditCost: z.number(),
+  }),
+  style: z.array(z.string()),
+  cards: z.array(
+    z.object({
+      card: z.object({
+        id: z.string(),
+        nameEn: z.string(),
+        nameFr: z.string(),
+        suit: z.string().optional(),
+        rank: z.string().optional(),
+        arcana: z.string().optional(),
+      }),
+      positionIndex: z.number(),
+      isReversed: z.boolean(),
+    })
+  ),
+  question: z.string(),
+  language: z.enum(['en', 'fr']),
+});
+
+const tarotFollowUpSchema = z.object({
+  reading: z.string().min(1),
+  history: z.array(
+    z.object({
+      role: z.enum(['user', 'assistant']),
+      content: z.string(),
+    })
+  ),
+  question: z.string().min(1).max(500),
+  language: z.enum(['en', 'fr']),
+});
+
+/**
+ * POST /api/v1/ai/tarot/generate
+ * Generate a tarot reading interpretation
+ * Phase 3: New endpoint for backend-generated tarot readings
+ */
+router.post('/tarot/generate', requireAuth, async (req, res) => {
+  try {
+    const validation = generateTarotSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid request data',
+        details: validation.error.errors,
+      });
+    }
+
+    const { spread, style, cards, question, language } = validation.data;
+
+    console.log('[Tarot Generate] Request:', {
+      userId: req.auth.userId,
+      spread: spread.nameEn,
+      cardCount: cards.length,
+      language,
+    });
+
+    // Get prompt from service (with caching and fallback to defaults)
+    const prompt = await getTarotReadingPrompt({
+      spread,
+      style,
+      cards,
+      question,
+      language,
+    });
+
+    // Calculate max tokens based on spread size
+    const maxTokens =
+      {
+        1: 600,
+        3: 1200,
+        5: 2000,
+        7: 2000,
+        10: 2500,
+      }[spread.positions] || 1500;
+
+    // Generate interpretation using unified service
+    const interpretation = await openRouterService.generateTarotReading(prompt, {
+      temperature: 0.7,
+      maxTokens,
+    });
+
+    console.log('[Tarot Generate] ✅ Generated interpretation:', interpretation.length, 'chars');
+
+    res.json({
+      interpretation,
+      creditsRequired: spread.creditCost,
+    });
+  } catch (error) {
+    console.error('[Tarot Generate] Error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to generate reading';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * POST /api/v1/ai/tarot/followup
+ * Generate a follow-up answer for a tarot reading
+ * Phase 3: New endpoint for backend-generated follow-ups
+ */
+router.post('/tarot/followup', requireAuth, async (req, res) => {
+  try {
+    const validation = tarotFollowUpSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid request data',
+        details: validation.error.errors,
+      });
+    }
+
+    const { reading, history, question, language } = validation.data;
+
+    console.log('[Tarot Follow-up] Request:', {
+      userId: req.auth.userId,
+      question: question.substring(0, 50) + '...',
+      language,
+    });
+
+    // Get prompt from service
+    const prompt = await getFollowUpPrompt({
+      reading,
+      history: history.map(h => `${h.role}: ${h.content}`).join('\n'),
+      question,
+      language,
+    });
+
+    // Generate answer using unified service
+    const answer = await openRouterService.generateTarotFollowUp(prompt, history, {
+      temperature: 0.7,
+      maxTokens: 500,
+    });
+
+    console.log('[Tarot Follow-up] ✅ Generated answer:', answer.length, 'chars');
+
+    res.json({
+      answer,
+      creditsRequired: CREDIT_COSTS.QUESTION,
+    });
+  } catch (error) {
+    console.error('[Tarot Follow-up] Error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to generate follow-up';
+    res.status(500).json({ error: message });
   }
 });
 

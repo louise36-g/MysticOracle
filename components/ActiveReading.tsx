@@ -3,8 +3,14 @@ import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
-import { generateTarotReading, generateFollowUpReading } from '../services/openrouterService';
-import { summarizeQuestion, createReading, updateReadingReflection, addFollowUpQuestion } from '../services/apiService';
+import {
+  summarizeQuestion,
+  createReading,
+  updateReadingReflection,
+  addFollowUpQuestion,
+  generateTarotReading as generateTarotReadingAPI,
+  generateTarotFollowUp
+} from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
 import {
   ReadingShufflePhase,
@@ -118,21 +124,42 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     setIsGenerating(true);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const cardsWithPosition = drawnCards.map((item, idx) => ({
         card: item.card,
         isReversed: item.isReversed,
         positionIndex: idx
       }));
 
-      const result = await generateTarotReading({
-        spread,
-        style: isAdvanced ? selectedStyles : [InterpretationStyle.CLASSIC],
+      // Convert spread to backend format
+      const spreadParams = {
+        id: spread.id,
+        nameEn: spread.nameEn,
+        nameFr: spread.nameFr,
+        positions: spread.positions,
+        positionMeaningsEn: spread.positionMeaningsEn,
+        positionMeaningsFr: spread.positionMeaningsFr,
+        creditCost: spread.cost,
+      };
+
+      // Convert styles to array of strings
+      const styleStrings = isAdvanced
+        ? selectedStyles.map(s => s.toString())
+        : [InterpretationStyle.CLASSIC.toString()];
+
+      const result = await generateTarotReadingAPI(token, {
+        spread: spreadParams,
+        style: styleStrings,
         cards: cardsWithPosition,
         question,
         language
       });
 
-      setReadingText(result);
+      setReadingText(result.interpretation);
       setReadingLanguage(language);
     } catch (error) {
       console.error('Failed to regenerate reading:', error);
@@ -307,35 +334,55 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       positionIndex: idx
     }));
 
-    const result = await generateTarotReading({
-      spread,
-      style: isAdvanced ? selectedStyles : [InterpretationStyle.CLASSIC],
-      cards: cardsWithPosition,
-      question,
-      language
-    });
-
-    setReadingText(result);
-    setReadingLanguage(language);
-    setIsGenerating(false);
-
-    // Trigger completion celebration (may include mystery bonus)
-    setShowCelebration(true);
-
-    // Save to local history
-    addToHistory({
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      spreadType: spread.id,
-      cards: drawnCards.map(c => c.card.id),
-      interpretation: result,
-      question
-    });
-
-    // Save to backend (credits are deducted here)
     try {
       const token = await getToken();
-      if (token) {
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      // Convert spread to backend format
+      const spreadParams = {
+        id: spread.id,
+        nameEn: spread.nameEn,
+        nameFr: spread.nameFr,
+        positions: spread.positions,
+        positionMeaningsEn: spread.positionMeaningsEn,
+        positionMeaningsFr: spread.positionMeaningsFr,
+        creditCost: spread.cost,
+      };
+
+      // Convert styles to array of strings
+      const styleStrings = isAdvanced
+        ? selectedStyles.map(s => s.toString())
+        : [InterpretationStyle.CLASSIC.toString()];
+
+      const result = await generateTarotReadingAPI(token, {
+        spread: spreadParams,
+        style: styleStrings,
+        cards: cardsWithPosition,
+        question,
+        language
+      });
+
+      setReadingText(result.interpretation);
+      setReadingLanguage(language);
+      setIsGenerating(false);
+
+      // Trigger completion celebration (may include mystery bonus)
+      setShowCelebration(true);
+
+      // Save to local history
+      addToHistory({
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        spreadType: spread.id,
+        cards: drawnCards.map(c => c.card.id),
+        interpretation: result.interpretation,
+        question
+      });
+
+      // Save to backend (credits are deducted here)
+      try {
         console.log('[Reading] Saving to backend with spreadType:', spread.id);
         console.log('[Reading] Card data:', drawnCards.map((item, idx) => ({
           cardId: String(item.card.id),
@@ -353,7 +400,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
             position: idx,
             isReversed: item.isReversed,
           })),
-          interpretation: result,
+          interpretation: result.interpretation,
           creditCost: totalCost,
         });
         console.log('[Reading] Saved successfully! Reading:', savedReading);
@@ -361,18 +408,23 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
         // Refresh user to get updated credit balance from backend
         await refreshUser();
         console.log('[Reading] User refreshed after credit deduction');
-      } else {
-        console.error('[Reading] No auth token available - reading will NOT be saved to backend!');
+      } catch (saveError) {
+        // Log the full error for debugging
+        console.error('[Reading] FAILED to save reading to backend:', saveError);
+        if (saveError instanceof Error) {
+          console.error('[Reading] Error message:', saveError.message);
+          console.error('[Reading] Error stack:', saveError.stack);
+        }
+        console.error('[Reading] Full error object:', JSON.stringify(saveError, null, 2));
+        // Note: Reading still works locally, but credits weren't deducted
       }
     } catch (error) {
-      // Log the full error for debugging
-      console.error('[Reading] FAILED to save reading to backend:', error);
-      if (error instanceof Error) {
-        console.error('[Reading] Error message:', error.message);
-        console.error('[Reading] Error stack:', error.stack);
-      }
-      console.error('[Reading] Full error object:', JSON.stringify(error, null, 2));
-      // Note: Reading still works locally, but credits weren't deducted
+      console.error('Failed to generate reading:', error);
+      const errorMessage = language === 'en'
+        ? 'Failed to generate reading. Please try again.'
+        : 'Échec de la génération de la lecture. Veuillez réessayer.';
+      setReadingText(errorMessage);
+      setIsGenerating(false);
     }
   }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser]);
 
@@ -420,22 +472,30 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     setSessionQuestionCount(prev => prev + 1);
 
     try {
-      const response = await generateFollowUpReading({
-        context: readingText,
-        history: chatHistory,
-        newQuestion: userMsg,
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      // Convert chat history to backend format
+      const historyForBackend = chatHistory.map(h => ({
+        role: h.role === 'model' ? 'assistant' as const : h.role,
+        content: h.content
+      }));
+
+      const result = await generateTarotFollowUp(token, {
+        reading: readingText,
+        history: historyForBackend,
+        question: userMsg,
         language
       });
 
-      setChatHistory(prev => [...prev, { role: 'model', content: response }]);
+      setChatHistory(prev => [...prev, { role: 'model', content: result.answer }]);
 
       // Save follow-up question to backend
       if (backendReadingId) {
         try {
-          const token = await getToken();
-          if (token) {
-            await addFollowUpQuestion(token, backendReadingId, userMsg, response);
-          }
+          await addFollowUpQuestion(token, backendReadingId, userMsg, result.answer);
         } catch (saveError) {
           // Non-blocking - follow-up just won't be saved to history if save fails
           console.error('Failed to save follow-up to backend:', saveError);

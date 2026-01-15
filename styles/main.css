@@ -2,6 +2,31 @@
 
 /* Tailwind v4 Theme Configuration */
 @theme {
+  /* Ethereal Dream Palette */
+  --color-dream-void: #0a0612;
+  --color-dream-deep: #12081f;
+  --color-dream-mist: #1a0f2e;
+  --color-ethereal-lavender: #b794f4;
+  --color-ethereal-rose: #f687b3;
+  --color-ethereal-blue: #63b3ed;
+  --color-ethereal-gold: #fbd38d;
+  --color-glow-purple: rgba(183, 148, 244, 0.4);
+  --color-glow-rose: rgba(246, 135, 179, 0.3);
+  --color-glow-blue: rgba(99, 179, 237, 0.3);
+
+  /* Ethereal Font Families */
+  --font-ethereal-display: 'Cormorant Garamond', serif;
+  --font-ethereal-body: 'Quicksand', sans-serif;
+
+  /* Ethereal Animations */
+  --animate-ethereal-float: ethereal-float 4s ease-in-out infinite;
+  --animate-ethereal-float-slow: ethereal-float-slow 6s ease-in-out infinite;
+  --animate-ethereal-glow: ethereal-glow 3s ease-in-out infinite;
+  --animate-ethereal-pulse: ethereal-pulse 2s ease-in-out infinite;
+  --animate-ethereal-rotate: ethereal-rotate 20s linear infinite;
+  --animate-particle-drift: particle-drift 8s ease-in-out infinite;
+  --animate-constellation-twinkle: constellation-twinkle 3s ease-in-out infinite;
+  --animate-dream-fade-in: dream-fade-in 0.8s ease-out forwards;
   /* Custom Colors */
   --color-mystic-bg: #0f0c29;
   --color-mystic-bg-elevated: #1a1635;
@@ -87,6 +112,99 @@
   0% { transform: scale(1); filter: brightness(1); }
   50% { transform: scale(1.2); filter: brightness(1.5); }
   100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Ethereal Dream Keyframes */
+@keyframes ethereal-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(0.5deg); }
+  50% { transform: translateY(-6px) rotate(0deg); }
+  75% { transform: translateY(-3px) rotate(-0.5deg); }
+}
+
+@keyframes ethereal-float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes ethereal-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(183, 148, 244, 0.2), 0 0 40px rgba(183, 148, 244, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(183, 148, 244, 0.4), 0 0 60px rgba(183, 148, 244, 0.2), 0 0 80px rgba(246, 135, 179, 0.1);
+  }
+}
+
+@keyframes ethereal-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes ethereal-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes particle-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translate(10px, -20px) scale(1.1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(20px, 10px) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(-10px, 5px) scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+@keyframes constellation-twinkle {
+  0%, 100% {
+    opacity: 0.4;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(1px);
+    transform: scale(1.2);
+  }
+}
+
+@keyframes dream-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes orb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(183, 148, 244, 0.3), inset 0 0 20px rgba(183, 148, 244, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(183, 148, 244, 0.5), 0 0 50px rgba(246, 135, 179, 0.2), inset 0 0 30px rgba(183, 148, 244, 0.2);
+  }
 }
 
 /* Base Styles */
@@ -228,4 +346,305 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 ::selection {
   background-color: rgba(139, 92, 246, 0.3);
   color: white;
+}
+
+/* ==========================================
+   ETHEREAL PROFILE PAGE STYLES
+   ========================================== */
+
+/* Ethereal Background with Particles */
+.ethereal-bg {
+  background: linear-gradient(135deg, #0a0612 0%, #12081f 50%, #1a0f2e 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.ethereal-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(183, 148, 244, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(246, 135, 179, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(99, 179, 237, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Floating Particles */
+.ethereal-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ethereal-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(183, 148, 244, 0.8) 0%, transparent 70%);
+  animation: particle-drift 8s ease-in-out infinite;
+}
+
+.ethereal-particle:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+.ethereal-particle:nth-child(2) { top: 30%; left: 70%; animation-delay: 1s; width: 6px; height: 6px; }
+.ethereal-particle:nth-child(3) { top: 60%; left: 40%; animation-delay: 2s; }
+.ethereal-particle:nth-child(4) { top: 80%; left: 80%; animation-delay: 3s; width: 5px; height: 5px; }
+.ethereal-particle:nth-child(5) { top: 45%; left: 10%; animation-delay: 4s; }
+.ethereal-particle:nth-child(6) { top: 20%; left: 90%; animation-delay: 5s; width: 3px; height: 3px; }
+.ethereal-particle:nth-child(7) { top: 70%; left: 25%; animation-delay: 6s; }
+.ethereal-particle:nth-child(8) { top: 15%; left: 55%; animation-delay: 7s; width: 4px; height: 4px; }
+
+/* Ethereal Glass Card */
+.ethereal-glass {
+  background: rgba(18, 8, 31, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(183, 148, 244, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(183, 148, 244, 0.1);
+}
+
+.ethereal-glass-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ethereal-glass-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(183, 148, 244, 0.3);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(183, 148, 244, 0.1),
+    inset 0 1px 0 rgba(183, 148, 244, 0.15);
+}
+
+/* Animated Avatar Ring */
+.ethereal-avatar-ring {
+  background: conic-gradient(
+    from 0deg,
+    #b794f4,
+    #f687b3,
+    #63b3ed,
+    #fbd38d,
+    #b794f4
+  );
+  background-size: 200% 200%;
+  animation: ethereal-rotate 8s linear infinite;
+  border-radius: 50%;
+  padding: 3px;
+}
+
+.ethereal-avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(183, 148, 244, 0.4),
+    rgba(246, 135, 179, 0.3),
+    rgba(99, 179, 237, 0.3),
+    rgba(251, 211, 141, 0.3),
+    rgba(183, 148, 244, 0.4)
+  );
+  animation: ethereal-rotate 8s linear infinite reverse;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* Ethereal Stat Orbs */
+.ethereal-stat-orb {
+  background: linear-gradient(135deg, rgba(18, 8, 31, 0.8) 0%, rgba(26, 15, 46, 0.9) 100%);
+  border: 1px solid rgba(183, 148, 244, 0.2);
+  border-radius: 16px;
+  padding: 1rem;
+  animation: ethereal-float 4s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.ethereal-stat-orb:hover {
+  animation-play-state: paused;
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(183, 148, 244, 0.4);
+  box-shadow: 0 0 30px rgba(183, 148, 244, 0.2);
+}
+
+.ethereal-stat-orb:nth-child(1) { animation-delay: 0s; }
+.ethereal-stat-orb:nth-child(2) { animation-delay: 0.5s; }
+.ethereal-stat-orb:nth-child(3) { animation-delay: 1s; }
+.ethereal-stat-orb:nth-child(4) { animation-delay: 1.5s; }
+
+/* Constellation Achievement Star */
+.constellation-star {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+}
+
+.constellation-star.unlocked {
+  animation: constellation-twinkle 3s ease-in-out infinite;
+}
+
+.constellation-star.unlocked::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 211, 141, 0.3) 0%, transparent 70%);
+  animation: ethereal-pulse 2s ease-in-out infinite;
+}
+
+.constellation-star.locked {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+/* Ethereal Dream Cards (Reading History) */
+.ethereal-dream-card {
+  background: linear-gradient(135deg, rgba(18, 8, 31, 0.7) 0%, rgba(26, 15, 46, 0.8) 100%);
+  border: 1px solid rgba(183, 148, 244, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ethereal-dream-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(183, 148, 244, 0.3), transparent);
+}
+
+.ethereal-dream-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(183, 148, 244, 0.3);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(183, 148, 244, 0.1);
+}
+
+/* Flowing Energy Timeline */
+.ethereal-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.ethereal-timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(183, 148, 244, 0.5),
+    rgba(246, 135, 179, 0.3),
+    rgba(99, 179, 237, 0.3),
+    rgba(183, 148, 244, 0.5)
+  );
+  background-size: 100% 200%;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+.ethereal-timeline-dot {
+  position: absolute;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #b794f4;
+  box-shadow: 0 0 10px rgba(183, 148, 244, 0.5);
+  animation: ethereal-pulse 2s ease-in-out infinite;
+}
+
+.ethereal-timeline-dot.positive {
+  background: linear-gradient(135deg, #22c55e, #86efac);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.ethereal-timeline-dot.negative {
+  background: linear-gradient(135deg, #f687b3, #f9a8d4);
+  box-shadow: 0 0 10px rgba(246, 135, 179, 0.5);
+}
+
+/* Ethereal Portal (Logout) */
+.ethereal-portal {
+  position: relative;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(18, 8, 31, 0.8) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.ethereal-portal:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+/* Ethereal Text Effects */
+.ethereal-glow-text {
+  text-shadow:
+    0 0 10px rgba(183, 148, 244, 0.5),
+    0 0 20px rgba(183, 148, 244, 0.3),
+    0 0 30px rgba(183, 148, 244, 0.2);
+}
+
+.ethereal-gradient-text {
+  background: linear-gradient(135deg, #b794f4 0%, #f687b3 50%, #63b3ed 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Ethereal Section Headers */
+.ethereal-section-header {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* Ethereal Body Text */
+.ethereal-body {
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Entrance Animation Delays */
+.ethereal-entrance { animation: dream-fade-in 0.6s ease-out forwards; }
+.ethereal-entrance-1 { animation: dream-fade-in 0.6s ease-out 0.1s forwards; opacity: 0; }
+.ethereal-entrance-2 { animation: dream-fade-in 0.6s ease-out 0.2s forwards; opacity: 0; }
+.ethereal-entrance-3 { animation: dream-fade-in 0.6s ease-out 0.3s forwards; opacity: 0; }
+.ethereal-entrance-4 { animation: dream-fade-in 0.6s ease-out 0.4s forwards; opacity: 0; }
+.ethereal-entrance-5 { animation: dream-fade-in 0.6s ease-out 0.5s forwards; opacity: 0; }
+
+/* Summary Orbs */
+.ethereal-summary-orb {
+  background: rgba(18, 8, 31, 0.8);
+  border: 1px solid rgba(183, 148, 244, 0.2);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  animation: orb-pulse 3s ease-in-out infinite;
+}
+
+.ethereal-summary-orb.earned {
+  border-color: rgba(251, 211, 141, 0.3);
+  animation-delay: 0.5s;
+}
+
+.ethereal-summary-orb.spent {
+  border-color: rgba(246, 135, 179, 0.3);
+  animation-delay: 1s;
 }

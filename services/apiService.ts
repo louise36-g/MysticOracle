@@ -446,6 +446,58 @@ export async function summarizeQuestion(
   });
 }
 
+export async function generateTarotReading(
+  token: string,
+  params: {
+    spread: {
+      id: string;
+      nameEn: string;
+      nameFr: string;
+      positions: number;
+      positionMeaningsEn: string[];
+      positionMeaningsFr: string[];
+      creditCost: number;
+    };
+    style: string[];
+    cards: Array<{
+      card: {
+        id: string;
+        nameEn: string;
+        nameFr: string;
+        suit?: string;
+        rank?: string;
+        arcana?: string;
+      };
+      positionIndex: number;
+      isReversed: boolean;
+    }>;
+    question: string;
+    language: 'en' | 'fr';
+  }
+): Promise<{ interpretation: string; creditsRequired: number }> {
+  return apiRequest('/api/v1/ai/tarot/generate', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+export async function generateTarotFollowUp(
+  token: string,
+  params: {
+    reading: string;
+    history: Array<{ role: 'user' | 'assistant'; content: string }>;
+    question: string;
+    language: 'en' | 'fr';
+  }
+): Promise<{ answer: string; creditsRequired: number }> {
+  return apiRequest('/api/v1/ai/tarot/followup', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
 // ============================================
 // ADMIN ENDPOINTS
 // ============================================
