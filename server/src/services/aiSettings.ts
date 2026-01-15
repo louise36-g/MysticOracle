@@ -1,22 +1,28 @@
-import prisma from '../db/prisma.js';
+/**
+ * AI Settings Service - Phase 4: Environment Variables Only
+ *
+ * Simplified configuration using only environment variables.
+ * Database-based configuration removed for security and simplicity.
+ *
+ * Required environment variables:
+ * - OPENROUTER_API_KEY: OpenRouter API key
+ * - AI_MODEL: AI model identifier (optional, defaults to free tier)
+ */
 
 interface AISettings {
   apiKey: string | null;
   model: string;
 }
 
-// Cache settings for 5 minutes to avoid constant DB queries
+// Cache settings for 5 minutes to avoid recreating objects
 let cachedSettings: AISettings | null = null;
 let cacheExpiry: number = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+const DEFAULT_MODEL = 'openai/gpt-oss-120b:free';
+
 /**
- * Get AI settings from environment variables (preferred) or database (fallback)
- * Environment variables take priority to ensure consistent configuration.
- *
- * Phase 1 of API Key Architecture Refactoring:
- * - Prioritize env vars over database to fix horoscope authentication
- * - Add logging to track configuration source
+ * Get AI settings from environment variables only
  */
 export async function getAISettings(): Promise<AISettings> {
   const now = Date.now();
@@ -26,55 +32,27 @@ export async function getAISettings(): Promise<AISettings> {
     return cachedSettings;
   }
 
-  try {
-    // Query database for settings (fallback only)
-    const dbSettings = await prisma.systemSetting.findMany({
-      where: { key: { in: ['OPENROUTER_API_KEY', 'AI_MODEL'] } },
-    });
-    const settingsMap = new Map(dbSettings.map(s => [s.key, s.value]));
+  // Read from environment variables only
+  // Trim whitespace from API key to avoid authentication issues
+  const rawApiKey = process.env.OPENROUTER_API_KEY || null;
+  const apiKey = rawApiKey?.trim() || null;
+  const model = process.env.AI_MODEL || DEFAULT_MODEL;
 
-    // Environment variables take priority over database
-    // Trim whitespace from API key to avoid authentication issues
-    const rawApiKey =
-      process.env.OPENROUTER_API_KEY || settingsMap.get('OPENROUTER_API_KEY') || null;
-    const apiKey = rawApiKey?.trim() || null;
-    const model = process.env.AI_MODEL || settingsMap.get('AI_MODEL') || 'openai/gpt-oss-120b:free';
-
-    // Log configuration source for debugging
-    const apiKeySource = process.env.OPENROUTER_API_KEY
-      ? 'environment'
-      : settingsMap.get('OPENROUTER_API_KEY')
-        ? 'database'
-        : 'none';
-    const modelSource = process.env.AI_MODEL
-      ? 'environment'
-      : settingsMap.get('AI_MODEL')
-        ? 'database'
-        : 'default';
-
-    console.log(`[AI Settings] API Key source: ${apiKeySource}, Model source: ${modelSource}`);
-    if (apiKey) {
-      console.log(`[AI Settings] Using API key: ${apiKey.substring(0, 15)}...`);
-    }
-
-    cachedSettings = { apiKey, model };
-    cacheExpiry = now + CACHE_TTL_MS;
-
-    return cachedSettings;
-  } catch (error) {
-    console.error('Error fetching AI settings from database:', error);
-    // Fall back to env vars if DB query fails
-    const settings = {
-      apiKey: process.env.OPENROUTER_API_KEY?.trim() || null,
-      model: process.env.AI_MODEL || 'openai/gpt-oss-120b:free',
-    };
-    console.log('[AI Settings] Using environment variables (database query failed)');
-    return settings;
+  // Log configuration for debugging
+  console.log(`[AI Settings] API Key: ${apiKey ? 'configured' : 'NOT CONFIGURED'}`);
+  console.log(`[AI Settings] Model: ${model}`);
+  if (apiKey) {
+    console.log(`[AI Settings] API Key prefix: ${apiKey.substring(0, 15)}...`);
   }
+
+  cachedSettings = { apiKey, model };
+  cacheExpiry = now + CACHE_TTL_MS;
+
+  return cachedSettings;
 }
 
 /**
- * Clear the settings cache (call after updating settings via admin)
+ * Clear the settings cache
  */
 export function clearAISettingsCache(): void {
   cachedSettings = null;
