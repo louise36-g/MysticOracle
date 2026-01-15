@@ -651,12 +651,16 @@ model TarotArticle {
   deletedAt          DateTime?  // If set, article is in trash
   originalSlug       String?    // Original slug before deletion (for restore)
 
+  // Admin ordering (per card type)
+  sortOrder          Int      @default(0)
+
   // Indexes for common queries
   @@index([cardType])
   @@index([status])
   @@index([slug])
   @@index([datePublished])
   @@index([deletedAt])
+  @@index([cardType, sortOrder])
 
   @@map("tarot_articles")
 }
