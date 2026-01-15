@@ -543,7 +543,10 @@ router.get('/admin/list', async (req, res) => {
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { updatedAt: 'desc' },
+        orderBy: [
+          { sortOrder: 'asc' },  // Primary sort by manual order
+          { createdAt: 'desc' }, // Secondary sort by newest first
+        ],
       }),
       prisma.tarotArticle.count({ where }),
     ]);
