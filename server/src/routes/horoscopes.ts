@@ -2,9 +2,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { optionalAuth } from '../middleware/auth.js';
-import { getAISettings } from '../services/aiSettings.js';
 import cacheService, { CacheService } from '../services/cache.js';
 import { getHoroscopePrompt, getHoroscopeFollowUpPrompt } from '../services/promptService.js';
+import { openRouterService, type OpenRouterMessage } from '../services/openRouterService.js';
 
 const router = Router();
 
@@ -60,23 +60,11 @@ const getHoroscopeSchema = z.object({
   language: z.enum(['en', 'fr']).default('en'),
 });
 
-// Generate horoscope via OpenRouter
+/**
+ * Generate horoscope using unified OpenRouterService
+ * Phase 2: Migrated to use centralized service
+ */
 async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
-  const aiSettings = await getAISettings();
-
-  if (!aiSettings.apiKey) {
-    console.error(
-      'OpenRouter API key not configured (check database settings or OPENROUTER_API_KEY env var)'
-    );
-    throw new Error('AI service not configured. Please contact support.');
-  }
-
-  console.log('[Horoscope] Using AI settings:', {
-    model: aiSettings.model,
-    apiKeyLength: aiSettings.apiKey?.length,
-    apiKeyPrefix: aiSettings.apiKey?.substring(0, 10) + '...',
-  });
-
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -91,43 +79,11 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
     language,
   });
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${aiSettings.apiKey}`,
-      'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
-      'X-Title': 'MysticOracle',
-    },
-    body: JSON.stringify({
-      model: aiSettings.model,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.8,
-      max_tokens: 1000,
-    }),
+  // Use unified service with retry logic and proper error handling
+  return openRouterService.generateHoroscope(prompt, {
+    temperature: 0.8,
+    maxTokens: 1000,
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('[Horoscope] OpenRouter API error:', {
-      status: response.status,
-      statusText: response.statusText,
-      error: errorText,
-      headers: Object.fromEntries(response.headers.entries()),
-    });
-
-    if (response.status === 401) {
-      throw new Error('AI service authentication failed. Please check API key.');
-    } else if (response.status === 429) {
-      throw new Error('AI service rate limited. Please try again in a moment.');
-    } else if (response.status === 402) {
-      throw new Error('AI service credits exhausted. Please contact support.');
-    }
-    throw new Error(`AI service error (${response.status}). Please try again.`);
-  }
-
-  const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
-  return data.choices[0]?.message?.content || 'Unable to generate horoscope';
 }
 
 // GET /api/horoscopes/:sign - Get daily horoscope (cached)
@@ -271,12 +227,7 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
       });
     }
 
-    // Generate new answer
-    const aiSettings = await getAISettings();
-    if (!aiSettings.apiKey) {
-      return res.status(500).json({ error: 'AI not configured' });
-    }
-
+    // Generate new answer using unified service
     const todayStr = new Date().toLocaleDateString('en-GB', {
       weekday: 'long',
       day: 'numeric',
@@ -284,6 +235,14 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
       year: 'numeric',
     });
 
+    // Convert history to OpenRouter message format
+    const conversationHistory: OpenRouterMessage[] =
+      history?.map((h: { role: string; content: string }) => ({
+        role: h.role as 'user' | 'assistant',
+        content: h.content,
+      })) || [];
+
+    // Get prompt from service (with caching and fallback to defaults)
     const historyText =
       history
         ?.map(
@@ -292,7 +251,6 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
         )
         .join('\n') || '';
 
-    // Get prompt from service (with caching and fallback to defaults)
     const prompt = await getHoroscopeFollowUpPrompt({
       sign: normalizedSign,
       today: todayStr,
@@ -302,38 +260,11 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
       language,
     });
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${aiSettings.apiKey}`,
-        'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
-        'X-Title': 'MysticOracle',
-      },
-      body: JSON.stringify({
-        model: aiSettings.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
+    // Use unified service
+    const answer = await openRouterService.generateHoroscopeFollowUp(prompt, conversationHistory, {
+      temperature: 0.7,
+      maxTokens: 500,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Horoscope Follow-up] OpenRouter API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-      });
-
-      if (response.status === 401) {
-        throw new Error('AI service authentication failed. Please check API key.');
-      }
-      throw new Error(`Failed to generate answer (${response.status})`);
-    }
-
-    const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
-    const answer = data.choices[0]?.message?.content || 'Unable to answer';
 
     // Cache the Q&A if we have a horoscope cache entry
     if (cachedHoroscope) {
