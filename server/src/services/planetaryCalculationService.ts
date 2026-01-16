@@ -1,7 +1,8 @@
 import {
   MakeTime,
   GeoVector,
-  Body
+  Body,
+  Vector
 } from 'astronomy-engine';
 
 /**
@@ -164,11 +165,10 @@ export class PlanetaryCalculationService {
    * @param geoVector Geocentric position vector
    * @returns Ecliptic longitude in degrees (0-360)
    */
-  private calculateEclipticLongitude(geoVector: any): number {
+  private calculateEclipticLongitude(geoVector: Vector): number {
     // Convert Cartesian coordinates to ecliptic longitude
     const x = geoVector.x;
     const y = geoVector.y;
-    const z = geoVector.z;
 
     // Calculate longitude in radians, then convert to degrees
     let lon = Math.atan2(y, x) * (180 / Math.PI);
