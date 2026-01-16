@@ -619,6 +619,102 @@ router.get('/admin/:id', async (req, res) => {
  * Query params:
  * - force=true: Force-update mode - bypasses all validation entirely
  */
+// ============================================
+
+/**
+ * PATCH /api/tarot-articles/admin/reorder
+ * Reorder a tarot article within its card type
+ */
+router.patch('/admin/reorder', async (req, res) => {
+  try {
+    const { articleId, cardType, newPosition } = req.body;
+
+    // Validate input
+    if (!articleId || !cardType || typeof newPosition !== 'number') {
+      return res.status(400).json({
+        error: 'Missing required fields: articleId, cardType, newPosition',
+      });
+    }
+
+    if (newPosition < 0) {
+      return res.status(400).json({
+        error: 'newPosition must be >= 0',
+      });
+    }
+
+    // Verify article exists and matches card type
+    const article = await prisma.tarotArticle.findUnique({
+      where: { id: articleId },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    if (article.cardType !== cardType) {
+      return res.status(400).json({
+        error: `Article cardType (${article.cardType}) does not match provided cardType (${cardType})`,
+      });
+    }
+
+    // Get all articles of this card type, ordered by current sortOrder
+    const articles = await prisma.tarotArticle.findMany({
+      where: {
+        cardType: cardType as any,
+        deletedAt: null,
+      },
+      orderBy: { sortOrder: 'asc' },
+      select: { id: true, sortOrder: true },
+    });
+
+    if (newPosition >= articles.length) {
+      return res.status(400).json({
+        error: `newPosition (${newPosition}) exceeds number of articles (${articles.length})`,
+      });
+    }
+
+    // Reorder logic: remove article from old position, insert at new position
+    const oldIndex = articles.findIndex((a) => a.id === articleId);
+    if (oldIndex === -1) {
+      return res.status(404).json({ error: 'Article not found in card type' });
+    }
+
+    if (oldIndex === newPosition) {
+      // No change needed
+      return res.json({
+        success: true,
+        message: 'Article is already at the target position',
+      });
+    }
+
+    // Remove from old position
+    const [movedArticle] = articles.splice(oldIndex, 1);
+    // Insert at new position
+    articles.splice(newPosition, 0, movedArticle);
+
+    // Update sortOrder for all articles in transaction
+    await prisma.$transaction(
+      articles.map((article, index) =>
+        prisma.tarotArticle.update({
+          where: { id: article.id },
+          data: { sortOrder: index },
+        })
+      )
+    );
+
+    // Invalidate cache for overview (article order changed)
+    await cacheService.del('tarot:overview');
+
+    res.json({
+      success: true,
+      message: 'Article reordered successfully',
+    });
+  } catch (error) {
+    console.error('Error reordering article:', error);
+    res.status(500).json({
+      error: 'Failed to reorder article',
+    });
+  }
 router.patch('/admin/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -1162,102 +1258,6 @@ router.delete('/admin/tags/:id', async (req, res) => {
 
 // ============================================
 // ARTICLE REORDERING
-// ============================================
-
-/**
- * PATCH /api/tarot-articles/admin/reorder
- * Reorder a tarot article within its card type
- */
-router.patch('/admin/reorder', async (req, res) => {
-  try {
-    const { articleId, cardType, newPosition } = req.body;
-
-    // Validate input
-    if (!articleId || !cardType || typeof newPosition !== 'number') {
-      return res.status(400).json({
-        error: 'Missing required fields: articleId, cardType, newPosition',
-      });
-    }
-
-    if (newPosition < 0) {
-      return res.status(400).json({
-        error: 'newPosition must be >= 0',
-      });
-    }
-
-    // Verify article exists and matches card type
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id: articleId },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    if (article.cardType !== cardType) {
-      return res.status(400).json({
-        error: `Article cardType (${article.cardType}) does not match provided cardType (${cardType})`,
-      });
-    }
-
-    // Get all articles of this card type, ordered by current sortOrder
-    const articles = await prisma.tarotArticle.findMany({
-      where: {
-        cardType: cardType as any,
-        deletedAt: null,
-      },
-      orderBy: { sortOrder: 'asc' },
-      select: { id: true, sortOrder: true },
-    });
-
-    if (newPosition >= articles.length) {
-      return res.status(400).json({
-        error: `newPosition (${newPosition}) exceeds number of articles (${articles.length})`,
-      });
-    }
-
-    // Reorder logic: remove article from old position, insert at new position
-    const oldIndex = articles.findIndex((a) => a.id === articleId);
-    if (oldIndex === -1) {
-      return res.status(404).json({ error: 'Article not found in card type' });
-    }
-
-    if (oldIndex === newPosition) {
-      // No change needed
-      return res.json({
-        success: true,
-        message: 'Article is already at the target position',
-      });
-    }
-
-    // Remove from old position
-    const [movedArticle] = articles.splice(oldIndex, 1);
-    // Insert at new position
-    articles.splice(newPosition, 0, movedArticle);
-
-    // Update sortOrder for all articles in transaction
-    await prisma.$transaction(
-      articles.map((article, index) =>
-        prisma.tarotArticle.update({
-          where: { id: article.id },
-          data: { sortOrder: index },
-        })
-      )
-    );
-
-    // Invalidate cache for overview (article order changed)
-    await cacheService.del('tarot:overview');
-
-    res.json({
-      success: true,
-      message: 'Article reordered successfully',
-    });
-  } catch (error) {
-    console.error('Error reordering article:', error);
-    res.status(500).json({
-      error: 'Failed to reorder article',
-    });
-  }
 });
 
 export default router;
