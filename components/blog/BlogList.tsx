@@ -38,6 +38,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
   const { t } = useTranslation();
   const [articles, setArticles] = useState<DisplayArticle[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({}); // Accurate counts including tarot articles
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -146,11 +147,45 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
     try {
       const result = await fetchBlogCategories();
       setCategories(result.categories);
+
+      // Calculate accurate counts including tarot articles for specific categories
+      const counts: Record<string, number> = {};
+
+      for (const cat of result.categories) {
+        let count = cat.postCount || 0; // Start with blog post count
+
+        // For Major Arcana and Tarot Meanings, add tarot article counts
+        if (cat.slug === 'major-arcana') {
+          try {
+            const tarotResult = await fetchTarotArticles({
+              cardType: 'MAJOR_ARCANA',
+              status: 'PUBLISHED',
+              limit: 1,
+            });
+            count += tarotResult.total;
+          } catch (err) {
+            console.error('Failed to load Major Arcana count:', err);
+          }
+        } else if (cat.slug === 'tarot-meanings') {
+          try {
+            const tarotResult = await fetchTarotArticles({
+              status: 'PUBLISHED',
+              limit: 1,
+            });
+            count += tarotResult.total;
+          } catch (err) {
+            console.error('Failed to load Tarot Meanings count:', err);
+          }
+        }
+
+        counts[cat.slug] = count;
+      }
+
+      setCategoryCounts(counts);
     } catch (err) {
       console.error('Failed to load categories:', err);
     }
   }, []);
-
 
   const loadFeatured = useCallback(async () => {
     try {
@@ -198,33 +233,34 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
       {/* Category Filter Dropdown */}
       {(() => {
         // Only show categories with published articles
-        const filteredCategories = categories.filter((cat) => cat.postCount > 0);
+        const filteredCategories = categories.filter((cat) => (categoryCounts[cat.slug] || cat.postCount || 0) > 0);
 
         return filteredCategories.length > 0 && (
           <section className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <Folder className="w-5 h-5 text-purple-400" />
-              <h2 className="text-lg font-heading text-purple-200">
-                {t('blog.BlogList.browse_by_category', 'Browse by Category')}
-              </h2>
-            </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setPage(1);
-              }}
-              className="w-full md:w-64 px-4 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-slate-300 hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
-            >
-              <option value="">
-                {t('blog.BlogList.all_categories', 'All Categories')} ({total})
-              </option>
-              {filteredCategories.map((cat) => (
-                <option key={cat.id} value={cat.slug}>
-                  {language === 'en' ? cat.nameEn : cat.nameFr} ({cat.postCount})
+            <div className="relative inline-block">
+              <Folder className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none z-10" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setPage(1);
+                }}
+                className="appearance-none pl-12 pr-8 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-purple-200 font-heading text-lg hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
+              >
+                <option value="">
+                  {t('blog.BlogList.browse_by_category', 'Browse by Category')}
                 </option>
-              ))}
-            </select>
+                {filteredCategories.map((cat) => {
+                  const count = categoryCounts[cat.slug] || cat.postCount || 0;
+                  return (
+                    <option key={cat.id} value={cat.slug}>
+                      {language === 'en' ? cat.nameEn : cat.nameFr} ({count})
+                    </option>
+                  );
+                })}
+              </select>
+              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none rotate-90" />
+            </div>
           </section>
         );
       })()}
