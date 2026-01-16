@@ -249,29 +249,26 @@ app.use('/', ssrRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// Schedule horoscope cache cleanup (runs daily at 3 AM UTC)
+// Schedule horoscope cache cleanup (runs daily at midnight UTC)
 function scheduleHoroscopeCleanup(): void {
   const CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
-  // Calculate time until next 3 AM UTC
+  // Calculate time until next midnight UTC
   const now = new Date();
-  const next3AM = new Date(now);
-  next3AM.setUTCHours(3, 0, 0, 0);
-  if (next3AM <= now) {
-    next3AM.setUTCDate(next3AM.getUTCDate() + 1);
-  }
+  const nextMidnight = new Date(now);
+  nextMidnight.setUTCHours(24, 0, 0, 0); // Set to next midnight (00:00:00)
 
-  const msUntil3AM = next3AM.getTime() - now.getTime();
+  const msUntilMidnight = nextMidnight.getTime() - now.getTime();
 
   setTimeout(() => {
-    cleanupOldHoroscopes().catch(err => console.error('[Scheduled Cleanup] Error:', err));
-    // Then run every 24 hours
+    cleanupOldHoroscopes().catch(err => console.error('[Horoscope Cleanup] Error:', err));
+    // Then run every 24 hours at midnight
     setInterval(() => {
-      cleanupOldHoroscopes().catch(err => console.error('[Scheduled Cleanup] Error:', err));
+      cleanupOldHoroscopes().catch(err => console.error('[Horoscope Cleanup] Error:', err));
     }, CLEANUP_INTERVAL);
-  }, msUntil3AM);
+  }, msUntilMidnight);
 
-  console.log(`[Scheduled Cleanup] Horoscope cleanup scheduled for ${next3AM.toISOString()}`);
+  console.log(`[Horoscope Cleanup] Daily cleanup scheduled for midnight UTC (next run: ${nextMidnight.toISOString()})`);
 }
 
 // Start server

@@ -105,6 +105,12 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     const dateKey = today.toISOString().split('T')[0];
     const memoryCacheKey = `horoscope:${normalizedSign}:${language}:${dateKey}`;
 
+    // Calculate seconds until midnight for cache TTL
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
+
     // Check in-memory cache first (reduces DB load)
     const memoryCached = await cacheService.get<{ horoscope: string; createdAt: Date }>(
       memoryCacheKey
@@ -129,14 +135,14 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     });
 
     if (dbCached) {
-      // Populate memory cache from DB
+      // Populate memory cache from DB (expires at midnight)
       await cacheService.set(
         memoryCacheKey,
         {
           horoscope: dbCached.horoscope,
           createdAt: dbCached.createdAt,
         },
-        CacheService.TTL.HOROSCOPE
+        secondsUntilMidnight
       );
 
       return res.json({
@@ -172,8 +178,8 @@ router.get('/:sign', optionalAuth, async (req, res) => {
       },
     });
 
-    // Save to memory cache
-    await cacheService.set(memoryCacheKey, { horoscope, createdAt }, CacheService.TTL.HOROSCOPE);
+    // Save to memory cache (expires at midnight)
+    await cacheService.set(memoryCacheKey, { horoscope, createdAt }, secondsUntilMidnight);
 
     res.json({
       horoscope,

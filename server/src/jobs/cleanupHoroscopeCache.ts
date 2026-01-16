@@ -2,20 +2,20 @@ import prisma from '../db/prisma.js';
 
 /**
  * Cleanup old horoscope cache entries
- * Deletes entries older than 7 days to prevent database bloat
+ * Deletes entries from yesterday and earlier (daily reset at midnight)
  */
 export async function cleanupOldHoroscopes(): Promise<number> {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   try {
     const result = await prisma.horoscopeCache.deleteMany({
       where: {
-        date: { lt: sevenDaysAgo },
+        date: { lt: today },
       },
     });
 
-    console.log(`[Horoscope Cleanup] Deleted ${result.count} old cache entries`);
+    console.log(`[Horoscope Cleanup] Deleted ${result.count} horoscope cache entries from before today`);
     return result.count;
   } catch (error) {
     console.error('[Horoscope Cleanup] Error:', error);
