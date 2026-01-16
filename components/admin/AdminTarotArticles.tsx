@@ -218,6 +218,7 @@ const AdminTarotArticles: React.FC = () => {
   const [cardTypeFilter, setCardTypeFilter] = useState<CardType | ''>('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorTimeoutId, setErrorTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [isReordering, setIsReordering] = useState(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>({
     show: false,
@@ -225,6 +226,9 @@ const AdminTarotArticles: React.FC = () => {
     message: '',
     onConfirm: () => {},
   });
+
+  // Constants
+  const ERROR_DISPLAY_DURATION_MS = 5000;
 
   // Trash state
   const [trashArticles, setTrashArticles] = useState<TarotArticle[]>([]);
@@ -370,6 +374,15 @@ const AdminTarotArticles: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Cleanup error timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutId) {
+        clearTimeout(errorTimeoutId);
+      }
+    };
+  }, [errorTimeoutId]);
+
   // Action handlers
   const handleTogglePublish = async (article: TarotArticle) => {
     try {
@@ -503,15 +516,44 @@ const AdminTarotArticles: React.FC = () => {
     });
   };
 
+  const performReorder = async (movedArticle: TarotArticle, newIndex: number) => {
+    const token = await getToken();
+    if (!token) throw new Error('No auth token');
+
+    await reorderTarotArticle(token, {
+      articleId: movedArticle.id,
+      cardType: movedArticle.cardType,
+      newPosition: newIndex,
+    });
+
+    console.log('✓ Article reordered successfully');
+    setError(null);
+  };
+
+  const handleReorderError = (error: unknown) => {
+    console.error('✗ Failed to reorder article:', error);
+
+    loadArticles();
+
+    const errorMessage = error instanceof Error
+      ? error.message
+      : 'Failed to reorder article. Changes have been reverted.';
+    setError(errorMessage);
+
+    // Clear any existing timeout
+    if (errorTimeoutId) {
+      clearTimeout(errorTimeoutId);
+    }
+
+    // Set new timeout and store ID
+    const timeoutId = setTimeout(() => setError(null), ERROR_DISPLAY_DURATION_MS);
+    setErrorTimeoutId(timeoutId);
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    if (isReordering) {
-      console.log('Reorder already in progress');
+    if (!over || active.id === over.id || isReordering) {
       return;
     }
 
@@ -526,38 +568,14 @@ const AdminTarotArticles: React.FC = () => {
       }
 
       const movedArticle = articles[oldIndex];
-      const previousArticles = [...articles]; // Save for revert
 
       // Optimistic update
       const reorderedArticles = arrayMove(articles, oldIndex, newIndex);
       setArticles(reorderedArticles);
 
-      // Call API
-      const token = await getToken();
-      if (!token) throw new Error('No auth token');
-
-      await reorderTarotArticle(token, {
-        articleId: movedArticle.id,
-        cardType: movedArticle.cardType,
-        newPosition: newIndex,
-      });
-
-      console.log('✓ Article reordered successfully');
-      setError(null); // Clear any previous errors
+      await performReorder(movedArticle, newIndex);
     } catch (error) {
-      console.error('✗ Failed to reorder article:', error);
-
-      // Revert to previous state
-      loadArticles();
-
-      // Show error message
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Failed to reorder article. Changes have been reverted.';
-      setError(errorMessage);
-
-      // Clear error after 5 seconds
-      setTimeout(() => setError(null), 5000);
+      handleReorderError(error);
     } finally {
       setIsReordering(false);
     }
