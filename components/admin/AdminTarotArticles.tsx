@@ -28,8 +28,24 @@ import {
   Folder,
   Tag,
   Image as ImageIcon,
+  GripVertical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import TarotArticleEditor from './TarotArticleEditor';
 import TarotCategoriesManager from './TarotCategoriesManager';
 import TarotTagsManager from './TarotTagsManager';
@@ -47,6 +63,132 @@ interface ConfirmModal {
   isDangerous?: boolean;
   onConfirm: () => void;
 }
+
+interface SortableArticleRowProps {
+  article: TarotArticle;
+  cardTypeBadges: Record<CardType, { bg: string; text: string; label: string }>;
+  getStatusBadge: (status: ArticleStatus) => React.ReactElement;
+  formatDate: (dateString: string) => string;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+  actionLoading: string | null;
+  language: string;
+}
+
+const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
+  article,
+  cardTypeBadges,
+  getStatusBadge,
+  formatDate,
+  onEdit,
+  onDelete,
+  actionLoading,
+  language,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: article.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const cardTypeBadge = cardTypeBadges[article.cardType as CardType];
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors ${
+        isDragging ? 'z-50 shadow-2xl' : ''
+      }`}
+    >
+      {/* Drag Handle */}
+      <td className="px-4 py-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          <GripVertical className="w-5 h-5" />
+        </div>
+      </td>
+
+      {/* Image */}
+      <td className="px-4 py-3">
+        <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
+          {article.featuredImage ? (
+            <img
+              src={article.featuredImage}
+              alt={article.featuredImageAlt || article.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <ImageOff className="w-6 h-6 text-slate-600" />
+          )}
+        </div>
+      </td>
+
+      {/* Title */}
+      <td className="px-4 py-3">
+        <div className="font-medium text-white">{article.title}</div>
+        <div className="text-sm text-slate-400 mt-1">{article.slug}</div>
+      </td>
+
+      {/* Card Number */}
+      <td className="px-4 py-3">
+        <span className="text-slate-300 font-mono">{article.cardNumber}</span>
+      </td>
+
+      {/* Card Type */}
+      <td className="px-4 py-3">
+        <span className={`px-2 py-1 rounded-full text-xs ${cardTypeBadge.bg} ${cardTypeBadge.text}`}>
+          {cardTypeBadge.label}
+        </span>
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3">{getStatusBadge(article.status)}</td>
+
+      {/* Updated */}
+      <td className="px-4 py-3 text-sm text-slate-400">
+        {formatDate(article.updatedAt)}
+      </td>
+
+      {/* Actions */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onEdit(article.id)}
+            className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+            title={language === 'en' ? 'Edit' : 'Modifier'}
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(article.id)}
+            disabled={actionLoading === article.id}
+            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+            title={language === 'en' ? 'Delete' : 'Supprimer'}
+          >
+            {actionLoading === article.id ? (
+              <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 const AdminTarotArticles: React.FC = () => {
   const { language } = useApp();
