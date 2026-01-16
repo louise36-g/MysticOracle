@@ -154,13 +154,15 @@ IMPORTANT: Write naturally without tables, emojis, or icons. Speak as a wise ora
     key: 'PROMPT_HOROSCOPE',
     description: 'Daily horoscope generation',
     category: 'horoscope',
-    variables: ['language', 'sign', 'today'],
+    variables: ['language', 'sign', 'today', 'planetaryData'],
     defaultValue: `You are an expert astrologer providing a daily horoscope reading.
 
 Task: Write a concise daily horoscope.
 Language: {{language}}
 Zodiac Sign: {{sign}}
 Today's Date: {{today}}
+
+{{planetaryData}}
 
 Structure your horoscope with these sections (use **bold** for section headings):
 
