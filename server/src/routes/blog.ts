@@ -462,6 +462,7 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
         search: z.string().optional(),
         deleted: z.coerce.boolean().optional(), // true = show trash, false/undefined = show active
+        category: z.string().optional(), // filter by category slug
       })
       .parse(req.query);
 
@@ -481,6 +482,9 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         { titleFr: { contains: params.search, mode: 'insensitive' } },
         { slug: { contains: params.search, mode: 'insensitive' } },
       ];
+    }
+    if (params.category) {
+      where.categories = { some: { category: { slug: params.category } } };
     }
 
     const [posts, total] = await Promise.all([

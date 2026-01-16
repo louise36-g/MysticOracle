@@ -1,11 +1,7 @@
-import {
-  MakeTime,
-  GeoVector,
-  Body,
-  Vector,
-  MoonPhase,
-  Illumination
-} from 'astronomy-engine';
+import * as Astronomy from 'astronomy-engine';
+
+// Re-export commonly used functions for convenience
+const { MakeTime, GeoVector, Body, Vector, MoonPhase, Illumination } = Astronomy;
 
 /**
  * Planetary position at a specific degree in the zodiac
