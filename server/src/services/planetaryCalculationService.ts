@@ -47,6 +47,24 @@ export interface PlanetaryData {
  */
 export class PlanetaryCalculationService {
   /**
+   * Zodiac signs in order starting from 0° Aries
+   */
+  private readonly ZODIAC_SIGNS = [
+    'Aries',      // 0-30°
+    'Taurus',     // 30-60°
+    'Gemini',     // 60-90°
+    'Cancer',     // 90-120°
+    'Leo',        // 120-150°
+    'Virgo',      // 150-180°
+    'Libra',      // 180-210°
+    'Scorpio',    // 210-240°
+    'Sagittarius', // 240-270°
+    'Capricorn',  // 270-300°
+    'Aquarius',   // 300-330°
+    'Pisces',     // 330-360°
+  ];
+
+  /**
    * Calculate planetary positions for a given date
    * @param date Date to calculate positions for
    * @returns Complete planetary data
@@ -63,5 +81,30 @@ export class PlanetaryCalculationService {
    */
   formatForPrompt(data: PlanetaryData): string {
     throw new Error('Not implemented');
+  }
+
+  /**
+   * Convert ecliptic longitude (0-360°) to zodiac sign name
+   * @param longitude Ecliptic longitude in degrees
+   * @returns Zodiac sign name
+   */
+  private getZodiacSign(longitude: number): string {
+    // Normalize longitude to 0-360 range
+    const normalizedLong = ((longitude % 360) + 360) % 360;
+
+    // Each sign is 30 degrees
+    const signIndex = Math.floor(normalizedLong / 30);
+
+    return this.ZODIAC_SIGNS[signIndex];
+  }
+
+  /**
+   * Get degrees within the current zodiac sign (0-30)
+   * @param longitude Ecliptic longitude in degrees
+   * @returns Degrees within the sign
+   */
+  private getDegreesInSign(longitude: number): number {
+    const normalizedLong = ((longitude % 360) + 360) % 360;
+    return normalizedLong % 30;
   }
 }
