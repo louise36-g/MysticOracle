@@ -1,3 +1,9 @@
+import {
+  MakeTime,
+  GeoVector,
+  Body
+} from 'astronomy-engine';
+
 /**
  * Planetary position at a specific degree in the zodiac
  */
@@ -71,7 +77,52 @@ export class PlanetaryCalculationService {
    * @throws Error if calculations fail
    */
   async calculatePlanetaryData(date: Date): Promise<PlanetaryData> {
-    throw new Error('Not implemented');
+    try {
+      const astroTime = MakeTime(date);
+
+      // Calculate positions for all planets
+      const sunGeo = GeoVector(Body.Sun, astroTime, false);
+      const mercuryGeo = GeoVector(Body.Mercury, astroTime, false);
+      const venusGeo = GeoVector(Body.Venus, astroTime, false);
+      const marsGeo = GeoVector(Body.Mars, astroTime, false);
+      const jupiterGeo = GeoVector(Body.Jupiter, astroTime, false);
+      const saturnGeo = GeoVector(Body.Saturn, astroTime, false);
+
+      // Convert to ecliptic longitudes
+      const sunLon = this.calculateEclipticLongitude(sunGeo);
+      const mercuryLon = this.calculateEclipticLongitude(mercuryGeo);
+      const venusLon = this.calculateEclipticLongitude(venusGeo);
+      const marsLon = this.calculateEclipticLongitude(marsGeo);
+      const jupiterLon = this.calculateEclipticLongitude(jupiterGeo);
+      const saturnLon = this.calculateEclipticLongitude(saturnGeo);
+
+      // Create position objects
+      const createPosition = (lon: number): PlanetPosition => ({
+        longitude: lon,
+        sign: this.getZodiacSign(lon),
+        degrees: this.getDegreesInSign(lon),
+      });
+
+      return {
+        date,
+        sun: createPosition(sunLon),
+        moon: {
+          longitude: 0, // Will implement in next task
+          sign: 'Aries',
+          degrees: 0,
+          phase: 'Unknown',
+          illumination: 0,
+        },
+        mercury: createPosition(mercuryLon),
+        venus: createPosition(venusLon),
+        mars: createPosition(marsLon),
+        jupiter: createPosition(jupiterLon),
+        saturn: createPosition(saturnLon),
+        aspects: [], // Will implement later
+      };
+    } catch (error) {
+      throw new Error(`Failed to calculate planetary positions: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   /**
@@ -106,5 +157,25 @@ export class PlanetaryCalculationService {
   private getDegreesInSign(longitude: number): number {
     const normalizedLong = ((longitude % 360) + 360) % 360;
     return normalizedLong % 30;
+  }
+
+  /**
+   * Calculate ecliptic longitude from geocentric vector
+   * @param geoVector Geocentric position vector
+   * @returns Ecliptic longitude in degrees (0-360)
+   */
+  private calculateEclipticLongitude(geoVector: any): number {
+    // Convert Cartesian coordinates to ecliptic longitude
+    const x = geoVector.x;
+    const y = geoVector.y;
+    const z = geoVector.z;
+
+    // Calculate longitude in radians, then convert to degrees
+    let lon = Math.atan2(y, x) * (180 / Math.PI);
+
+    // Normalize to 0-360 range
+    if (lon < 0) lon += 360;
+
+    return lon;
   }
 }

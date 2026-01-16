@@ -5,9 +5,40 @@ describe('PlanetaryCalculationService', () => {
   const service = new PlanetaryCalculationService();
 
   describe('calculatePlanetaryData', () => {
-    it('should throw not implemented error', async () => {
+    it('should calculate Sun position for January 16, 2026', async () => {
       const date = new Date('2026-01-16T12:00:00Z');
-      await expect(service.calculatePlanetaryData(date)).rejects.toThrow('Not implemented');
+      const data = await service.calculatePlanetaryData(date);
+
+      // Sun should be in Capricorn in mid-January
+      expect(data.sun.sign).toBe('Capricorn');
+      // Approximate range - Sun moves ~1° per day
+      expect(data.sun.longitude).toBeGreaterThan(270); // After Capricorn start
+      expect(data.sun.longitude).toBeLessThan(300); // Before Aquarius
+    });
+
+    it('should calculate positions for all major planets', async () => {
+      const date = new Date('2026-01-16T12:00:00Z');
+      const data = await service.calculatePlanetaryData(date);
+
+      // Verify all planets have valid data (not stub values)
+      expect(data.mercury.sign).toBeTruthy();
+      expect(data.venus.sign).toBeTruthy();
+      expect(data.mars.sign).toBeTruthy();
+      expect(data.jupiter.sign).toBeTruthy();
+      expect(data.saturn.sign).toBeTruthy();
+
+      // Verify longitudes are in valid range (not 0 which is stub)
+      expect(data.mercury.longitude).toBeGreaterThanOrEqual(0);
+      expect(data.mercury.longitude).toBeLessThan(360);
+      expect(data.mercury.longitude).not.toBe(0); // Not stub value
+
+      expect(data.venus.longitude).toBeGreaterThanOrEqual(0);
+      expect(data.venus.longitude).toBeLessThan(360);
+      expect(data.venus.longitude).not.toBe(0); // Not stub value
+
+      expect(data.mars.longitude).not.toBe(0); // Not stub value
+      expect(data.jupiter.longitude).not.toBe(0); // Not stub value
+      expect(data.saturn.longitude).not.toBe(0); // Not stub value
     });
   });
 
