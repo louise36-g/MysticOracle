@@ -99,13 +99,10 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
         </p>
       </div>
 
-      {/* Category Filter Buttons */}
+      {/* Category Filter Dropdown */}
       {(() => {
-        // Only show specific categories with published articles
-        const allowedCategories = ['Astrology', 'Spirituality', 'Tarot Numerology', 'Tarot healing'];
-        const filteredCategories = categories.filter(
-          (cat) => allowedCategories.includes(cat.nameEn) && cat.postCount > 0
-        );
+        // Only show categories with published articles
+        const filteredCategories = categories.filter((cat) => cat.postCount > 0);
 
         return filteredCategories.length > 0 && (
           <section className="mb-10">
@@ -115,41 +112,23 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
                 {t('blog.BlogList.browse_by_category', 'Browse by Category')}
               </h2>
             </div>
-            <div className="flex flex-wrap gap-3">
-              {/* All Categories button */}
-              <button
-                onClick={() => {
-                  setSelectedCategory('');
-                  setPage(1);
-                }}
-                className={`px-5 py-2.5 rounded-lg font-medium transition-all ${
-                  !selectedCategory
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                    : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-purple-500/20'
-                }`}
-              >
-                {t('blog.BlogList.all_categories', 'All Categories')}
-              </button>
-
-              {/* Individual category buttons */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setPage(1);
+              }}
+              className="w-full md:w-64 px-4 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-slate-300 hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
+            >
+              <option value="">
+                {t('blog.BlogList.all_categories', 'All Categories')} ({total})
+              </option>
               {filteredCategories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategoryClick(cat.slug)}
-                  className={`px-5 py-2.5 rounded-lg font-medium transition-all ${
-                    selectedCategory === cat.slug
-                      ? 'text-white shadow-lg'
-                      : 'text-slate-300 hover:text-white border hover:shadow-md'
-                  }`}
-                  style={{
-                    backgroundColor: selectedCategory === cat.slug ? cat.color : 'transparent',
-                    borderColor: cat.color,
-                  }}
-                >
-                  {language === 'en' ? cat.nameEn : cat.nameFr}
-                </button>
+                <option key={cat.id} value={cat.slug}>
+                  {language === 'en' ? cat.nameEn : cat.nameFr} ({cat.postCount})
+                </option>
               ))}
-            </div>
+            </select>
           </section>
         );
       })()}
