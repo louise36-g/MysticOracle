@@ -108,6 +108,60 @@ describe('PlanetaryCalculationService', () => {
     });
   });
 
+  describe('calculateAspects', () => {
+    it('should detect conjunction when planets are close together', () => {
+      const planets = {
+        sun: 100,    // 100°
+        moon: 105,   // 105° - 5° orb (conjunction)
+      };
+
+      const aspects = service['calculateAspects'](planets);
+
+      const conjunction = aspects.find(
+        a => a.planet1 === 'sun' && a.planet2 === 'moon' && a.type === 'conjunction'
+      );
+      expect(conjunction).toBeDefined();
+      expect(conjunction?.orb).toBeLessThan(8); // Within orb tolerance
+    });
+
+    it('should detect opposition (180° apart)', () => {
+      const planets = {
+        sun: 0,      // 0°
+        mars: 180,   // 180° - exact opposition
+      };
+
+      const aspects = service['calculateAspects'](planets);
+
+      const opposition = aspects.find(
+        a => a.type === 'opposition'
+      );
+      expect(opposition).toBeDefined();
+      expect(opposition?.angle).toBeCloseTo(180, 1);
+    });
+
+    it('should detect trine (120° apart)', () => {
+      const planets = {
+        venus: 0,
+        jupiter: 120,
+      };
+
+      const aspects = service['calculateAspects'](planets);
+
+      const trine = aspects.find(a => a.type === 'trine');
+      expect(trine).toBeDefined();
+    });
+
+    it('should not detect aspects outside orb tolerance', () => {
+      const planets = {
+        sun: 0,
+        moon: 50, // No major aspect at 50°
+      };
+
+      const aspects = service['calculateAspects'](planets);
+      expect(aspects.length).toBe(0);
+    });
+  });
+
   describe('getZodiacSign', () => {
     it('should return Aries for longitude 0-30°', () => {
       expect(service['getZodiacSign'](0)).toBe('Aries');

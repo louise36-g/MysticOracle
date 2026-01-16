@@ -74,6 +74,17 @@ export class PlanetaryCalculationService {
   ];
 
   /**
+   * Aspect definitions with their angles and orb tolerances
+   */
+  private readonly ASPECTS = [
+    { type: 'conjunction' as const, angle: 0, orb: 8 },
+    { type: 'opposition' as const, angle: 180, orb: 8 },
+    { type: 'trine' as const, angle: 120, orb: 8 },
+    { type: 'square' as const, angle: 90, orb: 8 },
+    { type: 'sextile' as const, angle: 60, orb: 6 },
+  ];
+
+  /**
    * Calculate planetary positions for a given date
    * @param date Date to calculate positions for
    * @returns Complete planetary data
@@ -107,6 +118,20 @@ export class PlanetaryCalculationService {
         retrograde: this.isRetrograde(body, astroTime),
       });
 
+      // Calculate aspects between all planets
+      const moonData = this.calculateMoonData(astroTime);
+      const positions = {
+        sun: sunLon,
+        moon: moonData.longitude,
+        mercury: mercuryLon,
+        venus: venusLon,
+        mars: marsLon,
+        jupiter: jupiterLon,
+        saturn: saturnLon,
+      };
+
+      const aspects = this.calculateAspects(positions);
+
       return {
         date,
         sun: {
@@ -114,13 +139,13 @@ export class PlanetaryCalculationService {
           sign: this.getZodiacSign(sunLon),
           degrees: this.getDegreesInSign(sunLon),
         },
-        moon: this.calculateMoonData(astroTime),
+        moon: moonData,
         mercury: createPosition(mercuryLon, Body.Mercury),
         venus: createPosition(venusLon, Body.Venus),
         mars: createPosition(marsLon, Body.Mars),
         jupiter: createPosition(jupiterLon, Body.Jupiter),
         saturn: createPosition(saturnLon, Body.Saturn),
-        aspects: [], // Will implement later
+        aspects, // Now includes calculated aspects
       };
     } catch (error) {
       throw new Error(`Failed to calculate planetary positions: ${error instanceof Error ? error.message : String(error)}`);
@@ -258,5 +283,60 @@ export class PlanetaryCalculationService {
       // If detection fails, assume direct motion
       return false;
     }
+  }
+
+  /**
+   * Calculate the shortest angular distance between two longitudes
+   * @param lon1 First longitude
+   * @param lon2 Second longitude
+   * @returns Shortest angle between them (0-180°)
+   */
+  private getAngularDistance(lon1: number, lon2: number): number {
+    let diff = Math.abs(lon2 - lon1);
+
+    // Take shorter path around the circle
+    if (diff > 180) diff = 360 - diff;
+
+    return diff;
+  }
+
+  /**
+   * Calculate aspects between all planetary pairs
+   * @param positions Object with planet names and longitudes
+   * @returns Array of detected aspects
+   */
+  private calculateAspects(positions: Record<string, number>): PlanetaryAspect[] {
+    const aspects: PlanetaryAspect[] = [];
+    const planetNames = Object.keys(positions);
+
+    // Check all planet pairs
+    for (let i = 0; i < planetNames.length; i++) {
+      for (let j = i + 1; j < planetNames.length; j++) {
+        const planet1 = planetNames[i];
+        const planet2 = planetNames[j];
+        const lon1 = positions[planet1];
+        const lon2 = positions[planet2];
+
+        const angle = this.getAngularDistance(lon1, lon2);
+
+        // Check if angle matches any aspect within orb
+        for (const aspectDef of this.ASPECTS) {
+          const orb = Math.abs(angle - aspectDef.angle);
+
+          if (orb <= aspectDef.orb) {
+            aspects.push({
+              planet1,
+              planet2,
+              type: aspectDef.type,
+              angle,
+              orb,
+            });
+            break; // Only record one aspect per pair
+          }
+        }
+      }
+    }
+
+    return aspects;
   }
 }
