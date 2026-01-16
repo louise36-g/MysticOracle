@@ -158,7 +158,56 @@ export class PlanetaryCalculationService {
    * @returns Formatted string ready for prompt injection
    */
   formatForPrompt(data: PlanetaryData): string {
-    throw new Error('Not implemented');
+    const lines: string[] = [];
+
+    // Helper to format a planet position
+    const formatPlanet = (name: string, position: PlanetPosition): string => {
+      const degrees = Math.round(position.degrees);
+      const retrograde = position.retrograde ? ' (Retrograde)' : '';
+      return `- ${name} at ${degrees}° ${position.sign}${retrograde}`;
+    };
+
+    // Format Moon with phase information
+    const formatMoon = (moon: MoonData): string => {
+      const degrees = Math.round(moon.degrees);
+      return `- Moon at ${degrees}° ${moon.sign} (${moon.phase}, ${moon.illumination}% illuminated)`;
+    };
+
+    // Planetary Positions section
+    lines.push('Current Planetary Positions:');
+    lines.push(formatPlanet('Sun', data.sun));
+    lines.push(formatMoon(data.moon));
+    lines.push(formatPlanet('Mercury', data.mercury));
+    lines.push(formatPlanet('Venus', data.venus));
+    lines.push(formatPlanet('Mars', data.mars));
+    lines.push(formatPlanet('Jupiter', data.jupiter));
+    lines.push(formatPlanet('Saturn', data.saturn));
+
+    // Aspects section (if any)
+    if (data.aspects.length > 0) {
+      lines.push('');
+      lines.push('Major Aspects:');
+
+      // Sort aspects by orb (tightest first)
+      const sortedAspects = [...data.aspects].sort((a, b) => a.orb - b.orb);
+
+      // Add aspect interpretations
+      const aspectMeanings: Record<string, string> = {
+        conjunction: 'merging of energies',
+        opposition: 'tension and awareness between',
+        trine: 'harmony between',
+        square: 'dynamic tension between',
+        sextile: 'opportunity between',
+      };
+
+      for (const aspect of sortedAspects.slice(0, 5)) { // Show top 5 aspects
+        const meaning = aspectMeanings[aspect.type] || aspect.type;
+        const orbStr = aspect.orb < 1 ? ' (exact)' : ` (${Math.round(aspect.orb)}° orb)`;
+        lines.push(`- ${aspect.planet1} ${aspect.type} ${aspect.planet2}${orbStr} - ${meaning}`);
+      }
+    }
+
+    return lines.join('\n');
   }
 
   /**

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PlanetaryCalculationService } from '../../services/planetaryCalculationService.js';
+import { PlanetaryCalculationService, PlanetaryData } from '../../services/planetaryCalculationService.js';
 
 describe('PlanetaryCalculationService', () => {
   const service = new PlanetaryCalculationService();
@@ -43,19 +43,68 @@ describe('PlanetaryCalculationService', () => {
   });
 
   describe('formatForPrompt', () => {
-    it('should throw not implemented error', () => {
-      const mockData = {
+    it('should format planetary data into readable text', async () => {
+      const date = new Date('2026-01-16T12:00:00Z');
+      const data = await service.calculatePlanetaryData(date);
+      const formatted = service.formatForPrompt(data);
+
+      // Should include all planet names
+      expect(formatted).toContain('Sun');
+      expect(formatted).toContain('Moon');
+      expect(formatted).toContain('Mercury');
+      expect(formatted).toContain('Venus');
+      expect(formatted).toContain('Mars');
+      expect(formatted).toContain('Jupiter');
+      expect(formatted).toContain('Saturn');
+
+      // Should include zodiac signs
+      expect(formatted).toMatch(/Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces/);
+
+      // Should include moon phase
+      expect(formatted).toMatch(/New Moon|Full Moon|Waxing|Waning|Quarter/);
+    });
+
+    it('should indicate retrograde planets', () => {
+      const mockData: PlanetaryData = {
+        date: new Date(),
+        sun: { longitude: 295, sign: 'Capricorn', degrees: 25 },
+        moon: { longitude: 132, sign: 'Leo', degrees: 12, phase: 'Waxing Gibbous', illumination: 87 },
+        mercury: { longitude: 258, sign: 'Sagittarius', degrees: 18, retrograde: true },
+        venus: { longitude: 308, sign: 'Aquarius', degrees: 8, retrograde: false },
+        mars: { longitude: 112, sign: 'Cancer', degrees: 22, retrograde: false },
+        jupiter: { longitude: 74, sign: 'Gemini', degrees: 14, retrograde: false },
+        saturn: { longitude: 336, sign: 'Pisces', degrees: 6, retrograde: false },
+        aspects: [],
+      };
+
+      const formatted = service.formatForPrompt(mockData);
+
+      // Should mark Mercury as retrograde
+      expect(formatted).toContain('Mercury');
+      expect(formatted).toContain('Retrograde');
+    });
+
+    it('should include aspects when present', () => {
+      const mockData: PlanetaryData = {
         date: new Date(),
         sun: { longitude: 0, sign: 'Aries', degrees: 0 },
         moon: { longitude: 0, sign: 'Aries', degrees: 0, phase: 'New Moon', illumination: 0 },
         mercury: { longitude: 0, sign: 'Aries', degrees: 0 },
         venus: { longitude: 0, sign: 'Aries', degrees: 0 },
-        mars: { longitude: 0, sign: 'Aries', degrees: 0 },
+        mars: { longitude: 90, sign: 'Cancer', degrees: 0 },
         jupiter: { longitude: 0, sign: 'Aries', degrees: 0 },
         saturn: { longitude: 0, sign: 'Aries', degrees: 0 },
-        aspects: [],
+        aspects: [
+          { planet1: 'sun', planet2: 'mars', type: 'square', angle: 90, orb: 0 },
+        ],
       };
-      expect(() => service.formatForPrompt(mockData)).toThrow('Not implemented');
+
+      const formatted = service.formatForPrompt(mockData);
+
+      expect(formatted).toContain('Major Aspects');
+      expect(formatted).toContain('square');
+      expect(formatted).toContain('sun');
+      expect(formatted).toContain('mars');
     });
   });
 
