@@ -20,7 +20,7 @@ interface DisplayArticle {
   excerpt: string;
   coverImage?: string;
   coverImageAlt?: string;
-  categories: { id: string; nameEn: string; nameFr: string; color: string }[];
+  categories: { id: string; nameEn: string; nameFr: string; color?: string }[];
   readTimeMinutes: number;
   publishedAt: string;
   viewCount?: number;
@@ -122,7 +122,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
 
           // Merge tarot articles with blog posts
           allArticles = [...tarotArticles, ...allArticles];
-          combinedTotal += tarotResult.pagination.total;
+          combinedTotal += tarotResult.total;
 
           // Recalculate total pages based on combined total
           combinedTotalPages = Math.ceil(combinedTotal / 9);
