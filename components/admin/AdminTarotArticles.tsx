@@ -74,6 +74,7 @@ interface SortableArticleRowProps {
   onDelete: (id: string) => void;
   actionLoading: string | null;
   language: string;
+  isDragEnabled: boolean;
 }
 
 const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
@@ -85,6 +86,7 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
   onDelete,
   actionLoading,
   language,
+  isDragEnabled,
 }) => {
   const {
     attributes,
@@ -93,7 +95,10 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: article.id });
+  } = useSortable({
+    id: article.id,
+    disabled: !isDragEnabled,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -113,13 +118,17 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
     >
       {/* Drag Handle */}
       <td className="px-4 py-3">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 transition-colors"
-        >
-          <GripVertical className="w-5 h-5" />
-        </div>
+        {isDragEnabled ? (
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <GripVertical className="w-5 h-5" />
+          </div>
+        ) : (
+          <div className="w-5 h-5" />
+        )}
       </td>
 
       {/* Image */}
@@ -229,6 +238,18 @@ const AdminTarotArticles: React.FC = () => {
       },
     })
   );
+
+  // Determine if drag handles should be shown
+  // Only allow reordering when viewing articles of same card type
+  // Don't allow when: searching, filtering by status, or viewing mixed types
+  const canReorder = () => {
+    if (searchQuery) return false;
+    if (statusFilter) return false;
+    if (!cardTypeFilter) return false; // Must have card type filter
+    return true;
+  };
+
+  const isDragEnabled = canReorder();
 
   // Utility functions
   const getWordCount = (htmlContent: string): number => {
@@ -716,6 +737,7 @@ const AdminTarotArticles: React.FC = () => {
                             onDelete={(id) => handleDelete(articles.find(a => a.id === id)!)}
                             actionLoading={actionLoading}
                             language={language}
+                            isDragEnabled={isDragEnabled}
                           />
                         ))}
                       </tbody>
