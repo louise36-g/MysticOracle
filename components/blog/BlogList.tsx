@@ -62,20 +62,26 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
   });
 
   // Convert tarot article to display article
-  const tarotArticleToArticle = (tarotArticle: any): DisplayArticle => ({
-    id: tarotArticle.id,
-    slug: tarotArticle.slug,
-    title: tarotArticle.title,
-    excerpt: tarotArticle.excerpt,
-    coverImage: tarotArticle.featuredImage,
-    coverImageAlt: tarotArticle.featuredImageAlt,
-    categories: [], // Tarot articles don't have explicit categories, we'll handle this in rendering
-    readTimeMinutes: tarotArticle.readTime || 5,
-    publishedAt: tarotArticle.createdAt,
-    viewCount: 0,
-    createdAt: tarotArticle.createdAt,
-    type: 'tarot',
-  });
+  const tarotArticleToArticle = (tarotArticle: any): DisplayArticle => {
+    // Parse readTime string (e.g., "15 min read" -> 15)
+    const readTimeMatch = tarotArticle.readTime?.match(/(\d+)/);
+    const readTimeMinutes = readTimeMatch ? parseInt(readTimeMatch[1], 10) : 5;
+
+    return {
+      id: tarotArticle.id,
+      slug: tarotArticle.slug,
+      title: tarotArticle.title,
+      excerpt: tarotArticle.excerpt,
+      coverImage: tarotArticle.featuredImage,
+      coverImageAlt: tarotArticle.featuredImageAlt,
+      categories: [], // Tarot articles don't have explicit categories, we'll handle this in rendering
+      readTimeMinutes,
+      publishedAt: tarotArticle.datePublished || tarotArticle.createdAt,
+      viewCount: 0,
+      createdAt: tarotArticle.datePublished || tarotArticle.createdAt,
+      type: 'tarot',
+    };
+  };
 
   const loadPosts = useCallback(async () => {
     try {
