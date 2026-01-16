@@ -250,14 +250,11 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
                 <option value="">
                   {t('blog.BlogList.browse_by_category', 'Browse by Category')}
                 </option>
-                {filteredCategories.map((cat) => {
-                  const count = categoryCounts[cat.slug] || cat.postCount || 0;
-                  return (
-                    <option key={cat.id} value={cat.slug}>
-                      {language === 'en' ? cat.nameEn : cat.nameFr} ({count})
-                    </option>
-                  );
-                })}
+                {filteredCategories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {language === 'en' ? cat.nameEn : cat.nameFr}
+                  </option>
+                ))}
               </select>
               <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none rotate-90" />
             </div>
