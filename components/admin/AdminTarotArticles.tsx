@@ -218,6 +218,7 @@ const AdminTarotArticles: React.FC = () => {
   const [cardTypeFilter, setCardTypeFilter] = useState<CardType | ''>('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>({
     show: false,
     title: '',
@@ -506,11 +507,17 @@ const AdminTarotArticles: React.FC = () => {
     const { active, over } = event;
 
     if (!over || active.id === over.id) {
-      return; // No change
+      return;
+    }
+
+    if (isReordering) {
+      console.log('Reorder already in progress');
+      return;
     }
 
     try {
-      // Find old and new positions
+      setIsReordering(true);
+
       const oldIndex = articles.findIndex((a) => a.id === active.id);
       const newIndex = articles.findIndex((a) => a.id === over.id);
 
@@ -519,6 +526,7 @@ const AdminTarotArticles: React.FC = () => {
       }
 
       const movedArticle = articles[oldIndex];
+      const previousArticles = [...articles]; // Save for revert
 
       // Optimistic update
       const reorderedArticles = arrayMove(articles, oldIndex, newIndex);
@@ -534,12 +542,24 @@ const AdminTarotArticles: React.FC = () => {
         newPosition: newIndex,
       });
 
-      console.log('Article reordered successfully');
+      console.log('✓ Article reordered successfully');
+      setError(null); // Clear any previous errors
     } catch (error) {
-      console.error('Failed to reorder article:', error);
-      // Revert on error
+      console.error('✗ Failed to reorder article:', error);
+
+      // Revert to previous state
       loadArticles();
-      setError(error instanceof Error ? error.message : 'Failed to reorder article');
+
+      // Show error message
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to reorder article. Changes have been reverted.';
+      setError(errorMessage);
+
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -685,13 +705,24 @@ const AdminTarotArticles: React.FC = () => {
               {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
             </div>
           ) : (
-            <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
-              <div className="overflow-x-auto">
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
+            <>
+              {/* Loading indicator during reorder */}
+              {isReordering && (
+                <div className="mb-4 px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-blue-400 text-sm">
+                    {language === 'en' ? 'Saving new order...' : 'Enregistrement du nouvel ordre...'}
+                  </span>
+                </div>
+              )}
+
+              <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
                   <SortableContext
                     items={articles.map((a) => a.id)}
                     strategy={verticalListSortingStrategy}
@@ -746,6 +777,7 @@ const AdminTarotArticles: React.FC = () => {
                 </DndContext>
               </div>
             </div>
+            </>
           )}
 
           {/* Pagination */}
