@@ -381,7 +381,7 @@ const AdminTarotArticles: React.FC = () => {
         clearTimeout(errorTimeoutId);
       }
     };
-  }, [errorTimeoutId]);
+  }, []);
 
   // Action handlers
   const handleTogglePublish = async (article: TarotArticle) => {
