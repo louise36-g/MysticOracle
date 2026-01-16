@@ -2,7 +2,9 @@ import {
   MakeTime,
   GeoVector,
   Body,
-  Vector
+  Vector,
+  MoonPhase,
+  Illumination
 } from 'astronomy-engine';
 
 /**
@@ -107,13 +109,7 @@ export class PlanetaryCalculationService {
       return {
         date,
         sun: createPosition(sunLon),
-        moon: {
-          longitude: 0, // Will implement in next task
-          sign: 'Aries',
-          degrees: 0,
-          phase: 'Unknown',
-          illumination: 0,
-        },
+        moon: this.calculateMoonData(astroTime),
         mercury: createPosition(mercuryLon),
         venus: createPosition(venusLon),
         mars: createPosition(marsLon),
@@ -158,6 +154,51 @@ export class PlanetaryCalculationService {
   private getDegreesInSign(longitude: number): number {
     const normalizedLong = ((longitude % 360) + 360) % 360;
     return normalizedLong % 30;
+  }
+
+  /**
+   * Calculate Moon phase name from phase angle
+   * @param phaseAngle Phase angle in degrees (0-360)
+   * @returns Moon phase name
+   */
+  private getMoonPhaseName(phaseAngle: number): string {
+    // Normalize to 0-360
+    const normalized = ((phaseAngle % 360) + 360) % 360;
+
+    if (normalized < 22.5 || normalized >= 337.5) return 'New Moon';
+    if (normalized < 67.5) return 'Waxing Crescent';
+    if (normalized < 112.5) return 'First Quarter';
+    if (normalized < 157.5) return 'Waxing Gibbous';
+    if (normalized < 202.5) return 'Full Moon';
+    if (normalized < 247.5) return 'Waning Gibbous';
+    if (normalized < 292.5) return 'Last Quarter';
+    return 'Waning Crescent';
+  }
+
+  /**
+   * Calculate Moon data including position and phase
+   * @param astroTime Astronomy engine time object
+   * @returns Moon data with phase information
+   */
+  private calculateMoonData(astroTime: any): MoonData {
+    // Get Moon's geocentric position
+    const moonGeo = GeoVector(Body.Moon, astroTime, false);
+    const moonLon = this.calculateEclipticLongitude(moonGeo);
+
+    // Calculate phase angle (angle between Sun, Earth, and Moon)
+    const phaseAngle = MoonPhase(astroTime);
+
+    // Calculate illumination percentage
+    const illum = Illumination(Body.Moon, astroTime);
+    const illumination = Math.round(illum.phase_fraction * 100);
+
+    return {
+      longitude: moonLon,
+      sign: this.getZodiacSign(moonLon),
+      degrees: this.getDegreesInSign(moonLon),
+      phase: this.getMoonPhaseName(phaseAngle),
+      illumination,
+    };
   }
 
   /**

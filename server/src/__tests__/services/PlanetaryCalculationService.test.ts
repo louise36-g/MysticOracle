@@ -59,6 +59,41 @@ describe('PlanetaryCalculationService', () => {
     });
   });
 
+  describe('calculatePlanetaryData - Moon', () => {
+    it('should calculate Moon position and phase', async () => {
+      const date = new Date('2026-01-16T12:00:00Z');
+      const data = await service.calculatePlanetaryData(date);
+
+      // Moon should have valid position
+      expect(data.moon.sign).toBeTruthy();
+      expect(data.moon.longitude).toBeGreaterThanOrEqual(0);
+      expect(data.moon.longitude).toBeLessThan(360);
+
+      // Moon should have phase information
+      expect(data.moon.phase).not.toBe('Unknown');
+      expect(data.moon.illumination).toBeGreaterThanOrEqual(0);
+      expect(data.moon.illumination).toBeLessThanOrEqual(100);
+    });
+
+    it('should identify Moon phase correctly', async () => {
+      const date = new Date('2026-01-16T12:00:00Z');
+      const data = await service.calculatePlanetaryData(date);
+
+      // Phase should be one of the valid values
+      const validPhases = [
+        'New Moon',
+        'Waxing Crescent',
+        'First Quarter',
+        'Waxing Gibbous',
+        'Full Moon',
+        'Waning Gibbous',
+        'Last Quarter',
+        'Waning Crescent',
+      ];
+      expect(validPhases).toContain(data.moon.phase);
+    });
+  });
+
   describe('getZodiacSign', () => {
     it('should return Aries for longitude 0-30°', () => {
       expect(service['getZodiacSign'](0)).toBe('Aries');
