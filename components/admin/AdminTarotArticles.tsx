@@ -8,6 +8,7 @@ import {
   restoreTarotArticle,
   permanentlyDeleteTarotArticle,
   emptyTarotArticlesTrash,
+  reorderTarotArticle,
   TarotArticle,
 } from '../../services/apiService';
 import {
@@ -219,6 +220,15 @@ const AdminTarotArticles: React.FC = () => {
   const [trashArticles, setTrashArticles] = useState<TarotArticle[]>([]);
   const [trashLoading, setTrashLoading] = useState(true);
   const [trashPagination, setTrashPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required to start drag
+      },
+    })
+  );
 
   // Utility functions
   const getWordCount = (htmlContent: string): number => {
@@ -471,6 +481,47 @@ const AdminTarotArticles: React.FC = () => {
     });
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return; // No change
+    }
+
+    try {
+      // Find old and new positions
+      const oldIndex = articles.findIndex((a) => a.id === active.id);
+      const newIndex = articles.findIndex((a) => a.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return;
+      }
+
+      const movedArticle = articles[oldIndex];
+
+      // Optimistic update
+      const reorderedArticles = arrayMove(articles, oldIndex, newIndex);
+      setArticles(reorderedArticles);
+
+      // Call API
+      const token = await getToken();
+      if (!token) throw new Error('No auth token');
+
+      await reorderTarotArticle(token, {
+        articleId: movedArticle.id,
+        cardType: movedArticle.cardType,
+        newPosition: newIndex,
+      });
+
+      console.log('Article reordered successfully');
+    } catch (error) {
+      console.error('Failed to reorder article:', error);
+      // Revert on error
+      loadArticles();
+      setError(error instanceof Error ? error.message : 'Failed to reorder article');
+    }
+  };
+
   // If editing an article, show the editor
   if (editingArticleId) {
     return (
@@ -608,129 +659,69 @@ const AdminTarotArticles: React.FC = () => {
             <div className="flex items-center justify-center py-20">
               <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
             </div>
+          ) : articles.length === 0 ? (
+            <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-8 text-center text-slate-400">
+              {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
+            </div>
           ) : (
             <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Article' : 'Article'}</th>
-                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Status' : 'Statut'}</th>
-                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Stats' : 'Stats'}</th>
-                      <th className="text-left p-4 text-slate-300 font-medium">{language === 'en' ? 'Actions' : 'Actions'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {articles.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="p-8 text-center text-slate-400">
-                          {language === 'en' ? 'No articles yet. Import your first article!' : 'Aucun article. Importez votre premier article!'}
-                        </td>
-                      </tr>
-                    ) : (
-                      articles.map((article) => (
-                        <tr key={article.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="relative w-20 h-20 flex-shrink-0">
-                                {article.featuredImage ? (
-                                  <img
-                                    src={article.featuredImage}
-                                    alt={article.featuredImageAlt || article.title}
-                                    className="w-full h-full object-cover rounded-lg bg-slate-800"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const placeholder = target.parentElement?.querySelector('.img-placeholder');
-                                      if (placeholder) placeholder.classList.remove('hidden');
-                                    }}
-                                  />
-                                ) : null}
-                                <div className={`img-placeholder absolute inset-0 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center ${article.featuredImage ? 'hidden' : ''}`}>
-                                  <ImageOff className="w-6 h-6 text-purple-400/50" />
-                                </div>
-                              </div>
-                              <div>
-                                <button
-                                  onClick={() => setEditingArticleId(article.id)}
-                                  className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
-                                >
-                                  {article.title}
-                                </button>
-                                <p className="text-slate-500 text-sm">{article.slug}</p>
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mt-1 ${cardTypeBadges[article.cardType as CardType].bg} ${cardTypeBadges[article.cardType as CardType].text}`}>
-                                  {cardTypeBadges[article.cardType as CardType].label}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4">{getStatusBadge(article.status as ArticleStatus)}</td>
-                          <td className="p-4">
-                            <div className="text-sm">
-                              <p className="text-slate-400">{getWordCount(article.content).toLocaleString()} words</p>
-                              {article.datePublished && (
-                                <p className="text-slate-500 text-xs mt-1">
-                                  {formatDate(article.datePublished)}
-                                </p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => {
-                                  const baseUrl = window.location.origin;
-                                  const url = article.status === 'PUBLISHED'
-                                    ? `${baseUrl}/tarot/articles/${article.slug}`
-                                    : `${baseUrl}/admin/tarot/preview/${article.id}`;
-                                  window.open(url, '_blank');
-                                }}
-                                className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg"
-                                title={article.status === 'PUBLISHED' ? (language === 'en' ? 'View' : 'Voir') : (language === 'en' ? 'Preview' : 'Aperçu')}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setEditingArticleId(article.id)}
-                                className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
-                                title={language === 'en' ? 'Edit' : 'Modifier'}
-                                disabled={actionLoading === article.id}
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleTogglePublish(article)}
-                                className={`p-2 rounded-lg ${
-                                  article.status === 'PUBLISHED'
-                                    ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
-                                    : 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
-                                }`}
-                                title={article.status === 'PUBLISHED' ? (language === 'en' ? 'Unpublish' : 'Dépublier') : (language === 'en' ? 'Publish' : 'Publier')}
-                                disabled={actionLoading === article.id}
-                              >
-                                {actionLoading === article.id ? (
-                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                ) : article.status === 'PUBLISHED' ? (
-                                  <XCircle className="w-4 h-4" />
-                                ) : (
-                                  <CheckCircle className="w-4 h-4" />
-                                )}
-                              </button>
-                              <button
-                                onClick={() => handleDelete(article)}
-                                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
-                                title={language === 'en' ? 'Delete' : 'Supprimer'}
-                                disabled={actionLoading === article.id}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={articles.map((a) => a.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-slate-700">
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-12">
+                            {/* Drag handle column */}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Image' : 'Image'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Title' : 'Titre'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Card #' : 'Carte #'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Type' : 'Type'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Status' : 'Statut'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Updated' : 'Modifié'}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            {language === 'en' ? 'Actions' : 'Actions'}
+                          </th>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {articles.map((article) => (
+                          <SortableArticleRow
+                            key={article.id}
+                            article={article}
+                            cardTypeBadges={cardTypeBadges}
+                            getStatusBadge={getStatusBadge}
+                            formatDate={formatDate}
+                            onEdit={setEditingArticleId}
+                            onDelete={(id) => handleDelete(articles.find(a => a.id === id)!)}
+                            actionLoading={actionLoading}
+                            language={language}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </SortableContext>
+                </DndContext>
               </div>
             </div>
           )}
