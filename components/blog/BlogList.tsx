@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import {
   fetchBlogPosts,
   fetchBlogCategories,
+  fetchTarotArticles,
   BlogPost,
   BlogCategory,
 } from '../../services/apiService';
@@ -10,6 +11,22 @@ import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRig
 import { motion } from 'framer-motion';
 import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
+
+// Unified article type for display
+interface DisplayArticle {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage?: string;
+  coverImageAlt?: string;
+  categories: { id: string; nameEn: string; nameFr: string; color: string }[];
+  readTimeMinutes: number;
+  publishedAt: string;
+  viewCount?: number;
+  createdAt: string;
+  type: 'blog' | 'tarot'; // Distinguish between blog posts and tarot articles
+}
 
 interface BlogListProps {
   onNavigateToPost: (slug: string) => void;
@@ -19,7 +36,7 @@ interface BlogListProps {
 const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }) => {
   const { language } = useApp();
   const { t } = useTranslation();
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [articles, setArticles] = useState<DisplayArticle[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -28,23 +45,96 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || '');
   const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
 
+  // Convert blog post to display article
+  const blogPostToArticle = (post: BlogPost): DisplayArticle => ({
+    id: post.id,
+    slug: post.slug,
+    title: language === 'en' ? post.titleEn : post.titleFr,
+    excerpt: language === 'en' ? post.excerptEn : post.excerptFr,
+    coverImage: post.coverImage,
+    coverImageAlt: post.coverImageAlt,
+    categories: post.categories,
+    readTimeMinutes: post.readTimeMinutes,
+    publishedAt: post.publishedAt || post.createdAt,
+    viewCount: post.viewCount,
+    createdAt: post.createdAt,
+    type: 'blog',
+  });
+
+  // Convert tarot article to display article
+  const tarotArticleToArticle = (tarotArticle: any): DisplayArticle => ({
+    id: tarotArticle.id,
+    slug: tarotArticle.slug,
+    title: tarotArticle.title,
+    excerpt: tarotArticle.excerpt,
+    coverImage: tarotArticle.featuredImage,
+    coverImageAlt: tarotArticle.featuredImageAlt,
+    categories: [], // Tarot articles don't have explicit categories, we'll handle this in rendering
+    readTimeMinutes: tarotArticle.readTime || 5,
+    publishedAt: tarotArticle.createdAt,
+    viewCount: 0,
+    createdAt: tarotArticle.createdAt,
+    type: 'tarot',
+  });
+
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await fetchBlogPosts({
+
+      let allArticles: DisplayArticle[] = [];
+      let combinedTotal = 0;
+      let combinedTotalPages = 1;
+
+      // Fetch blog posts
+      const blogResult = await fetchBlogPosts({
         page,
         limit: 9,
         category: selectedCategory || undefined,
       });
-      setPosts(result.posts);
-      setTotalPages(result.pagination.totalPages);
-      setTotal(result.pagination.total);
+
+      allArticles = blogResult.posts.map(blogPostToArticle);
+      combinedTotal = blogResult.pagination.total;
+      combinedTotalPages = blogResult.pagination.totalPages;
+
+      // If Major Arcana or Tarot Meanings category is selected, also fetch tarot articles
+      if (selectedCategory === 'major-arcana' || selectedCategory === 'tarot-meanings') {
+        try {
+          const tarotParams: any = {
+            page,
+            limit: 9,
+            status: 'PUBLISHED',
+          };
+
+          // For Major Arcana, filter by card type
+          if (selectedCategory === 'major-arcana') {
+            tarotParams.cardType = 'MAJOR_ARCANA';
+          }
+          // For Tarot Meanings, fetch all types
+
+          const tarotResult = await fetchTarotArticles(tarotParams);
+          const tarotArticles = tarotResult.articles.map(tarotArticleToArticle);
+
+          // Merge tarot articles with blog posts
+          allArticles = [...tarotArticles, ...allArticles];
+          combinedTotal += tarotResult.pagination.total;
+
+          // Recalculate total pages based on combined total
+          combinedTotalPages = Math.ceil(combinedTotal / 9);
+        } catch (tarotErr) {
+          console.error('Failed to load tarot articles:', tarotErr);
+          // Continue with just blog posts if tarot fetch fails
+        }
+      }
+
+      setArticles(allArticles);
+      setTotalPages(combinedTotalPages);
+      setTotal(combinedTotal);
     } catch (err) {
       console.error('Failed to load posts:', err);
     } finally {
       setLoading(false);
     }
-  }, [page, selectedCategory]);
+  }, [page, selectedCategory, language]);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -233,65 +323,79 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
           <div className="flex items-center justify-center py-20">
             <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : posts.length === 0 ? (
+        ) : articles.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
             <p>{t('blog.BlogList.no_articles_found', 'No articles found.')}</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post, index) => (
-              <SmartLink
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                onClick={() => onNavigateToPost(post.slug)}
-                className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block"
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+            {articles.map((article, index) => {
+              // Determine navigation path based on article type
+              const href = article.type === 'tarot' ? `/tarot/${article.slug}` : `/blog/${article.slug}`;
+              const handleClick = article.type === 'tarot'
+                ? () => window.location.href = href
+                : () => onNavigateToPost(article.slug);
+
+              return (
+                <SmartLink
+                  key={article.id}
+                  href={href}
+                  onClick={handleClick}
+                  className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block"
                 >
-                  {post.coverImage && (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={post.coverImage}
-                        alt={post.coverImageAlt || (language === 'en' ? post.titleEn : post.titleFr)}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  )}
-                  <div className="p-5">
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {post.categories.slice(0, 2).map((cat) => (
-                        <span
-                          key={cat.id}
-                          className="px-2 py-0.5 rounded-full text-xs"
-                          style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
-                        >
-                          {language === 'en' ? cat.nameEn : cat.nameFr}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    {article.coverImage && (
+                      <div className="aspect-video overflow-hidden">
+                        <img
+                          src={article.coverImage}
+                          alt={article.coverImageAlt || article.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {article.type === 'tarot' ? (
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-400">
+                            Tarot Card
+                          </span>
+                        ) : (
+                          article.categories.slice(0, 2).map((cat) => (
+                            <span
+                              key={cat.id}
+                              className="px-2 py-0.5 rounded-full text-xs"
+                              style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
+                            >
+                              {language === 'en' ? cat.nameEn : cat.nameFr}
+                            </span>
+                          ))
+                        )}
+                      </div>
+                      <h3 className="text-lg font-heading text-white group-hover:text-purple-300 transition-colors mb-2 line-clamp-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm line-clamp-2 mb-4">
+                        {article.excerpt}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {formatDate(article.publishedAt)}
                         </span>
-                      ))}
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {article.readTimeMinutes} min
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-heading text-white group-hover:text-purple-300 transition-colors mb-2 line-clamp-2">
-                      {language === 'en' ? post.titleEn : post.titleFr}
-                    </h3>
-                    <p className="text-slate-400 text-sm line-clamp-2 mb-4">
-                      {language === 'en' ? post.excerptEn : post.excerptFr}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(post.publishedAt || post.createdAt)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {post.readTimeMinutes} min
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              </SmartLink>
-            ))}
+                  </motion.div>
+                </SmartLink>
+              );
+            })}
           </div>
         )}
 
