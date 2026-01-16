@@ -5,8 +5,10 @@ import { optionalAuth } from '../middleware/auth.js';
 import cacheService, { CacheService } from '../services/cache.js';
 import { getHoroscopePrompt, getHoroscopeFollowUpPrompt } from '../services/promptService.js';
 import { openRouterService, type OpenRouterMessage } from '../services/openRouterService.js';
+import { PlanetaryCalculationService } from '../services/planetaryCalculationService.js';
 
 const router = Router();
+const planetaryService = new PlanetaryCalculationService();
 
 const zodiacSigns = [
   'Aries',
@@ -61,8 +63,8 @@ const getHoroscopeSchema = z.object({
 });
 
 /**
- * Generate horoscope using unified OpenRouterService
- * Phase 2: Migrated to use centralized service
+ * Generate horoscope with real planetary data using unified OpenRouterService
+ * Phase 3: Enhanced with astronomy-engine calculations
  */
 async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
   const today = new Date().toLocaleDateString('en-GB', {
@@ -72,18 +74,32 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
     year: 'numeric',
   });
 
-  // Get prompt from service (with caching and fallback to defaults)
-  const prompt = await getHoroscopePrompt({
-    sign,
-    today,
-    language,
-  });
+  try {
+    // Calculate real planetary positions
+    const planetaryData = await planetaryService.calculatePlanetaryData(new Date());
+    const formattedData = planetaryService.formatForPrompt(planetaryData);
 
-  // Use unified service with retry logic and proper error handling
-  return openRouterService.generateHoroscope(prompt, {
-    temperature: 0.8,
-    maxTokens: 1000,
-  });
+    // Get prompt with planetary data
+    const prompt = await getHoroscopePrompt({
+      sign,
+      today,
+      language,
+      planetaryData: formattedData,
+    });
+
+    // Use unified service with retry logic and proper error handling
+    return openRouterService.generateHoroscope(prompt, {
+      temperature: 0.8,
+      maxTokens: 1000,
+    });
+  } catch (error) {
+    // If planetary calculations fail, throw explicit error
+    // Don't silently fallback to generating without data
+    if (error instanceof Error && error.message.includes('planetary')) {
+      throw new Error('PLANETARY_CALCULATION_FAILED');
+    }
+    throw error;
+  }
 }
 
 // GET /api/horoscopes/:sign - Get daily horoscope (cached)
@@ -188,6 +204,16 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Horoscope error:', error);
+
+    // Check if this is a planetary calculation failure
+    if (error instanceof Error && error.message === 'PLANETARY_CALCULATION_FAILED') {
+      return res.status(503).json({
+        error: "The stars appear a bit clouded right now - we're having trouble reading the planetary positions. Please try again in a few moments. We've been notified and are working to fix the issue.",
+        code: 'PLANETARY_CALCULATION_FAILED',
+        retryable: true,
+      });
+    }
+
     const message = error instanceof Error ? error.message : 'Failed to get horoscope';
     res.status(500).json({ error: message });
   }
