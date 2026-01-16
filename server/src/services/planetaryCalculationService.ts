@@ -100,21 +100,26 @@ export class PlanetaryCalculationService {
       const saturnLon = this.calculateEclipticLongitude(saturnGeo);
 
       // Create position objects
-      const createPosition = (lon: number): PlanetPosition => ({
+      const createPosition = (lon: number, body: Body): PlanetPosition => ({
         longitude: lon,
         sign: this.getZodiacSign(lon),
         degrees: this.getDegreesInSign(lon),
+        retrograde: this.isRetrograde(body, astroTime),
       });
 
       return {
         date,
-        sun: createPosition(sunLon),
+        sun: {
+          longitude: sunLon,
+          sign: this.getZodiacSign(sunLon),
+          degrees: this.getDegreesInSign(sunLon),
+        },
         moon: this.calculateMoonData(astroTime),
-        mercury: createPosition(mercuryLon),
-        venus: createPosition(venusLon),
-        mars: createPosition(marsLon),
-        jupiter: createPosition(jupiterLon),
-        saturn: createPosition(saturnLon),
+        mercury: createPosition(mercuryLon, Body.Mercury),
+        venus: createPosition(venusLon, Body.Venus),
+        mars: createPosition(marsLon, Body.Mars),
+        jupiter: createPosition(jupiterLon, Body.Jupiter),
+        saturn: createPosition(saturnLon, Body.Saturn),
         aspects: [], // Will implement later
       };
     } catch (error) {
@@ -218,5 +223,40 @@ export class PlanetaryCalculationService {
     if (lon < 0) lon += 360;
 
     return lon;
+  }
+
+  /**
+   * Detect if a planet is in retrograde motion
+   * Retrograde = apparent backward motion from Earth's perspective
+   * Detected by comparing longitude over a short time period
+   *
+   * @param body Planet to check
+   * @param astroTime Current time
+   * @returns True if planet is in retrograde
+   */
+  private isRetrograde(body: Body, astroTime: any): boolean {
+    try {
+      // Get current position
+      const currentGeo = GeoVector(body, astroTime, false);
+      const currentLon = this.calculateEclipticLongitude(currentGeo);
+
+      // Get position 1 day ahead
+      const futureTime = astroTime.AddDays(1);
+      const futureGeo = GeoVector(body, futureTime, false);
+      const futureLon = this.calculateEclipticLongitude(futureGeo);
+
+      // Calculate change in longitude
+      let deltaLon = futureLon - currentLon;
+
+      // Handle wraparound at 0/360 degrees
+      if (deltaLon > 180) deltaLon -= 360;
+      if (deltaLon < -180) deltaLon += 360;
+
+      // Retrograde if longitude decreases (negative delta)
+      return deltaLon < 0;
+    } catch (error) {
+      // If detection fails, assume direct motion
+      return false;
+    }
   }
 }

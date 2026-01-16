@@ -94,6 +94,20 @@ describe('PlanetaryCalculationService', () => {
     });
   });
 
+  describe('isRetrograde', () => {
+    it('should detect retrograde status for planets', async () => {
+      const date = new Date('2026-01-16T12:00:00Z');
+      const data = await service.calculatePlanetaryData(date);
+
+      // Verify retrograde is a boolean for inner planets
+      expect(typeof data.mercury.retrograde).toBe('boolean');
+      expect(typeof data.venus.retrograde).toBe('boolean');
+      expect(typeof data.mars.retrograde).toBe('boolean');
+      expect(typeof data.jupiter.retrograde).toBe('boolean');
+      expect(typeof data.saturn.retrograde).toBe('boolean');
+    });
+  });
+
   describe('getZodiacSign', () => {
     it('should return Aries for longitude 0-30°', () => {
       expect(service['getZodiacSign'](0)).toBe('Aries');
