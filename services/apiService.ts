@@ -1411,7 +1411,7 @@ export async function fetchBlogTags(): Promise<{ tags: BlogTag[] }> {
 // Admin blog endpoints
 export async function fetchAdminBlogPosts(
   token: string,
-  params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean } = {}
+  params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean; category?: string } = {}
 ): Promise<BlogPostListResponse> {
   return apiRequest(apiEndpoint('/api/blog/admin/posts', params as Record<string, ParamValue>), { token });
 }
@@ -1437,6 +1437,19 @@ export async function updateBlogPost(
 
 export async function deleteBlogPost(token: string, id: string): Promise<{ success: boolean }> {
   return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'DELETE', token });
+}
+
+export async function reorderBlogPost(
+  token: string,
+  postId: string,
+  categorySlug: string | null,
+  newPosition: number
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest('/api/blog/admin/posts/reorder', {
+    method: 'PATCH',
+    body: { postId, categorySlug, newPosition },
+    token,
+  });
 }
 
 // Admin categories

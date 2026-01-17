@@ -4,10 +4,13 @@ import { useApp } from '../../../context/AppContext';
 import {
   fetchAdminBlogPosts,
   fetchAdminBlogPost,
+  fetchAdminBlogCategories,
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
+  reorderBlogPost,
   CreateBlogPostData,
+  BlogCategory,
 } from '../../../services/apiService';
 import {
   Search,
@@ -20,7 +23,26 @@ import {
   Star,
   ExternalLink,
   Eye,
+  Folder,
+  GripVertical,
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import BlogPostEditor from '../BlogPostEditor';
 import type { BlogPost, Pagination } from './types';
 
@@ -50,18 +72,39 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const { getToken } = useAuth();
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    limit: 10,
+    limit: 100, // Increased for drag-and-drop within category
     total: 0,
     totalPages: 0,
   });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>(''); // New category filter
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isNewPost, setIsNewPost] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Drag-and-drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const result = await fetchAdminBlogCategories(token);
+      setCategories(result.categories);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  }, [getToken]);
 
   const loadPosts = useCallback(async () => {
     try {
@@ -74,6 +117,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         limit: pagination.limit,
         status: statusFilter || undefined,
         search: search || undefined,
+        category: categoryFilter || undefined, // Add category filter
       });
 
       setPosts(result.posts);
@@ -84,11 +128,39 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [getToken, pagination.page, pagination.limit, statusFilter, search, onError]);
+  }, [getToken, pagination.page, pagination.limit, statusFilter, search, categoryFilter, onError]);
 
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = posts.findIndex((p) => p.id === active.id);
+    const newIndex = posts.findIndex((p) => p.id === over.id);
+
+    // Optimistically update UI
+    const newPosts = arrayMove(posts, oldIndex, newIndex);
+    setPosts(newPosts);
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      await reorderBlogPost(token, active.id as string, categoryFilter || null, newIndex);
+    } catch (err) {
+      // Revert on error
+      setPosts(posts);
+      onError('Failed to reorder post');
+    }
+  };
 
   const handleNewPost = async () => {
     await Promise.all([onLoadCategories(), onLoadTags()]);
@@ -211,6 +283,128 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     );
   };
 
+  // SortableRow component for drag-and-drop
+  interface SortableRowProps {
+    post: BlogPost;
+    showDragHandle: boolean;
+  }
+
+  const SortableRow: React.FC<SortableRowProps> = ({ post, showDragHandle }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: post.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <tr
+        ref={setNodeRef}
+        style={style}
+        className="border-b border-purple-500/10 hover:bg-slate-800/30"
+      >
+        {showDragHandle && (
+          <td className="p-4">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-purple-400"
+            >
+              <GripVertical className="w-5 h-5" />
+            </button>
+          </td>
+        )}
+        <td className="p-4">
+          <div className="flex items-center gap-2">
+            {post.featured && <Star className="w-4 h-4 text-amber-400" />}
+            <div>
+              <button
+                onClick={() => handleEditPost(post)}
+                className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
+              >
+                {language === 'en' ? post.titleEn : post.titleFr}
+              </button>
+              <p className="text-slate-500 text-sm">{post.slug}</p>
+            </div>
+          </div>
+        </td>
+        <td className="p-4">{getStatusBadge(post.status)}</td>
+        <td className="p-4">
+          <div className="flex flex-wrap gap-1">
+            {post.categories.slice(0, 2).map(cat => (
+              <span
+                key={cat.id}
+                className="px-2 py-0.5 rounded-full text-xs"
+                style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
+              >
+                {language === 'en' ? cat.nameEn : cat.nameFr}
+              </span>
+            ))}
+          </div>
+        </td>
+        <td className="p-4 text-slate-400">{post.viewCount}</td>
+        <td className="p-4 text-slate-400 text-sm">
+          {new Date(post.updatedAt).toLocaleDateString()}
+        </td>
+        <td className="p-4">
+          <div className="flex items-center gap-2">
+            <a
+              href={
+                post.status === 'PUBLISHED'
+                  ? `/blog/${post.slug}`
+                  : `/blog/preview/${post.id}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`p-2 rounded-lg ${
+                post.status === 'PUBLISHED'
+                  ? 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
+                  : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
+              }`}
+              title={
+                post.status === 'PUBLISHED'
+                  ? language === 'en'
+                    ? 'View'
+                    : 'Voir'
+                  : language === 'en'
+                  ? 'Preview'
+                  : 'Apercu'
+              }
+            >
+              {post.status === 'PUBLISHED' ? (
+                <ExternalLink className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </a>
+            <button
+              onClick={() => handleEditPost(post)}
+              className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
+              title={language === 'en' ? 'Edit' : 'Modifier'}
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleDeletePost(post.id)}
+              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
+              title={language === 'en' ? 'Delete' : 'Supprimer'}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  };
+
   // If editing a post, show the full page editor
   if (editingPost) {
     return (
@@ -245,6 +439,21 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           />
         </div>
         <select
+          value={categoryFilter}
+          onChange={e => {
+            setCategoryFilter(e.target.value);
+            setPagination({ ...pagination, page: 1 });
+          }}
+          className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
+        >
+          <option value="">{language === 'en' ? 'All Categories' : 'Toutes les catégories'}</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.slug}>
+              {language === 'en' ? cat.nameEn : cat.nameFr}
+            </option>
+          ))}
+        </select>
+        <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
@@ -278,125 +487,58 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       ) : (
         <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Title' : 'Titre'}
-                  </th>
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Status' : 'Statut'}
-                  </th>
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Categories' : 'Categories'}
-                  </th>
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Views' : 'Vues'}
-                  </th>
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Updated' : 'Mis a jour'}
-                  </th>
-                  <th className="text-left p-4 text-slate-300 font-medium">
-                    {language === 'en' ? 'Actions' : 'Actions'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {posts.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-400">
-                      {language === 'en'
-                        ? 'No posts yet. Create your first post!'
-                        : 'Aucun article. Creez votre premier article!'}
-                    </td>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-purple-500/20 bg-slate-800/50">
+                    {categoryFilter && (
+                      <th className="text-left p-4 text-slate-300 font-medium w-12">
+                        {/* Drag handle column */}
+                      </th>
+                    )}
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Title' : 'Titre'}
+                    </th>
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Status' : 'Statut'}
+                    </th>
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Categories' : 'Categories'}
+                    </th>
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Views' : 'Vues'}
+                    </th>
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Updated' : 'Mis a jour'}
+                    </th>
+                    <th className="text-left p-4 text-slate-300 font-medium">
+                      {language === 'en' ? 'Actions' : 'Actions'}
+                    </th>
                   </tr>
-                ) : (
-                  posts.map(post => (
-                    <tr key={post.id} className="border-b border-purple-500/10 hover:bg-slate-800/30">
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          {post.featured && <Star className="w-4 h-4 text-amber-400" />}
-                          <div>
-                            <button
-                              onClick={() => handleEditPost(post)}
-                              className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
-                            >
-                              {language === 'en' ? post.titleEn : post.titleFr}
-                            </button>
-                            <p className="text-slate-500 text-sm">{post.slug}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">{getStatusBadge(post.status)}</td>
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-1">
-                          {post.categories.slice(0, 2).map(cat => (
-                            <span
-                              key={cat.id}
-                              className="px-2 py-0.5 rounded-full text-xs"
-                              style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
-                            >
-                              {language === 'en' ? cat.nameEn : cat.nameFr}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4 text-slate-400">{post.viewCount}</td>
-                      <td className="p-4 text-slate-400 text-sm">
-                        {new Date(post.updatedAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={
-                              post.status === 'PUBLISHED'
-                                ? `/blog/${post.slug}`
-                                : `/blog/preview/${post.id}`
-                            }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`p-2 rounded-lg ${
-                              post.status === 'PUBLISHED'
-                                ? 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
-                                : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
-                            }`}
-                            title={
-                              post.status === 'PUBLISHED'
-                                ? language === 'en'
-                                  ? 'View'
-                                  : 'Voir'
-                                : language === 'en'
-                                  ? 'Preview'
-                                  : 'Apercu'
-                            }
-                          >
-                            {post.status === 'PUBLISHED' ? (
-                              <ExternalLink className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </a>
-                          <button
-                            onClick={() => handleEditPost(post)}
-                            className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
-                            title={language === 'en' ? 'Edit' : 'Modifier'}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeletePost(post.id)}
-                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
-                            title={language === 'en' ? 'Delete' : 'Supprimer'}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                </thead>
+                <tbody>
+                  {posts.length === 0 ? (
+                    <tr>
+                      <td colSpan={categoryFilter ? 7 : 6} className="p-8 text-center text-slate-400">
+                        {language === 'en'
+                          ? 'No posts yet. Create your first post!'
+                          : 'Aucun article. Creez votre premier article!'}
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    <SortableContext items={posts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                      {posts.map(post => (
+                        <SortableRow key={post.id} post={post} showDragHandle={!!categoryFilter} />
+                      ))}
+                    </SortableContext>
+                  )}
+                </tbody>
+              </table>
+            </DndContext>
           </div>
         </div>
       )}
