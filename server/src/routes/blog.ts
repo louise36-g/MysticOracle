@@ -487,6 +487,12 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       where.categories = { some: { category: { slug: params.category } } };
     }
 
+    // When filtering by category, order by sortOrder for drag-and-drop
+    // Otherwise, order by updatedAt
+    const orderBy = params.category
+      ? { sortOrder: 'asc' as const }
+      : { updatedAt: 'desc' as const };
+
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
         where,
@@ -494,7 +500,7 @@ router.get('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
           categories: { include: { category: true } },
           tags: { include: { tag: true } },
         },
-        orderBy: { updatedAt: 'desc' },
+        orderBy,
         skip: (params.page - 1) * params.limit,
         take: params.limit,
       }),
@@ -856,6 +862,102 @@ router.delete('/admin/posts/trash/empty', requireAuth, requireAdmin, async (req,
   } catch (error) {
     console.error('Error emptying trash:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to empty trash' });
+  }
+});
+
+// Reorder blog post (for admin drag-and-drop within category)
+router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { postId, categorySlug, newPosition } = req.body;
+
+    // Validate input
+    if (!postId || typeof newPosition !== 'number') {
+      return res.status(400).json({
+        error: 'Missing required fields: postId, newPosition',
+      });
+    }
+
+    if (newPosition < 0) {
+      return res.status(400).json({
+        error: 'newPosition must be >= 0',
+      });
+    }
+
+    // Verify post exists
+    const post = await prisma.blogPost.findUnique({
+      where: { id: postId },
+      include: { categories: { include: { category: true } } },
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Build where clause based on whether we're filtering by category
+    const whereClause: Prisma.BlogPostWhereInput = {
+      deletedAt: null,
+    };
+
+    if (categorySlug) {
+      whereClause.categories = {
+        some: { category: { slug: categorySlug } },
+      };
+    }
+
+    // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
+    const posts = await prisma.blogPost.findMany({
+      where: whereClause,
+      orderBy: { sortOrder: 'asc' },
+      select: { id: true, sortOrder: true },
+    });
+
+    if (newPosition >= posts.length) {
+      return res.status(400).json({
+        error: `newPosition (${newPosition}) exceeds number of posts (${posts.length})`,
+      });
+    }
+
+    // Reorder logic: remove post from old position, insert at new position
+    const oldIndex = posts.findIndex(p => p.id === postId);
+    if (oldIndex === -1) {
+      return res.status(404).json({ error: 'Post not found in list' });
+    }
+
+    if (oldIndex === newPosition) {
+      // No change needed
+      return res.json({
+        success: true,
+        message: 'Post is already at the target position',
+      });
+    }
+
+    // Remove from old position
+    const [movedPost] = posts.splice(oldIndex, 1);
+    // Insert at new position
+    posts.splice(newPosition, 0, movedPost);
+
+    // Update sortOrder for all posts in transaction
+    await prisma.$transaction(
+      posts.map((post, index) =>
+        prisma.blogPost.update({
+          where: { id: post.id },
+          data: { sortOrder: index },
+        })
+      )
+    );
+
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
+    res.json({
+      success: true,
+      message: 'Post reordered successfully',
+    });
+  } catch (error) {
+    console.error('Error reordering post:', error);
+    res.status(500).json({
+      error: 'Failed to reorder post',
+    });
   }
 });
 

@@ -450,6 +450,9 @@ model BlogPost {
   deletedAt       DateTime?  // If set, post is in trash
   originalSlug    String?    // Original slug before deletion (for restore)
 
+  // Admin ordering (for category-based ordering in admin panel)
+  sortOrder       Int        @default(0)
+
   // Relations
   categories      BlogPostCategory[]
   tags            BlogPostTag[]
@@ -458,6 +461,7 @@ model BlogPost {
   @@index([status, publishedAt])
   @@index([featured])
   @@index([deletedAt])
+  @@index([sortOrder])
 }
 
 enum BlogPostStatus {
