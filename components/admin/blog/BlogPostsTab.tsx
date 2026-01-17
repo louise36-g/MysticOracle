@@ -146,18 +146,28 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     const oldIndex = posts.findIndex((p) => p.id === active.id);
     const newIndex = posts.findIndex((p) => p.id === over.id);
 
+    // Save original order for revert
+    const originalPosts = [...posts];
+
     // Optimistically update UI
     const newPosts = arrayMove(posts, oldIndex, newIndex);
     setPosts(newPosts);
 
     try {
       const token = await getToken();
-      if (!token) return;
+      if (!token) {
+        // Revert if no token
+        setPosts(originalPosts);
+        return;
+      }
 
       await reorderBlogPost(token, active.id as string, categoryFilter || null, newIndex);
+
+      // Reload posts to get updated sortOrder from server
+      await loadPosts();
     } catch (err) {
       // Revert on error
-      setPosts(posts);
+      setPosts(originalPosts);
       onError('Failed to reorder post');
     }
   };
