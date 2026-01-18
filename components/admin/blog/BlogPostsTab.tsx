@@ -146,6 +146,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     const oldIndex = posts.findIndex((p) => p.id === active.id);
     const newIndex = posts.findIndex((p) => p.id === over.id);
 
+    console.log('Drag ended:', { postId: active.id, oldIndex, newIndex, categoryFilter });
+
     // Save original order for revert
     const originalPosts = [...posts];
 
@@ -156,19 +158,24 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     try {
       const token = await getToken();
       if (!token) {
-        // Revert if no token
+        console.error('No auth token available');
         setPosts(originalPosts);
         return;
       }
 
-      await reorderBlogPost(token, active.id as string, categoryFilter || null, newIndex);
+      console.log('Calling reorderBlogPost API...');
+      const result = await reorderBlogPost(token, active.id as string, categoryFilter || null, newIndex);
+      console.log('Reorder API response:', result);
 
       // Reload posts to get updated sortOrder from server
+      console.log('Reloading posts...');
       await loadPosts();
+      console.log('Posts reloaded successfully');
     } catch (err) {
       // Revert on error
+      console.error('Reorder error:', err);
       setPosts(originalPosts);
-      onError('Failed to reorder post');
+      onError(`Failed to reorder post: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 

@@ -8,6 +8,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { ConflictError } from '../shared/errors/ApplicationError.js';
+import { processBlogContent } from '../utils/urlReplacer.js';
 
 const router = Router();
 
@@ -638,6 +639,9 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
       throw new ConflictError(`Post with slug "${data.slug}" already exists`);
     }
 
+    // Process content to replace placeholder URLs
+    const processedContent = processBlogContent(data.contentEn, data.contentFr);
+
     const post = await prisma.blogPost.create({
       data: {
         slug: data.slug,
@@ -645,8 +649,8 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         titleFr: data.titleFr,
         excerptEn: data.excerptEn,
         excerptFr: data.excerptFr,
-        contentEn: data.contentEn,
-        contentFr: data.contentFr,
+        contentEn: processedContent.contentEn,
+        contentFr: processedContent.contentFr,
         coverImage: data.coverImage,
         coverImageAlt: data.coverImageAlt,
         metaTitleEn: data.metaTitleEn,
@@ -709,6 +713,16 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
     // Set publishedAt if transitioning to published
     if (postData.status === 'PUBLISHED' && current.status !== 'PUBLISHED') {
       (postData as Record<string, unknown>).publishedAt = new Date();
+    }
+
+    // Process content to replace placeholder URLs
+    if (postData.contentEn || postData.contentFr) {
+      const processedContent = processBlogContent(
+        postData.contentEn || current.contentEn,
+        postData.contentFr || current.contentFr || undefined
+      );
+      postData.contentEn = processedContent.contentEn;
+      postData.contentFr = processedContent.contentFr;
     }
 
     // Update post
@@ -870,8 +884,14 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
   try {
     const { postId, categorySlug, newPosition } = req.body;
 
+    console.log('=== REORDER REQUEST ===');
+    console.log('postId:', postId);
+    console.log('categorySlug:', categorySlug);
+    console.log('newPosition:', newPosition);
+
     // Validate input
     if (!postId || typeof newPosition !== 'number') {
+      console.log('❌ Validation failed: missing fields');
       return res.status(400).json({
         error: 'Missing required fields: postId, newPosition',
       });
@@ -911,7 +931,11 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
       select: { id: true, sortOrder: true },
     });
 
+    console.log('Posts in context:', posts.length);
+    console.log('Requested newPosition:', newPosition);
+
     if (newPosition >= posts.length) {
+      console.log('❌ Position exceeds post count');
       return res.status(400).json({
         error: `newPosition (${newPosition}) exceeds number of posts (${posts.length})`,
       });
@@ -949,12 +973,13 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
     // Invalidate blog cache
     await cacheService.flushPattern('blog:');
 
+    console.log('✅ Reorder successful');
     res.json({
       success: true,
       message: 'Post reordered successfully',
     });
   } catch (error) {
-    console.error('Error reordering post:', error);
+    console.error('❌ Error reordering post:', error);
     res.status(500).json({
       error: 'Failed to reorder post',
     });
