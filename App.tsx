@@ -634,6 +634,7 @@ const App: React.FC = () => {
             onNavigateToPost={handleNavigateToBlogPost}
             onCategoryClick={handleBlogCategoryClick}
             onTagClick={handleBlogTagClick}
+            onNavigate={handleNavigateToPath}
           />
         );
     }
@@ -667,6 +668,7 @@ const App: React.FC = () => {
             onNavigateToPost={handleNavigateToBlogPost}
             onCategoryClick={handleBlogCategoryClick}
             onTagClick={handleBlogTagClick}
+            onNavigate={handleNavigateToPath}
           />
         );
     }

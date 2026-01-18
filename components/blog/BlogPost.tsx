@@ -15,9 +15,10 @@ interface BlogPostProps {
   onNavigateToPost: (slug: string) => void;
   onCategoryClick: (slug: string) => void;
   onTagClick: (slug: string) => void;
+  onNavigate: (path: string) => void;
 }
 
-const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavigateToPost, onCategoryClick, onTagClick }) => {
+const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavigateToPost, onCategoryClick, onTagClick, onNavigate }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
