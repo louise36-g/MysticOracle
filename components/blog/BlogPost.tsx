@@ -420,8 +420,24 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         }}
         onClick={(e) => {
           const target = e.target as HTMLElement;
+
+          // Handle image clicks for lightbox
           if (target.tagName === 'IMG') {
             setLightboxImage((target as HTMLImageElement).src);
+            return;
+          }
+
+          // Handle anchor tag clicks for SPA navigation
+          if (target.tagName === 'A') {
+            const anchor = target as HTMLAnchorElement;
+            const href = anchor.getAttribute('href');
+
+            // Only intercept internal links (starting with /)
+            if (href && href.startsWith('/')) {
+              e.preventDefault();
+              onNavigate(href);
+            }
+            // External links (http://, https://, etc.) will work normally
           }
         }}
       />

@@ -469,6 +469,37 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Generic path navigation handler for internal links
+  const handleNavigateToPath = useCallback((path: string) => {
+    // Handle tarot article pages
+    if (path.startsWith('/tarot/articles/')) {
+      const slug = path.replace('/tarot/articles/', '');
+      handleTarotCardClick(slug);
+    }
+    // Handle blog post pages
+    else if (path.startsWith('/blog/') && !path.includes('?')) {
+      const slug = path.replace('/blog/', '');
+      handleNavigateToBlogPost(slug);
+    }
+    // Handle blog category pages
+    else if (path.startsWith('/blog?category=')) {
+      const categorySlug = path.split('category=')[1].split('&')[0];
+      handleBlogCategoryClick(categorySlug);
+    }
+    // Handle blog tag pages
+    else if (path.startsWith('/blog?tag=')) {
+      const tagSlug = path.split('tag=')[1].split('&')[0];
+      handleBlogTagClick(tagSlug);
+    }
+    // Handle other known paths
+    else {
+      // For other paths, use pushState and let the path handling useEffect take care of it
+      window.history.pushState({}, '', path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [handleTarotCardClick, handleNavigateToBlogPost, handleBlogCategoryClick, handleBlogTagClick]);
+
   // Show branded loading screen while Clerk initializes
   if (!clerkLoaded || isLoading) {
     return (
@@ -613,6 +644,7 @@ const App: React.FC = () => {
           <TarotArticlePage
             slug={tarotArticleSlug}
             onBack={() => handleNavigate('tarot-cards-all')}
+            onNavigate={handleNavigateToPath}
           />
         );
     }
@@ -622,6 +654,7 @@ const App: React.FC = () => {
           <TarotArticlePage
             previewId={tarotPreviewId}
             onBack={() => handleNavigate('admin')}
+            onNavigate={handleNavigateToPath}
           />
         );
     }
