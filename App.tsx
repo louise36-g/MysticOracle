@@ -621,8 +621,8 @@ const App: React.FC = () => {
         return (
           <BlogList
             onNavigateToPost={handleNavigateToBlogPost}
+            onCategoryClick={handleBlogCategoryClick}
             initialCategory={blogCategory || undefined}
-            initialTag={blogTag || undefined}
           />
         );
     }

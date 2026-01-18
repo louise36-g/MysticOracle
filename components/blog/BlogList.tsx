@@ -30,10 +30,11 @@ interface DisplayArticle {
 
 interface BlogListProps {
   onNavigateToPost: (slug: string) => void;
+  onCategoryClick: (categorySlug: string) => void;
   initialCategory?: string;
 }
 
-const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }) => {
+const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onCategoryClick, initialCategory }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const [articles, setArticles] = useState<DisplayArticle[]>([]);
@@ -242,8 +243,16 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, initialCategory }
               <select
                 value={selectedCategory}
                 onChange={(e) => {
-                  setSelectedCategory(e.target.value);
-                  setPage(1);
+                  const newCategory = e.target.value;
+                  if (newCategory) {
+                    // Navigate to category page (updates URL)
+                    onCategoryClick(newCategory);
+                  } else {
+                    // Clear category filter - navigate to main blog
+                    window.history.pushState({ view: 'blog' }, '', '/blog');
+                    setSelectedCategory('');
+                    setPage(1);
+                  }
                 }}
                 className="appearance-none pl-12 pr-8 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-purple-200 font-heading text-lg hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
               >
