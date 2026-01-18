@@ -716,15 +716,17 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
     }
 
     // Process content to replace placeholder URLs
-    if (postData.contentEn || postData.contentFr) {
+    if (postData.contentEn !== undefined || postData.contentFr !== undefined) {
       const processedContent = processBlogContent(
-        postData.contentEn || current.contentEn,
-        postData.contentFr || current.contentFr || undefined
+        postData.contentEn !== undefined ? postData.contentEn : current.contentEn,
+        postData.contentFr !== undefined ? postData.contentFr : undefined
       );
-      postData.contentEn = processedContent.contentEn;
-      // Only set contentFr if it's defined (don't set to undefined)
-      if (processedContent.contentFr !== undefined) {
-        postData.contentFr = processedContent.contentFr;
+
+      if (postData.contentEn !== undefined) {
+        postData.contentEn = processedContent.contentEn;
+      }
+      if (postData.contentFr !== undefined) {
+        postData.contentFr = processedContent.contentFr || null;
       }
     }
 
