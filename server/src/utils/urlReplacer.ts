@@ -86,7 +86,57 @@ export function replaceArticleUrls(content: string): string {
     return url;
   });
 
-  // Pattern 2: Fix existing relative/absolute URLs missing /tarot/articles/ prefix
+  // Pattern 4: [INSERT CARD-NAME-WITH-HYPHENS-URL] - e.g., [INSERT THE-STAR-HEALING-URL]
+  const hyphenatedPattern = /\[INSERT\s+([A-Z-]+)-URL\]/gi;
+  processedContent = processedContent.replace(hyphenatedPattern, (match, cardNameWithHyphens) => {
+    // Convert hyphens to spaces for slug conversion
+    const cardName = cardNameWithHyphens.replace(/-/g, ' ');
+
+    // Skip if it's not a card
+    if (
+      cardName.includes('MAJOR ARCANA') ||
+      cardName.includes('GUIDE') ||
+      cardName.includes('READING') ||
+      cardName.includes('IMAGE')
+    ) {
+      console.log(`⏭️  Skipping non-card placeholder: "${match}"`);
+      return match;
+    }
+
+    const slug = cardNameToSlug(cardName);
+    const url = `/tarot/articles/${slug}`;
+    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    return url;
+  });
+
+  // Pattern 5: <a href="[INSERT URL]">Card Name</a> - Extract card name from anchor text
+  const anchorInsertPattern = /<a\s+href=["']\[INSERT\s+URL\]["']>([^<]+)<\/a>/gi;
+  processedContent = processedContent.replace(anchorInsertPattern, (match, anchorText) => {
+    const cardName = anchorText.trim();
+
+    // Skip if it's not a card (non-card article links, guides, etc.)
+    if (
+      cardName.includes('Tarot for') ||
+      cardName.includes('Guide') ||
+      cardName.includes('Reading') ||
+      cardName.includes('with Tarot') ||
+      cardName.includes('and ') || // "Self-Reflection and Inner Guidance"
+      cardName.includes('for ') || // "Tarot for..."
+      cardName.toLowerCase().includes('article') ||
+      cardName.toLowerCase().includes('full guide')
+    ) {
+      console.log(`⏭️  Skipping non-card anchor: "${cardName}"`);
+      return match;
+    }
+
+    const slug = cardNameToSlug(cardName);
+    const url = `/tarot/articles/${slug}`;
+    const newAnchor = `<a href="${url}">${anchorText}</a>`;
+    console.log(`📝 Replacing anchor placeholder: "${anchorText}" → "${url}"`);
+    return newAnchor;
+  });
+
+  // Pattern 6: Fix existing relative/absolute URLs missing /tarot/articles/ prefix
   // Matches: href="magician-tarot-card-meaning" or href="/magician-tarot-card-meaning"
   // But NOT: href="/tarot/articles/..." (already correct)
   const incorrectUrlPattern = /href=["'](\/?([a-z0-9-]+)-tarot-card-meaning)["']/gi;
