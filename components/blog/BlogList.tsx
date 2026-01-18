@@ -30,11 +30,12 @@ interface DisplayArticle {
 
 interface BlogListProps {
   onNavigateToPost: (slug: string) => void;
+  onNavigateToTarot: (slug: string) => void;
   onCategoryClick: (categorySlug: string) => void;
   initialCategory?: string;
 }
 
-const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onCategoryClick, initialCategory }) => {
+const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot, onCategoryClick, initialCategory }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const [articles, setArticles] = useState<DisplayArticle[]>([]);
@@ -385,9 +386,9 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onCategoryClick, 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((article, index) => {
               // Determine navigation path based on article type
-              const href = article.type === 'tarot' ? `/tarot/${article.slug}` : `/blog/${article.slug}`;
+              const href = article.type === 'tarot' ? `/tarot/articles/${article.slug}` : `/blog/${article.slug}`;
               const handleClick = article.type === 'tarot'
-                ? () => window.location.href = href
+                ? () => onNavigateToTarot(article.slug)
                 : () => onNavigateToPost(article.slug);
 
               return (
