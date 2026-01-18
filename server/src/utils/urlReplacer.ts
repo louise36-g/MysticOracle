@@ -35,17 +35,33 @@ function cardNameToSlug(cardName: string): string {
 export function replaceArticleUrls(content: string): string {
   if (!content) return content;
 
-  // Pattern: [INSERT CARD NAME URL]
-  const pattern = /\[INSERT\s+([A-Z\s]+)\s+URL\]/gi;
+  let processedContent = content;
 
-  return content.replace(pattern, (match, cardName) => {
+  // Pattern 1: [INSERT CARD NAME URL]
+  const placeholderPattern = /\[INSERT\s+([A-Z\s]+)\s+URL\]/gi;
+  processedContent = processedContent.replace(placeholderPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName);
     const url = `/tarot/articles/${slug}`;
-
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
-
     return url;
   });
+
+  // Pattern 2: Fix existing relative/absolute URLs missing /tarot/articles/ prefix
+  // Matches: href="magician-tarot-card-meaning" or href="/magician-tarot-card-meaning"
+  // But NOT: href="/tarot/articles/..." (already correct)
+  const incorrectUrlPattern = /href=["'](\/?([a-z0-9-]+)-tarot-card-meaning)["']/gi;
+  processedContent = processedContent.replace(incorrectUrlPattern, (match, fullUrl, cardSlug) => {
+    // Skip if URL already has /tarot/articles/ prefix
+    if (fullUrl.startsWith('/tarot/articles/')) {
+      return match;
+    }
+
+    const correctedUrl = `/tarot/articles/${cardSlug}-tarot-card-meaning`;
+    console.log(`🔧 Fixing incorrect URL: "${fullUrl}" → "${correctedUrl}"`);
+    return `href="${correctedUrl}"`;
+  });
+
+  return processedContent;
 }
 
 /**

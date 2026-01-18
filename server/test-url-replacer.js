@@ -74,4 +74,34 @@ console.log('Input:', test6);
 console.log('Output:', replaceArticleUrls(test6));
 console.log('');
 
+// Test 7: Fix existing incorrect URLs (relative)
+const test7 = `
+<p>The <a href="magician-tarot-card-meaning">Magician</a> card.</p>
+<p>See <a href="emperor-tarot-card-meaning">Emperor</a> for more.</p>
+`;
+console.log('Test 7: Fix existing incorrect URLs (relative)');
+console.log('Input:', test7);
+console.log('Output:', replaceArticleUrls(test7));
+console.log('');
+
+// Test 8: Fix existing incorrect URLs (absolute from root)
+const test8 = `
+<p>The <a href="/magician-tarot-card-meaning">Magician</a> card.</p>
+<p>See <a href="/ace-of-swords-tarot-card-meaning">Ace of Swords</a>.</p>
+`;
+console.log('Test 8: Fix existing incorrect URLs (absolute from root)');
+console.log('Input:', test8);
+console.log('Output:', replaceArticleUrls(test8));
+console.log('');
+
+// Test 9: Don't change URLs that are already correct
+const test9 = `
+<p>The <a href="/tarot/articles/magician-tarot-card-meaning">Magician</a> is correct.</p>
+<p>But <a href="emperor-tarot-card-meaning">Emperor</a> needs fixing.</p>
+`;
+console.log('Test 9: Keep correct URLs, fix incorrect ones');
+console.log('Input:', test9);
+console.log('Output:', replaceArticleUrls(test9));
+console.log('');
+
 console.log('✅ All tests complete!');
