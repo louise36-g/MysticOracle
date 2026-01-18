@@ -206,6 +206,12 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onCategoryClick, 
     loadFeatured();
   }, [loadCategories, loadFeatured]);
 
+  // Sync selectedCategory with initialCategory prop changes
+  useEffect(() => {
+    setSelectedCategory(initialCategory || '');
+    setPage(1);
+  }, [initialCategory]);
+
   const handleCategoryClick = (slug: string) => {
     setSelectedCategory(selectedCategory === slug ? '' : slug);
     setPage(1);
