@@ -650,7 +650,7 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         excerptEn: data.excerptEn,
         excerptFr: data.excerptFr,
         contentEn: processedContent.contentEn,
-        contentFr: processedContent.contentFr,
+        contentFr: processedContent.contentFr || null,
         coverImage: data.coverImage,
         coverImageAlt: data.coverImageAlt,
         metaTitleEn: data.metaTitleEn,
@@ -722,7 +722,10 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
         postData.contentFr || current.contentFr || undefined
       );
       postData.contentEn = processedContent.contentEn;
-      postData.contentFr = processedContent.contentFr;
+      // Only set contentFr if it's defined (don't set to undefined)
+      if (processedContent.contentFr !== undefined) {
+        postData.contentFr = processedContent.contentFr;
+      }
     }
 
     // Update post
