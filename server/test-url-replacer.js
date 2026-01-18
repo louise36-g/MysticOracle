@@ -104,4 +104,25 @@ console.log('Input:', test9);
 console.log('Output:', replaceArticleUrls(test9));
 console.log('');
 
+// Test 10: Real placeholder format - [INSERT CARD_NAME CARD URL]
+const test10 = `<a href="[INSERT HIGH PRIESTESS CARD URL]">High Priestess</a>`;
+console.log('Test 10: Real format - [INSERT HIGH PRIESTESS CARD URL]');
+console.log('Input:', test10);
+console.log('Output:', replaceArticleUrls(test10));
+console.log('');
+
+// Test 11: Real placeholder format - [INSERT URL FOR CARD_NAME CARD]
+const test11 = `<a href="[INSERT URL FOR MOON CARD]">The Moon</a>`;
+console.log('Test 11: Real format - [INSERT URL FOR MOON CARD]');
+console.log('Input:', test11);
+console.log('Output:', replaceArticleUrls(test11));
+console.log('');
+
+// Test 12: Skip non-card placeholders
+const test12 = `<a href="[INSERT MAJOR ARCANA GUIDE URL]">Guide</a> and <a href="[INSERT HIGH PRIESTESS CARD URL]">Card</a>`;
+console.log('Test 12: Skip non-card placeholders');
+console.log('Input:', test12);
+console.log('Output:', replaceArticleUrls(test12));
+console.log('');
+
 console.log('✅ All tests complete!');

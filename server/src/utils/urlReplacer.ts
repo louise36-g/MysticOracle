@@ -37,10 +37,50 @@ export function replaceArticleUrls(content: string): string {
 
   let processedContent = content;
 
-  // Pattern 1: [INSERT CARD NAME URL]
-  const placeholderPattern = /\[INSERT\s+([A-Z\s]+)\s+URL\]/gi;
-  processedContent = processedContent.replace(placeholderPattern, (match, cardName) => {
-    const slug = cardNameToSlug(cardName);
+  // Pattern 1: [INSERT CARD_NAME CARD URL] - e.g., [INSERT HIGH PRIESTESS CARD URL]
+  const cardUrlPattern = /\[INSERT\s+([A-Z\s]+?)\s+CARD\s+URL\]/gi;
+  processedContent = processedContent.replace(cardUrlPattern, (match, cardName) => {
+    const slug = cardNameToSlug(cardName.trim());
+    const url = `/tarot/articles/${slug}`;
+    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    return url;
+  });
+
+  // Pattern 2: [INSERT URL FOR CARD_NAME CARD] - e.g., [INSERT URL FOR MOON CARD]
+  const urlForCardPattern = /\[INSERT\s+URL\s+FOR\s+([A-Z\s]+?)\s+CARD\]/gi;
+  processedContent = processedContent.replace(urlForCardPattern, (match, cardName) => {
+    const slug = cardNameToSlug(cardName.trim());
+    const url = `/tarot/articles/${slug}`;
+    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    return url;
+  });
+
+  // Pattern 2b: [INSERT CARD_NAME ARTICLE URL] - e.g., [INSERT 4 OF WANDS ARTICLE URL]
+  const articleUrlPattern = /\[INSERT\s+([A-Z0-9\s]+?)\s+ARTICLE\s+URL\]/gi;
+  processedContent = processedContent.replace(articleUrlPattern, (match, cardName) => {
+    const slug = cardNameToSlug(cardName.trim());
+    const url = `/tarot/articles/${slug}`;
+    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    return url;
+  });
+
+  // Pattern 3: [INSERT CARD_NAME URL] - e.g., [INSERT THE EMPEROR URL] (original format)
+  const simplePattern = /\[INSERT\s+([A-Z\s]+)\s+URL\]/gi;
+  processedContent = processedContent.replace(simplePattern, (match, cardName) => {
+    const cleanName = cardName.trim();
+
+    // Skip if it's not a card (contains MAJOR ARCANA, GUIDE, READING, etc.)
+    if (
+      cleanName.includes('MAJOR ARCANA') ||
+      cleanName.includes('GUIDE') ||
+      cleanName.includes('READING') ||
+      cleanName.includes('IMAGE')
+    ) {
+      console.log(`⏭️  Skipping non-card placeholder: "${match}"`);
+      return match; // Return unchanged
+    }
+
+    const slug = cardNameToSlug(cleanName);
     const url = `/tarot/articles/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;

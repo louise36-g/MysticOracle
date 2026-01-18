@@ -60,11 +60,43 @@ async function fixBlogUrls() {
       const changedFr = post.contentFr && originalContentFr !== processedContentFr;
 
       // Count number of URLs fixed by counting pattern matches
-      const placeholderPatternEn = (originalContentEn.match(/\[INSERT\s+[A-Z\s]+\s+URL\]/gi) || [])
+      // Pattern 1: [INSERT CARD_NAME CARD URL]
+      const pattern1En = (originalContentEn.match(/\[INSERT\s+[A-Z\s]+?\s+CARD\s+URL\]/gi) || [])
         .length;
-      const placeholderPatternFr = post.contentFr
-        ? (originalContentFr.match(/\[INSERT\s+[A-Z\s]+\s+URL\]/gi) || []).length
+      const pattern1Fr = post.contentFr
+        ? (originalContentFr.match(/\[INSERT\s+[A-Z\s]+?\s+CARD\s+URL\]/gi) || []).length
         : 0;
+
+      // Pattern 2: [INSERT URL FOR CARD_NAME CARD]
+      const pattern2En = (
+        originalContentEn.match(/\[INSERT\s+URL\s+FOR\s+[A-Z\s]+?\s+CARD\]/gi) || []
+      ).length;
+      const pattern2Fr = post.contentFr
+        ? (originalContentFr.match(/\[INSERT\s+URL\s+FOR\s+[A-Z\s]+?\s+CARD\]/gi) || []).length
+        : 0;
+
+      // Pattern 3: [INSERT CARD_NAME URL] (excluding guides/readings)
+      const pattern3MatchesEn = originalContentEn.match(/\[INSERT\s+([A-Z\s]+)\s+URL\]/gi) || [];
+      const pattern3En = pattern3MatchesEn.filter(
+        match =>
+          !match.includes('MAJOR ARCANA') &&
+          !match.includes('GUIDE') &&
+          !match.includes('READING') &&
+          !match.includes('IMAGE')
+      ).length;
+      const pattern3MatchesFr = post.contentFr
+        ? originalContentFr.match(/\[INSERT\s+([A-Z\s]+)\s+URL\]/gi) || []
+        : [];
+      const pattern3Fr = pattern3MatchesFr.filter(
+        match =>
+          !match.includes('MAJOR ARCANA') &&
+          !match.includes('GUIDE') &&
+          !match.includes('READING') &&
+          !match.includes('IMAGE')
+      ).length;
+
+      const placeholderPatternEn = pattern1En + pattern2En + pattern3En;
+      const placeholderPatternFr = pattern1Fr + pattern2Fr + pattern3Fr;
 
       const incorrectUrlPatternEn = (
         originalContentEn.match(/href=["'](\/?[a-z0-9-]+-tarot-card-meaning)["']/gi) || []
