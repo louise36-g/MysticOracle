@@ -74,7 +74,7 @@ import horoscopeRoutes from './routes/horoscopes.js';
 import translationRoutes from './routes/translations.js';
 import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
-import tarotArticleRoutes from './routes/tarot-articles.js';
+import tarotArticleRoutes from './routes/tarot-articles/index.js';
 import ssrRoutes from './routes/ssr.js';
 import devRoutes from './routes/dev.js';
 import promptRoutes from './routes/prompts.js';
