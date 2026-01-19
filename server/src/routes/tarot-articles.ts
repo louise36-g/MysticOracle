@@ -6,11 +6,11 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import {
   validateTarotArticle,
   validateArticleWithWarnings,
-  convertToPrismaFormat,
   convertToPrismaFormatLenient,
 } from '../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../lib/schema-builder.js';
 import { cacheService, CacheService } from '../services/cache.js';
+import { sortByCardNumber } from '../lib/tarot/sorting.js';
 
 // Note: Media is now handled by the shared blog media system
 // See /api/blog/admin/media endpoints in blog.ts
@@ -36,7 +36,7 @@ router.get('/overview', async (req, res) => {
       return res.json(cached);
     }
 
-    const cardTypes = [
+    const _cardTypes = [
       'MAJOR_ARCANA',
       'SUIT_OF_WANDS',
       'SUIT_OF_CUPS',
@@ -80,19 +80,12 @@ router.get('/overview', async (req, res) => {
       }),
     ]);
 
-    // Sort numerically (cardNumber is stored as string)
-    const sortByCardNumber = (a: { cardNumber: string }, b: { cardNumber: string }) => {
-      const numA = parseInt(a.cardNumber, 10) || 0;
-      const numB = parseInt(b.cardNumber, 10) || 0;
-      return numA - numB;
-    };
-
-    // Sort all arrays numerically by cardNumber
-    const sortedMajorArcana = majorArcana.sort(sortByCardNumber);
-    const sortedWands = wands.sort(sortByCardNumber);
-    const sortedCups = cups.sort(sortByCardNumber);
-    const sortedSwords = swords.sort(sortByCardNumber);
-    const sortedPentacles = pentacles.sort(sortByCardNumber);
+    // Sort all arrays numerically by cardNumber (using imported utility)
+    const sortedMajorArcana = sortByCardNumber(majorArcana);
+    const sortedWands = sortByCardNumber(wands);
+    const sortedCups = sortByCardNumber(cups);
+    const sortedSwords = sortByCardNumber(swords);
+    const sortedPentacles = sortByCardNumber(pentacles);
 
     const result = {
       majorArcana: sortedMajorArcana,
@@ -213,12 +206,8 @@ router.get('/', async (req, res) => {
         prisma.tarotArticle.count({ where }),
       ]);
 
-      // Sort numerically by cardNumber
-      const sorted = allArticles.sort((a, b) => {
-        const numA = parseInt(a.cardNumber || '0', 10);
-        const numB = parseInt(b.cardNumber || '0', 10);
-        return numA - numB;
-      });
+      // Sort numerically by cardNumber (using imported utility)
+      const sorted = sortByCardNumber(allArticles);
 
       // Apply pagination after sorting
       const paginated = sorted.slice((page - 1) * limit, page * limit);
@@ -385,7 +374,7 @@ router.post('/admin/import', async (req, res) => {
       });
 
       // Invalidate cache for overview (new article added)
-      await cacheService.del('tarot:overview');
+      await cacheService.invalidateTarot();
 
       return res.status(201).json({
         success: true,
@@ -464,7 +453,7 @@ router.post('/admin/import', async (req, res) => {
     });
 
     // Invalidate cache for overview (new article added)
-    await cacheService.del('tarot:overview');
+    await cacheService.invalidateTarot();
 
     res.status(201).json({
       success: true,
@@ -703,7 +692,7 @@ router.patch('/admin/reorder', async (req, res) => {
     );
 
     // Invalidate cache for overview (article order changed)
-    await cacheService.del('tarot:overview');
+    await cacheService.invalidateTarot();
 
     res.json({
       success: true,
@@ -806,11 +795,7 @@ router.patch('/admin/:id', async (req, res) => {
       });
 
       // Invalidate cache for this article and overview
-      await cacheService.del('tarot:overview');
-      await cacheService.del(`tarot:article:${existingArticle.slug}`);
-      if (sanitizedUpdates.slug && sanitizedUpdates.slug !== existingArticle.slug) {
-        await cacheService.del(`tarot:article:${sanitizedUpdates.slug}`);
-      }
+      await cacheService.invalidateTarotArticle(existingArticle.slug, sanitizedUpdates.slug);
 
       return res.json(updatedArticle);
     }
@@ -850,11 +835,7 @@ router.patch('/admin/:id', async (req, res) => {
         });
 
         // Invalidate cache for this article and overview
-        await cacheService.del('tarot:overview');
-        await cacheService.del(`tarot:article:${existingArticle.slug}`);
-        if (prismaData.slug && prismaData.slug !== existingArticle.slug) {
-          await cacheService.del(`tarot:article:${prismaData.slug}`);
-        }
+        await cacheService.invalidateTarotArticle(existingArticle.slug, prismaData.slug);
 
         return res.json({
           ...updatedArticle,
@@ -905,11 +886,7 @@ router.patch('/admin/:id', async (req, res) => {
       });
 
       // Invalidate cache for this article and overview
-      await cacheService.del('tarot:overview');
-      await cacheService.del(`tarot:article:${existingArticle.slug}`);
-      if (prismaData.slug && prismaData.slug !== existingArticle.slug) {
-        await cacheService.del(`tarot:article:${prismaData.slug}`);
-      }
+      await cacheService.invalidateTarotArticle(existingArticle.slug, prismaData.slug);
 
       return res.json({
         ...updatedArticle,
@@ -950,8 +927,7 @@ router.patch('/admin/:id', async (req, res) => {
     });
 
     // Invalidate cache for this article and overview
-    await cacheService.del('tarot:overview');
-    await cacheService.del(`tarot:article:${existingArticle.slug}`);
+    await cacheService.invalidateTarotArticle(existingArticle.slug);
 
     res.json(updatedArticle);
   } catch (error) {
@@ -988,8 +964,7 @@ router.delete('/admin/:id', async (req, res) => {
     });
 
     // Invalidate cache for this article and overview
-    await cacheService.del('tarot:overview');
-    await cacheService.del(`tarot:article:${article.slug}`);
+    await cacheService.invalidateTarotArticle(article.slug);
 
     res.json({ success: true, message: 'Article moved to trash' });
   } catch (error) {
@@ -1038,7 +1013,7 @@ router.post('/admin/:id/restore', async (req, res) => {
     });
 
     // Invalidate cache for overview (article restored)
-    await cacheService.del('tarot:overview');
+    await cacheService.invalidateTarot();
 
     res.json({ success: true, slug: newSlug, message: 'Article restored successfully' });
   } catch (error) {

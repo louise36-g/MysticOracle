@@ -103,6 +103,66 @@ class CacheService {
   getLastPurge(): Date | null {
     return this.lastPurge;
   }
+
+  // ============================================
+  // Content-specific invalidation helpers
+  // ============================================
+
+  /**
+   * Invalidate tarot article cache
+   * @param slug - Optional specific article slug to invalidate
+   */
+  async invalidateTarot(slug?: string): Promise<void> {
+    await this.del('tarot:overview');
+    if (slug) {
+      await this.del(`tarot:article:${slug}`);
+    }
+  }
+
+  /**
+   * Invalidate tarot article cache for multiple slugs
+   * @param oldSlug - Previous slug (before update)
+   * @param newSlug - New slug (after update, if changed)
+   */
+  async invalidateTarotArticle(oldSlug: string, newSlug?: string): Promise<void> {
+    await this.del('tarot:overview');
+    await this.del(`tarot:article:${oldSlug}`);
+    if (newSlug && newSlug !== oldSlug) {
+      await this.del(`tarot:article:${newSlug}`);
+    }
+  }
+
+  /**
+   * Invalidate blog post cache
+   * @param slug - Optional specific post slug to invalidate
+   */
+  async invalidateBlog(slug?: string): Promise<void> {
+    await this.flushPattern('blog:');
+    if (slug) {
+      await this.del(`blog:post:${slug}`);
+    }
+  }
+
+  /**
+   * Invalidate blog post cache for multiple slugs
+   * @param oldSlug - Previous slug (before update)
+   * @param newSlug - New slug (after update, if changed)
+   */
+  async invalidateBlogPost(oldSlug: string, newSlug?: string): Promise<void> {
+    await this.flushPattern('blog:');
+    await this.del(`blog:post:${oldSlug}`);
+    if (newSlug && newSlug !== oldSlug) {
+      await this.del(`blog:post:${newSlug}`);
+    }
+  }
+
+  /**
+   * Invalidate taxonomy cache (categories and tags)
+   */
+  async invalidateTaxonomy(): Promise<void> {
+    await this.flushPattern('categories:');
+    await this.flushPattern('tags:');
+  }
 }
 
 // Singleton instance
