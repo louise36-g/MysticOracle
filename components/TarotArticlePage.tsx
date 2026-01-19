@@ -4,10 +4,11 @@ import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { fetchTarotArticle, previewTarotArticle, TarotArticle } from '../services/apiService';
+import { fetchTarotArticle, previewTarotArticle, TarotArticle, fetchLinkRegistry, LinkRegistry } from '../services/apiService';
 import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn } from 'lucide-react';
 import { SmartLink } from './SmartLink';
 import { useTranslation } from '../context/TranslationContext';
+import { processShortcodes } from './internal-links';
 
 interface TarotArticlePageProps {
   slug?: string;
@@ -64,7 +65,7 @@ function Breadcrumbs({ category, title, onNavigate }: { category: string; title:
   );
 }
 
-const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, onBack }) => {
+const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, onBack, onNavigate }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
@@ -72,6 +73,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
 
   const loadArticle = useCallback(async () => {
     try {
@@ -103,6 +105,8 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
 
   useEffect(() => {
     loadArticle();
+    // Fetch link registry for shortcode processing
+    fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, [loadArticle]);
 
   // DOMPurify sanitization config
@@ -114,17 +118,19 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     ],
     ALLOWED_ATTR: [
       'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
-      'width', 'height', 'loading', 'data-width', 'data-align'
+      'width', 'height', 'loading', 'data-width', 'data-align', 'data-link-type'
     ],
     ADD_ATTR: ['target', 'rel'],
     FORCE_BODY: true,
   };
 
-  // Sanitize content for safe rendering
+  // Process shortcodes and sanitize content for safe rendering
   const sanitizedContent = useMemo(() => {
     if (!article?.content) return '';
-    return DOMPurify.sanitize(article.content, sanitizeConfig);
-  }, [article?.content]);
+    // Process internal link shortcodes first [[type:slug]] -> <a> tags
+    const processedContent = processShortcodes(article.content, linkRegistry);
+    return DOMPurify.sanitize(processedContent, sanitizeConfig);
+  }, [article?.content, linkRegistry]);
 
   const handleNavigate = (path: string) => {
     window.history.pushState({}, '', path);

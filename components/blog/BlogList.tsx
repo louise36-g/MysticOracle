@@ -465,7 +465,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
               <ChevronLeft className="w-5 h-5" />
             </button>
             <span className="text-slate-300 px-4">
-              {t('blog.BlogList.page_x_of_y', `Page ${page} of ${totalPages}`, { page, totalPages })}
+              {t('blog.BlogList.page_x_of_y', 'Page {{page}} of {{totalPages}}', { page, totalPages })}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

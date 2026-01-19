@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag } from '../../services/apiService';
+import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag, fetchLinkRegistry, LinkRegistry } from '../../services/apiService';
 import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle, X, ZoomIn } from 'lucide-react';
+import { processShortcodes } from '../internal-links';
 import { motion } from 'framer-motion';
 import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
@@ -29,6 +30,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
 
   const loadPost = useCallback(async () => {
     try {
@@ -72,6 +74,8 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
 
   useEffect(() => {
     loadPost();
+    // Fetch link registry for shortcode processing
+    fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
 
     // Cleanup meta tags when unmounting
     return () => {
@@ -229,11 +233,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
   // Get content based on language (may be empty if post not loaded)
   const rawContent = post ? (language === 'en' ? post.contentEn : post.contentFr) : '';
 
-  // Sanitize HTML content to prevent XSS attacks
+  // Process shortcodes and sanitize HTML content
   // This hook MUST be called before any early returns to satisfy React's Rules of Hooks
   const sanitizedContent = useMemo(() => {
     if (!rawContent) return '';
-    return DOMPurify.sanitize(rawContent, {
+    // Process internal link shortcodes first [[type:slug]] -> <a> tags
+    const processedContent = processShortcodes(rawContent, linkRegistry);
+    return DOMPurify.sanitize(processedContent, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
@@ -241,14 +247,14 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       ],
       ALLOWED_ATTR: [
         'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
-        'width', 'height', 'loading'
+        'width', 'height', 'loading', 'data-link-type'
       ],
-      ALLOW_DATA_ATTR: false,
+      ALLOW_DATA_ATTR: true,
       ADD_ATTR: ['target', 'rel'],
       // Force all links to open in new tab with security attributes
       FORCE_BODY: true,
     });
-  }, [rawContent]);
+  }, [rawContent, linkRegistry]);
 
   if (loading) {
     return (

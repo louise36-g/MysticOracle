@@ -15,7 +15,7 @@ interface TranslationContextType {
   setLanguage: (code: string) => void;
   languages: Language[];
   translations: Record<string, string>;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string, variables?: Record<string, string | number>) => string;
   isLoading: boolean;
   isReady: boolean;
 }
@@ -110,9 +110,19 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     setLanguageState(code);
   }, []);
 
-  // Translation function
-  const t = useCallback((key: string, fallback?: string): string => {
-    return translations[key] || fallback || key;
+  // Translation function with variable interpolation support
+  // Variables use {{varName}} syntax in translation strings
+  const t = useCallback((key: string, fallback?: string, variables?: Record<string, string | number>): string => {
+    let text = translations[key] || fallback || key;
+
+    // Replace {{varName}} placeholders with actual values
+    if (variables) {
+      Object.entries(variables).forEach(([varName, value]) => {
+        text = text.replace(new RegExp(`\\{\\{${varName}\\}\\}`, 'g'), String(value));
+      });
+    }
+
+    return text;
   }, [translations]);
 
   return (

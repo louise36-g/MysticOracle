@@ -43,6 +43,10 @@ const HowCreditsWork = lazy(() => import('./components/HowCreditsWork'));
 const FAQ = lazy(() => import('./components/FAQ'));
 const AboutUs = lazy(() => import('./components/AboutUs'));
 
+// Horoscope pages
+const HoroscopesIndex = lazy(() => import('./components/horoscopes/HoroscopesIndex'));
+const HoroscopeSignPage = lazy(() => import('./components/horoscopes/HoroscopeSignPage'));
+
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-[400px] flex items-center justify-center">
@@ -70,6 +74,7 @@ const App: React.FC = () => {
   const [tarotArticleSlug, setTarotArticleSlug] = useState<string | null>(null);
   const [tarotPreviewId, setTarotPreviewId] = useState<string | null>(null);
   const [tarotCardsCategory, setTarotCardsCategory] = useState<string | null>(null);
+  const [horoscopeSign, setHoroscopeSign] = useState<string | null>(null);
 
   // Modal states
   const [showNoCreditsModal, setShowNoCreditsModal] = useState(false);
@@ -188,6 +193,14 @@ const App: React.FC = () => {
       } else {
         window.history.replaceState({ view: 'home', readingMode: 'tarot' }, '', path);
       }
+    } else if (path === '/horoscopes') {
+      setCurrentView('horoscopes');
+      window.history.replaceState({ view: 'horoscopes' }, '', '/horoscopes');
+    } else if (path.startsWith('/horoscopes/')) {
+      const sign = path.replace('/horoscopes/', '');
+      setCurrentView('horoscope-sign');
+      setHoroscopeSign(sign);
+      window.history.replaceState({ view: 'horoscope-sign', horoscopeSign: sign }, '', path);
     } else if (path === '/horoscope') {
       setReadingMode('horoscope');
       window.history.replaceState({ view: 'home', readingMode: 'horoscope' }, '', '/horoscope');
@@ -226,6 +239,7 @@ const App: React.FC = () => {
         setBlogTag(state.blogTag || null);
         setTarotArticleSlug(state.tarotArticleSlug || null);
         setTarotCardsCategory(state.tarotCardsCategory || null);
+        setHoroscopeSign(state.horoscopeSign || null);
       } else {
         // No state means we're at the initial page
         setCurrentView('home');
@@ -237,6 +251,7 @@ const App: React.FC = () => {
         setBlogTag(null);
         setTarotArticleSlug(null);
         setTarotCardsCategory(null);
+        setHoroscopeSign(null);
       }
     };
 
@@ -469,6 +484,14 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Horoscope navigation handlers
+  const handleNavigateToHoroscopes = useCallback(() => {
+    setCurrentView('horoscopes');
+    setHoroscopeSign(null);
+    window.history.pushState({ view: 'horoscopes' }, '', '/horoscopes');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // Generic path navigation handler for internal links
   const handleNavigateToPath = useCallback((path: string) => {
     // Handle tarot article pages
@@ -491,6 +514,18 @@ const App: React.FC = () => {
       const tagSlug = path.split('tag=')[1].split('&')[0];
       handleBlogTagClick(tagSlug);
     }
+    // Handle horoscopes index
+    else if (path === '/horoscopes') {
+      handleNavigateToHoroscopes();
+    }
+    // Handle individual horoscope sign pages
+    else if (path.startsWith('/horoscopes/')) {
+      const sign = path.replace('/horoscopes/', '');
+      setHoroscopeSign(sign);
+      setCurrentView('horoscope-sign');
+      window.history.pushState({ view: 'horoscope-sign', horoscopeSign: sign }, '', path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     // Handle other known paths
     else {
       // For other paths, use pushState and let the path handling useEffect take care of it
@@ -498,7 +533,7 @@ const App: React.FC = () => {
       window.dispatchEvent(new PopStateEvent('popstate'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [handleTarotCardClick, handleNavigateToBlogPost, handleBlogCategoryClick, handleBlogTagClick]);
+  }, [handleTarotCardClick, handleNavigateToBlogPost, handleBlogCategoryClick, handleBlogTagClick, handleNavigateToHoroscopes]);
 
   // Show branded loading screen while Clerk initializes
   if (!clerkLoaded || isLoading) {
@@ -614,6 +649,21 @@ const App: React.FC = () => {
     // 6b. About Us (accessible to all)
     if (currentView === 'about') {
         return <AboutUs onNavigate={handleNavigate} onNavigateToTarot={() => handleReadingModeSelect('tarot')} />;
+    }
+
+    // 6c. Horoscopes Index (accessible to all)
+    if (currentView === 'horoscopes') {
+        return <HoroscopesIndex />;
+    }
+
+    // 6d. Individual Horoscope Sign Page (accessible to all)
+    if (currentView === 'horoscope-sign' && horoscopeSign) {
+        return (
+          <HoroscopeSignPage
+            slug={horoscopeSign}
+            onBack={handleNavigateToHoroscopes}
+          />
+        );
     }
 
     // 7. Blog Pages (accessible to all)

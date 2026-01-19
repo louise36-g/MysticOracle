@@ -9,11 +9,13 @@ import {
   deleteBlogMedia,
   createBlogPost,
   updateBlogPost,
+  fetchLinkRegistry,
   BlogPost,
   BlogCategory,
   BlogTag,
   BlogMedia,
   CreateBlogPostData,
+  LinkRegistry,
 } from '../../services/apiService';
 import {
   Settings,
@@ -22,7 +24,15 @@ import {
   Eye,
   Star,
   StarOff,
+  Link2,
+  Loader2,
 } from 'lucide-react';
+import {
+  scanForLinkableTerms,
+  applyLinkSuggestions,
+  LinkSuggestionModal,
+  type LinkSuggestion,
+} from '../internal-links';
 import RichTextEditor from './RichTextEditor';
 import MarkdownEditor from './MarkdownEditor';
 import {
@@ -74,6 +84,11 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [showTags, setShowTags] = useState(true);
   const [showSEO, setShowSEO] = useState(false);
   const [showCoverImage, setShowCoverImage] = useState(true);
+
+  // Internal links
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkSuggestions, setLinkSuggestions] = useState<LinkSuggestion[]>([]);
+  const [scanningLinks, setScanningLinks] = useState(false);
 
   useEffect(() => {
     loadSidebarData();
@@ -198,6 +213,41 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     ? (post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`)
     : undefined;
 
+  // Internal links handlers
+  const handleOpenLinkModal = async () => {
+    const content = editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '');
+    if (!content.trim()) {
+      setError(language === 'en' ? 'Add some content first before adding internal links' : 'Ajoutez du contenu avant d\'ajouter des liens internes');
+      return;
+    }
+
+    try {
+      setScanningLinks(true);
+      const registry = await fetchLinkRegistry();
+      const suggestions = scanForLinkableTerms(content, registry, {
+        currentArticleSlug: post.slug, // Prevent self-linking
+      });
+
+      setLinkSuggestions(suggestions);
+      setShowLinkModal(true);
+    } catch (err) {
+      console.error('Failed to scan for links:', err);
+      setError(language === 'en' ? 'Failed to scan for linkable content' : 'Échec de l\'analyse du contenu');
+    } finally {
+      setScanningLinks(false);
+    }
+  };
+
+  const handleApplyLinks = (selected: LinkSuggestion[]) => {
+    const content = editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '');
+    const updatedContent = applyLinkSuggestions(content, selected);
+
+    setPost({
+      ...post,
+      ...(editLanguage === 'en' ? { contentEn: updatedContent } : { contentFr: updatedContent }),
+    });
+  };
+
   const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
 
   const topBar = (
@@ -255,6 +305,21 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         label={language === 'en' ? 'Content' : 'Contenu'}
         languageFlag={currentLangFlag}
       >
+        {/* Internal Links Button */}
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={handleOpenLinkModal}
+            disabled={scanningLinks}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg border border-purple-500/30 transition-colors disabled:opacity-50"
+          >
+            {scanningLinks ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Link2 className="w-4 h-4" />
+            )}
+            {language === 'en' ? 'Add Internal Links' : 'Ajouter des liens internes'}
+          </button>
+        </div>
         {editorMode === 'markdown' ? (
           <MarkdownEditor
             content={editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '')}
@@ -439,12 +504,20 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   );
 
   return (
-    <EditorLayout
-      topBar={topBar}
-      mainContent={mainContent}
-      sidebar={sidebar}
-      error={error}
-    />
+    <>
+      <EditorLayout
+        topBar={topBar}
+        mainContent={mainContent}
+        sidebar={sidebar}
+        error={error}
+      />
+      <LinkSuggestionModal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        suggestions={linkSuggestions}
+        onApply={handleApplyLinks}
+      />
+    </>
   );
 };
 

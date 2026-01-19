@@ -6,6 +6,7 @@ import {
   updateTarotArticle,
   fetchUnifiedCategories,
   fetchUnifiedTags,
+  fetchLinkRegistry,
   TarotArticle,
   UnifiedCategory,
   UnifiedTag,
@@ -14,7 +15,13 @@ import {
   deleteBlogMedia,
   BlogMedia,
 } from '../../services/apiService';
-import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle, Link2, Loader2 } from 'lucide-react';
+import {
+  scanForLinkableTerms,
+  applyLinkSuggestions,
+  LinkSuggestionModal,
+  type LinkSuggestion,
+} from '../internal-links';
 import RichTextEditor from './RichTextEditor';
 import TarotFAQManager, { FAQItem } from './TarotFAQManager';
 import {
@@ -71,6 +78,20 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const [showTags, setShowTags] = useState(true);
   const [showFAQ, setShowFAQ] = useState(true);
   const [showRelated, setShowRelated] = useState(false);
+
+  // Internal links
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkSuggestions, setLinkSuggestions] = useState<LinkSuggestion[]>([]);
+  const [scanningLinks, setScanningLinks] = useState(false);
+
+  // Field change handlers - must be before any early returns to follow Rules of Hooks
+  const handleFieldChange = useCallback((field: keyof TarotArticle, value: unknown) => {
+    setArticle(prev => prev ? { ...prev, [field]: value } : prev);
+  }, []);
+
+  const handleFieldBlur = useCallback((field: string) => {
+    setFieldTouched(field);
+  }, [setFieldTouched]);
 
   useEffect(() => {
     loadArticle();
@@ -191,6 +212,39 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     await loadMedia();
   };
 
+  // Internal links handlers
+  const handleOpenLinkModal = async () => {
+    if (!article) return;
+    const content = article.content || '';
+    if (!content.trim()) {
+      setError(language === 'en' ? 'Add some content first before adding internal links' : 'Ajoutez du contenu avant d\'ajouter des liens internes');
+      return;
+    }
+
+    try {
+      setScanningLinks(true);
+      const registry = await fetchLinkRegistry();
+      const suggestions = scanForLinkableTerms(content, registry, {
+        currentArticleSlug: article.slug, // Prevent self-linking
+      });
+
+      setLinkSuggestions(suggestions);
+      setShowLinkModal(true);
+    } catch (err) {
+      console.error('Failed to scan for links:', err);
+      setError(language === 'en' ? 'Failed to scan for linkable content' : 'Échec de l\'analyse du contenu');
+    } finally {
+      setScanningLinks(false);
+    }
+  };
+
+  const handleApplyLinks = (selected: LinkSuggestion[]) => {
+    if (!article) return;
+    const content = article.content || '';
+    const updatedContent = applyLinkSuggestions(content, selected);
+    setArticle(prev => prev ? { ...prev, content: updatedContent } : prev);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -224,15 +278,6 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       onPublish={handleTogglePublish}
     />
   );
-
-  // Field change handlers with touch tracking
-  const handleFieldChange = useCallback((field: keyof TarotArticle, value: unknown) => {
-    setArticle(prev => prev ? { ...prev, [field]: value } : prev);
-  }, []);
-
-  const handleFieldBlur = useCallback((field: string) => {
-    setFieldTouched(field);
-  }, [setFieldTouched]);
 
   const mainContent = (
     <>
@@ -272,6 +317,21 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
 
       <div className="space-y-2">
         <EditorField label={language === 'en' ? 'Content *' : 'Contenu *'}>
+          {/* Internal Links Button */}
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={handleOpenLinkModal}
+              disabled={scanningLinks}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg border border-purple-500/30 transition-colors disabled:opacity-50"
+            >
+              {scanningLinks ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Link2 className="w-4 h-4" />
+              )}
+              {language === 'en' ? 'Add Internal Links' : 'Ajouter des liens internes'}
+            </button>
+          </div>
           <div className={hasError('content') ? 'ring-1 ring-red-500/50 rounded-lg' : ''}>
             <RichTextEditor
               content={article.content}
@@ -383,12 +443,20 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   );
 
   return (
-    <EditorLayout
-      topBar={topBar}
-      mainContent={mainContent}
-      sidebar={sidebar}
-      error={error}
-    />
+    <>
+      <EditorLayout
+        topBar={topBar}
+        mainContent={mainContent}
+        sidebar={sidebar}
+        error={error}
+      />
+      <LinkSuggestionModal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        suggestions={linkSuggestions}
+        onApply={handleApplyLinks}
+      />
+    </>
   );
 };
 

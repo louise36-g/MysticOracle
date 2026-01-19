@@ -159,7 +159,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
 
           <SmartLink href="/tarot/cards/all" onClick={onViewAllCards}>
             <Button variant="primary" size="lg">
-              {t('tarot.TarotCardsOverview.browse_all_cards', `Browse All ${totalCards} Cards`, { totalCards })}
+              {t('tarot.TarotCardsOverview.browse_all_cards', 'Browse All {{totalCards}} Cards', { totalCards })}
             </Button>
           </SmartLink>
         </motion.div>

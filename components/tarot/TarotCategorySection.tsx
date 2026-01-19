@@ -155,7 +155,7 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
           onClick={() => onViewAll(category)}
           className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
         >
-          {t('tarot.TarotCategorySection.view_all_count', `View All ${count}`, { count })}
+          {t('tarot.TarotCategorySection.view_all_count', 'View All {{count}}', { count })}
           <ChevronRight className="w-4 h-4" />
         </SmartLink>
       </div>
