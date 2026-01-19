@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { fetchTarotArticle, previewTarotArticle, TarotArticle, fetchLinkRegistry, LinkRegistry } from '../services/apiService';
-import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, Tag, Sparkles, ZoomIn, ChevronUp } from 'lucide-react';
 import { SmartLink } from './SmartLink';
 import { useTranslation } from '../context/TranslationContext';
 import { processShortcodes } from './internal-links';
@@ -28,6 +28,151 @@ function ArticleSkeleton() {
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-4 bg-slate-800 rounded" />
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Reading progress indicator
+function ReadingProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setProgress(scrollPercent);
+    };
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    return () => window.removeEventListener('scroll', updateProgress);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-slate-900/80 backdrop-blur-sm">
+      <motion.div
+        className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500"
+        style={{ width: `${progress}%` }}
+      />
+      <motion.div
+        className="absolute top-0 h-full w-16 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+        style={{ left: `calc(${progress}% - 2rem)` }}
+        animate={{ opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
+    </div>
+  );
+}
+
+// Scroll to top button
+function ScrollToTop() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      setIsVisible(window.scrollY > 800);
+    };
+
+    window.addEventListener('scroll', toggleVisibility, { passive: true });
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-40 p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full shadow-lg shadow-purple-500/25 transition-colors"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// Quick navigation chips
+function QuickNavChips({ sections, onSectionClick }: {
+  sections: { id: string; title: string }[];
+  onSectionClick: (id: string) => void;
+}) {
+  if (sections.length === 0) return null;
+
+  const displaySections = sections.slice(0, 8);
+
+  return (
+    <div className="w-full overflow-x-auto scrollbar-hide py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex gap-2 min-w-max">
+        {displaySections.map((section) => (
+          <button
+            key={section.id}
+            onClick={() => onSectionClick(section.id)}
+            className="px-4 py-2 bg-slate-800/80 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 rounded-full text-sm text-purple-300 hover:text-purple-200 whitespace-nowrap transition-all"
+          >
+            {section.title.length > 25 ? section.title.slice(0, 25) + '...' : section.title}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Floating table of contents (desktop only)
+function TableOfContents({
+  sections,
+  activeSection,
+  onSectionClick
+}: {
+  sections: { id: string; title: string }[];
+  activeSection: string;
+  onSectionClick: (id: string) => void;
+}) {
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+
+  if (sections.length === 0) return null;
+
+  return (
+    <div className="hidden xl:block fixed right-8 top-1/2 -translate-y-1/2 z-40">
+      <div className="flex flex-col items-center gap-2">
+        {sections.slice(0, 8).map((section) => (
+          <button
+            key={section.id}
+            onClick={() => onSectionClick(section.id)}
+            onMouseEnter={() => setHoveredSection(section.id)}
+            onMouseLeave={() => setHoveredSection(null)}
+            className={`relative w-3 h-3 rounded-full transition-all duration-300 ${
+              activeSection === section.id
+                ? 'bg-purple-400 scale-125 shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                : 'bg-slate-600 hover:bg-purple-400/50'
+            }`}
+            aria-label={section.title}
+          >
+            <AnimatePresence>
+              {hoveredSection === section.id && (
+                <motion.span
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-slate-800/95 backdrop-blur-sm text-sm text-slate-200 rounded-lg border border-purple-500/20 pointer-events-none"
+                >
+                  {section.title.length > 30 ? section.title.slice(0, 30) + '...' : section.title}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        ))}
+        {sections.length > 8 && (
+          <span className="text-xs text-slate-500 mt-1">+{sections.length - 8}</span>
+        )}
       </div>
     </div>
   );
@@ -74,6 +219,9 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
   const [error, setError] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
+  const [sections, setSections] = useState<{ id: string; title: string }[]>([]);
+  const [activeSection, setActiveSection] = useState('');
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const loadArticle = useCallback(async () => {
     try {
@@ -108,6 +256,59 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
     // Fetch link registry for shortcode processing
     fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, [loadArticle]);
+
+  // Extract sections from content for navigation
+  useEffect(() => {
+    if (!article?.content) return;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(article.content, 'text/html');
+    const headings = doc.querySelectorAll('h2');
+
+    const extractedSections = Array.from(headings).map((h, i) => ({
+      id: `section-${i}`,
+      title: h.textContent?.replace(/[^\w\s&:'-]/g, '').trim() || `Section ${i + 1}`
+    }));
+
+    setSections(extractedSections);
+  }, [article?.content]);
+
+  // Track active section on scroll
+  useEffect(() => {
+    if (!contentRef.current || sections.length === 0) return;
+
+    const handleScroll = () => {
+      const headings = contentRef.current?.querySelectorAll('h2');
+      if (!headings) return;
+
+      let currentActive = '';
+      headings.forEach((heading, index) => {
+        const rect = heading.getBoundingClientRect();
+        if (rect.top <= 120) {
+          currentActive = `section-${index}`;
+        }
+      });
+      setActiveSection(currentActive);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [sections]);
+
+  // Scroll to section handler
+  const scrollToSection = useCallback((sectionId: string) => {
+    const index = parseInt(sectionId.replace('section-', ''));
+    if (contentRef.current) {
+      const headings = contentRef.current.querySelectorAll('h2');
+      const target = headings[index];
+      if (target) {
+        const offset = 80;
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }
+  }, []);
 
   // DOMPurify sanitization config
   const sanitizeConfig = {
@@ -197,6 +398,19 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
           {JSON.stringify(article.schemaJson)}
         </script>
       </Helmet>
+
+      {/* Reading Progress Bar */}
+      <ReadingProgress />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
+
+      {/* Floating Table of Contents (Desktop) */}
+      <TableOfContents
+        sections={sections}
+        activeSection={activeSection}
+        onSectionClick={scrollToSection}
+      />
 
       {/* Lightbox */}
       {lightboxImage && (
@@ -294,6 +508,11 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
               </span>
             )}
           </div>
+
+          {/* Quick Navigation Chips */}
+          {sections.length > 0 && (
+            <QuickNavChips sections={sections} onSectionClick={scrollToSection} />
+          )}
         </motion.header>
 
         {/* Featured Image */}
@@ -318,6 +537,7 @@ const TarotArticlePage: React.FC<TarotArticlePageProps> = ({ slug, previewId, on
 
         {/* Article body */}
         <motion.div
+          ref={contentRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
