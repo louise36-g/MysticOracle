@@ -17,6 +17,7 @@ import {
   CheckCircle,
   ImageOff,
   GripVertical,
+  ExternalLink,
 } from 'lucide-react';
 import {
   DndContext,
@@ -140,6 +141,15 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
       {/* Actions */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
+          <a
+            href={`/tarot/articles/${article.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
+            title={language === 'en' ? 'View Article' : 'Voir l\'article'}
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
           <button
             onClick={() => onEdit(article.id)}
             className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
