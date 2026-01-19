@@ -715,6 +715,8 @@ router.patch('/admin/reorder', async (req, res) => {
       error: 'Failed to reorder article',
     });
   }
+});
+
 router.patch('/admin/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -722,12 +724,27 @@ router.patch('/admin/:id', async (req, res) => {
     const isVisualEditorMode = updates._visualEditorMode === true;
     const forceUpdate = req.query.force === 'true';
 
+    console.log('[PATCH /admin/:id] Request received:', {
+      id,
+      isVisualEditorMode,
+      forceUpdate,
+      hasUpdates: !!updates,
+      updateKeys: Object.keys(updates).slice(0, 10)
+    });
+
     // Check if article exists
     const existingArticle = await prisma.tarotArticle.findUnique({
       where: { id },
     });
 
+    console.log('[PATCH /admin/:id] Article lookup:', {
+      id,
+      found: !!existingArticle,
+      slug: existingArticle?.slug
+    });
+
     if (!existingArticle) {
+      console.log('[PATCH /admin/:id] Article not found, returning 404');
       return res.status(404).json({ error: 'Article not found' });
     }
 
@@ -1254,10 +1271,6 @@ router.delete('/admin/tags/:id', async (req, res) => {
     console.error('Error deleting tarot tag:', error);
     res.status(500).json({ error: 'Failed to delete tag' });
   }
-});
-
-// ============================================
-// ARTICLE REORDERING
 });
 
 export default router;
