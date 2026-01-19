@@ -8,7 +8,24 @@
 
 ---
 
-## Recently Completed (Phase 1 - January 2026)
+## Recently Completed (January 2026)
+
+### ✅ Content System Refactoring (9 Phases)
+Complete overhaul of blog and tarot article systems:
+- **Phase 1:** Fixed critical bug (missing `});` in tarot-articles.ts)
+- **Phase 2:** Extracted shared utilities (sorting, schema, validation)
+- **Phase 3:** Database migration - unified taxonomy (categories/tags shared between blog/tarot)
+- **Phase 4:** Split backend routes (tarot-articles → modular: public.ts, admin.ts, trash.ts)
+- **Phase 5:** Created service layer (ContentService, TarotArticleService, TaxonomyService)
+- **Phase 6:** Split frontend components (AdminTarotArticles → ArticlesTab, TrashTab, hooks)
+- **Phase 7:** Added client-side form validation with error display
+- **Phase 8:** Unified taxonomy API (categories/tags at `/api/v1/taxonomy/*`)
+- **Phase 9:** Cleanup and documentation updates
+
+### ✅ API Versioning Added
+- All routes now use `/api/v1/` prefix
+- Deprecated `/api/*` routes include sunset headers
+- New unified taxonomy at `/api/v1/taxonomy/*`
 
 ### ✅ Stripe Updated to v20
 - Updated from v14.0.0 to v20.1.2
@@ -17,7 +34,8 @@
 
 ### ✅ Dead Code Removed
 - Removed unused `deductCredits` function from `services/apiService.ts`
-- Function called non-existent `/api/readings/deduct-credits` endpoint
+- Removed old tarot-specific taxonomy routes and API functions
+- Removed `server/src/routes/tarot-articles/taxonomy.ts` (replaced by unified)
 
 ### ✅ LocalStorage Cleanup
 - Added `cleanupDeprecatedStorage()` utility in `storageService.ts`
@@ -38,6 +56,12 @@
 - Added 29 new tests (53 → 82 total)
 - `ProcessPaymentWebhook.test.ts` - 14 tests for webhook handling and idempotency
 - `IdempotencyService.test.ts` - 15 tests for idempotency key management
+
+### ✅ AdminTarotArticles Modularized
+- Slimmed from 1,045 lines to 224 lines
+- Extracted ArticlesTab.tsx (375 lines) with drag-drop reorder
+- Extracted TrashTab.tsx (200 lines)
+- Created hooks: useArticleList, useTrashList, useArticleForm
 
 ---
 
@@ -86,6 +110,7 @@ When `OPENROUTER_API_KEY` is missing, the error message wasn't clear. Improved i
 - `components/ActiveReading.tsx` (~900 lines)
 - `components/admin/AdminBlog.tsx` (~800 lines)
 - `components/UserProfile.tsx` (~600 lines)
+- ~~`components/admin/AdminTarotArticles.tsx`~~ (✅ Refactored: 1,045 → 224 lines)
 
 These components handle too many concerns and are difficult to maintain.
 
@@ -145,11 +170,9 @@ Main categories:
 
 ---
 
-### 8. No API Versioning
+### ~~8. No API Versioning~~ ✅ DONE
 
-**Issue:** API endpoints don't have version prefix (`/api/v1/`).
-
-**Fix:** Consider adding versioning before mobile app launch to allow independent evolution.
+API endpoints now use `/api/v1/` prefix with deprecation headers on old routes.
 
 ---
 
@@ -157,6 +180,10 @@ Main categories:
 
 | Issue | Priority | Status | Notes |
 |-------|----------|--------|-------|
+| Content system refactoring | High | ✅ Done | 9 phases completed |
+| API versioning | Medium | ✅ Done | All routes use /api/v1/ |
+| Unified taxonomy | High | ✅ Done | Categories/tags shared |
+| AdminTarotArticles modular | Medium | ✅ Done | 1,045 → 224 lines |
 | Stripe upgrade v14→v20 | Critical | ✅ Done | Upgraded to v20.1.2 |
 | Dead code (deductCredits) | High | ✅ Done | Removed from apiService.ts |
 | LocalStorage cleanup | Medium | ✅ Done | Added cleanup utility |
@@ -167,10 +194,9 @@ Main categories:
 | Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | Horoscope error messages | High | Improved | Needs verification |
-| Large components | Medium | Open | - |
+| Large components | Medium | Partial | AdminTarotArticles done, others pending |
 | Credit deduction patterns | Medium | Partial | - |
 | ESLint warnings | Medium | Open | 81 issues to fix |
 | Error boundaries | Low | Open | - |
 | Console warnings | Low | Open | - |
 | Hardcoded strings | Low | Open | - |
-| API versioning | Low | Open | - |

@@ -2,26 +2,34 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
-  fetchTarotTags,
-  createTarotTag,
-  updateTarotTag,
-  deleteTarotTag,
-  TarotTag,
+  fetchUnifiedTags,
+  createUnifiedTag,
+  updateUnifiedTag,
+  deleteUnifiedTag,
+  UnifiedTag,
 } from '../../services/apiService';
-import { Plus, Edit2, Trash2, Tag, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, X, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TarotTagsManagerProps {
   onTagsChange?: () => void;
 }
 
+// Editable tag state (subset of UnifiedTag for form)
+interface EditingTag {
+  id: string;
+  name: string;
+  nameFr: string;
+  slug: string;
+}
+
 const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
-  const [tags, setTags] = useState<TarotTag[]>([]);
+  const [tags, setTags] = useState<UnifiedTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [editingTag, setEditingTag] = useState<TarotTag | null>(null);
+  const [editingTag, setEditingTag] = useState<EditingTag | null>(null);
   const [isNew, setIsNew] = useState(false);
 
   const loadTags = useCallback(async () => {
@@ -29,7 +37,7 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
       setLoading(true);
       const token = await getToken();
       if (!token) return;
-      const result = await fetchTarotTags(token);
+      const result = await fetchUnifiedTags(token);
       setTags(result.tags);
     } catch (err) {
       console.error('Failed to load tags:', err);
@@ -52,7 +60,7 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
   };
 
   const handleNew = () => {
-    setEditingTag({ id: '', name: '', slug: '', createdAt: '', updatedAt: '' });
+    setEditingTag({ id: '', name: '', nameFr: '', slug: '' });
     setIsNew(true);
   };
 
@@ -64,12 +72,16 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
       const token = await getToken();
       if (!token) return;
 
-      const data = { name: editingTag.name, slug: editingTag.slug };
+      const data = {
+        name: editingTag.name,
+        nameFr: editingTag.nameFr || undefined,
+        slug: editingTag.slug,
+      };
 
       if (isNew) {
-        await createTarotTag(token, data);
+        await createUnifiedTag(token, data);
       } else {
-        await updateTarotTag(token, editingTag.id, data);
+        await updateUnifiedTag(token, editingTag.id, data);
       }
 
       setEditingTag(null);
@@ -89,7 +101,7 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
     try {
       const token = await getToken();
       if (!token) return;
-      await deleteTarotTag(token, id);
+      await deleteUnifiedTag(token, id);
       loadTags();
       onTagsChange?.();
     } catch (err) {
@@ -118,29 +130,48 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
       </div>
 
       <div className="flex flex-wrap gap-3">
-        {tags.map((tag) => (
-          <div
-            key={tag.id}
-            className="group flex items-center gap-2 bg-slate-900/60 border border-purple-500/20 rounded-full px-4 py-2"
-          >
-            <Tag className="w-4 h-4 text-purple-400" />
-            <span className="text-slate-200">{tag.name}</span>
-            <div className="hidden group-hover:flex gap-1 ml-2">
-              <button
-                onClick={() => { setEditingTag(tag); setIsNew(false); }}
-                className="p-1 text-slate-400 hover:text-purple-400"
-              >
-                <Edit2 className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => handleDelete(tag.id)}
-                className="p-1 text-slate-400 hover:text-red-400"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+        {tags.map((tag) => {
+          const totalUsage = tag.blogPostCount + tag.tarotArticleCount;
+          const isInUse = totalUsage > 0;
+          return (
+            <div
+              key={tag.id}
+              className="group flex items-center gap-2 bg-slate-900/60 border border-purple-500/20 rounded-full px-4 py-2"
+            >
+              <Tag className="w-4 h-4 text-purple-400" />
+              <span className="text-slate-200">{tag.name}</span>
+              {totalUsage > 0 && (
+                <span className="text-xs text-slate-500 flex items-center gap-1" title={`${tag.blogPostCount} posts, ${tag.tarotArticleCount} tarot articles`}>
+                  ({totalUsage})
+                </span>
+              )}
+              <div className="hidden group-hover:flex gap-1 ml-2">
+                <button
+                  onClick={() => {
+                    setEditingTag({
+                      id: tag.id,
+                      name: tag.name,
+                      nameFr: tag.nameFr || '',
+                      slug: tag.slug,
+                    });
+                    setIsNew(false);
+                  }}
+                  className="p-1 text-slate-400 hover:text-purple-400"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => handleDelete(tag.id)}
+                  disabled={isInUse}
+                  className="p-1 text-slate-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                  title={isInUse ? (language === 'en' ? 'Cannot delete: tag in use' : 'Impossible de supprimer: tag utilisé') : ''}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {tags.length === 0 && (
           <div className="w-full text-center py-12 text-slate-400">
             {language === 'en' ? 'No tags yet' : 'Aucun tag'}
@@ -167,21 +198,32 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
                 </button>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">{language === 'en' ? 'Name' : 'Nom'}</label>
-                  <input
-                    type="text"
-                    value={editingTag.name}
-                    onChange={(e) => {
-                      const name = e.target.value;
-                      setEditingTag({
-                        ...editingTag,
-                        name,
-                        slug: editingTag.slug || generateSlug(name),
-                      });
-                    }}
-                    className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">🇬🇧 {language === 'en' ? 'Name' : 'Nom'}</label>
+                    <input
+                      type="text"
+                      value={editingTag.name}
+                      onChange={(e) => {
+                        const name = e.target.value;
+                        setEditingTag({
+                          ...editingTag,
+                          name,
+                          slug: editingTag.slug || generateSlug(name),
+                        });
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">🇫🇷 {language === 'en' ? 'Name (French)' : 'Nom (Français)'}</label>
+                    <input
+                      type="text"
+                      value={editingTag.nameFr}
+                      onChange={(e) => setEditingTag({ ...editingTag, nameFr: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm text-slate-400 mb-1">Slug</label>

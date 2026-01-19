@@ -110,7 +110,26 @@ MysticOracle/
 │       ├── MarkdownEditor.tsx # Markdown editor with preview
 │       ├── AdminHealth.tsx    # Service health checks
 │       ├── AdminTranslations.tsx # Translation string management
-│       └── AdminSettings.tsx  # System settings
+│       ├── AdminSettings.tsx  # System settings
+│       ├── AdminTarotArticles.tsx # Tarot articles CMS (container with tabs)
+│       ├── TarotArticleEditor.tsx # Article editing with validation
+│       ├── TarotCategoriesManager.tsx # Unified category management
+│       ├── TarotTagsManager.tsx # Unified tag management
+│       │
+│       ├── tarot-articles/    # Modular tarot admin components
+│       │   ├── ArticlesTab.tsx # Article list with drag-drop reorder
+│       │   ├── TrashTab.tsx   # Deleted articles management
+│       │   ├── types.ts       # Shared types and constants
+│       │   └── hooks/
+│       │       ├── useArticleList.ts # Article list state + pagination
+│       │       ├── useArticleForm.ts # Form validation + state
+│       │       └── useTrashList.ts   # Trash management state
+│       │
+│       └── editor/            # Shared editor components
+│           ├── EditorField.tsx # Form field wrappers
+│           ├── EditorTopBar.tsx # Save/cancel toolbar
+│           ├── EditorLayout.tsx # Two-column layout
+│           └── index.ts       # Re-exports
 │
 ├── context/
 │   └── AppContext.tsx         # Global state (user, language, credits)
@@ -143,9 +162,32 @@ MysticOracle/
     │   │   ├── admin.ts       # Admin endpoints
     │   │   ├── blog.ts        # Blog CMS endpoints
     │   │   ├── horoscopes.ts  # Horoscope generation
-    │   │   └── translations.ts # Translation API & admin endpoints
-    │   └── services/
-    │       └── email.ts       # Brevo email templates
+    │   │   ├── translations.ts # Translation API & admin endpoints
+    │   │   ├── taxonomy.ts    # Unified category/tag endpoints
+    │   │   │
+    │   │   └── tarot-articles/ # Modular tarot article routes
+    │   │       ├── index.ts   # Route combiner
+    │   │       ├── public.ts  # Public endpoints (list, single)
+    │   │       ├── admin.ts   # CRUD, import, reorder
+    │   │       ├── trash.ts   # Soft delete, restore, empty
+    │   │       └── shared.ts  # Common imports/utilities
+    │   │
+    │   ├── services/
+    │   │   ├── email.ts       # Brevo email templates
+    │   │   ├── cache.ts       # NodeCache wrapper
+    │   │   ├── TaxonomyService.ts # Unified category/tag service
+    │   │   │
+    │   │   └── content/       # Content service layer
+    │   │       ├── ContentService.ts # Abstract base class
+    │   │       └── TarotArticleService.ts # Tarot-specific service
+    │   │
+    │   └── lib/
+    │       ├── validation/
+    │       │   └── tarot.ts   # Tarot article validation schemas
+    │       └── tarot/
+    │           ├── sorting.ts # Card number parsing/sorting
+    │           └── schema.ts  # JSON-LD schema generation
+    │
     └── .env.example           # Environment template
 ```
 
@@ -238,6 +280,26 @@ MysticOracle/
 - `GET /api/blog/admin/posts` - List all posts (inc. drafts)
 - `GET /api/blog/admin/preview/:id` - Preview any post
 - `POST /api/blog/admin/import` - Import JSON articles
+
+### Unified Taxonomy (Admin)
+- `GET /api/v1/taxonomy/categories` - List all categories with usage counts
+- `POST /api/v1/taxonomy/categories` - Create category
+- `PATCH /api/v1/taxonomy/categories/:id` - Update category
+- `DELETE /api/v1/taxonomy/categories/:id` - Delete category (blocked if in use)
+- `GET /api/v1/taxonomy/tags` - List all tags with usage counts
+- `POST /api/v1/taxonomy/tags` - Create tag
+- `PATCH /api/v1/taxonomy/tags/:id` - Update tag
+- `DELETE /api/v1/taxonomy/tags/:id` - Delete tag (blocked if in use)
+
+### Tarot Articles (Admin)
+- `GET /api/v1/tarot-articles/admin/list` - List articles with filters
+- `GET /api/v1/tarot-articles/admin/:id` - Get article for editing
+- `PATCH /api/v1/tarot-articles/admin/:id` - Update article
+- `PATCH /api/v1/tarot-articles/admin/reorder` - Reorder articles
+- `POST /api/v1/tarot-articles/admin/import` - Import article JSON
+- `DELETE /api/v1/tarot-articles/admin/:id` - Soft delete
+- `POST /api/v1/tarot-articles/admin/:id/restore` - Restore from trash
+- `DELETE /api/v1/tarot-articles/admin/:id/permanent` - Permanent delete
 
 ## Environment Variables
 

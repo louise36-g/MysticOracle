@@ -25,42 +25,60 @@ export const EditorField: React.FC<EditorFieldProps> = ({
 interface TitleInputProps {
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
+  hasError?: boolean;
 }
 
 export const TitleInput: React.FC<TitleInputProps> = ({
   value,
   onChange,
+  onBlur,
   placeholder = 'Enter title...',
+  hasError = false,
 }) => (
   <input
     type="text"
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    onBlur={onBlur}
     placeholder={placeholder}
-    className="w-full px-4 py-3 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 text-xl font-medium placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
+    className={`w-full px-4 py-3 bg-slate-800 border rounded-lg text-slate-200 text-xl font-medium placeholder-slate-500 focus:outline-none ${
+      hasError
+        ? 'border-red-500/50 focus:border-red-500'
+        : 'border-purple-500/20 focus:border-purple-500/50'
+    }`}
   />
 );
 
 interface ExcerptInputProps {
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   rows?: number;
+  hasError?: boolean;
 }
 
 export const ExcerptInput: React.FC<ExcerptInputProps> = ({
   value,
   onChange,
+  onBlur,
   placeholder = 'Brief summary...',
   rows = 2,
+  hasError = false,
 }) => (
   <textarea
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    onBlur={onBlur}
     rows={rows}
     placeholder={placeholder}
-    className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-purple-500/50"
+    className={`w-full px-4 py-2 bg-slate-800 border rounded-lg text-slate-200 placeholder-slate-500 resize-none focus:outline-none ${
+      hasError
+        ? 'border-red-500/50 focus:border-red-500'
+        : 'border-purple-500/20 focus:border-purple-500/50'
+    }`}
   />
 );
 

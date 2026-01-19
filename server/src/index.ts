@@ -75,6 +75,7 @@ import translationRoutes from './routes/translations.js';
 import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
 import tarotArticleRoutes from './routes/tarot-articles/index.js';
+import taxonomyRoutes from './routes/taxonomy.js';
 import ssrRoutes from './routes/ssr.js';
 import devRoutes from './routes/dev.js';
 import promptRoutes from './routes/prompts.js';
@@ -222,6 +223,7 @@ v1Router.use('/horoscopes', generalLimiter, horoscopeRoutes);
 v1Router.use('/translations', generalLimiter, translationRoutes);
 v1Router.use('/blog', generalLimiter, blogRoutes);
 v1Router.use('/tarot-articles', generalLimiter, tarotArticleRoutes);
+v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
 
 // Mount v1 at /api/v1
@@ -268,7 +270,9 @@ function scheduleHoroscopeCleanup(): void {
     }, CLEANUP_INTERVAL);
   }, msUntilMidnight);
 
-  console.log(`[Horoscope Cleanup] Daily cleanup scheduled for midnight UTC (next run: ${nextMidnight.toISOString()})`);
+  console.log(
+    `[Horoscope Cleanup] Daily cleanup scheduled for midnight UTC (next run: ${nextMidnight.toISOString()})`
+  );
 }
 
 // Start server

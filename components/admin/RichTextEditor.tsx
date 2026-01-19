@@ -49,6 +49,7 @@ const MEDIA_FOLDERS = [
 interface RichTextEditorProps {
   content: string;
   onChange: (html: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   mediaLibrary?: { id: string; url: string; originalName: string }[];
   onMediaUpload?: (file: File) => Promise<string>;
@@ -88,6 +89,7 @@ const MenuButton: React.FC<{
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
+  onBlur,
   placeholder = 'Start writing...',
   mediaLibrary = [],
   onMediaUpload,
@@ -180,6 +182,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+    },
+    onBlur: () => {
+      onBlur?.();
     },
     editorProps: {
       attributes: {

@@ -99,7 +99,17 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
         headers['X-Idempotency-Key'] = idempotencyKey;
       }
 
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const fullUrl = `${API_URL}${endpoint}`;
+      console.log(`[apiRequest] ${method} ${fullUrl}`);
+
+      // DEBUG: Show URL for PATCH requests
+      if (method === 'PATCH' && endpoint.includes('tarot-articles')) {
+        console.log('[DEBUG] API_URL:', API_URL);
+        console.log('[DEBUG] endpoint:', endpoint);
+        console.log('[DEBUG] fullUrl:', fullUrl);
+      }
+
+      const response = await fetch(fullUrl, {
         method,
         headers,
         body: body ? JSON.stringify(body) : undefined,
@@ -109,7 +119,8 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
       lastStatus = response.status;
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Request failed' }));
+        console.error(`[apiRequest] Request failed: ${method} ${fullUrl} - Status ${response.status}`);
+        const error = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
         const errorMessage = error.error || `API Error: ${response.status}`;
 
         // Check if we should retry
@@ -122,6 +133,8 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
 
         throw new Error(errorMessage);
       }
+
+      console.log(`[apiRequest] Success: ${method} ${fullUrl} - Status ${response.status}`);
 
       return response.json();
     } catch (error) {
@@ -1161,99 +1174,6 @@ export async function reorderTarotArticle(
 }
 
 // ============================================
-// TAROT CATEGORIES
-// ============================================
-
-export interface TarotCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export async function fetchTarotCategories(token: string): Promise<{ categories: TarotCategory[] }> {
-  return apiRequest('/api/tarot-articles/admin/categories', { token });
-}
-
-export async function createTarotCategory(
-  token: string,
-  data: { name: string; slug: string; description?: string }
-): Promise<{ category: TarotCategory }> {
-  return apiRequest('/api/tarot-articles/admin/categories', {
-    method: 'POST',
-    token,
-    body: data,
-  });
-}
-
-export async function updateTarotCategory(
-  token: string,
-  id: string,
-  data: Partial<{ name: string; slug: string; description?: string }>
-): Promise<{ category: TarotCategory }> {
-  return apiRequest(`/api/tarot-articles/admin/categories/${id}`, {
-    method: 'PATCH',
-    token,
-    body: data,
-  });
-}
-
-export async function deleteTarotCategory(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/tarot-articles/admin/categories/${id}`, {
-    method: 'DELETE',
-    token,
-  });
-}
-
-// ============================================
-// TAROT TAGS
-// ============================================
-
-export interface TarotTag {
-  id: string;
-  name: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export async function fetchTarotTags(token: string): Promise<{ tags: TarotTag[] }> {
-  return apiRequest('/api/tarot-articles/admin/tags', { token });
-}
-
-export async function createTarotTag(
-  token: string,
-  data: { name: string; slug: string }
-): Promise<{ tag: TarotTag }> {
-  return apiRequest('/api/tarot-articles/admin/tags', {
-    method: 'POST',
-    token,
-    body: data,
-  });
-}
-
-export async function updateTarotTag(
-  token: string,
-  id: string,
-  data: Partial<{ name: string; slug: string }>
-): Promise<{ tag: TarotTag }> {
-  return apiRequest(`/api/tarot-articles/admin/tags/${id}`, {
-    method: 'PATCH',
-    token,
-    body: data,
-  });
-}
-
-export async function deleteTarotTag(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/tarot-articles/admin/tags/${id}`, {
-    method: 'DELETE',
-    token,
-  });
-}
-
-// ============================================
 // ADMIN REVENUE EXPORT
 // ============================================
 
@@ -1500,6 +1420,143 @@ export async function deleteBlogTag(token: string, id: string): Promise<{ succes
   return apiRequest(`/api/blog/admin/tags/${id}`, { method: 'DELETE', token });
 }
 
+// ============================================
+// UNIFIED TAXONOMY (shared between blog and tarot)
+// ============================================
+
+/**
+ * Unified Category - shared between blog posts and tarot articles
+ */
+export interface UnifiedCategory {
+  id: string;
+  name: string;
+  nameFr: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  sortOrder: number;
+  blogPostCount: number;
+  tarotArticleCount: number;
+}
+
+/**
+ * Unified Tag - shared between blog posts and tarot articles
+ */
+export interface UnifiedTag {
+  id: string;
+  name: string;
+  nameFr: string;
+  slug: string;
+  blogPostCount: number;
+  tarotArticleCount: number;
+}
+
+export interface CategoryInput {
+  name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface TagInput {
+  name: string;
+  slug: string;
+}
+
+/**
+ * Fetch all categories with counts for both content types
+ */
+export async function fetchUnifiedCategories(token: string): Promise<{ categories: UnifiedCategory[] }> {
+  return apiRequest('/api/v1/taxonomy/categories', { token });
+}
+
+/**
+ * Create a new category (shared)
+ */
+export async function createUnifiedCategory(
+  token: string,
+  data: CategoryInput
+): Promise<{ category: UnifiedCategory }> {
+  return apiRequest('/api/v1/taxonomy/categories', {
+    method: 'POST',
+    token,
+    body: data,
+  });
+}
+
+/**
+ * Update a category
+ */
+export async function updateUnifiedCategory(
+  token: string,
+  id: string,
+  data: Partial<CategoryInput>
+): Promise<{ category: UnifiedCategory }> {
+  return apiRequest(`/api/v1/taxonomy/categories/${id}`, {
+    method: 'PATCH',
+    token,
+    body: data,
+  });
+}
+
+/**
+ * Delete a category (will fail if used by blog posts)
+ */
+export async function deleteUnifiedCategory(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/v1/taxonomy/categories/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
+/**
+ * Fetch all tags with counts for both content types
+ */
+export async function fetchUnifiedTags(token: string): Promise<{ tags: UnifiedTag[] }> {
+  return apiRequest('/api/v1/taxonomy/tags', { token });
+}
+
+/**
+ * Create a new tag (shared)
+ */
+export async function createUnifiedTag(
+  token: string,
+  data: TagInput
+): Promise<{ tag: UnifiedTag }> {
+  return apiRequest('/api/v1/taxonomy/tags', {
+    method: 'POST',
+    token,
+    body: data,
+  });
+}
+
+/**
+ * Update a tag
+ */
+export async function updateUnifiedTag(
+  token: string,
+  id: string,
+  data: Partial<TagInput>
+): Promise<{ tag: UnifiedTag }> {
+  return apiRequest(`/api/v1/taxonomy/tags/${id}`, {
+    method: 'PATCH',
+    token,
+    body: data,
+  });
+}
+
+/**
+ * Delete a tag (will fail if used by blog posts)
+ */
+export async function deleteUnifiedTag(token: string, id: string): Promise<{ success: boolean }> {
+  return apiRequest(`/api/v1/taxonomy/tags/${id}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
 // Admin media
 export async function fetchAdminBlogMedia(
   token: string,
@@ -1642,4 +1699,13 @@ export default {
   updateAdminPrompt,
   resetAdminPrompt,
   seedAdminPrompts,
+  // Unified Taxonomy
+  fetchUnifiedCategories,
+  createUnifiedCategory,
+  updateUnifiedCategory,
+  deleteUnifiedCategory,
+  fetchUnifiedTags,
+  createUnifiedTag,
+  updateUnifiedTag,
+  deleteUnifiedTag,
 };

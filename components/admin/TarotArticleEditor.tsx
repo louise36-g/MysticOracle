@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
   fetchAdminTarotArticle,
   updateTarotArticle,
-  fetchTarotCategories,
-  fetchTarotTags,
+  fetchUnifiedCategories,
+  fetchUnifiedTags,
   TarotArticle,
-  TarotCategory,
-  TarotTag,
+  UnifiedCategory,
+  UnifiedTag,
   fetchAdminBlogMedia,
   uploadBlogMedia,
   deleteBlogMedia,
   BlogMedia,
 } from '../../services/apiService';
-import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder } from 'lucide-react';
+import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import TarotFAQManager, { FAQItem } from './TarotFAQManager';
 import {
@@ -28,6 +28,7 @@ import {
   ExcerptInput,
   SidebarTextArea,
 } from './editor';
+import { useArticleForm } from './tarot-articles/hooks/useArticleForm';
 
 interface TarotArticleEditorProps {
   articleId: string;
@@ -49,9 +50,20 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Sidebar data
-  const [categories, setCategories] = useState<TarotCategory[]>([]);
-  const [tags, setTags] = useState<TarotTag[]>([]);
+  const [categories, setCategories] = useState<UnifiedCategory[]>([]);
+  const [tags, setTags] = useState<UnifiedTag[]>([]);
   const [media, setMedia] = useState<BlogMedia[]>([]);
+
+  // Form validation
+  const {
+    errors: validationErrors,
+    touched,
+    validate,
+    setFieldTouched,
+    getFieldError,
+    hasError,
+    clearErrors,
+  } = useArticleForm(article, { language });
 
   // Collapsible sections
   const [showCoverImage, setShowCoverImage] = useState(true);
@@ -84,8 +96,8 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       const token = await getToken();
       if (!token) return;
       const [catResult, tagResult, mediaResult] = await Promise.all([
-        fetchTarotCategories(token),
-        fetchTarotTags(token),
+        fetchUnifiedCategories(token),
+        fetchUnifiedTags(token),
         fetchAdminBlogMedia(token),
       ]);
       setCategories(catResult.categories);
@@ -110,11 +122,23 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const handleSave = async (publish: boolean = false, overrideStatus?: 'DRAFT' | 'PUBLISHED') => {
     if (!article) return;
 
+    // Validate before saving
+    const isValid = validate();
+    if (!isValid) {
+      // Collect error messages for display
+      const errorMessages = Object.values(validationErrors).filter(Boolean);
+      const errorSummary = language === 'en'
+        ? `Please fix ${errorMessages.length} validation error${errorMessages.length > 1 ? 's' : ''} before saving`
+        : `Veuillez corriger ${errorMessages.length} erreur${errorMessages.length > 1 ? 's' : ''} avant d'enregistrer`;
+      setError(errorSummary);
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);
       const token = await getToken();
-      if (!token) throw new Error('No token');
+      if (!token) throw new Error('No authentication token');
 
       const status = overrideStatus ?? (publish ? 'PUBLISHED' : article.status);
 
@@ -124,11 +148,23 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
         _visualEditorMode: true,
       };
 
+      console.log('[TarotArticleEditor] Saving article:', {
+        id: article.id,
+        title: article.title,
+        status,
+        hasToken: !!token,
+      });
+
       await updateTarotArticle(token, article.id, updateData);
+
+      console.log('[TarotArticleEditor] Save successful');
+      clearErrors();
       setArticle(prev => prev ? { ...prev, status } : prev);
       onSave();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save article');
+      console.error('[TarotArticleEditor] Save failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Failed to save: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
@@ -189,32 +225,72 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     />
   );
 
+  // Field change handlers with touch tracking
+  const handleFieldChange = useCallback((field: keyof TarotArticle, value: unknown) => {
+    setArticle(prev => prev ? { ...prev, [field]: value } : prev);
+  }, []);
+
+  const handleFieldBlur = useCallback((field: string) => {
+    setFieldTouched(field);
+  }, [setFieldTouched]);
+
   const mainContent = (
     <>
-      <EditorField label={language === 'en' ? 'Title' : 'Titre'}>
-        <TitleInput
-          value={article.title}
-          onChange={(value) => setArticle(prev => prev ? { ...prev, title: value } : prev)}
-        />
-      </EditorField>
+      <div className="space-y-2">
+        <EditorField label={language === 'en' ? 'Title *' : 'Titre *'}>
+          <TitleInput
+            value={article.title}
+            onChange={(value) => handleFieldChange('title', value)}
+            onBlur={() => handleFieldBlur('title')}
+            hasError={hasError('title')}
+          />
+        </EditorField>
+        {getFieldError('title') && (
+          <div className="flex items-center gap-2 text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            <span>{getFieldError('title')}</span>
+          </div>
+        )}
+      </div>
 
-      <EditorField label={language === 'en' ? 'Excerpt' : 'Extrait'}>
-        <ExcerptInput
-          value={article.excerpt}
-          onChange={(value) => setArticle(prev => prev ? { ...prev, excerpt: value } : prev)}
-        />
-      </EditorField>
+      <div className="space-y-2">
+        <EditorField label={language === 'en' ? 'Excerpt *' : 'Extrait *'}>
+          <ExcerptInput
+            value={article.excerpt}
+            onChange={(value) => handleFieldChange('excerpt', value)}
+            onBlur={() => handleFieldBlur('excerpt')}
+            hasError={hasError('excerpt')}
+          />
+        </EditorField>
+        {getFieldError('excerpt') && (
+          <div className="flex items-center gap-2 text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            <span>{getFieldError('excerpt')}</span>
+          </div>
+        )}
+      </div>
 
-      <EditorField label={language === 'en' ? 'Content' : 'Contenu'}>
-        <RichTextEditor
-          content={article.content}
-          onChange={(html) => setArticle(prev => prev ? { ...prev, content: html } : prev)}
-          placeholder="Write your article content..."
-          mediaLibrary={media}
-          onMediaUpload={handleMediaUpload}
-          onMediaDelete={handleMediaDelete}
-        />
-      </EditorField>
+      <div className="space-y-2">
+        <EditorField label={language === 'en' ? 'Content *' : 'Contenu *'}>
+          <div className={hasError('content') ? 'ring-1 ring-red-500/50 rounded-lg' : ''}>
+            <RichTextEditor
+              content={article.content}
+              onChange={(html) => handleFieldChange('content', html)}
+              onBlur={() => handleFieldBlur('content')}
+              placeholder="Write your article content..."
+              mediaLibrary={media}
+              onMediaUpload={handleMediaUpload}
+              onMediaDelete={handleMediaDelete}
+            />
+          </div>
+        </EditorField>
+        {getFieldError('content') && (
+          <div className="flex items-center gap-2 text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            <span>{getFieldError('content')}</span>
+          </div>
+        )}
+      </div>
     </>
   );
 
