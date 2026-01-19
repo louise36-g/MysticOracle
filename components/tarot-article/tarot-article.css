@@ -1,0 +1,877 @@
+/**
+ * Tarot Article Styles
+ * Celestial Elegance Theme - Deep space atmosphere with mystical accents
+ *
+ * Design System:
+ * - Primary: Purple (#8b5cf6) - wisdom, mystery
+ * - Upright: Emerald/Gold - positive energy, enlightenment
+ * - Reversed: Rose/Crimson - shadow work, introspection
+ * - Backgrounds: Slate 900/950 with subtle gradients
+ */
+
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+
+.prose {
+  --color-primary: #8b5cf6;
+  --color-primary-light: #a78bfa;
+  --color-primary-lighter: #c4b5fd;
+  --color-primary-dim: rgba(139, 92, 246, 0.15);
+
+  --color-upright: #10b981;
+  --color-upright-light: #34d399;
+  --color-upright-dim: rgba(16, 185, 129, 0.1);
+  --color-upright-accent: #fbbf24;
+
+  --color-reversed: #6d28d9;
+  --color-reversed-light: #8b5cf6;
+  --color-reversed-dim: rgba(109, 40, 217, 0.06);
+
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-text-dim: #64748b;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.15);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   TYPOGRAPHY - Headings
+   ============================================ */
+
+.prose h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  background: linear-gradient(180deg, #ffffff 0%, #e9d5ff 50%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.prose h2 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 600;
+  color: var(--color-primary-lighter);
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  text-align: center;
+  position: relative;
+  letter-spacing: 0.03em;
+}
+
+/* Decorative line above H2 */
+.prose h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+}
+
+/* Decorative line below H2 */
+.prose h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+}
+
+.prose h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #ddd6fe;
+  margin-top: 2rem;
+  margin-bottom: 0.875rem;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.prose h4 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #e9d5ff;
+  margin-top: 1.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.prose h5,
+.prose h6 {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f3e8ff;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   TYPOGRAPHY - Body Text
+   ============================================ */
+
+.prose p {
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+}
+
+.prose strong {
+  color: #f3e8ff;
+  font-weight: 600;
+}
+
+.prose em {
+  color: #e9d5ff;
+  font-style: italic;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+.prose a {
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.prose a:hover {
+  color: var(--color-primary-lighter);
+  border-bottom-color: var(--color-primary-light);
+}
+
+/* Internal links (SEO shortcode-generated) */
+.prose a.internal-link {
+  color: var(--color-primary-lighter);
+  text-decoration: underline;
+  text-decoration-color: rgba(196, 181, 253, 0.3);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.prose a.internal-link:hover {
+  color: #f3e8ff;
+  text-decoration-color: rgba(243, 232, 255, 0.5);
+}
+
+.prose a.internal-link[data-link-type='tarot'] {
+  color: #d8b4fe;
+}
+
+.prose a.internal-link[data-link-type='spread'] {
+  color: #fcd34d;
+}
+
+.prose a.internal-link[data-link-type='horoscope'] {
+  color: #6ee7b7;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.prose ul,
+.prose ol {
+  margin: 1.5rem 0;
+  padding-left: 0;
+}
+
+.prose li {
+  color: var(--color-text);
+  margin-bottom: 0.625rem;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  padding-left: 2rem;
+  position: relative;
+}
+
+.prose ul {
+  list-style-type: none;
+}
+
+.prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0.6rem;
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-primary);
+}
+
+.prose ol {
+  list-style-type: none;
+  counter-reset: list-counter;
+}
+
+.prose ol > li {
+  counter-increment: list-counter;
+}
+
+.prose ol > li::before {
+  content: counter(list-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--color-primary-dim);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary-lighter);
+}
+
+/* Nested lists */
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose ul ul > li::before {
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary-light);
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* ============================================
+   BLOCKQUOTES
+   ============================================ */
+
+.prose blockquote {
+  position: relative;
+  border: none;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.03) 100%);
+  margin: 2.5rem auto;
+  padding: 2rem 2.5rem;
+  border-radius: var(--radius-lg);
+  font-style: italic;
+  text-align: center;
+  max-width: 85%;
+}
+
+.prose blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.prose blockquote::after {
+  content: '\201C';
+  position: absolute;
+  top: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4rem;
+  color: rgba(139, 92, 246, 0.15);
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.prose blockquote p {
+  color: #f1f5f9;
+  margin-bottom: 0;
+  font-size: 1.125rem;
+  position: relative;
+  z-index: 1;
+}
+
+.prose blockquote cite {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-primary-light);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ============================================
+   CODE
+   ============================================ */
+
+.prose code {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--color-primary-lighter);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.prose pre {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--color-text);
+}
+
+/* ============================================
+   IMAGES
+   ============================================ */
+
+.prose img {
+  border-radius: var(--radius-md);
+  margin: 2rem auto;
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.prose img:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+}
+
+/* Tarot card images - constrained size */
+.prose img[alt*='tarot'],
+.prose img[alt*='Tarot'],
+.prose img[alt*='Queen'],
+.prose img[alt*='King'],
+.prose img[alt*='card'] {
+  max-width: 380px;
+  width: 100%;
+}
+
+.prose figcaption {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+/* ============================================
+   HORIZONTAL RULE
+   ============================================ */
+
+.prose hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
+  margin: 3rem 0;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.prose th {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-primary-lighter);
+  font-weight: 600;
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prose td {
+  padding: 0.875rem 1rem;
+  color: var(--color-text);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.08);
+}
+
+.prose tr:hover td {
+  background: rgba(139, 92, 246, 0.04);
+}
+
+/* ============================================
+   UPRIGHT SECTION - Positive Energy Theme
+   ============================================ */
+
+.prose .section-upright {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.04) 0%,
+    rgba(251, 191, 36, 0.02) 100%
+  );
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin: 2.5rem 0;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.prose .section-upright::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-upright), var(--color-upright-accent), transparent);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.prose .section-upright h2 {
+  color: var(--color-upright-light);
+}
+
+.prose .section-upright h2::before,
+.prose .section-upright h2::after {
+  background: linear-gradient(90deg, transparent, var(--color-upright), transparent);
+}
+
+.prose .section-upright h3 {
+  color: #6ee7b7;
+}
+
+/* ============================================
+   REVERSED SECTION - Shadow Work Theme
+   ============================================ */
+
+.prose .section-reversed {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(55, 48, 80, 0.12) 0%,
+    rgba(25, 22, 35, 0.6) 100%
+  );
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin: 2.5rem 0;
+  border: 1px solid rgba(109, 40, 217, 0.15);
+}
+
+.prose .section-reversed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-reversed), rgba(139, 92, 246, 0.4), transparent);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* Subtle shadow symbol in corner */
+.prose .section-reversed::after {
+  content: '\263E'; /* Moon symbol for shadow */
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  font-size: 1.25rem;
+  color: rgba(109, 40, 217, 0.35);
+  font-weight: bold;
+}
+
+.prose .section-reversed h2 {
+  color: var(--color-reversed-light);
+}
+
+.prose .section-reversed h2::before,
+.prose .section-reversed h2::after {
+  background: linear-gradient(90deg, transparent, var(--color-reversed), transparent);
+}
+
+.prose .section-reversed h3 {
+  color: #a78bfa;
+}
+
+.prose .section-reversed ul > li::before {
+  background: var(--color-reversed);
+  box-shadow: 0 0 8px rgba(109, 40, 217, 0.35);
+}
+
+/* ============================================
+   KEY TAKEAWAYS BOX
+   ============================================ */
+
+.prose .key-takeaways {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.5));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin: 2.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.prose .key-takeaways::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-primary), rgba(192, 38, 211, 0.8));
+}
+
+.prose .key-takeaways h3 {
+  color: var(--color-primary-lighter);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-family: 'Cinzel', serif;
+  text-align: left;
+  font-size: 1.125rem;
+}
+
+.prose .key-takeaways ul {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   QUICK REFERENCE TABLE
+   ============================================ */
+
+.prose .quick-reference {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(45, 35, 60, 0.4));
+  border: 1px solid rgba(251, 191, 36, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin: 2.5rem 0;
+}
+
+.prose .quick-reference h3 {
+  color: #fcd34d;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-family: 'Cinzel', serif;
+  text-align: left;
+  font-size: 1.125rem;
+}
+
+.prose .quick-reference table {
+  margin: 0;
+}
+
+.prose .quick-reference th {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fcd34d;
+}
+
+.prose .quick-reference td {
+  border-color: rgba(251, 191, 36, 0.08);
+}
+
+/* ============================================
+   CTA BANNER
+   ============================================ */
+
+.prose .cta-banner {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+  color: white;
+  padding: 2.5rem;
+  margin: 3rem 0;
+  border-radius: var(--radius-xl);
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(124, 58, 237, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.prose .cta-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.prose .cta-banner h3 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.prose .cta-banner p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.prose .cta-banner a.btn,
+.prose .cta-banner .btn {
+  display: inline-block;
+  background: white;
+  color: #7c3aed;
+  padding: 0.875rem 2.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.prose .cta-banner a.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  color: #7c3aed;
+  border-bottom: none;
+}
+
+/* ============================================
+   FAQ ACCORDION - Complete Redesign
+   ============================================ */
+
+.prose .article-faq {
+  margin: 3rem 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.prose .article-faq h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--color-primary-lighter);
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.prose .article-faq h2::before,
+.prose .article-faq h2::after {
+  display: none;
+}
+
+/* FAQ Item Container */
+.prose .article-faq .faq-item {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(30, 41, 59, 0.3));
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  border-radius: var(--radius-lg);
+  margin-bottom: 0.875rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.prose .article-faq .faq-item:hover {
+  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.08);
+}
+
+.prose .article-faq .faq-item:last-of-type {
+  margin-bottom: 0;
+}
+
+/* FAQ Question (clickable heading) */
+.prose .article-faq .faq-item h3 {
+  font-family: 'Lato', sans-serif;
+  font-size: 1rem;
+  color: #f1f5f9 !important;
+  font-weight: 500;
+  margin: 0;
+  padding: 1.25rem 3rem 1.25rem 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.prose .article-faq .faq-item h3:hover {
+  background: rgba(139, 92, 246, 0.06);
+  color: #ffffff !important;
+}
+
+/* Plus/Minus icon */
+.prose .article-faq .faq-item h3::after {
+  content: '+';
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: var(--color-primary-light);
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.prose .article-faq .faq-item[data-expanded="true"] h3::after {
+  content: '\2212'; /* Minus sign */
+  background: var(--color-primary);
+  color: white;
+}
+
+/* FAQ Answer (collapsible) */
+.prose .article-faq .faq-item p {
+  color: var(--color-text-muted);
+  margin: 0;
+  padding: 0 1.5rem;
+  line-height: 1.75;
+  text-align: left;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prose .article-faq .faq-item[data-expanded="true"] p {
+  max-height: 600px;
+  opacity: 1;
+  padding: 0 1.5rem 1.5rem;
+  color: var(--color-text);
+}
+
+/* ============================================
+   LIFE AREA HEADINGS
+   ============================================ */
+
+.prose h3.life-area-love {
+  color: #fb7185;
+  position: relative;
+}
+
+.prose h3.life-area-love::before {
+  content: '\2661'; /* Heart */
+  margin-right: 0.5rem;
+  font-size: 0.875em;
+}
+
+.prose h3.life-area-career {
+  color: #fcd34d;
+}
+
+.prose h3.life-area-career::before {
+  content: '\2605'; /* Star */
+  margin-right: 0.5rem;
+  font-size: 0.875em;
+}
+
+.prose h3.life-area-spiritual {
+  color: #c4b5fd;
+}
+
+.prose h3.life-area-spiritual::before {
+  content: '\2728'; /* Sparkles */
+  margin-right: 0.5rem;
+  font-size: 0.875em;
+}
+
+.prose h3.life-area-decisions {
+  color: #7dd3fc;
+}
+
+.prose h3.life-area-decisions::before {
+  content: '\2696'; /* Scales */
+  margin-right: 0.5rem;
+  font-size: 0.875em;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .prose .section-upright,
+  .prose .section-reversed {
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .prose .section-reversed::after {
+    display: none;
+  }
+
+  .prose .article-faq .faq-item h3 {
+    padding: 1rem 2.5rem 1rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .prose .article-faq .faq-item h3::after {
+    right: 0.875rem;
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+  }
+}
