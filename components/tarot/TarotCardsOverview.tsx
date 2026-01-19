@@ -114,12 +114,21 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
 
   if (!data) return null;
 
+  // Calculate counts from arrays if counts object is missing (handles cached responses)
+  const counts = data.counts ?? {
+    majorArcana: data.majorArcana?.length ?? 0,
+    wands: data.wands?.length ?? 0,
+    cups: data.cups?.length ?? 0,
+    swords: data.swords?.length ?? 0,
+    pentacles: data.pentacles?.length ?? 0,
+  };
+
   const totalCards =
-    data.counts.majorArcana +
-    data.counts.wands +
-    data.counts.cups +
-    data.counts.swords +
-    data.counts.pentacles;
+    counts.majorArcana +
+    counts.wands +
+    counts.cups +
+    counts.swords +
+    counts.pentacles;
 
   return (
     <div className="pb-20">
@@ -161,7 +170,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <TarotCategorySection
           category="majorArcana"
           cards={data.majorArcana}
-          count={data.counts.majorArcana}
+          count={counts.majorArcana}
           onCardClick={onCardClick}
           onViewAll={onViewCategory}
         />
@@ -169,7 +178,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <TarotCategorySection
           category="wands"
           cards={data.wands}
-          count={data.counts.wands}
+          count={counts.wands}
           onCardClick={onCardClick}
           onViewAll={onViewCategory}
         />
@@ -177,7 +186,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <TarotCategorySection
           category="cups"
           cards={data.cups}
-          count={data.counts.cups}
+          count={counts.cups}
           onCardClick={onCardClick}
           onViewAll={onViewCategory}
         />
@@ -185,7 +194,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <TarotCategorySection
           category="swords"
           cards={data.swords}
-          count={data.counts.swords}
+          count={counts.swords}
           onCardClick={onCardClick}
           onViewAll={onViewCategory}
         />
@@ -193,7 +202,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <TarotCategorySection
           category="pentacles"
           cards={data.pentacles}
-          count={data.counts.pentacles}
+          count={counts.pentacles}
           onCardClick={onCardClick}
           onViewAll={onViewCategory}
         />

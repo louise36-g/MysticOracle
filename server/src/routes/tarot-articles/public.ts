@@ -89,6 +89,13 @@ router.get('/overview', async (req, res) => {
       cups: sortedCups,
       swords: sortedSwords,
       pentacles: sortedPentacles,
+      counts: {
+        majorArcana: sortedMajorArcana.length,
+        wands: sortedWands.length,
+        cups: sortedCups.length,
+        swords: sortedSwords.length,
+        pentacles: sortedPentacles.length,
+      },
     };
 
     // Cache for 5 minutes
