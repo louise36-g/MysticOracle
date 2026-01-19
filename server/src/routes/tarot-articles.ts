@@ -134,16 +134,42 @@ router.get('/:slug', async (req, res) => {
         status: 'PUBLISHED',
         deletedAt: null, // Exclude deleted articles
       },
+      include: {
+        articleCategories: {
+          include: { category: true },
+        },
+        articleTags: {
+          include: { tag: true },
+        },
+      },
     });
 
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    // Cache for 10 minutes
-    await cacheService.set(cacheKey, article, CacheService.TTL.ARTICLE);
+    // Transform to include flattened category/tag arrays for API response
+    const response = {
+      ...article,
+      // New format: full category/tag objects
+      categoryObjects: article.articleCategories.map(ac => ({
+        id: ac.category.id,
+        slug: ac.category.slug,
+        name: ac.category.nameEn,
+        nameFr: ac.category.nameFr,
+      })),
+      tagObjects: article.articleTags.map(at => ({
+        id: at.tag.id,
+        slug: at.tag.slug,
+        name: at.tag.nameEn,
+        nameFr: at.tag.nameFr,
+      })),
+    };
 
-    res.json(article);
+    // Cache for 10 minutes
+    await cacheService.set(cacheKey, response, CacheService.TTL.ARTICLE);
+
+    res.json(response);
   } catch (error) {
     console.error('Error fetching tarot article:', error);
     res.status(500).json({ error: 'Failed to fetch article' });
@@ -585,13 +611,38 @@ router.get('/admin/:id', async (req, res) => {
 
     const article = await prisma.tarotArticle.findUnique({
       where: { id },
+      include: {
+        articleCategories: {
+          include: { category: true },
+        },
+        articleTags: {
+          include: { tag: true },
+        },
+      },
     });
 
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    res.json(article);
+    // Include both legacy arrays and new relation objects
+    const response = {
+      ...article,
+      categoryObjects: article.articleCategories.map(ac => ({
+        id: ac.category.id,
+        slug: ac.category.slug,
+        name: ac.category.nameEn,
+        nameFr: ac.category.nameFr,
+      })),
+      tagObjects: article.articleTags.map(at => ({
+        id: at.tag.id,
+        slug: at.tag.slug,
+        name: at.tag.nameEn,
+        nameFr: at.tag.nameFr,
+      })),
+    };
+
+    res.json(response);
   } catch (error) {
     console.error('Error fetching single tarot article:', error);
     res.status(500).json({ error: 'Failed to fetch article' });
@@ -1073,28 +1124,42 @@ router.delete('/admin/trash/empty', async (req, res) => {
 });
 
 // ============================================
-// CATEGORY MANAGEMENT
+// CATEGORY MANAGEMENT (uses shared BlogCategory table)
 // ============================================
 
 /**
  * GET /api/tarot-articles/admin/categories
- * List all tarot categories
+ * List all categories (shared with blog)
  */
 router.get('/admin/categories', async (req, res) => {
   try {
-    const categories = await prisma.tarotCategory.findMany({
-      orderBy: { name: 'asc' },
+    const categories = await prisma.blogCategory.findMany({
+      orderBy: { nameEn: 'asc' },
+      include: {
+        _count: {
+          select: { tarotArticles: true },
+        },
+      },
     });
-    res.json({ categories });
+    // Transform to simpler format
+    const result = categories.map(cat => ({
+      id: cat.id,
+      name: cat.nameEn,
+      nameFr: cat.nameFr,
+      slug: cat.slug,
+      description: cat.descEn,
+      articleCount: cat._count.tarotArticles,
+    }));
+    res.json({ categories: result });
   } catch (error) {
-    console.error('Error fetching tarot categories:', error);
+    console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
 
 /**
  * POST /api/tarot-articles/admin/categories
- * Create a new tarot category
+ * Create a new category (shared with blog)
  */
 const createCategorySchema = z.object({
   name: z.string().min(1).max(100),
@@ -1109,81 +1174,122 @@ const createCategorySchema = z.object({
 router.post('/admin/categories', async (req, res) => {
   try {
     const data = createCategorySchema.parse(req.body);
-    const category = await prisma.tarotCategory.create({
+    const category = await prisma.blogCategory.create({
       data: {
-        name: data.name,
+        nameEn: data.name,
+        nameFr: data.name, // Use same for now
         slug: data.slug,
-        description: data.description,
+        descEn: data.description,
       },
     });
-    res.status(201).json({ category });
+    res.status(201).json({
+      category: {
+        id: category.id,
+        name: category.nameEn,
+        slug: category.slug,
+        description: category.descEn,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: error.errors });
     }
-    console.error('Error creating tarot category:', error);
+    console.error('Error creating category:', error);
     res.status(500).json({ error: 'Failed to create category' });
   }
 });
 
 /**
  * PATCH /api/tarot-articles/admin/categories/:id
- * Update a tarot category
+ * Update a category (shared with blog)
  */
 router.patch('/admin/categories/:id', async (req, res) => {
   try {
     const data = createCategorySchema.partial().parse(req.body);
-    const category = await prisma.tarotCategory.update({
+    const updateData: Record<string, string | undefined> = {};
+    if (data.name) {
+      updateData.nameEn = data.name;
+      updateData.nameFr = data.name;
+    }
+    if (data.slug) updateData.slug = data.slug;
+    if (data.description !== undefined) updateData.descEn = data.description;
+
+    const category = await prisma.blogCategory.update({
       where: { id: req.params.id },
-      data,
+      data: updateData,
     });
-    res.json({ category });
+    res.json({
+      category: {
+        id: category.id,
+        name: category.nameEn,
+        slug: category.slug,
+        description: category.descEn,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: error.errors });
     }
-    console.error('Error updating tarot category:', error);
+    console.error('Error updating category:', error);
     res.status(500).json({ error: 'Failed to update category' });
   }
 });
 
 /**
  * DELETE /api/tarot-articles/admin/categories/:id
- * Delete a tarot category
+ * Delete a category (shared with blog)
+ * Note: Will fail if category is used by blog posts
  */
 router.delete('/admin/categories/:id', async (req, res) => {
   try {
-    await prisma.tarotCategory.delete({ where: { id: req.params.id } });
+    // First remove tarot article associations
+    await prisma.tarotArticleCategory.deleteMany({
+      where: { categoryId: req.params.id },
+    });
+    // Then delete the category (will fail if blog posts use it)
+    await prisma.blogCategory.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting tarot category:', error);
-    res.status(500).json({ error: 'Failed to delete category' });
+    console.error('Error deleting category:', error);
+    res.status(500).json({ error: 'Failed to delete category (may be used by blog posts)' });
   }
 });
 
 // ============================================
-// TAG MANAGEMENT
+// TAG MANAGEMENT (uses shared BlogTag table)
 // ============================================
 
 /**
  * GET /api/tarot-articles/admin/tags
- * List all tarot tags
+ * List all tags (shared with blog)
  */
 router.get('/admin/tags', async (req, res) => {
   try {
-    const tags = await prisma.tarotTag.findMany({
-      orderBy: { name: 'asc' },
+    const tags = await prisma.blogTag.findMany({
+      orderBy: { nameEn: 'asc' },
+      include: {
+        _count: {
+          select: { tarotArticles: true },
+        },
+      },
     });
-    res.json({ tags });
+    const result = tags.map(tag => ({
+      id: tag.id,
+      name: tag.nameEn,
+      nameFr: tag.nameFr,
+      slug: tag.slug,
+      articleCount: tag._count.tarotArticles,
+    }));
+    res.json({ tags: result });
   } catch (error) {
-    console.error('Error fetching tarot tags:', error);
+    console.error('Error fetching tags:', error);
     res.status(500).json({ error: 'Failed to fetch tags' });
   }
 });
 
 /**
  * POST /api/tarot-articles/admin/tags
- * Create a new tarot tag
+ * Create a new tag (shared with blog)
  */
 const createTagSchema = z.object({
   name: z.string().min(1).max(100),
@@ -1197,54 +1303,80 @@ const createTagSchema = z.object({
 router.post('/admin/tags', async (req, res) => {
   try {
     const data = createTagSchema.parse(req.body);
-    const tag = await prisma.tarotTag.create({
+    const tag = await prisma.blogTag.create({
       data: {
-        name: data.name,
+        nameEn: data.name,
+        nameFr: data.name, // Use same for now
         slug: data.slug,
       },
     });
-    res.status(201).json({ tag });
+    res.status(201).json({
+      tag: {
+        id: tag.id,
+        name: tag.nameEn,
+        slug: tag.slug,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: error.errors });
     }
-    console.error('Error creating tarot tag:', error);
+    console.error('Error creating tag:', error);
     res.status(500).json({ error: 'Failed to create tag' });
   }
 });
 
 /**
  * PATCH /api/tarot-articles/admin/tags/:id
- * Update a tarot tag
+ * Update a tag (shared with blog)
  */
 router.patch('/admin/tags/:id', async (req, res) => {
   try {
     const data = createTagSchema.partial().parse(req.body);
-    const tag = await prisma.tarotTag.update({
+    const updateData: Record<string, string | undefined> = {};
+    if (data.name) {
+      updateData.nameEn = data.name;
+      updateData.nameFr = data.name;
+    }
+    if (data.slug) updateData.slug = data.slug;
+
+    const tag = await prisma.blogTag.update({
       where: { id: req.params.id },
-      data,
+      data: updateData,
     });
-    res.json({ tag });
+    res.json({
+      tag: {
+        id: tag.id,
+        name: tag.nameEn,
+        slug: tag.slug,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: error.errors });
     }
-    console.error('Error updating tarot tag:', error);
+    console.error('Error updating tag:', error);
     res.status(500).json({ error: 'Failed to update tag' });
   }
 });
 
 /**
  * DELETE /api/tarot-articles/admin/tags/:id
- * Delete a tarot tag
+ * Delete a tag (shared with blog)
+ * Note: Will fail if tag is used by blog posts
  */
 router.delete('/admin/tags/:id', async (req, res) => {
   try {
-    await prisma.tarotTag.delete({ where: { id: req.params.id } });
+    // First remove tarot article associations
+    await prisma.tarotArticleTag.deleteMany({
+      where: { tagId: req.params.id },
+    });
+    // Then delete the tag (will fail if blog posts use it)
+    await prisma.blogTag.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting tarot tag:', error);
-    res.status(500).json({ error: 'Failed to delete tag' });
+    console.error('Error deleting tag:', error);
+    res.status(500).json({ error: 'Failed to delete tag (may be used by blog posts)' });
   }
 });
 

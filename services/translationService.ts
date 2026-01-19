@@ -243,14 +243,14 @@ export function translate(
 ): string {
   const value = translations[key];
 
-  // Development warning for missing translations
-  if (import.meta.env.DEV && !value && fallback !== key) {
-    console.warn(
-      `[Translation Missing] Key: "${key}" | Fallback: "${fallback || key}"`,
-      '\nAdd to backend seed:',
-      `'${key}': { en: '${fallback || key}', fr: 'TODO' },`
-    );
-  }
+  // Development warning for missing translations (disabled - too noisy)
+  // if (import.meta.env.DEV && !value && fallback !== key) {
+  //   console.warn(
+  //     `[Translation Missing] Key: "${key}" | Fallback: "${fallback || key}"`,
+  //     '\nAdd to backend seed:',
+  //     `'${key}': { en: '${fallback || key}', fr: 'TODO' },`
+  //   );
+  // }
 
   return value || fallback || key;
 }

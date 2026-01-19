@@ -650,7 +650,7 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         excerptEn: data.excerptEn,
         excerptFr: data.excerptFr,
         contentEn: processedContent.contentEn,
-        contentFr: processedContent.contentFr || null,
+        contentFr: processedContent.contentFr || '',
         coverImage: data.coverImage,
         coverImageAlt: data.coverImageAlt,
         metaTitleEn: data.metaTitleEn,
@@ -726,7 +726,7 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
         postData.contentEn = processedContent.contentEn;
       }
       if (postData.contentFr !== undefined) {
-        postData.contentFr = processedContent.contentFr || null;
+        postData.contentFr = processedContent.contentFr || '';
       }
     }
 

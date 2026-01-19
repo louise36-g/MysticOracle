@@ -167,10 +167,9 @@ export function replaceArticleUrls(content: string): string {
 export function processBlogContent(
   contentEn: string,
   contentFr?: string
-): { contentEn: string; contentFr: string | null | undefined } {
+): { contentEn: string; contentFr: string } {
   return {
     contentEn: replaceArticleUrls(contentEn),
-    contentFr:
-      contentFr !== undefined ? (contentFr ? replaceArticleUrls(contentFr) : null) : undefined,
+    contentFr: contentFr ? replaceArticleUrls(contentFr) : '',
   };
 }

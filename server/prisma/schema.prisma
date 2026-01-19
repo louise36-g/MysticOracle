@@ -491,7 +491,8 @@ model BlogCategory {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  posts       BlogPostCategory[]
+  posts          BlogPostCategory[]
+  tarotArticles  TarotArticleCategory[]
 
   @@index([slug])
 }
@@ -510,7 +511,8 @@ model BlogTag {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  posts       BlogPostTag[]
+  posts          BlogPostTag[]
+  tarotArticles  TarotArticleTag[]
 
   @@index([slug])
 }
@@ -540,6 +542,36 @@ model BlogPostTag {
   @@unique([postId, tagId])
   @@index([postId])
   @@index([tagId])
+}
+
+// Junction table: TarotArticle <-> BlogCategory (shared taxonomy)
+model TarotArticleCategory {
+  id          String   @id @default(cuid())
+  articleId   String
+  categoryId  String
+
+  article     TarotArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category    BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, categoryId])
+  @@index([articleId])
+  @@index([categoryId])
+  @@map("tarot_article_categories")
+}
+
+// Junction table: TarotArticle <-> BlogTag (shared taxonomy)
+model TarotArticleTag {
+  id          String   @id @default(cuid())
+  articleId   String
+  tagId       String
+
+  article     TarotArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag         BlogTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, tagId])
+  @@index([articleId])
+  @@index([tagId])
+  @@map("tarot_article_tags")
 }
 
 // Media uploads for blog
@@ -620,9 +652,13 @@ model TarotArticle {
   astrologicalCorrespondence String
   element                    Element
 
-  // Taxonomy (stored as JSON arrays)
+  // Taxonomy (legacy JSON arrays - to be removed after migration)
   categories         String[]
   tags               String[]
+
+  // Taxonomy (proper relations - shared with Blog)
+  articleCategories  TarotArticleCategory[]
+  articleTags        TarotArticleTag[]
 
   // SEO
   seoFocusKeyword    String
