@@ -42,6 +42,8 @@ interface ArticlesTabProps {
   onImportClick: () => void;
   onTrashUpdated: () => void;
   setConfirmModal: (modal: ConfirmModal) => void;
+  cardTypeFilter?: CardType | '';
+  onCardTypeFilterChange?: (filter: CardType | '') => void;
 }
 
 interface SortableArticleRowProps {
@@ -180,6 +182,8 @@ export const ArticlesTab: React.FC<ArticlesTabProps> = ({
   onImportClick,
   onTrashUpdated,
   setConfirmModal,
+  cardTypeFilter: externalCardTypeFilter,
+  onCardTypeFilterChange,
 }) => {
   const { language } = useApp();
   const {
@@ -196,12 +200,18 @@ export const ArticlesTab: React.FC<ArticlesTabProps> = ({
     loadArticles,
     setSearchQuery,
     setStatusFilter,
-    setCardTypeFilter,
+    setCardTypeFilter: setInternalCardTypeFilter,
     setPage,
     clearError,
     deleteArticle,
     reorderArticles,
-  } = useArticleList();
+  } = useArticleList({ initialLimit: 100, initialCardTypeFilter: externalCardTypeFilter });
+
+  // Wrapper to notify parent of filter changes
+  const setCardTypeFilter = (filter: CardType | '') => {
+    setInternalCardTypeFilter(filter);
+    onCardTypeFilterChange?.(filter);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -291,7 +301,7 @@ export const ArticlesTab: React.FC<ArticlesTabProps> = ({
       )}
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap gap-3 mb-2">
         <div className="flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -337,6 +347,13 @@ export const ArticlesTab: React.FC<ArticlesTabProps> = ({
           {language === 'en' ? 'Import JSON' : 'Importer JSON'}
         </button>
       </div>
+
+      {/* Drag-and-drop helper text */}
+      <p className="mb-4 text-xs text-slate-500">
+        {language === 'en'
+          ? 'To reorder cards, select a card type, clear the search field, and remove any status filter. Then drag rows using the handle on the left.'
+          : 'Pour réorganiser les cartes, sélectionnez un type de carte, videz le champ de recherche et retirez tout filtre de statut. Ensuite, faites glisser les lignes à l’aide de la poignée à gauche.'}
+      </p>
 
       {/* Articles Table */}
       {loading ? (

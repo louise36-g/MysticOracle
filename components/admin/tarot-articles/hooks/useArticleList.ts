@@ -15,6 +15,8 @@ import { CardType, ArticleStatus, PaginationState } from '../types';
 
 interface UseArticleListOptions {
   initialLimit?: number;
+  initialCardTypeFilter?: CardType | '';
+  initialStatusFilter?: ArticleStatus | '';
 }
 
 interface ArticleListState {
@@ -30,7 +32,7 @@ interface ArticleListState {
 }
 
 export function useArticleList(options: UseArticleListOptions = {}) {
-  const { initialLimit = 20 } = options;
+  const { initialLimit = 20, initialCardTypeFilter = '', initialStatusFilter = '' } = options;
   const { getToken } = useAuth();
 
   const [state, setState] = useState<ArticleListState>({
@@ -39,8 +41,8 @@ export function useArticleList(options: UseArticleListOptions = {}) {
     error: null,
     pagination: { page: 1, limit: initialLimit, total: 0, totalPages: 0 },
     searchQuery: '',
-    statusFilter: '',
-    cardTypeFilter: '',
+    statusFilter: initialStatusFilter,
+    cardTypeFilter: initialCardTypeFilter,
     actionLoading: null,
     isReordering: false,
   });

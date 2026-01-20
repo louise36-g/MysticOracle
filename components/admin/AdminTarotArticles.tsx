@@ -16,7 +16,7 @@ import TarotMediaManager from './TarotMediaManager';
 import ImportArticle from './ImportArticle';
 import { ArticlesTab } from './tarot-articles/ArticlesTab';
 import { TrashTab } from './tarot-articles/TrashTab';
-import { TabType, ConfirmModal } from './tarot-articles/types';
+import { TabType, ConfirmModal, CardType } from './tarot-articles/types';
 
 const AdminTarotArticles: React.FC = () => {
   const { language } = useApp();
@@ -25,6 +25,9 @@ const AdminTarotArticles: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('articles');
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+
+  // Persist filter state across editor navigation
+  const [cardTypeFilter, setCardTypeFilter] = useState<CardType | ''>('');
 
   // Counts for tab badges (updated by child components)
   const [articleCount, setArticleCount] = useState(0);
@@ -164,6 +167,8 @@ const AdminTarotArticles: React.FC = () => {
           onImportClick={() => setShowImportModal(true)}
           onTrashUpdated={reloadTrash}
           setConfirmModal={setConfirmModal}
+          cardTypeFilter={cardTypeFilter}
+          onCardTypeFilterChange={setCardTypeFilter}
         />
       )}
 
