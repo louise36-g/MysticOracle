@@ -67,35 +67,11 @@
   color: var(--color-primary-lighter);
   margin-top: 3rem;
   margin-bottom: 1.25rem;
-  padding-top: 2rem;
+  padding-top: 1rem;
   padding-bottom: 1rem;
   text-align: center;
   position: relative;
   letter-spacing: 0.03em;
-}
-
-/* Decorative line above H2 */
-.prose h2::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
-}
-
-/* Decorative line below H2 */
-.prose h2::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
 }
 
 .prose h3 {
@@ -491,24 +467,8 @@
   border: 1px solid rgba(16, 185, 129, 0.15);
 }
 
-.prose .section-upright::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--color-upright), var(--color-upright-accent), transparent);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
 .prose .section-upright h2 {
   color: var(--color-upright-light);
-}
-
-.prose .section-upright h2::before,
-.prose .section-upright h2::after {
-  background: linear-gradient(90deg, transparent, var(--color-upright), transparent);
 }
 
 .prose .section-upright h3 {
@@ -532,35 +492,8 @@
   border: 1px solid rgba(109, 40, 217, 0.15);
 }
 
-.prose .section-reversed::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--color-reversed), rgba(139, 92, 246, 0.4), transparent);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
-/* Subtle shadow symbol in corner */
-.prose .section-reversed::after {
-  content: '\263E'; /* Moon symbol for shadow */
-  position: absolute;
-  top: 1rem;
-  right: 1.25rem;
-  font-size: 1.25rem;
-  color: rgba(109, 40, 217, 0.35);
-  font-weight: bold;
-}
-
 .prose .section-reversed h2 {
   color: var(--color-reversed-light);
-}
-
-.prose .section-reversed h2::before,
-.prose .section-reversed h2::after {
-  background: linear-gradient(90deg, transparent, var(--color-reversed), transparent);
 }
 
 .prose .section-reversed h3 {
@@ -959,10 +892,6 @@
   .prose .section-reversed {
     padding: 1.5rem;
     margin: 2rem 0;
-  }
-
-  .prose .section-reversed::after {
-    display: none;
   }
 
   .prose .article-faq .faq-item h3 {
