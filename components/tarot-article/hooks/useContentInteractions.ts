@@ -109,11 +109,20 @@ export function useContentInteractions({
       return;
     }
 
-    // === SPA NAVIGATION ===
-    const link = target.closest('a[href^="/"]') as HTMLAnchorElement | null;
+    // === LINK HANDLING ===
+    const link = target.closest('a') as HTMLAnchorElement | null;
     if (link) {
       const href = link.getAttribute('href');
-      if (href) {
+      const target_attr = link.getAttribute('target');
+
+      // If link has target="_blank", let it open in new tab (don't intercept)
+      if (target_attr === '_blank') {
+        // Don't prevent default - let browser handle new tab
+        return;
+      }
+
+      // Internal links (starting with /) - use SPA navigation
+      if (href?.startsWith('/')) {
         e.preventDefault();
         onNavigate(href);
       }

@@ -21,7 +21,7 @@ export function TableOfContents({
   // Show TOC only after scrolling past the header
   useEffect(() => {
     const handleScroll = () => {
-      setIsVisible(window.scrollY > 400);
+      setIsVisible(window.scrollY > 200);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -42,7 +42,7 @@ export function TableOfContents({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="hidden xl:block fixed right-0 top-0 bottom-0 w-48 z-40"
+          className="hidden lg:block fixed right-0 top-0 bottom-0 w-48 z-40"
           onMouseEnter={() => setIsExpanded(true)}
           onMouseLeave={() => setIsExpanded(false)}
         >

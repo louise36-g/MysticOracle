@@ -239,7 +239,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
     if (!rawContent) return '';
     // Process internal link shortcodes first [[type:slug]] -> <a> tags
     const processedContent = processShortcodes(rawContent, linkRegistry);
-    return DOMPurify.sanitize(processedContent, {
+    const sanitized = DOMPurify.sanitize(processedContent, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
@@ -251,9 +251,17 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       ],
       ALLOW_DATA_ATTR: true,
       ADD_ATTR: ['target', 'rel'],
-      // Force all links to open in new tab with security attributes
       FORCE_BODY: true,
     });
+
+    // Make all links open in new tab
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(sanitized, 'text/html');
+    doc.querySelectorAll('a').forEach((link) => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+    return doc.body.innerHTML;
   }, [rawContent, linkRegistry]);
 
   if (loading) {
@@ -434,17 +442,22 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
             return;
           }
 
-          // Handle anchor tag clicks for SPA navigation
-          if (target.tagName === 'A') {
-            const anchor = target as HTMLAnchorElement;
+          // Handle anchor tag clicks
+          const anchor = target.closest('a') as HTMLAnchorElement | null;
+          if (anchor) {
             const href = anchor.getAttribute('href');
+            const targetAttr = anchor.getAttribute('target');
 
-            // Only intercept internal links (starting with /)
+            // If link has target="_blank", let it open in new tab
+            if (targetAttr === '_blank') {
+              return; // Don't prevent default
+            }
+
+            // Internal links (starting with /) - use SPA navigation
             if (href && href.startsWith('/')) {
               e.preventDefault();
               onNavigate(href);
             }
-            // External links (http://, https://, etc.) will work normally
           }
         }}
       />

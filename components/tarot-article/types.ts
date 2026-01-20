@@ -91,13 +91,47 @@ export const NAV_LABEL_MAP: Record<string, string> = {
  */
 export function getShortLabel(title: string): string {
   const lowerTitle = title.toLowerCase();
+
+  // Check explicit keyword mappings first
   for (const [keyword, label] of Object.entries(NAV_LABEL_MAP)) {
     if (lowerTitle.includes(keyword)) {
       return label;
     }
   }
+
+  // Special case: Card overview sections (pattern: "Card Name: Description")
+  // These are the main overview sections that don't have specific keywords
+  // Match if: has a colon, doesn't contain "reversed", "key takeaways", "faq", "frequently", "guidance"
+  const excludedPatterns = ['reversed', 'key takeaways', 'faq', 'frequently', 'guidance'];
+  const hasColon = title.includes(':');
+  const isExcluded = excludedPatterns.some(p => lowerTitle.includes(p));
+
+  if (hasColon && !isExcluded) {
+    return 'Overview';
+  }
+
   // Fallback: use first 1-2 words, max 12 chars
   const words = title.split(/\s+/).slice(0, 2);
   const result = words.join(' ');
   return result.length > 12 ? words[0].slice(0, 12) : result;
+}
+
+/**
+ * Allowed short labels for navigation chips
+ * Only these sections will be shown in the quick nav
+ */
+export const ALLOWED_NAV_LABELS = [
+  'Takeaways',
+  'Overview',
+  'Upright',
+  'Reversed',
+  'Symbols',
+  'FAQ',
+];
+
+/**
+ * Check if a section should be shown in navigation
+ */
+export function isAllowedNavSection(shortLabel: string): boolean {
+  return ALLOWED_NAV_LABELS.includes(shortLabel);
 }

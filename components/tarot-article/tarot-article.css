@@ -374,14 +374,36 @@
   box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
 }
 
-/* Tarot card images - constrained size */
+/* Tarot card images - small constrained size */
 .prose img[alt*='tarot'],
 .prose img[alt*='Tarot'],
 .prose img[alt*='Queen'],
 .prose img[alt*='King'],
-.prose img[alt*='card'] {
-  max-width: 380px;
-  width: 100%;
+.prose img[alt*='card'],
+.prose img[alt*='Wands'],
+.prose img[alt*='Cups'],
+.prose img[alt*='Swords'],
+.prose img[alt*='Pentacles'],
+.prose img[alt*='upright'],
+.prose img[alt*='reversed'],
+.prose img.editor-image {
+  max-width: 200px;
+  width: auto;
+}
+
+/* Center images with align-center class */
+.prose img.align-center,
+.prose .editor-image.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Center keywords paragraph that follows images */
+.prose img + p,
+.prose img + p + p,
+.prose img + h2 + p {
+  text-align: center;
 }
 
 .prose figcaption {
@@ -558,13 +580,27 @@
   background: linear-gradient(180deg, var(--color-primary), rgba(192, 38, 211, 0.8));
 }
 
+.prose .key-takeaways h2,
 .prose .key-takeaways h3 {
   color: var(--color-primary-lighter);
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   font-family: 'Cinzel', serif;
   text-align: left;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.prose .key-takeaways p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.prose .key-takeaways p strong {
+  color: var(--color-primary-light);
+  font-weight: 600;
 }
 
 .prose .key-takeaways ul {

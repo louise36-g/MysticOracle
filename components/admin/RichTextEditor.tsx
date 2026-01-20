@@ -220,6 +220,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
   });
 
+  // Sync external content changes to the editor (e.g., from internal links insertion)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content, { emitUpdate: false });
+    }
+  }, [content, editor]);
+
   const handleImageUpload = useCallback(async (file: File) => {
     if (!onMediaUpload || !editor) return;
 
@@ -833,7 +840,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           font-weight: 600;
           margin-top: 1.25rem;
           margin-bottom: 0.5rem;
-          color: #e2e8f0;
+          color: #ffffff !important;
         }
         .ProseMirror h3 {
           font-size: 1.25rem;

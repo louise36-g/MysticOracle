@@ -17,18 +17,14 @@ interface LinkSuggestionModalProps {
   onApply: (selected: LinkSuggestion[]) => void;
 }
 
-const TYPE_LABELS: Record<LinkSuggestion['type'], string> = {
+const TYPE_LABELS: Record<string, string> = {
   tarot: 'Tarot Card',
   blog: 'Blog Post',
-  spread: 'Spread',
-  horoscope: 'Horoscope',
 };
 
-const TYPE_COLORS: Record<LinkSuggestion['type'], string> = {
+const TYPE_COLORS: Record<string, string> = {
   tarot: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   blog: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  spread: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-  horoscope: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
 };
 
 const LinkSuggestionModal: React.FC<LinkSuggestionModalProps> = ({
@@ -96,7 +92,7 @@ const LinkSuggestionModal: React.FC<LinkSuggestionModalProps> = ({
             <AlertCircle className="w-12 h-12 text-slate-500 mx-auto mb-3" />
             <p className="text-slate-400">No linkable terms found in the content.</p>
             <p className="text-sm text-slate-500 mt-1">
-              Try adding more content that mentions tarot cards, spreads, or horoscopes.
+              Try adding more content that mentions tarot cards or blog topics.
             </p>
           </div>
         ) : (

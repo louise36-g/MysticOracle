@@ -72,7 +72,7 @@ export function processShortcodes(content: string, registry: LinkRegistry | null
   return content.replace(SHORTCODE_REGEX, (match, type: LinkType, slug: string, customText?: string) => {
     const url = getUrlForType(type, slug);
     const text = customText || getTitleFromRegistry(type, slug, registry);
-    return `<a href="${url}" class="internal-link" data-link-type="${type}">${text}</a>`;
+    return `<a href="${url}" class="internal-link" data-link-type="${type}" target="_blank" rel="noopener noreferrer">${text}</a>`;
   });
 }
 

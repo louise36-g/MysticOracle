@@ -28,6 +28,13 @@ function processContent(html: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
+  // Make all links open in new tab
+  const links = doc.querySelectorAll('a');
+  links.forEach((link) => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+
   // Strip inline styles from containers (not images)
   const containersToStrip = doc.querySelectorAll(
     '.key-takeaways, .quick-reference, .article-faq, .cta-banner, blockquote, h2, h3, p, ul, ol, li, table, tr, td, th, span, div:not(.key-takeaways):not(.quick-reference):not(.article-faq):not(.cta-banner)'

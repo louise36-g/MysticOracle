@@ -8,7 +8,7 @@ import type { LinkRegistry } from '../../services/apiService';
 
 export interface LinkSuggestion {
   term: string;
-  type: 'tarot' | 'blog' | 'spread' | 'horoscope';
+  type: 'tarot' | 'blog';
   slug: string;
   title: string;
   shortcode: string;
@@ -26,16 +26,30 @@ export interface ScanOptions {
 }
 
 const DEFAULT_OPTIONS: Required<ScanOptions> = {
-  skipExistingLinks: false, // Allow overwriting existing links
-  skipExistingShortcodes: false, // Allow updating existing shortcodes
+  skipExistingLinks: true, // Skip terms already inside <a> tags
+  skipExistingShortcodes: true, // Skip terms already inside shortcodes
   firstOccurrenceOnly: true,
   caseSensitive: false,
   currentArticleSlug: '', // Exclude self-links
 };
 
 /**
+ * Number word mappings for card name variations
+ */
+const numberWords: Record<string, string> = {
+  '2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five',
+  '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine', '10': 'Ten'
+};
+
+const wordToNumber: Record<string, string> = {
+  'two': '2', 'three': '3', 'four': '4', 'five': '5',
+  'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10'
+};
+
+/**
  * Extract card name aliases from a title
  * e.g., "The Fool - Tarot Card Meaning" -> ["The Fool"]
+ * e.g., "9 of Pentacles: The Ultimate Guide" -> ["9 of Pentacles", "Nine of Pentacles"]
  */
 function extractCardNameAliases(title: string): string[] {
   const aliases: string[] = [];
@@ -43,7 +57,22 @@ function extractCardNameAliases(title: string): string[] {
   // Pattern: "Card Name - Something" or "Card Name: Something"
   const separatorMatch = title.match(/^(.+?)\s*[-–—:]\s*.+$/);
   if (separatorMatch && separatorMatch[1].length >= 3) {
-    aliases.push(separatorMatch[1].trim());
+    let extracted = separatorMatch[1].trim();
+    aliases.push(extracted);
+
+    // If it ends with "Tarot Card Meaning" or similar, extract the core name
+    const coreMatch = extracted.match(/^(.+?)\s+(?:Tarot\s+)?(?:Card\s+)?(?:Meaning|Guide|Interpretation)$/i);
+    if (coreMatch && coreMatch[1].length >= 3) {
+      aliases.push(coreMatch[1].trim());
+      extracted = coreMatch[1].trim();
+    }
+
+    // Also try to extract just "X of Y" pattern for numbered cards
+    const numberedMatch = extracted.match(/^(\d+|(?:Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten))\s+of\s+(\w+)/i);
+    if (numberedMatch) {
+      const baseCard = numberedMatch[0];
+      aliases.push(baseCard);
+    }
   }
 
   // Pattern: "Something Card Name" -> extract just the card name part
@@ -53,11 +82,28 @@ function extractCardNameAliases(title: string): string[] {
     aliases.push(cardSuffixMatch[1].trim());
   }
 
-  return aliases;
+  // Generate number variations (9 of Pentacles <-> Nine of Pentacles)
+  const withVariations: string[] = [...aliases];
+  for (const alias of aliases) {
+    // Convert "9 of X" to "Nine of X"
+    const digitMatch = alias.match(/^(\d+)\s+of\s+(\w+)$/i);
+    if (digitMatch && numberWords[digitMatch[1]]) {
+      withVariations.push(`${numberWords[digitMatch[1]]} of ${digitMatch[2]}`);
+    }
+
+    // Convert "Nine of X" to "9 of X"
+    const wordMatch = alias.match(/^(Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)\s+of\s+(\w+)$/i);
+    if (wordMatch && wordToNumber[wordMatch[1].toLowerCase()]) {
+      withVariations.push(`${wordToNumber[wordMatch[1].toLowerCase()]} of ${wordMatch[2]}`);
+    }
+  }
+
+  // Remove duplicates
+  return [...new Set(withVariations)];
 }
 
 interface TermInfo {
-  type: LinkSuggestion['type'];
+  type: 'tarot' | 'blog';
   slug: string;
   title: string;
   requiresCapital: boolean; // For terms like "The World" that shouldn't match "the world"
@@ -115,21 +161,7 @@ function buildTermMap(registry: LinkRegistry): Map<string, TermInfo> {
     }
   }
 
-  // Add spread titles
-  for (const item of registry.spread) {
-    const key = item.title.toLowerCase();
-    if (!termMap.has(key)) {
-      termMap.set(key, { type: 'spread', slug: item.slug, title: item.title, requiresCapital: false });
-    }
-  }
-
-  // Add horoscope signs
-  for (const item of registry.horoscope) {
-    const key = item.title.toLowerCase();
-    if (!termMap.has(key)) {
-      termMap.set(key, { type: 'horoscope', slug: item.slug, title: item.title, requiresCapital: false });
-    }
-  }
+  // Note: Spread and horoscope links are excluded - they're auto-linked by the backend regex system
 
   return termMap;
 }
@@ -269,7 +301,8 @@ function findContainingLink(position: number, existingLinks: ExistingLink[]): Ex
 
 /**
  * Check if a matched term has proper capitalization
- * e.g., "The World" requires capital T and W, not "the world"
+ * Only checks significant words - "the" and "of" can be any case.
+ * e.g., "The World" and "the World" both match, but "the world" doesn't.
  */
 function hasProperCapitalization(matchedText: string, termKey: string): boolean {
   // Compare against the term that was matched (e.g., "the emperor"), not the full title
@@ -283,18 +316,16 @@ function hasProperCapitalization(matchedText: string, termKey: string): boolean 
     const matchedWord = matchedWords[i];
     const termWord = termWords[i];
 
-    // For terms starting with "the", require capital T
-    // For other significant words, require capital first letter
+    // Skip capitalization check for "the" and "of" - they can be any case
+    // This allows "the Emperor" to match "The Emperor" while still
+    // avoiding false positives like "the world around me" for "The World"
     if (termWord === 'the' || termWord === 'of') {
-      // "the" and "of" should be capitalized when at start, lowercase otherwise
-      if (i === 0 && matchedWord[0] !== matchedWord[0].toUpperCase()) {
-        return false;
-      }
-    } else {
-      // Other words should be capitalized
-      if (matchedWord[0] !== matchedWord[0].toUpperCase()) {
-        return false;
-      }
+      continue;
+    }
+
+    // Significant words must be capitalized to avoid false positives
+    if (matchedWord[0] !== matchedWord[0].toUpperCase()) {
+      return false;
     }
   }
 
