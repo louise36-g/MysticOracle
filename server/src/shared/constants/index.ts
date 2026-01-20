@@ -11,3 +11,5 @@ export {
   type DefaultEmailTemplate,
   type EditableSetting,
 } from './admin.js';
+
+export { SPREADS, ZODIAC_SIGNS, type Spread, type ZodiacSign } from './content.js';
