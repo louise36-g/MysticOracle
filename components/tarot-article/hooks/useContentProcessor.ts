@@ -132,9 +132,9 @@ function processContent(html: string): string {
       h3.parentNode?.insertBefore(wrapper, h3);
       wrapper.appendChild(h3);
 
-      // Collect following content until next H2 or H3
+      // Only collect P and UL elements that immediately follow (stop at any heading or other element)
       let nextEl = wrapper.nextElementSibling;
-      while (nextEl && nextEl.tagName !== 'H2' && nextEl.tagName !== 'H3') {
+      while (nextEl && (nextEl.tagName === 'P' || nextEl.tagName === 'UL' || nextEl.tagName === 'OL')) {
         const next = nextEl.nextElementSibling;
         wrapper.appendChild(nextEl);
         nextEl = next;
