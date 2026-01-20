@@ -415,14 +415,29 @@
 }
 
 /* ============================================
-   HORIZONTAL RULE
+   HORIZONTAL RULE / SECTION DIVIDER
    ============================================ */
 
 .prose hr {
   border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
-  margin: 3rem 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 5%, rgba(139, 92, 246, 0.6) 50%, transparent 95%);
+  margin: 4rem auto;
+  max-width: 80%;
+  position: relative;
+}
+
+/* Decorative center element */
+.prose hr::before {
+  content: '\2726'; /* Four-pointed star */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
+  color: rgba(139, 92, 246, 0.8);
+  background: #0f172a;
+  padding: 0 1rem;
 }
 
 /* ============================================

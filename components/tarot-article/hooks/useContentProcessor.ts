@@ -81,6 +81,9 @@ function processContent(html: string): string {
       const faqWrapper = doc.createElement('div');
       faqWrapper.className = 'article-faq';
 
+      // Add horizontal rule before FAQ section
+      const hr = doc.createElement('hr');
+      h2.parentNode?.insertBefore(hr, h2);
       h2.parentNode?.insertBefore(faqWrapper, h2);
       faqWrapper.appendChild(h2);
 
