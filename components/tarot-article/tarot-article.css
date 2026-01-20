@@ -623,6 +623,56 @@
 }
 
 /* ============================================
+   SYMBOLS SECTION (same style as Key Takeaways)
+   ============================================ */
+
+.prose .symbols-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.5));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin: 2.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.prose .symbols-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-primary), rgba(192, 38, 211, 0.8));
+}
+
+.prose .symbols-section h3 {
+  color: var(--color-primary-lighter);
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  font-family: 'Cinzel', serif;
+  text-align: left;
+  font-size: 1.25rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.prose .symbols-section p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.prose .symbols-section p strong {
+  color: var(--color-primary-light);
+  font-weight: 600;
+}
+
+.prose .symbols-section ul {
+  margin-bottom: 0;
+}
+
+/* ============================================
    QUICK REFERENCE TABLE
    ============================================ */
 

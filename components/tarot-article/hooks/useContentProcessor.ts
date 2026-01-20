@@ -35,9 +35,9 @@ function processContent(html: string): string {
     link.setAttribute('rel', 'noopener noreferrer');
   });
 
-  // Strip inline styles from containers (not images)
+  // Strip inline styles from containers (not images) - includes hr for consistent break markers
   const containersToStrip = doc.querySelectorAll(
-    '.key-takeaways, .quick-reference, .article-faq, .cta-banner, blockquote, h2, h3, p, ul, ol, li, table, tr, td, th, span, div:not(.key-takeaways):not(.quick-reference):not(.article-faq):not(.cta-banner)'
+    '.key-takeaways, .quick-reference, .article-faq, .cta-banner, .symbols-section, blockquote, h2, h3, p, ul, ol, li, table, tr, td, th, span, hr, div:not(.key-takeaways):not(.quick-reference):not(.article-faq):not(.cta-banner):not(.symbols-section)'
   );
   containersToStrip.forEach((el) => el.removeAttribute('style'));
 
@@ -118,10 +118,34 @@ function processContent(html: string): string {
     }
   });
 
-  // Add life area classes to H3s (skip FAQ section)
+  // Wrap Symbols section in styled container (like Key Takeaways)
+  const allH3s = doc.querySelectorAll('h3');
+  allH3s.forEach((h3) => {
+    // Skip if already in a special container
+    if (h3.closest('.article-faq') || h3.closest('.key-takeaways') || h3.closest('.symbols-section')) return;
+
+    const text = h3.textContent?.toLowerCase() || '';
+    if (text.includes('symbol') || text.includes('imagery')) {
+      const wrapper = doc.createElement('div');
+      wrapper.className = 'symbols-section';
+
+      h3.parentNode?.insertBefore(wrapper, h3);
+      wrapper.appendChild(h3);
+
+      // Collect following content until next H2 or H3
+      let nextEl = wrapper.nextElementSibling;
+      while (nextEl && nextEl.tagName !== 'H2' && nextEl.tagName !== 'H3') {
+        const next = nextEl.nextElementSibling;
+        wrapper.appendChild(nextEl);
+        nextEl = next;
+      }
+    }
+  });
+
+  // Add life area classes to H3s (skip FAQ and symbols sections)
   const h3s = doc.querySelectorAll('h3');
   h3s.forEach((h3) => {
-    if (h3.closest('.article-faq')) return;
+    if (h3.closest('.article-faq') || h3.closest('.symbols-section')) return;
 
     const text = h3.textContent?.toLowerCase() || '';
     let lifeArea = '';
