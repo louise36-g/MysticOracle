@@ -185,8 +185,8 @@ const SubNav: React.FC<SubNavProps> = ({
     },
     {
       id: 'tarot-cards',
-      labelEn: t('subnav.learn.tarotCards.label', 'Tarot Cards'),
-      labelFr: t('subnav.learn.tarotCards.label', 'Cartes de Tarot'),
+      labelEn: t('subnav.learn.tarotCards.label', 'The Arcanas'),
+      labelFr: t('subnav.learn.tarotCards.label', 'Les Arcanes'),
       descriptionEn: t('subnav.learn.tarotCards.desc', 'Explore all 78 cards'),
       descriptionFr: t('subnav.learn.tarotCards.desc', 'Explorez les 78 cartes'),
       icon: <Layers className="w-4 h-4 text-purple-400" />,
@@ -312,7 +312,7 @@ const SubNav: React.FC<SubNavProps> = ({
   );
 
   const isTarotActive = readingMode === 'tarot';
-  const isHoroscopeActive = readingMode === 'horoscope';
+  const isHoroscopeActive = currentView === 'horoscopes' || currentView === 'horoscope-sign';
   const isLearnActive = ['blog', 'blog-post', 'faq', 'how-credits-work', 'about', 'tarot-cards', 'tarot-cards-all', 'tarot-cards-category'].includes(currentView);
 
   return (
@@ -344,9 +344,8 @@ const SubNav: React.FC<SubNavProps> = ({
           </div>
 
           {/* Horoscope Link */}
-          <SmartLink
-            href="/horoscope"
-            onClick={() => onSelectReadingMode('horoscope')}
+          <a
+            href="/horoscopes"
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isHoroscopeActive
                 ? 'text-amber-300 bg-amber-500/10'
@@ -354,8 +353,8 @@ const SubNav: React.FC<SubNavProps> = ({
             }`}
           >
             <Moon className="w-4 h-4" />
-            <span>{t('subnav.horoscope.title', 'Horoscope')}</span>
-          </SmartLink>
+            <span>{t('subnav.horoscope.title', 'Horoscopes')}</span>
+          </a>
 
           {/* Coming Soon Dropdown */}
           <div

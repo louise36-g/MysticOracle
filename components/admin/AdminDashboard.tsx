@@ -48,7 +48,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
     { id: 'blog', labelEn: 'Blog', labelFr: 'Blog', icon: <FileText className="w-4 h-4" /> },
     { id: 'import-article', labelEn: 'Import Article', labelFr: 'Importer Article', icon: <Upload className="w-4 h-4" /> },
-    { id: 'tarot-articles', labelEn: 'Tarot Articles', labelFr: 'Articles Tarot', icon: <FileText className="w-4 h-4" /> },
+    { id: 'tarot-articles', labelEn: 'The Arcanas', labelFr: 'Les Arcanes', icon: <FileText className="w-4 h-4" /> },
     { id: 'prompts', labelEn: 'AI Prompts', labelFr: 'Prompts IA', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },

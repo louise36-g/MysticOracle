@@ -143,7 +143,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
       case 'tarot-article':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'Tarot Cards'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
           href: getViewHref('tarot-cards'),
@@ -162,14 +162,14 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
       case 'tarot-cards':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_2', 'Tarot Cards'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_2', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards-all':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_3', 'Tarot Cards'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_3', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
           href: getViewHref('tarot-cards'),
@@ -182,7 +182,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
       case 'tarot-cards-category':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_4', 'Tarot Cards'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_4', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
           onClick: () => onNavigate('tarot-cards'),
           href: getViewHref('tarot-cards'),
