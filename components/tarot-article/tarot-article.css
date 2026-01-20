@@ -419,25 +419,26 @@
    ============================================ */
 
 .prose hr {
-  border: none;
-  height: 3px;
-  background: linear-gradient(90deg, transparent 5%, rgba(139, 92, 246, 0.6) 50%, transparent 95%);
-  margin: 4rem auto;
-  max-width: 80%;
-  position: relative;
+  border: none !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, transparent 5%, rgba(139, 92, 246, 0.6) 50%, transparent 95%) !important;
+  margin: 4rem auto !important;
+  max-width: 80% !important;
+  position: relative !important;
+  width: auto !important;
 }
 
 /* Decorative center element */
 .prose hr::before {
-  content: '\2726'; /* Four-pointed star */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.25rem;
-  color: rgba(139, 92, 246, 0.8);
-  background: #0f172a;
-  padding: 0 1rem;
+  content: '\2726' !important; /* Four-pointed star */
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-size: 1.25rem !important;
+  color: rgba(139, 92, 246, 0.8) !important;
+  background: #0f172a !important;
+  padding: 0 1rem !important;
 }
 
 /* ============================================
