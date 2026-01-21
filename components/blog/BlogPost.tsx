@@ -322,6 +322,28 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       }
     });
 
+    // 3. Remove h3/h4 headings that match stored FAQ questions (and their answer paragraphs)
+    const storedFaqs = (post?.faq as FAQItem[]) || [];
+    if (storedFaqs.length > 0) {
+      const faqQuestions = new Set(
+        storedFaqs.map(f => f.question.toLowerCase().trim())
+      );
+
+      doc.querySelectorAll('h3, h4').forEach(heading => {
+        const headingText = heading.textContent?.trim().toLowerCase() || '';
+        if (faqQuestions.has(headingText)) {
+          // This heading matches a stored FAQ question - remove it and its answer
+          const nextEl = heading.nextElementSibling;
+          heading.remove();
+
+          // Remove the following paragraph (the answer)
+          if (nextEl && nextEl.tagName.toLowerCase() === 'p') {
+            nextEl.remove();
+          }
+        }
+      });
+    }
+
     // Remove static CTA banner from content (we render it dynamically)
     const staticCta = doc.querySelector('.cta-banner');
     if (staticCta) {
@@ -460,7 +482,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
 
     // If no "Embracing" section found, put all content before FAQ
     return { contentBeforeFAQ: fullContent, contentAfterFAQ: '' };
-  }, [rawContent, linkRegistry, isTarotNumerology]);
+  }, [rawContent, linkRegistry, isTarotNumerology, post?.faq]);
 
   // Apply aspect ratio-based widths to images after content renders
   useEffect(() => {
