@@ -189,7 +189,12 @@ app.use(
 app.use('/api', (req, res, next) => {
   // Only cache GET requests to public endpoints
   if (req.method === 'GET' && !req.path.includes('/admin')) {
-    res.setHeader('Cache-Control', 'private, max-age=300'); // 5 minutes
+    // Blog posts should not be cached to ensure content updates are visible immediately
+    if (req.path.includes('/blog/posts/')) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'private, max-age=300'); // 5 minutes
+    }
   } else {
     res.setHeader('Cache-Control', 'no-store');
   }
