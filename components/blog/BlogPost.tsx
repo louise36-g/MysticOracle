@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag, fetchLinkRegistry, LinkRegistry } from '../../services/apiService';
-import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle, X, ZoomIn } from 'lucide-react';
+import { fetchBlogPost, fetchBlogPostPreview, BlogPost as BlogPostType, BlogCategory, BlogTag, fetchLinkRegistry, LinkRegistry, FAQItem, CTAItem } from '../../services/apiService';
+import { Calendar, Clock, Eye, User, ArrowLeft, Tag, Share2, Twitter, Facebook, Linkedin, Link2, Check, AlertCircle, X, ZoomIn, ChevronDown, ArrowRight } from 'lucide-react';
 import { processShortcodes } from '../internal-links';
 import { motion } from 'framer-motion';
 import { SmartLink } from '../SmartLink';
@@ -31,6 +31,10 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
+  const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
+
+  // Ref for content container to handle image sizing
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const loadPost = useCallback(async () => {
     try {
@@ -233,10 +237,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
   // Get content based on language (may be empty if post not loaded)
   const rawContent = post ? (language === 'en' ? post.contentEn : post.contentFr) : '';
 
+  // Check if this is a Tarot Numerology category article
+  const isTarotNumerology = post?.categories.some(cat => cat.slug === 'tarot-numerology') || false;
+
   // Process shortcodes and sanitize HTML content
   // This hook MUST be called before any early returns to satisfy React's Rules of Hooks
-  const sanitizedContent = useMemo(() => {
-    if (!rawContent) return '';
+  const { contentBeforeFAQ, contentAfterFAQ } = useMemo(() => {
+    if (!rawContent) return { contentBeforeFAQ: '', contentAfterFAQ: '' };
     // Process internal link shortcodes first [[type:slug]] -> <a> tags
     const processedContent = processShortcodes(rawContent, linkRegistry);
     const sanitized = DOMPurify.sanitize(processedContent, {
@@ -261,8 +268,243 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
     });
-    return doc.body.innerHTML;
-  }, [rawContent, linkRegistry]);
+
+    // Remove ALL static FAQ sections from content (we render FAQs dynamically as accordions)
+    // 1. Remove elements with faq-related classes
+    const faqSelectors = [
+      '.article-faq',
+      '.faq',
+      '.faq-section',
+      '.faqs',
+      '[class*="faq"]'
+    ];
+    faqSelectors.forEach(selector => {
+      doc.querySelectorAll(selector).forEach(el => {
+        // Also remove any FAQ heading before it
+        const prevElement = el.previousElementSibling;
+        if (prevElement && prevElement.tagName.match(/^H[23]$/i) &&
+            prevElement.textContent?.toLowerCase().includes('faq')) {
+          prevElement.remove();
+        }
+        el.remove();
+      });
+    });
+
+    // 2. Remove FAQ headings and their following content (dl, ul, or div with Q&A)
+    doc.querySelectorAll('h2, h3').forEach(heading => {
+      const text = heading.textContent?.toLowerCase() || '';
+      if (text.includes('frequently asked') || text.includes('faq')) {
+        // Remove the heading
+        let nextEl = heading.nextElementSibling;
+        heading.remove();
+
+        // Remove following FAQ content (dl list, div with Q&A, etc.)
+        while (nextEl) {
+          const tagName = nextEl.tagName.toLowerCase();
+          // Stop if we hit another heading
+          if (tagName.match(/^h[1-6]$/)) break;
+
+          // Check if this looks like FAQ content
+          const isFaqContent =
+            tagName === 'dl' || // Definition list (common FAQ format)
+            nextEl.classList.contains('faq') ||
+            nextEl.querySelector('dt, dd') || // Has definition terms
+            (nextEl.textContent?.includes('?') && nextEl.querySelectorAll('p, div').length > 1);
+
+          if (isFaqContent) {
+            const toRemove = nextEl;
+            nextEl = nextEl.nextElementSibling;
+            toRemove.remove();
+          } else {
+            break;
+          }
+        }
+      }
+    });
+
+    // Remove static CTA banner from content (we render it dynamically)
+    const staticCta = doc.querySelector('.cta-banner');
+    if (staticCta) {
+      staticCta.remove();
+    }
+
+    // Special processing for Tarot Numerology category - section breaks only
+    if (isTarotNumerology) {
+      // Add section breaks before h2 headings
+      const h2Elements = doc.querySelectorAll('h2');
+      h2Elements.forEach((h2, index) => {
+        // Skip the first h2 (no break needed before it)
+        if (index > 0) {
+          const sectionBreak = doc.createElement('div');
+          sectionBreak.className = 'numerology-section-break';
+          // Build section break content safely using DOM methods
+          const line1 = doc.createElement('div');
+          line1.className = 'section-break-line';
+          const symbol = doc.createElement('div');
+          symbol.className = 'section-break-symbol';
+          symbol.textContent = '✦';
+          const line2 = doc.createElement('div');
+          line2.className = 'section-break-line';
+          sectionBreak.appendChild(line1);
+          sectionBreak.appendChild(symbol);
+          sectionBreak.appendChild(line2);
+          h2.parentNode?.insertBefore(sectionBreak, h2);
+        }
+      });
+    }
+
+    // Process images with alignment classes (align-left, align-right)
+    // Images with these classes get flex layout with following paragraph
+    const images = doc.querySelectorAll('img');
+    images.forEach((img) => {
+      // Check for alignment class on image or parent figure
+      const imgClasses = img.className || '';
+      const parent = img.parentElement;
+      const parentClasses = parent?.className || '';
+      const allClasses = `${imgClasses} ${parentClasses}`.toLowerCase();
+
+      // Determine alignment from classes
+      let alignment: 'left' | 'right' | 'center' | null = null;
+      if (allClasses.includes('align-left') || allClasses.includes('float-left')) {
+        alignment = 'left';
+      } else if (allClasses.includes('align-right') || allClasses.includes('float-right')) {
+        alignment = 'right';
+      } else if (allClasses.includes('align-center')) {
+        alignment = 'center';
+      }
+
+      // Only create flex layout for left/right aligned images
+      if (alignment === 'left' || alignment === 'right') {
+        // Find the element containing the image (could be p, figure, or direct)
+        let imageContainer: Element | null = img;
+        if (parent) {
+          if (parent.tagName === 'FIGURE') {
+            imageContainer = parent;
+          } else if (parent.tagName === 'P' && parent.children.length === 1) {
+            imageContainer = parent;
+          }
+        }
+
+        // Find the next paragraph sibling after the image container
+        let nextParagraph: Element | null = null;
+        let sibling = imageContainer?.nextElementSibling;
+        while (sibling) {
+          if (sibling.tagName === 'P' && sibling.textContent?.trim()) {
+            nextParagraph = sibling;
+            break;
+          }
+          // Stop if we hit a heading, section break, or another image
+          if (sibling.tagName.match(/^H[1-6]$/) ||
+              sibling.className?.includes('section-break') ||
+              sibling.querySelector('img')) {
+            break;
+          }
+          sibling = sibling.nextElementSibling;
+        }
+
+        // Create flex container wrapping both image and paragraph
+        const flexContainer = doc.createElement('div');
+        flexContainer.className = `blog-image-text blog-image-${alignment}`;
+
+        // Create image wrapper
+        const imageWrapper = doc.createElement('div');
+        imageWrapper.className = 'blog-image-wrapper';
+
+        // Create text wrapper
+        const textWrapper = doc.createElement('div');
+        textWrapper.className = 'blog-text-wrapper';
+
+        // Insert flex container before image container
+        imageContainer?.parentNode?.insertBefore(flexContainer, imageContainer);
+
+        // Move image container into image wrapper
+        if (imageContainer) {
+          imageWrapper.appendChild(imageContainer);
+        }
+
+        // Move paragraph into text wrapper if found
+        if (nextParagraph) {
+          textWrapper.appendChild(nextParagraph);
+        }
+
+        // Add wrappers to flex container (order depends on direction)
+        if (alignment === 'left') {
+          flexContainer.appendChild(imageWrapper);
+          flexContainer.appendChild(textWrapper);
+        } else {
+          flexContainer.appendChild(textWrapper);
+          flexContainer.appendChild(imageWrapper);
+        }
+      }
+    });
+
+    const fullContent = doc.body.innerHTML;
+
+    // Split content at "Embracing" heading to insert FAQ before it
+    // Find position of h2 containing "Embracing" using simple string search
+    const lowerContent = fullContent.toLowerCase();
+    const embracingIndex = lowerContent.indexOf('embracing');
+
+    if (embracingIndex !== -1) {
+      // Find the start of the h2 tag before "Embracing"
+      const beforeEmbracing = fullContent.substring(0, embracingIndex);
+      const h2Start = beforeEmbracing.lastIndexOf('<h2');
+
+      if (h2Start !== -1) {
+        return {
+          contentBeforeFAQ: fullContent.substring(0, h2Start),
+          contentAfterFAQ: fullContent.substring(h2Start),
+        };
+      }
+    }
+
+    // If no "Embracing" section found, put all content before FAQ
+    return { contentBeforeFAQ: fullContent, contentAfterFAQ: '' };
+  }, [rawContent, linkRegistry, isTarotNumerology]);
+
+  // Apply aspect ratio-based widths to images after content renders
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const applyImageSizing = (img: HTMLImageElement) => {
+      // Skip if already processed
+      if (img.dataset.aspectProcessed) return;
+
+      const applySize = () => {
+        const width = img.naturalWidth;
+        const height = img.naturalHeight;
+        if (width === 0 || height === 0) return;
+
+        const aspectRatio = width / height;
+
+        // 9:16 portrait format (ratio ~0.5625) -> 250px wide
+        // 16:9 landscape format (ratio ~1.778) -> 450px wide
+        // Use thresholds to determine format
+        if (aspectRatio < 1) {
+          // Portrait image (taller than wide)
+          img.style.maxWidth = '250px';
+          img.classList.add('aspect-portrait');
+        } else if (aspectRatio > 1.3) {
+          // Landscape image (wider than tall)
+          img.style.maxWidth = '450px';
+          img.classList.add('aspect-landscape');
+        }
+        // Square or near-square images keep default styling
+
+        img.dataset.aspectProcessed = 'true';
+      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        applySize();
+      } else {
+        img.addEventListener('load', applySize, { once: true });
+      }
+    };
+
+    // Process all images in content
+    const images = contentRef.current.querySelectorAll('img');
+    images.forEach((img) => applyImageSizing(img as HTMLImageElement));
+  }, [contentBeforeFAQ, contentAfterFAQ]);
 
   if (loading) {
     return (
@@ -422,45 +664,135 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         </motion.div>
       )}
 
-      {/* Content - HTML is sanitized with DOMPurify to prevent XSS */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="prose prose-invert prose-purple max-w-none mb-12 blog-content-images"
-        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-        style={{
-          // Custom prose styling
-          lineHeight: '1.8',
-        }}
-        onClick={(e) => {
-          const target = e.target as HTMLElement;
-
-          // Handle image clicks for lightbox
-          if (target.tagName === 'IMG') {
-            setLightboxImage((target as HTMLImageElement).src);
-            return;
-          }
-
-          // Handle anchor tag clicks
-          const anchor = target.closest('a') as HTMLAnchorElement | null;
-          if (anchor) {
-            const href = anchor.getAttribute('href');
-            const targetAttr = anchor.getAttribute('target');
-
-            // If link has target="_blank", let it open in new tab
-            if (targetAttr === '_blank') {
-              return; // Don't prevent default
+      {/* Content wrapper with ref for image sizing */}
+      <div ref={contentRef}>
+        {/* Content Part 1 - Before FAQ - HTML sanitized with DOMPurify above */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="prose prose-invert prose-purple max-w-none blog-content-images"
+          dangerouslySetInnerHTML={{ __html: contentBeforeFAQ }}
+          style={{ lineHeight: '1.8' }}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              setLightboxImage((target as HTMLImageElement).src);
+              return;
             }
-
-            // Internal links (starting with /) - use SPA navigation
-            if (href && href.startsWith('/')) {
-              e.preventDefault();
-              onNavigate(href);
+            const anchor = target.closest('a') as HTMLAnchorElement | null;
+            if (anchor) {
+              const href = anchor.getAttribute('href');
+              const targetAttr = anchor.getAttribute('target');
+              if (targetAttr === '_blank') return;
+              if (href && href.startsWith('/')) {
+                e.preventDefault();
+                onNavigate(href);
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+
+        {/* FAQ Section - inserted between content sections */}
+        {post.faq && post.faq.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="my-12"
+          >
+            <h2 className="text-2xl font-heading text-purple-200 mb-6">
+              {t('blog.BlogPost.faq_title', 'Frequently Asked Questions')}
+            </h2>
+            <div className="space-y-3">
+              {(post.faq as FAQItem[]).map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-slate-900/60 rounded-xl border border-purple-500/20 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenFAQIndex(openFAQIndex === index ? null : index)}
+                    className="w-full flex items-center justify-between p-4 text-left hover:bg-purple-500/5 transition-colors"
+                  >
+                    <span className="text-white font-medium pr-4">{item.question}</span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-purple-400 flex-shrink-0 transition-transform duration-200 ${
+                        openFAQIndex === index ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  {openFAQIndex === index && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="px-4 pb-4"
+                    >
+                      <p className="text-slate-300 leading-relaxed">{item.answer}</p>
+                    </motion.div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* Content Part 2 - After FAQ - HTML sanitized with DOMPurify above */}
+        {contentAfterFAQ && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="prose prose-invert prose-purple max-w-none mb-12 blog-content-images"
+            dangerouslySetInnerHTML={{ __html: contentAfterFAQ }}
+            style={{ lineHeight: '1.8' }}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.tagName === 'IMG') {
+                setLightboxImage((target as HTMLImageElement).src);
+                return;
+              }
+              const anchor = target.closest('a') as HTMLAnchorElement | null;
+              if (anchor) {
+                const href = anchor.getAttribute('href');
+                const targetAttr = anchor.getAttribute('target');
+                if (targetAttr === '_blank') return;
+                if (href && href.startsWith('/')) {
+                  e.preventDefault();
+                  onNavigate(href);
+                }
+              }
+            }}
+          />
+        )}
+      </div>
+
+      {/* CTA Banner */}
+      {post.cta && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+          className="mb-12"
+        >
+          <div className="cta-banner p-8 rounded-2xl bg-gradient-to-r from-purple-900/50 to-indigo-900/50 border border-purple-500/30 text-center">
+            <h3 className="text-2xl font-heading text-white mb-3">
+              {(post.cta as CTAItem).heading}
+            </h3>
+            <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
+              {(post.cta as CTAItem).text}
+            </p>
+            <SmartLink
+              href={(post.cta as CTAItem).buttonUrl}
+              onClick={() => onNavigate((post.cta as CTAItem).buttonUrl)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors font-medium"
+            >
+              {(post.cta as CTAItem).buttonText}
+              <ArrowRight className="w-4 h-4" />
+            </SmartLink>
+          </div>
+        </motion.section>
+      )}
 
       {/* Tags */}
       {post.tags.length > 0 && (

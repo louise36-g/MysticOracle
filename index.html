@@ -292,9 +292,43 @@
       /* Images */
       .prose img {
         border-radius: 0.75rem;
-        margin: 3rem auto;
+        margin: 2rem auto;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(139, 92, 246, 0.2);
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      /* Tarot card images - small constrained size */
+      .prose img[alt*="tarot"],
+      .prose img[alt*="Tarot"],
+      .prose img[alt*="Queen"],
+      .prose img[alt*="King"],
+      .prose img[alt*="card"],
+      .prose img[alt*="Wands"],
+      .prose img[alt*="Cups"],
+      .prose img[alt*="Swords"],
+      .prose img[alt*="Pentacles"],
+      .prose img[alt*="upright"],
+      .prose img[alt*="reversed"],
+      .prose img.editor-image {
+        max-width: 200px;
+        width: auto;
+      }
+
+      /* Center images with align-center class */
+      .prose img.align-center,
+      .prose .editor-image.align-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Center keywords paragraph that follows images */
+      .prose img + p,
+      .prose img + p + p,
+      .prose img + h2 + p {
+        text-align: center;
       }
 
       /* Clickable blog content images */
@@ -305,6 +339,27 @@
       .blog-content-images img:hover {
         transform: scale(1.01);
         box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+      }
+
+      /* Aspect ratio-based image sizing */
+      /* Portrait images (9:16 format) - 250px wide */
+      .prose img.aspect-portrait {
+        max-width: 250px !important;
+        width: auto;
+        height: auto;
+      }
+      /* Landscape images (16:9 format) - 450px wide */
+      .prose img.aspect-landscape {
+        max-width: 450px !important;
+        width: auto;
+        height: auto;
+      }
+      /* Override tarot card image sizing when aspect classes are applied */
+      .prose img.aspect-portrait[alt*="tarot"],
+      .prose img.aspect-portrait[alt*="Tarot"],
+      .prose img.aspect-landscape[alt*="tarot"],
+      .prose img.aspect-landscape[alt*="Tarot"] {
+        max-width: inherit;
       }
 
       /* Horizontal Rule */
@@ -375,7 +430,7 @@
         background: rgba(15, 23, 42, 0.5);
         border-left: 4px solid rgba(251, 113, 133, 0.5);
         padding: 1.5rem;
-        margin: 2rem 0;
+        margin: 0 0 2rem 0;
         border-radius: 0 0.75rem 0.75rem 0;
       }
       .prose section[data-section="reversed"] h2,
@@ -383,6 +438,10 @@
       .prose .section-reversed h2,
       .prose .section-reversed h3 {
         color: #fda4af;
+      }
+      .prose .section-reversed ul,
+      .prose .section-reversed ol {
+        margin-bottom: 1.5rem;
       }
 
       /* Key Takeaways Box */
@@ -474,65 +533,118 @@
         border-bottom: none;
       }
 
-      /* Article FAQ Section - Enhanced */
-      .prose .article-faq {
-        margin: 3rem 0;
-        padding: 2rem;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(30, 41, 59, 0.2));
-        border-radius: 1rem;
-        border: 1px solid rgba(139, 92, 246, 0.15);
+      /* Article FAQ styles moved to tarot-article.css */
+
+      /* Life Area Sub-sections - colored headings only */
+      .prose h3.life-area-love {
+        color: #fda4af;
       }
-      .prose .article-faq h2 {
-        font-family: 'Cinzel', serif;
-        font-size: 1.5rem;
-        color: #d8b4fe;
-        margin-bottom: 1.5rem;
-        margin-top: 0;
-        padding-top: 0;
-        text-align: center;
-        border-bottom: none;
+      .prose h3.life-area-career {
+        color: #fcd34d;
       }
-      .prose .article-faq h2::before {
+      .prose h3.life-area-spiritual {
+        color: #c4b5fd;
+      }
+      .prose h3.life-area-decisions {
+        color: #93c5fd;
+      }
+
+      /* Scrollbar hide for nav chips */
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
         display: none;
       }
-      .prose .article-faq h3.faq-title {
-        font-family: 'Cinzel', serif;
-        font-size: 1.5rem;
-        color: #d8b4fe;
-        margin-bottom: 1.5rem;
-        text-align: center;
+
+      /* ==========================================
+         BLOG IMAGE ALIGNMENT - LEFT/RIGHT/CENTER
+         Images with align-left or align-right classes
+         get flex layout with text beside them
+         ========================================== */
+
+      /* Flex container for image + text side by side */
+      .blog-image-text {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin: 2rem 0;
       }
-      .prose .article-faq > div {
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid rgba(139, 92, 246, 0.1);
-        border-radius: 0.75rem;
-        margin-bottom: 0.75rem;
-        overflow: hidden;
-        transition: border-color 0.2s;
-        padding-bottom: 0;
+
+      /* Image on left, text on right */
+      .blog-image-text.blog-image-left {
+        flex-direction: row;
       }
-      .prose .article-faq > div:hover {
-        border-color: rgba(139, 92, 246, 0.25);
+
+      /* Image on right, text on left */
+      .blog-image-text.blog-image-right {
+        flex-direction: row;
       }
-      .prose .article-faq > div:last-child {
-        margin-bottom: 0;
+
+      /* Image container */
+      .blog-image-text .blog-image-wrapper {
+        flex-shrink: 0;
+        max-width: 200px;
       }
-      .prose .article-faq h3:not(.faq-title) {
-        font-family: 'Lato', sans-serif;
-        font-size: 1rem;
-        color: #e9d5ff;
-        font-weight: 600;
+      .blog-image-text .blog-image-wrapper img {
+        margin: 0 !important;
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .blog-image-text .blog-image-wrapper p {
         margin: 0;
-        padding: 1rem 1.25rem;
-        text-align: left;
-        border-bottom: none;
       }
-      .prose .article-faq p {
-        color: #cbd5e1;
+
+      /* Text container - vertically centered */
+      .blog-image-text .blog-text-wrapper {
+        flex: 1;
+        min-width: 0;
+      }
+      .blog-image-text .blog-text-wrapper p {
         margin: 0;
-        padding: 0 1.25rem 1rem;
-        line-height: 1.7;
         text-align: left;
+      }
+
+      /* ==========================================
+         TAROT NUMEROLOGY - SECTION BREAKS
+         ========================================== */
+
+      /* Section break styling */
+      .numerology-section-break {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin: 3rem 0 2rem 0;
+        padding: 1rem 0;
+      }
+      .numerology-section-break .section-break-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(139, 92, 246, 0.4), transparent);
+        max-width: 150px;
+      }
+      .numerology-section-break .section-break-symbol {
+        color: #a78bfa;
+        font-size: 1.25rem;
+        opacity: 0.8;
+      }
+
+      /* Responsive: stack on mobile */
+      @media (max-width: 640px) {
+        .blog-image-text {
+          flex-direction: column !important;
+          align-items: center;
+          gap: 1rem;
+        }
+        .blog-image-text .blog-image-wrapper {
+          max-width: 180px;
+        }
+        .blog-image-text .blog-text-wrapper p {
+          text-align: center;
+        }
       }
     </style>
   </head>

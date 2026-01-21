@@ -77,15 +77,19 @@ const router = Router();
  */
 router.get('/registry', async (_req, res) => {
   try {
-    // Fetch published tarot articles and blog posts in parallel
+    // Fetch tarot articles and blog posts in parallel
+    // NOTE:
+    // - We intentionally include DRAFT and PUBLISHED content here (exclude only soft-deleted / archived)
+    // - This makes the registry useful while editors are still preparing content
+    // - Public visibility is still controlled by the main content APIs
     const [tarotArticles, rawBlogPosts] = await Promise.all([
       prisma.tarotArticle.findMany({
-        where: { status: 'PUBLISHED', deletedAt: null },
+        where: { deletedAt: null },
         select: { slug: true, title: true, cardType: true },
         orderBy: { title: 'asc' },
       }),
       prisma.blogPost.findMany({
-        where: { status: 'PUBLISHED', deletedAt: null },
+        where: { deletedAt: null },
         select: { slug: true, titleEn: true },
         orderBy: { titleEn: 'asc' },
       }),
@@ -98,11 +102,24 @@ router.get('/registry', async (_req, res) => {
     }));
 
     // Static spreads from constants
-    const spreads = SPREADS.map(s => ({
+    const coreSpreads = SPREADS.map(s => ({
       slug: s.slug,
       title: s.title,
       type: s.type,
     }));
+
+    // Static tarot guide/category links (suits, major/minor arcana)
+    // These are treated as "spread" type for URL generation (/tarot/{slug})
+    const tarotGuides = [
+      { slug: 'wands', title: 'Suit of Wands', type: 'CATEGORY' },
+      { slug: 'cups', title: 'Suit of Cups', type: 'CATEGORY' },
+      { slug: 'swords', title: 'Suit of Swords', type: 'CATEGORY' },
+      { slug: 'pentacles', title: 'Suit of Pentacles', type: 'CATEGORY' },
+      { slug: 'major-arcana', title: 'Major Arcana', type: 'CATEGORY' },
+      { slug: 'minor-arcana', title: 'Minor Arcana', type: 'CATEGORY' },
+    ];
+
+    const spreads = [...coreSpreads, ...tarotGuides];
 
     // Static horoscope signs from constants
     const horoscopes = ZODIAC_SIGNS.map(z => ({

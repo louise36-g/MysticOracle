@@ -626,12 +626,30 @@ const createPostSchema = z.object({
     .array(z.string())
     .nullish()
     .transform(v => v || []),
+  faq: z
+    .array(
+      z.object({
+        question: z.string(),
+        answer: z.string(),
+      })
+    )
+    .nullish()
+    .transform(v => v || undefined),
+  cta: z
+    .object({
+      heading: z.string(),
+      text: z.string(),
+      buttonText: z.string(),
+      buttonUrl: z.string(),
+    })
+    .nullish()
+    .transform(v => v || undefined),
 });
 
 router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
   try {
     const data = createPostSchema.parse(req.body);
-    const { categoryIds, tagIds } = data;
+    const { categoryIds, tagIds, faq, cta } = data;
 
     // Check slug uniqueness
     const existing = await prisma.blogPost.findUnique({ where: { slug: data.slug } });
@@ -664,6 +682,8 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
         featured: data.featured,
         readTimeMinutes: data.readTimeMinutes,
         publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
+        faq: faq ?? undefined,
+        cta: cta ?? undefined,
         categories: {
           create: categoryIds.map(categoryId => ({ categoryId })),
         },
@@ -687,12 +707,130 @@ router.post('/admin/posts', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// Reorder blog post (for admin drag-and-drop within category)
+// NOTE: This route MUST be defined BEFORE /admin/posts/:id to avoid :id matching "reorder"
+router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { postId, categorySlug, newPosition } = req.body;
+
+    console.log('=== REORDER REQUEST ===');
+    console.log('postId:', postId, 'type:', typeof postId);
+    console.log('categorySlug:', categorySlug);
+    console.log('newPosition:', newPosition);
+
+    // Validate input
+    if (!postId || typeof newPosition !== 'number') {
+      console.log('❌ Validation failed: missing fields');
+      return res.status(400).json({
+        error: 'Missing required fields: postId, newPosition',
+      });
+    }
+
+    if (newPosition < 0) {
+      return res.status(400).json({
+        error: 'newPosition must be >= 0',
+      });
+    }
+
+    // Verify post exists
+    const post = await prisma.blogPost.findUnique({
+      where: { id: postId },
+      include: { categories: { include: { category: true } } },
+    });
+
+    if (!post) {
+      // Debug: list some post IDs to compare
+      const samplePosts = await prisma.blogPost.findMany({
+        take: 5,
+        select: { id: true, slug: true, deletedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      });
+      console.log(
+        '❌ Post not found. Sample post IDs:',
+        samplePosts.map(p => ({ id: p.id, slug: p.slug, deleted: !!p.deletedAt }))
+      );
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Build where clause based on whether we're filtering by category
+    const whereClause: Prisma.BlogPostWhereInput = {
+      deletedAt: null,
+    };
+
+    if (categorySlug) {
+      whereClause.categories = {
+        some: { category: { slug: categorySlug } },
+      };
+    }
+
+    // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
+    const allPosts = await prisma.blogPost.findMany({
+      where: whereClause,
+      orderBy: { sortOrder: 'asc' },
+      select: { id: true, sortOrder: true },
+    });
+
+    console.log('Posts in context:', allPosts.length);
+    console.log('Requested newPosition:', newPosition);
+
+    if (newPosition >= allPosts.length) {
+      console.log('❌ Position exceeds post count');
+      return res.status(400).json({
+        error: `newPosition (${newPosition}) exceeds number of posts (${allPosts.length})`,
+      });
+    }
+
+    // Reorder logic: remove post from old position, insert at new position
+    const oldIndex = allPosts.findIndex(p => p.id === postId);
+    if (oldIndex === -1) {
+      return res.status(404).json({ error: 'Post not found in list' });
+    }
+
+    if (oldIndex === newPosition) {
+      // No change needed
+      return res.json({
+        success: true,
+        message: 'Post is already at the target position',
+      });
+    }
+
+    // Remove from old position
+    const [movedPost] = allPosts.splice(oldIndex, 1);
+    // Insert at new position
+    allPosts.splice(newPosition, 0, movedPost);
+
+    // Update sortOrder for all posts in transaction
+    await prisma.$transaction(
+      allPosts.map((p, index) =>
+        prisma.blogPost.update({
+          where: { id: p.id },
+          data: { sortOrder: index },
+        })
+      )
+    );
+
+    // Invalidate blog cache
+    await cacheService.flushPattern('blog:');
+
+    console.log('✅ Reorder successful');
+    res.json({
+      success: true,
+      message: 'Post reordered successfully',
+    });
+  } catch (error) {
+    console.error('❌ Error reordering post:', error);
+    res.status(500).json({
+      error: 'Failed to reorder post',
+    });
+  }
+});
+
 // Update post
 router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const data = createPostSchema.partial().parse(req.body);
-    const { categoryIds, tagIds, ...postData } = data;
+    const { categoryIds, tagIds, faq, cta, ...postData } = data;
 
     // Check slug uniqueness if changing
     if (postData.slug) {
@@ -732,6 +870,14 @@ router.patch('/admin/posts/:id', requireAuth, requireAdmin, async (req, res) => 
 
     // Update post
     const updateData: Prisma.BlogPostUpdateInput = { ...postData };
+
+    // Handle FAQ and CTA updates
+    if (faq !== undefined) {
+      updateData.faq = faq ?? Prisma.JsonNull;
+    }
+    if (cta !== undefined) {
+      updateData.cta = cta ?? Prisma.JsonNull;
+    }
 
     // Handle category updates
     if (categoryIds !== undefined) {
@@ -881,113 +1027,6 @@ router.delete('/admin/posts/trash/empty', requireAuth, requireAdmin, async (req,
   } catch (error) {
     console.error('Error emptying trash:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to empty trash' });
-  }
-});
-
-// Reorder blog post (for admin drag-and-drop within category)
-router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const { postId, categorySlug, newPosition } = req.body;
-
-    console.log('=== REORDER REQUEST ===');
-    console.log('postId:', postId);
-    console.log('categorySlug:', categorySlug);
-    console.log('newPosition:', newPosition);
-
-    // Validate input
-    if (!postId || typeof newPosition !== 'number') {
-      console.log('❌ Validation failed: missing fields');
-      return res.status(400).json({
-        error: 'Missing required fields: postId, newPosition',
-      });
-    }
-
-    if (newPosition < 0) {
-      return res.status(400).json({
-        error: 'newPosition must be >= 0',
-      });
-    }
-
-    // Verify post exists
-    const post = await prisma.blogPost.findUnique({
-      where: { id: postId },
-      include: { categories: { include: { category: true } } },
-    });
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    // Build where clause based on whether we're filtering by category
-    const whereClause: Prisma.BlogPostWhereInput = {
-      deletedAt: null,
-    };
-
-    if (categorySlug) {
-      whereClause.categories = {
-        some: { category: { slug: categorySlug } },
-      };
-    }
-
-    // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
-    const posts = await prisma.blogPost.findMany({
-      where: whereClause,
-      orderBy: { sortOrder: 'asc' },
-      select: { id: true, sortOrder: true },
-    });
-
-    console.log('Posts in context:', posts.length);
-    console.log('Requested newPosition:', newPosition);
-
-    if (newPosition >= posts.length) {
-      console.log('❌ Position exceeds post count');
-      return res.status(400).json({
-        error: `newPosition (${newPosition}) exceeds number of posts (${posts.length})`,
-      });
-    }
-
-    // Reorder logic: remove post from old position, insert at new position
-    const oldIndex = posts.findIndex(p => p.id === postId);
-    if (oldIndex === -1) {
-      return res.status(404).json({ error: 'Post not found in list' });
-    }
-
-    if (oldIndex === newPosition) {
-      // No change needed
-      return res.json({
-        success: true,
-        message: 'Post is already at the target position',
-      });
-    }
-
-    // Remove from old position
-    const [movedPost] = posts.splice(oldIndex, 1);
-    // Insert at new position
-    posts.splice(newPosition, 0, movedPost);
-
-    // Update sortOrder for all posts in transaction
-    await prisma.$transaction(
-      posts.map((post, index) =>
-        prisma.blogPost.update({
-          where: { id: post.id },
-          data: { sortOrder: index },
-        })
-      )
-    );
-
-    // Invalidate blog cache
-    await cacheService.flushPattern('blog:');
-
-    console.log('✅ Reorder successful');
-    res.json({
-      success: true,
-      message: 'Post reordered successfully',
-    });
-  } catch (error) {
-    console.error('❌ Error reordering post:', error);
-    res.status(500).json({
-      error: 'Failed to reorder post',
-    });
   }
 });
 
@@ -1324,7 +1363,10 @@ const importArticleSchema = z.object({
     .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   author: z.string().optional(),
   read_time: z.union([z.string(), z.number()]).optional(),
+  readTime: z.string().optional(), // Alternative field name
   image_alt_text: z.string().optional(),
+  featuredImage: z.string().optional(),
+  featuredImageAlt: z.string().optional(),
   categories: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   seo_meta: z
@@ -1336,7 +1378,38 @@ const importArticleSchema = z.object({
       og_description: z.string().optional(),
     })
     .optional(),
+  seo: z
+    .object({
+      focusKeyword: z.string().optional(),
+      metaTitle: z.string().optional(),
+      metaDescription: z.string().optional(),
+    })
+    .optional(),
+  faq: z
+    .array(
+      z.object({
+        question: z.string(),
+        answer: z.string(),
+      })
+    )
+    .optional(),
+  cta: z
+    .object({
+      heading: z.string(),
+      text: z.string(),
+      buttonText: z.string(),
+      buttonUrl: z.string(),
+    })
+    .optional(),
 });
+
+// Default CTA for imported blog articles
+const DEFAULT_BLOG_CTA = {
+  heading: 'Seeking Clarity?',
+  text: 'Let the cards illuminate your path forward.',
+  buttonText: 'Get a Tarot Reading',
+  buttonUrl: '/tarot',
+};
 
 // Import one or more articles from JSON
 router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
@@ -1440,16 +1513,34 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
           }
         }
 
-        // Parse read time
+        // Parse read time (support both read_time and readTime field names)
         let readTimeMinutes = 5;
-        if (article.read_time) {
-          if (typeof article.read_time === 'number') {
-            readTimeMinutes = article.read_time;
+        const readTimeValue = article.read_time || article.readTime;
+        if (readTimeValue) {
+          if (typeof readTimeValue === 'number') {
+            readTimeMinutes = readTimeValue;
           } else {
-            const match = article.read_time.match(/(\d+)/);
+            const match = readTimeValue.match(/(\d+)/);
             if (match) readTimeMinutes = parseInt(match[1]);
           }
         }
+
+        // Get SEO fields (support both seo_meta and seo field names)
+        const seoMetaOld = article.seo_meta;
+        const seoNew = article.seo;
+        const metaTitle = seoMetaOld?.meta_title || seoMetaOld?.og_title || seoNew?.metaTitle;
+        const metaDesc =
+          seoMetaOld?.meta_description || seoMetaOld?.og_description || seoNew?.metaDescription;
+
+        // Get cover image (support multiple field names)
+        const coverImage = article.featuredImage;
+        const coverImageAlt = article.featuredImageAlt || article.image_alt_text;
+
+        // Use FAQ from JSON if provided
+        const faq = article.faq && article.faq.length > 0 ? article.faq : undefined;
+
+        // Use CTA from JSON if provided, otherwise use default
+        const cta = article.cta || DEFAULT_BLOG_CTA;
 
         // Create the post
         await prisma.blogPost.create({
@@ -1461,13 +1552,16 @@ router.post('/admin/import', requireAuth, requireAdmin, async (req, res) => {
             excerptFr: '',
             contentEn: article.content || '',
             contentFr: '',
-            coverImageAlt: article.image_alt_text,
+            coverImage,
+            coverImageAlt,
             authorName: article.author || 'MysticOracle',
             authorId: req.auth.userId,
             status: 'DRAFT', // Import as draft for review
             readTimeMinutes,
-            metaTitleEn: article.seo_meta?.meta_title || article.seo_meta?.og_title,
-            metaDescEn: article.seo_meta?.meta_description || article.seo_meta?.og_description,
+            metaTitleEn: metaTitle,
+            metaDescEn: metaDesc,
+            faq,
+            cta,
             categories: {
               create: categoryIds.map(categoryId => ({ categoryId })),
             },

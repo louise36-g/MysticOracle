@@ -140,8 +140,8 @@ async function fixBlogUrls() {
           id: post.id,
           slug: post.slug,
           titleEn: post.titleEn,
-          changesEn: changesEnCount + placeholderEnCount,
-          changesFr: changesFrCount + placeholderFrCount,
+          changesEn: changesEnCount,
+          changesFr: changesFrCount,
           totalChanges,
         });
 

@@ -285,13 +285,13 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
             <Star className="w-6 h-6 text-amber-400" />
             {t('blog.BlogList.featured_articles', 'Featured Articles')}
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex flex-wrap gap-6 justify-center">
             {featuredPosts.map((post, index) => (
               <SmartLink
                 key={post.id}
                 href={`/blog/${post.slug}`}
                 onClick={() => onNavigateToPost(post.slug)}
-                className="group cursor-pointer bg-gradient-to-br from-purple-900/40 to-slate-900/60 rounded-2xl overflow-hidden border border-amber-500/20 hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-purple-500/10 block"
+                className="group cursor-pointer bg-gradient-to-br from-purple-900/40 to-slate-900/60 rounded-2xl overflow-hidden border border-amber-500/20 hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -383,7 +383,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
             <p>{t('blog.BlogList.no_articles_found', 'No articles found.')}</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap gap-6 justify-center">
             {articles.map((article, index) => {
               // Determine navigation path based on article type
               const href = article.type === 'tarot' ? `/tarot/articles/${article.slug}` : `/blog/${article.slug}`;
@@ -396,7 +396,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
                   key={article.id}
                   href={href}
                   onClick={handleClick}
-                  className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block"
+                  className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}

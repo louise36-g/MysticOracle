@@ -146,13 +146,41 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     const oldIndex = posts.findIndex((p) => p.id === active.id);
     const newIndex = posts.findIndex((p) => p.id === over.id);
 
-    console.log('Drag ended:', { postId: active.id, oldIndex, newIndex, categoryFilter });
+    // Also try string comparison in case of type mismatch
+    const oldIndexStr = oldIndex === -1 ? posts.findIndex((p) => String(p.id) === String(active.id)) : oldIndex;
+    const newIndexStr = newIndex === -1 ? posts.findIndex((p) => String(p.id) === String(over.id)) : newIndex;
+
+    const postIdFromDrag = active.id;
+    console.log('Drag ended:', {
+      postIdFromDrag,
+      typeOf: typeof postIdFromDrag,
+      oldIndex,
+      oldIndexStr,
+      newIndex,
+      newIndexStr,
+      categoryFilter,
+      postsIds: posts.slice(0, 3).map(p => ({ id: p.id, type: typeof p.id }))
+    });
+
+    // Use the string-matched indices if direct match failed
+    const finalOldIndex = oldIndex !== -1 ? oldIndex : oldIndexStr;
+    const finalNewIndex = newIndex !== -1 ? newIndex : newIndexStr;
+
+    if (finalOldIndex === -1 || finalNewIndex === -1) {
+      console.error('Post not found in array:', { active: active.id, over: over.id, postIds: posts.map(p => p.id) });
+      onError('Failed to reorder: Post not found in current list');
+      return;
+    }
+
+    // Get the actual post ID from the posts array to ensure correct format
+    const actualPostId = posts[finalOldIndex].id;
+    console.log('Using actual post ID from array:', actualPostId);
 
     // Save original order for revert
     const originalPosts = [...posts];
 
     // Optimistically update UI
-    const newPosts = arrayMove(posts, oldIndex, newIndex);
+    const newPosts = arrayMove(posts, finalOldIndex, finalNewIndex);
     setPosts(newPosts);
 
     try {
@@ -163,8 +191,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         return;
       }
 
-      console.log('Calling reorderBlogPost API...');
-      const result = await reorderBlogPost(token, active.id as string, categoryFilter || null, newIndex);
+      console.log('Calling reorderBlogPost API with postId:', actualPostId);
+      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, finalNewIndex);
       console.log('Reorder API response:', result);
 
       // Reload posts to get updated sortOrder from server

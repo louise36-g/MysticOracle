@@ -20,11 +20,13 @@ interface LinkSuggestionModalProps {
 const TYPE_LABELS: Record<string, string> = {
   tarot: 'Tarot Card',
   blog: 'Blog Post',
+  spread: 'Tarot Guide',
 };
 
 const TYPE_COLORS: Record<string, string> = {
   tarot: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   blog: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  spread: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
 };
 
 const LinkSuggestionModal: React.FC<LinkSuggestionModalProps> = ({

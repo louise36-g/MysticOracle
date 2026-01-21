@@ -8,7 +8,7 @@ import type { LinkRegistry } from '../../services/apiService';
 
 export interface LinkSuggestion {
   term: string;
-  type: 'tarot' | 'blog';
+  type: 'tarot' | 'blog' | 'spread';
   slug: string;
   title: string;
   shortcode: string;
@@ -103,7 +103,7 @@ function extractCardNameAliases(title: string): string[] {
 }
 
 interface TermInfo {
-  type: 'tarot' | 'blog';
+  type: 'tarot' | 'blog' | 'spread';
   slug: string;
   title: string;
   requiresCapital: boolean; // For terms like "The World" that shouldn't match "the world"
@@ -114,13 +114,58 @@ interface TermInfo {
  * e.g., "The World" shouldn't match "the world around you"
  */
 function shouldRequireCapital(term: string): boolean {
-  // Terms starting with "The " followed by a common word need capital
-  const commonWords = ['world', 'sun', 'moon', 'star', 'tower', 'devil', 'emperor', 'empress', 'fool', 'lovers', 'chariot', 'hermit', 'wheel', 'hanged'];
-  const lowerTerm = term.toLowerCase();
+  const lowerTerm = term.toLowerCase().trim();
+
+  // Single-word or simple terms that are also common nouns but represent major cards
+  // e.g. Strength, Justice – we only want to match them when capitalized
+  const capitalSensitiveSingles = [
+    'strength',
+    'justice',
+    'temperance',
+    'judgement',
+    'judgment',
+    'death',
+  ];
+
+  if (capitalSensitiveSingles.includes(lowerTerm)) {
+    return true;
+  }
+
+  // Tarot category/guide phrases that must be capitalized (Suit of Wands, Major Arcana, etc.)
+  const capitalSensitivePhrases = [
+    'suit of wands',
+    'suit of cups',
+    'suit of swords',
+    'suit of pentacles',
+    'major arcana',
+    'minor arcana',
+  ];
+
+  if (capitalSensitivePhrases.includes(lowerTerm)) {
+    return true;
+  }
+
+  // Terms starting with "The " followed by a common word need capital, e.g. "The World"
+  const commonAfterThe = [
+    'world',
+    'sun',
+    'moon',
+    'star',
+    'tower',
+    'devil',
+    'emperor',
+    'empress',
+    'fool',
+    'lovers',
+    'chariot',
+    'hermit',
+    'wheel',
+    'hanged',
+  ];
 
   if (lowerTerm.startsWith('the ')) {
     const wordAfterThe = lowerTerm.slice(4).split(' ')[0];
-    if (commonWords.includes(wordAfterThe)) {
+    if (commonAfterThe.includes(wordAfterThe)) {
       return true;
     }
   }
@@ -161,7 +206,24 @@ function buildTermMap(registry: LinkRegistry): Map<string, TermInfo> {
     }
   }
 
-  // Note: Spread and horoscope links are excluded - they're auto-linked by the backend regex system
+  // Add special tarot guide/category links (suits, major/minor arcana) from spread registry
+  // We intentionally do NOT include normal spreads here; those are auto-linked elsewhere.
+  const guideSlugs = new Set(['wands', 'cups', 'swords', 'pentacles', 'major-arcana', 'minor-arcana']);
+  for (const item of registry.spread || []) {
+    if (!guideSlugs.has(item.slug)) continue;
+    const key = item.title.toLowerCase();
+    const requiresCapital = shouldRequireCapital(item.title);
+    if (!termMap.has(key)) {
+      termMap.set(key, {
+        type: 'spread',
+        slug: item.slug,
+        title: item.title,
+        requiresCapital,
+      });
+    }
+  }
+
+  // Note: Horoscope links are excluded - they're auto-linked by the backend regex system
 
   return termMap;
 }

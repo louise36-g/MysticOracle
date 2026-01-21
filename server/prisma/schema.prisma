@@ -453,6 +453,10 @@ model BlogPost {
   // Admin ordering (for category-based ordering in admin panel)
   sortOrder       Int        @default(0)
 
+  // FAQ and CTA (optional)
+  faq             Json?      // Array of { question: string, answer: string }
+  cta             Json?      // { heading: string, text: string, buttonText: string, buttonUrl: string }
+
   // Relations
   categories      BlogPostCategory[]
   tags            BlogPostTag[]

@@ -26,7 +26,11 @@ import {
   StarOff,
   Link2,
   Loader2,
+  HelpCircle,
+  Megaphone,
 } from 'lucide-react';
+import BlogFAQManager from './BlogFAQManager';
+import BlogCTAManager from './BlogCTAManager';
 import {
   scanForLinkableTerms,
   applyLinkSuggestions,
@@ -82,6 +86,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [showSettings, setShowSettings] = useState(true);
   const [showCategories, setShowCategories] = useState(true);
   const [showTags, setShowTags] = useState(true);
+  const [showFAQ, setShowFAQ] = useState(false);
+  const [showCTA, setShowCTA] = useState(false);
   const [showSEO, setShowSEO] = useState(false);
   const [showCoverImage, setShowCoverImage] = useState(true);
 
@@ -157,6 +163,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         readTimeMinutes: post.readTimeMinutes,
         categoryIds: post.categoryIds || [],
         tagIds: post.tagIds || [],
+        faq: post.faq,
+        cta: post.cta,
       };
 
       if (isNew) {
@@ -441,6 +449,32 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
           onChange={(ids) => setPost({ ...post, categoryIds: ids })}
           language={language}
           emptyMessage={language === 'en' ? 'No categories yet' : 'Aucune catégorie'}
+        />
+      </SidebarSection>
+
+      {/* FAQ */}
+      <SidebarSection
+        title="FAQ"
+        icon={<HelpCircle className="w-4 h-4" />}
+        isOpen={showFAQ}
+        onToggle={() => setShowFAQ(!showFAQ)}
+      >
+        <BlogFAQManager
+          faq={post.faq || []}
+          onChange={(faq) => setPost({ ...post, faq })}
+        />
+      </SidebarSection>
+
+      {/* Call to Action */}
+      <SidebarSection
+        title={language === 'en' ? 'Call to Action' : 'Appel a l\'action'}
+        icon={<Megaphone className="w-4 h-4" />}
+        isOpen={showCTA}
+        onToggle={() => setShowCTA(!showCTA)}
+      >
+        <BlogCTAManager
+          cta={post.cta}
+          onChange={(cta) => setPost({ ...post, cta })}
         />
       </SidebarSection>
 

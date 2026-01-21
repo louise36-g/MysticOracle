@@ -79,6 +79,7 @@ import taxonomyRoutes from './routes/taxonomy.js';
 import ssrRoutes from './routes/ssr.js';
 import devRoutes from './routes/dev.js';
 import promptRoutes from './routes/prompts.js';
+import internalLinksRoutes from './routes/internal-links.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
 import { Router } from 'express';
@@ -225,6 +226,7 @@ v1Router.use('/blog', generalLimiter, blogRoutes);
 v1Router.use('/tarot-articles', generalLimiter, tarotArticleRoutes);
 v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
+v1Router.use('/internal-links', generalLimiter, internalLinksRoutes);
 
 // Mount v1 at /api/v1
 app.use('/api/v1', v1Router);

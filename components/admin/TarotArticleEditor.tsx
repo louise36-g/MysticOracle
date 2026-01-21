@@ -225,6 +225,9 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       setScanningLinks(true);
       const registry = await fetchLinkRegistry();
       const suggestions = scanForLinkableTerms(content, registry, {
+        // Allow converting existing <a> links (e.g., legacy "[INSERT CARD URL]" anchors)
+        // into shortcodes, but still skip existing shortcodes
+        skipExistingLinks: false,
         currentArticleSlug: article.slug, // Prevent self-linking
       });
 
