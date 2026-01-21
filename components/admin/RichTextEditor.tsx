@@ -37,6 +37,7 @@ import {
   Type,
   Unlink,
   Loader,
+  HelpCircle,
 } from 'lucide-react';
 
 // Folder configuration for media library
@@ -557,6 +558,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Horizontal Rule"
         >
           <Minus className="w-4 h-4" />
+        </MenuButton>
+        <MenuButton
+          onClick={() => editor.chain().focus().insertContent('<p>[FAQ]</p>').run()}
+          title="Insert FAQ Section Marker"
+        >
+          <HelpCircle className="w-4 h-4" />
         </MenuButton>
         <MenuButton
           onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}

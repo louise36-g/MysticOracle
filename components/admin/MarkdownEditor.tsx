@@ -21,6 +21,7 @@ import {
   Minimize2,
   Check,
   X,
+  HelpCircle,
 } from 'lucide-react';
 
 interface MarkdownEditorProps {
@@ -191,6 +192,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     code: () => insertAtCursor('`', '`', 'code'),
     codeBlock: () => insertAtCursor('```\n', '\n```', 'code block'),
     hr: () => insertAtCursor('\n---\n'),
+    faq: () => insertAtCursor('\n[FAQ]\n'),
     link: () => setShowLinkModal(true),
     image: () => setShowImageModal(true),
   };
@@ -360,6 +362,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         </MenuButton>
         <MenuButton onClick={toolbarActions.hr} title="Horizontal Rule">
           <Minus className="w-4 h-4" />
+        </MenuButton>
+        <MenuButton onClick={toolbarActions.faq} title="Insert FAQ Section Marker">
+          <HelpCircle className="w-4 h-4" />
         </MenuButton>
 
         <div className="w-px h-5 bg-slate-700 mx-1" />

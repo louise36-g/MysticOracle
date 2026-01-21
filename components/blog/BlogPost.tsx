@@ -462,25 +462,23 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
 
     const fullContent = doc.body.innerHTML;
 
-    // Split content at "Embracing" heading to insert FAQ before it
-    // Find position of h2 containing "Embracing" using simple string search
-    const lowerContent = fullContent.toLowerCase();
-    const embracingIndex = lowerContent.indexOf('embracing');
+    // Check for [FAQ] placeholder marker to position FAQ section
+    // The marker can be in various formats: [FAQ], <p>[FAQ]</p>, etc.
+    const faqMarkerRegex = /<p[^>]*>\s*\[FAQ\]\s*<\/p>|<div[^>]*>\s*\[FAQ\]\s*<\/div>|\[FAQ\]/gi;
+    const faqMarkerMatch = fullContent.match(faqMarkerRegex);
 
-    if (embracingIndex !== -1) {
-      // Find the start of the h2 tag before "Embracing"
-      const beforeEmbracing = fullContent.substring(0, embracingIndex);
-      const h2Start = beforeEmbracing.lastIndexOf('<h2');
+    if (faqMarkerMatch) {
+      // Split content at the FAQ marker
+      const markerIndex = fullContent.search(faqMarkerRegex);
+      const markerLength = faqMarkerMatch[0].length;
 
-      if (h2Start !== -1) {
-        return {
-          contentBeforeFAQ: fullContent.substring(0, h2Start),
-          contentAfterFAQ: fullContent.substring(h2Start),
-        };
-      }
+      return {
+        contentBeforeFAQ: fullContent.substring(0, markerIndex),
+        contentAfterFAQ: fullContent.substring(markerIndex + markerLength),
+      };
     }
 
-    // If no "Embracing" section found, put all content before FAQ
+    // If no [FAQ] marker found, put all content before FAQ (FAQ renders at end)
     return { contentBeforeFAQ: fullContent, contentAfterFAQ: '' };
   }, [rawContent, linkRegistry, isTarotNumerology, post?.faq]);
 
