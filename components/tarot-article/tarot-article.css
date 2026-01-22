@@ -49,10 +49,7 @@
   font-family: 'Cinzel', serif;
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
-  background: linear-gradient(180deg, #ffffff 0%, #e9d5ff 50%, #c4b5fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
   margin-top: 2rem;
   margin-bottom: 1.5rem;
   line-height: 1.15;
@@ -64,7 +61,7 @@
   font-family: 'Cinzel', serif;
   font-size: clamp(1.5rem, 3vw, 1.875rem);
   font-weight: 600;
-  color: var(--color-primary-lighter);
+  color: #c4b5fd;
   margin-top: 3rem;
   margin-bottom: 1.25rem;
   padding-top: 1rem;
@@ -78,7 +75,7 @@
   font-family: 'Cinzel', serif;
   font-size: 1.375rem;
   font-weight: 600;
-  color: #ddd6fe;
+  color: #86efac;
   margin-top: 2rem;
   margin-bottom: 0.875rem;
   text-align: center;
@@ -529,13 +526,20 @@
   background: linear-gradient(180deg, var(--color-primary), rgba(192, 38, 211, 0.8));
 }
 
-.prose .key-takeaways h2,
-.prose .key-takeaways h3 {
-  color: var(--color-primary-lighter);
+.prose .key-takeaways h2 {
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1.25rem;
   font-family: 'Cinzel', serif;
-  text-align: left;
+  text-align: center;
+}
+
+.prose .key-takeaways h3 {
+  color: #86efac;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  font-family: 'Cinzel', serif;
+  text-align: center;
   font-size: 1.25rem;
   border-bottom: none;
   padding-bottom: 0;
@@ -581,7 +585,7 @@
 }
 
 .prose .symbols-section h3 {
-  color: var(--color-primary-lighter);
+  color: #86efac;
   margin-top: 0;
   margin-bottom: 1.25rem;
   font-family: 'Cinzel', serif;
@@ -619,7 +623,7 @@
 }
 
 .prose .quick-reference h3 {
-  color: #fcd34d;
+  color: #86efac;
   margin-top: 0;
   margin-bottom: 1rem;
   font-family: 'Cinzel', serif;
@@ -716,7 +720,7 @@
 .prose .article-faq h2 {
   font-family: 'Cinzel', serif;
   font-size: 1.5rem;
-  color: var(--color-primary-lighter);
+  color: #c4b5fd;
   margin-bottom: 1.5rem;
   margin-top: 0;
   padding: 0;
@@ -816,8 +820,11 @@
    LIFE AREA HEADINGS
    ============================================ */
 
-.prose h3.life-area-love {
-  color: #fb7185;
+.prose h3.life-area-love,
+.prose h3.life-area-career,
+.prose h3.life-area-spiritual,
+.prose h3.life-area-decisions {
+  color: #86efac;
   position: relative;
 }
 
@@ -827,28 +834,16 @@
   font-size: 0.875em;
 }
 
-.prose h3.life-area-career {
-  color: #fcd34d;
-}
-
 .prose h3.life-area-career::before {
   content: '\2605'; /* Star */
   margin-right: 0.5rem;
   font-size: 0.875em;
 }
 
-.prose h3.life-area-spiritual {
-  color: #c4b5fd;
-}
-
 .prose h3.life-area-spiritual::before {
   content: '\2728'; /* Sparkles */
   margin-right: 0.5rem;
   font-size: 0.875em;
-}
-
-.prose h3.life-area-decisions {
-  color: #7dd3fc;
 }
 
 .prose h3.life-area-decisions::before {
