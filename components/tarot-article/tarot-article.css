@@ -510,7 +510,8 @@
    KEY TAKEAWAYS BOX
    ============================================ */
 
-.prose .key-takeaways {
+.prose .key-takeaways,
+.prose .key-takeaways-container {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.5));
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: var(--radius-lg);
@@ -520,7 +521,8 @@
   overflow: hidden;
 }
 
-.prose .key-takeaways::before {
+.prose .key-takeaways::before,
+.prose .key-takeaways-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -530,7 +532,8 @@
   background: linear-gradient(180deg, var(--color-primary), rgba(192, 38, 211, 0.8));
 }
 
-.prose .key-takeaways h2 {
+.prose .key-takeaways h2,
+.prose .key-takeaways-container h2 {
   color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1.25rem;
@@ -538,7 +541,8 @@
   text-align: center;
 }
 
-.prose .key-takeaways h3 {
+.prose .key-takeaways h3,
+.prose .key-takeaways-container h3 {
   color: #86efac;
   margin-top: 0;
   margin-bottom: 1.25rem;
@@ -549,18 +553,21 @@
   padding-bottom: 0;
 }
 
-.prose .key-takeaways p {
+.prose .key-takeaways p,
+.prose .key-takeaways-container p {
   margin: 0.5rem 0;
   line-height: 1.6;
   font-size: 0.95rem;
 }
 
-.prose .key-takeaways p strong {
+.prose .key-takeaways p strong,
+.prose .key-takeaways-container p strong {
   color: var(--color-primary-light);
   font-weight: 600;
 }
 
-.prose .key-takeaways ul {
+.prose .key-takeaways ul,
+.prose .key-takeaways-container ul {
   margin-bottom: 0;
 }
 
