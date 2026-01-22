@@ -305,7 +305,7 @@ export function TarotArticlePage({
             <ArticleTags tags={article.tags} />
 
             {/* Related Cards Section */}
-            <RelatedCards cards={article.relatedCards} onNavigate={handleNavigate} />
+            <RelatedCards cards={article.relatedCards} onNavigate={onNavigate} />
           </motion.footer>
 
           {/* Bottom spacing */}

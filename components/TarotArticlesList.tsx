@@ -9,6 +9,7 @@ import { useTranslation } from '../context/TranslationContext';
 interface TarotArticlesListProps {
   onArticleClick: (slug: string) => void;
   defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc.
+  onCategoryChange?: (categorySlug: string | null) => void; // Called when category filter changes
 }
 
 // Map URL slugs to API card types
@@ -20,7 +21,16 @@ const categorySlugToType: Record<string, string> = {
   'pentacles': 'SUIT_OF_PENTACLES',
 };
 
-const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, defaultCategory }) => {
+// Map API card types back to URL slugs
+const cardTypeToSlug: Record<string, string> = {
+  'MAJOR_ARCANA': 'major-arcana',
+  'SUIT_OF_WANDS': 'wands',
+  'SUIT_OF_CUPS': 'cups',
+  'SUIT_OF_SWORDS': 'swords',
+  'SUIT_OF_PENTACLES': 'pentacles',
+};
+
+const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, defaultCategory, onCategoryChange }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
@@ -146,7 +156,10 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
 
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setSelectedCardType(null)}
+            onClick={() => {
+              setSelectedCardType(null);
+              onCategoryChange?.(null);
+            }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               !selectedCardType
                 ? 'bg-purple-600 text-white'
@@ -158,7 +171,10 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
           {cardTypes.map((type) => (
             <button
               key={type}
-              onClick={() => setSelectedCardType(type)}
+              onClick={() => {
+                setSelectedCardType(type);
+                onCategoryChange?.(cardTypeToSlug[type] || null);
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedCardType === type
                   ? 'bg-purple-600 text-white'
