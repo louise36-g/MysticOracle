@@ -434,9 +434,19 @@ const App: React.FC = () => {
   const handleNavigateToBlogPost = useCallback((slug: string) => {
     setCurrentView('blog-post');
     setBlogSlug(slug);
-    window.history.pushState({ view: 'blog-post', blogSlug: slug }, '', `/blog/${slug}`);
+    window.history.pushState({ view: 'blog-post', blogSlug: slug, blogCategory }, '', `/blog/${slug}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [blogCategory]);
+
+  // Back to blog preserving current category filter
+  const handleBackToBlog = useCallback(() => {
+    setCurrentView('blog');
+    setBlogSlug(null);
+    // Preserve blogCategory - don't reset it
+    const url = blogCategory ? `/blog?category=${blogCategory}` : '/blog';
+    window.history.pushState({ view: 'blog', blogCategory }, '', url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [blogCategory]);
 
   const handleBlogCategoryClick = useCallback((categorySlug: string) => {
     setCurrentView('blog');
@@ -681,7 +691,7 @@ const App: React.FC = () => {
         return (
           <BlogPostView
             slug={blogSlug}
-            onBack={handleNavigateToBlog}
+            onBack={handleBackToBlog}
             onNavigateToPost={handleNavigateToBlogPost}
             onCategoryClick={handleBlogCategoryClick}
             onTagClick={handleBlogTagClick}
