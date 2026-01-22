@@ -233,6 +233,9 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       setScanningLinks(true);
       const registry = await fetchLinkRegistry();
       const suggestions = scanForLinkableTerms(content, registry, {
+        // Allow converting existing <a> links (e.g., manually entered URLs)
+        // into shortcodes, but still skip existing shortcodes
+        skipExistingLinks: false,
         currentArticleSlug: post.slug, // Prevent self-linking
       });
 

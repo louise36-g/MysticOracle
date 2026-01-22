@@ -16,6 +16,11 @@ export type LinkType = 'tarot' | 'blog' | 'spread' | 'horoscope';
 const SHORTCODE_REGEX = /\[\[(tarot|blog|spread|horoscope):([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
 /**
+ * Category slugs that should route to /tarot/cards/{slug} instead of /tarot/{slug}
+ */
+const CATEGORY_SLUGS = new Set(['wands', 'cups', 'swords', 'pentacles', 'major-arcana', 'minor-arcana']);
+
+/**
  * Get the URL for a given link type and slug
  */
 export function getUrlForType(type: LinkType, slug: string): string {
@@ -25,6 +30,11 @@ export function getUrlForType(type: LinkType, slug: string): string {
     case 'blog':
       return `/blog/${slug}`;
     case 'spread':
+      // Category slugs (suits, arcana) route to /tarot/cards/{slug}
+      // Spread slugs (single-card-reading, etc.) route to /tarot/{slug}
+      if (CATEGORY_SLUGS.has(slug)) {
+        return `/tarot/cards/${slug}`;
+      }
       return `/tarot/${slug}`;
     case 'horoscope':
       return `/horoscopes/${slug}`;
