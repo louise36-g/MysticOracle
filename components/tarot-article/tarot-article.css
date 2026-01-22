@@ -379,16 +379,10 @@
   text-align: center;
 }
 
-/* Keywords styling: label centered, keywords list left-aligned */
-.prose p:has(> strong:first-child):has(> em) strong:first-child {
+/* Keywords section styling - both label and keywords centered */
+.prose p[style*="text-align: center"] strong:only-of-type + br + em {
   display: block;
   text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.prose p:has(> strong:first-child):has(> em) em {
-  display: block;
-  text-align: left;
 }
 
 .prose figcaption {
