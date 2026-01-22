@@ -748,46 +748,38 @@ const App: React.FC = () => {
         );
     }
 
-    // 9. Tarot Cards Overview
-    if (currentView === 'tarot-cards') {
+    // 9. Tarot Cards Overview (with optional category filter)
+    if (currentView === 'tarot-cards' || currentView === 'tarot-cards-all' || currentView === 'tarot-cards-category') {
+      // Map URL slug to CategoryType
+      const slugToCategoryType: Record<string, 'majorArcana' | 'wands' | 'cups' | 'swords' | 'pentacles'> = {
+        'major-arcana': 'majorArcana',
+        'wands': 'wands',
+        'cups': 'cups',
+        'swords': 'swords',
+        'pentacles': 'pentacles',
+      };
+      const categoryTypeToSlug: Record<string, string> = {
+        'majorArcana': 'major-arcana',
+        'wands': 'wands',
+        'cups': 'cups',
+        'swords': 'swords',
+        'pentacles': 'pentacles',
+      };
+
+      const selectedCategoryType = tarotCardsCategory ? slugToCategoryType[tarotCardsCategory] : null;
+
       return (
         <TarotCardsOverview
           onCardClick={handleTarotCardClick}
           onViewAllCards={handleNavigateToTarotCardsAll}
           onViewCategory={handleNavigateToTarotCardsCategory}
-        />
-      );
-    }
-
-    // 9b. Tarot Cards All (uses existing TarotArticlesList)
-    if (currentView === 'tarot-cards-all') {
-      return (
-        <TarotArticlesList
-          onArticleClick={handleTarotCardClick}
-          onCategoryChange={(categorySlug) => {
-            if (categorySlug) {
+          selectedCategory={selectedCategoryType}
+          onCategoryChange={(categoryType) => {
+            if (categoryType) {
+              const slug = categoryTypeToSlug[categoryType];
               setCurrentView('tarot-cards-category');
-              setTarotCardsCategory(categorySlug);
-              window.history.pushState({ view: 'tarot-cards-category', tarotCardsCategory: categorySlug }, '', `/tarot/cards/${categorySlug}`);
-            } else {
-              setTarotCardsCategory(null);
-              window.history.pushState({ view: 'tarot-cards-all' }, '', '/tarot/cards/all');
-            }
-          }}
-        />
-      );
-    }
-
-    // 9c. Tarot Cards Category (uses existing TarotArticlesList)
-    if (currentView === 'tarot-cards-category' && tarotCardsCategory) {
-      return (
-        <TarotArticlesList
-          onArticleClick={handleTarotCardClick}
-          defaultCategory={tarotCardsCategory}
-          onCategoryChange={(categorySlug) => {
-            if (categorySlug) {
-              setTarotCardsCategory(categorySlug);
-              window.history.pushState({ view: 'tarot-cards-category', tarotCardsCategory: categorySlug }, '', `/tarot/cards/${categorySlug}`);
+              setTarotCardsCategory(slug);
+              window.history.pushState({ view: 'tarot-cards-category', tarotCardsCategory: slug }, '', `/tarot/cards/${slug}`);
             } else {
               setCurrentView('tarot-cards-all');
               setTarotCardsCategory(null);

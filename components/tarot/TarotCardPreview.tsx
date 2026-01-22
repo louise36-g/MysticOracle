@@ -10,6 +10,7 @@ interface TarotCardPreviewProps {
   showCategory?: boolean;
   categoryLabel?: string;
   elementColor?: string;
+  fullWidth?: boolean;
 }
 
 const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
@@ -18,12 +19,13 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
   showCategory = false,
   categoryLabel,
   elementColor = '#a78bfa',
+  fullWidth = false,
 }) => {
   return (
     <SmartLink
       href={`/tarot/articles/${card.slug}`}
       onClick={() => onClick(card.slug)}
-      className="block flex-shrink-0 w-[220px]"
+      className={`block ${fullWidth ? 'w-full' : 'flex-shrink-0 w-[220px]'}`}
     >
       <motion.div
         whileHover={{ y: -6, scale: 1.02 }}

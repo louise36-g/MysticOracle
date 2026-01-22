@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Layers, AlertCircle, RefreshCw } from 'lucide-react';
+import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { fetchTarotOverview, TarotOverviewData } from '../../services/apiService';
-import TarotCategorySection, { CategoryType } from './TarotCategorySection';
+import TarotCategorySection, { CategoryType, CATEGORY_CONFIG } from './TarotCategorySection';
+import TarotCardPreview from './TarotCardPreview';
 import Button from '../Button';
 import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
@@ -12,18 +13,32 @@ interface TarotCardsOverviewProps {
   onCardClick: (slug: string) => void;
   onViewAllCards: () => void;
   onViewCategory: (category: CategoryType) => void;
+  selectedCategory?: CategoryType | null;
+  onCategoryChange?: (category: CategoryType | null) => void;
 }
 
 const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   onCardClick,
   onViewAllCards,
   onViewCategory,
+  selectedCategory = null,
+  onCategoryChange,
 }) => {
   const { language } = useApp();
   const { t } = useTranslation();
   const [data, setData] = useState<TarotOverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Category filter options
+  const categoryFilters: { id: CategoryType | null; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
+    { id: null, labelEn: 'All Cards', labelFr: 'Toutes', icon: <Layers className="w-4 h-4" /> },
+    { id: 'majorArcana', labelEn: 'Major Arcana', labelFr: 'Arcanes Majeurs', icon: <Sparkles className="w-4 h-4" /> },
+    { id: 'wands', labelEn: 'Wands', labelFr: 'Bâtons', icon: <Flame className="w-4 h-4" /> },
+    { id: 'cups', labelEn: 'Cups', labelFr: 'Coupes', icon: <Droplets className="w-4 h-4" /> },
+    { id: 'swords', labelEn: 'Swords', labelFr: 'Épées', icon: <Wind className="w-4 h-4" /> },
+    { id: 'pentacles', labelEn: 'Pentacles', labelFr: 'Pentacles', icon: <Mountain className="w-4 h-4" /> },
+  ];
 
   useEffect(() => {
     loadOverview();
@@ -157,75 +172,131 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
             {t('tarot.TarotCardsOverview.explore_ancient_wisdom', 'Explore the ancient wisdom of all 78 cards. Discover their meanings, symbolism, and guidance for your journey.')}
           </p>
 
-          <SmartLink href="/tarot/cards/all" onClick={onViewAllCards}>
-            <Button variant="primary" size="lg">
-              {t('tarot.TarotCardsOverview.browse_all_cards', 'Browse All {{totalCards}} Cards', { totalCards })}
-            </Button>
-          </SmartLink>
         </motion.div>
       </div>
 
-      {/* Category Sections */}
-      <div className="max-w-7xl mx-auto">
-        <TarotCategorySection
-          category="majorArcana"
-          cards={data.majorArcana}
-          count={counts.majorArcana}
-          onCardClick={onCardClick}
-          onViewAll={onViewCategory}
-        />
-
-        <TarotCategorySection
-          category="wands"
-          cards={data.wands}
-          count={counts.wands}
-          onCardClick={onCardClick}
-          onViewAll={onViewCategory}
-        />
-
-        <TarotCategorySection
-          category="cups"
-          cards={data.cups}
-          count={counts.cups}
-          onCardClick={onCardClick}
-          onViewAll={onViewCategory}
-        />
-
-        <TarotCategorySection
-          category="swords"
-          cards={data.swords}
-          count={counts.swords}
-          onCardClick={onCardClick}
-          onViewAll={onViewCategory}
-        />
-
-        <TarotCategorySection
-          category="pentacles"
-          cards={data.pentacles}
-          count={counts.pentacles}
-          onCardClick={onCardClick}
-          onViewAll={onViewCategory}
-        />
-      </div>
-
-      {/* Bottom CTA */}
-      <div className="text-center py-12 px-4">
-        <div className="max-w-xl mx-auto">
-          <h2 className="text-2xl font-heading text-white mb-4">
-            {t('tarot.TarotCardsOverview.ready_to_explore', 'Ready to explore the full deck?')}
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <SmartLink href="/tarot/cards/all" onClick={onViewAllCards}>
-              <Button variant="primary" size="lg">
-                {t('tarot.TarotCardsOverview.browse_all_cards', 'Browse All Cards')}
-              </Button>
-            </SmartLink>
-            <Button variant="outline" size="lg" onClick={() => window.location.href = '/tarot'}>
-              {t('tarot.TarotCardsOverview.get_a_reading', 'Get a Reading')}
-            </Button>
-          </div>
+      {/* Category Filter Buttons */}
+      <div className="max-w-7xl mx-auto px-4 mb-8">
+        <div className="flex flex-wrap justify-center gap-2">
+          {categoryFilters.map((filter) => {
+            const isActive = selectedCategory === filter.id;
+            return (
+              <button
+                key={filter.id ?? 'all'}
+                onClick={() => onCategoryChange?.(filter.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                {filter.icon}
+                <span>{language === 'fr' ? filter.labelFr : filter.labelEn}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {/* Content: Either full grid for selected category or horizontal sections */}
+      <div className="max-w-7xl mx-auto">
+        {selectedCategory ? (
+          // Full grid view for selected category
+          <div className="px-4">
+            <div className="flex items-center gap-3 mb-6">
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${CATEGORY_CONFIG[selectedCategory].color}20` }}
+              >
+                <span style={{ color: CATEGORY_CONFIG[selectedCategory].color }}>
+                  {CATEGORY_CONFIG[selectedCategory].icon}
+                </span>
+              </div>
+              <div>
+                <h2 className="text-xl font-heading text-white">
+                  {language === 'fr'
+                    ? CATEGORY_CONFIG[selectedCategory].nameFr
+                    : CATEGORY_CONFIG[selectedCategory].nameEn}
+                </h2>
+                <div
+                  className="h-0.5 w-12 rounded-full mt-1"
+                  style={{ backgroundColor: CATEGORY_CONFIG[selectedCategory].color }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {data[selectedCategory]?.map((card) => (
+                <TarotCardPreview
+                  key={card.id}
+                  card={card}
+                  onClick={onCardClick}
+                  elementColor={CATEGORY_CONFIG[selectedCategory].color}
+                  fullWidth
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Horizontal scroll sections for all categories
+          <>
+            <TarotCategorySection
+              category="majorArcana"
+              cards={data.majorArcana}
+              count={counts.majorArcana}
+              onCardClick={onCardClick}
+              onViewAll={onViewCategory}
+            />
+
+            <TarotCategorySection
+              category="wands"
+              cards={data.wands}
+              count={counts.wands}
+              onCardClick={onCardClick}
+              onViewAll={onViewCategory}
+            />
+
+            <TarotCategorySection
+              category="cups"
+              cards={data.cups}
+              count={counts.cups}
+              onCardClick={onCardClick}
+              onViewAll={onViewCategory}
+            />
+
+            <TarotCategorySection
+              category="swords"
+              cards={data.swords}
+              count={counts.swords}
+              onCardClick={onCardClick}
+              onViewAll={onViewCategory}
+            />
+
+            <TarotCategorySection
+              category="pentacles"
+              cards={data.pentacles}
+              count={counts.pentacles}
+              onCardClick={onCardClick}
+              onViewAll={onViewCategory}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Bottom CTA - only show when viewing all cards */}
+      {!selectedCategory && (
+        <div className="text-center py-12 px-4">
+          <div className="max-w-xl mx-auto">
+            <h2 className="text-2xl font-heading text-white mb-4">
+              {t('tarot.TarotCardsOverview.ready_for_reading', 'Ready for a reading?')}
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="primary" size="lg" onClick={() => window.location.href = '/tarot'}>
+                {t('tarot.TarotCardsOverview.get_a_reading', 'Get a Reading')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
