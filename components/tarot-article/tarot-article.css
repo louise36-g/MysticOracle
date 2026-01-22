@@ -372,14 +372,14 @@
   margin-right: auto;
 }
 
-/* Center only the keywords paragraph that immediately follows images */
-.prose img + p[style*="text-align: center"] {
+/* Keywords paragraph: center the entire paragraph */
+/* Targets paragraphs that have strong > br > em structure (Keywords pattern) */
+.prose p:has(> strong:first-child + br + em) {
   text-align: center;
 }
 
-/* Keywords section styling - both label and keywords centered */
-.prose p[style*="text-align: center"] strong:only-of-type + br + em {
-  display: block;
+/* Also support inline style version */
+.prose img + p[style*="text-align: center"] {
   text-align: center;
 }
 
