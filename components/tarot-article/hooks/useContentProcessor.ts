@@ -36,10 +36,20 @@ function processContent(html: string): string {
   });
 
   // Strip inline styles from containers (not images) - includes hr for consistent break markers
+  // But preserve text-align: center on paragraphs (for Keywords sections)
   const containersToStrip = doc.querySelectorAll(
-    '.key-takeaways, .quick-reference, .article-faq, .cta-banner, .symbols-section, blockquote, h2, h3, p, ul, ol, li, table, tr, td, th, span, hr, div:not(.key-takeaways):not(.quick-reference):not(.article-faq):not(.cta-banner):not(.symbols-section)'
+    '.key-takeaways, .key-takeaways-container, .quick-reference, .article-faq, .cta-banner, .symbols-section, blockquote, h2, h3, ul, ol, li, table, tr, td, th, span, hr, div:not(.key-takeaways):not(.key-takeaways-container):not(.quick-reference):not(.article-faq):not(.cta-banner):not(.symbols-section)'
   );
   containersToStrip.forEach((el) => el.removeAttribute('style'));
+
+  // For paragraphs, only strip styles that are NOT text-align: center
+  const paragraphs = doc.querySelectorAll('p');
+  paragraphs.forEach((p) => {
+    const style = p.getAttribute('style');
+    if (style && !style.includes('text-align: center') && !style.includes('text-align:center')) {
+      p.removeAttribute('style');
+    }
+  });
 
   // Add section-type attributes to H2s and wrap content
   const h2s = doc.querySelectorAll('h2');
@@ -122,7 +132,7 @@ function processContent(html: string): string {
   const allH3s = doc.querySelectorAll('h3');
   allH3s.forEach((h3) => {
     // Skip if already in a special container
-    if (h3.closest('.article-faq') || h3.closest('.key-takeaways') || h3.closest('.symbols-section')) return;
+    if (h3.closest('.article-faq') || h3.closest('.key-takeaways') || h3.closest('.key-takeaways-container') || h3.closest('.symbols-section')) return;
 
     const text = h3.textContent?.toLowerCase() || '';
     if (text.includes('symbol') || text.includes('imagery')) {
