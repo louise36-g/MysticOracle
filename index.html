@@ -75,12 +75,12 @@
 
     <!-- Blog Content Typography -->
     <style>
-      /* Headings */
+      /* Headings - use !important to override inline styles from editor */
       .prose h1 {
         font-family: 'Cinzel', serif;
         font-size: 2.5rem;
         font-weight: 700;
-        color: #ffffff;
+        color: #ffffff !important;
         margin-top: 2.5rem;
         margin-bottom: 1.5rem;
         line-height: 1.2;
@@ -90,7 +90,7 @@
         font-family: 'Cinzel', serif;
         font-size: 1.875rem;
         font-weight: 700;
-        color: #c4b5fd;
+        color: #c4b5fd !important;
         margin-top: 3.5rem;
         margin-bottom: 1rem;
         padding-top: 2.5rem;
@@ -114,7 +114,7 @@
         font-family: 'Cinzel', serif;
         font-size: 1.5rem;
         font-weight: 600;
-        color: #86efac;
+        color: #86efac !important;
         margin-top: 2rem;
         margin-bottom: 0.75rem;
         text-align: center;
@@ -123,7 +123,7 @@
         font-family: 'Cinzel', serif;
         font-size: 1.25rem;
         font-weight: 600;
-        color: #e9d5ff;
+        color: #e9d5ff !important;
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
       }
@@ -131,50 +131,49 @@
         font-family: 'Cinzel', serif;
         font-size: 1.1rem;
         font-weight: 600;
-        color: #f3e8ff;
+        color: #f3e8ff !important;
         margin-top: 1.25rem;
         margin-bottom: 0.5rem;
       }
 
-      /* Paragraphs */
+      /* Paragraphs and text - use !important to override inline styles from editor */
       .prose p {
-        color: #cbd5e1;
+        color: #cbd5e1 !important;
         margin-bottom: 1.5rem;
         font-size: 1.125rem;
         line-height: 1.9;
       }
 
-      /* Links */
-      .prose a {
-        color: #a78bfa;
-        text-decoration: none;
-        border-bottom: 1px solid transparent;
-        transition: all 0.2s ease;
-      }
-      .prose a:hover {
-        color: #c4b5fd;
-        border-bottom-color: #a78bfa;
+      /* Override inline colors on spans and other text elements */
+      .prose span,
+      .prose div:not(.cta-banner):not(.key-takeaways):not(.key-takeaways-container) {
+        color: inherit !important;
       }
 
-      /* Internal links (SEO shortcode-generated) */
-      .prose a.internal-link {
-        color: #c4b5fd;
+      /* Ensure list items have correct color */
+      .prose li {
+        color: #cbd5e1 !important;
+      }
+
+      /* Links - single consistent color, distinguished by underline only */
+      .prose a {
+        color: #c4b5fd !important;
         text-decoration: underline;
         text-decoration-color: rgba(196, 181, 253, 0.4);
         text-underline-offset: 2px;
+        transition: all 0.2s ease;
       }
-      .prose a.internal-link:hover {
-        color: #e9d5ff;
+      .prose a:hover {
+        color: #e9d5ff !important;
         text-decoration-color: rgba(233, 213, 255, 0.6);
       }
-      .prose a.internal-link[data-link-type="tarot"] {
-        color: #d8b4fe;
+
+      /* Internal links - same styling as regular links */
+      .prose a.internal-link {
+        color: #c4b5fd !important;
       }
-      .prose a.internal-link[data-link-type="spread"] {
-        color: #fbbf24;
-      }
-      .prose a.internal-link[data-link-type="horoscope"] {
-        color: #34d399;
+      .prose a.internal-link:hover {
+        color: #e9d5ff !important;
       }
 
       /* Lists */
