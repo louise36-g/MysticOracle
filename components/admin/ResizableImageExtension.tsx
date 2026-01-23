@@ -273,17 +273,14 @@ const ResizableImage = Node.create({
   renderHTML({ HTMLAttributes }) {
     const { width, align, ...attrs } = HTMLAttributes;
 
-    const style: string[] = [];
-    if (width) {
-      style.push(`width: ${typeof width === 'number' ? `${width}px` : width}`);
-    }
-
+    // Don't add inline styles - let CSS handle sizing via data attributes
+    // This prevents !important wars between editor and presentation styles
     return [
       'img',
       mergeAttributes(attrs, {
         'data-width': width,
         'data-align': align,
-        style: style.join('; '),
+        loading: 'lazy',
         class: `editor-image align-${align}`,
       }),
     ];
