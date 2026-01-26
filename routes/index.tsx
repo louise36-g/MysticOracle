@@ -5,8 +5,6 @@ import { RootLayout } from '../components/layout/RootLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
 import { AdminRoute } from '../components/routing/AdminRoute';
 import AdminLayout from '../components/admin/AdminLayout';
-import { ReadingProvider } from '../context/ReadingContext';
-
 // Loading fallback for lazy components
 const PageLoader = () => (
   <div className="min-h-[400px] flex items-center justify-center">
@@ -49,13 +47,11 @@ const NotFound = () => (
   </div>
 );
 
-// Reading Layout with Provider
+// Reading Layout (ReadingProvider is now at app level in index.tsx)
 const ReadingLayout = () => (
-  <ReadingProvider>
-    <Suspense fallback={<PageLoader />}>
-      <ActiveReading />
-    </Suspense>
-  </ReadingProvider>
+  <Suspense fallback={<PageLoader />}>
+    <ActiveReading />
+  </Suspense>
 );
 
 export const router = createBrowserRouter([

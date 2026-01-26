@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import { TranslationProvider } from './context/TranslationContext';
+import { ReadingProvider } from './context/ReadingContext';
 import App from './App';
 import './styles/main.css';
 
@@ -51,7 +52,9 @@ if (root) {
         <TranslationProvider>
           <AppProvider>
             <SpendingLimitsProvider>
-              <App />
+              <ReadingProvider>
+                <App />
+              </ReadingProvider>
             </SpendingLimitsProvider>
           </AppProvider>
         </TranslationProvider>
