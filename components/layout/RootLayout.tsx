@@ -30,7 +30,7 @@ export function RootLayout() {
           <Outlet />
         </Suspense>
       </main>
-      <Footer onNavigate={noOpNavigate} />
+      <Footer />
       <CookieConsent onNavigate={noOpNavigate} />
     </div>
   );

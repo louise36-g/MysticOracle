@@ -1,14 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Moon } from 'lucide-react';
-import { SmartLink } from './SmartLink';
+import { ROUTES } from '../routes/routes';
 
-interface FooterProps {
-  onNavigate: (view: string) => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const { language, t } = useApp();
+const Footer: React.FC = () => {
+  const { t } = useApp();
 
   const currentYear = new Date().getFullYear();
 
@@ -37,20 +34,18 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {t('footer.help', 'Help')}
             </h4>
             <nav className="flex flex-col items-center gap-2">
-              <SmartLink
-                href="/faq"
-                onClick={() => onNavigate('faq')}
+              <Link
+                to={ROUTES.FAQ}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
                 {t('footer.faq', 'FAQ')}
-              </SmartLink>
-              <SmartLink
-                href="/how-credits-work"
-                onClick={() => onNavigate('how-credits-work')}
+              </Link>
+              <Link
+                to={ROUTES.HOW_CREDITS_WORK}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
                 {t('footer.howCreditsWork', 'How Credits Work')}
-              </SmartLink>
+              </Link>
             </nav>
           </div>
 
@@ -60,27 +55,24 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {t('footer.legal', 'Legal')}
             </h4>
             <nav className="flex flex-col items-center gap-2">
-              <SmartLink
-                href="/privacy"
-                onClick={() => onNavigate('privacy')}
+              <Link
+                to={ROUTES.PRIVACY}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
                 {t('footer.privacyPolicy', 'Privacy Policy')}
-              </SmartLink>
-              <SmartLink
-                href="/terms"
-                onClick={() => onNavigate('terms')}
+              </Link>
+              <Link
+                to={ROUTES.TERMS}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
                 {t('footer.termsOfService', 'Terms of Service')}
-              </SmartLink>
-              <SmartLink
-                href="/cookies"
-                onClick={() => onNavigate('cookies')}
+              </Link>
+              <Link
+                to={ROUTES.COOKIES}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
                 {t('footer.cookiePolicy', 'Cookie Policy')}
-              </SmartLink>
+              </Link>
             </nav>
           </div>
 
