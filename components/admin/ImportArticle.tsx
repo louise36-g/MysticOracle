@@ -655,7 +655,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
                             if (result.article?.id) {
                               const baseUrl = window.location.origin;
                               const url = result.article.status === 'PUBLISHED'
-                                ? `${baseUrl}/tarot/articles/${result.article.slug}`
+                                ? `${baseUrl}/tarot/${result.article.slug}`
                                 : `${baseUrl}/admin/tarot/preview/${result.article.id}`;
                               window.open(url, '_blank');
                             }

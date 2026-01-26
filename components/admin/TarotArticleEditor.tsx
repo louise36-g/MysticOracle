@@ -265,7 +265,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   }
 
   const previewUrl = article.status === 'PUBLISHED'
-    ? `/tarot/articles/${article.slug}`
+    ? `/tarot/${article.slug}`
     : `/admin/tarot/preview/${article.id}`;
 
   const topBar = (

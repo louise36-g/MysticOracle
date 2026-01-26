@@ -98,6 +98,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
   }, [onFinish, navigate]);
 
+  // Handle cancel - navigate back to spread selector
+  const handleCancel = useCallback(() => {
+    navigate(ROUTES.READING);
+  }, [navigate]);
+
   // Don't render if no spread
   if (!spread) {
     return null;
@@ -372,7 +377,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Render based on phase
   if (phase === 'animating_shuffle') {
-    return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} />;
+    return <ReadingShufflePhase language={language} onStop={handleShuffleStop} onCancel={handleCancel} spreadType={spread.id} />;
   }
 
   if (phase === 'intro') {
@@ -399,6 +404,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         onShortenManually={handleShortenManually}
         onAISummarize={handleAISummarize}
         onUseFullQuestion={handleUseFullQuestionWrapper}
+        onCancel={handleCancel}
       />
     );
   }
@@ -410,6 +416,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         language={language}
         drawnCards={drawnCards}
         onCardDraw={handleCardDraw}
+        onCancel={handleCancel}
       />
     );
   }
@@ -421,6 +428,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         language={language}
         drawnCards={drawnCards}
         onStartReading={startReading}
+        onCancel={handleCancel}
       />
     );
   }

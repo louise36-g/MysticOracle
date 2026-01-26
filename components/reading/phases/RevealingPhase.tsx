@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
@@ -16,6 +17,7 @@ interface RevealingPhaseProps {
   language: 'en' | 'fr';
   drawnCards: DrawnCard[];
   onStartReading: () => void;
+  onCancel?: () => void;
 }
 
 const RevealingPhase: React.FC<RevealingPhaseProps> = ({
@@ -23,6 +25,7 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
   language,
   drawnCards,
   onStartReading,
+  onCancel,
 }) => {
   const theme = SPREAD_THEMES[spread.id];
 
@@ -35,6 +38,19 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
     <div className="flex flex-col items-center min-h-screen py-4 md:py-6 relative overflow-hidden">
       {/* Themed Background */}
       <ThemedBackground spreadType={spread.id} />
+
+      {/* Back button */}
+      {onCancel && (
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={onCancel}
+          className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-slate-400 hover:text-white hover:bg-black/40 transition-colors text-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>{language === 'en' ? 'Back' : 'Retour'}</span>
+        </motion.button>
+      )}
 
       <div className="relative z-10 flex flex-col items-center flex-1 w-full px-4">
         {/* Theme badge - compact */}
