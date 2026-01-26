@@ -12,6 +12,7 @@ import {
   generateTarotFollowUp
 } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
+import { toAPISpreadParams, toStyleStrings } from '../utils/readingApiHelpers';
 import {
   ReadingShufflePhase,
   QuestionIntroPhase,
@@ -135,21 +136,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
         positionIndex: idx
       }));
 
-      // Convert spread to backend format
-      const spreadParams = {
-        id: spread.id,
-        nameEn: spread.nameEn,
-        nameFr: spread.nameFr,
-        positions: spread.positions,
-        positionMeaningsEn: spread.positionMeaningsEn,
-        positionMeaningsFr: spread.positionMeaningsFr,
-        creditCost: spread.cost,
-      };
-
-      // Convert styles to array of strings
-      const styleStrings = isAdvanced
-        ? selectedStyles.map(s => s.toString())
-        : [InterpretationStyle.CLASSIC.toString()];
+      const spreadParams = toAPISpreadParams(spread);
+      const styleStrings = toStyleStrings(isAdvanced, selectedStyles);
 
       const result = await generateTarotReadingAPI(token, {
         spread: spreadParams,
@@ -340,21 +328,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
         throw new Error('Not authenticated');
       }
 
-      // Convert spread to backend format
-      const spreadParams = {
-        id: spread.id,
-        nameEn: spread.nameEn,
-        nameFr: spread.nameFr,
-        positions: spread.positions,
-        positionMeaningsEn: spread.positionMeaningsEn,
-        positionMeaningsFr: spread.positionMeaningsFr,
-        creditCost: spread.cost,
-      };
-
-      // Convert styles to array of strings
-      const styleStrings = isAdvanced
-        ? selectedStyles.map(s => s.toString())
-        : [InterpretationStyle.CLASSIC.toString()];
+      const spreadParams = toAPISpreadParams(spread);
+      const styleStrings = toStyleStrings(isAdvanced, selectedStyles);
 
       const result = await generateTarotReadingAPI(token, {
         spread: spreadParams,
