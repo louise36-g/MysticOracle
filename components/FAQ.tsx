@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, Coins, BookOpen, Shield, Mail, AlertTriangle } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
 import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
-import { SmartLink } from './SmartLink';
+import { ROUTES } from '../routes/routes';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
@@ -75,11 +76,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ title, icon, iconColor, childre
   );
 };
 
-interface FAQProps {
-  onNavigate: (view: string) => void;
-}
-
-const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
+const FAQ: React.FC = () => {
   const { t, language } = useTranslation();
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
@@ -103,15 +100,14 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
   const horseshoeCost = SPREADS[SpreadType.HORSESHOE].cost;
   const celticCrossCost = SPREADS[SpreadType.CELTIC_CROSS].cost;
 
-  // Helper to create links
-  const Link = ({ to, children }: { to: string; children: React.ReactNode }) => (
-    <SmartLink
-      href={`/${to}`}
-      onClick={() => onNavigate(to)}
+  // Helper to create styled links
+  const StyledLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <Link
+      to={to}
       className="text-purple-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
     >
       {children}
-    </SmartLink>
+    </Link>
   );
 
   return (
@@ -226,7 +222,7 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {t('faq.credits.a1', 'Credits are how you pay for readings. There are no subscriptions or monthly fees — you simply buy credits when you need them, or earn them for free through daily bonuses and referrals.')}{' '}
-                  <Link to="how-credits-work">{t('faq.credits.learnMore', 'Learn more about credits')}</Link>
+                  <StyledLink to={ROUTES.HOW_CREDITS_WORK}>{t('faq.credits.learnMore', 'Learn more about credits')}</StyledLink>
                 </span>
               }
               isOpen={openItems.has('cp-1')}
@@ -240,7 +236,7 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
                     ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Love & Relationships spreads cost ${loveCost} credits. Career Path spreads cost ${careerCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
                     : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages Amour & Relations coûtent ${loveCost} crédits. Les tirages Chemin de Carrière coûtent ${careerCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
                   }{' '}
-                  <Link to="how-credits-work">{t('faq.credits.seeFullPricing', 'See full pricing')}</Link>
+                  <StyledLink to={ROUTES.HOW_CREDITS_WORK}>{t('faq.credits.seeFullPricing', 'See full pricing')}</StyledLink>
                 </span>
               }
               isOpen={openItems.has('cp-2')}
@@ -292,7 +288,7 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {t('faq.readings.a1', 'Yes. All your readings are automatically saved to your account. You can view your complete reading history anytime from your')}{' '}
-                  <Link to="profile">{t('faq.readings.profile', 'profile page')}</Link>.
+                  <StyledLink to={ROUTES.PROFILE}>{t('faq.readings.profile', 'profile page')}</StyledLink>.
                 </span>
               }
               isOpen={openItems.has('yr-1')}
@@ -356,7 +352,7 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
               answer={
                 <span>
                   {t('faq.privacy.a1', 'Yes. Your readings, questions, and personal reflections are completely private to your account. We do not share, sell, or use your data for any purpose other than providing you with the service. See our')}{' '}
-                  <Link to="privacy">{t('faq.privacy.privacyPolicy', 'Privacy Policy')}</Link>{' '}
+                  <StyledLink to={ROUTES.PRIVACY}>{t('faq.privacy.privacyPolicy', 'Privacy Policy')}</StyledLink>{' '}
                   {t('faq.privacy.a1b', 'for complete details.')}
                 </span>
               }
@@ -492,7 +488,7 @@ const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
         <div className="text-center text-xs text-slate-500 mt-8 pb-8">
           <p>
             {t('faq.footer.disclaimer', 'MysticOracle is intended for entertainment and personal insight only. Readings are AI-generated and should not replace professional advice. By using this service, you agree to our')}{' '}
-            <Link to="terms">{t('faq.footer.terms', 'Terms of Service')}</Link>.
+            <StyledLink to={ROUTES.TERMS}>{t('faq.footer.terms', 'Terms of Service')}</StyledLink>.
           </p>
         </div>
       </div>

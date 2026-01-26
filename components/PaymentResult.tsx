@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
@@ -6,14 +7,14 @@ import Button from './Button';
 import { CheckCircle, XCircle, Loader2, Coins, Sparkles, Gift } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
 import { hasCompletedFirstPurchase, markFirstPurchaseComplete } from '../utils/firstPurchaseBonus';
-import { SmartLink } from './SmartLink';
+import { ROUTES } from '../routes/routes';
 
 interface PaymentResultProps {
   type: 'success' | 'cancelled';
-  onNavigate: (view: string) => void;
 }
 
-const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
+const PaymentResult: React.FC<PaymentResultProps> = ({ type }) => {
+  const navigate = useNavigate();
   const { language, t } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
@@ -78,9 +79,9 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
   // If no payment session found, redirect home
   useEffect(() => {
     if (result?.error === 'no_payment') {
-      onNavigate('home');
+      navigate(ROUTES.HOME);
     }
-  }, [result, onNavigate]);
+  }, [result, navigate]);
 
   if (loading) {
     return (
@@ -123,16 +124,16 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
         </p>
 
         <div className="flex gap-4">
-          <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+          <Link to={ROUTES.PROFILE}>
             <Button variant="outline">
               {t('PaymentResult.tsx.PaymentResult.back_to_profile', 'Back to Profile')}
             </Button>
-          </SmartLink>
-          <SmartLink href="/" onClick={() => onNavigate('home')}>
+          </Link>
+          <Link to={ROUTES.HOME}>
             <Button>
               {t('PaymentResult.tsx.PaymentResult.go_home', 'Go Home')}
             </Button>
-          </SmartLink>
+          </Link>
         </div>
       </div>
     );
@@ -204,16 +205,16 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           </p>
 
           <div className="flex gap-4">
-            <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+            <Link to={ROUTES.PROFILE}>
               <Button variant="outline">
                 {t('PaymentResult.tsx.PaymentResult.view_profile', 'View Profile')}
               </Button>
-            </SmartLink>
-            <SmartLink href="/" onClick={() => onNavigate('home')}>
+            </Link>
+            <Link to={ROUTES.READING}>
               <Button>
                 {t('PaymentResult.tsx.PaymentResult.start_reading', 'Start Reading')}
               </Button>
-            </SmartLink>
+            </Link>
           </div>
         </>
       ) : (
@@ -235,16 +236,16 @@ const PaymentResult: React.FC<PaymentResultProps> = ({ type, onNavigate }) => {
           </p>
 
           <div className="flex gap-4">
-            <SmartLink href="/profile" onClick={() => onNavigate('profile')}>
+            <Link to={ROUTES.PROFILE}>
               <Button variant="outline">
                 {t('PaymentResult.tsx.PaymentResult.back_to_profile_2', 'Back to Profile')}
               </Button>
-            </SmartLink>
-            <SmartLink href="/" onClick={() => onNavigate('home')}>
+            </Link>
+            <Link to={ROUTES.HOME}>
               <Button>
                 {t('PaymentResult.tsx.PaymentResult.go_home_2', 'Go Home')}
               </Button>
-            </SmartLink>
+            </Link>
           </div>
         </>
       )}

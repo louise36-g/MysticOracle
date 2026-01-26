@@ -1,16 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Moon, Sparkles, Heart, Shield, Zap, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SmartLink } from './SmartLink';
 import { useTranslation } from '../context/TranslationContext';
+import { ROUTES } from '../routes/routes';
 
-interface AboutUsProps {
-  onNavigate: (view: string) => void;
-  onNavigateToTarot: () => void;
-}
-
-const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
+const AboutUs: React.FC = () => {
   const { language } = useApp();
   const { t } = useTranslation();
 
@@ -149,12 +145,12 @@ const AboutUs: React.FC<AboutUsProps> = ({ onNavigate, onNavigateToTarot }) => {
           <p className="text-slate-400 mb-4">
             {t('about.AboutUs.ready_to_begin', 'Ready to begin your journey?')}
           </p>
-          <SmartLink href="/tarot" onClick={onNavigateToTarot}>
+          <Link to={ROUTES.READING}>
             <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-amber-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-amber-500 transition-all shadow-lg hover:shadow-purple-500/25">
               <Sparkles className="w-5 h-5" />
               {t('about.AboutUs.start_reading', 'Start Your Reading')}
             </button>
-          </SmartLink>
+          </Link>
         </motion.div>
       </div>
     </div>

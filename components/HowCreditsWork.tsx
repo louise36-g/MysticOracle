@@ -1,20 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Coins, Calendar, Users, Award, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
 import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
+import { ROUTES } from '../routes/routes';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
 
 interface HowCreditsWorkProps {
-  onNavigate: (view: string) => void;
   onOpenCreditShop: () => void;
 }
 
-const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onNavigate, onOpenCreditShop }) => {
+const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => {
+  const navigate = useNavigate();
   const { t, language } = useTranslation();
 
   // Get spread costs directly from constants
@@ -46,12 +48,7 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onNavigate, onOpenCredi
   ];
 
   const handleStartReading = () => {
-    onNavigate('home');
-    // Small delay to ensure navigation completes before triggering tarot mode
-    setTimeout(() => {
-      window.history.pushState({ view: 'home', readingMode: 'tarot' }, '', '/tarot');
-      window.dispatchEvent(new PopStateEvent('popstate', { state: { view: 'home', readingMode: 'tarot' } }));
-    }, 50);
+    navigate(ROUTES.READING);
   };
 
   return (
