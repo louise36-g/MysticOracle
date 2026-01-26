@@ -1,62 +1,22 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React from 'react';
 import { useApp } from '../../context/AppContext';
 import AdminOverview from './AdminOverview';
-import AdminUsers from './AdminUsers';
-import AdminTransactions from './AdminTransactions';
-import AdminPackages from './AdminPackages';
-import AdminHealth from './AdminHealth';
-import AdminSettings from './AdminSettings';
-import AdminCache from './AdminCache';
-import AdminDebug from './AdminDebug';
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Package, Mail, Activity, Languages, FileText, Upload, Database, Bug, MessageSquare } from 'lucide-react';
 
-// Lazy load heavy admin components
-const AdminAnalytics = lazy(() => import('./AdminAnalytics'));
-const AdminEmailTemplates = lazy(() => import('./AdminEmailTemplates'));
-const AdminTranslations = lazy(() => import('./AdminTranslations'));
-const AdminBlog = lazy(() => import('./AdminBlog'));
-const ImportArticle = lazy(() => import('./ImportArticle'));
-const AdminTarotArticles = lazy(() => import('./AdminTarotArticles'));
-const AdminPrompts = lazy(() => import('./AdminPrompts'));
-
-// Admin tab loading fallback
-const AdminTabLoader = () => (
-  <div className="flex items-center justify-center py-20">
-    <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-  </div>
-);
-
-type AdminTab = 'overview' | 'users' | 'transactions' | 'analytics' | 'packages' | 'emails' | 'blog' | 'import-article' | 'tarot-articles' | 'prompts' | 'health' | 'cache' | 'translations' | 'settings' | 'debug';
-
+/**
+ * AdminDashboard - Legacy Component
+ *
+ * This component has been simplified as part of the React Router migration.
+ * Tab-based navigation is now handled by AdminLayout + AdminNav with nested routes.
+ *
+ * This component remains as a pass-through for the legacy SPA routing in App.tsx.
+ * Once App.tsx is migrated to use React Router, this component can be removed.
+ *
+ * @see AdminLayout.tsx - New layout with navigation
+ * @see AdminNav.tsx - Route-based navigation
+ * @see /routes/routes.ts - Route definitions
+ */
 const AdminDashboard: React.FC = () => {
-  const { t, language } = useApp();
-  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
-  const [blogKey, setBlogKey] = useState(0); // Key to force re-mount of AdminBlog
-
-  const handleServiceClick = (serviceId: string) => {
-    setSelectedServiceId(serviceId);
-    setActiveTab('settings');
-  };
-
-  const tabs: { id: AdminTab; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
-    { id: 'overview', labelEn: 'Overview', labelFr: 'Apercu', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'users', labelEn: 'Users', labelFr: 'Utilisateurs', icon: <Users className="w-4 h-4" /> },
-    { id: 'transactions', labelEn: 'Transactions', labelFr: 'Transactions', icon: <CreditCard className="w-4 h-4" /> },
-    { id: 'packages', labelEn: 'Packages', labelFr: 'Forfaits', icon: <Package className="w-4 h-4" /> },
-    { id: 'emails', labelEn: 'Emails', labelFr: 'Emails', icon: <Mail className="w-4 h-4" /> },
-    { id: 'blog', labelEn: 'Blog', labelFr: 'Blog', icon: <FileText className="w-4 h-4" /> },
-    { id: 'import-article', labelEn: 'Import Article', labelFr: 'Importer Article', icon: <Upload className="w-4 h-4" /> },
-    { id: 'tarot-articles', labelEn: 'The Arcanas', labelFr: 'Les Arcanes', icon: <FileText className="w-4 h-4" /> },
-    { id: 'prompts', labelEn: 'AI Prompts', labelFr: 'Prompts IA', icon: <MessageSquare className="w-4 h-4" /> },
-    { id: 'analytics', labelEn: 'Analytics', labelFr: 'Analytique', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'health', labelEn: 'Health', labelFr: 'Sante', icon: <Activity className="w-4 h-4" /> },
-    { id: 'cache', labelEn: 'Cache', labelFr: 'Cache', icon: <Database className="w-4 h-4" /> },
-    { id: 'translations', labelEn: 'Translations', labelFr: 'Traductions', icon: <Languages className="w-4 h-4" /> },
-    { id: 'settings', labelEn: 'Settings', labelFr: 'Parametres', icon: <Settings className="w-4 h-4" /> },
-    { id: 'debug', labelEn: 'Debug', labelFr: 'Debug', icon: <Bug className="w-4 h-4" /> },
-  ];
+  const { t } = useApp();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -66,69 +26,15 @@ const AdminDashboard: React.FC = () => {
           {t('admin.AdminDashboard.admin_dashboard', 'Admin Dashboard')}
         </h1>
         <p className="text-purple-300/70">
-          {t('admin.AdminDashboard.manage_users_view_analytics', 'Manage users, view analytics, and configure the platform')}
+          {t(
+            'admin.AdminDashboard.manage_users_view_analytics',
+            'Manage users, view analytics, and configure the platform'
+          )}
         </p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/20 pb-4">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id);
-              // Clear selected service when clicking settings tab directly
-              if (tab.id === 'settings') setSelectedServiceId(undefined);
-              // Reset blog view when clicking blog tab
-              if (tab.id === 'blog') setBlogKey(k => k + 1);
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-              activeTab === tab.id
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white'
-            }`}
-          >
-            {tab.icon}
-            <span className="hidden sm:inline">{t(`admin.AdminDashboard.tab_${tab.id}`, tab.labelEn)}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div className="min-h-[500px]">
-        <Suspense fallback={<AdminTabLoader />}>
-          {activeTab === 'overview' && <AdminOverview />}
-          {activeTab === 'users' && <AdminUsers />}
-          {activeTab === 'transactions' && <AdminTransactions />}
-          {activeTab === 'packages' && <AdminPackages />}
-          {activeTab === 'emails' && <AdminEmailTemplates />}
-          {activeTab === 'blog' && <AdminBlog key={blogKey} />}
-          {activeTab === 'import-article' && (
-            <ImportArticle
-              editingArticleId={editingArticleId}
-              onCancelEdit={() => {
-                setEditingArticleId(null);
-                setActiveTab('tarot-articles');
-              }}
-            />
-          )}
-          {activeTab === 'tarot-articles' && (
-            <AdminTarotArticles
-              onNavigateToImport={(articleId) => {
-                setEditingArticleId(articleId);
-                setActiveTab('import-article');
-              }}
-            />
-          )}
-          {activeTab === 'prompts' && <AdminPrompts />}
-          {activeTab === 'analytics' && <AdminAnalytics />}
-          {activeTab === 'health' && <AdminHealth onServiceClick={handleServiceClick} />}
-          {activeTab === 'cache' && <AdminCache />}
-          {activeTab === 'translations' && <AdminTranslations />}
-          {activeTab === 'settings' && <AdminSettings selectedServiceId={selectedServiceId} />}
-          {activeTab === 'debug' && <AdminDebug language={language as 'en' | 'fr'} />}
-        </Suspense>
-      </div>
+      {/* Overview Content */}
+      <AdminOverview />
     </div>
   );
 };
