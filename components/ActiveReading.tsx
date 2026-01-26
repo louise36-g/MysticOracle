@@ -151,9 +151,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       setReadingLanguage(language);
     } catch (error) {
       console.error('Failed to regenerate reading:', error);
-      setReadingText(language === 'en'
-        ? 'Failed to generate reading. Please try again.'
-        : 'Échec de la génération de la lecture. Veuillez réessayer.');
+      setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     } finally {
       setIsGenerating(false);
     }
@@ -207,11 +205,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       refreshUser();
     } catch (error) {
       console.error('Failed to summarize question:', error);
-      setValidationMessage(
-        language === 'en'
-          ? 'Failed to summarize question. Please try again.'
-          : 'Échec du résumé de la question. Veuillez réessayer.'
-      );
+      setValidationMessage(t('reading.error.summarizeFailed', 'Failed to summarize question. Please try again.'));
     } finally {
       setIsProcessingLength(false);
     }
@@ -258,21 +252,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const startShuffleAnimation = useCallback(async () => {
     if (!question.trim()) {
       setQuestionError(true);
-      setValidationMessage(
-        language === 'en'
-          ? "Please enter a question above or select 'General Guidance'."
-          : "Veuillez entrer une question ou sélectionner 'Guidance Générale'."
-      );
+      setValidationMessage(t('reading.error.missingQuestion', "Please enter a question above or select 'General Guidance'."));
       return;
     }
 
     // Check question length
     if (questionLengthStatus === 'exceeded') {
-      setValidationMessage(
-        language === 'en'
-          ? `Question too long (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} characters). Please shorten it.`
-          : `Question trop longue (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} caractères). Veuillez la raccourcir.`
-      );
+      setValidationMessage(t('reading.error.questionTooLong', `Question too long (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} characters). Please shorten it.`));
       return;
     }
 
@@ -395,9 +381,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       }
     } catch (error) {
       console.error('Failed to generate reading:', error);
-      const errorMessage = language === 'en'
-        ? 'Failed to generate reading. Please try again.'
-        : 'Échec de la génération de la lecture. Veuillez réessayer.';
+      const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
       setReadingText(errorMessage);
       setIsGenerating(false);
     }
@@ -478,9 +462,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       }
     } catch (error) {
       console.error('Failed to generate follow-up response:', error);
-      const errorMessage = language === 'en'
-        ? 'Sorry, I could not process your question. Please try again.'
-        : 'Désolé, je n\'ai pas pu traiter votre question. Veuillez réessayer.';
+      const errorMessage = t('reading.error.chatFailed', 'Sorry, I could not process your question. Please try again.');
       setChatHistory(prev => [...prev, { role: 'model', content: errorMessage }]);
     } finally {
       setIsChatLoading(false);
