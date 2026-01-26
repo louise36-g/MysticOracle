@@ -312,10 +312,15 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
     });
 
     // Generate answer using unified service
-    const answer = await openRouterService.generateTarotFollowUp(prompt, history, {
-      temperature: 0.7,
-      maxTokens: 500,
-    });
+    // Cast history to OpenRouterMessage[] since Zod validation guarantees both role and content exist
+    const answer = await openRouterService.generateTarotFollowUp(
+      prompt,
+      history as { role: 'user' | 'assistant'; content: string }[],
+      {
+        temperature: 0.7,
+        maxTokens: 500,
+      }
+    );
 
     console.log('[Tarot Follow-up] ✅ Generated answer:', answer.length, 'chars');
 

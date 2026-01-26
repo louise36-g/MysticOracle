@@ -13,13 +13,7 @@ import {
   convertToPrismaFormatLenient,
 } from '../../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../../lib/schema-builder.js';
-import {
-  prisma,
-  cacheService,
-  z,
-  articleFullFields,
-  transformArticleResponse,
-} from './shared.js';
+import { prisma, cacheService, z, articleFullFields, transformArticleResponse } from './shared.js';
 
 const router = Router();
 
@@ -42,7 +36,7 @@ const listArticlesSchema = z.object({
 router.post('/validate', async (req, res) => {
   try {
     const result = validateTarotArticle(req.body);
-    const warningMessages = result.warnings.map((w) => w.message);
+    const warningMessages = result.warnings.map(w => w.message);
 
     if (!result.success) {
       return res.status(400).json({
@@ -136,7 +130,12 @@ router.post('/import', async (req, res) => {
       return res.status(201).json({
         success: true,
         forceSaved: true,
-        article: { id: article.id, title: article.title, slug: article.slug, status: article.status },
+        article: {
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+          status: article.status,
+        },
         warnings: warningsResult.warnings,
         stats: warningsResult.stats,
       });
@@ -144,7 +143,7 @@ router.post('/import', async (req, res) => {
 
     // Standard validation mode
     const validationResult = validateTarotArticle(articleData);
-    const warningMessages = validationResult.warnings.map((w) => w.message);
+    const warningMessages = validationResult.warnings.map(w => w.message);
 
     if (!validationResult.success || !validationResult.data) {
       return res.status(400).json({
@@ -168,7 +167,9 @@ router.post('/import', async (req, res) => {
       });
     }
 
-    const dataForPrisma = { ...validatedData, slug } as Parameters<typeof convertToPrismaFormatLenient>[0];
+    const dataForPrisma = { ...validatedData, slug } as Parameters<
+      typeof convertToPrismaFormatLenient
+    >[0];
     const prismaData = convertToPrismaFormatLenient(dataForPrisma);
 
     let schema: object | null = null;
@@ -365,7 +366,7 @@ router.patch('/reorder', async (req, res) => {
       });
     }
 
-    const oldIndex = articles.findIndex((a) => a.id === articleId);
+    const oldIndex = articles.findIndex(a => a.id === articleId);
     if (oldIndex === -1) {
       return res.status(404).json({ error: 'Article not found in card type' });
     }
@@ -417,12 +418,30 @@ router.patch('/:id', async (req, res) => {
       delete updates._visualEditorMode;
 
       const allowedFields = [
-        'title', 'excerpt', 'content', 'slug', 'author', 'readTime',
-        'featuredImage', 'featuredImageAlt', 'cardType', 'cardNumber',
-        'astrologicalCorrespondence', 'element', 'categories', 'tags', 'faq',
-        'breadcrumbCategory', 'breadcrumbCategoryUrl', 'relatedCards',
-        'isCourtCard', 'isChallengeCard', 'status',
-        'seoFocusKeyword', 'seoMetaTitle', 'seoMetaDescription',
+        'title',
+        'excerpt',
+        'content',
+        'slug',
+        'author',
+        'readTime',
+        'featuredImage',
+        'featuredImageAlt',
+        'cardType',
+        'cardNumber',
+        'astrologicalCorrespondence',
+        'element',
+        'categories',
+        'tags',
+        'faq',
+        'breadcrumbCategory',
+        'breadcrumbCategoryUrl',
+        'relatedCards',
+        'isCourtCard',
+        'isChallengeCard',
+        'status',
+        'seoFocusKeyword',
+        'seoMetaTitle',
+        'seoMetaDescription',
       ];
 
       const sanitizedUpdates: Record<string, unknown> = {};
@@ -432,7 +451,10 @@ router.patch('/:id', async (req, res) => {
         }
       }
 
-      if (sanitizedUpdates.status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status as string)) {
+      if (
+        sanitizedUpdates.status &&
+        !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(sanitizedUpdates.status as string)
+      ) {
         return res.status(400).json({ error: 'Invalid status value' });
       }
 
@@ -441,7 +463,10 @@ router.patch('/:id', async (req, res) => {
         data: { ...sanitizedUpdates, updatedAt: new Date() },
       });
 
-      await cacheService.invalidateTarotArticle(existingArticle.slug, sanitizedUpdates.slug as string | undefined);
+      await cacheService.invalidateTarotArticle(
+        existingArticle.slug,
+        sanitizedUpdates.slug as string | undefined
+      );
 
       return res.json(updatedArticle);
     }
@@ -466,7 +491,9 @@ router.patch('/:id', async (req, res) => {
           where: { id },
           data: {
             ...prismaData,
-            schemaJson: (schema as Prisma.InputJsonValue) || existingArticle.schemaJson,
+            schemaJson: schema
+              ? (schema as Prisma.InputJsonValue)
+              : ((existingArticle.schemaJson as Prisma.InputJsonValue | undefined) ?? undefined),
             schemaHtml: schemaHtml || existingArticle.schemaHtml,
             updatedAt: new Date(),
           },
@@ -484,7 +511,7 @@ router.patch('/:id', async (req, res) => {
 
       // Standard validation
       const validationResult = validateTarotArticle(updates);
-      const warningMessages = validationResult.warnings.map((w) => w.message);
+      const warningMessages = validationResult.warnings.map(w => w.message);
 
       if (!validationResult.success || !validationResult.data) {
         return res.status(400).json({
@@ -494,7 +521,9 @@ router.patch('/:id', async (req, res) => {
         });
       }
 
-      const prismaData = convertToPrismaFormatLenient(validationResult.data as Parameters<typeof convertToPrismaFormatLenient>[0]);
+      const prismaData = convertToPrismaFormatLenient(
+        validationResult.data as Parameters<typeof convertToPrismaFormatLenient>[0]
+      );
 
       let schema: object | null = null;
       let schemaHtml = '';
@@ -510,7 +539,9 @@ router.patch('/:id', async (req, res) => {
         where: { id },
         data: {
           ...prismaData,
-          schemaJson: (schema as Prisma.InputJsonValue) || existingArticle.schemaJson,
+          schemaJson: schema
+            ? (schema as Prisma.InputJsonValue)
+            : ((existingArticle.schemaJson as Prisma.InputJsonValue | undefined) ?? undefined),
           schemaHtml: schemaHtml || existingArticle.schemaHtml,
           updatedAt: new Date(),
         },

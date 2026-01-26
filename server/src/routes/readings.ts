@@ -58,9 +58,16 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
     // Resolve use case from DI container
     const createReadingUseCase = req.container.resolve('createReadingUseCase');
 
+    // Cast validation.data - Zod schema guarantees required fields exist after successful parse
     const result = await createReadingUseCase.execute({
       userId: req.auth.userId,
-      ...validation.data,
+      ...(validation.data as {
+        spreadType: string;
+        interpretationStyle?: string;
+        question?: string;
+        cards: { cardId: string; position: number; isReversed?: boolean }[];
+        interpretation: string;
+      }),
     });
 
     if (!result.success) {
@@ -118,10 +125,11 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
 
     const addFollowUpUseCase = req.container.resolve('addFollowUpUseCase');
 
+    // Cast validation.data - Zod schema guarantees required fields exist after successful parse
     const result = await addFollowUpUseCase.execute({
       userId: req.auth.userId,
       readingId: req.params.id,
-      ...validation.data,
+      ...(validation.data as { question: string; answer: string }),
     });
 
     if (!result.success) {
