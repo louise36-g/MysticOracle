@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useSpendingLimits } from '../context/SpendingLimitsContext';
 import Button from './Button';
 import SpendingLimitsSettings from './SpendingLimitsSettings';
+import { ROUTES } from '../routes/routes';
 import {
   Coins,
   CreditCard,
@@ -56,10 +58,9 @@ const LOW_BALANCE_THRESHOLD = 5;
 interface CreditShopProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigate?: (view: string) => void;
 }
 
-const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) => {
+const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const { language, user, t } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
@@ -735,19 +736,15 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose, onNavigate }) 
               </div>
 
               {/* How credits work link */}
-              {onNavigate && (
-                <div className="text-center mt-4">
-                  <button
-                    onClick={() => {
-                      onClose();
-                      onNavigate('how-credits-work');
-                    }}
-                    className="text-sm text-slate-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
-                  >
-                    {t('CreditShop.tsx.CreditShop.how_do_credits', 'How do credits work?')}
-                  </button>
-                </div>
-              )}
+              <div className="text-center mt-4">
+                <Link
+                  to={ROUTES.HOW_CREDITS_WORK}
+                  onClick={onClose}
+                  className="text-sm text-slate-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
+                >
+                  {t('CreditShop.tsx.CreditShop.how_do_credits', 'How do credits work?')}
+                </Link>
+              </div>
             </div>
           </div>
         </motion.div>

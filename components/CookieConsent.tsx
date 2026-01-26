@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Cookie, X, Settings, Check } from 'lucide-react';
 import Button from './Button';
+import { ROUTES } from '../routes/routes';
 
 interface ConsentSettings {
   necessary: boolean; // Always true - required for site function
@@ -13,11 +15,7 @@ interface ConsentSettings {
 const CONSENT_KEY = 'mysticoracle_cookie_consent';
 const CONSENT_VERSION = 1; // Increment when policy changes
 
-interface CookieConsentProps {
-  onNavigate?: (view: string) => void;
-}
-
-const CookieConsent: React.FC<CookieConsentProps> = ({ onNavigate }) => {
+const CookieConsent: React.FC = () => {
   const { language, t: translate } = useApp();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -234,17 +232,13 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ onNavigate }) => {
                 </p>
                 <p className="text-slate-400 text-xs mb-4">
                   {t.moreInfo}{' '}
-                  <button
-                    onClick={() => {
-                      if (onNavigate) {
-                        onNavigate('privacy');
-                        setShowBanner(false);
-                      }
-                    }}
+                  <Link
+                    to={ROUTES.PRIVACY}
+                    onClick={() => setShowBanner(false)}
                     className="text-purple-400 hover:text-purple-300 underline"
                   >
                     {t.privacyLink}
-                  </button>
+                  </Link>
                 </p>
                 {/* CNIL Requirement: Accept and Reject buttons must have EQUAL prominence */}
                 <div className="flex flex-wrap gap-2">
