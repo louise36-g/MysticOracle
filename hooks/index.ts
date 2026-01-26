@@ -20,3 +20,11 @@ export {
   type OracleChatParams,
   type UseOracleChatReturn,
 } from './useOracleChat';
+
+export {
+  useQuestionInput,
+  QUESTION_LENGTH,
+  type QuestionLengthStatus,
+  type UseQuestionInputParams,
+  type UseQuestionInputReturn,
+} from './useQuestionInput';

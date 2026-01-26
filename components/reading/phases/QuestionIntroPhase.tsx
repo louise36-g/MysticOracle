@@ -6,12 +6,7 @@ import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
 import QuestionLengthModal from '../../QuestionLengthModal';
 import { SPREAD_THEMES } from '../SpreadThemes';
-
-// Question length thresholds
-export const QUESTION_LENGTH = {
-  FREE_LIMIT: 500,
-  HARD_LIMIT: 2000,
-} as const;
+import { QUESTION_LENGTH } from '../../../hooks';
 
 interface QuestionIntroPhaseProps {
   spread: SpreadConfig;

@@ -4,19 +4,17 @@ import { useApp } from '../context/AppContext';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
 import {
-  summarizeQuestion,
   createReading,
   updateReadingReflection,
 } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
-import { useReadingGeneration, useOracleChat } from '../hooks';
+import { useReadingGeneration, useOracleChat, useQuestionInput } from '../hooks';
 import {
   ReadingShufflePhase,
   QuestionIntroPhase,
   DrawingPhase,
   RevealingPhase,
   InterpretationPhase,
-  QUESTION_LENGTH,
 } from './reading';
 
 interface ActiveReadingProps {
@@ -58,6 +56,24 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
 
+  // Question input hook
+  const {
+    question,
+    questionError,
+    validationMessage,
+    showLengthModal,
+    extendedQuestionPaid,
+    isProcessingLength,
+    setShowLengthModal,
+    setValidationMessage,
+    handleQuestionChange,
+    handleGeneralGuidance,
+    handleAISummarize,
+    handleUseFullQuestion,
+    handleShortenManually,
+    validateBeforeStart,
+  } = useQuestionInput({ language, refreshUser, t });
+
   // Phase state
   const [phase, setPhase] = useState<ReadingPhase>('intro');
 
@@ -68,14 +84,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   // Reading state
   const [readingText, setReadingText] = useState<string>('');
   const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
-  const [question, setQuestion] = useState('');
-  const [questionError, setQuestionError] = useState(false);
-  const [validationMessage, setValidationMessage] = useState<string | null>(null);
-
-  // Question length modal state
-  const [showLengthModal, setShowLengthModal] = useState(false);
-  const [extendedQuestionPaid, setExtendedQuestionPaid] = useState(false);
-  const [isProcessingLength, setIsProcessingLength] = useState(false);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -170,94 +178,18 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     return spread.cost + (isAdvanced ? 1 : 0) + (extendedQuestionPaid ? 1 : 0);
   }, [spread.cost, isAdvanced, extendedQuestionPaid]);
 
-  // Character count and limits
-  const questionLength = question.length;
-  const currentLimit = extendedQuestionPaid ? QUESTION_LENGTH.HARD_LIMIT : QUESTION_LENGTH.FREE_LIMIT;
-
-  const questionLengthStatus = useMemo(() => {
-    if (questionLength <= QUESTION_LENGTH.FREE_LIMIT) return 'ok';
-    if (questionLength <= QUESTION_LENGTH.HARD_LIMIT) return 'extended';
-    return 'exceeded';
-  }, [questionLength]);
-
-  // Handle AI summarize from modal
-  const handleAISummarize = useCallback(async () => {
-    setIsProcessingLength(true);
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('Not authenticated');
-
-      const result = await summarizeQuestion(token, question, language);
-      setQuestion(result.summary);
-      setShowLengthModal(false);
-      setExtendedQuestionPaid(false);
-      refreshUser();
-    } catch (error) {
-      console.error('Failed to summarize question:', error);
-      setValidationMessage(t('reading.error.summarizeFailed', 'Failed to summarize question. Please try again.'));
-    } finally {
-      setIsProcessingLength(false);
-    }
-  }, [question, language, getToken, refreshUser]);
-
-  // Handle "use full question" from modal - adds 1 credit to total cost (deducted at reading start)
-  const handleUseFullQuestion = useCallback(() => {
-    // Check if user has enough credits for total cost including extended question
-    const projectedCost = spread.cost + (isAdvanced ? 1 : 0) + 1; // +1 for extended
-    if ((user?.credits || 0) < projectedCost) {
-      setValidationMessage(t('ActiveReading.tsx.ActiveReading.insufficient_credits', 'Insufficient credits'));
-      return;
-    }
-    setExtendedQuestionPaid(true);
-    setShowLengthModal(false);
-  }, [spread.cost, isAdvanced, user?.credits, language]);
-
-  // Handle "shorten manually" from modal
-  const handleShortenManually = useCallback(() => {
-    setShowLengthModal(false);
-    // Focus will return to textarea automatically
-  }, []);
-
-  const handleGeneralGuidance = useCallback(() => {
-    setQuestion(t('ActiveReading.tsx.ActiveReading.guidance_from_the', "Guidance from the Tarot"));
-    setQuestionError(false);
-    setValidationMessage(null);
-  }, [language]);
-
-  const handleQuestionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    // Enforce hard limit
-    if (newValue.length > QUESTION_LENGTH.HARD_LIMIT) {
-      return; // Don't allow input beyond hard limit
-    }
-    setQuestion(newValue);
-    setExtendedQuestionPaid(false); // Reset when question changes
-    if (newValue) {
-      setQuestionError(false);
-      setValidationMessage(null);
-    }
-  }, []);
+  // Wrapper for handleUseFullQuestion to pass current credits and base cost
+  const handleUseFullQuestionWrapper = useCallback(() => {
+    const baseCost = spread.cost + (isAdvanced ? 1 : 0);
+    handleUseFullQuestion(user?.credits || 0, baseCost);
+  }, [handleUseFullQuestion, spread.cost, isAdvanced, user?.credits]);
 
   const startShuffleAnimation = useCallback(async () => {
-    if (!question.trim()) {
-      setQuestionError(true);
-      setValidationMessage(t('reading.error.missingQuestion', "Please enter a question above or select 'General Guidance'."));
+    // Use hook's validation
+    const baseCost = spread.cost + (isAdvanced ? 1 : 0);
+    if (!validateBeforeStart(baseCost)) {
       return;
     }
-
-    // Check question length
-    if (questionLengthStatus === 'exceeded') {
-      setValidationMessage(t('reading.error.questionTooLong', `Question too long (${questionLength}/${QUESTION_LENGTH.HARD_LIMIT} characters). Please shorten it.`));
-      return;
-    }
-
-    // If extended (500-2000) and not paid, show modal
-    if (questionLengthStatus === 'extended' && !extendedQuestionPaid) {
-      setShowLengthModal(true);
-      return;
-    }
-
-    setValidationMessage(null);
 
     const result = await deductCredits(totalCost);
     if (!result.success) {
@@ -267,7 +199,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
     setPhase('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [question, totalCost, deductCredits, language, questionLengthStatus, questionLength, extendedQuestionPaid]);
+  }, [validateBeforeStart, spread.cost, isAdvanced, totalCost, deductCredits, setValidationMessage, t]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
@@ -419,7 +351,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
         onShowLengthModal={setShowLengthModal}
         onShortenManually={handleShortenManually}
         onAISummarize={handleAISummarize}
-        onUseFullQuestion={handleUseFullQuestion}
+        onUseFullQuestion={handleUseFullQuestionWrapper}
       />
     );
   }

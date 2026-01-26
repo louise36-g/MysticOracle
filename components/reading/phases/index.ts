@@ -1,4 +1,6 @@
-export { default as QuestionIntroPhase, QUESTION_LENGTH } from './QuestionIntroPhase';
+export { default as QuestionIntroPhase } from './QuestionIntroPhase';
 export { default as DrawingPhase } from './DrawingPhase';
 export { default as RevealingPhase } from './RevealingPhase';
 export { default as InterpretationPhase } from './InterpretationPhase';
+// Re-export QUESTION_LENGTH from hooks for backward compatibility
+export { QUESTION_LENGTH } from '../../../hooks';
