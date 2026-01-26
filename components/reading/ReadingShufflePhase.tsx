@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass, ArrowLeft } from 'lucide-react';
+import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
 import { Language, SpreadType } from '../../types';
 import { useApp } from '../../context/AppContext';
 
@@ -73,7 +73,6 @@ const SHUFFLE_THEMES: Record<SpreadType, {
 interface ReadingShufflePhaseProps {
   language: Language;
   onStop?: () => void;
-  onCancel?: () => void;
   minDuration?: number;
   spreadType?: SpreadType;
 }
@@ -83,7 +82,6 @@ const NUM_CARDS = 7;
 const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   language,
   onStop,
-  onCancel,
   minDuration = 5000,
   spreadType = SpreadType.THREE_CARD,
 }) => {
@@ -193,19 +191,6 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
         }}
       />
-
-      {/* Back button */}
-      {onCancel && (
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={onCancel}
-          className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-slate-400 hover:text-white hover:bg-black/40 transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{language === 'en' ? 'Back' : 'Retour'}</span>
-        </motion.button>
-      )}
 
       <div className="flex flex-col items-center justify-center min-h-screen relative px-4 z-10">
         {/* Theme badge */}

@@ -18,6 +18,7 @@ import {
   RevealingPhase,
   InterpretationPhase,
 } from './reading';
+import ReadingStepper, { ReadingPhase } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
   spread?: SpreadConfig;
@@ -30,7 +31,7 @@ interface DrawnCard {
   isReversed: boolean;
 }
 
-type ReadingPhase = 'intro' | 'animating_shuffle' | 'drawing' | 'revealing' | 'reading';
+// ReadingPhase type is imported from ReadingStepper
 
 const LOADING_MESSAGES = {
   en: [
@@ -136,6 +137,52 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Reading state
   const [readingText, setReadingText] = useState<string>('');
   const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
+
+  // Handle stepper navigation - go back to a previous phase
+  const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
+    // Define phase order for comparison
+    const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
+    const currentIndex = phaseOrder.indexOf(phase);
+    const targetIndex = phaseOrder.indexOf(targetPhase);
+
+    // Only allow going backwards
+    if (targetIndex >= currentIndex) return;
+
+    // Reset state based on what phase we're going back to
+    if (targetIndex <= 0) {
+      // Going back to intro - reset everything except question
+      setDrawnCards([]);
+      setReadingText('');
+      setReadingLanguage(null);
+    } else if (targetIndex <= 1) {
+      // Going back to shuffle - reset cards and reading
+      setDrawnCards([]);
+      setReadingText('');
+      setReadingLanguage(null);
+    } else if (targetIndex <= 2) {
+      // Going back to drawing - reset reading, keep partial cards
+      setReadingText('');
+      setReadingLanguage(null);
+    }
+
+    setPhase(targetPhase);
+  }, [phase]);
+
+  // Determine which phases can be navigated to (only previous phases, and only after credits paid)
+  const canNavigateTo = useCallback((targetPhase: ReadingPhase): boolean => {
+    const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
+    const currentIndex = phaseOrder.indexOf(phase);
+    const targetIndex = phaseOrder.indexOf(targetPhase);
+
+    // Can only go backwards
+    if (targetIndex >= currentIndex) return false;
+
+    // Don't allow going back to intro after credits are spent (shuffle started)
+    // This prevents users from "resetting" after paying
+    if (targetPhase === 'intro' && currentIndex > 0) return false;
+
+    return true;
+  }, [phase]);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -375,90 +422,110 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setChatInput(value);
   }, [setChatInput]);
 
-  // Render based on phase
-  if (phase === 'animating_shuffle') {
-    return <ReadingShufflePhase language={language} onStop={handleShuffleStop} onCancel={handleCancel} spreadType={spread.id} />;
-  }
+  // Render phase content
+  const renderPhaseContent = () => {
+    if (phase === 'animating_shuffle') {
+      return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} />;
+    }
 
-  if (phase === 'intro') {
+    if (phase === 'intro') {
+      return (
+        <QuestionIntroPhase
+          spread={spread}
+          language={language}
+          question={question}
+          questionError={questionError}
+          validationMessage={validationMessage}
+          isAdvanced={isAdvanced}
+          selectedStyles={selectedStyles}
+          extendedQuestionPaid={extendedQuestionPaid}
+          totalCost={totalCost}
+          credits={user?.credits || 0}
+          showLengthModal={showLengthModal}
+          isProcessingLength={isProcessingLength}
+          onQuestionChange={handleQuestionChange}
+          onGeneralGuidance={handleGeneralGuidance}
+          onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+          onStyleToggle={toggleStyle}
+          onStartShuffle={startShuffleAnimation}
+          onShowLengthModal={setShowLengthModal}
+          onShortenManually={handleShortenManually}
+          onAISummarize={handleAISummarize}
+          onUseFullQuestion={handleUseFullQuestionWrapper}
+        />
+      );
+    }
+
+    if (phase === 'drawing') {
+      return (
+        <DrawingPhase
+          spread={spread}
+          language={language}
+          drawnCards={drawnCards}
+          onCardDraw={handleCardDraw}
+        />
+      );
+    }
+
+    if (phase === 'revealing') {
+      return (
+        <RevealingPhase
+          spread={spread}
+          language={language}
+          drawnCards={drawnCards}
+          onStartReading={startReading}
+        />
+      );
+    }
+
+    // Reading Phase
     return (
-      <QuestionIntroPhase
+      <InterpretationPhase
         spread={spread}
         language={language}
+        drawnCards={drawnCards}
         question={question}
-        questionError={questionError}
-        validationMessage={validationMessage}
-        isAdvanced={isAdvanced}
-        selectedStyles={selectedStyles}
-        extendedQuestionPaid={extendedQuestionPaid}
-        totalCost={totalCost}
+        readingText={readingText}
+        isGenerating={isGenerating}
+        loadingMessages={loadingMessages}
+        loadingMessageIndex={loadingMessageIndex}
+        isContextExpanded={isContextExpanded}
+        showCelebration={showCelebration}
+        backendReadingId={backendReadingId}
         credits={user?.credits || 0}
-        showLengthModal={showLengthModal}
-        isProcessingLength={isProcessingLength}
-        onQuestionChange={handleQuestionChange}
-        onGeneralGuidance={handleGeneralGuidance}
-        onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-        onStyleToggle={toggleStyle}
-        onStartShuffle={startShuffleAnimation}
-        onShowLengthModal={setShowLengthModal}
-        onShortenManually={handleShortenManually}
-        onAISummarize={handleAISummarize}
-        onUseFullQuestion={handleUseFullQuestionWrapper}
-        onCancel={handleCancel}
+        chatHistory={chatHistory}
+        chatInput={chatInput}
+        isChatLoading={isChatLoading}
+        questionCost={questionCost}
+        onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
+        onFinish={handleFinish}
+        onCelebrationComplete={handleCelebrationComplete}
+        onSaveReflection={handleSaveReflection}
+        onChatInputChange={handleChatInputChange}
+        onSendMessage={handleSendMessage}
       />
     );
-  }
+  };
 
-  if (phase === 'drawing') {
-    return (
-      <DrawingPhase
-        spread={spread}
-        language={language}
-        drawnCards={drawnCards}
-        onCardDraw={handleCardDraw}
-        onCancel={handleCancel}
-      />
-    );
-  }
-
-  if (phase === 'revealing') {
-    return (
-      <RevealingPhase
-        spread={spread}
-        language={language}
-        drawnCards={drawnCards}
-        onStartReading={startReading}
-        onCancel={handleCancel}
-      />
-    );
-  }
-
-  // Reading Phase
   return (
-    <InterpretationPhase
-      spread={spread}
-      language={language}
-      drawnCards={drawnCards}
-      question={question}
-      readingText={readingText}
-      isGenerating={isGenerating}
-      loadingMessages={loadingMessages}
-      loadingMessageIndex={loadingMessageIndex}
-      isContextExpanded={isContextExpanded}
-      showCelebration={showCelebration}
-      backendReadingId={backendReadingId}
-      credits={user?.credits || 0}
-      chatHistory={chatHistory}
-      chatInput={chatInput}
-      isChatLoading={isChatLoading}
-      questionCost={questionCost}
-      onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
-      onFinish={handleFinish}
-      onCelebrationComplete={handleCelebrationComplete}
-      onSaveReflection={handleSaveReflection}
-      onChatInputChange={handleChatInputChange}
-      onSendMessage={handleSendMessage}
-    />
+    <div className="relative min-h-screen">
+      {/* Stepper - fixed at top */}
+      <div className="sticky top-16 z-40 px-4 py-3 bg-gradient-to-b from-slate-950/95 to-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto">
+          <ReadingStepper
+            currentPhase={phase}
+            spreadType={spread.id}
+            language={language}
+            onNavigate={handleNavigateToPhase}
+            onBack={handleCancel}
+            canNavigateTo={canNavigateTo}
+          />
+        </div>
+      </div>
+
+      {/* Phase content */}
+      {renderPhaseContent()}
+    </div>
   );
 };
 

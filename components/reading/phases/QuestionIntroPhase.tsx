@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Settings, Check, AlertCircle, ChevronDown, ArrowLeft } from 'lucide-react';
+import { Sparkles, Settings, Check, AlertCircle, ChevronDown } from 'lucide-react';
 import { SpreadConfig, InterpretationStyle, SpreadType } from '../../../types';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
@@ -30,7 +30,6 @@ interface QuestionIntroPhaseProps {
   onShortenManually: () => void;
   onAISummarize: () => Promise<void>;
   onUseFullQuestion: () => void;
-  onCancel?: () => void;
 }
 
 const QuestionIntroPhase: React.FC<QuestionIntroPhaseProps> = ({
@@ -55,7 +54,6 @@ const QuestionIntroPhase: React.FC<QuestionIntroPhaseProps> = ({
   onShortenManually,
   onAISummarize,
   onUseFullQuestion,
-  onCancel,
 }) => {
   const theme = SPREAD_THEMES[spread.id];
   const questionLength = question.length;
@@ -71,19 +69,6 @@ const QuestionIntroPhase: React.FC<QuestionIntroPhaseProps> = ({
     <div className="flex flex-col items-center px-4 py-6 md:py-8 relative min-h-screen">
       {/* Themed Background */}
       <ThemedBackground spreadType={spread.id} />
-
-      {/* Back button */}
-      {onCancel && (
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={onCancel}
-          className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-slate-400 hover:text-white hover:bg-black/40 transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{language === 'en' ? 'Back' : 'Retour'}</span>
-        </motion.button>
-      )}
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
