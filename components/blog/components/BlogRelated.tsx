@@ -1,12 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { SmartLink } from '../../SmartLink';
 import { BlogPost } from '../../../services/apiService';
+import { ROUTES, buildRoute } from '../../../routes/routes';
 
 interface BlogRelatedProps {
   relatedPosts: BlogPost[];
   language: 'en' | 'fr';
-  onNavigateToPost: (slug: string) => void;
   t: (key: string, fallback: string) => string;
 }
 
@@ -18,7 +18,6 @@ interface BlogRelatedProps {
 export const BlogRelated: React.FC<BlogRelatedProps> = ({
   relatedPosts,
   language,
-  onNavigateToPost,
   t,
 }) => {
   if (relatedPosts.length === 0) return null;
@@ -35,10 +34,9 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
       </h2>
       <div className="grid md:grid-cols-3 gap-6">
         {relatedPosts.map((related) => (
-          <SmartLink
+          <Link
             key={related.id}
-            href={`/blog/${related.slug}`}
-            onClick={() => onNavigateToPost(related.slug)}
+            to={buildRoute(ROUTES.BLOG_POST, { slug: related.slug })}
             className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all block"
           >
             {related.coverImage && (
@@ -58,7 +56,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
                 {language === 'en' ? related.excerptEn : related.excerptFr}
               </p>
             </div>
-          </SmartLink>
+          </Link>
         ))}
       </div>
     </motion.section>

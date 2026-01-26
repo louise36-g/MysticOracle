@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/apiService';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, BlogLightbox } from './components';
+import { ROUTES } from '../../routes/routes';
 
 interface BlogPostProps {
-  slug?: string;
   previewId?: string;
-  onBack: () => void;
-  onNavigateToPost: (slug: string) => void;
-  onCategoryClick: (slug: string) => void;
-  onTagClick: (slug: string) => void;
-  onNavigate: (path: string) => void;
 }
 
-const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavigateToPost, onCategoryClick, onTagClick, onNavigate }) => {
+const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const { language } = useApp();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // Get slug from URL params
+  const { slug } = useParams<{ slug: string }>();
   const isPreview = !!previewId;
 
   // Local UI state
@@ -81,12 +80,12 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
           {t('blog.BlogPost.article_not_found', 'Article Not Found')}
         </h2>
         <p className="text-slate-400 mb-8">{error}</p>
-        <SmartLink href="/blog" onClick={onBack}>
+        <Link to={ROUTES.BLOG}>
           <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors">
             <ArrowLeft className="w-4 h-4 inline mr-2" />
             {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
           </button>
-        </SmartLink>
+        </Link>
       </div>
     );
   }
@@ -111,12 +110,10 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       )}
 
       {/* Back Button */}
-      <SmartLink href="/blog" onClick={onBack}>
-        <button className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
-        </button>
-      </SmartLink>
+      <Link to={ROUTES.BLOG} className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
+      </Link>
 
       {/* Header */}
       <BlogHeader
@@ -126,7 +123,6 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         copied={copied}
         formatDate={formatDate}
         handleShare={handleShare}
-        onCategoryClick={onCategoryClick}
         t={t}
       />
 
@@ -158,7 +154,6 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
         contentAfterFAQ={contentAfterFAQ}
         contentRef={contentRef}
         onImageClick={setLightboxImage}
-        onNavigate={onNavigate}
       />
 
       {/* FAQ Section */}
@@ -174,7 +169,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       />
 
       {/* CTA Banner */}
-      {post.cta && <BlogCTA cta={post.cta as CTAItem} onNavigate={onNavigate} />}
+      {post.cta && <BlogCTA cta={post.cta as CTAItem} />}
 
       {/* Tags */}
       {post.tags.length > 0 && (
@@ -190,14 +185,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
               {t('blog.BlogPost.tags', 'Tags:')}
             </span>
             {post.tags.map((tag) => (
-              <SmartLink
+              <Link
                 key={tag.id}
-                href={`/blog/tag/${tag.slug}`}
-                onClick={() => onTagClick(tag.slug)}
+                to={`${ROUTES.BLOG}?tag=${tag.slug}`}
                 className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-sm hover:bg-purple-600 hover:text-white transition-colors"
               >
                 #{language === 'en' ? tag.nameEn : tag.nameFr}
-              </SmartLink>
+              </Link>
             ))}
           </div>
         </motion.section>
@@ -207,7 +201,6 @@ const BlogPostView: React.FC<BlogPostProps> = ({ slug, previewId, onBack, onNavi
       <BlogRelated
         relatedPosts={relatedPosts}
         language={language}
-        onNavigateToPost={onNavigateToPost}
         t={t}
       />
 

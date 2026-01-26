@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import {
   fetchBlogPosts,
@@ -9,8 +10,8 @@ import {
 } from '../../services/apiService';
 import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
+import { ROUTES, buildRoute } from '../../routes/routes';
 
 // Unified article type for display
 interface DisplayArticle {
@@ -28,16 +29,14 @@ interface DisplayArticle {
   type: 'blog' | 'tarot'; // Distinguish between blog posts and tarot articles
 }
 
-interface BlogListProps {
-  onNavigateToPost: (slug: string) => void;
-  onNavigateToTarot: (slug: string) => void;
-  onCategoryClick: (categorySlug: string) => void;
-  initialCategory?: string;
-}
-
-const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot, onCategoryClick, initialCategory }) => {
+const BlogList: React.FC = () => {
   const { language } = useApp();
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get category from URL params
+  const categoryFromUrl = searchParams.get('category') || '';
+
   const [articles, setArticles] = useState<DisplayArticle[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({}); // Accurate counts including tarot articles
@@ -45,7 +44,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
   const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
 
   // Convert blog post to display article
@@ -207,14 +206,18 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
     loadFeatured();
   }, [loadCategories, loadFeatured]);
 
-  // Sync selectedCategory with initialCategory prop changes
+  // Sync selectedCategory with URL category param
   useEffect(() => {
-    setSelectedCategory(initialCategory || '');
+    setSelectedCategory(categoryFromUrl);
     setPage(1);
-  }, [initialCategory]);
+  }, [categoryFromUrl]);
 
-  const handleCategoryClick = (slug: string) => {
-    setSelectedCategory(selectedCategory === slug ? '' : slug);
+  const handleCategoryChange = (slug: string) => {
+    if (slug) {
+      setSearchParams({ category: slug });
+    } else {
+      setSearchParams({});
+    }
     setPage(1);
   };
 
@@ -249,18 +252,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
               <Folder className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none z-10" />
               <select
                 value={selectedCategory}
-                onChange={(e) => {
-                  const newCategory = e.target.value;
-                  if (newCategory) {
-                    // Navigate to category page (updates URL)
-                    onCategoryClick(newCategory);
-                  } else {
-                    // Clear category filter - navigate to main blog
-                    window.history.pushState({ view: 'blog' }, '', '/blog');
-                    setSelectedCategory('');
-                    setPage(1);
-                  }
-                }}
+                onChange={(e) => handleCategoryChange(e.target.value)}
                 className="appearance-none pl-12 pr-8 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-purple-200 font-heading text-lg hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
               >
                 <option value="">
@@ -287,10 +279,9 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
           </h2>
           <div className="flex flex-wrap gap-6 justify-center">
             {featuredPosts.map((post, index) => (
-              <SmartLink
+              <Link
                 key={post.id}
-                href={`/blog/${post.slug}`}
-                onClick={() => onNavigateToPost(post.slug)}
+                to={buildRoute(ROUTES.BLOG_POST, { slug: post.slug })}
                 className="group cursor-pointer bg-gradient-to-br from-purple-900/40 to-slate-900/60 rounded-2xl overflow-hidden border border-amber-500/20 hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
               >
                 <motion.div
@@ -342,7 +333,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
                     </div>
                   </div>
                 </motion.div>
-              </SmartLink>
+              </Link>
             ))}
           </div>
         </section>
@@ -386,16 +377,14 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
           <div className="flex flex-wrap gap-6 justify-center">
             {articles.map((article, index) => {
               // Determine navigation path based on article type
-              const href = article.type === 'tarot' ? `/tarot/articles/${article.slug}` : `/blog/${article.slug}`;
-              const handleClick = article.type === 'tarot'
-                ? () => onNavigateToTarot(article.slug)
-                : () => onNavigateToPost(article.slug);
+              const articlePath = article.type === 'tarot'
+                ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })
+                : buildRoute(ROUTES.BLOG_POST, { slug: article.slug });
 
               return (
-                <SmartLink
+                <Link
                   key={article.id}
-                  href={href}
-                  onClick={handleClick}
+                  to={articlePath}
                   className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
                 >
                   <motion.div
@@ -448,7 +437,7 @@ const BlogList: React.FC<BlogListProps> = ({ onNavigateToPost, onNavigateToTarot
                       </div>
                     </div>
                   </motion.div>
-                </SmartLink>
+                </Link>
               );
             })}
           </div>

@@ -1,4 +1,5 @@
 import React, { RefObject } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface BlogContentProps {
@@ -6,7 +7,6 @@ interface BlogContentProps {
   contentAfterFAQ: string;
   contentRef: RefObject<HTMLDivElement>;
   onImageClick: (src: string) => void;
-  onNavigate: (href: string) => void;
 }
 
 /**
@@ -24,8 +24,9 @@ export const BlogContent: React.FC<BlogContentProps> = ({
   contentAfterFAQ,
   contentRef,
   onImageClick,
-  onNavigate,
 }) => {
+  const navigate = useNavigate();
+
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
 
@@ -47,7 +48,7 @@ export const BlogContent: React.FC<BlogContentProps> = ({
       // Navigate internal links with SPA routing
       if (href && href.startsWith('/')) {
         e.preventDefault();
-        onNavigate(href);
+        navigate(href);
       }
     }
   };

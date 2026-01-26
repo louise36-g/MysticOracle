@@ -1,12 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { SmartLink } from '../../SmartLink';
 import { CTAItem } from '../../../services/apiService';
 
 interface BlogCTAProps {
   cta: CTAItem;
-  onNavigate: (href: string) => void;
 }
 
 /**
@@ -14,7 +13,7 @@ interface BlogCTAProps {
  *
  * Renders a call-to-action banner with heading, text, and button.
  */
-export const BlogCTA: React.FC<BlogCTAProps> = ({ cta, onNavigate }) => {
+export const BlogCTA: React.FC<BlogCTAProps> = ({ cta }) => {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -29,14 +28,13 @@ export const BlogCTA: React.FC<BlogCTAProps> = ({ cta, onNavigate }) => {
         <p className="text-slate-300 mb-8 max-w-2xl mx-auto text-lg">
           {cta.text}
         </p>
-        <SmartLink
-          href={cta.buttonUrl}
-          onClick={() => onNavigate(cta.buttonUrl)}
+        <Link
+          to={cta.buttonUrl}
           className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-500 transition-colors font-medium text-lg shadow-lg shadow-purple-500/20"
         >
           {cta.buttonText}
           <ArrowRight className="w-5 h-5" />
-        </SmartLink>
+        </Link>
       </div>
     </motion.section>
   );
