@@ -1,6 +1,9 @@
-import React, { useState, useRef, memo } from 'react';
+import React, { useState, useRef, useCallback, memo } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../context/TranslationContext';
+import { useReading } from '../context/ReadingContext';
+import { ROUTES } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,15 +24,6 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
-import { SmartLink } from './SmartLink';
-
-interface SubNavProps {
-  onNavigate: (view: string) => void;
-  onSelectSpread: (spread: SpreadConfig) => void;
-  onSelectReadingMode: (mode: string) => void;
-  currentView: string;
-  readingMode: string | null;
-}
 
 interface DropdownItem {
   id: string;
@@ -45,15 +39,12 @@ interface DropdownItem {
   href?: string; // Optional href for navigation items
 }
 
-const SubNav: React.FC<SubNavProps> = ({
-  onNavigate,
-  onSelectSpread,
-  onSelectReadingMode,
-  currentView,
-  readingMode
-}) => {
+const SubNav: React.FC = () => {
   const { language, user } = useApp();
   const { t } = useTranslation();
+  const { setSpreadType } = useReading();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -75,6 +66,18 @@ const SubNav: React.FC<SubNavProps> = ({
     onClick();
     setOpenDropdown(null);
   };
+
+  // Handle spread selection: set context and navigate
+  const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
+    setSpreadType(spread.id);
+    setOpenDropdown(null);
+    navigate(ROUTES.READING_QUESTION);
+  }, [setSpreadType, navigate]);
+
+  // Helper to check if path is active
+  const isActive = useCallback((path: string) => {
+    return location.pathname.startsWith(path);
+  }, [location.pathname]);
 
   // Spread theme icons and colors (matching SpreadSelector)
   const spreadThemes: Record<SpreadType, { icon: React.ReactNode; iconBg: string }> = {
@@ -107,7 +110,6 @@ const SubNav: React.FC<SubNavProps> = ({
   // Build Tarot spreads menu items with themed icons
   const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => {
     const theme = spreadThemes[spread.id] || { icon: <Sparkles className="w-4 h-4 text-purple-400" />, iconBg: 'bg-purple-500/20' };
-    const spreadSlug = spread.nameEn.toLowerCase().replace(/\s+/g, '-');
     return {
       id: spread.id,
       labelEn: spread.nameEn,
@@ -117,8 +119,8 @@ const SubNav: React.FC<SubNavProps> = ({
       icon: theme.icon,
       iconBg: theme.iconBg,
       cost: spread.cost,
-      href: `/tarot/${spreadSlug}`,
-      onClick: () => onSelectSpread(spread)
+      // No href - these trigger state change + navigation via onClick
+      onClick: () => handleSpreadSelect(spread)
     };
   });
 
@@ -180,8 +182,8 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.about.desc', 'Notre histoire'),
       icon: <Users className="w-4 h-4 text-pink-400" />,
       iconBg: 'bg-pink-500/20',
-      href: '/about',
-      onClick: () => onNavigate('about')
+      href: ROUTES.ABOUT,
+      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'tarot-cards',
@@ -191,8 +193,8 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.tarotCards.desc', 'Explorez les 78 cartes'),
       icon: <Layers className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
-      href: '/tarot/cards',
-      onClick: () => onNavigate('tarot-cards')
+      href: ROUTES.TAROT_CARDS,
+      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'blog',
@@ -202,8 +204,8 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.blog.desc', 'Articles & guides'),
       icon: <BookOpen className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
-      href: '/blog',
-      onClick: () => onNavigate('blog')
+      href: ROUTES.BLOG,
+      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'how-credits-work',
@@ -213,8 +215,8 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.credits.desc', 'Tarifs & forfaits'),
       icon: <CreditCard className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
-      href: '/how-credits-work',
-      onClick: () => onNavigate('how-credits-work')
+      href: ROUTES.HOW_CREDITS_WORK,
+      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'faq',
@@ -224,8 +226,8 @@ const SubNav: React.FC<SubNavProps> = ({
       descriptionFr: t('subnav.learn.faq.desc', 'Trouvez des réponses'),
       icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
-      href: '/faq',
-      onClick: () => onNavigate('faq')
+      href: ROUTES.FAQ,
+      onClick: () => {} // Navigation handled by Link
     }
   ];
 
@@ -281,17 +283,17 @@ const SubNav: React.FC<SubNavProps> = ({
                 : 'hover:bg-white/5 hover:scale-[1.02] cursor-pointer'
           }`;
 
-          // If item has href and is not disabled, use SmartLink
+          // If item has href and is not disabled, use Link
           if (item.href && !isDisabled) {
             return (
-              <SmartLink
+              <Link
                 key={item.id}
-                href={item.href}
+                to={item.href}
                 onClick={() => handleItemClick(item.onClick)}
                 className={className}
               >
                 {content}
-              </SmartLink>
+              </Link>
             );
           }
 
@@ -311,9 +313,9 @@ const SubNav: React.FC<SubNavProps> = ({
     </motion.div>
   );
 
-  const isTarotActive = readingMode === 'tarot';
-  const isHoroscopeActive = currentView === 'horoscopes' || currentView === 'horoscope-sign';
-  const isLearnActive = ['blog', 'blog-post', 'faq', 'how-credits-work', 'about', 'tarot-cards', 'tarot-cards-all', 'tarot-cards-category'].includes(currentView);
+  const isTarotActive = isActive('/reading') || isActive('/tarot');
+  const isHoroscopeActive = isActive('/horoscopes');
+  const isLearnActive = isActive('/blog') || isActive('/faq') || isActive('/how-credits-work') || isActive('/about') || location.pathname.startsWith('/tarot/cards');
 
   return (
     <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5 relative z-40">
@@ -325,9 +327,8 @@ const SubNav: React.FC<SubNavProps> = ({
             onMouseEnter={() => handleMouseEnter('tarot')}
             onMouseLeave={handleMouseLeave}
           >
-            <SmartLink
-              href="/tarot"
-              onClick={() => onNavigate('tarot')}
+            <Link
+              to={ROUTES.READING_SELECT_SPREAD}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
                   ? 'text-purple-300 bg-purple-500/10'
@@ -337,15 +338,15 @@ const SubNav: React.FC<SubNavProps> = ({
               <Sparkles className="w-4 h-4" />
               <span>{t('subnav.tarot.title', 'Tarot Readings')}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'tarot' ? 'rotate-180' : ''}`} />
-            </SmartLink>
+            </Link>
             <AnimatePresence>
               {openDropdown === 'tarot' && renderDropdown(tarotItems, true)}
             </AnimatePresence>
           </div>
 
           {/* Horoscope Link */}
-          <a
-            href="/horoscopes"
+          <Link
+            to={ROUTES.HOROSCOPES}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isHoroscopeActive
                 ? 'text-amber-300 bg-amber-500/10'
@@ -354,7 +355,7 @@ const SubNav: React.FC<SubNavProps> = ({
           >
             <Moon className="w-4 h-4" />
             <span>{t('subnav.horoscope.title', 'Horoscopes')}</span>
-          </a>
+          </Link>
 
           {/* Coming Soon Dropdown */}
           <div

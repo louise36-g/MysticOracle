@@ -17,25 +17,14 @@ function PageLoader() {
   );
 }
 
-// Temporary no-op handlers until Tasks 6-7 convert these components to use router
+// Temporary no-op handlers until remaining tasks convert Footer/CookieConsent to use router
 const noOpNavigate = () => {};
-const noOpSelectSpread = () => {};
-const noOpSelectReadingMode = () => {};
 
 export function RootLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 flex flex-col">
-      <Header
-        onNavigate={noOpNavigate}
-        currentView=""
-      />
-      <SubNav
-        onNavigate={noOpNavigate}
-        onSelectSpread={noOpSelectSpread}
-        onSelectReadingMode={noOpSelectReadingMode}
-        currentView=""
-        readingMode={null}
-      />
+      <Header />
+      <SubNav />
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
           <Outlet />
