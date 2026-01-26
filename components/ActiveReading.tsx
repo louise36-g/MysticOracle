@@ -517,8 +517,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             spreadType={spread.id}
             language={language}
             onNavigate={handleNavigateToPhase}
-            onBack={handleCancel}
+            onExit={handleCancel}
             canNavigateTo={canNavigateTo}
+            creditsSpent={phase !== 'intro'}
           />
         </div>
       </div>

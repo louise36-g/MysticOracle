@@ -6,7 +6,8 @@ import {
   Layers,
   Eye,
   Scroll,
-  ChevronLeft
+  ChevronLeft,
+  Lock
 } from 'lucide-react';
 import { SpreadType } from '../../types';
 import { SPREAD_THEMES } from './SpreadThemes';
@@ -76,9 +77,12 @@ interface ReadingStepperProps {
   spreadType: SpreadType;
   language: 'en' | 'fr';
   onNavigate: (phase: ReadingPhase) => void;
-  onBack: () => void;
+  /** Called when user wants to exit reading entirely (back to spread selector) */
+  onExit: () => void;
   /** Which phases the user can navigate back to */
   canNavigateTo?: (phase: ReadingPhase) => boolean;
+  /** Whether credits have been spent (shows lock on intro step) */
+  creditsSpent?: boolean;
   /** Compact mode for mobile - shows only icons */
   compact?: boolean;
 }
@@ -88,8 +92,9 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
   spreadType,
   language,
   onNavigate,
-  onBack,
+  onExit,
   canNavigateTo,
+  creditsSpent = false,
   compact = false,
 }) => {
   const theme = SPREAD_THEMES[spreadType];
@@ -100,6 +105,25 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
     const targetIndex = STEPS.findIndex(s => s.id === phase);
     return targetIndex < currentStepIndex;
   });
+
+  // Get previous navigable step (for back button)
+  const previousNavigableStep = useMemo(() => {
+    for (let i = currentStepIndex - 1; i >= 0; i--) {
+      if (canGoTo(STEPS[i].id)) {
+        return STEPS[i];
+      }
+    }
+    return null;
+  }, [currentStepIndex, canGoTo]);
+
+  // Handle back button click - go to previous step or exit
+  const handleBackClick = () => {
+    if (previousNavigableStep) {
+      onNavigate(previousNavigableStep.id);
+    } else {
+      onExit();
+    }
+  };
 
   // Particle positions for constellation effect
   const particles = useMemo(() =>
@@ -112,15 +136,22 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
     })), []
   );
 
+  // Back button tooltip text
+  const backButtonTitle = previousNavigableStep
+    ? (language === 'en'
+        ? `Back to ${previousNavigableStep.shortLabelEn}`
+        : `Retour à ${previousNavigableStep.shortLabelFr}`)
+    : (language === 'en' ? 'Exit reading' : 'Quitter la lecture');
+
   return (
     <div className="relative">
-      {/* Back to spread selector button */}
+      {/* Back button - goes to previous step or exits */}
       <motion.button
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
-        onClick={onBack}
+        onClick={handleBackClick}
         className="absolute -left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-black/40 border border-white/10 text-slate-400 hover:text-white hover:bg-black/60 hover:border-white/20 transition-all group"
-        title={language === 'en' ? 'Back to spreads' : 'Retour aux tirages'}
+        title={backButtonTitle}
       >
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
       </motion.button>
@@ -167,6 +198,18 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
             const isFuture = index > currentStepIndex;
             const isNavigable = canGoTo(step.id);
             const isLastStep = index === STEPS.length - 1;
+            // Check if step is locked (completed but not navigable - e.g., intro after credits spent)
+            const isLocked = isCompleted && !isNavigable;
+
+            // Build tooltip text
+            let tooltipText: string | undefined;
+            if (isNavigable) {
+              tooltipText = language === 'en' ? `Go back to ${step.labelEn}` : `Retourner à ${step.labelFr}`;
+            } else if (isLocked) {
+              tooltipText = language === 'en'
+                ? 'Cannot go back - credits already spent'
+                : 'Impossible de revenir - crédits déjà dépensés';
+            }
 
             return (
               <React.Fragment key={step.id}>
@@ -177,20 +220,12 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                   className={`
                     relative flex items-center gap-2 px-2 py-1.5 rounded-xl
                     transition-all duration-300
-                    ${isNavigable ? 'cursor-pointer' : 'cursor-default'}
-                    ${isCurrent
-                      ? 'bg-white/10 border border-white/20'
-                      : isCompleted
-                        ? 'hover:bg-white/5'
-                        : ''
-                    }
+                    ${isNavigable ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'}
+                    ${isCurrent ? 'bg-white/10 border border-white/20' : ''}
                   `}
                   whileHover={isNavigable ? { scale: 1.02 } : {}}
                   whileTap={isNavigable ? { scale: 0.98 } : {}}
-                  title={isNavigable
-                    ? (language === 'en' ? `Go back to ${step.labelEn}` : `Retourner à ${step.labelFr}`)
-                    : undefined
-                  }
+                  title={tooltipText}
                 >
                   {/* Step icon circle */}
                   <div className={`
@@ -199,7 +234,9 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                     ${isCurrent
                       ? `bg-gradient-to-br from-amber-400/90 to-amber-600/90 text-slate-900 shadow-lg`
                       : isCompleted
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        ? isLocked
+                          ? 'bg-slate-600/30 text-slate-500 border border-slate-500/30'
+                          : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         : 'bg-white/5 text-slate-500 border border-white/10'
                     }
                   `}
@@ -220,7 +257,10 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                         }}
                       />
                     )}
-                    <span className="relative z-10">{step.icon}</span>
+                    {/* Show lock icon for locked steps, otherwise show step icon */}
+                    <span className="relative z-10">
+                      {isLocked ? <Lock className="w-3.5 h-3.5" /> : step.icon}
+                    </span>
                   </div>
 
                   {/* Step label (hidden on compact/mobile) */}
@@ -231,7 +271,9 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                       ${isCurrent
                         ? 'text-white'
                         : isCompleted
-                          ? 'text-amber-300/80'
+                          ? isLocked
+                            ? 'text-slate-500'
+                            : 'text-amber-300/80'
                           : 'text-slate-500'
                       }
                     `}>
@@ -239,7 +281,7 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                     </span>
                   )}
 
-                  {/* Clickable indicator for completed steps */}
+                  {/* Clickable indicator for navigable completed steps */}
                   {isCompleted && isNavigable && (
                     <motion.div
                       className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400"
