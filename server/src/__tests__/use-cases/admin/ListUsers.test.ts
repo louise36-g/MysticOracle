@@ -15,11 +15,16 @@ const createMockUserRepository = (): IUserRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
   findByEmail: vi.fn(),
-  findByClerkId: vi.fn(),
+  findByUsername: vi.fn(),
+  findByReferralCode: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
+  getCredits: vi.fn(),
+  updateCredits: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  findByIdWithAchievements: vi.fn(),
+  findByIdWithReadings: vi.fn(),
 });
 
 describe('ListUsersUseCase', () => {

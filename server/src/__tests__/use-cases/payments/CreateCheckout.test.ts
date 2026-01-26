@@ -20,31 +20,44 @@ const createMockUserRepository = (): IUserRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
   findByEmail: vi.fn(),
-  findByClerkId: vi.fn(),
+  findByUsername: vi.fn(),
+  findByReferralCode: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
+  getCredits: vi.fn(),
+  updateCredits: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  findByIdWithAchievements: vi.fn(),
+  findByIdWithReadings: vi.fn(),
 });
 
 const createMockTransactionRepository = (): ITransactionRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
   findByPaymentId: vi.fn(),
+  findByPaymentIdAndStatus: vi.fn(),
+  findByPaymentIdAndType: vi.fn(),
+  updateByPaymentId: vi.fn(),
+  updateStatusByPaymentId: vi.fn(),
   findByUser: vi.fn(),
+  countByUser: vi.fn(),
   update: vi.fn(),
-  delete: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  sumCompletedPurchases: vi.fn(),
+  sumCompletedPurchasesLast30Days: vi.fn(),
+  groupByProvider: vi.fn(),
 });
 
 const createMockPaymentGateway = (
-  provider: string,
+  provider: 'STRIPE' | 'PAYPAL' | 'STRIPE_LINK',
   configured: boolean = true
 ): IPaymentGateway => ({
   provider,
   isConfigured: vi.fn().mockReturnValue(configured),
   createCheckoutSession: vi.fn(),
+  verifyPayment: vi.fn(),
   capturePayment: vi.fn(),
   verifyWebhook: vi.fn(),
 });
@@ -80,8 +93,8 @@ describe('CreateCheckoutUseCase', () => {
     vi.clearAllMocks();
     mockUserRepo = createMockUserRepository();
     mockTransactionRepo = createMockTransactionRepository();
-    mockStripeGateway = createMockPaymentGateway('stripe');
-    mockPayPalGateway = createMockPaymentGateway('paypal');
+    mockStripeGateway = createMockPaymentGateway('STRIPE');
+    mockPayPalGateway = createMockPaymentGateway('PAYPAL');
 
     useCase = new CreateCheckoutUseCase(mockUserRepo, mockTransactionRepo, [
       mockStripeGateway,
@@ -91,7 +104,7 @@ describe('CreateCheckoutUseCase', () => {
 
   describe('Provider Selection', () => {
     it('should return error when provider is not configured', async () => {
-      const unconfiguredGateway = createMockPaymentGateway('stripe', false);
+      const unconfiguredGateway = createMockPaymentGateway('STRIPE', false);
       useCase = new CreateCheckoutUseCase(mockUserRepo, mockTransactionRepo, [unconfiguredGateway]);
 
       const result = await useCase.execute(validInput);

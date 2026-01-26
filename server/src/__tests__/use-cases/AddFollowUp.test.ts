@@ -19,25 +19,33 @@ import type { FollowUpQuestion } from '@prisma/client';
 const createMockReadingRepository = (): IReadingRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
+  findByIdWithFollowUps: vi.fn(),
   findByIdAndUser: vi.fn(),
   findByUser: vi.fn(),
+  countByUser: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
   addFollowUp: vi.fn(),
-  getFollowUps: vi.fn(),
-  count: vi.fn(),
-  updateReflection: vi.fn(),
+  findFollowUpsByReading: vi.fn(),
+  countAll: vi.fn(),
+  countToday: vi.fn(),
+  getRecentReadings: vi.fn(),
 });
 
 const createMockUserRepository = (): IUserRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
   findByEmail: vi.fn(),
-  findByClerkId: vi.fn(),
+  findByUsername: vi.fn(),
+  findByReferralCode: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
+  getCredits: vi.fn(),
+  updateCredits: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  findByIdWithAchievements: vi.fn(),
+  findByIdWithReadings: vi.fn(),
 });
 
 const createMockCreditService = (): CreditService =>

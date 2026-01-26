@@ -19,11 +19,18 @@ const createMockTransactionRepository = (): ITransactionRepository => ({
   create: vi.fn(),
   findById: vi.fn(),
   findByPaymentId: vi.fn(),
+  findByPaymentIdAndStatus: vi.fn(),
+  findByPaymentIdAndType: vi.fn(),
+  updateByPaymentId: vi.fn(),
+  updateStatusByPaymentId: vi.fn(),
   findByUser: vi.fn(),
+  countByUser: vi.fn(),
   update: vi.fn(),
-  delete: vi.fn(),
   findMany: vi.fn(),
   count: vi.fn(),
+  sumCompletedPurchases: vi.fn(),
+  sumCompletedPurchasesLast30Days: vi.fn(),
+  groupByProvider: vi.fn(),
 });
 
 const createMockCreditService = (): CreditService =>
@@ -38,7 +45,7 @@ const createMockCreditService = (): CreditService =>
   }) as unknown as CreditService;
 
 const createMockPaymentGateway = (
-  provider: string,
+  provider: 'STRIPE' | 'PAYPAL' | 'STRIPE_LINK',
   configured: boolean = true,
   hasCapture: boolean = true
 ): IPaymentGateway => {
@@ -46,6 +53,7 @@ const createMockPaymentGateway = (
     provider,
     isConfigured: vi.fn().mockReturnValue(configured),
     createCheckoutSession: vi.fn(),
+    verifyPayment: vi.fn(),
     verifyWebhook: vi.fn(),
   };
 
@@ -78,7 +86,7 @@ describe('CapturePaymentUseCase', () => {
     vi.clearAllMocks();
     mockTransactionRepo = createMockTransactionRepository();
     mockCreditService = createMockCreditService();
-    mockPayPalGateway = createMockPaymentGateway('paypal');
+    mockPayPalGateway = createMockPaymentGateway('PAYPAL');
 
     useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
       mockPayPalGateway,
@@ -87,7 +95,7 @@ describe('CapturePaymentUseCase', () => {
 
   describe('Provider Selection', () => {
     it('should return error when provider is not configured', async () => {
-      const unconfiguredGateway = createMockPaymentGateway('paypal', false);
+      const unconfiguredGateway = createMockPaymentGateway('PAYPAL', false);
       useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
         unconfiguredGateway,
       ]);
@@ -113,7 +121,7 @@ describe('CapturePaymentUseCase', () => {
     });
 
     it('should return error when gateway does not support capture', async () => {
-      const noCaptureGateway = createMockPaymentGateway('paypal', true, false);
+      const noCaptureGateway = createMockPaymentGateway('PAYPAL', true, false);
       useCase = new CapturePaymentUseCase(mockTransactionRepo, mockCreditService, [
         noCaptureGateway,
       ]);
