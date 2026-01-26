@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { TarotOverviewCard } from '../../services/apiService';
 import TarotCardPreview from './TarotCardPreview';
-import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
+import { buildRoute, ROUTES } from '../../routes/routes';
 
 export type CategoryType = 'majorArcana' | 'wands' | 'cups' | 'swords' | 'pentacles';
 
@@ -65,16 +66,12 @@ interface TarotCategorySectionProps {
   category: CategoryType;
   cards: TarotOverviewCard[];
   count: number;
-  onCardClick: (slug: string) => void;
-  onViewAll: (category: CategoryType) => void;
 }
 
 const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
   category,
   cards,
   count,
-  onCardClick,
-  onViewAll,
 }) => {
   const { language } = useApp();
   const { t } = useTranslation();
@@ -150,14 +147,13 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
           </div>
         </div>
 
-        <SmartLink
-          href={`/tarot/cards/${config.slug}`}
-          onClick={() => onViewAll(category)}
+        <Link
+          to={buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: config.slug })}
           className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
         >
           {t('tarot.TarotCategorySection.view_all_count', 'View All {{count}}', { count })}
           <ChevronRight className="w-4 h-4" />
-        </SmartLink>
+        </Link>
       </div>
 
       {/* Scrollable Cards */}
@@ -209,7 +205,6 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
             >
               <TarotCardPreview
                 card={card}
-                onClick={onCardClick}
                 elementColor={config.color}
               />
             </motion.div>

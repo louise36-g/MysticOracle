@@ -12,16 +12,7 @@ export interface Section {
 }
 
 export interface TarotArticlePageProps {
-  slug?: string;
   previewId?: string;
-  onBack: () => void;
-  onNavigate: (path: string) => void;
-}
-
-export interface BreadcrumbsProps {
-  category: string;
-  title: string;
-  onNavigate: (path: string) => void;
 }
 
 export interface QuickNavChipsProps {

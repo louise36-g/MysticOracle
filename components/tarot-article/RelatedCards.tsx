@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
-import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
 import { fetchTarotArticles, TarotArticle } from '../../services/apiService';
+import { buildRoute, ROUTES } from '../../routes/routes';
 
 interface RelatedCardsProps {
   cards: string[];
-  onNavigate: (path: string) => void;
 }
 
 // Cache articles to avoid repeated fetches
@@ -16,7 +16,7 @@ let articlesCache: TarotArticle[] | null = null;
 /**
  * Related cards section - shows links to related tarot card articles with images
  */
-export function RelatedCards({ cards, onNavigate }: RelatedCardsProps) {
+export function RelatedCards({ cards }: RelatedCardsProps) {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,9 +123,8 @@ export function RelatedCards({ cards, onNavigate }: RelatedCardsProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 + index * 0.05 }}
             >
-              <SmartLink
-                href={`/tarot/articles/${article.slug}`}
-                onClick={() => onNavigate(`/tarot/articles/${article.slug}`)}
+              <Link
+                to={buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })}
                 className="block"
               >
                 <motion.div
@@ -163,7 +162,7 @@ export function RelatedCards({ cards, onNavigate }: RelatedCardsProps) {
                     </h3>
                   </div>
                 </motion.div>
-              </SmartLink>
+              </Link>
             </motion.div>
           ))
         ) : (
@@ -179,9 +178,8 @@ export function RelatedCards({ cards, onNavigate }: RelatedCardsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + index * 0.05 }}
               >
-                <SmartLink
-                  href={`/tarot/articles/${slug}`}
-                  onClick={() => onNavigate(`/tarot/articles/${slug}`)}
+                <Link
+                  to={buildRoute(ROUTES.TAROT_ARTICLE, { slug })}
                   className="group block px-5 py-4 bg-slate-900/60 border border-purple-500/20 rounded-xl
                     hover:border-purple-500/50 hover:bg-slate-800/60 transition-all duration-300
                     text-purple-300 hover:text-purple-200 font-medium text-center
@@ -191,7 +189,7 @@ export function RelatedCards({ cards, onNavigate }: RelatedCardsProps) {
                     {card}
                     <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-purple-500 to-fuchsia-500 group-hover:w-full transition-all duration-300" />
                   </span>
-                </SmartLink>
+                </Link>
               </motion.div>
             );
           })

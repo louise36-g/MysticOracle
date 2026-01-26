@@ -1,12 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
 import { TarotOverviewCard } from '../../services/apiService';
-import { SmartLink } from '../SmartLink';
+import { buildRoute, ROUTES } from '../../routes/routes';
 
 interface TarotCardPreviewProps {
   card: TarotOverviewCard;
-  onClick: (slug: string) => void;
   showCategory?: boolean;
   categoryLabel?: string;
   elementColor?: string;
@@ -15,16 +15,14 @@ interface TarotCardPreviewProps {
 
 const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
   card,
-  onClick,
   showCategory = false,
   categoryLabel,
   elementColor = '#a78bfa',
   fullWidth = false,
 }) => {
   return (
-    <SmartLink
-      href={`/tarot/articles/${card.slug}`}
-      onClick={() => onClick(card.slug)}
+    <Link
+      to={buildRoute(ROUTES.TAROT_ARTICLE, { slug: card.slug })}
       className={`block ${fullWidth ? 'w-full' : 'flex-shrink-0 w-[220px]'}`}
     >
       <motion.div
@@ -83,7 +81,7 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
           <p className="text-xs text-slate-400 line-clamp-2">{card.excerpt}</p>
         </div>
       </motion.div>
-    </SmartLink>
+    </Link>
   );
 };
 

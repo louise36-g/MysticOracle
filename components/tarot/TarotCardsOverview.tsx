@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -6,24 +7,33 @@ import { fetchTarotOverview, TarotOverviewData } from '../../services/apiService
 import TarotCategorySection, { CategoryType, CATEGORY_CONFIG } from './TarotCategorySection';
 import TarotCardPreview from './TarotCardPreview';
 import Button from '../Button';
-import { SmartLink } from '../SmartLink';
 import { useTranslation } from '../../context/TranslationContext';
+import { buildRoute, ROUTES } from '../../routes/routes';
+
+// Map URL slugs to CategoryType
+const slugToCategory: Record<string, CategoryType> = {
+  'major-arcana': 'majorArcana',
+  'wands': 'wands',
+  'cups': 'cups',
+  'swords': 'swords',
+  'pentacles': 'pentacles',
+};
 
 interface TarotCardsOverviewProps {
-  onCardClick: (slug: string) => void;
-  onViewAllCards: () => void;
-  onViewCategory: (category: CategoryType) => void;
+  // Props now optional - can use URL params instead
   selectedCategory?: CategoryType | null;
-  onCategoryChange?: (category: CategoryType | null) => void;
 }
 
 const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
-  onCardClick,
-  onViewAllCards,
-  onViewCategory,
-  selectedCategory = null,
-  onCategoryChange,
+  selectedCategory: propSelectedCategory,
 }) => {
+  const navigate = useNavigate();
+  const { category: urlCategory } = useParams<{ category?: string }>();
+
+  // Determine selected category from URL or props
+  const selectedCategory = urlCategory
+    ? slugToCategory[urlCategory] || null
+    : propSelectedCategory ?? null;
   const { language } = useApp();
   const { t } = useTranslation();
   const [data, setData] = useState<TarotOverviewData | null>(null);
@@ -180,10 +190,13 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <div className="flex flex-wrap justify-center gap-2">
           {categoryFilters.map((filter) => {
             const isActive = selectedCategory === filter.id;
+            const targetPath = filter.id
+              ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: CATEGORY_CONFIG[filter.id].slug })
+              : ROUTES.TAROT_CARDS;
             return (
-              <button
+              <Link
                 key={filter.id ?? 'all'}
-                onClick={() => onCategoryChange?.(filter.id)}
+                to={targetPath}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
@@ -192,7 +205,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               >
                 {filter.icon}
                 <span>{language === 'fr' ? filter.labelFr : filter.labelEn}</span>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -229,7 +242,6 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
                 <TarotCardPreview
                   key={card.id}
                   card={card}
-                  onClick={onCardClick}
                   elementColor={CATEGORY_CONFIG[selectedCategory].color}
                   fullWidth
                 />
@@ -243,40 +255,30 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               category="majorArcana"
               cards={data.majorArcana}
               count={counts.majorArcana}
-              onCardClick={onCardClick}
-              onViewAll={onViewCategory}
             />
 
             <TarotCategorySection
               category="wands"
               cards={data.wands}
               count={counts.wands}
-              onCardClick={onCardClick}
-              onViewAll={onViewCategory}
             />
 
             <TarotCategorySection
               category="cups"
               cards={data.cups}
               count={counts.cups}
-              onCardClick={onCardClick}
-              onViewAll={onViewCategory}
             />
 
             <TarotCategorySection
               category="swords"
               cards={data.swords}
               count={counts.swords}
-              onCardClick={onCardClick}
-              onViewAll={onViewCategory}
             />
 
             <TarotCategorySection
               category="pentacles"
               cards={data.pentacles}
               count={counts.pentacles}
-              onCardClick={onCardClick}
-              onViewAll={onViewCategory}
             />
           </>
         )}
@@ -290,9 +292,11 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               {t('tarot.TarotCardsOverview.ready_for_reading', 'Ready for a reading?')}
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="primary" size="lg" onClick={() => window.location.href = '/tarot'}>
-                {t('tarot.TarotCardsOverview.get_a_reading', 'Get a Reading')}
-              </Button>
+              <Link to={ROUTES.READING}>
+                <Button variant="primary" size="lg">
+                  {t('tarot.TarotCardsOverview.get_a_reading', 'Get a Reading')}
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
 import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
 import { fetchTarotArticles, TarotArticle } from '../services/apiService';
-import { SmartLink } from './SmartLink';
 import { useTranslation } from '../context/TranslationContext';
+import { buildRoute, ROUTES } from '../routes/routes';
 
 interface TarotArticlesListProps {
-  onArticleClick: (slug: string) => void;
-  defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc.
-  onCategoryChange?: (categorySlug: string | null) => void; // Called when category filter changes
+  defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc. (can also come from URL params)
 }
 
 // Map URL slugs to API card types
@@ -30,15 +29,21 @@ const cardTypeToSlug: Record<string, string> = {
   'SUIT_OF_PENTACLES': 'pentacles',
 };
 
-const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, defaultCategory, onCategoryChange }) => {
+const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }) => {
   const { language } = useApp();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { category: urlCategory } = useParams<{ category?: string }>();
+
+  // Use URL category if available, otherwise use prop
+  const initialCategory = urlCategory || defaultCategory;
+
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCardType, setSelectedCardType] = useState<string | null>(
-    defaultCategory ? (categorySlugToType[defaultCategory] || null) : null
+    initialCategory ? (categorySlugToType[initialCategory] || null) : null
   );
 
   useEffect(() => {
@@ -155,11 +160,9 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => {
-              setSelectedCardType(null);
-              onCategoryChange?.(null);
-            }}
+          <Link
+            to={ROUTES.TAROT_CARDS}
+            onClick={() => setSelectedCardType(null)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               !selectedCardType
                 ? 'bg-purple-600 text-white'
@@ -167,23 +170,24 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
             }`}
           >
             {t('tarot.TarotArticlesList.all_cards', 'All Cards')}
-          </button>
-          {cardTypes.map((type) => (
-            <button
-              key={type}
-              onClick={() => {
-                setSelectedCardType(type);
-                onCategoryChange?.(cardTypeToSlug[type] || null);
-              }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedCardType === type
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
-            >
-              {cardTypeLabels[type]}
-            </button>
-          ))}
+          </Link>
+          {cardTypes.map((type) => {
+            const slug = cardTypeToSlug[type];
+            return (
+              <Link
+                key={type}
+                to={slug ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: slug }) : ROUTES.TAROT_CARDS}
+                onClick={() => setSelectedCardType(type)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedCardType === type
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                {cardTypeLabels[type]}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -195,10 +199,9 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredArticles.map((article, index) => (
-            <SmartLink
+            <Link
               key={article.id}
-              href={`/tarot/articles/${article.slug}`}
-              onClick={() => onArticleClick(article.slug)}
+              to={buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })}
               className="block"
             >
               <motion.div
@@ -250,7 +253,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ onArticleClick, d
                   </p>
                 </div>
               </motion.div>
-            </SmartLink>
+            </Link>
           ))}
         </div>
       )}

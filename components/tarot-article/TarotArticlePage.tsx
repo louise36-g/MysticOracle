@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
@@ -13,6 +14,7 @@ import {
   fetchLinkRegistry,
   LinkRegistry,
 } from '../../services/apiService';
+import { ROUTES } from '../../routes/routes';
 
 // Sub-components
 import { ArticleSkeleton } from './ArticleSkeleton';
@@ -33,8 +35,9 @@ import {
   useContentInteractions,
 } from './hooks';
 
-// Types
-import { TarotArticlePageProps } from './types';
+interface TarotArticlePageProps {
+  previewId?: string;
+}
 
 /**
  * TarotArticlePage - Main component for displaying tarot card articles
@@ -49,12 +52,9 @@ import { TarotArticlePageProps } from './types';
  *
  * Security: Content is sanitized via DOMPurify in useContentProcessor hook
  */
-export function TarotArticlePage({
-  slug,
-  previewId,
-  onBack,
-  onNavigate,
-}: TarotArticlePageProps) {
+export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { language } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
@@ -115,15 +115,9 @@ export function TarotArticlePage({
   useContentInteractions({
     contentRef: contentRef as React.RefObject<HTMLDivElement>,
     sanitizedContent,
-    onNavigate,
+    onNavigate: (path: string) => navigate(path),
     onImageClick: setLightboxImage,
   });
-
-  // Navigation handler for breadcrumbs
-  const handleNavigate = (path: string) => {
-    window.history.pushState({}, '', path);
-    onBack();
-  };
 
   // Loading state
   if (loading) {
@@ -148,13 +142,13 @@ export function TarotArticlePage({
           <p className="text-slate-400 mb-8 leading-relaxed">
             {error || 'The mystical knowledge you seek has not been revealed.'}
           </p>
-          <button
-            onClick={onBack}
+          <Link
+            to={ROUTES.TAROT_CARDS}
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl hover:from-purple-500 hover:to-fuchsia-500 transition-all inline-flex items-center gap-2 shadow-lg shadow-purple-500/20 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('common.back', 'Back')}
-          </button>
+          </Link>
         </motion.div>
       </div>
     );
@@ -224,13 +218,13 @@ export function TarotArticlePage({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <button
-              onClick={onBack}
+            <Link
+              to={ROUTES.TAROT_CARDS}
               className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2 group text-sm"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               {t('common.back', 'Back')}
-            </button>
+            </Link>
           </motion.div>
 
           {/* ===== BREADCRUMBS ===== */}
@@ -242,7 +236,6 @@ export function TarotArticlePage({
             <Breadcrumbs
               category={article.breadcrumbCategory}
               title={article.title}
-              onNavigate={handleNavigate}
             />
           </motion.div>
 
@@ -305,7 +298,7 @@ export function TarotArticlePage({
             <ArticleTags tags={article.tags} />
 
             {/* Related Cards Section */}
-            <RelatedCards cards={article.relatedCards} onNavigate={onNavigate} />
+            <RelatedCards cards={article.relatedCards} />
           </motion.footer>
 
           {/* Bottom spacing */}
