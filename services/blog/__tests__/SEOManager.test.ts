@@ -4,7 +4,7 @@ import { BlogPost as BlogPostType } from '../../apiService';
 
 // Mock blog post data
 const mockPost: BlogPostType = {
-  id: 1,
+  id: '1',
   titleEn: 'Test Blog Post',
   titleFr: 'Article de Blog Test',
   slug: 'test-blog-post',
@@ -23,14 +23,15 @@ const mockPost: BlogPostType = {
   publishedAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-02T00:00:00Z',
   createdAt: '2024-01-01T00:00:00Z',
-  status: 'published',
+  status: 'PUBLISHED',
+  featured: false,
   viewCount: 100,
   readTimeMinutes: 5,
   categories: [
-    { id: 1, slug: 'tarot', nameEn: 'Tarot', nameFr: 'Tarot', color: '#8b5cf6' }
+    { id: '1', slug: 'tarot', nameEn: 'Tarot', nameFr: 'Tarot', color: '#8b5cf6', sortOrder: 1 }
   ],
   tags: [
-    { id: 1, slug: 'test', nameEn: 'Test', nameFr: 'Test' }
+    { id: '1', slug: 'test', nameEn: 'Test', nameFr: 'Test' }
   ],
   faq: null,
   cta: null,
