@@ -7,11 +7,9 @@ import {
   summarizeQuestion,
   createReading,
   updateReadingReflection,
-  addFollowUpQuestion,
-  generateTarotFollowUp
 } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
-import { useReadingGeneration } from '../hooks';
+import { useReadingGeneration, useOracleChat } from '../hooks';
 import {
   ReadingShufflePhase,
   QuestionIntroPhase,
@@ -83,12 +81,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const [isAdvanced, setIsAdvanced] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<InterpretationStyle[]>([InterpretationStyle.CLASSIC]);
 
-  // Chat state
-  const [chatHistory, setChatHistory] = useState<{role: 'user'|'model', content: string}[]>([]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [sessionQuestionCount, setSessionQuestionCount] = useState(0);
-
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -100,6 +92,21 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
   // Reading context panel state (expanded by default to show question and cards)
   const [isContextExpanded, setIsContextExpanded] = useState(true);
+
+  // Oracle chat hook for follow-up questions
+  const {
+    messages: chatHistory,
+    sendMessage,
+    isSending: isChatLoading,
+    chatInput,
+    setChatInput,
+    questionCost
+  } = useOracleChat({
+    readingText,
+    backendReadingId,
+    language,
+    deductCredits
+  });
 
   const loadingMessages = useMemo(() => LOADING_MESSAGES[language], [language]);
 
@@ -374,74 +381,15 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     await updateReadingReflection(token, backendReadingId, reflection);
   }, [backendReadingId, getToken]);
 
-  const getQuestionCost = useCallback(() => {
-    // 2 questions for 1 credit: charge on even counts (0, 2, 4...), free on odd counts (1, 3, 5...)
-    if (sessionQuestionCount % 2 === 0) return 1;
-    return 0;
-  }, [sessionQuestionCount]);
-
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatInput.trim() || isChatLoading) return;
-
-    const cost = getQuestionCost();
-    if (cost > 0) {
-      const result = await deductCredits(cost);
-      if (!result.success) {
-        alert(t('error.insufficientCredits', 'Insufficient credits'));
-        return;
-      }
-    }
-
-    const userMsg = chatInput;
-    setChatInput('');
-    setChatHistory(prev => [...prev, { role: 'user', content: userMsg }]);
-    setIsChatLoading(true);
-
-    setSessionQuestionCount(prev => prev + 1);
-
-    try {
-      const token = await getToken();
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      // Convert chat history to backend format
-      const historyForBackend = chatHistory.map(h => ({
-        role: h.role === 'model' ? 'assistant' as const : h.role,
-        content: h.content
-      }));
-
-      const result = await generateTarotFollowUp(token, {
-        reading: readingText,
-        history: historyForBackend,
-        question: userMsg,
-        language
-      });
-
-      setChatHistory(prev => [...prev, { role: 'model', content: result.answer }]);
-
-      // Save follow-up question to backend
-      if (backendReadingId) {
-        try {
-          await addFollowUpQuestion(token, backendReadingId, userMsg, result.answer);
-        } catch (saveError) {
-          // Non-blocking - follow-up just won't be saved to history if save fails
-          console.error('Failed to save follow-up to backend:', saveError);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to generate follow-up response:', error);
-      const errorMessage = t('reading.error.chatFailed', 'Sorry, I could not process your question. Please try again.');
-      setChatHistory(prev => [...prev, { role: 'model', content: errorMessage }]);
-    } finally {
-      setIsChatLoading(false);
-    }
-  }, [chatInput, isChatLoading, getQuestionCost, deductCredits, language, readingText, chatHistory, backendReadingId, getToken]);
+    if (!chatInput.trim()) return;
+    await sendMessage(chatInput);
+  }, [chatInput, sendMessage]);
 
   const handleChatInputChange = useCallback((value: string) => {
     setChatInput(value);
-  }, []);
+  }, [setChatInput]);
 
   // Render based on phase
   if (phase === 'animating_shuffle') {
@@ -516,7 +464,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       chatHistory={chatHistory}
       chatInput={chatInput}
       isChatLoading={isChatLoading}
-      questionCost={getQuestionCost()}
+      questionCost={questionCost}
       onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
       onFinish={onFinish}
       onCelebrationComplete={handleCelebrationComplete}

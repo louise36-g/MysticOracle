@@ -13,3 +13,10 @@ export {
   type ReadingGenerationResult,
   type UseReadingGenerationReturn,
 } from './useReadingGeneration';
+
+export {
+  useOracleChat,
+  type ChatMessage,
+  type OracleChatParams,
+  type UseOracleChatReturn,
+} from './useOracleChat';
