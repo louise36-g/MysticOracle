@@ -7,7 +7,7 @@ import {
   convertToPrismaFormat,
   type TarotArticleInput,
 } from './validation.js';
-import { processArticleSchema } from './schema-builder.js';
+import { processArticleSchema, type FAQItem } from './schema-builder.js';
 import type { PrismaClient } from '@prisma/client';
 
 /**
@@ -124,7 +124,7 @@ export async function exampleCompleteFlow(prisma: PrismaClient, rawInput: unknow
     featuredImage: validatedData.featuredImage,
     featuredImageAlt: validatedData.featuredImageAlt,
     cardType: validatedData.cardType,
-    faq: validatedData.faq,
+    faq: validatedData.faq as FAQItem[],
     breadcrumbCategory: validatedData.breadcrumbCategory,
     breadcrumbCategoryUrl: validatedData.breadcrumbCategoryUrl,
   });
@@ -253,7 +253,7 @@ export async function exampleBulkImport(prisma: PrismaClient, articles: unknown[
         featuredImage: validatedData.featuredImage,
         featuredImageAlt: validatedData.featuredImageAlt,
         cardType: validatedData.cardType,
-        faq: validatedData.faq,
+        faq: validatedData.faq as FAQItem[],
         breadcrumbCategory: validatedData.breadcrumbCategory,
         breadcrumbCategoryUrl: validatedData.breadcrumbCategoryUrl,
       });
