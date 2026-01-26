@@ -26,29 +26,70 @@ MysticOracle is a full-stack TypeScript application using a monorepo structure w
 
 ## Frontend Architecture
 
-### Routing (SPA)
-The app uses a custom SPA routing system in `App.tsx`:
-- `currentView` state determines which component renders
-- `window.history.pushState/replaceState` for URL management
-- `popstate` event listener for back button support
+### Routing (React Router v6)
+The app uses React Router v6 with `createBrowserRouter` for modern, declarative routing:
+
+**Key Files:**
+- `routes/routes.ts` - Route path constants (single source of truth)
+- `routes/index.tsx` - Router configuration with `createBrowserRouter`
+- `components/layout/RootLayout.tsx` - Shared layout with Header/Footer
+- `components/routing/ProtectedRoute.tsx` - Authentication guard
+- `components/routing/AdminRoute.tsx` - Admin role guard
+- `components/admin/AdminLayout.tsx` - Admin section layout
+- `components/admin/AdminNav.tsx` - Admin sidebar navigation
+- `context/ReadingContext.tsx` - Reading flow state management
+
+**Route Structure:**
+```
+RootLayout (Header + Footer + Outlet)
+├── Public Routes (accessible to all)
+│   ├── / (HomePage)
+│   ├── /blog, /blog/:slug
+│   ├── /tarot/cards, /tarot/cards/:category, /tarot/:slug
+│   ├── /horoscopes, /horoscopes/:sign
+│   ├── /privacy, /terms, /cookies, /faq, /about
+│   └── /payment/success, /payment/cancelled
+│
+├── Protected Routes (ProtectedRoute guard)
+│   ├── /profile
+│   └── /reading/* (wrapped in ReadingProvider)
+│
+├── Admin Routes (AdminRoute guard → AdminLayout)
+│   ├── /admin (overview)
+│   ├── /admin/users, /admin/transactions, /admin/analytics
+│   ├── /admin/blog/*, /admin/tarot-articles/*
+│   └── /admin/settings, /admin/health, etc.
+│
+└── /* (404 fallback)
+```
+
+**Features:**
+- Lazy loading with `React.lazy()` for code splitting
+- Centralized route constants in `ROUTES` object
+- `buildRoute()` helper for dynamic route parameters
+- Nested layouts with `<Outlet />` component
+- All links are proper `<a>` tags (right-click, new tab support)
+- Use `Link` from `react-router-dom` for navigation
 
 ### State Management
 - **AppContext**: Global state for user, language, credits
+- **ReadingContext**: Reading flow state (spread type, cards, question)
 - **Component-local state**: UI states, form data
 - **LocalStorage**: Cookie consent, temporary caches
 
 ### Component Hierarchy
 ```
-App.tsx
-├── Header.tsx (nav, credit display, user menu)
-├── SubNav.tsx (secondary nav with dropdowns)
-├── [Page Component] (based on currentView)
-│   ├── home: ReadingModeSelector → SpreadSelector → ActiveReading
-│   ├── blog: BlogList / BlogPostView
-│   ├── admin: AdminDashboard → AdminBlog/AdminUsers/etc.
-│   └── legal: PrivacyPolicy/TermsOfService/CookiePolicy
-├── Footer.tsx
-└── Modals (CreditShop, WelcomeModal, DailyBonusPopup)
+RouterProvider (routes/index.tsx)
+└── RootLayout
+    ├── Header.tsx (nav, credit display, user menu)
+    ├── SubNav.tsx (secondary nav with dropdowns)
+    ├── <Outlet /> (renders matched route)
+    │   ├── HomePage
+    │   ├── BlogList / BlogPost
+    │   ├── ProtectedRoute → UserProfile / ReadingProvider → ActiveReading
+    │   └── AdminRoute → AdminLayout → AdminNav + [Admin Pages]
+    ├── Footer.tsx
+    └── Modals (CreditShop, WelcomeModal, DailyBonusPopup)
 ```
 
 ### API Service Pattern

@@ -43,6 +43,7 @@ The backend will be shared between web and mobile, with same Clerk authenticatio
 ### Frontend
 - **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite
+- **Routing**: React Router v6 (createBrowserRouter)
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
@@ -63,12 +64,16 @@ The backend will be shared between web and mobile, with same Clerk authenticatio
 
 ```
 MysticOracle/
-├── App.tsx                    # Main React application (SPA routing)
+├── App.tsx                    # Main React application (mounts RouterProvider)
 ├── index.tsx                  # React entry point
 ├── index.html                 # HTML template + blog typography CSS
 ├── types.ts                   # TypeScript type definitions
 ├── constants.ts               # Tarot cards data, spread configs
 ├── CLAUDE.md                  # This file
+│
+├── routes/
+│   ├── routes.ts              # Route path constants (ROUTES object)
+│   └── index.tsx              # Router configuration (createBrowserRouter)
 │
 ├── components/
 │   ├── Header.tsx             # Navigation with CreditShop trigger
@@ -84,6 +89,15 @@ MysticOracle/
 │   ├── WelcomeModal.tsx       # First-time user welcome
 │   ├── Breadcrumb.tsx         # Navigation breadcrumbs
 │   │
+│   ├── layout/
+│   │   ├── RootLayout.tsx     # Shared layout (Header + Outlet + Footer)
+│   │   └── index.ts           # Re-exports
+│   │
+│   ├── routing/
+│   │   ├── ProtectedRoute.tsx # Auth guard (redirects to sign-in)
+│   │   ├── AdminRoute.tsx     # Admin guard (requires isAdmin flag)
+│   │   └── index.ts           # Re-exports
+│   │
 │   ├── blog/
 │   │   ├── BlogList.tsx       # Blog listing page with filters
 │   │   └── BlogPost.tsx       # Single blog post view + preview mode
@@ -97,7 +111,8 @@ MysticOracle/
 │   │   └── CookiePolicy.tsx   # Cookie policy
 │   │
 │   └── admin/
-│       ├── AdminDashboard.tsx # Main admin container with tabs
+│       ├── AdminLayout.tsx    # Admin section layout (sidebar + content)
+│       ├── AdminNav.tsx       # Admin sidebar navigation
 │       ├── AdminOverview.tsx  # Dashboard stats overview
 │       ├── AdminUsers.tsx     # User management
 │       ├── AdminTransactions.tsx # Transaction history
@@ -132,7 +147,8 @@ MysticOracle/
 │           └── index.ts       # Re-exports
 │
 ├── context/
-│   └── AppContext.tsx         # Global state (user, language, credits)
+│   ├── AppContext.tsx         # Global state (user, language, credits)
+│   └── ReadingContext.tsx     # Reading flow state (spread, cards, question)
 │
 ├── services/
 │   ├── apiService.ts          # All API calls with retry logic
