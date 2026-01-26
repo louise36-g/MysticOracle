@@ -53,7 +53,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 interface ApiOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   token?: string | null;
   retry?: boolean; // Enable retry for this request (default: true for GET, false for others)

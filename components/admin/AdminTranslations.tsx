@@ -172,7 +172,7 @@ const AdminTranslations: React.FC = () => {
   }, {} as Record<string, Translation[]>);
 
   const filteredGroups = Object.entries(groupedTranslations)
-    .map(([prefix, items]) => ({
+    .map(([prefix, items]: [string, Translation[]]) => ({
       prefix,
       items: items.filter(t =>
         t.key.toLowerCase().includes(searchQuery.toLowerCase()) ||

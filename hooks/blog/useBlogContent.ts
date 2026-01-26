@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { BlogPost as BlogPostType, LinkRegistry, FAQItem } from '../../services/apiService';
 import { ContentProcessor, ImageLayoutManager } from '../../services/blog';
 

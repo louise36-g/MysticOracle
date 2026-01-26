@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodSchema } from 'zod';
+import { ParsedQs } from 'qs';
 import { ValidationError } from '../shared/errors/ApplicationError.js';
 
 /**
@@ -10,7 +11,7 @@ export function validateQuery(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = schema.parse(req.query);
-      req.query = validated as Record<string, unknown>; // Replace with validated data
+      req.query = validated as ParsedQs; // Replace with validated data
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
