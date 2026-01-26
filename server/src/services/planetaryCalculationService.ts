@@ -1,7 +1,10 @@
 import * as Astronomy from 'astronomy-engine';
 
 // Re-export commonly used functions for convenience
-const { MakeTime, GeoVector, Body, Vector, MoonPhase, Illumination } = Astronomy;
+const { MakeTime, GeoVector, MoonPhase, Illumination } = Astronomy;
+
+// Use Astronomy.Body directly for type consistency
+const Body = Astronomy.Body;
 
 /**
  * Planetary position at a specific degree in the zodiac
@@ -55,18 +58,18 @@ export class PlanetaryCalculationService {
    * Zodiac signs in order starting from 0° Aries
    */
   private readonly ZODIAC_SIGNS = [
-    'Aries',      // 0-30°
-    'Taurus',     // 30-60°
-    'Gemini',     // 60-90°
-    'Cancer',     // 90-120°
-    'Leo',        // 120-150°
-    'Virgo',      // 150-180°
-    'Libra',      // 180-210°
-    'Scorpio',    // 210-240°
+    'Aries', // 0-30°
+    'Taurus', // 30-60°
+    'Gemini', // 60-90°
+    'Cancer', // 90-120°
+    'Leo', // 120-150°
+    'Virgo', // 150-180°
+    'Libra', // 180-210°
+    'Scorpio', // 210-240°
     'Sagittarius', // 240-270°
-    'Capricorn',  // 270-300°
-    'Aquarius',   // 300-330°
-    'Pisces',     // 330-360°
+    'Capricorn', // 270-300°
+    'Aquarius', // 300-330°
+    'Pisces', // 330-360°
   ];
 
   /**
@@ -107,7 +110,7 @@ export class PlanetaryCalculationService {
       const saturnLon = this.calculateEclipticLongitude(saturnGeo);
 
       // Create position objects
-      const createPosition = (lon: number, body: Body): PlanetPosition => ({
+      const createPosition = (lon: number, body: Astronomy.Body): PlanetPosition => ({
         longitude: lon,
         sign: this.getZodiacSign(lon),
         degrees: this.getDegreesInSign(lon),
@@ -144,7 +147,9 @@ export class PlanetaryCalculationService {
         aspects, // Now includes calculated aspects
       };
     } catch (error) {
-      throw new Error(`Failed to calculate planetary positions: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to calculate planetary positions: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -196,7 +201,8 @@ export class PlanetaryCalculationService {
         sextile: 'opportunity between',
       };
 
-      for (const aspect of sortedAspects.slice(0, 5)) { // Show top 5 aspects
+      for (const aspect of sortedAspects.slice(0, 5)) {
+        // Show top 5 aspects
         const meaning = aspectMeanings[aspect.type] || aspect.type;
         const orbStr = aspect.orb < 1 ? ' (exact)' : ` (${Math.round(aspect.orb)}° orb)`;
         lines.push(`- ${aspect.planet1} ${aspect.type} ${aspect.planet2}${orbStr} - ${meaning}`);
@@ -255,7 +261,7 @@ export class PlanetaryCalculationService {
    * @param astroTime Astronomy engine time object
    * @returns Moon data with phase information
    */
-  private calculateMoonData(astroTime: any): MoonData {
+  private calculateMoonData(astroTime: Astronomy.AstroTime): MoonData {
     // Get Moon's geocentric position
     const moonGeo = GeoVector(Body.Moon, astroTime, false);
     const moonLon = this.calculateEclipticLongitude(moonGeo);
@@ -281,7 +287,7 @@ export class PlanetaryCalculationService {
    * @param geoVector Geocentric position vector
    * @returns Ecliptic longitude in degrees (0-360)
    */
-  private calculateEclipticLongitude(geoVector: Vector): number {
+  private calculateEclipticLongitude(geoVector: Astronomy.Vector): number {
     // Convert Cartesian coordinates to ecliptic longitude
     const x = geoVector.x;
     const y = geoVector.y;
@@ -304,7 +310,7 @@ export class PlanetaryCalculationService {
    * @param astroTime Current time
    * @returns True if planet is in retrograde
    */
-  private isRetrograde(body: Body, astroTime: any): boolean {
+  private isRetrograde(body: Astronomy.Body, astroTime: Astronomy.AstroTime): boolean {
     try {
       // Get current position
       const currentGeo = GeoVector(body, astroTime, false);
