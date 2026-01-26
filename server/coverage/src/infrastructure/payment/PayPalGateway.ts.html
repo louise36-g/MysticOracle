@@ -384,13 +384,7 @@
 <a name='L319'></a><a href='#L319'>319</a>
 <a name='L320'></a><a href='#L320'>320</a>
 <a name='L321'></a><a href='#L321'>321</a>
-<a name='L322'></a><a href='#L322'>322</a>
-<a name='L323'></a><a href='#L323'>323</a>
-<a name='L324'></a><a href='#L324'>324</a>
-<a name='L325'></a><a href='#L325'>325</a>
-<a name='L326'></a><a href='#L326'>326</a>
-<a name='L327'></a><a href='#L327'>327</a>
-<a name='L328'></a><a href='#L328'>328</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L322'></a><a href='#L322'>322</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -430,8 +424,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -610,6 +602,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -661,9 +654,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -683,9 +674,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -755,9 +743,7 @@ export class PayPalGateway implements IPaymentGateway {
     isLive: boolean = <span class="branch-0 cbranch-no" title="branch not covered" >false</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    this.webhookId = webhookId || null;</span>
-<span class="cstat-no" title="statement not covered" >    this.apiBase = isLive</span>
-      ? 'https://api-m.paypal.com'
-      : 'https://api-m.sandbox.paypal.com';
+<span class="cstat-no" title="statement not covered" >    this.apiBase = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (clientId &amp;&amp; clientSecret) {</span>
 <span class="cstat-no" title="statement not covered" >      this.client = new Client({</span>
@@ -937,7 +923,8 @@ export class PayPalGateway implements IPaymentGateway {
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
 &nbsp;
-    const event = <span class="cstat-no" title="statement not covered" >typeof payload === 'string' ? JSON.parse(payload) : JSON.parse(payload.toString());</span>
+    const event =
+<span class="cstat-no" title="statement not covered" >      typeof payload === 'string' ? JSON.parse(payload) : JSON.parse(payload.toString());</span>
     const eventType = <span class="cstat-no" title="statement not covered" >event.event_type;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    switch (eventType) {</span>
@@ -987,9 +974,7 @@ export class PayPalGateway implements IPaymentGateway {
   ): Promise&lt;boolean&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Get PayPal access token
-      const authString = <span class="cstat-no" title="statement not covered" >Buffer.from(</span>
-        `${this.clientId}:${this.clientSecret}`
-      ).toString('base64');
+      const authString = <span class="cstat-no" title="statement not covered" >Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');</span>
 &nbsp;
       const tokenRes = <span class="cstat-no" title="statement not covered" >await fetch(`${this.apiBase}/v1/oauth2/token`, {</span>
         method: 'POST',
@@ -1009,25 +994,22 @@ export class PayPalGateway implements IPaymentGateway {
       const accessToken = <span class="cstat-no" title="statement not covered" >tokenData.access_token;</span>
 &nbsp;
       // Verify webhook signature with PayPal
-      const verifyRes = <span class="cstat-no" title="statement not covered" >await fetch(</span>
-        `${this.apiBase}/v1/notifications/verify-webhook-signature`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            auth_algo: headers['paypal-auth-algo'],
-            cert_url: headers['paypal-cert-url'],
-            transmission_id: headers['paypal-transmission-id'],
-            transmission_sig: headers['paypal-transmission-sig'],
-            transmission_time: headers['paypal-transmission-time'],
-            webhook_id: this.webhookId,
-            webhook_event: eventBody,
-          }),
-        }
-      );
+      const verifyRes = <span class="cstat-no" title="statement not covered" >await fetch(`${this.apiBase}/v1/notifications/verify-webhook-signature`, {</span>
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          auth_algo: headers['paypal-auth-algo'],
+          cert_url: headers['paypal-cert-url'],
+          transmission_id: headers['paypal-transmission-id'],
+          transmission_sig: headers['paypal-transmission-sig'],
+          transmission_time: headers['paypal-transmission-time'],
+          webhook_id: this.webhookId,
+          webhook_event: eventBody,
+        }),
+      });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (!verifyRes.ok) {</span>
 <span class="cstat-no" title="statement not covered" >        console.error('PayPal webhook verification request failed');</span>
@@ -1051,7 +1033,7 @@ export default PayPalGateway;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-12T23:17:42.501Z
+                at 2026-01-26T11:01:14.839Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

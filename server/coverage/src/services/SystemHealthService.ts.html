@@ -243,9 +243,7 @@
 <a name='L178'></a><a href='#L178'>178</a>
 <a name='L179'></a><a href='#L179'>179</a>
 <a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L181'></a><a href='#L181'>181</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -316,8 +314,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -470,7 +466,7 @@ export class SystemHealthService {
     let dbSettings: Map&lt;string, string&gt; = <span class="cstat-no" title="statement not covered" >new Map();</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const settings = <span class="cstat-no" title="statement not covered" >await this.prisma.systemSetting.findMany();</span>
-<span class="cstat-no" title="statement not covered" >      dbSettings = new Map(settings.map(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; <span class="cstat-no" title="statement not covered" >[s.key, s.value])</span>);</span>
+<span class="cstat-no" title="statement not covered" >      dbSettings = new Map(settings.map(<span class="fstat-no" title="function not covered" >s =&gt; <span class="cstat-no" title="statement not covered" >[</span>s.key, s.value])</span>);</span>
     } catch {
       // Ignore - will use env vars only
     }
@@ -499,9 +495,7 @@ export class SystemHealthService {
     // PayPal
 <span class="cstat-no" title="statement not covered" >    health.paypal = {</span>
       status:
-        process.env.PAYPAL_CLIENT_ID &amp;&amp; process.env.PAYPAL_CLIENT_SECRET
-          ? 'ok'
-          : 'not_configured',
+        process.env.PAYPAL_CLIENT_ID &amp;&amp; process.env.PAYPAL_CLIENT_SECRET ? 'ok' : 'not_configured',
     };
 &nbsp;
     // Brevo (check DB and env)
@@ -515,8 +509,8 @@ export class SystemHealthService {
     };
 &nbsp;
     // Overall status
-    const allOk = <span class="cstat-no" title="statement not covered" >Object.values(health).every(<span class="fstat-no" title="function not covered" >(h</span>) =&gt; <span class="cstat-no" title="statement not covered" >h.status === 'ok')</span>;</span>
-    const hasErrors = <span class="cstat-no" title="statement not covered" >Object.values(health).some(<span class="fstat-no" title="function not covered" >(h</span>) =&gt; <span class="cstat-no" title="statement not covered" >h.status === 'error')</span>;</span>
+    const allOk = <span class="cstat-no" title="statement not covered" >Object.values(health).every(<span class="fstat-no" title="function not covered" >h =&gt; <span class="cstat-no" title="statement not covered" >h</span>.status === 'ok')</span>;</span>
+    const hasErrors = <span class="cstat-no" title="statement not covered" >Object.values(health).some(<span class="fstat-no" title="function not covered" >h =&gt; <span class="cstat-no" title="statement not covered" >h</span>.status === 'error')</span>;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return {</span>
       status: hasErrors ? 'degraded' : allOk ? 'healthy' : 'partial',
@@ -531,10 +525,10 @@ export class SystemHealthService {
   async <span class="fstat-no" title="function not covered" >getServiceStatuses(): Promise&lt;ServiceInfo[]&gt; {</span>
     // Get database settings to check if they override env vars
     const dbSettings = <span class="cstat-no" title="statement not covered" >await this.prisma.systemSetting.findMany();</span>
-    const settingsMap = <span class="cstat-no" title="statement not covered" >new Map(dbSettings.map(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; <span class="cstat-no" title="statement not covered" >[s.key, s.value])</span>);</span>
+    const settingsMap = <span class="cstat-no" title="statement not covered" >new Map(dbSettings.map(<span class="fstat-no" title="function not covered" >s =&gt; <span class="cstat-no" title="statement not covered" >[</span>s.key, s.value])</span>);</span>
 &nbsp;
     const isConfigured = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(e</span>nvVars: string[]) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      return envVars.some(<span class="fstat-no" title="function not covered" >(v</span>) =&gt; <span class="cstat-no" title="statement not covered" >settingsMap.has(v) || !!process.env[v])</span>;</span>
+<span class="cstat-no" title="statement not covered" >      return envVars.some(<span class="fstat-no" title="function not covered" >v =&gt; <span class="cstat-no" title="statement not covered" >s</span>ettingsMap.has(v) || !!process.env[v])</span>;</span>
     };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return [</span>
@@ -616,7 +610,7 @@ export default SystemHealthService;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-12T23:17:42.501Z
+                at 2026-01-26T11:01:14.839Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -178,19 +178,7 @@
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -207,10 +195,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -253,10 +237,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -279,10 +259,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -334,17 +310,13 @@ declare global {
 }
 &nbsp;
 const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY!
+  secretKey: process.env.CLERK_SECRET_KEY!,
 });
 &nbsp;
 /**
  * Middleware to verify Clerk JWT token
  */
-export async function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 &nbsp;
@@ -366,7 +338,7 @@ export async function requireAuth(
     // Attach auth info to request
     req.auth = {
       userId: payload.sub,
-      sessionId: payload.sid as string || ''
+      sessionId: (payload.sid as string) || '',
     };
 &nbsp;
     next();
@@ -379,11 +351,7 @@ export async function requireAuth(
 /**
  * Middleware to optionally attach auth info (doesn't require auth)
  */
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 &nbsp;
@@ -397,7 +365,7 @@ export async function optionalAuth(
       if (payload &amp;&amp; payload.sub) {
         req.auth = {
           userId: payload.sub,
-          sessionId: payload.sid as string || <span class="branch-1 cbranch-no" title="branch not covered" >''</span>
+          sessionId: (payload.sid as string) || <span class="branch-1 cbranch-no" title="branch not covered" >'',</span>
         };
       }
     }
@@ -413,11 +381,7 @@ export async function optionalAuth(
  * Middleware to require admin access (use after requireAuth)
  * Admin status must be explicitly set in the database - no auto-granting
  */
-export async function requireAdmin(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     // requireAuth should have already set req.auth
     if (!req.auth?.userId) {
@@ -427,7 +391,7 @@ export async function requireAdmin(
     // Check if user is admin in our database
     const user = await prisma.user.findUnique({
       where: { id: req.auth.userId },
-      select: { isAdmin: true }
+      select: { isAdmin: true },
     });
 &nbsp;
     if (!user) {
@@ -451,7 +415,7 @@ export async function requireAdmin(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-12T23:17:42.501Z
+                at 2026-01-26T11:01:14.839Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -8,11 +8,10 @@ import {
   createReading,
   updateReadingReflection,
   addFollowUpQuestion,
-  generateTarotReading as generateTarotReadingAPI,
   generateTarotFollowUp
 } from '../services/apiService';
 import { shuffleDeck } from '../utils/shuffle';
-import { toAPISpreadParams, toStyleStrings } from '../utils/readingApiHelpers';
+import { useReadingGeneration } from '../hooks';
 import {
   ReadingShufflePhase,
   QuestionIntroPhase,
@@ -59,6 +58,7 @@ const LOADING_MESSAGES = {
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
+  const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
 
   // Phase state
   const [phase, setPhase] = useState<ReadingPhase>('intro');
@@ -70,7 +70,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
   // Reading state
   const [readingText, setReadingText] = useState<string>('');
   const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [question, setQuestion] = useState('');
   const [questionError, setQuestionError] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
@@ -121,28 +120,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     }
   }, [language]);
 
-  const regenerateReading = async () => {
-    setIsGenerating(true);
-
+  const regenerateReading = useCallback(async () => {
     try {
-      const token = await getToken();
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      const cardsWithPosition = drawnCards.map((item, idx) => ({
-        card: item.card,
-        isReversed: item.isReversed,
-        positionIndex: idx
-      }));
-
-      const spreadParams = toAPISpreadParams(spread);
-      const styleStrings = toStyleStrings(isAdvanced, selectedStyles);
-
-      const result = await generateTarotReadingAPI(token, {
-        spread: spreadParams,
-        style: styleStrings,
-        cards: cardsWithPosition,
+      const result = await generateReading({
+        spread,
+        isAdvanced,
+        selectedStyles,
+        drawnCards,
         question,
         language
       });
@@ -152,10 +136,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
     } catch (error) {
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
-    } finally {
-      setIsGenerating(false);
     }
-  };
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -300,34 +282,19 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
   const startReading = useCallback(async () => {
     setPhase('reading');
-    setIsGenerating(true);
-
-    const cardsWithPosition = drawnCards.map((item, idx) => ({
-      card: item.card,
-      isReversed: item.isReversed,
-      positionIndex: idx
-    }));
 
     try {
-      const token = await getToken();
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      const spreadParams = toAPISpreadParams(spread);
-      const styleStrings = toStyleStrings(isAdvanced, selectedStyles);
-
-      const result = await generateTarotReadingAPI(token, {
-        spread: spreadParams,
-        style: styleStrings,
-        cards: cardsWithPosition,
+      const result = await generateReading({
+        spread,
+        isAdvanced,
+        selectedStyles,
+        drawnCards,
         question,
         language
       });
 
       setReadingText(result.interpretation);
       setReadingLanguage(language);
-      setIsGenerating(false);
 
       // Trigger completion celebration (may include mystery bonus)
       setShowCelebration(true);
@@ -344,6 +311,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
 
       // Save to backend (credits are deducted here)
       try {
+        const token = await getToken();
+        if (!token) {
+          throw new Error('Not authenticated');
+        }
         console.log('[Reading] Saving to backend with spreadType:', spread.id);
         console.log('[Reading] Card data:', drawnCards.map((item, idx) => ({
           cardId: String(item.card.id),
@@ -383,9 +354,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       console.error('Failed to generate reading:', error);
       const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
       setReadingText(errorMessage);
-      setIsGenerating(false);
     }
-  }, [drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser, t]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
