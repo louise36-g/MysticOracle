@@ -159,6 +159,7 @@ export async function getHoroscopePrompt(params: {
   sign: string;
   today: string;
   language: 'en' | 'fr';
+  planetaryData?: string;
 }): Promise<string> {
   try {
     const template = await getPrompt('PROMPT_HOROSCOPE');
@@ -169,6 +170,7 @@ export async function getHoroscopePrompt(params: {
       language: languageName,
       sign: params.sign,
       today: params.today,
+      planetaryData: params.planetaryData || '',
     };
 
     return interpolatePrompt(template, variables);
