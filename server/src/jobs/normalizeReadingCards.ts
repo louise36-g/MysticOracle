@@ -38,7 +38,7 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
 
     for (const reading of readings) {
       try {
-        const cards = reading.cards as CardFromJson[] | null;
+        const cards = reading.cards as unknown as CardFromJson[] | null;
 
         if (!cards || !Array.isArray(cards) || cards.length === 0) {
           skipped++;

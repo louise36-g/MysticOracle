@@ -35,7 +35,7 @@ async function cleanFAQContent() {
   let updated = 0;
 
   for (const post of posts) {
-    const faqs = (post.faq as FAQItem[]) || [];
+    const faqs = (post.faq as unknown as FAQItem[]) || [];
     if (faqs.length === 0) continue;
 
     let contentEnChanged = false;

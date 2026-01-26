@@ -12,6 +12,7 @@
  */
 
 import prisma from '../src/db/prisma.js';
+import { Prisma } from '@prisma/client';
 import { JSDOM } from 'jsdom';
 
 interface FAQItem {
@@ -310,7 +311,7 @@ async function migrateBlogFAQs() {
         const frResult = extractFAQsFromHTML(post.contentFr || '');
 
         // Combine FAQs (prefer English, add unique French ones)
-        const existingFaqs = (post.faq as FAQItem[]) || [];
+        const existingFaqs = (post.faq as unknown as FAQItem[]) || [];
         const allFaqs = [...existingFaqs, ...enResult.faqs];
 
         // Add French FAQs that aren't already present
@@ -337,7 +338,10 @@ async function migrateBlogFAQs() {
             data: {
               contentEn: enResult.cleanedHtml,
               contentFr: frResult.cleanedHtml,
-              faq: uniqueFaqs.length > 0 ? uniqueFaqs : undefined,
+              faq:
+                uniqueFaqs.length > 0
+                  ? (uniqueFaqs as unknown as Prisma.InputJsonValue)
+                  : undefined,
             },
           });
 
