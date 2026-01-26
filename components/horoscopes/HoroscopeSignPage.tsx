@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Helmet } from 'react-helmet-async';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../context/TranslationContext';
@@ -9,6 +10,7 @@ import { fetchHoroscope, askHoroscopeQuestion } from '../../services/apiService'
 import { willNextQuestionCostCredit, incrementHoroscopeQuestionCount } from '../../services/storageService';
 import Button from '../Button';
 import { Send, ArrowLeft, Calendar, Sparkles, Star } from 'lucide-react';
+import { ROUTES } from '../../routes/routes';
 
 // Zodiac signs with slugs, symbols, and metadata
 const zodiacSigns = [
@@ -53,10 +55,7 @@ interface ChatMessage {
   content: string;
 }
 
-interface HoroscopeSignPageProps {
-  slug: string;
-  onBack: () => void;
-}
+// Props interface removed - now using useParams for slug
 
 // Helper to get moon phase
 const getMoonPhase = (): string => {
@@ -137,7 +136,8 @@ const generateSuggestedQuestions = (horoscope: string, language: 'en' | 'fr'): s
   return questions.slice(0, 3);
 };
 
-const HoroscopeSignPage: React.FC<HoroscopeSignPageProps> = ({ slug, onBack }) => {
+const HoroscopeSignPage: React.FC = () => {
+  const { sign: slug } = useParams<{ sign: string }>();
   const { language, deductCredits, user } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
@@ -304,10 +304,13 @@ const HoroscopeSignPage: React.FC<HoroscopeSignPageProps> = ({ slug, onBack }) =
             ? 'The zodiac sign you are looking for does not exist.'
             : "Le signe du zodiaque que vous recherchez n'existe pas."}
         </p>
-        <Button onClick={onBack}>
+        <Link
+          to={ROUTES.HOROSCOPES}
+          className="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('common.back', 'Back to All Signs')}
-        </Button>
+        </Link>
       </div>
     );
   }
@@ -378,13 +381,13 @@ const HoroscopeSignPage: React.FC<HoroscopeSignPageProps> = ({ slug, onBack }) =
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Back Button */}
-        <a
-          href="/horoscopes"
+        <Link
+          to={ROUTES.HOROSCOPES}
           className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('horoscopes.HoroscopeSignPage.all_signs', 'All Zodiac Signs')}
-        </a>
+        </Link>
 
         {/* Header */}
         <motion.header
@@ -601,12 +604,12 @@ const HoroscopeSignPage: React.FC<HoroscopeSignPageProps> = ({ slug, onBack }) =
           transition={{ delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <a
-            href="/horoscopes"
+          <Link
+            to={ROUTES.HOROSCOPES}
             className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg border border-purple-500/30 transition-colors"
           >
             {t('horoscopes.HoroscopeSignPage.view_all_signs', 'View All Zodiac Signs')}
-          </a>
+          </Link>
         </motion.div>
       </div>
     </>

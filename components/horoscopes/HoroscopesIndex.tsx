@@ -1,8 +1,10 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../context/TranslationContext';
+import { ROUTES, buildRoute } from '../../routes/routes';
 
 // Zodiac signs with slugs and symbols
 const zodiacSigns = [
@@ -128,18 +130,20 @@ const HoroscopesIndex: React.FC = () => {
         {/* Zodiac Signs Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {zodiacSigns.map((sign, index) => (
-            <motion.a
+            <Link
               key={sign.slug}
-              href={`/horoscopes/${sign.slug}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              to={buildRoute(ROUTES.HOROSCOPE_SIGN, { sign: sign.slug })}
               className={`
                 relative group p-6 rounded-2xl border bg-gradient-to-br backdrop-blur-sm
                 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl
                 ${elementColors[sign.element as keyof typeof elementColors]}
               `}
             >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
               {/* Symbol */}
               <div className="text-5xl mb-3 text-center opacity-80 group-hover:opacity-100 transition-opacity">
                 {sign.symbol}
@@ -161,7 +165,8 @@ const HoroscopesIndex: React.FC = () => {
 
               {/* Hover Effect */}
               <div className="absolute inset-0 rounded-2xl bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            </motion.a>
+              </motion.div>
+            </Link>
           ))}
         </div>
 
