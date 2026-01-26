@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
-import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
-import { FULL_DECK } from '../constants';
+import { SpreadConfig, SpreadType, InterpretationStyle, TarotCard } from '../types';
+import { FULL_DECK, SPREADS } from '../constants';
 import {
   createReading,
   updateReadingReflection,
@@ -53,30 +53,48 @@ const LOADING_MESSAGES = {
   ]
 };
 
+// Map URL slugs to SpreadType enum
+const SLUG_TO_SPREAD_TYPE: Record<string, SpreadType> = {
+  'single': SpreadType.SINGLE,
+  'three-card': SpreadType.THREE_CARD,
+  'love': SpreadType.LOVE,
+  'career': SpreadType.CAREER,
+  'horseshoe': SpreadType.HORSESHOE,
+  'celtic-cross': SpreadType.CELTIC_CROSS,
+};
+
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFinish }) => {
-  const location = useLocation();
+  const { spreadType: spreadSlug } = useParams<{ spreadType: string }>();
   const navigate = useNavigate();
   const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
 
-  // Get spread from props or location state
-  const locationState = location.state as { spread?: SpreadConfig } | null;
-  const spread = propSpread || locationState?.spread;
+  // Get spread from props or URL params
+  const spread = useMemo(() => {
+    if (propSpread) return propSpread;
+    if (spreadSlug) {
+      const spreadType = SLUG_TO_SPREAD_TYPE[spreadSlug];
+      if (spreadType && SPREADS[spreadType]) {
+        return SPREADS[spreadType];
+      }
+    }
+    return null;
+  }, [propSpread, spreadSlug]);
 
-  // Redirect to home if no spread
+  // Redirect to spread selector if no valid spread
   useEffect(() => {
     if (!spread) {
-      navigate(ROUTES.HOME, { replace: true });
+      navigate(ROUTES.READING, { replace: true });
     }
   }, [spread, navigate]);
 
-  // Handle finish - navigate home if no callback provided
+  // Handle finish - navigate to spread selector
   const handleFinish = useCallback(() => {
     if (onFinish) {
       onFinish();
     } else {
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.READING);
     }
   }, [onFinish, navigate]);
 

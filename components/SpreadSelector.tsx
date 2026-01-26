@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { ROUTES, buildRoute } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion } from 'framer-motion';
@@ -7,7 +9,7 @@ import { Coins, ShoppingCart, Eye, Clock, Heart, TrendingUp, Sparkles, Compass }
 import CreditShop from './CreditShop';
 
 interface SpreadSelectorProps {
-  onSelect: (spread: SpreadConfig) => void;
+  onSelect?: (spread: SpreadConfig) => void; // Optional - if not provided, uses Link navigation
 }
 
 // Spread theme configurations - each spread has a unique color identity
@@ -272,7 +274,21 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
 
   const handleBuyCredits = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setShowCreditShop(true);
+  };
+
+  // Convert spread id to URL-friendly slug (e.g., 'three-card' from SpreadType.THREE_CARD)
+  const getSpreadSlug = (spreadId: SpreadType): string => {
+    const slugMap: Record<SpreadType, string> = {
+      [SpreadType.SINGLE]: 'single',
+      [SpreadType.THREE_CARD]: 'three-card',
+      [SpreadType.LOVE]: 'love',
+      [SpreadType.CAREER]: 'career',
+      [SpreadType.HORSESHOE]: 'horseshoe',
+      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
+    };
+    return slugMap[spreadId] || spreadId;
   };
 
   return (
@@ -301,9 +317,12 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
           const theme = SPREAD_THEMES[spread.id];
           const isHovered = hoveredSpread === spread.id;
 
-          return (
+          // Build the spread URL for linking
+          const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
+
+          // Card content (shared between Link and callback modes)
+          const cardContent = (
             <motion.div
-              key={spread.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.08 }}
@@ -320,7 +339,6 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
               style={{
                 boxShadow: isHovered ? `0 20px 40px -15px ${theme.glowColor}` : 'none',
               }}
-              onClick={() => onSelect(spread)}
             >
               {/* Themed background */}
               <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
@@ -394,6 +412,22 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                 </motion.div>
               )}
             </motion.div>
+          );
+
+          // If callback provided (legacy), use onClick; otherwise use Link
+          if (onSelect) {
+            return (
+              <div key={spread.id} onClick={() => onSelect(spread)}>
+                {cardContent}
+              </div>
+            );
+          }
+
+          // Use Link for proper navigation (can be opened in new tab)
+          return (
+            <Link key={spread.id} to={spreadUrl} className="block">
+              {cardContent}
+            </Link>
           );
         })}
       </div>

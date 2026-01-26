@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../context/TranslationContext';
-import { ROUTES } from '../routes/routes';
+import { ROUTES, buildRoute } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,10 +66,24 @@ const SubNav: React.FC = () => {
     setOpenDropdown(null);
   };
 
-  // Handle spread selection: navigate to reading with spread in state
+  // Map spread IDs to URL slugs
+  const getSpreadSlug = (spreadId: SpreadType): string => {
+    const slugMap: Record<SpreadType, string> = {
+      [SpreadType.SINGLE]: 'single',
+      [SpreadType.THREE_CARD]: 'three-card',
+      [SpreadType.LOVE]: 'love',
+      [SpreadType.CAREER]: 'career',
+      [SpreadType.HORSESHOE]: 'horseshoe',
+      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
+    };
+    return slugMap[spreadId] || spreadId;
+  };
+
+  // Handle spread selection: navigate to spread-specific URL
   const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
     setOpenDropdown(null);
-    navigate(ROUTES.READING, { state: { spread } });
+    const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
+    navigate(spreadUrl);
   }, [navigate]);
 
   // Helper to check if path is active
@@ -108,6 +122,7 @@ const SubNav: React.FC = () => {
   // Build Tarot spreads menu items with themed icons
   const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => {
     const theme = spreadThemes[spread.id] || { icon: <Sparkles className="w-4 h-4 text-purple-400" />, iconBg: 'bg-purple-500/20' };
+    const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
     return {
       id: spread.id,
       labelEn: spread.nameEn,
@@ -117,7 +132,7 @@ const SubNav: React.FC = () => {
       icon: theme.icon,
       iconBg: theme.iconBg,
       cost: spread.cost,
-      // No href - these trigger state change + navigation via onClick
+      href: spreadUrl,  // Proper link for cmd+click / open in new tab
       onClick: () => handleSpreadSelect(spread)
     };
   });

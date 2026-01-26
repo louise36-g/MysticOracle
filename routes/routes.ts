@@ -7,12 +7,8 @@ export const ROUTES = {
 
   // Reading flow
   READING: '/reading',
-  READING_SELECT_SPREAD: '/reading/select-spread',
-  READING_QUESTION: '/reading/question',
-  READING_DRAW: '/reading/draw-cards',
-  READING_REVEAL: '/reading/reveal',
-  READING_RESULT: '/reading/result',
-  READING_VIEW: '/reading/:id',
+  READING_SPREAD: '/reading/:spreadType',  // e.g., /reading/single, /reading/three-card
+  READING_VIEW: '/reading/view/:id',  // View saved reading
 
   // Horoscopes
   HOROSCOPES: '/horoscopes',
