@@ -1,22 +1,26 @@
 import React, { useState, useCallback, memo } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { Moon, Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home } from 'lucide-react';
+import { useReading } from '../context/ReadingContext';
+import { ROUTES } from '../routes/routes';
+import { Moon, Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SmartLink } from './SmartLink';
 
 interface HeaderProps {
-  onNavigate: (view: string) => void;
-  currentView: string;
+  // Props no longer needed - navigation handled via React Router
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
+const Header: React.FC<HeaderProps> = () => {
   const { user, language, setLanguage, t } = useApp();
   const { user: clerkUser, isSignedIn } = useUser();
+  const { hasStartedReading, clearReading } = useReading();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
 
@@ -32,25 +36,44 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
     setIsMobileMenuOpen(prev => !prev);
   }, []);
 
-  const handleNavigate = useCallback((view: string, closeMobile = false) => {
-    onNavigate(view);
-    if (closeMobile) setIsMobileMenuOpen(false);
-  }, [onNavigate]);
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
 
   const handleMobileLanguage = useCallback(() => {
     setLanguage(language === 'en' ? 'fr' : 'en');
     setIsMobileMenuOpen(false);
   }, [language, setLanguage]);
 
+  // Handle "New Reading" with confirmation if mid-reading
+  const handleNewReading = useCallback((e: React.MouseEvent) => {
+    // If on reading page with in-progress reading, confirm before reset
+    if (location.pathname.startsWith('/reading') && hasStartedReading()) {
+      e.preventDefault();
+      if (confirm(t('reading.confirmNewReading', 'Start a new reading? Current progress will be lost.'))) {
+        clearReading();
+        navigate(ROUTES.READING_SELECT_SPREAD);
+      }
+    }
+    // Otherwise let normal Link behavior happen
+  }, [location.pathname, hasStartedReading, clearReading, navigate, t]);
+
+  // Helper to check if path is active
+  const isActive = useCallback((path: string) => {
+    if (path === ROUTES.HOME) {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  }, [location.pathname]);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <SmartLink
-          href="/"
-          onClick={() => handleNavigate('home')}
+        <Link
+          to={ROUTES.HOME}
           className="flex items-center gap-2 cursor-pointer"
-          ariaLabel="MysticOracle - Go to homepage"
+          aria-label="MysticOracle - Go to homepage"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 flex items-center justify-center" aria-hidden="true">
             <Moon className="w-5 h-5 text-white fill-current" />
@@ -58,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             MysticOracle
           </span>
-        </SmartLink>
+        </Link>
 
         {/* Desktop Nav - Simplified */}
         <nav className="hidden md:flex items-center gap-3" role="navigation" aria-label="Main navigation">
@@ -74,14 +97,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           )}
 
           {isAdmin && (
-            <SmartLink
-              href="/admin"
-              onClick={() => handleNavigate('admin')}
-              className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${currentView === 'admin' ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
+            <Link
+              to={ROUTES.ADMIN}
+              className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
             >
               <Shield className="w-4 h-4" />
               Admin
-            </SmartLink>
+            </Link>
           )}
 
           <button
@@ -102,14 +124,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-3">
-              <SmartLink
-                href="/profile"
-                onClick={() => handleNavigate('profile')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
+              <Link
+                to={ROUTES.PROFILE}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${isActive(ROUTES.PROFILE) ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
               >
                 <User className="w-4 h-4" />
                 <span className="text-sm hidden lg:inline">{displayName}</span>
-              </SmartLink>
+              </Link>
               <UserButton
                 appearance={{
                   elements: {
@@ -148,9 +169,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             <div className="p-4 space-y-2">
               {isSignedIn && (
                 <div className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg mb-4">
-                  <SmartLink href="/profile" onClick={() => handleNavigate('profile', true)} className="text-slate-300 font-bold hover:text-white transition-colors">
+                  <Link to={ROUTES.PROFILE} onClick={closeMobileMenu} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {displayName}
-                  </SmartLink>
+                  </Link>
                   <button
                     onClick={() => { setShowCreditShop(true); setIsMobileMenuOpen(false); }}
                     className="flex items-center gap-2 font-bold text-amber-400 hover:text-amber-300 transition-colors"
@@ -161,62 +182,71 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                 </div>
               )}
 
-              <SmartLink
-                href="/"
-                onClick={() => handleNavigate('home', true)}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'home' && !isMobileMenuOpen ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <Link
+                to={ROUTES.HOME}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOME) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Home className="w-5 h-5" />
                 {t('nav.home', 'Home')}
-              </SmartLink>
+              </Link>
 
-              <SmartLink
-                href="/blog"
-                onClick={() => handleNavigate('blog', true)}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'blog' || currentView === 'blog-post' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <Link
+                to={ROUTES.READING_SELECT_SPREAD}
+                onClick={(e) => { handleNewReading(e); closeMobileMenu(); }}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.READING) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                <Sparkles className="w-5 h-5" />
+                {t('nav.newReading', 'New Reading')}
+              </Link>
+
+              <Link
+                to={ROUTES.BLOG}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.BLOG) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <BookOpen className="w-5 h-5" />
                 Blog
-              </SmartLink>
+              </Link>
 
-              <SmartLink
-                href="/how-credits-work"
-                onClick={() => handleNavigate('how-credits-work', true)}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'how-credits-work' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <Link
+                to={ROUTES.HOW_CREDITS_WORK}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOW_CREDITS_WORK) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <CreditCard className="w-5 h-5" />
                 {t('nav.howCreditsWork', 'How Credits Work')}
-              </SmartLink>
+              </Link>
 
-              <SmartLink
-                href="/faq"
-                onClick={() => handleNavigate('faq', true)}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'faq' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              <Link
+                to={ROUTES.FAQ}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.FAQ) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <HelpCircle className="w-5 h-5" />
                 {t('nav.helpFaq', 'Help & FAQ')}
-              </SmartLink>
+              </Link>
 
               {isSignedIn && (
-                <SmartLink
-                  href="/profile"
-                  onClick={() => handleNavigate('profile', true)}
-                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'profile' ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                <Link
+                  to={ROUTES.PROFILE}
+                  onClick={closeMobileMenu}
+                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.PROFILE) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <User className="w-5 h-5" />
                   {t('nav.myAccount', 'My Account')}
-                </SmartLink>
+                </Link>
               )}
 
               {isAdmin && (
-                <SmartLink
-                  href="/admin"
-                  onClick={() => handleNavigate('admin', true)}
-                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${currentView === 'admin' ? 'bg-white/5 text-amber-400' : 'text-amber-400/80 hover:bg-white/5'}`}
+                <Link
+                  to={ROUTES.ADMIN}
+                  onClick={closeMobileMenu}
+                  className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.ADMIN) ? 'bg-white/5 text-amber-400' : 'text-amber-400/80 hover:bg-white/5'}`}
                 >
                   <Shield className="w-5 h-5" />
                   Admin
-                </SmartLink>
+                </Link>
               )}
 
               <div className="border-t border-white/10 pt-4 mt-4">
