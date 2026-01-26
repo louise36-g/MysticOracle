@@ -26,27 +26,33 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
 }) => {
   const theme = SPREAD_THEMES[spread.id];
 
+  // Dynamically adjust card size based on number of cards to fit above fold
+  const cardCount = drawnCards.length;
+  const isLargeSpread = cardCount > 5;
+  const isMediumSpread = cardCount > 3;
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-10 relative">
+    <div className="flex flex-col items-center min-h-screen py-4 md:py-6 relative overflow-hidden">
       {/* Themed Background */}
       <ThemedBackground spreadType={spread.id} />
 
-      <div className="relative z-10 flex flex-col items-center">
-        {/* Theme badge */}
+      <div className="relative z-10 flex flex-col items-center flex-1 w-full px-4">
+        {/* Theme badge - compact */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/30 border border-white/10 mb-6"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/30 border border-white/10 mb-3"
         >
           <span className={theme.textAccent}>{theme.icon}</span>
-          <span className="text-xs text-white/50 uppercase tracking-wider">{theme.name}</span>
+          <span className="text-[10px] text-white/50 uppercase tracking-wider">{theme.name}</span>
         </motion.div>
 
+        {/* Title and tagline - tighter spacing */}
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-3xl font-heading text-white mb-4"
+          className="text-2xl md:text-3xl font-heading text-white mb-1"
         >
           {language === 'en' ? 'The cards are laid.' : 'Les cartes sont posées.'}
         </motion.h2>
@@ -54,36 +60,43 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className={`text-sm ${theme.textAccent} mb-12 italic`}
+          className={`text-xs md:text-sm ${theme.textAccent} mb-4 md:mb-6 italic`}
         >
           {language === 'en' ? theme.taglineEn : theme.taglineFr}
         </motion.p>
 
-        <div className="flex gap-4 flex-wrap justify-center mb-12 max-w-5xl">
+        {/* Cards container - responsive sizing */}
+        <div className={`flex gap-2 md:gap-3 flex-wrap justify-center mb-4 md:mb-6 max-w-6xl ${isLargeSpread ? 'max-w-4xl' : ''}`}>
           {drawnCards.map((item, i) => (
             <motion.div
               key={`reveal-${i}`}
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.6 + i * 0.15, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.6 + i * 0.1, type: "spring", stiffness: 200 }}
               className="flex flex-col items-center"
             >
               <div
-                className="rounded-lg p-1"
-                style={{ boxShadow: `0 0 20px ${theme.glow}` }}
+                className="rounded-lg p-0.5"
+                style={{ boxShadow: `0 0 15px ${theme.glow}` }}
               >
                 <Card
                   card={item.card}
                   isRevealed={true}
                   isReversed={item.isReversed}
-                  className="w-[100px] h-[160px] md:w-[140px] md:h-[220px]"
+                  className={
+                    isLargeSpread
+                      ? "w-[70px] h-[112px] md:w-[90px] md:h-[144px]"
+                      : isMediumSpread
+                        ? "w-[80px] h-[128px] md:w-[110px] md:h-[176px]"
+                        : "w-[90px] h-[144px] md:w-[130px] md:h-[208px]"
+                  }
                 />
               </div>
-              <p className={`text-center mt-4 ${theme.textAccent} font-heading text-xs uppercase tracking-widest max-w-[140px] truncate`}>
+              <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
                 {language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
               </p>
               {item.isReversed && (
-                <p className="text-center text-[10px] text-white/50 uppercase tracking-wider">
+                <p className="text-center text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">
                   {language === 'en' ? 'Reversed' : 'Renversée'}
                 </p>
               )}
@@ -91,15 +104,17 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
           ))}
         </div>
 
+        {/* Reveal button - always visible */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 + drawnCards.length * 0.15 + 0.3 }}
+          transition={{ delay: 0.6 + cardCount * 0.1 + 0.2 }}
+          className="pb-4"
         >
           <Button
             onClick={onStartReading}
             size="lg"
-            className="animate-bounce"
+            className="animate-pulse hover:animate-none hover:scale-105 transition-transform"
             style={{ boxShadow: `0 0 30px ${theme.glow}` }}
           >
             {language === 'en' ? 'Reveal Interpretation' : "Révéler l'Interprétation"}

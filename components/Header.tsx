@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = () => {
       e.preventDefault();
       if (confirm(t('reading.confirmNewReading', 'Start a new reading? Current progress will be lost.'))) {
         clearReading();
-        navigate(ROUTES.READING_SELECT_SPREAD);
+        navigate(ROUTES.HOME);
       }
     }
     // Otherwise let normal Link behavior happen
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = () => {
               </Link>
 
               <Link
-                to={ROUTES.READING_SELECT_SPREAD}
+                to={ROUTES.HOME}
                 onClick={(e) => { handleNewReading(e); closeMobileMenu(); }}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.READING) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >

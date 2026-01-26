@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../context/TranslationContext';
-import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
@@ -42,7 +41,7 @@ interface DropdownItem {
 const SubNav: React.FC = () => {
   const { language, user } = useApp();
   const { t } = useTranslation();
-  const { setSpreadType } = useReading();
+  // Reading context no longer needed for spread selection - using location state
   const navigate = useNavigate();
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -67,12 +66,11 @@ const SubNav: React.FC = () => {
     setOpenDropdown(null);
   };
 
-  // Handle spread selection: set context and navigate
+  // Handle spread selection: navigate to reading with spread in state
   const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
-    setSpreadType(spread.id);
     setOpenDropdown(null);
-    navigate(ROUTES.READING_QUESTION);
-  }, [setSpreadType, navigate]);
+    navigate(ROUTES.READING, { state: { spread } });
+  }, [navigate]);
 
   // Helper to check if path is active
   const isActive = useCallback((path: string) => {
@@ -328,7 +326,7 @@ const SubNav: React.FC = () => {
             onMouseLeave={handleMouseLeave}
           >
             <Link
-              to={ROUTES.READING_SELECT_SPREAD}
+              to={ROUTES.HOME}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
                   ? 'text-purple-300 bg-purple-500/10'

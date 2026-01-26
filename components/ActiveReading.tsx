@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
+import { ROUTES } from '../routes/routes';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK } from '../constants';
 import {
@@ -18,9 +20,9 @@ import {
 } from './reading';
 
 interface ActiveReadingProps {
-  spread: SpreadConfig;
-  style: InterpretationStyle;
-  onFinish: () => void;
+  spread?: SpreadConfig;
+  style?: InterpretationStyle;
+  onFinish?: () => void;
 }
 
 interface DrawnCard {
@@ -51,10 +53,37 @@ const LOADING_MESSAGES = {
   ]
 };
 
-const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
+const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFinish }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
+
+  // Get spread from props or location state
+  const locationState = location.state as { spread?: SpreadConfig } | null;
+  const spread = propSpread || locationState?.spread;
+
+  // Redirect to home if no spread
+  useEffect(() => {
+    if (!spread) {
+      navigate(ROUTES.HOME, { replace: true });
+    }
+  }, [spread, navigate]);
+
+  // Handle finish - navigate home if no callback provided
+  const handleFinish = useCallback(() => {
+    if (onFinish) {
+      onFinish();
+    } else {
+      navigate(ROUTES.HOME);
+    }
+  }, [onFinish, navigate]);
+
+  // Don't render if no spread
+  if (!spread) {
+    return null;
+  }
 
   // Question input hook
   const {
@@ -398,7 +427,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread, onFinish }) => {
       isChatLoading={isChatLoading}
       questionCost={questionCost}
       onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
-      onFinish={onFinish}
+      onFinish={handleFinish}
       onCelebrationComplete={handleCelebrationComplete}
       onSaveReflection={handleSaveReflection}
       onChatInputChange={handleChatInputChange}

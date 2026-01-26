@@ -158,29 +158,9 @@ export const router = createBrowserRouter([
             element: lazyLoad(() => import('../components/UserProfile')),
           },
 
-          // Reading flow routes (wrapped with ReadingProvider)
+          // Reading flow - ActiveReading manages all phases internally
           {
             path: ROUTES.READING,
-            element: <ReadingLayout />,
-          },
-          {
-            path: ROUTES.READING_SELECT_SPREAD,
-            element: lazyLoad(() => import('../components/SpreadSelector')),
-          },
-          {
-            path: ROUTES.READING_QUESTION,
-            element: <ReadingLayout />,
-          },
-          {
-            path: ROUTES.READING_DRAW,
-            element: <ReadingLayout />,
-          },
-          {
-            path: ROUTES.READING_REVEAL,
-            element: <ReadingLayout />,
-          },
-          {
-            path: ROUTES.READING_RESULT,
             element: <ReadingLayout />,
           },
           {
