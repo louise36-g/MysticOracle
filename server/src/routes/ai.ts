@@ -223,12 +223,31 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       language,
     });
 
+    // Transform raw input into formatted strings for prompt service
+    const spreadType = spread.id;
+    const styleInstructions =
+      style.length > 0
+        ? `Interpretation styles: ${style.join(', ')}`
+        : 'Use a classic interpretation style';
+
+    // Format cards description with position meanings
+    const positionMeanings =
+      language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
+    const cardsDescription = cards
+      .map((c, idx) => {
+        const cardName = language === 'en' ? c.card.nameEn : c.card.nameFr;
+        const position = positionMeanings[idx] || `Position ${idx + 1}`;
+        const orientation = c.isReversed ? '(Reversed)' : '(Upright)';
+        return `${position}: ${cardName} ${orientation}`;
+      })
+      .join('\n');
+
     // Get prompt from service (with caching and fallback to defaults)
     const prompt = await getTarotReadingPrompt({
-      spread,
-      style,
-      cards,
+      spreadType,
+      styleInstructions,
       question,
+      cardsDescription,
       language,
     });
 
@@ -285,10 +304,10 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
     });
 
     // Get prompt from service
-    const prompt = await getFollowUpPrompt({
-      reading,
+    const prompt = await getTarotFollowUpPrompt({
+      context: reading,
       history: history.map(h => `${h.role}: ${h.content}`).join('\n'),
-      question,
+      newQuestion: question,
       language,
     });
 
@@ -302,7 +321,7 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
 
     res.json({
       answer,
-      creditsRequired: CREDIT_COSTS.QUESTION,
+      creditsRequired: CREDIT_COSTS.FOLLOW_UP,
     });
   } catch (error) {
     console.error('[Tarot Follow-up] Error:', error);
