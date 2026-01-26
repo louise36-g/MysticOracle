@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
+import { ROUTES, buildRoute } from '../../../routes/routes';
 import {
   fetchAdminBlogPosts,
   fetchAdminBlogPost,
@@ -371,12 +373,12 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           <div className="flex items-center gap-2">
             {post.featured && <Star className="w-4 h-4 text-amber-400" />}
             <div>
-              <button
-                onClick={() => handleEditPost(post)}
-                className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left"
+              <Link
+                to={buildRoute(ROUTES.ADMIN_BLOG_EDIT, { id: post.id })}
+                className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left block"
               >
                 {language === 'en' ? post.titleEn : post.titleFr}
-              </button>
+              </Link>
               <p className="text-slate-500 text-sm">{post.slug}</p>
             </div>
           </div>

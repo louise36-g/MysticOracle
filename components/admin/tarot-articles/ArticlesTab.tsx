@@ -3,7 +3,9 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
+import { ROUTES, buildRoute } from '../../../routes/routes';
 import { TarotArticle } from '../../../services/apiService';
 import {
   Search,
@@ -118,7 +120,12 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
 
       {/* Title */}
       <td className="px-4 py-3">
-        <div className="font-medium text-white">{article.title}</div>
+        <Link
+          to={buildRoute(ROUTES.ADMIN_TAROT_EDIT, { id: article.id })}
+          className="font-medium text-white hover:text-purple-400 transition-colors block"
+        >
+          {article.title}
+        </Link>
         <div className="text-sm text-slate-400 mt-1">{article.slug}</div>
       </td>
 
