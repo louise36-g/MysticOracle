@@ -1,26 +1,27 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, BookOpen, Coins, ArrowRight, X } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
 import { markWelcomeCompleted } from '../services/apiService';
+import { ROUTES } from '../routes/routes';
 import Button from './Button';
 
 interface WelcomeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateToReading: () => void;
   onOpenCreditShop: () => void;
-  onNavigateToCreditsInfo: () => void;
   onRefreshUser: () => Promise<void>;
   credits: number;
 }
 
 const TOTAL_STEPS = 3;
 
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigateToReading, onOpenCreditShop, onNavigateToCreditsInfo, onRefreshUser, credits }) => {
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCreditShop, onRefreshUser, credits }) => {
   const { t } = useTranslation();
   const { getToken } = useAuth();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -53,8 +54,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
     setIsClosing(true);
     await markComplete();
     onClose();
-    onNavigateToReading();
-  }, [markComplete, onClose, onNavigateToReading]);
+    navigate(ROUTES.READING);
+  }, [markComplete, onClose, navigate]);
 
   const handlePurchase = useCallback(async () => {
     setIsClosing(true);
@@ -67,8 +68,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onNavigate
     setIsClosing(true);
     await markComplete();
     onClose();
-    onNavigateToCreditsInfo();
-  }, [markComplete, onClose, onNavigateToCreditsInfo]);
+    navigate(ROUTES.HOW_CREDITS_WORK);
+  }, [markComplete, onClose, navigate]);
 
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
