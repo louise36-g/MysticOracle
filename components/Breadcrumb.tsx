@@ -1,15 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronRight, Home, Sparkles, User, Shield, FileText, Star, Moon, Eye, BookOpen, HelpCircle, CreditCard, Users, Layers, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SpreadType } from '../types';
-import { SmartLink } from './SmartLink';
 
 interface BreadcrumbProps {
   currentView: string;
   readingMode: string | null;
   selectedSpread: { id: SpreadType; nameEn: string; nameFr: string } | null;
-  onNavigate: (view: string) => void;
-  onClearReadingMode?: () => void;
 }
 
 // Spread icons matching SpreadSelector theme
@@ -26,41 +24,18 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   currentView,
   readingMode,
   selectedSpread,
-  onNavigate,
-  onClearReadingMode,
 }) => {
   const { language, t } = useApp();
 
-  // Helper to map view names to URLs
-  const getViewHref = (view: string): string => {
-    const viewMap: Record<string, string> = {
-      'home': '/',
-      'blog': '/blog',
-      'tarot': '/tarot',
-      'tarot-cards': '/tarot/cards',
-      'tarot-cards-all': '/tarot/cards/all',
-      'profile': '/profile',
-      'admin': '/admin',
-      'faq': '/faq',
-      'how-credits-work': '/how-credits-work',
-      'about': '/about',
-      'privacy': '/privacy',
-      'terms': '/terms',
-      'cookies': '/cookies',
-    };
-    return viewMap[view] || `/${view}`;
-  };
-
   // Build breadcrumb items based on current state
   const buildBreadcrumbs = () => {
-    const items: { label: string; icon?: React.ReactNode; onClick?: () => void; href?: string }[] = [];
+    const items: { label: string; icon?: React.ReactNode; to?: string }[] = [];
 
     // Always start with Home
     items.push({
       label: t('Breadcrumb.tsx.Breadcrumb.home', 'Home'),
       icon: <Home className="w-3.5 h-3.5" />,
-      onClick: () => onNavigate('home'),
-      href: getViewHref('home'),
+      to: '/',
     });
 
     // Handle different views
@@ -111,8 +86,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         items.push({
           label: 'Blog',
           icon: <BookOpen className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('blog'),
-          href: getViewHref('blog'),
+          to: '/blog',
         });
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.article', 'Article'),
@@ -145,14 +119,12 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('tarot-cards'),
-          href: getViewHref('tarot-cards'),
+          to: '/tarot/cards',
         });
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.all_cards', 'All Cards'),
           icon: <Layers className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('tarot-cards-all'),
-          href: getViewHref('tarot-cards-all'),
+          to: '/tarot/cards/all',
         });
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.card_details', 'Card Details'),
@@ -171,8 +143,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_3', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('tarot-cards'),
-          href: getViewHref('tarot-cards'),
+          to: '/tarot/cards',
         });
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.all_cards_2', 'All Cards'),
@@ -184,8 +155,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_4', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
-          onClick: () => onNavigate('tarot-cards'),
-          href: getViewHref('tarot-cards'),
+          to: '/tarot/cards',
         });
         items.push({
           label: t('Breadcrumb.tsx.Breadcrumb.category', 'Category'),
@@ -199,8 +169,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           items.push({
             label: t('Breadcrumb.tsx.Breadcrumb.tarot_readings', 'Tarot Readings'),
             icon: <Sparkles className="w-3.5 h-3.5" />,
-            onClick: () => onNavigate('tarot'),
-            href: getViewHref('tarot'),
+            to: '/tarot',
           });
         }
         // Add spread name with themed icon
@@ -246,7 +215,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         <ol className="flex items-center gap-1 text-sm">
           {breadcrumbs.map((item, index) => {
             const isLast = index === breadcrumbs.length - 1;
-            const isClickable = !!item.onClick && !isLast;
+            const isClickable = !!item.to && !isLast;
 
             return (
               <li key={index} className="flex items-center">
@@ -254,14 +223,13 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   <ChevronRight className="w-4 h-4 text-slate-600 mx-1" />
                 )}
                 {isClickable ? (
-                  <SmartLink
-                    href={item.href || '/'}
-                    onClick={item.onClick || (() => {})}
+                  <Link
+                    to={item.to!}
                     className="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors"
                   >
                     {item.icon}
                     <span>{item.label}</span>
-                  </SmartLink>
+                  </Link>
                 ) : (
                   <span
                     className={`flex items-center gap-1.5 px-2 py-1 ${
