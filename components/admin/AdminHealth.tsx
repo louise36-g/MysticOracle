@@ -5,6 +5,9 @@ import { fetchAdminHealth, fetchAdminErrorLogs, clearAdminErrorLogs, SystemHealt
 import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw, Database, CreditCard, Mail, Bot, Users, Trash2, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Type for service health info from SystemHealth.services
+type ServiceInfo = { status: string; message?: string };
+
 const serviceIcons: Record<string, React.ReactNode> = {
   database: <Database className="w-5 h-5" />,
   clerk: <Users className="w-5 h-5" />,
@@ -240,7 +243,7 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
                  (language === 'en' ? 'Degraded' : 'Degrade')}
               </span>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getOverallStatusColor(health.status)}`}>
-                {Object.values(health.services).filter(s => s.status === 'ok').length}/{Object.keys(health.services).length} {language === 'en' ? 'services' : 'services'}
+                {(Object.values(health.services) as ServiceInfo[]).filter(s => s.status === 'ok').length}/{Object.keys(health.services).length} {language === 'en' ? 'services' : 'services'}
               </span>
             </div>
           </div>
@@ -257,7 +260,7 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.entries(health.services).map(([service, info], index) => (
+        {(Object.entries(health.services) as [string, ServiceInfo][]).map(([service, info], index) => (
           <motion.div
             key={service}
             initial={{ opacity: 0, y: 20 }}
