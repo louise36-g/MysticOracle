@@ -51,6 +51,33 @@ function processContent(html: string): string {
     }
   });
 
+  // FIRST: Wrap "Key Takeaways" H2 section in key-takeaways-container
+  // Must happen BEFORE upright/reversed wrapping to prevent nesting issues
+  const keyTakeawaysH2s = doc.querySelectorAll('h2');
+  keyTakeawaysH2s.forEach((h2) => {
+    const text = h2.textContent?.toLowerCase() || '';
+    if (!text.includes('key takeaways')) return;
+
+    // Skip if already in a key-takeaways container
+    if (h2.closest('.key-takeaways-container') || h2.closest('.key-takeaways')) return;
+
+    // Create the wrapper
+    const wrapper = doc.createElement('div');
+    wrapper.className = 'key-takeaways-container';
+
+    // Insert wrapper before the H2
+    h2.parentNode?.insertBefore(wrapper, h2);
+    wrapper.appendChild(h2);
+
+    // Collect following P elements until we hit another H2 or non-P element
+    let nextEl = wrapper.nextElementSibling;
+    while (nextEl && nextEl.tagName === 'P') {
+      const next = nextEl.nextElementSibling;
+      wrapper.appendChild(nextEl);
+      nextEl = next;
+    }
+  });
+
   // Add section-type attributes to H2s and wrap content
   const h2s = doc.querySelectorAll('h2');
   h2s.forEach((h2) => {
@@ -76,6 +103,12 @@ function processContent(html: string): string {
       wrapper.appendChild(h2);
 
       while (nextEl && nextEl.tagName !== 'H2') {
+        // Skip elements already wrapped in special containers
+        if (nextEl.classList?.contains('key-takeaways-container') ||
+            nextEl.classList?.contains('key-takeaways') ||
+            nextEl.classList?.contains('article-faq')) {
+          break;
+        }
         const next = nextEl.nextElementSibling;
         wrapper.appendChild(nextEl);
         nextEl = next;

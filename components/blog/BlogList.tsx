@@ -282,6 +282,7 @@ const BlogList: React.FC = () => {
               <Link
                 key={post.id}
                 to={buildRoute(ROUTES.BLOG_POST, { slug: post.slug })}
+                state={{ fromCategory: selectedCategory }}
                 className="group cursor-pointer bg-gradient-to-br from-purple-900/40 to-slate-900/60 rounded-2xl overflow-hidden border border-amber-500/20 hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
               >
                 <motion.div
@@ -385,6 +386,7 @@ const BlogList: React.FC = () => {
                 <Link
                   key={article.id}
                   to={articlePath}
+                  state={{ fromCategory: selectedCategory }}
                   className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all hover:shadow-lg hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
                 >
                   <motion.div

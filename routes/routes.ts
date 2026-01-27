@@ -8,6 +8,7 @@ export const ROUTES = {
   // Reading flow
   READING: '/reading',
   READING_SPREAD: '/reading/:spreadType',  // e.g., /reading/single, /reading/three-card
+  READING_PHASE: '/reading/:spreadType/:phase',  // e.g., /reading/single/drawing
   READING_VIEW: '/reading/view/:id',  // View saved reading
 
   // Horoscopes
@@ -24,6 +25,7 @@ export const ROUTES = {
   TAROT_CARDS_CATEGORY: '/tarot/cards/:category',
   TAROT_CARD: '/tarot/cards/:category/:card',
   TAROT_ARTICLE: '/tarot/:slug',
+  TAROT_ARTICLE_LEGACY: '/tarot/articles/:slug', // Legacy URL format used in blog content
 
   // Legal
   PRIVACY: '/privacy',

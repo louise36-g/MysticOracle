@@ -18,7 +18,7 @@ const BlogCTAManager: React.FC<BlogCTAManagerProps> = ({ cta, onChange }) => {
         ? 'Discover what the cards have in store for you with a personalized reading.'
         : 'Decouvrez ce que les cartes vous reservent avec une lecture personnalisee.',
       buttonText: language === 'en' ? 'Get Your Reading' : 'Obtenez votre lecture',
-      buttonUrl: '/tarot',
+      buttonUrl: '/reading',
     });
   };
 

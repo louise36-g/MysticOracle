@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   MessageCircle,
   Shuffle,
@@ -7,18 +8,46 @@ import {
   Eye,
   Scroll,
   ChevronLeft,
-  Lock
+  Check
 } from 'lucide-react';
 import { SpreadType } from '../../types';
-import { SPREAD_THEMES } from './SpreadThemes';
+import { buildRoute, ROUTES } from '../../routes/routes';
 
 // ============================================
 // READING STEPPER - Celestial Progress Navigation
 // ============================================
 // A mystical constellation-style stepper for the tarot reading flow.
-// Users can navigate back to completed steps.
+// Uses URL-based navigation so browser back/forward work naturally.
 
 export type ReadingPhase = 'intro' | 'animating_shuffle' | 'drawing' | 'revealing' | 'reading';
+
+// Map phases to URL slugs
+const PHASE_TO_SLUG: Record<ReadingPhase, string> = {
+  'intro': 'question',
+  'animating_shuffle': 'shuffle',
+  'drawing': 'draw',
+  'revealing': 'reveal',
+  'reading': 'reading',
+};
+
+// Map URL slugs to phases
+export const SLUG_TO_PHASE: Record<string, ReadingPhase> = {
+  'question': 'intro',
+  'shuffle': 'animating_shuffle',
+  'draw': 'drawing',
+  'reveal': 'revealing',
+  'reading': 'reading',
+};
+
+// Map SpreadType to URL slug
+const SPREAD_TO_SLUG: Record<SpreadType, string> = {
+  [SpreadType.SINGLE]: 'single',
+  [SpreadType.THREE_CARD]: 'three-card',
+  [SpreadType.LOVE]: 'love',
+  [SpreadType.CAREER]: 'career',
+  [SpreadType.HORSESHOE]: 'horseshoe',
+  [SpreadType.CELTIC_CROSS]: 'celtic-cross',
+};
 
 interface StepConfig {
   id: ReadingPhase;
@@ -81,10 +110,6 @@ interface ReadingStepperProps {
   onExit: () => void;
   /** Which phases the user can navigate back to */
   canNavigateTo?: (phase: ReadingPhase) => boolean;
-  /** Whether credits have been spent (shows lock on intro step) */
-  creditsSpent?: boolean;
-  /** Compact mode for mobile - shows only icons */
-  compact?: boolean;
 }
 
 const ReadingStepper: React.FC<ReadingStepperProps> = ({
@@ -94,13 +119,12 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
   onNavigate,
   onExit,
   canNavigateTo,
-  creditsSpent = false,
-  compact = false,
 }) => {
-  const theme = SPREAD_THEMES[spreadType];
+  const navigate = useNavigate();
+  const { spreadType: spreadSlug } = useParams<{ spreadType: string }>();
   const currentStepIndex = STEPS.findIndex(s => s.id === currentPhase);
 
-  // Default: can navigate to any step before current
+  // Default: can navigate to any step before current (question is always navigable)
   const canGoTo = canNavigateTo || ((phase: ReadingPhase) => {
     const targetIndex = STEPS.findIndex(s => s.id === phase);
     return targetIndex < currentStepIndex;
@@ -116,25 +140,27 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
     return null;
   }, [currentStepIndex, canGoTo]);
 
+  // Handle step click - navigate via URL
+  const handleStepClick = (step: StepConfig) => {
+    if (!canGoTo(step.id)) return;
+
+    // Update URL for browser history
+    const slug = spreadSlug || SPREAD_TO_SLUG[spreadType];
+    const phaseSlug = PHASE_TO_SLUG[step.id];
+    navigate(buildRoute(ROUTES.READING_PHASE, { spreadType: slug, phase: phaseSlug }));
+
+    // Also call the state update callback
+    onNavigate(step.id);
+  };
+
   // Handle back button click - go to previous step or exit
   const handleBackClick = () => {
     if (previousNavigableStep) {
-      onNavigate(previousNavigableStep.id);
+      handleStepClick(previousNavigableStep);
     } else {
       onExit();
     }
   };
-
-  // Particle positions for constellation effect
-  const particles = useMemo(() =>
-    Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 1,
-      delay: Math.random() * 2,
-    })), []
-  );
 
   // Back button tooltip text
   const backButtonTitle = previousNavigableStep
@@ -142,6 +168,16 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
         ? `Back to ${previousNavigableStep.shortLabelEn}`
         : `Retour à ${previousNavigableStep.shortLabelFr}`)
     : (language === 'en' ? 'Exit reading' : 'Quitter la lecture');
+
+  // Particle positions for constellation effect (static, no animation)
+  const particles = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+    })), []
+  );
 
   return (
     <div className="relative">
@@ -157,34 +193,18 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
       </motion.button>
 
       {/* Main stepper container */}
-      <div className={`
-        relative ml-10 px-4 py-3 rounded-2xl
-        bg-gradient-to-r from-black/40 via-black/30 to-black/40
-        border border-white/[0.08]
-        backdrop-blur-sm
-        overflow-hidden
-      `}>
-        {/* Subtle animated particles (constellation stars) */}
+      <div className="relative ml-10 px-4 py-3 rounded-2xl bg-gradient-to-r from-black/40 via-black/30 to-black/40 border border-white/[0.08] backdrop-blur-sm overflow-hidden">
+        {/* Static particles (constellation stars) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {particles.map(p => (
-            <motion.div
+            <div
               key={p.id}
-              className="absolute rounded-full bg-white/30"
+              className="absolute rounded-full bg-white/20"
               style={{
                 left: `${p.x}%`,
                 top: `${p.y}%`,
                 width: p.size,
                 height: p.size,
-              }}
-              animate={{
-                opacity: [0.2, 0.6, 0.2],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 3,
-                delay: p.delay,
-                repeat: Infinity,
-                ease: "easeInOut",
               }}
             />
           ))}
@@ -195,36 +215,27 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
           {STEPS.map((step, index) => {
             const isCompleted = index < currentStepIndex;
             const isCurrent = index === currentStepIndex;
-            const isFuture = index > currentStepIndex;
             const isNavigable = canGoTo(step.id);
             const isLastStep = index === STEPS.length - 1;
-            // Check if step is locked (completed but not navigable - e.g., intro after credits spent)
-            const isLocked = isCompleted && !isNavigable;
 
             // Build tooltip text
             let tooltipText: string | undefined;
             if (isNavigable) {
               tooltipText = language === 'en' ? `Go back to ${step.labelEn}` : `Retourner à ${step.labelFr}`;
-            } else if (isLocked) {
-              tooltipText = language === 'en'
-                ? 'Cannot go back - credits already spent'
-                : 'Impossible de revenir - crédits déjà dépensés';
             }
 
             return (
               <React.Fragment key={step.id}>
                 {/* Step node */}
-                <motion.button
-                  onClick={() => isNavigable && onNavigate(step.id)}
+                <button
+                  onClick={() => isNavigable && handleStepClick(step)}
                   disabled={!isNavigable}
                   className={`
                     relative flex items-center gap-2 px-2 py-1.5 rounded-xl
                     transition-all duration-300
-                    ${isNavigable ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'}
-                    ${isCurrent ? 'bg-white/10 border border-white/20' : ''}
+                    ${isNavigable ? 'cursor-pointer hover:bg-white/5' : 'cursor-default pointer-events-none'}
+                    ${isCurrent ? 'bg-white/10 border border-white/20' : 'border border-transparent'}
                   `}
-                  whileHover={isNavigable ? { scale: 1.02 } : {}}
-                  whileTap={isNavigable ? { scale: 0.98 } : {}}
                   title={tooltipText}
                 >
                   {/* Step icon circle */}
@@ -232,17 +243,13 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                     relative flex items-center justify-center w-7 h-7 rounded-full
                     transition-all duration-300
                     ${isCurrent
-                      ? `bg-gradient-to-br from-amber-400/90 to-amber-600/90 text-slate-900 shadow-lg`
+                      ? 'bg-gradient-to-br from-amber-400/90 to-amber-600/90 text-slate-900 shadow-lg shadow-amber-500/30'
                       : isCompleted
-                        ? isLocked
-                          ? 'bg-slate-600/30 text-slate-500 border border-slate-500/30'
-                          : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         : 'bg-white/5 text-slate-500 border border-white/10'
                     }
-                  `}
-                  style={isCurrent ? { boxShadow: `0 0 20px ${theme.glow}` } : {}}
-                  >
-                    {/* Pulse animation for current step */}
+                  `}>
+                    {/* Pulse animation for current step only */}
                     {isCurrent && (
                       <motion.div
                         className="absolute inset-0 rounded-full bg-amber-400/30"
@@ -257,45 +264,26 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
                         }}
                       />
                     )}
-                    {/* Show lock icon for locked steps, otherwise show step icon */}
+                    {/* Show checkmark for completed steps, otherwise show step icon */}
                     <span className="relative z-10">
-                      {isLocked ? <Lock className="w-3.5 h-3.5" /> : step.icon}
+                      {isCompleted ? <Check className="w-3.5 h-3.5" /> : step.icon}
                     </span>
                   </div>
 
-                  {/* Step label (hidden on compact/mobile) */}
-                  {!compact && (
-                    <span className={`
-                      hidden lg:block text-xs font-medium whitespace-nowrap
-                      transition-colors duration-300
-                      ${isCurrent
-                        ? 'text-white'
-                        : isCompleted
-                          ? isLocked
-                            ? 'text-slate-500'
-                            : 'text-amber-300/80'
-                          : 'text-slate-500'
-                      }
-                    `}>
-                      {language === 'en' ? step.shortLabelEn : step.shortLabelFr}
-                    </span>
-                  )}
-
-                  {/* Clickable indicator for navigable completed steps */}
-                  {isCompleted && isNavigable && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400"
-                      animate={{
-                        scale: [1, 1.2, 1],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  )}
-                </motion.button>
+                  {/* Step label (hidden on mobile, visible on lg+) */}
+                  <span className={`
+                    hidden lg:block text-xs font-medium whitespace-nowrap
+                    transition-colors duration-300
+                    ${isCurrent
+                      ? 'text-white'
+                      : isCompleted
+                        ? 'text-amber-300/80'
+                        : 'text-slate-500'
+                    }
+                  `}>
+                    {language === 'en' ? step.shortLabelEn : step.shortLabelFr}
+                  </span>
+                </button>
 
                 {/* Connecting line (constellation path) */}
                 {!isLastStep && (
@@ -305,33 +293,13 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
 
                     {/* Progress fill */}
                     <motion.div
-                      className="absolute inset-y-0 left-0 rounded-full"
-                      style={{
-                        background: `linear-gradient(90deg, rgba(251, 191, 36, 0.6), rgba(251, 191, 36, 0.3))`,
-                      }}
+                      className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400/60 to-amber-400/30"
                       initial={{ width: '0%' }}
                       animate={{
                         width: isCompleted || isCurrent ? '100%' : '0%'
                       }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                     />
-
-                    {/* Traveling particle on active line */}
-                    {(isCompleted || isCurrent) && index < currentStepIndex && (
-                      <motion.div
-                        className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-amber-300"
-                        animate={{
-                          left: ['0%', '100%'],
-                          opacity: [0, 1, 0],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                          delay: index * 0.5,
-                        }}
-                      />
-                    )}
                   </div>
                 )}
               </React.Fragment>
@@ -340,22 +308,19 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
         </div>
 
         {/* Current step label (mobile) */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPhase}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            className="lg:hidden text-center mt-2 pt-2 border-t border-white/5"
-          >
-            <span className="text-xs text-slate-400">
-              {language === 'en'
-                ? STEPS[currentStepIndex]?.labelEn
-                : STEPS[currentStepIndex]?.labelFr
-              }
-            </span>
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={currentPhase}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:hidden text-center mt-2 pt-2 border-t border-white/5"
+        >
+          <span className="text-xs text-slate-400">
+            {language === 'en'
+              ? STEPS[currentStepIndex]?.labelEn
+              : STEPS[currentStepIndex]?.labelFr
+            }
+          </span>
+        </motion.div>
       </div>
     </div>
   );

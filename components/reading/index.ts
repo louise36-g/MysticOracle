@@ -8,7 +8,7 @@ export { default as ThemedBackground } from './ThemedBackground';
 export { SPREAD_THEMES, type SpreadTheme } from './SpreadThemes';
 
 // Stepper component
-export { default as ReadingStepper, type ReadingPhase } from './ReadingStepper';
+export { default as ReadingStepper, type ReadingPhase, SLUG_TO_PHASE } from './ReadingStepper';
 
 // Phase components
 export {

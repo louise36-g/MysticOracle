@@ -1408,7 +1408,7 @@ const DEFAULT_BLOG_CTA = {
   heading: 'Seeking Clarity?',
   text: 'Let the cards illuminate your path forward.',
   buttonText: 'Get a Tarot Reading',
-  buttonUrl: '/tarot',
+  buttonUrl: '/reading',
 };
 
 // Import one or more articles from JSON

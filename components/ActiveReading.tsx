@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { ROUTES } from '../routes/routes';
+import { ROUTES, buildRoute } from '../routes/routes';
 import { SpreadConfig, SpreadType, InterpretationStyle, TarotCard } from '../types';
 import { FULL_DECK, SPREADS } from '../constants';
 import {
@@ -18,7 +18,7 @@ import {
   RevealingPhase,
   InterpretationPhase,
 } from './reading';
-import ReadingStepper, { ReadingPhase } from './reading/ReadingStepper';
+import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
   spread?: SpreadConfig;
@@ -65,8 +65,9 @@ const SLUG_TO_SPREAD_TYPE: Record<string, SpreadType> = {
 };
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFinish }) => {
-  const { spreadType: spreadSlug } = useParams<{ spreadType: string }>();
+  const { spreadType: spreadSlug, phase: phaseSlug } = useParams<{ spreadType: string; phase?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
@@ -127,8 +128,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     validateBeforeStart,
   } = useQuestionInput({ language, refreshUser, t });
 
-  // Phase state
-  const [phase, setPhase] = useState<ReadingPhase>('intro');
+  // Phase state - initialize from URL if available
+  const [phase, setPhase] = useState<ReadingPhase>(() => {
+    if (phaseSlug && SLUG_TO_PHASE[phaseSlug]) {
+      return SLUG_TO_PHASE[phaseSlug];
+    }
+    return 'intro';
+  });
 
   // Card state
   const [deck, setDeck] = useState<TarotCard[]>([]);
@@ -168,7 +174,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setPhase(targetPhase);
   }, [phase]);
 
-  // Determine which phases can be navigated to (only previous phases, and only after credits paid)
+  // Determine which phases can be navigated to
+  // Question (intro) is always navigable since credits aren't spent until shuffle starts
   const canNavigateTo = useCallback((targetPhase: ReadingPhase): boolean => {
     const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
     const currentIndex = phaseOrder.indexOf(phase);
@@ -177,12 +184,30 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     // Can only go backwards
     if (targetIndex >= currentIndex) return false;
 
-    // Don't allow going back to intro after credits are spent (shuffle started)
-    // This prevents users from "resetting" after paying
-    if (targetPhase === 'intro' && currentIndex > 0) return false;
-
+    // All previous phases are navigable (including intro)
     return true;
   }, [phase]);
+
+  // Map phases to URL slugs for navigation
+  const PHASE_TO_SLUG: Record<ReadingPhase, string> = useMemo(() => ({
+    'intro': 'question',
+    'animating_shuffle': 'shuffle',
+    'drawing': 'draw',
+    'revealing': 'reveal',
+    'reading': 'reading',
+  }), []);
+
+  // Update phase and URL together (for forward navigation)
+  // Uses push (not replace) so browser back/forward works
+  const setPhaseWithUrl = useCallback((newPhase: ReadingPhase) => {
+    setPhase(newPhase);
+    // Update URL to match phase - push to history for back button support
+    const slug = spreadSlug || '';
+    if (slug) {
+      const phaseUrlSlug = PHASE_TO_SLUG[newPhase];
+      navigate(buildRoute(ROUTES.READING_PHASE, { spreadType: slug, phase: phaseUrlSlug }));
+    }
+  }, [spreadSlug, navigate, PHASE_TO_SLUG]);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -221,6 +246,41 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   useEffect(() => {
     setDeck(shuffleDeck(FULL_DECK));
   }, []);
+
+  // Sync phase with URL changes (for browser back/forward)
+  useEffect(() => {
+    // Determine target phase from URL (default to 'intro' if no phase in URL)
+    const urlPhase: ReadingPhase = (phaseSlug && SLUG_TO_PHASE[phaseSlug])
+      ? SLUG_TO_PHASE[phaseSlug]
+      : 'intro';
+
+    if (urlPhase !== phase) {
+      // Reset state based on what phase we're navigating to
+      const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
+      const currentIndex = phaseOrder.indexOf(phase);
+      const targetIndex = phaseOrder.indexOf(urlPhase);
+
+      // Only allow going backwards via URL (prevents forward jumps via URL manipulation)
+      if (targetIndex < currentIndex) {
+        if (targetIndex <= 0) {
+          // Going back to intro - reset everything except question
+          setDrawnCards([]);
+          setReadingText('');
+          setReadingLanguage(null);
+        } else if (targetIndex <= 1) {
+          // Going back to shuffle - reset cards and reading
+          setDrawnCards([]);
+          setReadingText('');
+          setReadingLanguage(null);
+        } else if (targetIndex <= 2) {
+          // Going back to drawing - reset reading, keep partial cards
+          setReadingText('');
+          setReadingLanguage(null);
+        }
+        setPhase(urlPhase);
+      }
+    }
+  }, [phaseSlug, location.pathname, phase]);
 
   // Scroll to top when phase changes
   useEffect(() => {
@@ -296,14 +356,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       return;
     }
 
-    setPhase('animating_shuffle');
+    setPhaseWithUrl('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [validateBeforeStart, spread.cost, isAdvanced, totalCost, deductCredits, setValidationMessage, t]);
+  }, [validateBeforeStart, spread.cost, isAdvanced, totalCost, deductCredits, setValidationMessage, t, setPhaseWithUrl]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
-    setPhase('drawing');
-  }, []);
+    setPhaseWithUrl('drawing');
+  }, [setPhaseWithUrl]);
 
   const handleCardDraw = useCallback(() => {
     if (drawnCards.length >= spread.positions) return;
@@ -314,12 +374,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 
     if (drawnCards.length + 1 === spread.positions) {
-      setTimeout(() => setPhase('revealing'), 1000);
+      setTimeout(() => setPhaseWithUrl('revealing'), 1000);
     }
-  }, [drawnCards.length, deck, spread.positions]);
+  }, [drawnCards.length, deck, spread.positions, setPhaseWithUrl]);
 
   const startReading = useCallback(async () => {
-    setPhase('reading');
+    setPhaseWithUrl('reading');
 
     try {
       const result = await generateReading({
@@ -393,7 +453,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
       setReadingText(errorMessage);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser, t]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser, t, setPhaseWithUrl]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -509,8 +569,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   return (
     <div className="relative min-h-screen">
-      {/* Stepper - fixed at top */}
-      <div className="sticky top-16 z-40 px-4 py-3 bg-gradient-to-b from-slate-950/95 to-slate-950/80 backdrop-blur-sm">
+      {/* Stepper - fixed bar below header */}
+      <div className="sticky top-16 z-40 px-4 py-3 bg-slate-950/90 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-4xl mx-auto">
           <ReadingStepper
             currentPhase={phase}
@@ -519,7 +579,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             onNavigate={handleNavigateToPhase}
             onExit={handleCancel}
             canNavigateTo={canNavigateTo}
-            creditsSpent={phase !== 'intro'}
           />
         </div>
       </div>

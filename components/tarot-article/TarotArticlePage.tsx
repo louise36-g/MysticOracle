@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
@@ -94,17 +94,28 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     }
   }, [slug, previewId, getToken]);
 
-  // Initial load
+  // Load article when slug/previewId changes
   useEffect(() => {
     loadArticle();
-    fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, [loadArticle]);
+
+  // Fetch link registry once on mount (separate from article load to avoid re-fetching on token refresh)
+  useEffect(() => {
+    fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
+  }, []);
 
   // Process content with hooks - SANITIZED via DOMPurify
   const sanitizedContent = useContentProcessor({
     content: article?.content,
     linkRegistry,
   });
+
+  // Memoize the prop object to prevent React from replacing DOM on re-renders
+  // Content is sanitized via DOMPurify in useContentProcessor
+  const contentHtmlProp = useMemo(
+    () => ({ __html: sanitizedContent }),
+    [sanitizedContent]
+  );
 
   const { sections, activeSection, scrollToSection } = useSectionNavigation({
     content: article?.content,
@@ -280,7 +291,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             <div
               ref={contentRef}
               className="prose prose-invert prose-purple max-w-none"
-              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+              dangerouslySetInnerHTML={contentHtmlProp}
             />
           </motion.div>
 

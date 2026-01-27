@@ -192,9 +192,9 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
         }}
       />
 
-      <div className="flex flex-col items-center justify-center min-h-screen relative px-4 z-10">
-        {/* Theme badge */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2">
+      <div className="flex flex-col items-center min-h-screen relative px-4 z-10 pt-8">
+        {/* Theme badge - positioned with proper spacing from top */}
+        <div className="mb-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/30 border border-white/10">
             <span className={theme.textAccent}>{theme.icon}</span>
             <span className="text-xs text-white/50 uppercase tracking-wider">{theme.name}</span>
@@ -245,8 +245,8 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           </motion.div>
         ))}
 
-      {/* Card deck animation */}
-      <div className="relative h-40 w-64 mb-8">
+      {/* Card deck animation - with spacing to avoid badge overlap */}
+      <div className="relative h-40 w-64 mb-8 mt-8 md:mt-16">
         {/* Shadow underneath deck */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-4 w-20 h-4 bg-black/30 rounded-full blur-md" />
 

@@ -7,9 +7,9 @@
  * - [INSERT KING OF WANDS URL]
  *
  * Replacements:
- * - /tarot/articles/the-emperor-tarot-card-meaning
- * - /tarot/articles/ace-of-swords-tarot-card-meaning
- * - /tarot/articles/king-of-wands-tarot-card-meaning
+ * - /tarot/the-emperor-tarot-card-meaning
+ * - /tarot/ace-of-swords-tarot-card-meaning
+ * - /tarot/king-of-wands-tarot-card-meaning
  */
 
 /**
@@ -41,7 +41,7 @@ export function replaceArticleUrls(content: string): string {
   const cardUrlPattern = /\[INSERT\s+([A-Z\s]+?)\s+CARD\s+URL\]/gi;
   processedContent = processedContent.replace(cardUrlPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
-    const url = `/tarot/articles/${slug}`;
+    const url = `/tarot/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
@@ -50,7 +50,7 @@ export function replaceArticleUrls(content: string): string {
   const urlForCardPattern = /\[INSERT\s+URL\s+FOR\s+([A-Z\s]+?)\s+CARD\]/gi;
   processedContent = processedContent.replace(urlForCardPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
-    const url = `/tarot/articles/${slug}`;
+    const url = `/tarot/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
@@ -59,7 +59,7 @@ export function replaceArticleUrls(content: string): string {
   const articleUrlPattern = /\[INSERT\s+([A-Z0-9\s]+?)\s+ARTICLE\s+URL\]/gi;
   processedContent = processedContent.replace(articleUrlPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
-    const url = `/tarot/articles/${slug}`;
+    const url = `/tarot/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
@@ -81,7 +81,7 @@ export function replaceArticleUrls(content: string): string {
     }
 
     const slug = cardNameToSlug(cleanName);
-    const url = `/tarot/articles/${slug}`;
+    const url = `/tarot/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
@@ -104,7 +104,7 @@ export function replaceArticleUrls(content: string): string {
     }
 
     const slug = cardNameToSlug(cardName);
-    const url = `/tarot/articles/${slug}`;
+    const url = `/tarot/${slug}`;
     console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
@@ -133,24 +133,24 @@ export function replaceArticleUrls(content: string): string {
       }
 
       const slug = cardNameToSlug(cardName);
-      const url = `/tarot/articles/${slug}`;
+      const url = `/tarot/${slug}`;
       const newAnchor = `<a ${beforeHref}${url}${afterHref}>${anchorText}</a>`;
       console.log(`📝 Replacing anchor placeholder: "${anchorText}" → "${url}"`);
       return newAnchor;
     }
   );
 
-  // Pattern 6: Fix existing relative/absolute URLs missing /tarot/articles/ prefix
+  // Pattern 6: Fix existing relative/absolute URLs missing /tarot/ prefix
   // Matches: href="magician-tarot-card-meaning" or href="/magician-tarot-card-meaning"
-  // But NOT: href="/tarot/articles/..." (already correct)
+  // But NOT: href="/tarot/..." (already correct)
   const incorrectUrlPattern = /href=["'](\/?([a-z0-9-]+)-tarot-card-meaning)["']/gi;
   processedContent = processedContent.replace(incorrectUrlPattern, (match, fullUrl, cardSlug) => {
-    // Skip if URL already has /tarot/articles/ prefix
-    if (fullUrl.startsWith('/tarot/articles/')) {
+    // Skip if URL already has /tarot/ prefix
+    if (fullUrl.startsWith('/tarot/')) {
       return match;
     }
 
-    const correctedUrl = `/tarot/articles/${cardSlug}-tarot-card-meaning`;
+    const correctedUrl = `/tarot/${cardSlug}-tarot-card-meaning`;
     console.log(`🔧 Fixing incorrect URL: "${fullUrl}" → "${correctedUrl}"`);
     return `href="${correctedUrl}"`;
   });

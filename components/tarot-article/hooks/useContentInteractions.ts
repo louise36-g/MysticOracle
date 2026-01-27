@@ -35,9 +35,10 @@ export function useContentInteractions({
   // Track if we've initialized (to set first item expanded on first load)
   const initializedRef = useRef(false);
 
-  // Restore FAQ state synchronously after EVERY render
-  // No dependencies - runs after every render intentionally
-  // This is needed because scroll causes re-renders that reset DOM
+  // Restore FAQ state synchronously when content changes
+  // Only runs when sanitizedContent changes (which replaces the DOM)
+  // The scroll handler in useSectionNavigation was fixed to not trigger re-renders,
+  // so we no longer need to run this after every render
   useLayoutEffect(() => {
     const contentEl = contentRef.current;
     if (!contentEl || !sanitizedContent) return;
@@ -57,7 +58,7 @@ export function useContentInteractions({
         faqStateRef.current.set(index, isExpanded);
       });
     } else {
-      // Subsequent renders - restore saved state from ref
+      // Content changed - restore saved state from ref
       faqItems.forEach((item, index) => {
         const savedState = faqStateRef.current.get(index);
         if (savedState !== undefined) {
@@ -65,7 +66,7 @@ export function useContentInteractions({
         }
       });
     }
-  }); // Intentionally no deps - must run after every render
+  }, [sanitizedContent, contentRef]); // Only run when content changes
 
   // Memoized click handler using event delegation
   const handleClick = useCallback((e: MouseEvent) => {
@@ -138,11 +139,8 @@ export function useContentInteractions({
     // Add delegated click handler to container
     contentEl.addEventListener('click', handleClick);
 
-    // Set cursor style for images (visual affordance)
-    const images = contentEl.querySelectorAll('img');
-    images.forEach((img) => {
-      (img as HTMLElement).style.cursor = 'zoom-in';
-    });
+    // cursor: zoom-in is applied via CSS (.prose img) to avoid
+    // imperative DOM mutations that conflict with React re-renders
 
     return () => {
       contentEl.removeEventListener('click', handleClick);

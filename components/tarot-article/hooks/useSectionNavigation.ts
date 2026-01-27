@@ -161,7 +161,8 @@ export function useSectionNavigation({
         }
       });
 
-      setActiveSection(currentActive);
+      // Only update state if the active section actually changed
+      setActiveSection((prev) => (prev !== currentActive ? currentActive : prev));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });

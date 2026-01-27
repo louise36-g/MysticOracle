@@ -16,9 +16,29 @@ export type LinkType = 'tarot' | 'blog' | 'spread' | 'horoscope';
 const SHORTCODE_REGEX = /\[\[(tarot|blog|spread|horoscope):([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
 /**
- * Category slugs that should route to /tarot/cards/{slug} instead of /tarot/{slug}
+ * Category slugs that should route to /tarot/cards/{slug}
  */
 const CATEGORY_SLUGS = new Set(['wands', 'cups', 'swords', 'pentacles', 'major-arcana', 'minor-arcana']);
+
+/**
+ * Spread type slugs that map to reading routes
+ * Maps slug used in content -> URL slug for /reading/{slug}
+ */
+const SPREAD_SLUG_MAP: Record<string, string> = {
+  'single': 'single',
+  'single-card': 'single',
+  'single-card-reading': 'single',
+  'three-card': 'three-card',
+  'three-card-reading': 'three-card',
+  'love': 'love',
+  'love-reading': 'love',
+  'career': 'career',
+  'career-reading': 'career',
+  'horseshoe': 'horseshoe',
+  'horseshoe-reading': 'horseshoe',
+  'celtic-cross': 'celtic-cross',
+  'celtic-cross-reading': 'celtic-cross',
+};
 
 /**
  * Get the URL for a given link type and slug
@@ -26,16 +46,22 @@ const CATEGORY_SLUGS = new Set(['wands', 'cups', 'swords', 'pentacles', 'major-a
 export function getUrlForType(type: LinkType, slug: string): string {
   switch (type) {
     case 'tarot':
-      return `/tarot/articles/${slug}`;
+      // Tarot card articles go to /tarot/{slug}
+      return `/tarot/${slug}`;
     case 'blog':
       return `/blog/${slug}`;
     case 'spread':
       // Category slugs (suits, arcana) route to /tarot/cards/{slug}
-      // Spread slugs (single-card-reading, etc.) route to /tarot/{slug}
       if (CATEGORY_SLUGS.has(slug)) {
         return `/tarot/cards/${slug}`;
       }
-      return `/tarot/${slug}`;
+      // Spread/reading types route to /reading/{slug}
+      const readingSlug = SPREAD_SLUG_MAP[slug];
+      if (readingSlug) {
+        return `/reading/${readingSlug}`;
+      }
+      // Fallback for unknown spread slugs
+      return `/reading`;
     case 'horoscope':
       return `/horoscopes/${slug}`;
     default:
