@@ -312,14 +312,79 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
     } else {
       // Existing multi-card logic
       const spreadType = spread.id;
-      const styleInstructions =
-        style.length > 0
-          ? `Interpretation styles: ${style.join(', ')}`
-          : 'Use a classic interpretation style';
+      // Build detailed style instructions for multi-card readings
+      let styleInstructions =
+        'Use a classic interpretation style focusing on traditional tarot symbolism.';
+      if (style.length > 0) {
+        const styleDescriptions: Record<string, string> = {
+          spiritual:
+            'Spiritual perspective: Explore soul lessons, higher purpose, and spiritual growth themes.',
+          psycho_emotional:
+            'Psycho-emotional depth: Address inner patterns, emotional themes, and psychological insights.',
+          numerology:
+            'Numerological insight: Reference the numbers on the cards and their cyclical/timing significance.',
+          elemental:
+            'Elemental energy: Connect cards to their elemental qualities (Fire/Wands, Water/Cups, Air/Swords, Earth/Pentacles).',
+          // Also handle the raw enum values
+          SPIRITUAL:
+            'Spiritual perspective: Explore soul lessons, higher purpose, and spiritual growth themes.',
+          PSYCHO_EMOTIONAL:
+            'Psycho-emotional depth: Address inner patterns, emotional themes, and psychological insights.',
+          NUMEROLOGY:
+            'Numerological insight: Reference the numbers on the cards and their cyclical/timing significance.',
+          ELEMENTAL:
+            'Elemental energy: Connect cards to their elemental qualities (Fire/Wands, Water/Cups, Air/Swords, Earth/Pentacles).',
+        };
+        const descriptions = style
+          .map(s => styleDescriptions[s] || styleDescriptions[s.toUpperCase()])
+          .filter(Boolean);
+        if (descriptions.length > 0) {
+          styleInstructions = `In addition to the traditional interpretation, incorporate these perspectives throughout your reading:\n${descriptions.join('\n')}`;
+        }
+      }
+      console.log('[Tarot Generate] Style instructions:', styleInstructions);
 
-      // Format cards description with position meanings
-      const positionMeanings =
+      // Layout-specific position meanings for THREE_CARD
+      const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
+        past_present_future: {
+          en: ['Past', 'Present', 'Future'],
+          fr: ['Passé', 'Présent', 'Futur'],
+        },
+        you_them_connection: {
+          en: ['You', 'Them', 'The Connection'],
+          fr: ['Vous', 'Eux', 'La Connexion'],
+        },
+        situation_action_outcome: {
+          en: ['Situation', 'Action', 'Outcome'],
+          fr: ['Situation', 'Action', 'Résultat'],
+        },
+        option_a_b_guidance: {
+          en: ['Option A', 'Option B', 'Guidance'],
+          fr: ['Option A', 'Option B', 'Conseil'],
+        },
+        situation_obstacle_path: {
+          en: ['Situation', 'Obstacle', 'Path Forward'],
+          fr: ['Situation', 'Obstacle', 'Voie à Suivre'],
+        },
+        mind_body_spirit: { en: ['Mind', 'Body', 'Spirit'], fr: ['Esprit', 'Corps', 'Âme'] },
+        challenge_support_growth: {
+          en: ['Challenge', 'Support', 'Growth'],
+          fr: ['Défi', 'Soutien', 'Croissance'],
+        },
+      };
+
+      // Use layout-specific positions if layoutId is provided for THREE_CARD
+      let positionMeanings =
         language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
+      if (spreadType === 'three_card' && layoutId && layoutPositions[layoutId]) {
+        positionMeanings = layoutPositions[layoutId][language];
+        console.log(
+          '[Tarot Generate] Using layout-specific positions:',
+          layoutId,
+          positionMeanings
+        );
+      }
+
       const cardsDescription = cards
         .map((c, idx) => {
           const cardName = language === 'en' ? c.card.nameEn : c.card.nameFr;
