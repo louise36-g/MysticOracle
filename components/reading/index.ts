@@ -10,6 +10,9 @@ export { SPREAD_THEMES, type SpreadTheme } from './SpreadThemes';
 // Stepper component
 export { default as ReadingStepper, type ReadingPhase, SLUG_TO_PHASE } from './ReadingStepper';
 
+// Layout selector for multi-layout categories
+export { default as LayoutSelector } from './LayoutSelector';
+
 // Phase components
 export {
   QuestionIntroPhase,
