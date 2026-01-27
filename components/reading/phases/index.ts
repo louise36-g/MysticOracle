@@ -5,5 +5,6 @@ export { default as InterpretationPhase } from './InterpretationPhase';
 export { default as SingleCardIntroPhase } from './SingleCardIntroPhase';
 export { default as SingleCardQuestionSelector } from './SingleCardQuestionSelector';
 export { default as ThreeCardQuestionSelector } from './ThreeCardQuestionSelector';
+export { default as ThreeCardIntroPhase } from './ThreeCardIntroPhase';
 // Re-export QUESTION_LENGTH from hooks for backward compatibility
 export { QUESTION_LENGTH } from '../../../hooks';

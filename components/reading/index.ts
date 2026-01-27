@@ -20,5 +20,6 @@ export {
   RevealingPhase,
   InterpretationPhase,
   SingleCardIntroPhase,
+  ThreeCardIntroPhase,
   QUESTION_LENGTH,
 } from './phases';
