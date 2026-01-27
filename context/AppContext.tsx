@@ -52,7 +52,7 @@ interface AppContextType {
 
   // Credits
   addCredits: (amount: number) => void;
-  deductCredits: (amount: number) => Promise<{ success: boolean; message?: string }>;
+  canAfford: (amount: number) => boolean; // Validates only - backend does actual deduction
 
   // History
   history: ReadingHistoryItem[];
@@ -259,25 +259,13 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setUser(prev => prev ? { ...prev, credits: prev.credits + amount } : null);
   }, []);
 
-  const deductCredits = useCallback(async (amount: number): Promise<{ success: boolean; message?: string }> => {
-    // DEV MODE: Bypass all credit checks
-    if (DEV_MODE) {
-      return { success: true };
-    }
-
-    if (!user) return { success: false, message: 'User not found' };
-
-    if (user.credits < amount) {
-      return {
-        success: false,
-        message: 'Insufficient credits'
-      };
-    }
-
-    // Credits are validated here but actually deducted on the backend when saving the reading
-    // This prevents double-deduction and ensures credits are only spent for completed readings
-    return { success: true };
-  }, [user, language]);
+  // Renamed from deductCredits - this only validates, doesn't deduct
+  // Backend handles actual credit deduction when reading is saved
+  const canAfford = useCallback((amount: number): boolean => {
+    if (DEV_MODE) return true;
+    if (!user) return false;
+    return user.credits >= amount;
+  }, [user]);
 
   // History - local state only, backend save handled by component
   const addToHistory = useCallback((item: ReadingHistoryItem) => {
@@ -332,7 +320,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       logout,
       refreshUser,
       addCredits,
-      deductCredits,
+      canAfford,
       history,
       addToHistory,
       achievementNotifications,
