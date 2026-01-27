@@ -212,6 +212,7 @@ const generateTarotSchema = z.object({
   question: z.string(),
   language: z.enum(['en', 'fr']),
   category: z.string().optional(),
+  layoutId: z.string().optional(),
 });
 
 const tarotFollowUpSchema = z.object({
@@ -241,7 +242,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       });
     }
 
-    const { spread, style, cards, question, language, category } = validation.data;
+    const { spread, style, cards, question, language, category, layoutId } = validation.data;
 
     console.log('[Tarot Generate] Request:', {
       userId: req.auth.userId,
@@ -249,6 +250,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       cardCount: cards.length,
       language,
       category,
+      layoutId,
     });
 
     // Check if this is a single card reading
@@ -258,38 +260,55 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
     let maxTokens: number;
 
     if (isSingleCard) {
+      console.log('[Tarot Generate] Single card detected, building prompt...');
       // Use single card prompt
       const card = cards[0];
       const cardName = language === 'en' ? card.card.nameEn : card.card.nameFr;
-      const orientation = card.isReversed ? '(Reversed)' : '(Upright)';
-      const cardDescription = `${cardName} ${orientation}`;
+      const isReversed = card.isReversed;
 
       // Get card metadata - parse ID as number for helper functions
       const cardIdNum = parseInt(card.card.id, 10) || 0;
       const cardElement = getCardElement(cardIdNum);
       const cardNumber = getCardNumber(cardIdNum);
 
-      // Map style array to expected format
+      console.log('[Tarot Generate] Card info:', { cardName, isReversed, cardElement, cardNumber });
+
+      // Map style array to expected format (handles both EN and FR style names)
       const styleMap: Record<string, string> = {
+        // English
         spiritual: 'spiritual',
         psycho_emotional: 'psycho_emotional',
         numerology: 'numerology',
         elemental: 'elemental',
+        // French
+        spirituel: 'spiritual',
+        'psycho-émotionnel': 'psycho_emotional',
+        'psycho-emotionnel': 'psycho_emotional',
+        psycho_emotionnel: 'psycho_emotional',
+        numérologie: 'numerology',
+        numerologie: 'numerology',
+        élémentaire: 'elemental',
+        elementaire: 'elemental',
       };
       const mappedStyles = style.map(s => styleMap[s.toLowerCase()] || s).filter(Boolean);
+      console.log('[Tarot Generate] Mapped styles:', mappedStyles);
 
+      console.log('[Tarot Generate] Calling getSingleCardReadingPrompt...');
       prompt = await getSingleCardReadingPrompt({
         category: category || 'general',
         question,
-        cardDescription,
+        cardName,
+        isReversed,
         cardNumber,
         element: cardElement,
         styles: mappedStyles,
         language,
       });
+      console.log('[Tarot Generate] Prompt built, length:', prompt.length);
 
-      // Base 800 tokens + 200 per style
-      maxTokens = 800 + mappedStyles.length * 200;
+      // Base 2500 tokens + 500 per style (reasoning models need extra tokens for thinking)
+      maxTokens = 2500 + mappedStyles.length * 500;
+      console.log('[Tarot Generate] Max tokens:', maxTokens);
     } else {
       // Existing multi-card logic
       const spreadType = spread.id;
@@ -317,6 +336,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
         question,
         cardsDescription,
         language,
+        layoutId,
       });
 
       // Calculate max tokens based on spread size
@@ -331,12 +351,21 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
     }
 
     // Generate interpretation using unified service
+    console.log('[Tarot Generate] Calling OpenRouter service...');
+    const startTime = Date.now();
     const interpretation = await openRouterService.generateTarotReading(prompt, {
       temperature: 0.7,
       maxTokens,
     });
+    const elapsed = Date.now() - startTime;
 
-    console.log('[Tarot Generate] ✅ Generated interpretation:', interpretation.length, 'chars');
+    console.log(
+      '[Tarot Generate] ✅ Generated interpretation:',
+      interpretation.length,
+      'chars in',
+      elapsed,
+      'ms'
+    );
 
     res.json({
       interpretation,

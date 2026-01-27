@@ -98,11 +98,21 @@ export async function getTarotReadingPrompt(params: {
   question: string;
   cardsDescription: string;
   language: 'en' | 'fr';
+  layoutId?: string;
 }): Promise<string> {
   try {
     // Fetch base template and spread guidance
     const basePrompt = await getPrompt('PROMPT_TAROT_BASE');
-    const spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
+
+    // Determine which guidance key to use
+    let spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
+
+    // For THREE_CARD with layout, use layout-specific guidance
+    if (params.spreadType.toUpperCase() === 'THREE_CARD' && params.layoutId) {
+      const layoutKey = params.layoutId.toUpperCase();
+      spreadGuidanceKey = `SPREAD_GUIDANCE_THREE_CARD_${layoutKey}`;
+    }
+
     const spreadGuidance = await getPrompt(spreadGuidanceKey);
 
     // Interpolate variables
@@ -130,7 +140,8 @@ export async function getTarotReadingPrompt(params: {
 export async function getSingleCardReadingPrompt(params: {
   category: string;
   question: string;
-  cardDescription: string;
+  cardName: string;
+  isReversed: boolean;
   cardNumber?: string;
   element?: string;
   styles: string[];
@@ -174,11 +185,17 @@ export async function getSingleCardReadingPrompt(params: {
       styleInstructions = styleSections.join('\n\n');
     }
 
+    // Build orientation context for the AI (not to be mentioned explicitly in output)
+    const orientationContext = params.isReversed
+      ? 'The card was drawn REVERSED. Interpret using reversed meanings.'
+      : 'The card was drawn UPRIGHT. Interpret using upright meanings.';
+
     const variables = {
       language: languageName,
       category: params.category,
       question: params.question,
-      cardDescription: params.cardDescription,
+      cardName: params.cardName,
+      orientationContext,
       styleInstructions,
       reframingGuidance,
     };
