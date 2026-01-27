@@ -18,8 +18,10 @@ import {
   RevealingPhase,
   InterpretationPhase,
   SingleCardIntroPhase,
+  ThreeCardIntroPhase,
 } from './reading';
 import { SingleCardCategory } from '../constants/singleCardQuestions';
+import { ThreeCardCategory, ThreeCardLayoutId, getThreeCardCategory } from '../constants/threeCardLayouts';
 import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
@@ -154,6 +156,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [singleCardQuestionId, setSingleCardQuestionId] = useState<string | null>(null);
   const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
   const [isWritingOwnQuestion, setIsWritingOwnQuestion] = useState(false);
+
+  // Three card intro state
+  const [threeCardCategory, setThreeCardCategory] = useState<ThreeCardCategory | null>(null);
+  const [threeCardLayout, setThreeCardLayout] = useState<ThreeCardLayoutId | null>(null);
+  const [threeCardQuestionId, setThreeCardQuestionId] = useState<string | null>(null);
+  const [threeCardCustomQuestion, setThreeCardCustomQuestion] = useState('');
+  const [isWritingOwnThreeCard, setIsWritingOwnThreeCard] = useState(false);
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -376,6 +385,38 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
   }, [isWritingOwnQuestion]);
 
+  // Three card handlers
+  const handleThreeCardCategorySelect = useCallback((category: ThreeCardCategory) => {
+    setThreeCardCategory(category);
+    setThreeCardQuestionId(null);
+    // Auto-set layout to default for this category
+    const categoryConfig = getThreeCardCategory(category);
+    if (categoryConfig) {
+      setThreeCardLayout(categoryConfig.defaultLayout);
+    }
+  }, []);
+
+  const handleThreeCardLayoutSelect = useCallback((layoutId: ThreeCardLayoutId) => {
+    setThreeCardLayout(layoutId);
+  }, []);
+
+  const handleThreeCardQuestionSelect = useCallback((questionId: string, questionText: string) => {
+    setThreeCardQuestionId(questionId);
+    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleThreeCardCustomQuestionChange = useCallback((text: string) => {
+    setThreeCardCustomQuestion(text);
+    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleThreeCardWriteOwnToggle = useCallback(() => {
+    setIsWritingOwnThreeCard(prev => !prev);
+    if (!isWritingOwnThreeCard) {
+      setThreeCardQuestionId(null);
+    }
+  }, [isWritingOwnThreeCard]);
+
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
     // For single card, advanced options cost +1 total (not per style)
@@ -581,6 +622,34 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             onQuestionSelect={handleQuestionSelect}
             onCustomQuestionChange={handleCustomQuestionChange}
             onWriteOwnToggle={handleWriteOwnToggle}
+            isAdvanced={isAdvanced}
+            selectedStyles={selectedStyles}
+            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+            onStyleToggle={toggleStyle}
+            validationMessage={validationMessage}
+            totalCost={displayCost}
+            credits={user?.credits || 0}
+            onStartShuffle={startShuffleAnimation}
+          />
+        );
+      }
+
+      // Use three card intro for three card spread
+      if (spread.id === SpreadType.THREE_CARD) {
+        return (
+          <ThreeCardIntroPhase
+            spread={spread}
+            language={language}
+            selectedCategory={threeCardCategory}
+            selectedLayout={threeCardLayout}
+            selectedQuestionId={threeCardQuestionId}
+            customQuestion={threeCardCustomQuestion}
+            isWritingOwn={isWritingOwnThreeCard}
+            onCategorySelect={handleThreeCardCategorySelect}
+            onLayoutSelect={handleThreeCardLayoutSelect}
+            onQuestionSelect={handleThreeCardQuestionSelect}
+            onCustomQuestionChange={handleThreeCardCustomQuestionChange}
+            onWriteOwnToggle={handleThreeCardWriteOwnToggle}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
