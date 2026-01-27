@@ -97,6 +97,32 @@ class CreditService {
   }
 
   /**
+   * Calculate total cost for a reading - SINGLE SOURCE OF TRUTH
+   * Backend always calculates cost, never trust frontend values
+   */
+  calculateReadingCost(params: {
+    spreadType: string;
+    hasAdvancedStyle: boolean;
+    hasExtendedQuestion: boolean;
+  }): { baseCost: number; styleCost: number; extendedCost: number; totalCost: number } {
+    // Normalize spread type: 'three-card' -> 'THREE_CARD'
+    const spreadKey = params.spreadType
+      .toUpperCase()
+      .replace('-', '_') as keyof typeof CREDIT_COSTS.SPREAD;
+    const baseCost = CREDIT_COSTS.SPREAD[spreadKey] ?? CREDIT_COSTS.SPREAD.SINGLE;
+
+    const styleCost = params.hasAdvancedStyle ? 1 : 0;
+    const extendedCost = params.hasExtendedQuestion ? 1 : 0;
+
+    return {
+      baseCost,
+      styleCost,
+      extendedCost,
+      totalCost: baseCost + styleCost + extendedCost,
+    };
+  }
+
+  /**
    * Deduct credits from user account
    * Creates transaction record and updates user stats atomically
    */
