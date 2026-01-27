@@ -27,6 +27,7 @@ const createReadingSchema = z.object({
     )
     .min(1, 'At least one card is required'),
   interpretation: z.string().min(1, 'Interpretation is required'),
+  hasExtendedQuestion: z.boolean().optional(), // Flag for extended question cost (+1 credit)
 });
 
 const followUpSchema = z.object({
@@ -67,6 +68,7 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
         question?: string;
         cards: { cardId: string; position: number; isReversed?: boolean }[];
         interpretation: string;
+        hasExtendedQuestion?: boolean;
       }),
     });
 
