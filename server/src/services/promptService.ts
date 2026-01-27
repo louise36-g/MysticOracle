@@ -125,6 +125,72 @@ export async function getTarotReadingPrompt(params: {
 }
 
 /**
+ * Get assembled single card oracle reading prompt
+ */
+export async function getSingleCardReadingPrompt(params: {
+  category: string;
+  question: string;
+  cardDescription: string;
+  cardNumber?: string;
+  element?: string;
+  styles: string[];
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const basePrompt = await getPrompt('PROMPT_TAROT_BASE_SINGLE');
+    const reframingGuidance = await getPrompt('SINGLE_CARD_REFRAMING');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    // Build style instructions if any styles selected
+    let styleInstructions = '';
+    if (params.styles.length > 0) {
+      const styleSections: string[] = [];
+
+      for (const style of params.styles) {
+        let stylePrompt: string;
+        switch (style) {
+          case 'spiritual':
+            stylePrompt = await getPrompt('SINGLE_CARD_STYLE_SPIRITUAL');
+            styleSections.push(stylePrompt);
+            break;
+          case 'numerology':
+            stylePrompt = await getPrompt('SINGLE_CARD_STYLE_NUMEROLOGY');
+            stylePrompt = stylePrompt.replace('{{cardNumber}}', params.cardNumber || "this card's");
+            styleSections.push(stylePrompt);
+            break;
+          case 'elemental':
+            stylePrompt = await getPrompt('SINGLE_CARD_STYLE_ELEMENTAL');
+            stylePrompt = stylePrompt.replace('{{element}}', params.element || 'elemental');
+            styleSections.push(stylePrompt);
+            break;
+          case 'psycho_emotional':
+            stylePrompt = await getPrompt('SINGLE_CARD_STYLE_PSYCHO');
+            styleSections.push(stylePrompt);
+            break;
+        }
+      }
+
+      styleInstructions = styleSections.join('\n\n');
+    }
+
+    const variables = {
+      language: languageName,
+      category: params.category,
+      question: params.question,
+      cardDescription: params.cardDescription,
+      styleInstructions,
+      reframingGuidance,
+    };
+
+    return interpolatePrompt(basePrompt, variables);
+  } catch (error) {
+    console.error('[PromptService] Error assembling single card prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Get tarot follow-up prompt with variables
  */
 export async function getTarotFollowUpPrompt(params: {
@@ -272,6 +338,7 @@ export function getPromptService() {
   return {
     getPrompt,
     getTarotReadingPrompt,
+    getSingleCardReadingPrompt,
     getTarotFollowUpPrompt,
     getHoroscopePrompt,
     getHoroscopeFollowUpPrompt,
@@ -285,6 +352,7 @@ export function getPromptService() {
 export default {
   getPrompt,
   getTarotReadingPrompt,
+  getSingleCardReadingPrompt,
   getTarotFollowUpPrompt,
   getHoroscopePrompt,
   getHoroscopeFollowUpPrompt,
