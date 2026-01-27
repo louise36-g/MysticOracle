@@ -35,6 +35,7 @@ export interface CreateReadingInput {
   cards: CardPosition[];
   interpretation: string;
   idempotencyKey?: string; // Optional key to prevent duplicate charges
+  hasExtendedQuestion?: boolean; // Flag for extended question cost (+1 credit)
 }
 
 // Output DTO
@@ -116,8 +117,20 @@ export class CreateReadingUseCase {
         };
       }
 
-      // 4. Get credit cost from domain SpreadType value object
-      creditCost = spreadType.costValue;
+      // 4. Calculate cost SERVER-SIDE (never trust frontend)
+      // Advanced styles: anything other than classic
+      const isAdvancedStyle =
+        input.interpretationStyle && !['classic', 'CLASSIC'].includes(input.interpretationStyle);
+
+      const costBreakdown = this.creditService.calculateReadingCost({
+        spreadType: spreadType.value,
+        hasAdvancedStyle: !!isAdvancedStyle,
+        hasExtendedQuestion: input.hasExtendedQuestion ?? false,
+      });
+
+      creditCost = costBreakdown.totalCost;
+
+      console.log('[CreateReading] Cost calculated server-side:', costBreakdown);
 
       // 5. Check if user exists and has sufficient credits
       const balanceCheck = await this.creditService.checkSufficientCredits(
