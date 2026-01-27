@@ -138,7 +138,8 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
       'language',
       'category',
       'question',
-      'cardDescription',
+      'cardName',
+      'orientationContext',
       'styleInstructions',
       'reframingGuidance',
     ],
@@ -150,11 +151,12 @@ Category: {{category}}
 
 User's Intention: "{{question}}"
 
-Card Drawn:
-{{cardDescription}}
+Card Drawn: {{cardName}}
+{{orientationContext}}
 
 Important Guidelines:
-- Interpret the card as drawn (upright or reversed, not both)
+- Interpret only according to the orientation specified above (do not discuss both upright and reversed meanings)
+- NEVER explicitly mention "upright" or "reversed" in your response - the seeker already knows how the card appeared. Simply interpret accordingly without labeling the orientation.
 - This is reflective guidance, not predictive divination
 - Offer awareness and insight, not prescriptive advice
 - Theme your guidance to the user's chosen category ({{category}})
@@ -162,17 +164,19 @@ Important Guidelines:
 
 Structure your response with these sections:
 
-1. **The Card's Energy** — Describe what this card represents: its core symbolism, archetypes, and themes as they appear in this orientation. Ground the seeker in the card's essence before applying it to their situation. Write 150-200 words.
+1. **The Card's Energy** — Describe the metaphysical energy and meaning this card carries. Focus on its spiritual essence, emotional resonance, and what themes it brings into awareness. Do NOT describe the visual imagery on the card (the seeker can see it). Write 60-80 words maximum.
 
-2. **Today's Guidance** — Connect the card's energy to their intention and chosen category. What themes might arise today? What should they be aware of or open to? Speak to their situation without telling them what to do. Let the card illuminate rather than instruct. Write 150-200 words.
+2. **Today's Guidance** — This is the heart of the reading. Connect the card's energy to their intention and chosen category. What themes might arise today? What should they be aware of or open to? Speak to their situation without telling them what to do. Let the card illuminate rather than instruct. Write 200-250 words.
 
 {{styleInstructions}}
 
 IMPORTANT FORMATTING RULES:
 - Write in flowing, natural prose paragraphs
-- Use **bold** only for card name and section headings
+- Section headings MUST use markdown bold format exactly like this: **The Card's Energy** and **Guidance**
+- DO NOT use # heading syntax - only use **bold** for section headings
 - DO NOT use tables, grids, or bullet points
 - DO NOT use emojis or icons
+- DO NOT mention "upright" or "reversed" - just interpret the card naturally
 - Write as a mystical oracle would speak, not as an AI assistant
 
 Tone: Mystical, reflective, warm, and gently empowering.`,
@@ -199,7 +203,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Elemental section for single card reading',
     category: 'tarot',
     variables: ['element'],
-    defaultValue: `3. **Elemental Energy** — This card carries {{element}} energy. How can you work with this elemental quality today? What does this element ask you to embrace or balance? Write 80-100 words.`,
+    defaultValue: `3. **Elemental Energy** — This card carries {{element}} energy. First, briefly explain which tarot suit corresponds to this element (Wands=Fire, Cups=Water, Swords=Air, Pentacles=Earth, Major Arcana=Spirit) and what this element represents in tarot (e.g., Fire represents passion, willpower, action, creativity; Water represents emotions, intuition, relationships; Air represents intellect, communication, truth; Earth represents material world, stability, physical health; Spirit represents soul lessons and transcendence). Then offer guidance on how to work with this elemental quality today. Write 80-100 words.`,
   },
 
   {
