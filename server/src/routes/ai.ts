@@ -389,8 +389,9 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
         .map((c, idx) => {
           const cardName = language === 'en' ? c.card.nameEn : c.card.nameFr;
           const position = positionMeanings?.[idx] || `Position ${idx + 1}`;
-          const orientation = c.isReversed ? '(Reversed)' : '(Upright)';
-          return `${position}: ${cardName} ${orientation}`;
+          // Only mention reversed when applicable - upright is the default
+          const orientation = c.isReversed ? ' (Reversed)' : '';
+          return `${position}: ${cardName}${orientation}`;
         })
         .join('\n');
 
