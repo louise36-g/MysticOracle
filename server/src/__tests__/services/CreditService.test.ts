@@ -184,6 +184,101 @@ describe('CreditService', () => {
     });
   });
 
+  describe('calculateReadingCost', () => {
+    it('should return 1 credit for single card with no options', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'single',
+        hasAdvancedStyle: false,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result).toEqual({
+        baseCost: 1,
+        styleCost: 0,
+        extendedCost: 0,
+        totalCost: 1,
+      });
+    });
+
+    it('should return 2 credits for single card with advanced style', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'single',
+        hasAdvancedStyle: true,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result).toEqual({
+        baseCost: 1,
+        styleCost: 1,
+        extendedCost: 0,
+        totalCost: 2,
+      });
+    });
+
+    it('should return 3 credits for three-card spread with no options', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'three_card',
+        hasAdvancedStyle: false,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result).toEqual({
+        baseCost: 3,
+        styleCost: 0,
+        extendedCost: 0,
+        totalCost: 3,
+      });
+    });
+
+    it('should return 12 credits for celtic cross with style and extended question', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'celtic_cross',
+        hasAdvancedStyle: true,
+        hasExtendedQuestion: true,
+      });
+
+      expect(result).toEqual({
+        baseCost: 10,
+        styleCost: 1,
+        extendedCost: 1,
+        totalCost: 12,
+      });
+    });
+
+    it('should handle uppercase spread types', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'CELTIC_CROSS',
+        hasAdvancedStyle: false,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result.baseCost).toBe(10);
+      expect(result.totalCost).toBe(10);
+    });
+
+    it('should handle hyphenated spread types', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'three-card',
+        hasAdvancedStyle: false,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result.baseCost).toBe(3);
+      expect(result.totalCost).toBe(3);
+    });
+
+    it('should default to single card cost for unknown spread type', () => {
+      const result = creditService.calculateReadingCost({
+        spreadType: 'unknown',
+        hasAdvancedStyle: false,
+        hasExtendedQuestion: false,
+      });
+
+      expect(result.baseCost).toBe(1);
+      expect(result.totalCost).toBe(1);
+    });
+  });
+
   describe('adjustCredits', () => {
     it('should add credits when amount is positive', async () => {
       mockPrisma.$transaction.mockResolvedValue([
