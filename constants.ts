@@ -78,8 +78,8 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     nameFr: "Carte Unique",
     cost: 1,
     positions: 1,
-    positionMeaningsEn: ["The Answer"],
-    positionMeaningsFr: ["La Réponse"]
+    positionMeaningsEn: ["Today's Guidance"],
+    positionMeaningsFr: ["Guidance du Jour"]
   },
   [SpreadType.THREE_CARD]: {
     id: SpreadType.THREE_CARD,
