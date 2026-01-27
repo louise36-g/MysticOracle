@@ -17,7 +17,7 @@ export interface OracleChatParams {
   readingText: string;
   backendReadingId: string | null;
   language: 'en' | 'fr';
-  deductCredits: (cost: number) => Promise<{ success: boolean }>;
+  canAfford: (cost: number) => boolean; // Validates only - backend does actual deduction
 }
 
 /**
@@ -60,7 +60,7 @@ export interface UseOracleChatReturn {
  *   readingText,
  *   backendReadingId,
  *   language,
- *   deductCredits
+ *   canAfford
  * });
  *
  * const handleSubmit = async (e: React.FormEvent) => {
@@ -72,7 +72,7 @@ export interface UseOracleChatReturn {
  * ```
  */
 export function useOracleChat(params: OracleChatParams): UseOracleChatReturn {
-  const { readingText, backendReadingId, language, deductCredits } = params;
+  const { readingText, backendReadingId, language, canAfford } = params;
   const { getToken } = useAuth();
 
   // Chat state
@@ -120,15 +120,12 @@ export function useOracleChat(params: OracleChatParams): UseOracleChatReturn {
       return false;
     }
 
-    // Handle credit deduction
-    if (questionCost > 0) {
-      const result = await deductCredits(questionCost);
-      if (!result.success) {
-        if (mountedRef.current) {
-          setError('Insufficient credits');
-        }
-        return false;
+    // Check if user can afford (actual deduction happens on backend)
+    if (questionCost > 0 && !canAfford(questionCost)) {
+      if (mountedRef.current) {
+        setError('Insufficient credits');
       }
+      return false;
     }
 
     // Clear input, add user message, and increment question count atomically
@@ -194,7 +191,7 @@ export function useOracleChat(params: OracleChatParams): UseOracleChatReturn {
         setIsSending(false);
       }
     }
-  }, [isSending, questionCost, deductCredits, getToken, readingText, language, backendReadingId]);
+  }, [isSending, questionCost, canAfford, getToken, readingText, language, backendReadingId]);
 
   return {
     messages,

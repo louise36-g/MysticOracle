@@ -196,7 +196,7 @@ interface ChatMessage {
 }
 
 const HoroscopeReading: React.FC = () => {
-  const { language, deductCredits, user } = useApp();
+  const { language, canAfford, user } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
   const [selectedSign, setSelectedSign] = useState<string | null>(null);
@@ -248,21 +248,18 @@ const HoroscopeReading: React.FC = () => {
 
     // Check if this question will cost a credit (every 2nd new question costs 1 credit)
     const willCost = willNextQuestionCostCredit();
-    if (willCost) {
-      const result = await deductCredits(1);
-      if (!result.success) {
-        // Not enough credits
-        setChatHistory(prev => [
-          ...prev,
-          { role: 'user', content: question },
-          {
-            role: 'model',
-            content: t('horoscope.HoroscopeReading.insufficient_credits_message', "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars.")
-          }
-        ]);
-        setUserQuestion('');
-        return;
-      }
+    if (willCost && !canAfford(1)) {
+      // Not enough credits
+      setChatHistory(prev => [
+        ...prev,
+        { role: 'user', content: question },
+        {
+          role: 'model',
+          content: t('horoscope.HoroscopeReading.insufficient_credits_message', "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars.")
+        }
+      ]);
+      setUserQuestion('');
+      return;
     }
 
     setUserQuestion('');
@@ -304,7 +301,7 @@ const HoroscopeReading: React.FC = () => {
     } finally {
       setIsChatLoading(false);
     }
-  }, [horoscope, selectedSign, chatHistory, language, isChatLoading, deductCredits, getToken]);
+  }, [horoscope, selectedSign, chatHistory, language, isChatLoading, canAfford, getToken, t]);
 
   const handleSuggestedQuestion = (question: string) => {
     handleAskQuestion(question);

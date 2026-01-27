@@ -138,7 +138,7 @@ const generateSuggestedQuestions = (horoscope: string, language: 'en' | 'fr'): s
 
 const HoroscopeSignPage: React.FC = () => {
   const { sign: slug } = useParams<{ sign: string }>();
-  const { language, deductCredits, user } = useApp();
+  const { language, canAfford, user } = useApp();
   const { t } = useTranslation();
   const { getToken } = useAuth();
 
@@ -222,23 +222,20 @@ const HoroscopeSignPage: React.FC = () => {
       if (!question.trim() || !horoscope || !signData || isChatLoading) return;
 
       const willCost = willNextQuestionCostCredit();
-      if (willCost) {
-        const result = await deductCredits(1);
-        if (!result.success) {
-          setChatHistory((prev) => [
-            ...prev,
-            { role: 'user', content: question },
-            {
-              role: 'model',
-              content: t(
-                'horoscopes.HoroscopeSignPage.insufficient_credits',
-                "You've used your free question for this pair. Top up credits to continue."
-              ),
-            },
-          ]);
-          setUserQuestion('');
-          return;
-        }
+      if (willCost && !canAfford(1)) {
+        setChatHistory((prev) => [
+          ...prev,
+          { role: 'user', content: question },
+          {
+            role: 'model',
+            content: t(
+              'horoscopes.HoroscopeSignPage.insufficient_credits',
+              "You've used your free question for this pair. Top up credits to continue."
+            ),
+          },
+        ]);
+        setUserQuestion('');
+        return;
       }
 
       setUserQuestion('');
@@ -280,7 +277,7 @@ const HoroscopeSignPage: React.FC = () => {
         setIsChatLoading(false);
       }
     },
-    [horoscope, signData, chatHistory, language, isChatLoading, deductCredits, getToken, t]
+    [horoscope, signData, chatHistory, language, isChatLoading, canAfford, getToken, t]
   );
 
   const handleSuggestedQuestion = (question: string) => {

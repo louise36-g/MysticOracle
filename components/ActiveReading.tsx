@@ -70,7 +70,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const { spreadType: spreadSlug, phase: phaseSlug } = useParams<{ spreadType: string; phase?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { language, user, deductCredits, addToHistory, refreshUser, t } = useApp();
+  const { language, user, canAfford, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
 
@@ -248,7 +248,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     readingText,
     backendReadingId,
     language,
-    deductCredits
+    canAfford,
   });
 
   const loadingMessages = useMemo(() => LOADING_MESSAGES[language], [language]);
@@ -392,15 +392,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     handleUseFullQuestion(user?.credits || 0, baseCost);
   }, [handleUseFullQuestion, spread.cost, isAdvanced, user?.credits]);
 
-  const startShuffleAnimation = useCallback(async () => {
+  const startShuffleAnimation = useCallback(() => {
     // Validate user can afford the reading (actual deduction happens on backend)
     if (!validateBeforeStart(displayCost)) {
       return;
     }
 
     // Check credits locally before proceeding (backend will do actual deduction)
-    const result = await deductCredits(displayCost);
-    if (!result.success) {
+    if (!canAfford(displayCost)) {
       setValidationMessage(t('error.insufficientCredits', 'Insufficient credits'));
       return;
     }
@@ -411,7 +410,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
     setPhaseWithUrl('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [validateBeforeStart, displayCost, deductCredits, setValidationMessage, t, setPhaseWithUrl]);
+  }, [validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhaseWithUrl]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
