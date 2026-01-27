@@ -137,8 +137,11 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                       <img
                         src={article.featuredImage}
                         alt={article.featuredImageAlt || article.title}
+                        width={200}
+                        height={267}
                         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                         loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
