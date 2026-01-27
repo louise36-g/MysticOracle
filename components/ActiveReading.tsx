@@ -17,7 +17,9 @@ import {
   DrawingPhase,
   RevealingPhase,
   InterpretationPhase,
+  SingleCardIntroPhase,
 } from './reading';
+import { SingleCardCategory } from '../constants/singleCardQuestions';
 import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
@@ -143,6 +145,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Reading state
   const [readingText, setReadingText] = useState<string>('');
   const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
+
+  // Single card oracle state
+  const [singleCardCategory, setSingleCardCategory] = useState<SingleCardCategory | null>(null);
+  const [singleCardQuestionId, setSingleCardQuestionId] = useState<string | null>(null);
+  const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
+  const [isWritingOwnQuestion, setIsWritingOwnQuestion] = useState(false);
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -302,7 +310,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         selectedStyles,
         drawnCards,
         question,
-        language
+        language,
+        category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
       });
 
       setReadingText(result.interpretation);
@@ -311,7 +320,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -333,9 +342,38 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     );
   }, []);
 
+  // Single card handlers
+  const handleCategorySelect = useCallback((category: SingleCardCategory) => {
+    setSingleCardCategory(category);
+    setSingleCardQuestionId(null);
+    setIsWritingOwnQuestion(false);
+  }, []);
+
+  const handleQuestionSelect = useCallback((questionId: string, questionText: string) => {
+    setSingleCardQuestionId(questionId);
+    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleCustomQuestionChange = useCallback((text: string) => {
+    setSingleCardCustomQuestion(text);
+    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleWriteOwnToggle = useCallback(() => {
+    setIsWritingOwnQuestion(prev => !prev);
+    if (!isWritingOwnQuestion) {
+      setSingleCardQuestionId(null);
+    }
+  }, [isWritingOwnQuestion]);
+
   const totalCost = useMemo(() => {
+    // For single card, advanced options cost +1 total (not per style)
+    if (spread.id === SpreadType.SINGLE) {
+      return spread.cost + (isAdvanced && selectedStyles.length > 0 ? 1 : 0);
+    }
+    // Original calculation for other spreads
     return spread.cost + (isAdvanced ? 1 : 0) + (extendedQuestionPaid ? 1 : 0);
-  }, [spread.cost, isAdvanced, extendedQuestionPaid]);
+  }, [spread.id, spread.cost, isAdvanced, selectedStyles.length, extendedQuestionPaid]);
 
   // Wrapper for handleUseFullQuestion to pass current credits and base cost
   const handleUseFullQuestionWrapper = useCallback(() => {
@@ -388,7 +426,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         selectedStyles,
         drawnCards,
         question,
-        language
+        language,
+        category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
       });
 
       setReadingText(result.interpretation);
@@ -453,7 +492,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
       setReadingText(errorMessage);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, addToHistory, getToken, totalCost, refreshUser, t, setPhaseWithUrl]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, addToHistory, getToken, totalCost, refreshUser, t, setPhaseWithUrl]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -489,6 +528,33 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
 
     if (phase === 'intro') {
+      // Use single card intro for single card spread
+      if (spread.id === SpreadType.SINGLE) {
+        return (
+          <SingleCardIntroPhase
+            spread={spread}
+            language={language}
+            selectedCategory={singleCardCategory}
+            selectedQuestionId={singleCardQuestionId}
+            customQuestion={singleCardCustomQuestion}
+            isWritingOwn={isWritingOwnQuestion}
+            onCategorySelect={handleCategorySelect}
+            onQuestionSelect={handleQuestionSelect}
+            onCustomQuestionChange={handleCustomQuestionChange}
+            onWriteOwnToggle={handleWriteOwnToggle}
+            isAdvanced={isAdvanced}
+            selectedStyles={selectedStyles}
+            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+            onStyleToggle={toggleStyle}
+            validationMessage={validationMessage}
+            totalCost={totalCost}
+            credits={user?.credits || 0}
+            onStartShuffle={startShuffleAnimation}
+          />
+        );
+      }
+
+      // Existing QuestionIntroPhase for other spreads
       return (
         <QuestionIntroPhase
           spread={spread}

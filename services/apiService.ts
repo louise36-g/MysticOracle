@@ -486,6 +486,7 @@ export async function generateTarotReading(
     }>;
     question: string;
     language: 'en' | 'fr';
+    category?: string; // For single card readings: general, love, career, decision, healing
   }
 ): Promise<{ interpretation: string; creditsRequired: number }> {
   return apiRequest('/api/v1/ai/tarot/generate', {

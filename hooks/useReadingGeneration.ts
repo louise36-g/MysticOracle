@@ -17,6 +17,8 @@ export interface ReadingGenerationParams {
   }>;
   question: string;
   language: 'en' | 'fr';
+  /** For single card readings: general, love, career, decision, healing */
+  category?: string;
 }
 
 /**
@@ -89,7 +91,7 @@ export function useReadingGeneration(): UseReadingGenerationReturn {
   const generateReading = useCallback(async (
     params: ReadingGenerationParams
   ): Promise<ReadingGenerationResult | null> => {
-    const { spread, isAdvanced, selectedStyles, drawnCards, question, language } = params;
+    const { spread, isAdvanced, selectedStyles, drawnCards, question, language, category } = params;
 
     setIsGenerating(true);
     setError(null);
@@ -124,7 +126,8 @@ export function useReadingGeneration(): UseReadingGenerationReturn {
         style: styleStrings,
         cards: cardsWithPosition,
         question,
-        language
+        language,
+        ...(category && { category }),
       });
 
       return result;
