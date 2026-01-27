@@ -148,6 +148,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Single card oracle state
   const [singleCardCategory, setSingleCardCategory] = useState<SingleCardCategory | null>(null);
+
+  // Guard against multiple save attempts
+  const [isSavingReading, setIsSavingReading] = useState(false);
   const [singleCardQuestionId, setSingleCardQuestionId] = useState<string | null>(null);
   const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
   const [isWritingOwnQuestion, setIsWritingOwnQuestion] = useState(false);
@@ -314,6 +317,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
       });
 
+      // Handle null result (API error)
+      if (!result) {
+        console.error('[Reading] regenerateReading returned null - API error occurred');
+        setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
+        return;
+      }
+
       setReadingText(result.interpretation);
       setReadingLanguage(language);
     } catch (error) {
@@ -366,12 +376,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
   }, [isWritingOwnQuestion]);
 
-  const totalCost = useMemo(() => {
+  // Display cost for UI only - backend calculates actual cost
+  const displayCost = useMemo(() => {
     // For single card, advanced options cost +1 total (not per style)
     if (spread.id === SpreadType.SINGLE) {
       return spread.cost + (isAdvanced && selectedStyles.length > 0 ? 1 : 0);
     }
-    // Original calculation for other spreads
+    // Other spreads: base + style + extended
     return spread.cost + (isAdvanced ? 1 : 0) + (extendedQuestionPaid ? 1 : 0);
   }, [spread.id, spread.cost, isAdvanced, selectedStyles.length, extendedQuestionPaid]);
 
@@ -382,21 +393,25 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [handleUseFullQuestion, spread.cost, isAdvanced, user?.credits]);
 
   const startShuffleAnimation = useCallback(async () => {
-    // Use hook's validation
-    const baseCost = spread.cost + (isAdvanced ? 1 : 0);
-    if (!validateBeforeStart(baseCost)) {
+    // Validate user can afford the reading (actual deduction happens on backend)
+    if (!validateBeforeStart(displayCost)) {
       return;
     }
 
-    const result = await deductCredits(totalCost);
+    // Check credits locally before proceeding (backend will do actual deduction)
+    const result = await deductCredits(displayCost);
     if (!result.success) {
       setValidationMessage(t('error.insufficientCredits', 'Insufficient credits'));
       return;
     }
 
+    // Reshuffle deck for new reading and reset drawn cards
+    setDeck(shuffleDeck(FULL_DECK));
+    setDrawnCards([]);
+
     setPhaseWithUrl('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [validateBeforeStart, spread.cost, isAdvanced, totalCost, deductCredits, setValidationMessage, t, setPhaseWithUrl]);
+  }, [validateBeforeStart, displayCost, deductCredits, setValidationMessage, t, setPhaseWithUrl]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
@@ -417,6 +432,15 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [drawnCards.length, deck, spread.positions, setPhaseWithUrl]);
 
   const startReading = useCallback(async () => {
+    console.log('[Reading] startReading called at', new Date().toISOString());
+
+    // Prevent multiple simultaneous saves
+    if (isSavingReading) {
+      console.warn('[Reading] Already saving, ignoring duplicate call');
+      return;
+    }
+    setIsSavingReading(true);
+
     setPhaseWithUrl('reading');
 
     try {
@@ -429,6 +453,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         language,
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
       });
+
+      // Handle null result (API error)
+      if (!result) {
+        console.error('[Reading] generateReading returned null - API error occurred');
+        const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
+        setReadingText(errorMessage);
+        return;
+      }
 
       setReadingText(result.interpretation);
       setReadingLanguage(language);
@@ -458,6 +490,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           position: idx,
           isReversed: item.isReversed,
         })));
+        console.log('[Reading] Saving reading:', {
+          displayCost, // For reference only - backend calculates actual cost
+          spreadType: spread.id,
+          isAdvanced,
+          hasExtendedQuestion: extendedQuestionPaid,
+        });
         const savedReading = await createReading(token, {
           spreadType: spread.id,
           interpretationStyle: isAdvanced && selectedStyles.length > 0
@@ -470,7 +508,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             isReversed: item.isReversed,
           })),
           interpretation: result.interpretation,
-          creditCost: totalCost,
+          hasExtendedQuestion: extendedQuestionPaid,
         });
         console.log('[Reading] Saved successfully! Reading:', savedReading);
         setBackendReadingId(savedReading.id);
@@ -491,8 +529,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to generate reading:', error);
       const errorMessage = t('reading.error.generateFailed', 'Failed to generate reading. Please try again.');
       setReadingText(errorMessage);
+    } finally {
+      setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, addToHistory, getToken, totalCost, refreshUser, t, setPhaseWithUrl]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -547,7 +587,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
             onStyleToggle={toggleStyle}
             validationMessage={validationMessage}
-            totalCost={totalCost}
+            totalCost={displayCost}
             credits={user?.credits || 0}
             onStartShuffle={startShuffleAnimation}
           />
@@ -565,7 +605,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           isAdvanced={isAdvanced}
           selectedStyles={selectedStyles}
           extendedQuestionPaid={extendedQuestionPaid}
-          totalCost={totalCost}
+          totalCost={displayCost}
           credits={user?.credits || 0}
           showLengthModal={showLengthModal}
           isProcessingLength={isProcessingLength}
