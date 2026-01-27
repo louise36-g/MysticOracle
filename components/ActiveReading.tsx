@@ -324,6 +324,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         question,
         language,
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
+        layoutId: spread.id === SpreadType.THREE_CARD ? threeCardLayout ?? undefined : undefined,
       });
 
       // Handle null result (API error)
@@ -339,7 +340,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -492,6 +493,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         question,
         language,
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
+        layoutId: spread.id === SpreadType.THREE_CARD ? threeCardLayout ?? undefined : undefined,
       });
 
       // Handle null result (API error)
@@ -572,7 +574,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, threeCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
