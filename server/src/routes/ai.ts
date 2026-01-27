@@ -5,9 +5,35 @@ import { requireAuth } from '../middleware/auth.js';
 import { getAISettings } from '../services/aiSettings.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
 import { openRouterService } from '../services/openRouterService.js';
-import { getTarotReadingPrompt, getTarotFollowUpPrompt } from '../services/promptService.js';
+import {
+  getTarotReadingPrompt,
+  getTarotFollowUpPrompt,
+  getSingleCardReadingPrompt,
+} from '../services/promptService.js';
 
 const router = Router();
+
+// Helper to get card element based on card ID
+function getCardElement(cardId: number): string {
+  // Major Arcana (0-21) - varies by card, default to Spirit
+  if (cardId <= 21) return 'Spirit';
+
+  // Minor Arcana: Wands (22-35), Cups (36-49), Swords (50-63), Pentacles (64-77)
+  if (cardId <= 35) return 'Fire';
+  if (cardId <= 49) return 'Water';
+  if (cardId <= 63) return 'Air';
+  return 'Earth';
+}
+
+// Helper to get card number for numerology
+function getCardNumber(cardId: number): string {
+  // Major Arcana
+  if (cardId <= 21) return String(cardId);
+
+  // Minor Arcana - extract the number (Ace=1 through 10, then Page=11, Knight=12, Queen=13, King=14)
+  const suitPosition = (cardId - 22) % 14;
+  return String(suitPosition + 1);
+}
 
 // Initialize OpenAI client for OpenRouter with dynamic settings
 const getOpenAIClient = async () => {
@@ -164,8 +190,8 @@ const generateTarotSchema = z.object({
     nameEn: z.string(),
     nameFr: z.string(),
     positions: z.number(),
-    positionMeaningsEn: z.array(z.string()),
-    positionMeaningsFr: z.array(z.string()),
+    positionMeaningsEn: z.array(z.string()).optional(),
+    positionMeaningsFr: z.array(z.string()).optional(),
     creditCost: z.number(),
   }),
   style: z.array(z.string()),
@@ -185,6 +211,7 @@ const generateTarotSchema = z.object({
   ),
   question: z.string(),
   language: z.enum(['en', 'fr']),
+  category: z.string().optional(),
 });
 
 const tarotFollowUpSchema = z.object({
@@ -214,52 +241,94 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       });
     }
 
-    const { spread, style, cards, question, language } = validation.data;
+    const { spread, style, cards, question, language, category } = validation.data;
 
     console.log('[Tarot Generate] Request:', {
       userId: req.auth.userId,
       spread: spread.nameEn,
       cardCount: cards.length,
       language,
+      category,
     });
 
-    // Transform raw input into formatted strings for prompt service
-    const spreadType = spread.id;
-    const styleInstructions =
-      style.length > 0
-        ? `Interpretation styles: ${style.join(', ')}`
-        : 'Use a classic interpretation style';
+    // Check if this is a single card reading
+    const isSingleCard = spread.id === 'single' && spread.positions === 1;
 
-    // Format cards description with position meanings
-    const positionMeanings =
-      language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
-    const cardsDescription = cards
-      .map((c, idx) => {
-        const cardName = language === 'en' ? c.card.nameEn : c.card.nameFr;
-        const position = positionMeanings[idx] || `Position ${idx + 1}`;
-        const orientation = c.isReversed ? '(Reversed)' : '(Upright)';
-        return `${position}: ${cardName} ${orientation}`;
-      })
-      .join('\n');
+    let prompt: string;
+    let maxTokens: number;
 
-    // Get prompt from service (with caching and fallback to defaults)
-    const prompt = await getTarotReadingPrompt({
-      spreadType,
-      styleInstructions,
-      question,
-      cardsDescription,
-      language,
-    });
+    if (isSingleCard) {
+      // Use single card prompt
+      const card = cards[0];
+      const cardName = language === 'en' ? card.card.nameEn : card.card.nameFr;
+      const orientation = card.isReversed ? '(Reversed)' : '(Upright)';
+      const cardDescription = `${cardName} ${orientation}`;
 
-    // Calculate max tokens based on spread size
-    const maxTokens =
-      {
-        1: 600,
-        3: 1200,
-        5: 2000,
-        7: 2000,
-        10: 2500,
-      }[spread.positions] || 1500;
+      // Get card metadata - parse ID as number for helper functions
+      const cardIdNum = parseInt(card.card.id, 10) || 0;
+      const cardElement = getCardElement(cardIdNum);
+      const cardNumber = getCardNumber(cardIdNum);
+
+      // Map style array to expected format
+      const styleMap: Record<string, string> = {
+        spiritual: 'spiritual',
+        psycho_emotional: 'psycho_emotional',
+        numerology: 'numerology',
+        elemental: 'elemental',
+      };
+      const mappedStyles = style.map(s => styleMap[s.toLowerCase()] || s).filter(Boolean);
+
+      prompt = await getSingleCardReadingPrompt({
+        category: category || 'general',
+        question,
+        cardDescription,
+        cardNumber,
+        element: cardElement,
+        styles: mappedStyles,
+        language,
+      });
+
+      // Base 800 tokens + 200 per style
+      maxTokens = 800 + mappedStyles.length * 200;
+    } else {
+      // Existing multi-card logic
+      const spreadType = spread.id;
+      const styleInstructions =
+        style.length > 0
+          ? `Interpretation styles: ${style.join(', ')}`
+          : 'Use a classic interpretation style';
+
+      // Format cards description with position meanings
+      const positionMeanings =
+        language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
+      const cardsDescription = cards
+        .map((c, idx) => {
+          const cardName = language === 'en' ? c.card.nameEn : c.card.nameFr;
+          const position = positionMeanings?.[idx] || `Position ${idx + 1}`;
+          const orientation = c.isReversed ? '(Reversed)' : '(Upright)';
+          return `${position}: ${cardName} ${orientation}`;
+        })
+        .join('\n');
+
+      // Get prompt from service (with caching and fallback to defaults)
+      prompt = await getTarotReadingPrompt({
+        spreadType,
+        styleInstructions,
+        question,
+        cardsDescription,
+        language,
+      });
+
+      // Calculate max tokens based on spread size
+      maxTokens =
+        {
+          1: 600,
+          3: 1200,
+          5: 2000,
+          7: 2000,
+          10: 2500,
+        }[spread.positions] || 1500;
+    }
 
     // Generate interpretation using unified service
     const interpretation = await openRouterService.generateTarotReading(prompt, {
