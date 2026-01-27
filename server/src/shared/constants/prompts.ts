@@ -92,6 +92,69 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
   },
 
   {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_PAST_PRESENT_FUTURE',
+    description: 'Past-Present-Future 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Past-Present-Future spread reveals the timeline of your situation. The first card shows influences from your past that have shaped where you are. The second card reflects your current circumstances and energy. The third card illuminates the direction you are heading if you continue on this path.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_YOU_THEM_CONNECTION',
+    description: 'You-Them-Connection 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      "This relationship spread explores the dynamic between two people. The first card reflects your energy, feelings, and role in this connection. The second card reveals the other person's energy and perspective. The third card shows the nature of the bond itself—what exists between you.",
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_SITUATION_ACTION_OUTCOME',
+    description: 'Situation-Action-Outcome 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This career spread provides practical guidance. The first card shows your current professional situation and its energy. The second card suggests what action or approach is called for. The third card reveals the likely outcome of taking that approach.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_OPTION_A_B_GUIDANCE',
+    description: 'Option A-Option B-Guidance 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This decision spread illuminates two paths. The first card shows the energy and potential of one option. The second card shows the energy and potential of the other option. The third card offers guidance on what to consider as you choose.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_SITUATION_OBSTACLE_PATH',
+    description: 'Situation-Obstacle-Path Forward 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This clarity spread helps when you feel stuck. The first card reveals the true nature of your situation. The second card shows what is blocking you or creating confusion. The third card illuminates how to move forward with clarity.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_MIND_BODY_SPIRIT',
+    description: 'Mind-Body-Spirit 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This holistic spread explores your whole being. The first card reveals what is happening in your thoughts and mental state. The second card shows what your physical self or material circumstances need. The third card illuminates your spiritual state and soul lessons.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_CHALLENGE_SUPPORT_GROWTH',
+    description: 'Challenge-Support-Growth 3-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This healing spread guides your inner work. The first card acknowledges what you are facing or struggling with. The second card reveals what can support and comfort you through this. The third card shows the growth and wisdom that can emerge from this experience.',
+  },
+
+  {
     key: 'SPREAD_GUIDANCE_LOVE',
     description: 'Love & Relationships spread layout guidance',
     category: 'tarot',
