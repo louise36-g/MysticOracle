@@ -272,9 +272,9 @@ export async function createReading(
     spreadType: string;
     interpretationStyle: string;
     question?: string;
-    cards: any;
+    cards: Array<{ cardId: string; position: number; isReversed?: boolean }>;
     interpretation: string;
-    creditCost: number;
+    hasExtendedQuestion?: boolean;
   }
 ): Promise<ReadingData> {
   // Use idempotency key to prevent duplicate charges on network retries
