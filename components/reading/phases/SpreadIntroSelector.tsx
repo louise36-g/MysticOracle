@@ -88,8 +88,8 @@ const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; 
 };
 
 // Generic types for the selector
-type CategoryId = SingleCardCategory | ThreeCardCategory | FiveCardCategory;
-type LayoutId = SingleCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId;
+type CategoryId = SingleCardCategory | ThreeCardCategory | FiveCardCategory | HorseshoeCategory;
+type LayoutId = SingleCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | HorseshoeLayoutId;
 
 interface CategoryConfig {
   id: string;
@@ -171,6 +171,13 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
           questions: FIVE_CARD_QUESTIONS as Record<string, QuestionConfig[]>,
           customHelper: FIVE_CARD_CUSTOM_QUESTION_HELPER,
         };
+      case SpreadType.HORSESHOE:
+        return {
+          categories: HORSESHOE_CATEGORIES as CategoryConfig[],
+          layouts: HORSESHOE_LAYOUTS as Record<string, LayoutConfig>,
+          questions: HORSESHOE_LAYOUT_QUESTIONS as Record<string, QuestionConfig[]>,
+          customHelper: HORSESHOE_CUSTOM_QUESTION_HELPER,
+        };
       default:
         return {
           categories: [] as CategoryConfig[],
@@ -189,6 +196,11 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
     if (spreadType === SpreadType.FIVE_CARD && selectedCategory === 'relationships_career' && selectedLayout) {
       const layoutQuestions = FIVE_CARD_LAYOUT_QUESTIONS[selectedLayout as 'love_relationships' | 'career_purpose'];
       if (layoutQuestions) return layoutQuestions;
+    }
+
+    // For horseshoe, ALL questions are layout-specific
+    if (spreadType === SpreadType.HORSESHOE && selectedLayout) {
+      return HORSESHOE_LAYOUT_QUESTIONS[selectedLayout as HorseshoeLayoutId] || [];
     }
 
     return questions[selectedCategory as string] || [];
