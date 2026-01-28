@@ -78,8 +78,8 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     nameFr: "Carte Unique",
     cost: 1,
     positions: 1,
-    positionMeaningsEn: ["Today's Guidance"],
-    positionMeaningsFr: ["Guidance du Jour"]
+    positionMeaningsEn: ["Guidance"],
+    positionMeaningsFr: ["Guidance"]
   },
   [SpreadType.THREE_CARD]: {
     id: SpreadType.THREE_CARD,
@@ -89,6 +89,16 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     positions: 3,
     positionMeaningsEn: ["The Past", "The Present", "The Future"],
     positionMeaningsFr: ["Le Passé", "Le Présent", "Le Futur"]
+  },
+  [SpreadType.FIVE_CARD]: {
+    id: SpreadType.FIVE_CARD,
+    nameEn: "Five Card Spread",
+    nameFr: "Tirage à Cinq Cartes",
+    cost: 5,
+    positions: 5,
+    // Default positions - these get overridden by layout selection
+    positionMeaningsEn: ["First", "Second", "Third", "Fourth", "Fifth"],
+    positionMeaningsFr: ["Premier", "Deuxième", "Troisième", "Quatrième", "Cinquième"]
   },
   [SpreadType.LOVE]: {
     id: SpreadType.LOVE,
