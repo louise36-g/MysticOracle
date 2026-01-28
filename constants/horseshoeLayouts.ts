@@ -196,3 +196,48 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
       fr: ['Comment cette situation est apparue', 'Le poids actuel porté', 'Émotions présentes dans cette situation', 'Ce qui rend la récupération plus difficile', 'Soutien et ressources à solliciter', 'La prochaine étape', 'Potentiel de guérison et renouveau'],
     },
   },
+  // Category 4: Life Path & Major Decisions
+  right_path: {
+    id: 'right_path',
+    labelEn: 'Am I On The Right Path?',
+    labelFr: 'Suis-je sur le Bon Chemin?',
+    taglineEn: 'Doubting the direction of life? This spread offers perspective on where things stand, what\'s aligned, and what may need adjustment.',
+    taglineFr: 'Vous doutez de la direction de votre vie? Ce tirage offre une perspective sur où en sont les choses, ce qui est aligné, et ce qui peut nécessiter un ajustement.',
+    positions: {
+      en: ['The path that led here', 'Where things stand now', 'What the soul is truly seeking', 'What feels misaligned', 'Signs and synchronicities present', 'How to reconnect with inner guidance', 'What alignment could look like'],
+      fr: ['Le chemin qui a mené ici', 'Où en sont les choses maintenant', 'Ce que l\'âme cherche vraiment', 'Ce qui semble désaligné', 'Signes et synchronicités présents', 'Comment se reconnecter à la guidance intérieure', 'À quoi l\'alignement pourrait ressembler'],
+    },
+  },
+  life_transitions: {
+    id: 'life_transitions',
+    labelEn: 'Major Life Transitions',
+    labelFr: 'Transitions Majeures',
+    taglineEn: 'Navigating a significant change? Understand what\'s ending, what\'s emerging, and how to move through the threshold with grace.',
+    taglineFr: 'Vous naviguez un changement significatif? Comprenez ce qui se termine, ce qui émerge, et comment traverser ce seuil avec grâce.',
+    positions: {
+      en: ['What needs to be left behind', 'The current threshold', 'Emotions arising in this transition', 'What makes this transition difficult', 'Support available during this time', 'How to honour this passage', 'What\'s emerging on the other side'],
+      fr: ['Ce qui doit être laissé derrière', 'Le seuil actuel', 'Émotions qui surgissent dans cette transition', 'Ce qui rend cette transition difficile', 'Soutien disponible pendant cette période', 'Comment honorer ce passage', 'Ce qui émerge de l\'autre côté'],
+    },
+  },
+  major_decisions: {
+    id: 'major_decisions',
+    labelEn: 'Major Decisions',
+    labelFr: 'Décisions Majeures',
+    taglineEn: 'Facing a significant choice or considering a move? Explore the options, uncover hidden factors, and find clarity on the path forward.',
+    taglineFr: 'Face à un choix significatif ou envisagez de déménager? Explorez les options, découvrez les facteurs cachés, et trouvez la clarté sur le chemin à suivre.',
+    positions: {
+      en: ['How this decision point arose', 'What the current situation offers', 'What the new path offers', 'What\'s not being seen clearly', 'External factors influencing the choice', 'What the heart truly wants', 'Guidance for deciding'],
+      fr: ['Comment ce point de décision est apparu', 'Ce que la situation actuelle offre', 'Ce que le nouveau chemin offre', 'Ce qui n\'est pas vu clairement', 'Facteurs externes influençant le choix', 'Ce que le cœur veut vraiment', 'Guidance pour décider'],
+    },
+  },
+  whats_ahead: {
+    id: 'whats_ahead',
+    labelEn: 'What\'s Ahead',
+    labelFr: 'Ce Qui Vient',
+    taglineEn: 'Seeking a general life overview? This spread illuminates current energies, upcoming influences, and guidance for the journey ahead.',
+    taglineFr: 'Vous cherchez un aperçu général de votre vie? Ce tirage illumine les énergies actuelles, les influences à venir, et la guidance pour le chemin à parcourir.',
+    positions: {
+      en: ['Recent experiences shaping now', 'The current life energy', 'What\'s working beneath the surface', 'Challenges on the horizon', 'Opportunities approaching', 'Guidance for the coming period', 'The overall direction unfolding'],
+      fr: ['Expériences récentes qui façonnent le présent', 'L\'énergie de vie actuelle', 'Ce qui œuvre sous la surface', 'Défis à l\'horizon', 'Opportunités qui approchent', 'Guidance pour la période à venir', 'La direction générale qui se déploie'],
+    },
+  },
