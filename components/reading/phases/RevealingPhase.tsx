@@ -5,6 +5,7 @@ import Card from '../../Card';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
+import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 
 interface DrawnCard {
   card: TarotCard;
@@ -16,6 +17,7 @@ interface RevealingPhaseProps {
   language: 'en' | 'fr';
   drawnCards: DrawnCard[];
   onStartReading: () => void;
+  threeCardLayout?: ThreeCardLayoutId | null;
 }
 
 const RevealingPhase: React.FC<RevealingPhaseProps> = ({
@@ -23,6 +25,7 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
   language,
   drawnCards,
   onStartReading,
+  threeCardLayout,
 }) => {
   const theme = SPREAD_THEMES[spread.id];
 
@@ -62,7 +65,9 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
           transition={{ delay: 0.4 }}
           className={`text-xs md:text-sm ${theme.textAccent} mb-4 md:mb-6 italic`}
         >
-          {language === 'en' ? theme.taglineEn : theme.taglineFr}
+          {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
+            ? (language === 'en' ? THREE_CARD_LAYOUTS[threeCardLayout].taglineEn : THREE_CARD_LAYOUTS[threeCardLayout].taglineFr)
+            : (language === 'en' ? theme.taglineEn : theme.taglineFr)}
         </motion.p>
 
         {/* Cards container - responsive sizing */}
@@ -93,7 +98,9 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
                 />
               </div>
               <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
-                {language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
+                {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
+                  ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
+                  : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
               </p>
               {item.isReversed && (
                 <p className="text-center text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">

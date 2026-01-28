@@ -66,6 +66,7 @@ IMPORTANT FORMATTING RULES:
 - DO NOT use tables, grids, or any | pipe | formatting
 - DO NOT use emojis or icons
 - DO NOT use bullet point lists for the main reading content
+- NEVER use em dashes (—). Use commas, semicolons, colons, or periods instead
 - Write as a mystical oracle would speak, not as an AI assistant
 
 Tone: Mystical, supportive, insightful, warm, and conversational.`,
@@ -106,7 +107,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      "This relationship spread explores the dynamic between two people. The first card reflects your energy, feelings, and role in this connection. The second card reveals the other person's energy and perspective. The third card shows the nature of the bond itself—what exists between you.",
+      "This relationship spread explores the dynamic between two people. The first card reflects your energy, feelings, and role in this connection. The second card reveals the other person's energy and perspective. The third card shows the nature of the bond itself: what exists between you.",
   },
 
   {
@@ -227,9 +228,9 @@ Important Guidelines:
 
 Structure your response with these sections:
 
-1. **The Card's Energy** — Describe the metaphysical energy and meaning this card carries. Focus on its spiritual essence, emotional resonance, and what themes it brings into awareness. Do NOT describe the visual imagery on the card (the seeker can see it). Write 60-80 words maximum.
+1. **The Card's Energy**: Describe the metaphysical energy and meaning this card carries. Focus on its spiritual essence, emotional resonance, and what themes it brings into awareness. Do NOT describe the visual imagery on the card (the seeker can see it). Write 60-80 words maximum.
 
-2. **Today's Guidance** — This is the heart of the reading. Connect the card's energy to their intention and chosen category. What themes might arise today? What should they be aware of or open to? Speak to their situation without telling them what to do. Let the card illuminate rather than instruct. Write 200-250 words.
+2. **Today's Guidance**: This is the heart of the reading. Connect the card's energy to their intention and chosen category. What themes might arise today? What should they be aware of or open to? Speak to their situation without telling them what to do. Let the card illuminate rather than instruct. Write 200-250 words.
 
 {{styleInstructions}}
 
@@ -240,6 +241,7 @@ IMPORTANT FORMATTING RULES:
 - DO NOT use tables, grids, or bullet points
 - DO NOT use emojis or icons
 - DO NOT mention "upright" or "reversed" - just interpret the card naturally
+- NEVER use em dashes (—). Use commas, semicolons, colons, or periods instead
 - Write as a mystical oracle would speak, not as an AI assistant
 
 Tone: Mystical, reflective, warm, and gently empowering.`,
@@ -250,7 +252,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Spiritual perspective section for single card reading',
     category: 'tarot',
     variables: [],
-    defaultValue: `3. **Spiritual Perspective** — Explore the soul lessons and higher purpose this card offers. What spiritual growth or awakening does it point toward? What invitation does the universe extend through this card? Write 80-100 words.`,
+    defaultValue: `3. **Spiritual Perspective**: Explore the soul lessons and higher purpose this card offers. What spiritual growth or awakening does it point toward? What invitation does the universe extend through this card? Write 80-100 words.`,
   },
 
   {
@@ -258,7 +260,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Numerology section for single card reading',
     category: 'tarot',
     variables: ['cardNumber'],
-    defaultValue: `3. **Numerological Insight** — The number {{cardNumber}} carries meaning. Explore cycles, timing, and the numerological significance present in this card. What does this number reveal about the energy and timing of your situation? Write 80-100 words.`,
+    defaultValue: `3. **Numerological Insight**: The number {{cardNumber}} carries meaning. Explore cycles, timing, and the numerological significance present in this card. What does this number reveal about the energy and timing of your situation? Write 80-100 words.`,
   },
 
   {
@@ -266,7 +268,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Elemental section for single card reading',
     category: 'tarot',
     variables: ['element'],
-    defaultValue: `3. **Elemental Energy** — This card carries {{element}} energy. First, briefly explain which tarot suit corresponds to this element (Wands=Fire, Cups=Water, Swords=Air, Pentacles=Earth, Major Arcana=Spirit) and what this element represents in tarot (e.g., Fire represents passion, willpower, action, creativity; Water represents emotions, intuition, relationships; Air represents intellect, communication, truth; Earth represents material world, stability, physical health; Spirit represents soul lessons and transcendence). Then offer guidance on how to work with this elemental quality today. Write 80-100 words.`,
+    defaultValue: `3. **Elemental Energy**: This card carries {{element}} energy. First, briefly explain which tarot suit corresponds to this element (Wands=Fire, Cups=Water, Swords=Air, Pentacles=Earth, Major Arcana=Spirit) and what this element represents in tarot (e.g., Fire represents passion, willpower, action, creativity; Water represents emotions, intuition, relationships; Air represents intellect, communication, truth; Earth represents material world, stability, physical health; Spirit represents soul lessons and transcendence). Then offer guidance on how to work with this elemental quality today. Write 80-100 words.`,
   },
 
   {
@@ -274,7 +276,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Psycho-emotional section for single card reading',
     category: 'tarot',
     variables: [],
-    defaultValue: `3. **Psycho-Emotional Reflection** — What inner patterns, emotional themes, or psychological insights does this card reveal? What might be surfacing from within that deserves your attention? Write 80-100 words.`,
+    defaultValue: `3. **Psycho-Emotional Reflection**: What inner patterns, emotional themes, or psychological insights does this card reveal? What might be surfacing from within that deserves your attention? Write 80-100 words.`,
   },
 
   {
@@ -282,7 +284,7 @@ Tone: Mystical, reflective, warm, and gently empowering.`,
     description: 'Guidance for reframing yes/no questions',
     category: 'tarot',
     variables: [],
-    defaultValue: `If the user's question appears to be yes/no or blame-focused, gently acknowledge their concern while offering a more empowering perspective. Do not lecture — simply weave a reframe naturally into your guidance.`,
+    defaultValue: `If the user's question appears to be yes/no or blame-focused, gently acknowledge their concern while offering a more empowering perspective. Do not lecture; simply weave a reframe naturally into your guidance.`,
   },
 
   {
@@ -303,7 +305,7 @@ Current Question: "{{newQuestion}}"
 Language: {{language}}
 Task: Answer the seeker's follow-up question based *only* on the cards and insights from the original reading. Do not draw new cards. Keep the mystical tone. Be concise but insightful.
 
-IMPORTANT: Write naturally without tables, emojis, or icons. Speak as a wise oracle would.`,
+IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes (—). Speak as a wise oracle would.`,
   },
 
   // ==================== HOROSCOPE PROMPTS ====================
@@ -346,6 +348,7 @@ IMPORTANT STYLE RULES:
 - DO NOT include lucky charms, lucky numbers, or lucky colours
 - DO NOT use tables, emojis, or icons
 - DO NOT use bullet points
+- NEVER use em dashes (—). Use commas, semicolons, colons, or periods instead
 
 Tone: Professional, informative, respectful, and direct.`,
   },
@@ -382,6 +385,7 @@ IMPORTANT STYLE RULES:
 - Be concise and direct
 - DO NOT use phrases like "my dear", "well now", "as you know"
 - No tables, emojis, or icons
+- NEVER use em dashes (—)
 - Write in flowing prose`,
   },
 ];

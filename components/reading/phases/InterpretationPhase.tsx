@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, ChevronDown, ChevronUp } from 'lucide-react';
-import { SpreadConfig, TarotCard } from '../../../types';
+import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
@@ -9,6 +9,7 @@ import OracleChat from '../OracleChat';
 import ReflectionPrompt from '../ReflectionPrompt';
 import { ReadingCompleteCelebration } from '../../rewards';
 import { SPREAD_THEMES } from '../SpreadThemes';
+import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 
 interface DrawnCard {
   card: TarotCard;
@@ -32,6 +33,7 @@ interface InterpretationPhaseProps {
   chatInput: string;
   isChatLoading: boolean;
   questionCost: number;
+  threeCardLayout?: ThreeCardLayoutId | null;
   onContextToggle: () => void;
   onFinish: () => void;
   onCelebrationComplete: () => void;
@@ -57,6 +59,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   chatInput,
   isChatLoading,
   questionCost,
+  threeCardLayout,
   onContextToggle,
   onFinish,
   onCelebrationComplete,
@@ -188,7 +191,9 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                               className="shadow-lg"
                             />
                             <span className={`text-[10px] ${theme.textAccent} mt-2 font-bold uppercase tracking-wider text-center max-w-[100px]`}>
-                              {language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
+                              {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
+                                ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
+                                : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
                             </span>
                             <span className="text-[10px] text-slate-500 mt-0.5 text-center max-w-[100px] truncate">
                               {language === 'en' ? item.card.nameEn : item.card.nameFr}

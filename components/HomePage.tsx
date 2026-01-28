@@ -2,13 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { ROUTES } from '../routes/routes';
+import { ROUTES, buildRoute } from '../routes/routes';
 import Button from './Button';
 import { Star, Shield, Zap } from 'lucide-react';
 import ReadingModeSelector from './ReadingModeSelector';
 import SpreadSelector from './SpreadSelector';
 import HoroscopeReading from './HoroscopeReading';
-import { SpreadConfig } from '../types';
+import { SpreadConfig, SpreadType } from '../types';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +22,18 @@ const HomePage: React.FC = () => {
   };
 
   const handleSpreadSelect = (spread: SpreadConfig) => {
-    // Navigate to reading with spread in state
-    navigate(ROUTES.READING, { state: { spread } });
+    // Convert spread id to URL-friendly slug
+    const slugMap: Record<SpreadType, string> = {
+      [SpreadType.SINGLE]: 'single',
+      [SpreadType.THREE_CARD]: 'three-card',
+      [SpreadType.LOVE]: 'love',
+      [SpreadType.CAREER]: 'career',
+      [SpreadType.HORSESHOE]: 'horseshoe',
+      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
+    };
+    const spreadSlug = slugMap[spread.id] || spread.id;
+    // Navigate to reading with specific spread type
+    navigate(buildRoute(ROUTES.READING_SPREAD, { spreadType: spreadSlug }));
   };
 
   return (

@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
+import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 
 interface DrawnCard {
   card: TarotCard;
@@ -15,6 +16,7 @@ interface DrawingPhaseProps {
   language: 'en' | 'fr';
   drawnCards: DrawnCard[];
   onCardDraw: () => void;
+  threeCardLayout?: ThreeCardLayoutId | null;
 }
 
 const DrawingPhase: React.FC<DrawingPhaseProps> = ({
@@ -22,6 +24,7 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
   language,
   drawnCards,
   onCardDraw,
+  threeCardLayout,
 }) => {
   const theme = SPREAD_THEMES[spread.id];
   const progressPercent = (drawnCards.length / spread.positions) * 100;
@@ -113,9 +116,13 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 p-4 md:p-6">
           <div className="flex flex-wrap gap-3 md:gap-4 justify-center">
             {Array.from({ length: spread.positions }).map((_, i) => {
-              const positionLabel = language === 'en'
-                ? spread.positionMeaningsEn[i]
-                : spread.positionMeaningsFr[i];
+              // Use layout-specific positions for 3-card spread when layout is selected
+              let positionLabel: string;
+              if (spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]) {
+                positionLabel = THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i];
+              } else {
+                positionLabel = language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i];
+              }
 
               return (
                 <div key={`slot-${i}`} className="flex flex-col items-center gap-1.5">

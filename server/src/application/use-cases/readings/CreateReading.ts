@@ -157,11 +157,26 @@ export class CreateReadingUseCase {
 
       // 6. DEDUCT CREDITS FIRST (before creating reading)
       // This ensures we never give away free readings
+      // Build descriptive transaction description
+      const descriptionParts: string[] = [spreadType.name];
+      if (isAdvancedStyle && input.interpretationStyle) {
+        // Format style name nicely (e.g., PSYCHO_EMOTIONAL -> Psycho-Emotional)
+        const styleName = input.interpretationStyle
+          .toLowerCase()
+          .replace(/_/g, '-')
+          .replace(/\b\w/g, c => c.toUpperCase());
+        descriptionParts.push(`+ ${styleName}`);
+      }
+      if (input.hasExtendedQuestion) {
+        descriptionParts.push('+ Extended');
+      }
+      const transactionDescription = descriptionParts.join(' ');
+
       const deductResult = await this.creditService.deductCredits({
         userId: input.userId,
         amount: creditCost,
         type: 'READING',
-        description: `${spreadType.name} reading`,
+        description: transactionDescription,
       });
 
       if (!deductResult.success) {

@@ -316,30 +316,49 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       let styleInstructions =
         'Use a classic interpretation style focusing on traditional tarot symbolism.';
       if (style.length > 0) {
-        const styleDescriptions: Record<string, string> = {
-          spiritual:
-            'Spiritual perspective: Explore soul lessons, higher purpose, and spiritual growth themes.',
-          psycho_emotional:
-            'Psycho-emotional depth: Address inner patterns, emotional themes, and psychological insights.',
-          numerology:
-            'Numerological insight: Reference the numbers on the cards and their cyclical/timing significance.',
-          elemental:
-            'Elemental energy: Connect cards to their elemental qualities (Fire/Wands, Water/Cups, Air/Swords, Earth/Pentacles).',
-          // Also handle the raw enum values
-          SPIRITUAL:
-            'Spiritual perspective: Explore soul lessons, higher purpose, and spiritual growth themes.',
-          PSYCHO_EMOTIONAL:
-            'Psycho-emotional depth: Address inner patterns, emotional themes, and psychological insights.',
-          NUMEROLOGY:
-            'Numerological insight: Reference the numbers on the cards and their cyclical/timing significance.',
-          ELEMENTAL:
-            'Elemental energy: Connect cards to their elemental qualities (Fire/Wands, Water/Cups, Air/Swords, Earth/Pentacles).',
+        // Each style has inline guidance (woven into card interpretations) and synthesis (dedicated section)
+        const styleDescriptions: Record<string, { inline: string; synthesis: string }> = {
+          spiritual: {
+            inline:
+              'Weave spiritual insights into each card: soul lessons, higher purpose, karma, and spiritual growth.',
+            synthesis: `**Spiritual Synthesis** (100-150 words): After the card interpretations, add a dedicated section exploring the collective spiritual message. What soul lesson emerges from these cards together? What is the higher purpose or spiritual invitation? How do the cards' spiritual themes interweave?`,
+          },
+          psycho_emotional: {
+            inline:
+              'Weave psychological insights into each card: inner patterns, emotional themes, shadow work, and self-awareness.',
+            synthesis: `**Emotional Landscape** (100-150 words): After the card interpretations, add a dedicated section on the psychological narrative. What emotional patterns or inner dynamics are revealed across all cards? How do they inform each other psychologically?`,
+          },
+          numerology: {
+            inline:
+              'Reference the numerological significance of each card number: cycles, timing, and numerical symbolism.',
+            synthesis: `**Numerological Pattern** (100-150 words): After the card interpretations, add a dedicated section analyzing the numbers. What is the combined numerological energy? Are there repeated numbers or a progression? What timing or cyclical message emerges from the numbers together?`,
+          },
+          elemental: {
+            inline:
+              'Connect each card to its elemental quality: Fire (Wands/action), Water (Cups/emotion), Air (Swords/thought), Earth (Pentacles/material).',
+            synthesis: `**Elemental Interplay** (100-150 words): After the card interpretations, add a dedicated section on elemental dynamics. What elements are present? If the same element repeats, what does that concentrated energy signify? If elements differ, how do they interact - do they support, challenge, or balance each other? What is the overriding elemental energy of this reading?`,
+          },
         };
-        const descriptions = style
+        // Handle uppercase enum values
+        styleDescriptions.SPIRITUAL = styleDescriptions.spiritual;
+        styleDescriptions.PSYCHO_EMOTIONAL = styleDescriptions.psycho_emotional;
+        styleDescriptions.NUMEROLOGY = styleDescriptions.numerology;
+        styleDescriptions.ELEMENTAL = styleDescriptions.elemental;
+
+        const matchedStyles = style
           .map(s => styleDescriptions[s] || styleDescriptions[s.toUpperCase()])
           .filter(Boolean);
-        if (descriptions.length > 0) {
-          styleInstructions = `In addition to the traditional interpretation, incorporate these perspectives throughout your reading:\n${descriptions.join('\n')}`;
+
+        if (matchedStyles.length > 0) {
+          const inlineInstructions = matchedStyles.map(s => s.inline).join('\n');
+          const synthesisInstructions = matchedStyles.map(s => s.synthesis).join('\n\n');
+          styleInstructions = `In addition to the traditional interpretation:
+
+FOR EACH CARD, incorporate these perspectives:
+${inlineInstructions}
+
+AFTER all card interpretations, include these dedicated synthesis sections:
+${synthesisInstructions}`;
         }
       }
       console.log('[Tarot Generate] Styles received:', style);
@@ -413,14 +432,20 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       });
 
       // Calculate max tokens based on spread size
-      maxTokens =
+      // Base tokens for each spread size
+      const baseTokens =
         {
           1: 600,
-          3: 1200,
+          3: 1500, // Increased from 1200 for better coverage
           5: 2000,
-          7: 2000,
-          10: 2500,
+          7: 2200,
+          10: 2800,
         }[spread.positions] || 1500;
+
+      // Add 300 tokens per style option for synthesis sections (100-150 words each)
+      const styleBonus = style.length > 0 ? style.length * 300 : 0;
+      maxTokens = baseTokens + styleBonus;
+      console.log('[Tarot Generate] Token calculation:', { baseTokens, styleBonus, maxTokens });
     }
 
     // Generate interpretation using unified service

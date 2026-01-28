@@ -15,6 +15,8 @@ export interface ThreeCardLayout {
   id: ThreeCardLayoutId;
   labelEn: string;
   labelFr: string;
+  taglineEn: string;
+  taglineFr: string;
   positions: {
     en: [string, string, string];
     fr: [string, string, string];
@@ -42,6 +44,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'past_present_future',
     labelEn: 'Past → Present → Future',
     labelFr: 'Passé → Présent → Futur',
+    taglineEn: 'Past flows into future.',
+    taglineFr: 'Le passé coule vers l\'avenir.',
     positions: {
       en: ['Past', 'Present', 'Future'],
       fr: ['Passé', 'Présent', 'Futur'],
@@ -51,6 +55,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'you_them_connection',
     labelEn: 'You → Them → Connection',
     labelFr: 'Vous → Eux → Connexion',
+    taglineEn: 'Two hearts, one truth.',
+    taglineFr: 'Deux cœurs, une vérité.',
     positions: {
       en: ['You', 'Them', 'The Connection'],
       fr: ['Vous', 'Eux', 'La Connexion'],
@@ -60,6 +66,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'situation_action_outcome',
     labelEn: 'Situation → Action → Outcome',
     labelFr: 'Situation → Action → Résultat',
+    taglineEn: 'From action springs destiny.',
+    taglineFr: 'De l\'action naît le destin.',
     positions: {
       en: ['Situation', 'Action', 'Outcome'],
       fr: ['Situation', 'Action', 'Résultat'],
@@ -69,6 +77,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'option_a_b_guidance',
     labelEn: 'Option A → Option B → Guidance',
     labelFr: 'Option A → Option B → Conseil',
+    taglineEn: 'Choices illuminate the path.',
+    taglineFr: 'Les choix illuminent le chemin.',
     positions: {
       en: ['Option A', 'Option B', 'Guidance'],
       fr: ['Option A', 'Option B', 'Conseil'],
@@ -78,6 +88,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'situation_obstacle_path',
     labelEn: 'Situation → Obstacle → Path Forward',
     labelFr: 'Situation → Obstacle → Voie à Suivre',
+    taglineEn: 'Through challenge, clarity.',
+    taglineFr: 'À travers le défi, la clarté.',
     positions: {
       en: ['Situation', 'Obstacle', 'Path Forward'],
       fr: ['Situation', 'Obstacle', 'Voie à Suivre'],
@@ -87,6 +99,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'mind_body_spirit',
     labelEn: 'Mind → Body → Spirit',
     labelFr: 'Esprit → Corps → Âme',
+    taglineEn: 'Wholeness within revealed.',
+    taglineFr: 'La plénitude intérieure révélée.',
     positions: {
       en: ['Mind', 'Body', 'Spirit'],
       fr: ['Esprit', 'Corps', 'Âme'],
@@ -96,6 +110,8 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     id: 'challenge_support_growth',
     labelEn: 'Challenge → Support → Growth',
     labelFr: 'Défi → Soutien → Croissance',
+    taglineEn: 'Transformation through trials.',
+    taglineFr: 'La transformation par les épreuves.',
     positions: {
       en: ['Challenge', 'Support', 'Growth'],
       fr: ['Défi', 'Soutien', 'Croissance'],
