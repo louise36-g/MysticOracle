@@ -21,7 +21,8 @@ import {
   Layers,
   Eye,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Home
 } from 'lucide-react';
 
 interface DropdownItem {
@@ -339,6 +340,19 @@ const SubNav: React.FC = () => {
     <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5 relative z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-1 h-12">
+          {/* Home Link */}
+          <Link
+            to={ROUTES.HOME}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              location.pathname === '/'
+                ? 'text-amber-300 bg-amber-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Home className="w-4 h-4" />
+            <span>{t('nav.home', 'Home')}</span>
+          </Link>
+
           {/* Tarot Dropdown */}
           <div
             className="relative"

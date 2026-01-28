@@ -201,9 +201,6 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
     onLayoutSelect(layoutId as LayoutId);
   };
 
-  // Get selected layout config
-  const selectedLayoutConfig = selectedLayout ? layouts[selectedLayout as string] : null;
-
   return (
     <div className="space-y-6">
       {/* Section 1: Category & Layout Selection (Accordion) */}
@@ -269,42 +266,108 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                           const isLayoutSelected = selectedLayout === layout.id;
 
                           return (
-                            <button
-                              key={layout.id}
-                              onClick={() => handleLayoutSelect(category.id, layout.id)}
-                              className={`w-full p-3 rounded-lg text-left transition-all ${
-                                isLayoutSelected
-                                  ? `${colors.bg} ${colors.border} border`
-                                  : 'bg-slate-900/50 border border-slate-700/30 hover:border-slate-600'
-                              }`}
-                            >
-                              {/* Layout Name & Tagline */}
-                              <div className="flex items-center justify-between mb-2">
-                                <span className={`font-medium text-sm ${isLayoutSelected ? colors.text : 'text-slate-300'}`}>
-                                  {language === 'en' ? layout.labelEn : layout.labelFr}
-                                </span>
-                                {isLayoutSelected && <Check className={`w-3.5 h-3.5 ${colors.text}`} />}
-                              </div>
-                              <p className="text-xs text-slate-500 mb-3">
-                                {language === 'en' ? layout.taglineEn : layout.taglineFr}
-                              </p>
+                            <div key={layout.id}>
+                              <button
+                                onClick={() => handleLayoutSelect(category.id, layout.id)}
+                                className={`w-full p-3 rounded-lg text-left transition-all ${
+                                  isLayoutSelected
+                                    ? `${colors.bg} ${colors.border} border`
+                                    : 'bg-slate-900/50 border border-slate-700/30 hover:border-slate-600'
+                                }`}
+                              >
+                                {/* Layout Name & Tagline */}
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className={`font-medium text-sm ${isLayoutSelected ? colors.text : 'text-slate-300'}`}>
+                                    {language === 'en' ? layout.labelEn : layout.labelFr}
+                                  </span>
+                                  {isLayoutSelected && <Check className={`w-3.5 h-3.5 ${colors.text}`} />}
+                                </div>
+                                <p className="text-xs text-slate-500">
+                                  {language === 'en' ? layout.taglineEn : layout.taglineFr}
+                                </p>
 
-                              {/* Card Positions */}
-                              <div className="space-y-1">
-                                {(language === 'en' ? layout.positions.en : layout.positions.fr).map((position, idx) => (
-                                  <div key={idx} className="flex items-start gap-2">
-                                    <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-medium ${
-                                      isLayoutSelected ? `${colors.bg} ${colors.text}` : 'bg-slate-800 text-slate-500'
-                                    }`}>
-                                      {idx + 1}
-                                    </span>
-                                    <span className={`text-xs leading-5 ${isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                                      {position}
-                                    </span>
+                                {/* Card Positions - Only show for layouts with more than 3 positions */}
+                                {layout.positions.en.length > 3 && (
+                                  <div className="space-y-1 mt-3">
+                                    {(language === 'en' ? layout.positions.en : layout.positions.fr).map((position, idx) => (
+                                      <div key={idx} className="flex items-start gap-2">
+                                        <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-medium ${
+                                          isLayoutSelected ? `${colors.bg} ${colors.text}` : 'bg-slate-800 text-slate-500'
+                                        }`}>
+                                          {idx + 1}
+                                        </span>
+                                        <span className={`text-xs leading-5 ${isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                          {position}
+                                        </span>
+                                      </div>
+                                    ))}
                                   </div>
-                                ))}
-                              </div>
-                            </button>
+                                )}
+                              </button>
+
+                              {/* Question Input - Directly under THIS selected layout */}
+                              <AnimatePresence>
+                                {isLayoutSelected && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="mt-3 pt-3 border-t border-slate-700/50"
+                                  >
+                                    {/* Custom Question Input */}
+                                    <div className="mb-4">
+                                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                                        {language === 'en' ? 'Your Question' : 'Votre Question'}
+                                      </label>
+                                      <textarea
+                                        value={customQuestion}
+                                        onChange={(e) => onCustomQuestionChange(e.target.value)}
+                                        placeholder={language === 'en'
+                                          ? 'What would you like guidance on?'
+                                          : 'Sur quoi aimeriez-vous recevoir des conseils?'}
+                                        rows={3}
+                                        maxLength={500}
+                                        className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30 text-sm resize-none"
+                                      />
+                                      <div className="mt-1.5 flex items-start justify-between gap-4">
+                                        <p className="text-xs text-slate-500 flex-1">
+                                          {language === 'en' ? customHelper.en : customHelper.fr}
+                                        </p>
+                                        <span className="text-xs text-slate-500">{customQuestion.length}/500</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Suggested Questions - Backup */}
+                                    {currentQuestions.length > 0 && (
+                                      <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <Lightbulb className="w-3.5 h-3.5 text-amber-500/70" />
+                                          <span className="text-xs text-slate-500">
+                                            {language === 'en' ? 'Need inspiration?' : "Besoin d'inspiration?"}
+                                          </span>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          {currentQuestions.map((q) => (
+                                            <button
+                                              key={q.id}
+                                              onClick={() => {
+                                                const text = language === 'en' ? q.textEn : q.textFr;
+                                                onCustomQuestionChange(text);
+                                                onQuestionSelect(q.id, text);
+                                              }}
+                                              className="w-full px-3 py-2 text-left text-xs bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30 hover:border-slate-600 rounded-lg text-slate-400 hover:text-slate-300 transition-all"
+                                            >
+                                              {language === 'en' ? q.textEn : q.textFr}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
                           );
                         })}
                       </div>
@@ -316,87 +379,6 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
           })}
         </div>
       </div>
-
-      {/* Section 2: Question Input (Only show when layout selected) */}
-      <AnimatePresence>
-        {selectedLayout && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            {/* Selected Layout Summary */}
-            {selectedLayoutConfig && (
-              <div className="mb-4 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
-                <div className="text-xs text-slate-500 mb-1">
-                  {language === 'en' ? 'Selected Layout' : 'Disposition Choisie'}
-                </div>
-                <div className="text-sm text-slate-300 font-medium">
-                  {language === 'en' ? selectedLayoutConfig.labelEn : selectedLayoutConfig.labelFr}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {(language === 'en' ? selectedLayoutConfig.positions.en : selectedLayoutConfig.positions.fr).map((pos, idx) => (
-                    <span key={idx} className="inline-flex items-center gap-1 text-xs bg-slate-700/50 px-2 py-0.5 rounded-full text-slate-400">
-                      <span className="font-medium">{idx + 1}.</span> {pos}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Custom Question Input - FIRST and PROMINENT */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                {language === 'en' ? 'Your Question' : 'Votre Question'}
-              </label>
-              <textarea
-                value={customQuestion}
-                onChange={(e) => onCustomQuestionChange(e.target.value)}
-                placeholder={language === 'en'
-                  ? 'What would you like guidance on?'
-                  : 'Sur quoi aimeriez-vous recevoir des conseils?'}
-                rows={3}
-                maxLength={500}
-                className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30 text-sm resize-none"
-              />
-              <div className="mt-1.5 flex items-start justify-between gap-4">
-                <p className="text-xs text-slate-500 flex-1">
-                  {language === 'en' ? customHelper.en : customHelper.fr}
-                </p>
-                <span className="text-xs text-slate-500">{customQuestion.length}/500</span>
-              </div>
-            </div>
-
-            {/* Suggested Questions - Backup */}
-            {currentQuestions.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="w-3.5 h-3.5 text-amber-500/70" />
-                  <span className="text-xs text-slate-500">
-                    {language === 'en' ? 'Need inspiration?' : "Besoin d'inspiration?"}
-                  </span>
-                </div>
-                <div className="space-y-1.5">
-                  {currentQuestions.map((q) => (
-                    <button
-                      key={q.id}
-                      onClick={() => {
-                        const text = language === 'en' ? q.textEn : q.textFr;
-                        onCustomQuestionChange(text);
-                        onQuestionSelect(q.id, text);
-                      }}
-                      className="w-full px-3 py-2 text-left text-xs bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30 hover:border-slate-600 rounded-lg text-slate-400 hover:text-slate-300 transition-all"
-                    >
-                      {language === 'en' ? q.textEn : q.textFr}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

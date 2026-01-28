@@ -199,7 +199,7 @@ export function useQuestionInput({
   const validateBeforeStart = useCallback((baseCost: number): boolean => {
     if (!question.trim()) {
       setQuestionError(true);
-      setValidationMessage(t('reading.error.missingQuestion', "Please enter a question above or select 'General Guidance'."));
+      setValidationMessage(t('reading.error.missingQuestion', 'Please write or choose your question before shuffling the cards.'));
       return false;
     }
 
