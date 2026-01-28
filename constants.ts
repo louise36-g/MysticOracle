@@ -84,8 +84,8 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   },
   [SpreadType.THREE_CARD]: {
     id: SpreadType.THREE_CARD,
-    nameEn: "Three Card Spread",
-    nameFr: "Tirage à Trois Cartes",
+    nameEn: "3 Card Spreads",
+    nameFr: "Tirages à 3 Cartes",
     cost: 3,
     positions: 3,
     positionMeaningsEn: ["The Past", "The Present", "The Future"],
@@ -93,8 +93,8 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   },
   [SpreadType.FIVE_CARD]: {
     id: SpreadType.FIVE_CARD,
-    nameEn: "Five Card Spread",
-    nameFr: "Tirage à Cinq Cartes",
+    nameEn: "5 Card Spreads",
+    nameFr: "Tirages à 5 Cartes",
     cost: 5,
     positions: 5,
     // Default positions - these get overridden by layout selection
@@ -105,8 +105,8 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   // but removed from SPREADS display - now available as 5-card layouts
   [SpreadType.HORSESHOE]: {
     id: SpreadType.HORSESHOE,
-    nameEn: "Horseshoe Spread",
-    nameFr: "Tirage en Fer à Cheval",
+    nameEn: "Horseshoe Spreads",
+    nameFr: "Tirages en Fer à Cheval",
     cost: 7,
     positions: 7,
     positionMeaningsEn: ["Past", "Present", "Hidden Influences", "Obstacles", "External Influences", "Advice", "Outcome"],
@@ -114,8 +114,8 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   },
   [SpreadType.CELTIC_CROSS]: {
     id: SpreadType.CELTIC_CROSS,
-    nameEn: "Celtic Cross",
-    nameFr: "Croix Celtique",
+    nameEn: "Celtic Cross Spreads",
+    nameFr: "Tirages en Croix Celtique",
     cost: 10,
     positions: 10,
     positionMeaningsEn: ["Present", "Challenge", "Past", "Future", "Above", "Below", "Advice", "External Influences", "Hopes/Fears", "Outcome"],
