@@ -165,29 +165,29 @@ export const SINGLE_CARD_CATEGORIES: SingleCardCategoryConfig[] = [
 // Questions per category
 export const SINGLE_CARD_QUESTIONS: Record<SingleCardCategory, SingleCardQuestion[]> = {
   daily_guidance: [
-    { id: '1dg1', textEn: 'What energy should I embrace today?', textFr: "Quelle énergie devrais-je accueillir aujourd'hui?" },
-    { id: '1dg2', textEn: 'What do I need to be aware of today?', textFr: "De quoi dois-je être conscient(e) aujourd'hui?" },
-    { id: '1dg3', textEn: 'What opportunity awaits me today?', textFr: "Quelle opportunité m'attend aujourd'hui?" },
+    { id: '1dg1', textEn: 'What is asking for my attention as I begin this day?', textFr: 'Qu\'est-ce qui demande mon attention alors que je commence cette journée?' },
+    { id: '1dg2', textEn: 'What do I need to be gentle with myself about today?', textFr: 'Sur quoi dois-je être doux/douce avec moi-même aujourd\'hui?' },
+    { id: '1dg3', textEn: 'What quality within me is ready to be expressed today?', textFr: 'Quelle qualité en moi est prête à s\'exprimer aujourd\'hui?' },
   ],
   love: [
-    { id: '1lv1', textEn: 'What does my heart need to hear right now?', textFr: 'Que mon coeur a-t-il besoin d\'entendre en ce moment?' },
-    { id: '1lv2', textEn: 'What is the current energy around my love life?', textFr: "Quelle est l'énergie actuelle autour de ma vie amoureuse?" },
-    { id: '1lv3', textEn: 'What should I focus on in my relationships?', textFr: 'Sur quoi devrais-je me concentrer dans mes relations?' },
+    { id: '1lv1', textEn: 'What is my heart longing to express or receive right now?', textFr: 'Qu\'est-ce que mon cœur aspire à exprimer ou recevoir en ce moment?' },
+    { id: '1lv2', textEn: 'What am I learning about love through my current experiences?', textFr: 'Qu\'est-ce que j\'apprends sur l\'amour à travers mes expériences actuelles?' },
+    { id: '1lv3', textEn: 'What pattern in my relationships is inviting my attention?', textFr: 'Quel schéma dans mes relations demande mon attention?' },
   ],
   career: [
-    { id: '1cr1', textEn: 'What insight do I need for my work today?', textFr: "De quel éclairage ai-je besoin pour mon travail aujourd'hui?" },
-    { id: '1cr2', textEn: 'What strength should I lean into professionally?', textFr: 'Sur quelle force devrais-je m\'appuyer professionnellement?' },
-    { id: '1cr3', textEn: 'What is the energy around my career right now?', textFr: "Quelle est l'énergie autour de ma carrière en ce moment?" },
+    { id: '1cr1', textEn: 'What does my work life reveal about my deeper needs and values?', textFr: 'Que révèle ma vie professionnelle sur mes besoins et valeurs profondes?' },
+    { id: '1cr2', textEn: 'Where am I being called to bring more of my authentic self to my work?', textFr: 'Où suis-je appelé(e) à apporter plus de mon moi authentique dans mon travail?' },
+    { id: '1cr3', textEn: 'What is my relationship with work teaching me about myself?', textFr: 'Que m\'apprend ma relation au travail sur moi-même?' },
   ],
   decision: [
-    { id: '1dc1', textEn: 'What do I need to see clearly about this choice?', textFr: 'Que dois-je voir clairement concernant ce choix?' },
-    { id: '1dc2', textEn: 'What factor am I overlooking in this decision?', textFr: 'Quel facteur est-ce que je néglige dans cette décision?' },
-    { id: '1dc3', textEn: 'What wisdom can guide my decision?', textFr: 'Quelle sagesse peut guider ma décision?' },
+    { id: '1dc1', textEn: 'What am I truly seeking through this decision?', textFr: 'Que cherché-je vraiment à travers cette décision?' },
+    { id: '1dc2', textEn: 'What fear or hope is influencing how I see this choice?', textFr: 'Quelle peur ou quel espoir influence ma façon de voir ce choix?' },
+    { id: '1dc3', textEn: 'What would I choose if I trusted myself completely?', textFr: 'Que choisirais-je si je me faisais entièrement confiance?' },
   ],
   self_reflection: [
-    { id: '1sr1', textEn: 'What aspect of myself needs attention right now?', textFr: "Quel aspect de moi-même a besoin d'attention en ce moment?" },
-    { id: '1sr2', textEn: 'What is my inner self trying to show me?', textFr: "Que mon moi intérieur essaie-t-il de me montrer?" },
-    { id: '1sr3', textEn: 'What truth am I ready to see within myself?', textFr: 'Quelle vérité suis-je prêt(e) à voir en moi?' },
+    { id: '1sr1', textEn: 'What part of myself is asking to be acknowledged right now?', textFr: 'Quelle partie de moi demande à être reconnue en ce moment?' },
+    { id: '1sr2', textEn: 'What am I ready to understand about myself that I\'ve been avoiding?', textFr: 'Que suis-je prêt(e) à comprendre sur moi-même que j\'évitais?' },
+    { id: '1sr3', textEn: 'What truth about myself am I ready to embrace with compassion?', textFr: 'Quelle vérité sur moi-même suis-je prêt(e) à accueillir avec compassion?' },
   ],
 };
 

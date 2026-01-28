@@ -260,9 +260,9 @@ export const FIVE_CARD_LAYOUT_QUESTIONS: Record<'love_relationships' | 'career_p
     { id: '5lr3', textEn: 'How can I show up in my relationships in a way that feels authentic, respectful, and emotionally aligned?', textFr: 'Comment puis-je me présenter dans mes relations de manière authentique, respectueuse et émotionnellement alignée?' },
   ],
   career_purpose: [
-    { id: '5cp1', textEn: 'What opportunities, skills, or strengths should I focus on to move my career forward?', textFr: 'Sur quelles opportunités, compétences ou forces devrais-je me concentrer pour faire avancer ma carrière?' },
-    { id: '5cp2', textEn: 'What strategic step would create the most progress or momentum in my professional life?', textFr: "Quelle étape stratégique créerait le plus de progrès ou d'élan dans ma vie professionnelle?" },
-    { id: '5cp3', textEn: 'What do I need to see clearly about my current role or career path to make a confident next move?', textFr: 'Que dois-je voir clairement concernant mon rôle actuel ou mon parcours professionnel pour faire un pas confiant?' },
+    { id: '5cp1', textEn: 'What is my work revealing about my deeper needs and aspirations?', textFr: 'Que révèle mon travail sur mes besoins et aspirations profondes?' },
+    { id: '5cp2', textEn: 'Where am I being called to bring more authenticity to my professional life?', textFr: 'Où suis-je appelé(e) à apporter plus d\'authenticité dans ma vie professionnelle?' },
+    { id: '5cp3', textEn: 'What do I need to understand about myself to take my next step with confidence?', textFr: 'Que dois-je comprendre sur moi-même pour faire mon prochain pas avec confiance?' },
   ],
 };
 
