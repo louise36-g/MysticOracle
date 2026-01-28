@@ -16,6 +16,7 @@ import {
   Sun,
   Lightbulb,
   Layers,
+  Coins,
 } from 'lucide-react';
 import { SpreadType } from '../../../types';
 
@@ -48,6 +49,15 @@ import {
   FiveCardLayoutId,
 } from '../../../constants/fiveCardLayouts';
 
+import {
+  HORSESHOE_CATEGORIES,
+  HORSESHOE_LAYOUTS,
+  HORSESHOE_LAYOUT_QUESTIONS,
+  HORSESHOE_CUSTOM_QUESTION_HELPER,
+  HorseshoeCategory,
+  HorseshoeLayoutId,
+} from '../../../constants/horseshoeLayouts';
+
 // Icon mapping
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Sparkles,
@@ -61,6 +71,7 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Users,
   Sun,
   Lightbulb,
+  Coins,
 };
 
 // Color classes for categories
@@ -71,6 +82,9 @@ const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; 
   indigo: { bg: 'bg-indigo-500/20', border: 'border-indigo-500/40', text: 'text-indigo-300', bgHover: 'hover:bg-indigo-500/10' },
   violet: { bg: 'bg-violet-500/20', border: 'border-violet-500/40', text: 'text-violet-300', bgHover: 'hover:bg-violet-500/10' },
   cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300', bgHover: 'hover:bg-cyan-500/10' },
+  blue: { bg: 'bg-blue-500/20', border: 'border-blue-500/40', text: 'text-blue-300', bgHover: 'hover:bg-blue-500/10' },
+  purple: { bg: 'bg-purple-500/20', border: 'border-purple-500/40', text: 'text-purple-300', bgHover: 'hover:bg-purple-500/10' },
+  teal: { bg: 'bg-teal-500/20', border: 'border-teal-500/40', text: 'text-teal-300', bgHover: 'hover:bg-teal-500/10' },
 };
 
 // Generic types for the selector
