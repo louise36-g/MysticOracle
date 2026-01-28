@@ -20,8 +20,15 @@ import {
   SingleCardIntroPhase,
   ThreeCardIntroPhase,
 } from './reading';
+import FiveCardIntroPhase from './reading/phases/FiveCardIntroPhase';
 import { SingleCardCategory } from '../constants/singleCardQuestions';
 import { ThreeCardCategory, ThreeCardLayoutId, getThreeCardCategory } from '../constants/threeCardLayouts';
+import {
+  FiveCardCategory,
+  FiveCardLayoutId,
+  FIVE_CARD_LAYOUTS,
+  getFiveCardCategory,
+} from '../constants/fiveCardLayouts';
 import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
@@ -62,6 +69,7 @@ const LOADING_MESSAGES = {
 const SLUG_TO_SPREAD_TYPE: Record<string, SpreadType> = {
   'single': SpreadType.SINGLE,
   'three-card': SpreadType.THREE_CARD,
+  'five-card': SpreadType.FIVE_CARD,
   'love': SpreadType.LOVE,
   'career': SpreadType.CAREER,
   'horseshoe': SpreadType.HORSESHOE,
@@ -163,6 +171,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [threeCardQuestionId, setThreeCardQuestionId] = useState<string | null>(null);
   const [threeCardCustomQuestion, setThreeCardCustomQuestion] = useState('');
   const [isWritingOwnThreeCard, setIsWritingOwnThreeCard] = useState(false);
+
+  // Five card intro state
+  const [fiveCardCategory, setFiveCardCategory] = useState<FiveCardCategory | null>(null);
+  const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
+  const [fiveCardQuestionId, setFiveCardQuestionId] = useState<string | null>(null);
+  const [fiveCardCustomQuestion, setFiveCardCustomQuestion] = useState('');
+  const [isWritingOwnFiveCard, setIsWritingOwnFiveCard] = useState(false);
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -315,6 +330,17 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [language]);
 
   const regenerateReading = useCallback(async () => {
+    // Determine layoutId based on spread type
+    const getLayoutId = (): string | undefined => {
+      if (spread.id === SpreadType.THREE_CARD && threeCardLayout) {
+        return threeCardLayout;
+      }
+      if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
+        return fiveCardLayout;
+      }
+      return undefined;
+    };
+
     try {
       const result = await generateReading({
         spread,
@@ -324,7 +350,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         question,
         language,
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
-        layoutId: spread.id === SpreadType.THREE_CARD ? threeCardLayout ?? undefined : undefined,
+        layoutId: getLayoutId(),
       });
 
       // Handle null result (API error)
@@ -340,7 +366,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -418,6 +444,38 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
   }, [isWritingOwnThreeCard]);
 
+  // Five card handlers
+  const handleFiveCardCategorySelect = useCallback((category: FiveCardCategory) => {
+    setFiveCardCategory(category);
+    setFiveCardQuestionId(null);
+    // Auto-set layout to default for this category
+    const categoryConfig = getFiveCardCategory(category);
+    if (categoryConfig) {
+      setFiveCardLayout(categoryConfig.defaultLayout);
+    }
+  }, []);
+
+  const handleFiveCardLayoutSelect = useCallback((layoutId: FiveCardLayoutId) => {
+    setFiveCardLayout(layoutId);
+  }, []);
+
+  const handleFiveCardQuestionSelect = useCallback((questionId: string, questionText: string) => {
+    setFiveCardQuestionId(questionId);
+    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleFiveCardCustomQuestionChange = useCallback((text: string) => {
+    setFiveCardCustomQuestion(text);
+    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  const handleFiveCardWriteOwnToggle = useCallback(() => {
+    setIsWritingOwnFiveCard(prev => !prev);
+    if (!isWritingOwnFiveCard) {
+      setFiveCardQuestionId(null);
+    }
+  }, [isWritingOwnFiveCard]);
+
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
     // For single card, advanced options cost +1 total (not per style)
@@ -484,6 +542,18 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
     setPhaseWithUrl('reading');
 
+    // Determine layoutId based on spread type
+    const getLayoutId = (): string | undefined => {
+      if (spread.id === SpreadType.THREE_CARD && threeCardLayout) {
+        return threeCardLayout;
+      }
+      if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
+        return fiveCardLayout;
+      }
+      return undefined;
+    };
+    const layoutId = getLayoutId();
+
     try {
       const result = await generateReading({
         spread,
@@ -493,7 +563,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         question,
         language,
         category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
-        layoutId: spread.id === SpreadType.THREE_CARD ? threeCardLayout ?? undefined : undefined,
+        layoutId,
       });
 
       // Handle null result (API error)
@@ -574,7 +644,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, threeCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -664,6 +734,34 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         );
       }
 
+      // Use five card intro for five card spread
+      if (spread.id === SpreadType.FIVE_CARD) {
+        return (
+          <FiveCardIntroPhase
+            spread={spread}
+            language={language}
+            selectedCategory={fiveCardCategory}
+            selectedLayout={fiveCardLayout}
+            selectedQuestionId={fiveCardQuestionId}
+            customQuestion={fiveCardCustomQuestion}
+            isWritingOwn={isWritingOwnFiveCard}
+            onCategorySelect={handleFiveCardCategorySelect}
+            onLayoutSelect={handleFiveCardLayoutSelect}
+            onQuestionSelect={handleFiveCardQuestionSelect}
+            onCustomQuestionChange={handleFiveCardCustomQuestionChange}
+            onWriteOwnToggle={handleFiveCardWriteOwnToggle}
+            isAdvanced={isAdvanced}
+            selectedStyles={selectedStyles}
+            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+            onStyleToggle={toggleStyle}
+            validationMessage={validationMessage}
+            totalCost={displayCost}
+            credits={user?.credits || 0}
+            onStartShuffle={startShuffleAnimation}
+          />
+        );
+      }
+
       // Existing QuestionIntroPhase for other spreads
       return (
         <QuestionIntroPhase
@@ -700,6 +798,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           drawnCards={drawnCards}
           onCardDraw={handleCardDraw}
           threeCardLayout={threeCardLayout}
+          fiveCardLayout={fiveCardLayout}
         />
       );
     }
@@ -712,6 +811,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           drawnCards={drawnCards}
           onStartReading={startReading}
           threeCardLayout={threeCardLayout}
+          fiveCardLayout={fiveCardLayout}
         />
       );
     }
@@ -736,6 +836,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         isChatLoading={isChatLoading}
         questionCost={questionCost}
         threeCardLayout={threeCardLayout}
+        fiveCardLayout={fiveCardLayout}
         onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
         onFinish={handleFinish}
         onCelebrationComplete={handleCelebrationComplete}

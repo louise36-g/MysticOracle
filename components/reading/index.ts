@@ -21,5 +21,6 @@ export {
   InterpretationPhase,
   SingleCardIntroPhase,
   ThreeCardIntroPhase,
+  FiveCardIntroPhase,
   QUESTION_LENGTH,
 } from './phases';

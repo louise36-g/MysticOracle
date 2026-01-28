@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass } from 'lucide-react';
+import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass, Layers } from 'lucide-react';
 import { Language, SpreadType } from '../../types';
 import { useApp } from '../../context/AppContext';
 
@@ -31,6 +31,15 @@ const SHUFFLE_THEMES: Record<SpreadType, {
     glow: 'rgba(232, 121, 249, 0.3)',
     bgGradient: 'from-fuchsia-950 via-purple-900 to-fuchsia-950',
     textAccent: 'text-fuchsia-300',
+  },
+  [SpreadType.FIVE_CARD]: {
+    name: "Inner Depths",
+    icon: <Layers className="w-5 h-5" />,
+    primary: 'rgb(168, 85, 247)',       // purple-500
+    secondary: 'rgb(139, 92, 246)',     // violet-500
+    glow: 'rgba(168, 85, 247, 0.3)',
+    bgGradient: 'from-purple-950 via-violet-900 to-purple-950',
+    textAccent: 'text-purple-300',
   },
   [SpreadType.LOVE]: {
     name: "Heart's Sanctum",

@@ -71,6 +71,7 @@ const SubNav: React.FC = () => {
     const slugMap: Record<SpreadType, string> = {
       [SpreadType.SINGLE]: 'single',
       [SpreadType.THREE_CARD]: 'three-card',
+      [SpreadType.FIVE_CARD]: 'five-card',
       [SpreadType.LOVE]: 'love',
       [SpreadType.CAREER]: 'career',
       [SpreadType.HORSESHOE]: 'horseshoe',
@@ -100,6 +101,10 @@ const SubNav: React.FC = () => {
     [SpreadType.THREE_CARD]: {
       icon: <Clock className="w-4 h-4 text-fuchsia-400" />,
       iconBg: 'bg-fuchsia-500/20',
+    },
+    [SpreadType.FIVE_CARD]: {
+      icon: <Layers className="w-4 h-4 text-purple-400" />,
+      iconBg: 'bg-purple-500/20',
     },
     [SpreadType.LOVE]: {
       icon: <Heart className="w-4 h-4 text-rose-400" />,

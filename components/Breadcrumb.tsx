@@ -14,6 +14,7 @@ interface BreadcrumbProps {
 const SPREAD_ICONS: Record<SpreadType, React.ReactNode> = {
   [SpreadType.SINGLE]: <Eye className="w-3.5 h-3.5" />,
   [SpreadType.THREE_CARD]: <Clock className="w-3.5 h-3.5" />,
+  [SpreadType.FIVE_CARD]: <Layers className="w-3.5 h-3.5" />,
   [SpreadType.LOVE]: <Heart className="w-3.5 h-3.5" />,
   [SpreadType.CAREER]: <TrendingUp className="w-3.5 h-3.5" />,
   [SpreadType.HORSESHOE]: <Sparkles className="w-3.5 h-3.5" />,

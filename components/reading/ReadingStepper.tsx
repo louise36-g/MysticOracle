@@ -43,6 +43,7 @@ export const SLUG_TO_PHASE: Record<string, ReadingPhase> = {
 const SPREAD_TO_SLUG: Record<SpreadType, string> = {
   [SpreadType.SINGLE]: 'single',
   [SpreadType.THREE_CARD]: 'three-card',
+  [SpreadType.FIVE_CARD]: 'five-card',
   [SpreadType.LOVE]: 'love',
   [SpreadType.CAREER]: 'career',
   [SpreadType.HORSESHOE]: 'horseshoe',

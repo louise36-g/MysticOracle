@@ -10,6 +10,7 @@ import ReflectionPrompt from '../ReflectionPrompt';
 import { ReadingCompleteCelebration } from '../../rewards';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
+import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
 
 interface DrawnCard {
   card: TarotCard;
@@ -34,6 +35,7 @@ interface InterpretationPhaseProps {
   isChatLoading: boolean;
   questionCost: number;
   threeCardLayout?: ThreeCardLayoutId | null;
+  fiveCardLayout?: FiveCardLayoutId | null;
   onContextToggle: () => void;
   onFinish: () => void;
   onCelebrationComplete: () => void;
@@ -60,6 +62,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   isChatLoading,
   questionCost,
   threeCardLayout,
+  fiveCardLayout,
   onContextToggle,
   onFinish,
   onCelebrationComplete,
@@ -193,7 +196,9 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             <span className={`text-[10px] ${theme.textAccent} mt-2 font-bold uppercase tracking-wider text-center max-w-[100px]`}>
                               {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
                                 ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
-                                : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
+                                : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
+                                  ? FIVE_CARD_LAYOUTS[fiveCardLayout].positions[language][i]
+                                  : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
                             </span>
                             <span className="text-[10px] text-slate-500 mt-0.5 text-center max-w-[100px] truncate">
                               {language === 'en' ? item.card.nameEn : item.card.nameFr}

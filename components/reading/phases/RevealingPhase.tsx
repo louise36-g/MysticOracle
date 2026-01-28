@@ -6,6 +6,7 @@ import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
+import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
 
 interface DrawnCard {
   card: TarotCard;
@@ -18,6 +19,7 @@ interface RevealingPhaseProps {
   drawnCards: DrawnCard[];
   onStartReading: () => void;
   threeCardLayout?: ThreeCardLayoutId | null;
+  fiveCardLayout?: FiveCardLayoutId | null;
 }
 
 const RevealingPhase: React.FC<RevealingPhaseProps> = ({
@@ -26,6 +28,7 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
   drawnCards,
   onStartReading,
   threeCardLayout,
+  fiveCardLayout,
 }) => {
   const theme = SPREAD_THEMES[spread.id];
 
@@ -67,7 +70,9 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
         >
           {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
             ? (language === 'en' ? THREE_CARD_LAYOUTS[threeCardLayout].taglineEn : THREE_CARD_LAYOUTS[threeCardLayout].taglineFr)
-            : (language === 'en' ? theme.taglineEn : theme.taglineFr)}
+            : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
+              ? (language === 'en' ? FIVE_CARD_LAYOUTS[fiveCardLayout].taglineEn : FIVE_CARD_LAYOUTS[fiveCardLayout].taglineFr)
+              : (language === 'en' ? theme.taglineEn : theme.taglineFr)}
         </motion.p>
 
         {/* Cards container - responsive sizing */}
@@ -100,7 +105,9 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
               <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
                 {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
                   ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
-                  : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
+                  : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
+                    ? FIVE_CARD_LAYOUTS[fiveCardLayout].positions[language][i]
+                    : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
               </p>
               {item.isReversed && (
                 <p className="text-center text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">

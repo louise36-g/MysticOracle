@@ -1,5 +1,5 @@
 import { SpreadType } from '../../types';
-import { Eye, Clock, Heart, TrendingUp, Sparkles, Compass } from 'lucide-react';
+import { Eye, Clock, Heart, TrendingUp, Sparkles, Compass, Layers } from 'lucide-react';
 import React from 'react';
 
 // ============================================
@@ -48,6 +48,19 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     cardBorder: 'border-fuchsia-500/50',
     textAccent: 'text-fuchsia-300',
     atmosphereClass: 'three-card-atmosphere',
+  },
+  [SpreadType.FIVE_CARD]: {
+    name: "Inner Depths",
+    taglineEn: "Five cards illuminate the path within.",
+    taglineFr: "Cinq cartes illuminent le chemin interieur.",
+    icon: React.createElement(Layers, { className: "w-5 h-5" }),
+    primary: 'rgb(168, 85, 247)',       // purple-500
+    secondary: 'rgb(139, 92, 246)',     // violet-500
+    glow: 'rgba(168, 85, 247, 0.3)',
+    bgGradient: 'from-purple-950 via-violet-900 to-purple-950',
+    cardBorder: 'border-purple-500/50',
+    textAccent: 'text-purple-300',
+    atmosphereClass: 'five-card-atmosphere',
   },
   [SpreadType.LOVE]: {
     name: "Heart's Sanctum",
