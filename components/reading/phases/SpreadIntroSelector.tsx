@@ -17,8 +17,9 @@ import {
   Lightbulb,
   Layers,
   Coins,
+  Settings,
 } from 'lucide-react';
-import { SpreadType } from '../../../types';
+import { SpreadType, InterpretationStyle } from '../../../types';
 
 // Import all layout constants
 import {
@@ -131,6 +132,11 @@ interface SpreadIntroSelectorProps {
   onLayoutSelect: (layoutId: LayoutId) => void;
   onCustomQuestionChange: (text: string) => void;
   onQuestionSelect: (questionId: string, questionText: string) => void;
+  // Advanced options (Go Deeper)
+  isAdvanced?: boolean;
+  selectedStyles?: InterpretationStyle[];
+  onAdvancedToggle?: () => void;
+  onStyleToggle?: (style: InterpretationStyle) => void;
 }
 
 const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
@@ -143,6 +149,10 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
   onLayoutSelect,
   onCustomQuestionChange,
   onQuestionSelect,
+  isAdvanced = false,
+  selectedStyles = [],
+  onAdvancedToggle,
+  onStyleToggle,
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedPositions, setExpandedPositions] = useState<string | null>(null);
@@ -425,6 +435,74 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                             </button>
                                           ))}
                                         </div>
+                                      </div>
+                                    )}
+
+                                    {/* Go Deeper - Advanced Options */}
+                                    {onAdvancedToggle && onStyleToggle && (
+                                      <div className="mt-4 pt-4 border-t border-slate-700/50">
+                                        <button
+                                          onClick={onAdvancedToggle}
+                                          className="w-full flex items-center justify-between text-sm hover:bg-slate-800/30 rounded-lg px-2 py-2 -mx-2 transition-colors"
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <Settings className="w-4 h-4 text-slate-500" />
+                                            <span className="text-slate-400">
+                                              {language === 'en' ? 'Go Deeper' : 'Approfondir'}
+                                            </span>
+                                            {isAdvanced && selectedStyles.length > 0 && (
+                                              <span className="text-xs text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                <Coins className="w-3 h-3" />+1
+                                              </span>
+                                            )}
+                                          </div>
+                                          <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isAdvanced ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        <AnimatePresence>
+                                          {isAdvanced && (
+                                            <motion.div
+                                              initial={{ height: 0, opacity: 0 }}
+                                              animate={{ height: 'auto', opacity: 1 }}
+                                              exit={{ height: 0, opacity: 0 }}
+                                              transition={{ duration: 0.2 }}
+                                              className="overflow-hidden"
+                                            >
+                                              <div className="pt-3">
+                                                <p className="text-xs text-slate-500 mb-3">
+                                                  {language === 'en'
+                                                    ? 'Add extra perspectives to your reading (+1 credit for any selection)'
+                                                    : 'Ajoutez des perspectives supplémentaires (+1 crédit pour toute sélection)'}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                  {[
+                                                    { id: InterpretationStyle.SPIRITUAL, labelEn: 'Spiritual', labelFr: 'Spirituel' },
+                                                    { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Émotionnel' },
+                                                    { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numérologie' },
+                                                    { id: InterpretationStyle.ELEMENTAL, labelEn: 'Elements', labelFr: 'Éléments' }
+                                                  ].map((option) => (
+                                                    <button
+                                                      key={option.id}
+                                                      onClick={() => onStyleToggle(option.id)}
+                                                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                                                        selectedStyles.includes(option.id)
+                                                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                                          : 'bg-slate-800/50 text-slate-500 border border-transparent hover:bg-slate-800'
+                                                      }`}
+                                                    >
+                                                      <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${
+                                                        selectedStyles.includes(option.id) ? 'bg-amber-500 border-amber-500' : 'border-slate-600'
+                                                      }`}>
+                                                        {selectedStyles.includes(option.id) && <Check className="w-2.5 h-2.5 text-white" />}
+                                                      </div>
+                                                      {language === 'en' ? option.labelEn : option.labelFr}
+                                                    </button>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            </motion.div>
+                                          )}
+                                        </AnimatePresence>
                                       </div>
                                     )}
                                   </motion.div>

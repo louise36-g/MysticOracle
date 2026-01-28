@@ -1,7 +1,7 @@
 // components/reading/phases/ThreeCardIntroPhase.tsx
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Check, AlertCircle, ChevronDown, Coins } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { AlertCircle, Coins } from 'lucide-react';
 import { SpreadConfig, InterpretationStyle, SpreadType } from '../../../types';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
@@ -102,73 +102,11 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
               onLayoutSelect={onLayoutSelect}
               onCustomQuestionChange={onCustomQuestionChange}
               onQuestionSelect={handleQuestionSelect}
+              isAdvanced={isAdvanced}
+              selectedStyles={selectedStyles}
+              onAdvancedToggle={onAdvancedToggle}
+              onStyleToggle={onStyleToggle}
             />
-          </div>
-
-          {/* Advanced Options Toggle - Go Deeper */}
-          <div className="border-t border-slate-800">
-            <button
-              onClick={onAdvancedToggle}
-              className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-slate-800/50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4 text-slate-500" />
-                <span className="text-slate-400">
-                  {language === 'en' ? 'Go Deeper' : 'Approfondir'}
-                </span>
-                {isAdvanced && selectedStyles.length > 0 && (
-                  <span className="text-xs text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                    <Coins className="w-3 h-3" />+1
-                  </span>
-                )}
-              </div>
-              <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isAdvanced ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {isAdvanced && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-4 pb-4">
-                    <p className="text-xs text-slate-500 mb-3">
-                      {language === 'en'
-                        ? 'Add extra perspectives to your reading (+1 credit for any selection)'
-                        : 'Ajoutez des perspectives supplémentaires (+1 crédit pour toute sélection)'}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: InterpretationStyle.SPIRITUAL, labelEn: 'Spiritual', labelFr: 'Spirituel' },
-                        { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Émotionnel' },
-                        { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numérologie' },
-                        { id: InterpretationStyle.ELEMENTAL, labelEn: 'Elements', labelFr: 'Éléments' }
-                      ].map((option) => (
-                        <button
-                          key={option.id}
-                          onClick={() => onStyleToggle(option.id)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            selectedStyles.includes(option.id)
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                              : 'bg-slate-800/50 text-slate-500 border border-transparent hover:bg-slate-800'
-                          }`}
-                        >
-                          <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${
-                            selectedStyles.includes(option.id) ? 'bg-amber-500 border-amber-500' : 'border-slate-600'
-                          }`}>
-                            {selectedStyles.includes(option.id) && <Check className="w-2.5 h-2.5 text-white" />}
-                          </div>
-                          {language === 'en' ? option.labelEn : option.labelFr}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* Validation Error */}
