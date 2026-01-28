@@ -346,3 +346,135 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
     defaultLayout: 'family_dynamics',
   },
 ];
+
+// Layout-specific questions (all questions are layout-specific for horseshoe)
+export const HORSESHOE_LAYOUT_QUESTIONS: Record<HorseshoeLayoutId, HorseshoeQuestion[]> = {
+  // Love & Relationships
+  new_connection: [
+    { id: 'hs_nc1', textEn: 'What do I need to understand about what\'s drawing me to this person?', textFr: 'Que dois-je comprendre sur ce qui m\'attire vers cette personne?' },
+    { id: 'hs_nc2', textEn: 'What am I hoping to find in this connection?', textFr: 'Qu\'est-ce que j\'espère trouver dans cette connexion?' },
+    { id: 'hs_nc3', textEn: 'What qualities am I truly seeking in a partner?', textFr: 'Quelles qualités est-ce que je recherche vraiment chez un partenaire?' },
+    { id: 'hs_nc4', textEn: 'How can I remain open without losing myself in this?', textFr: 'Comment puis-je rester ouvert(e) sans me perdre dans cette relation?' },
+  ],
+  relationship_checkin: [
+    { id: 'hs_rc1', textEn: 'How can I show up more fully in this relationship?', textFr: 'Comment puis-je m\'investir plus pleinement dans cette relation?' },
+    { id: 'hs_rc2', textEn: 'What am I longing for that I haven\'t yet expressed?', textFr: 'Qu\'est-ce que je désire mais que je n\'ai pas encore exprimé?' },
+    { id: 'hs_rc3', textEn: 'What truth about this relationship is asking for my attention?', textFr: 'Quelle vérité sur cette relation demande mon attention?' },
+  ],
+  relationship_troubles: [
+    { id: 'hs_rt1', textEn: 'What are the obstacles in this relationship?', textFr: 'Quels sont les obstacles dans cette relation?' },
+    { id: 'hs_rt2', textEn: 'What do I need to understand about this situation?', textFr: 'Que dois-je comprendre de cette situation?' },
+    { id: 'hs_rt3', textEn: 'What do I need to see clearly about this relationship?', textFr: 'Que dois-je voir clairement dans cette relation?' },
+  ],
+  breakup_moving_on: [
+    { id: 'hs_bm1', textEn: 'What does my heart need most right now?', textFr: 'De quoi mon cœur a-t-il le plus besoin en ce moment?' },
+    { id: 'hs_bm2', textEn: 'What am I trying to hold on to?', textFr: 'À quoi est-ce que j\'essaie de m\'accrocher?' },
+    { id: 'hs_bm3', textEn: 'What am I carrying that was never mine to hold?', textFr: 'Qu\'est-ce que je porte qui ne m\'a jamais appartenu?' },
+  ],
+
+  // Career & Work
+  career_crossroads: [
+    { id: 'hs_cc1', textEn: 'What is my work trying to teach me right now?', textFr: 'Qu\'est-ce que mon travail essaie de m\'apprendre en ce moment?' },
+    { id: 'hs_cc2', textEn: 'What part of me feels unfulfilled in my current role?', textFr: 'Quelle partie de moi se sent insatisfaite dans mon rôle actuel?' },
+    { id: 'hs_cc3', textEn: 'What am I afraid to admit about my career?', textFr: 'Qu\'est-ce que j\'ai peur d\'admettre sur ma carrière?' },
+    { id: 'hs_cc4', textEn: 'What would it mean to feel truly aligned in my work?', textFr: 'Que signifierait être vraiment aligné(e) dans mon travail?' },
+  ],
+  career_purpose: [
+    { id: 'hs_cp1', textEn: 'What is my soul calling me toward professionally?', textFr: 'Vers quoi mon âme m\'appelle-t-elle professionnellement?' },
+    { id: 'hs_cp2', textEn: 'What gifts do I have that are asking to be expressed?', textFr: 'Quels dons ai-je qui demandent à être exprimés?' },
+    { id: 'hs_cp3', textEn: 'What beliefs about success are no longer serving me?', textFr: 'Quelles croyances sur le succès ne me servent plus?' },
+  ],
+  workplace_conflicts: [
+    { id: 'hs_wc1', textEn: 'What is this conflict revealing about my boundaries?', textFr: 'Que révèle ce conflit sur mes limites?' },
+    { id: 'hs_wc2', textEn: 'What part of me is being triggered in this situation?', textFr: 'Quelle partie de moi est déclenchée dans cette situation?' },
+    { id: 'hs_wc3', textEn: 'How can I find peace without abandoning my needs?', textFr: 'Comment puis-je trouver la paix sans abandonner mes besoins?' },
+  ],
+  starting_business: [
+    { id: 'hs_sb1', textEn: 'What is truly motivating me to take this leap?', textFr: 'Qu\'est-ce qui me motive vraiment à faire ce saut?' },
+    { id: 'hs_sb2', textEn: 'What fears do I need to face before moving forward?', textFr: 'Quelles peurs dois-je affronter avant d\'avancer?' },
+    { id: 'hs_sb3', textEn: 'What does my vision need from me right now?', textFr: 'De quoi ma vision a-t-elle besoin de moi en ce moment?' },
+  ],
+
+  // Money & Finances
+  financial_stability: [
+    { id: 'hs_fs1', textEn: 'What does true security mean to me beyond money?', textFr: 'Que signifie la vraie sécurité pour moi au-delà de l\'argent?' },
+    { id: 'hs_fs2', textEn: 'What patterns around money did I inherit that need examining?', textFr: 'Quels schémas autour de l\'argent ai-je hérités qui méritent examen?' },
+    { id: 'hs_fs3', textEn: 'What would help me trust myself more with finances?', textFr: 'Qu\'est-ce qui m\'aiderait à me faire plus confiance avec les finances?' },
+  ],
+  abundance_blocks: [
+    { id: 'hs_ab1', textEn: 'What beliefs about money am I ready to release?', textFr: 'Quelles croyances sur l\'argent suis-je prêt(e) à libérer?' },
+    { id: 'hs_ab2', textEn: 'Where in my life am I blocking my own flow?', textFr: 'Où dans ma vie est-ce que je bloque mon propre flux?' },
+    { id: 'hs_ab3', textEn: 'What would I do differently if I truly believed I was worthy of abundance?', textFr: 'Que ferais-je différemment si je croyais vraiment mériter l\'abondance?' },
+  ],
+  money_decisions: [
+    { id: 'hs_md1', textEn: 'What is this financial decision really about for me?', textFr: 'De quoi s\'agit-il vraiment pour moi dans cette décision financière?' },
+    { id: 'hs_md2', textEn: 'What am I afraid of losing if I choose wrong?', textFr: 'De quoi ai-je peur si je fais le mauvais choix?' },
+    { id: 'hs_md3', textEn: 'What does my intuition already know about this choice?', textFr: 'Que sait déjà mon intuition sur ce choix?' },
+  ],
+  financial_recovery: [
+    { id: 'hs_fr1', textEn: 'What emotions around this situation need my compassion?', textFr: 'Quelles émotions autour de cette situation ont besoin de ma compassion?' },
+    { id: 'hs_fr2', textEn: 'What is this experience teaching me about my relationship with money?', textFr: 'Que m\'apprend cette expérience sur ma relation avec l\'argent?' },
+    { id: 'hs_fr3', textEn: 'What small step forward can I honour myself for taking?', textFr: 'Quel petit pas en avant puis-je m\'honorer d\'avoir fait?' },
+  ],
+
+  // Life Path & Major Decisions
+  right_path: [
+    { id: 'hs_rp1', textEn: 'What is my life trying to show me right now?', textFr: 'Qu\'est-ce que ma vie essaie de me montrer en ce moment?' },
+    { id: 'hs_rp2', textEn: 'Where am I seeking external validation instead of trusting myself?', textFr: 'Où est-ce que je cherche une validation extérieure au lieu de me faire confiance?' },
+    { id: 'hs_rp3', textEn: 'What would alignment feel like in my body and heart?', textFr: 'À quoi ressemblerait l\'alignement dans mon corps et mon cœur?' },
+  ],
+  life_transitions: [
+    { id: 'hs_lt1', textEn: 'What is ending that I need to honour before moving on?', textFr: 'Qu\'est-ce qui se termine et que je dois honorer avant de passer à autre chose?' },
+    { id: 'hs_lt2', textEn: 'What is being born in me through this change?', textFr: 'Qu\'est-ce qui naît en moi à travers ce changement?' },
+    { id: 'hs_lt3', textEn: 'How can I be gentle with myself during this passage?', textFr: 'Comment puis-je être doux/douce avec moi-même pendant ce passage?' },
+  ],
+  major_decisions: [
+    { id: 'hs_mj1', textEn: 'What is this decision really asking of me?', textFr: 'Que me demande vraiment cette décision?' },
+    { id: 'hs_mj2', textEn: 'What am I hoping will change if I choose differently?', textFr: 'Qu\'est-ce que j\'espère qui changera si je choisis autrement?' },
+    { id: 'hs_mj3', textEn: 'What do I need to understand before I can move forward?', textFr: 'Que dois-je comprendre avant de pouvoir avancer?' },
+    { id: 'hs_mj4', textEn: 'What would I choose if fear wasn\'t a factor?', textFr: 'Que choisirais-je si la peur n\'était pas un facteur?' },
+  ],
+  whats_ahead: [
+    { id: 'hs_wa1', textEn: 'What energies are gathering around me at this time?', textFr: 'Quelles énergies se rassemblent autour de moi en ce moment?' },
+    { id: 'hs_wa2', textEn: 'What do I need to pay attention to in the coming period?', textFr: 'À quoi dois-je prêter attention dans la période à venir?' },
+    { id: 'hs_wa3', textEn: 'How can I prepare myself for what\'s unfolding?', textFr: 'Comment puis-je me préparer à ce qui se déploie?' },
+  ],
+
+  // Family & Personal Relationships
+  family_dynamics: [
+    { id: 'hs_fd1', textEn: 'What role have I been playing in my family that no longer fits?', textFr: 'Quel rôle ai-je joué dans ma famille qui ne me convient plus?' },
+    { id: 'hs_fd2', textEn: 'What unspoken expectations am I carrying from my family?', textFr: 'Quelles attentes non-dites est-ce que je porte de ma famille?' },
+    { id: 'hs_fd3', textEn: 'How can I honour my roots while still becoming my own person?', textFr: 'Comment puis-je honorer mes racines tout en devenant ma propre personne?' },
+  ],
+  parenting: [
+    { id: 'hs_pa1', textEn: 'What is my child teaching me about myself?', textFr: 'Que m\'apprend mon enfant sur moi-même?' },
+    { id: 'hs_pa2', textEn: 'Where am I parenting from fear rather than love?', textFr: 'Où est-ce que je parente par peur plutôt que par amour?' },
+    { id: 'hs_pa3', textEn: 'How can I be more present to what my child truly needs?', textFr: 'Comment puis-je être plus présent(e) à ce dont mon enfant a vraiment besoin?' },
+  ],
+  friendships: [
+    { id: 'hs_fs1', textEn: 'What am I seeking from this friendship that I could also give myself?', textFr: 'Qu\'est-ce que je cherche dans cette amitié que je pourrais aussi me donner?' },
+    { id: 'hs_fs2', textEn: 'How have I changed, and does this friendship still reflect who I am?', textFr: 'Comment ai-je changé, et cette amitié reflète-t-elle encore qui je suis?' },
+    { id: 'hs_fs3', textEn: 'What truth about this connection am I avoiding?', textFr: 'Quelle vérité sur cette connexion est-ce que j\'évite?' },
+  ],
+  difficult_relatives: [
+    { id: 'hs_dr1', textEn: 'What is this person triggering in me that needs healing?', textFr: 'Qu\'est-ce que cette personne déclenche en moi qui a besoin de guérison?' },
+    { id: 'hs_dr2', textEn: 'What boundaries would protect my peace without closing my heart?', textFr: 'Quelles limites protégeraient ma paix sans fermer mon cœur?' },
+    { id: 'hs_dr3', textEn: 'What would acceptance look like in this situation?', textFr: 'À quoi ressemblerait l\'acceptation dans cette situation?' },
+  ],
+};
+
+// Helper text for custom questions
+export const HORSESHOE_CUSTOM_QUESTION_HELPER = {
+  en: 'Open-ended questions work best. Try "What do I need to understand about..." or "How can I..."',
+  fr: 'Les questions ouvertes fonctionnent mieux. Essayez "Que dois-je comprendre sur..." ou "Comment puis-je..."',
+};
+
+// Helper to get category config by id
+export function getHorseshoeCategory(id: HorseshoeCategory): HorseshoeCategoryConfig | undefined {
+  return HORSESHOE_CATEGORIES.find(c => c.id === id);
+}
+
+// Helper to get questions for a layout
+export function getHorseshoeQuestions(layoutId: HorseshoeLayoutId): HorseshoeQuestion[] {
+  return HORSESHOE_LAYOUT_QUESTIONS[layoutId] || [];
+}
