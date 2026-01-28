@@ -166,8 +166,8 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
                       )}
                     </AnimatePresence>
                   </div>
-                  {/* Position label */}
-                  <span className={`text-[10px] md:text-xs text-center max-w-[80px] truncate ${
+                  {/* Position label - allow 2 lines for longer labels */}
+                  <span className={`text-[10px] md:text-xs text-center max-w-[85px] md:max-w-[100px] line-clamp-2 leading-tight min-h-[24px] md:min-h-[28px] ${
                     i < drawnCards.length ? theme.textAccent : 'text-slate-500'
                   }`} style={{ opacity: i < drawnCards.length ? 0.7 : 1 }}>
                     {positionLabel}

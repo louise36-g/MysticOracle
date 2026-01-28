@@ -72,5 +72,11 @@ export const CUSTOM_QUESTION_HELPER = {
   fr: 'Les questions ouvertes fonctionnent mieux. Essayez "Que puis-je apprendre de..." ou "Que dois-je comprendre de..."',
 };
 
-// Link to blog article about asking good questions
-export const QUESTION_GUIDE_LINK = '/blog/how-to-ask-good-tarot-questions';
+// Link label for question guidance
+export const QUESTION_GUIDE_LABEL = {
+  en: 'Tips for deeper insights',
+  fr: 'Conseils pour des aperçus plus profonds',
+};
+
+// Link to FAQ about asking good questions (null if no link available)
+export const QUESTION_GUIDE_LINK: string | null = null;

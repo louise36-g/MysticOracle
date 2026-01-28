@@ -49,12 +49,12 @@ Structure your response naturally with these sections:
 
 1. **The Spread Layout** - {{spreadLayoutGuidance}}
 
-2. **Individual Card Meanings** - Analyze EACH card that was drawn. For each card, create a subheading with the card name (e.g., "**The Fool**" or "**Three of Cups**") and explain:
+2. **Individual Card Meanings** - Analyze EACH card that was drawn. For each card, create a subheading with the card name followed by its position meaning in parentheses (e.g., "**The Fool** (Who you were taught to be)" or "**Three of Cups** (The Connection)"). Explain:
    - What this specific card means in Tarot (its core symbolism, energy, and traditional interpretation)
    - What this card means specifically in its position in this spread
    - If the card is reversed, explain the reversed meaning
 
-   DO NOT use generic labels like "The First Card" or "Card 1". Use the ACTUAL card names as headings.
+   DO NOT use generic labels like "The First Card" or "Card 1". Use the ACTUAL card names as headings, always including the position meaning in parentheses.
 
 3. **How the Cards Work Together** - Write ONE concise paragraph that synthesizes the cards into a unified narrative. Show the natural progression and flow between the cards, revealing the complete story they tell together. Be direct and avoid repetition - state each insight once clearly rather than rephrasing the same idea multiple times. AVOID contrasting constructions like "not X, but Y" or "X, not Y; rather Z" - simply state what IS. Focus on the forward movement and transformation across the spread.
 

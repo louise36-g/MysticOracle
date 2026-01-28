@@ -83,7 +83,7 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
         >
           <div className="flex items-center gap-3">
             <span className="text-purple-200 font-medium text-sm md:text-base">
-              {t('reflection.header', 'How does this reading resonate with you?')}
+              {t('reflection.header', 'Capture your thoughts')}
             </span>
 
             {/* Info tooltip */}
@@ -101,7 +101,7 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
                     exit={{ opacity: 0, y: 5 }}
                     className="absolute left-0 top-full mt-2 z-10 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 whitespace-nowrap"
                   >
-                    {t('reflection.tooltip', 'Your reflections help personalize future readings')}
+                    {t('reflection.tooltip', 'Private to your account — only you can see this')}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -145,7 +145,7 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
                   <textarea
                     value={reflection}
                     onChange={handleChange}
-                    placeholder={t('reflection.placeholder', 'Share your thoughts, feelings, or insights about this reading...')}
+                    placeholder={t('reflection.placeholder', 'What came up for you? Note what you noticed, felt, or understood — for later reflection...')}
                     maxLength={MAX_REFLECTION_LENGTH}
                     disabled={isSaving}
                     className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 resize-none min-h-[120px] text-sm disabled:opacity-50 transition-colors"

@@ -48,6 +48,9 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxDelayMs: 10000,
 };
 
+// Timeout for OpenRouter API requests (30 seconds)
+const REQUEST_TIMEOUT_MS = 30000;
+
 /**
  * OpenRouter Service - Unified interface for all AI generation
  */
@@ -101,7 +104,9 @@ export class OpenRouterService {
     messages: OpenRouterMessage[],
     config: Partial<OpenRouterConfig> = {}
   ): Promise<string> {
+    console.log('[OpenRouterService] makeRequest called, initializing...');
     await this.initialize();
+    console.log('[OpenRouterService] Initialized, model:', this.model);
 
     if (!this.apiKey) {
       throw new Error('API key not available after initialization');
@@ -113,10 +118,29 @@ export class OpenRouterService {
       maxTokens: config.maxTokens ?? 1000,
     };
 
+    console.log('[OpenRouterService] Config:', {
+      model: requestConfig.model,
+      maxTokens: requestConfig.maxTokens,
+    });
+
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
+        console.log(
+          '[OpenRouterService] Attempt',
+          attempt + 1,
+          '- sending request with',
+          REQUEST_TIMEOUT_MS,
+          'ms timeout...'
+        );
+        // Create abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          console.log('[OpenRouterService] Timeout reached, aborting...');
+          controller.abort();
+        }, REQUEST_TIMEOUT_MS);
+
         const response = await fetch(`${this.baseURL}/chat/completions`, {
           method: 'POST',
           headers: {
@@ -131,7 +155,10 @@ export class OpenRouterService {
             temperature: requestConfig.temperature,
             max_tokens: requestConfig.maxTokens,
           }),
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -150,6 +177,10 @@ export class OpenRouterService {
             throw new Error('AI service authentication failed. Please check API key.');
           } else if (response.status === 402) {
             throw new Error('AI service credits exhausted. Please contact support.');
+          } else if (response.status === 404) {
+            throw new Error(
+              `AI model not found: ${requestConfig.model}. Please check AI_MODEL setting.`
+            );
           } else if (
             this.isRetryableError(response.status) &&
             attempt < this.retryConfig.maxRetries
@@ -169,9 +200,87 @@ export class OpenRouterService {
         }
 
         const data = (await response.json()) as OpenRouterResponse;
-        const content = data.choices[0]?.message?.content;
+        console.log(
+          '[OpenRouterService] Response status:',
+          response.status,
+          'finish_reason:',
+          data.choices[0]?.finish_reason
+        );
+
+        let content = data.choices[0]?.message?.content;
+
+        // Handle reasoning models that put content in reasoning field instead of content
+        if (!content && data.choices[0]?.message) {
+          const message = data.choices[0].message as Record<string, unknown>;
+          const reasoning = message.reasoning as string | undefined;
+
+          if (reasoning) {
+            console.log(
+              '[OpenRouterService] No content but found reasoning field, length:',
+              reasoning.length
+            );
+            console.log(
+              '[OpenRouterService] Reasoning preview (first 500 chars):',
+              reasoning.substring(0, 500)
+            );
+
+            // Try to extract quoted paragraphs first (the model may draft in quotes)
+            const quotedTexts: string[] = [];
+            const quoteMatches = reasoning.matchAll(/"([^"]{50,})"/g);
+            for (const match of quoteMatches) {
+              quotedTexts.push(match[1]);
+            }
+
+            if (quotedTexts.length >= 2) {
+              // Combine the extracted paragraphs with proper formatting
+              content = quotedTexts
+                .map((text, i) => {
+                  if (i === 0) return `**The Card's Energy**\n\n${text}`;
+                  if (i === 1) return `**Guidance**\n\n${text}`;
+                  return text;
+                })
+                .join('\n\n');
+              console.log(
+                '[OpenRouterService] Extracted',
+                quotedTexts.length,
+                'paragraphs from quoted text'
+              );
+            } else {
+              // Fallback: look for section headers in the reasoning
+              const energyMatch = reasoning.match(
+                /\*\*(?:The )?Card'?s? Energy\*\*[\s\n]*([^*]+?)(?=\*\*|$)/i
+              );
+              const guidanceMatch = reasoning.match(
+                /\*\*(?:Today'?s? )?Guidance\*\*[\s\n]*([^*]+?)(?=\*\*|$)/i
+              );
+
+              if (energyMatch || guidanceMatch) {
+                const parts: string[] = [];
+                if (energyMatch) parts.push(`**The Card's Energy**\n\n${energyMatch[1].trim()}`);
+                if (guidanceMatch) parts.push(`**Guidance**\n\n${guidanceMatch[1].trim()}`);
+                content = parts.join('\n\n');
+                console.log('[OpenRouterService] Extracted content using section header matching');
+              } else {
+                // Last resort: use the last substantial paragraph from reasoning
+                const paragraphs = reasoning.split(/\n\n+/).filter(p => p.trim().length > 100);
+                if (paragraphs.length > 0) {
+                  const lastParagraph = paragraphs[paragraphs.length - 1].trim();
+                  content = `**Guidance**\n\n${lastParagraph}`;
+                  console.log('[OpenRouterService] Used last paragraph as fallback content');
+                }
+              }
+            }
+          }
+        }
 
         if (!content) {
+          console.error('[OpenRouterService] No usable content in response');
+          const message = data.choices[0]?.message as Record<string, unknown>;
+          if (message?.reasoning) {
+            console.error(
+              '[OpenRouterService] Reasoning was present but could not extract content'
+            );
+          }
           throw new Error('No content in AI response');
         }
 
@@ -187,12 +296,25 @@ export class OpenRouterService {
         return content;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');
+        console.error('[OpenRouterService] Caught error:', lastError.name, lastError.message);
+
+        // Handle timeout (abort) errors - check multiple ways AbortError can manifest
+        const isAbortError =
+          lastError.name === 'AbortError' ||
+          (error as NodeJS.ErrnoException)?.code === 'ABORT_ERR' ||
+          lastError.message.includes('aborted');
+
+        if (isAbortError) {
+          console.error('[OpenRouterService] Request timed out after', REQUEST_TIMEOUT_MS, 'ms');
+          throw new Error('AI request timed out. Please try again.');
+        }
 
         // Don't retry on authentication or configuration errors
         if (
           lastError.message.includes('authentication') ||
           lastError.message.includes('credits exhausted') ||
-          lastError.message.includes('not configured')
+          lastError.message.includes('not configured') ||
+          lastError.message.includes('timed out')
         ) {
           throw lastError;
         }
@@ -201,7 +323,7 @@ export class OpenRouterService {
         if (attempt < this.retryConfig.maxRetries) {
           const delay = this.calculateBackoffDelay(attempt);
           console.log(
-            `[OpenRouterService] Network error, retrying after ${delay}ms (attempt ${attempt + 1}/${this.retryConfig.maxRetries})`
+            `[OpenRouterService] Network error: "${lastError.message}", retrying after ${delay}ms (attempt ${attempt + 1}/${this.retryConfig.maxRetries})`
           );
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;

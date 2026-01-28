@@ -364,8 +364,9 @@ ${synthesisInstructions}`;
       console.log('[Tarot Generate] Styles received:', style);
       console.log('[Tarot Generate] Style instructions:', styleInstructions);
 
-      // Layout-specific position meanings for THREE_CARD
+      // Layout-specific position meanings for THREE_CARD and FIVE_CARD
       const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
+        // Three-card layouts
         past_present_future: {
           en: ['Past', 'Present', 'Future'],
           fr: ['Passé', 'Présent', 'Futur'],
@@ -391,9 +392,146 @@ ${synthesisInstructions}`;
           en: ['Challenge', 'Support', 'Growth'],
           fr: ['Défi', 'Soutien', 'Croissance'],
         },
+        // Five-card layouts
+        iceberg: {
+          en: [
+            "What's visible",
+            "What's beneath",
+            'Root cause',
+            'How it serves you',
+            'Path to integration',
+          ],
+          fr: [
+            'Ce qui est visible',
+            'Ce qui est caché',
+            'Cause profonde',
+            'Comment cela vous sert',
+            "Chemin vers l'intégration",
+          ],
+        },
+        mirror: {
+          en: [
+            'How you see yourself',
+            'How others see you',
+            'What you refuse to see',
+            'The truth beneath',
+            'Acceptance message',
+          ],
+          fr: [
+            'Comment vous vous voyez',
+            'Comment les autres vous voient',
+            'Ce que vous refusez de voir',
+            'La vérité profonde',
+            "Message d'acceptation",
+          ],
+        },
+        inner_child: {
+          en: [
+            'Your inner child now',
+            'What they need',
+            'What wounded them',
+            'How to nurture them',
+            'The gift they hold',
+          ],
+          fr: [
+            'Votre enfant intérieur',
+            'Ce dont il a besoin',
+            "Ce qui l'a blessé",
+            'Comment le nourrir',
+            "Le cadeau qu'il porte",
+          ],
+        },
+        safe_space: {
+          en: [
+            'Where you feel unsafe',
+            'What safety means to you',
+            'What blocks safety',
+            'Creating internal safety',
+            'Your protector energy',
+          ],
+          fr: [
+            'Où vous vous sentez vulnérable',
+            'Ce que la sécurité signifie',
+            'Ce qui bloque la sécurité',
+            'Créer la sécurité intérieure',
+            'Votre énergie protectrice',
+          ],
+        },
+        authentic_self: {
+          en: [
+            'Who you were taught to be',
+            'Who you pretend to be',
+            'Who you fear being',
+            'Who you truly are',
+            'How to embody your truth',
+          ],
+          fr: [
+            'Qui on vous a appris à être',
+            'Qui vous prétendez être',
+            "Qui vous craignez d'être",
+            'Qui vous êtes vraiment',
+            'Comment incarner votre vérité',
+          ],
+        },
+        values: {
+          en: [
+            'What you say you value',
+            'What your actions reveal',
+            'A value abandoned',
+            'A value calling you',
+            'Alignment message',
+          ],
+          fr: [
+            'Ce que vous dites valoriser',
+            'Ce que vos actions révèlent',
+            'Une valeur abandonnée',
+            'Une valeur qui vous appelle',
+            "Message d'alignement",
+          ],
+        },
+        alchemy: {
+          en: [
+            'The lead (what feels heavy)',
+            'The fire (transformation needed)',
+            'The process',
+            "The gold (what you're becoming)",
+            "The philosopher's stone",
+          ],
+          fr: [
+            'Le plomb (ce qui pèse)',
+            'Le feu (transformation)',
+            'Le processus',
+            "L'or (ce que vous devenez)",
+            'La pierre philosophale',
+          ],
+        },
+        seasons: {
+          en: [
+            'What needs to die (autumn)',
+            'What needs rest (winter)',
+            'Ready to sprout (spring)',
+            'Ready to bloom (summer)',
+            "The cycle's wisdom",
+          ],
+          fr: [
+            'Ce qui doit mourir (automne)',
+            'Ce qui a besoin de repos (hiver)',
+            'Prêt à germer (printemps)',
+            'Prêt à fleurir (été)',
+            'La sagesse du cycle',
+          ],
+        },
+        love_relationships: {
+          en: ['Your Heart', 'Their Heart', 'The Connection', 'Challenges', 'Potential'],
+          fr: ['Votre Cœur', 'Son Cœur', 'La Connexion', 'Défis', 'Potentiel'],
+        },
+        career_purpose: {
+          en: ['Current Position', 'Obstacles', 'Hidden Factors', 'Action to Take', 'Outcome'],
+          fr: ['Position Actuelle', 'Obstacles', 'Facteurs Cachés', 'Action à Prendre', 'Résultat'],
+        },
       };
 
-      // Use layout-specific positions if layoutId is provided for THREE_CARD
+      // Use layout-specific positions if layoutId is provided for THREE_CARD or FIVE_CARD
       let positionMeanings =
         language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
       console.log('[Tarot Generate] Layout check:', {
@@ -402,7 +540,11 @@ ${synthesisInstructions}`;
         hasLayoutId: !!layoutId,
         layoutExists: layoutId ? !!layoutPositions[layoutId] : false,
       });
-      if (spreadType === 'three_card' && layoutId && layoutPositions[layoutId]) {
+      if (
+        (spreadType === 'three_card' || spreadType === 'five_card') &&
+        layoutId &&
+        layoutPositions[layoutId]
+      ) {
         positionMeanings = layoutPositions[layoutId][language];
         console.log(
           '[Tarot Generate] Using layout-specific positions:',

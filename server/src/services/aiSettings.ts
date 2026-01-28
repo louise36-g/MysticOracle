@@ -19,6 +19,7 @@ let cachedSettings: AISettings | null = null;
 let cacheExpiry: number = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+// Default free model - this is a reasoning model, code handles extracting content from reasoning field
 const DEFAULT_MODEL = 'openai/gpt-oss-120b:free';
 
 /**

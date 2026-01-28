@@ -7,6 +7,7 @@ import {
   SINGLE_CARD_QUESTIONS,
   CUSTOM_QUESTION_HELPER,
   QUESTION_GUIDE_LINK,
+  QUESTION_GUIDE_LABEL,
   SingleCardCategory,
 } from '../../../constants/singleCardQuestions';
 
@@ -165,15 +166,17 @@ const SingleCardQuestionSelector: React.FC<SingleCardQuestionSelectorProps> = ({
               </p>
               <span className="text-xs text-slate-500">{customQuestion.length}/500</span>
             </div>
-            <a
-              href={QUESTION_GUIDE_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs text-cyan-500/70 hover:text-cyan-400 transition-colors"
-            >
-              {language === 'en' ? 'How to ask good questions' : 'Comment poser de bonnes questions'}
-              <ExternalLink className="w-3 h-3" />
-            </a>
+            {QUESTION_GUIDE_LINK && (
+              <a
+                href={QUESTION_GUIDE_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-xs text-cyan-500/70 hover:text-cyan-400 transition-colors"
+              >
+                {language === 'en' ? QUESTION_GUIDE_LABEL.en : QUESTION_GUIDE_LABEL.fr}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
 
             {/* Back to dropdown */}
             <button
