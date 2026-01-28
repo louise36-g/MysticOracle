@@ -75,8 +75,8 @@ export const FULL_DECK: TarotCard[] = [...MAJOR_ARCANA, ...MINOR_ARCANA];
 export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   [SpreadType.SINGLE]: {
     id: SpreadType.SINGLE,
-    nameEn: "Single Card",
-    nameFr: "Carte Unique",
+    nameEn: "Single Card Spreads",
+    nameFr: "Tirages à Carte Unique",
     cost: 1,
     positions: 1,
     positionMeaningsEn: ["Guidance"],
