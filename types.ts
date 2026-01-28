@@ -13,6 +13,7 @@ export interface TarotCard {
 export enum SpreadType {
   SINGLE = 'single',
   THREE_CARD = 'three_card',
+  FIVE_CARD = 'five_card',
   LOVE = 'love',
   CAREER = 'career',
   HORSESHOE = 'horseshoe',
