@@ -80,7 +80,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This single card holds the essence of your inquiry. Focus on its core message and how it speaks directly to your situation. Consider both the immediate and deeper meanings of this card.',
+      'This single card arrives as a messenger, carrying the precise wisdom you need in this moment. Like a beam of light cutting through fog, it illuminates the heart of your question with focused clarity. There are no surrounding cards to soften or complicate its message; this card speaks directly, intimately, to the core of what you seek to understand. Let its energy resonate fully, for it has chosen to appear for a reason.',
   },
 
   {
@@ -89,7 +89,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'Explain that this is the traditional Past-Present-Future spread: The first position speaks about past circumstances which led up to the second card representing present circumstances, and the third card is the likely outcome in the future if you keep on this trajectory.',
+      'This Past-Present-Future spread weaves the thread of time through your situation. The first card reaches back into the past: the experiences, choices, and circumstances that have shaped this moment. The second card holds a mirror to your present: the energies alive in your life right now. The third card peers into the future: the trajectory you are on, the destination your current path leads toward.',
   },
 
   {
@@ -98,7 +98,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This Past-Present-Future spread reveals the timeline of your situation. The first card shows influences from your past that have shaped where you are. The second card reflects your current circumstances and energy. The third card illuminates the direction you are heading if you continue on this path.',
+      'This Past-Present-Future spread weaves the thread of time through your situation. The first card reaches back into the past: the experiences, choices, and circumstances that have shaped this moment and brought you to where you stand. The second card holds a mirror to your present: the energies, challenges, and opportunities alive in your life right now. The third card peers into the future: the trajectory you are on, the destination your current path leads toward if you continue as you are.',
   },
 
   {
@@ -107,7 +107,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      "This relationship spread explores the dynamic between two people. The first card reflects your energy, feelings, and role in this connection. The second card reveals the other person's energy and perspective. The third card shows the nature of the bond itself: what exists between you.",
+      'This relationship spread explores the sacred geometry of connection between two souls. The first card reflects you: your energy, desires, fears, and the role you play in this dance. The second card reveals them: their inner world, their perspective, what they bring to this connection. The third card illuminates the connection itself: the invisible thread between you, the energy of the bond, what is being created in the space where your two hearts meet.',
   },
 
   {
@@ -116,7 +116,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This career spread provides practical guidance. The first card shows your current professional situation and its energy. The second card suggests what action or approach is called for. The third card reveals the likely outcome of taking that approach.',
+      'This practical spread offers a roadmap for navigating your professional path. The first card illuminates your current situation: the landscape you find yourself in, the energies at play in your work life. The second card suggests the action called for: the approach, attitude, or specific steps that will serve you best. The third card reveals the outcome: where this action leads, the results that await when you move forward with intention.',
   },
 
   {
@@ -125,7 +125,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This decision spread illuminates two paths. The first card shows the energy and potential of one option. The second card shows the energy and potential of the other option. The third card offers guidance on what to consider as you choose.',
+      'This decision spread casts light upon the crossroads before you. The first card embodies Option A: its energy, potential, challenges, and the future it opens. The second card embodies Option B: a different path with its own gifts and shadows. The third card offers higher guidance: wisdom to hold as you choose, the deeper truth that transcends either option, the counsel of your inner knowing.',
   },
 
   {
@@ -134,7 +134,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This clarity spread helps when you feel stuck. The first card reveals the true nature of your situation. The second card shows what is blocking you or creating confusion. The third card illuminates how to move forward with clarity.',
+      'This clarity spread cuts through confusion to reveal the truth of your circumstances. The first card exposes the situation as it truly is: beneath the stories you tell yourself, beneath the fog of uncertainty. The second card names the obstacle: what blocks your way, creates resistance, or keeps you feeling stuck. The third card illuminates the path forward: how to navigate around, through, or beyond what stands in your way.',
   },
 
   {
@@ -143,7 +143,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This holistic spread explores your whole being. The first card reveals what is happening in your thoughts and mental state. The second card shows what your physical self or material circumstances need. The third card illuminates your spiritual state and soul lessons.',
+      'This holistic spread explores the sacred trinity of your being. The first card speaks to your mind: thoughts, beliefs, mental patterns, and the stories you tell yourself. The second card addresses your body: physical health, material circumstances, the earthly vessel you inhabit, and what it needs. The third card touches your spirit: the soul lessons at play, your connection to something greater, the whispers of your highest self.',
   },
 
   {
@@ -152,7 +152,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This healing spread guides your inner work. The first card acknowledges what you are facing or struggling with. The second card reveals what can support and comfort you through this. The third card shows the growth and wisdom that can emerge from this experience.',
+      'This healing spread honors the alchemy of transformation through difficulty. The first card witnesses your challenge: what you face, what tests you, the struggle that has brought you here seeking guidance. The second card reveals your support: allies seen and unseen, inner resources, sources of comfort and strength available to you now. The third card promises growth: the wisdom being forged, the person you are becoming through this experience, the gift waiting on the other side.',
   },
 
   {
@@ -161,7 +161,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This five-card spread explores the emotional landscape of relationships. The first card reveals your heart and inner emotions. The second shows their perspective and feelings. The third represents the connection or dynamic between you. The fourth highlights challenges or obstacles to be aware of. The fifth reveals the potential outcome or path forward.',
+      'This Love spread ventures into the sacred territory where two hearts meet and dance. The first card peers into your heart: your deepest emotions, longings, and the truth you carry within. The second card turns its gaze toward them: their feelings, their perspective, the inner world they inhabit. The third card illuminates the connection itself: the invisible thread between you, the energy of what you have created together. The fourth card names the challenges: the obstacles, shadows, or unspoken tensions that seek attention. The fifth card reveals the potential: where this love story leads, what it might become if nurtured with intention.',
   },
 
   {
@@ -170,7 +170,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'This career-focused spread illuminates your professional journey. The first card shows your current position and standing. The second reveals obstacles or challenges in your path. The third uncovers hidden factors or opportunities you may not see. The fourth suggests specific action to take. The fifth indicates the likely outcome of following this guidance.',
+      'This Career spread maps the landscape of your professional journey and calling. The first card reveals your current position: where you stand now, the ground beneath your feet, the energy you bring to your work. The second card exposes obstacles: the challenges, resistances, or blocks that stand between you and your aspirations. The third card uncovers hidden factors: the unseen forces at play, opportunities lurking in shadow, influences you have not yet recognized. The fourth card offers action: the specific steps, attitudes, or approaches that will serve your highest path. The fifth card illuminates the outcome: where this guidance leads, the destination that awaits when you move forward with clarity.',
   },
 
   {
@@ -179,7 +179,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'The Horseshoe Spread provides comprehensive insight into your situation. Moving through the seven positions: Past influences that shaped the current moment, Present circumstances, Hidden influences working beneath the surface, Obstacles to be aware of, External forces and people affecting the situation, Advice on how to proceed, and the Outcome if you follow this guidance. Read these cards as a flowing narrative arc from foundation to culmination.',
+      'The Horseshoe spread arcs across seven stations of insight, tracing a journey from past to possibility. The first card reaches into the past: the experiences, decisions, and energies that have shaped this moment. The second card grounds you in the present: what is alive and true in your life right now. The third card descends into hidden depths: the unseen forces working beneath the surface, influences you may not consciously recognize. The fourth card names the obstacles: what stands in your way, the challenges that test your resolve. The fifth card opens to external forces: the people, circumstances, and energies from outside yourself that play upon your path. The sixth card whispers advice: the wisdom and guidance that will serve you best. The seventh card reveals the outcome: where this journey leads, the destination that crystallizes when you walk this path with awareness.',
   },
 
   {
@@ -188,7 +188,7 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
     category: 'tarot',
     variables: [],
     defaultValue:
-      'The Celtic Cross is the most comprehensive tarot spread, revealing deep insight across ten positions. The center cross shows your Present situation and the immediate Challenge crossing it. The vertical axis explores Past foundations and Future trajectory. The horizontal positions reveal what is Above you (conscious influences) and Below you (subconscious foundations). The right column ascends through Advice, External Influences affecting you, your Hopes and Fears, and culminates in the final Outcome. Read this spread as an integrated whole, noticing how each position informs and connects to the others.',
+      'The Celtic Cross is the grandest of tarot spreads, an ancient map that charts the full territory of your question across ten sacred positions. At its heart lies the present: the card that captures where you stand in this very moment. Crossing it lies the challenge: the force that complicates, opposes, or demands your attention. Beneath rests the foundation: the root cause, the deep ground from which your situation has grown. Behind lies the past: recent events and energies that have led you here. Above hovers the possible future: what may unfold if you continue on your current trajectory. Ahead stands the near future: what approaches on the immediate horizon. On the ascending column, the first card reflects yourself: your attitude, role, and inner state. The second reveals your environment: the people and circumstances surrounding you. The third uncovers your hopes and fears: the dreams and anxieties that color your perception. At the pinnacle awaits the outcome: the culmination of all these forces, the destination toward which you journey.',
   },
 
   // ==================== 5-CARD SPREAD GUIDANCE ====================
