@@ -89,6 +89,20 @@ export function interpolatePrompt(template: string, variables: Record<string, st
   });
 }
 
+// Mapping from 5-card layoutId to prompt key
+const FIVE_CARD_LAYOUT_GUIDANCE_MAP: Record<string, string> = {
+  iceberg: 'SPREAD_GUIDANCE_FIVE_CARD_ICEBERG',
+  mirror: 'SPREAD_GUIDANCE_FIVE_CARD_MIRROR',
+  inner_child: 'SPREAD_GUIDANCE_FIVE_CARD_INNER_CHILD',
+  safe_space: 'SPREAD_GUIDANCE_FIVE_CARD_SAFE_SPACE',
+  authentic_self: 'SPREAD_GUIDANCE_FIVE_CARD_AUTHENTIC_SELF',
+  values: 'SPREAD_GUIDANCE_FIVE_CARD_VALUES',
+  alchemy: 'SPREAD_GUIDANCE_FIVE_CARD_ALCHEMY',
+  seasons: 'SPREAD_GUIDANCE_FIVE_CARD_SEASONS',
+  love_relationships: 'SPREAD_GUIDANCE_FIVE_CARD_LOVE_RELATIONSHIPS',
+  career_purpose: 'SPREAD_GUIDANCE_FIVE_CARD_CAREER_PURPOSE',
+};
+
 /**
  * Get assembled tarot reading prompt (base + spread guidance + variables)
  */
@@ -111,6 +125,14 @@ export async function getTarotReadingPrompt(params: {
     if (params.spreadType.toUpperCase() === 'THREE_CARD' && params.layoutId) {
       const layoutKey = params.layoutId.toUpperCase();
       spreadGuidanceKey = `SPREAD_GUIDANCE_THREE_CARD_${layoutKey}`;
+    }
+
+    // For FIVE_CARD with layout, use layout-specific guidance
+    if (params.spreadType.toUpperCase() === 'FIVE_CARD' && params.layoutId) {
+      const guidanceKey = FIVE_CARD_LAYOUT_GUIDANCE_MAP[params.layoutId];
+      if (guidanceKey) {
+        spreadGuidanceKey = guidanceKey;
+      }
     }
 
     const spreadGuidance = await getPrompt(spreadGuidanceKey);
