@@ -241,3 +241,49 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
       fr: ['Expériences récentes qui façonnent le présent', 'L\'énergie de vie actuelle', 'Ce qui œuvre sous la surface', 'Défis à l\'horizon', 'Opportunités qui approchent', 'Guidance pour la période à venir', 'La direction générale qui se déploie'],
     },
   },
+  // Category 5: Family & Personal Relationships
+  family_dynamics: {
+    id: 'family_dynamics',
+    labelEn: 'Family Dynamics',
+    labelFr: 'Dynamiques Familiales',
+    taglineEn: 'Navigating complex family relationships? This spread illuminates patterns, tensions, and pathways toward greater understanding.',
+    taglineFr: 'Vous naviguez des relations familiales complexes? Ce tirage illumine les schémas, tensions, et chemins vers une meilleure compréhension.',
+    positions: {
+      en: ['Family patterns from the past', 'The current family dynamic', 'Unspoken tensions or expectations', 'What\'s causing friction', 'Your unmet needs', 'How to bring more harmony', 'Potential for healing'],
+      fr: ['Schémas familiaux du passé', 'La dynamique familiale actuelle', 'Tensions ou attentes non-dites', 'Ce qui cause des frictions', 'Vos besoins non satisfaits', 'Comment apporter plus d\'harmonie', 'Potentiel de guérison'],
+    },
+  },
+  parenting: {
+    id: 'parenting',
+    labelEn: 'Children & Parenting',
+    labelFr: 'Enfants & Parentalité',
+    taglineEn: 'Questions about children or the parenting journey? Gain insight into the relationship, challenges, and how to nurture connection.',
+    taglineFr: 'Des questions sur les enfants ou le parcours parental? Obtenez des insights sur la relation, les défis, et comment nourrir la connexion.',
+    positions: {
+      en: ['The foundation of this bond', 'The current parent-child dynamic', 'What the child may need', 'Challenges in the relationship', 'External pressures on the family', 'How to deepen understanding', 'The relationship\'s potential'],
+      fr: ['Les fondations de ce lien', 'La dynamique parent-enfant actuelle', 'Ce dont l\'enfant peut avoir besoin', 'Défis dans la relation', 'Pressions extérieures sur la famille', 'Comment approfondir la compréhension', 'Le potentiel de la relation'],
+    },
+  },
+  friendships: {
+    id: 'friendships',
+    labelEn: 'Friendships',
+    labelFr: 'Amitiés',
+    taglineEn: 'Reflecting on a friendship? Explore the connection\'s health, what it offers, and whether it still serves both people.',
+    taglineFr: 'Vous réfléchissez à une amitié? Explorez la santé de la connexion, ce qu\'elle offre, et si elle sert encore les deux personnes.',
+    positions: {
+      en: ['How this friendship began', 'The current state of the bond', 'What this friendship provides', 'What may be straining it', 'The other person\'s experience', 'How to nurture or release', 'Where this friendship is heading'],
+      fr: ['Comment cette amitié a commencé', 'L\'état actuel du lien', 'Ce que cette amitié apporte', 'Ce qui peut la fragiliser', 'L\'expérience de l\'autre personne', 'Comment nourrir ou lâcher prise', 'Où cette amitié se dirige'],
+    },
+  },
+  difficult_relatives: {
+    id: 'difficult_relatives',
+    labelEn: 'Difficult Relatives',
+    labelFr: 'Relations Difficiles',
+    taglineEn: 'Struggling with a challenging family member? Understand the deeper dynamics at play and find peace within the situation.',
+    taglineFr: 'Vous avez du mal avec un membre de famille difficile? Comprenez les dynamiques profondes en jeu et trouvez la paix dans cette situation.',
+    positions: {
+      en: ['History of this relationship', 'The current tension', 'What drives their behaviour', 'Triggers present in this dynamic', 'Boundaries that may be needed', 'How to protect inner peace', 'What acceptance could look like'],
+      fr: ['Histoire de cette relation', 'La tension actuelle', 'Ce qui motive leur comportement', 'Déclencheurs présents dans cette dynamique', 'Limites qui peuvent être nécessaires', 'Comment protéger la paix intérieure', 'À quoi l\'acceptation pourrait ressembler'],
+    },
+  },
+};
