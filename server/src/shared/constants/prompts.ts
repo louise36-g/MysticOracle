@@ -191,6 +191,98 @@ Tone: Mystical, supportive, insightful, warm, and conversational.`,
       'The Celtic Cross is the most comprehensive tarot spread, revealing deep insight across ten positions. The center cross shows your Present situation and the immediate Challenge crossing it. The vertical axis explores Past foundations and Future trajectory. The horizontal positions reveal what is Above you (conscious influences) and Below you (subconscious foundations). The right column ascends through Advice, External Influences affecting you, your Hopes and Fears, and culminates in the final Outcome. Read this spread as an integrated whole, noticing how each position informs and connects to the others.',
   },
 
+  // ==================== 5-CARD SPREAD GUIDANCE ====================
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_ICEBERG',
+    description: 'The Iceberg 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Iceberg spread explores the layers of consciousness and hidden depths within your psyche. The first card reveals what is visible: the conscious patterns, behaviors, and circumstances you are aware of. The second card plunges beneath the surface to uncover unconscious forces at work. The third card reaches down to the root cause, the origin point of these patterns. The fourth card illuminates how this dynamic has served you, even if painfully. The fifth card offers the path to integration, showing how to bring these layers into harmony.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_MIRROR',
+    description: 'The Mirror 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Mirror spread reflects the multifaceted nature of self-perception and identity. The first card shows how you see yourself, your internal self-image and identity. The second card reveals how others perceive you, the face you show the world. The third card uncovers what you refuse to see, the blind spot in your self-awareness. The fourth card speaks the truth beneath both projections, the essence that transcends perception. The fifth card delivers a message of acceptance, guidance for embracing your whole self.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_INNER_CHILD',
+    description: 'Inner Child 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Inner Child spread offers gentle exploration of your youngest self and the healing they need. The first card shows your inner child as they exist now, their current state and energy. The second card reveals what they need, the care and attention they are calling for. The third card illuminates what wounded them, the experiences that left their mark. The fourth card offers guidance on how to nurture them, specific ways to provide healing. The fifth card uncovers the gift they hold, the treasure your inner child keeps safe for you.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_SAFE_SPACE',
+    description: 'Safe Space 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Safe Space spread explores your relationship with safety and protection. The first card reveals where you feel unsafe, the areas of life where security feels threatened. The second card illuminates what safety means to you, your personal definition of security. The third card uncovers what blocks you from feeling safe, the inner or outer barriers. The fourth card offers guidance on how to create internal safety, building security from within. The fifth card reveals your protector energy, the guardian force available to you.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_AUTHENTIC_SELF',
+    description: 'Authentic Self 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Authentic Self spread peels away the layers of conditioning to reveal your true nature. The first card shows who you were taught to be, the identity shaped by family and society. The second card reveals who you pretend to be, the masks you wear for protection or acceptance. The third card uncovers who you fear being, the aspects of self you avoid or reject. The fourth card illuminates who you truly are, your authentic essence beneath all masks. The fifth card offers guidance on how to embody your truth, steps toward living authentically.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_VALUES',
+    description: 'Values 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Values spread examines the principles that guide your life and choices. The first card reflects what you say you value, your stated beliefs and priorities. The second card reveals what your actions actually demonstrate, the values you live by. The third card uncovers a value you have abandoned, something important you have set aside. The fourth card illuminates a value calling to you, a principle seeking expression in your life. The fifth card delivers an alignment message, guidance for bringing your values and actions into harmony.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_ALCHEMY',
+    description: 'The Alchemy 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      "This Alchemy spread traces the transformative journey from lead to gold. The first card represents the lead: what feels heavy, dense, or burdensome in your life. The second card is the fire: the transformative force or process needed to catalyze change. The third card reveals the process: how change will unfold, the stages of transformation. The fourth card is the gold: what you are becoming, the refined version of yourself emerging. The fifth card is the philosopher's stone: your inner catalyst, the eternal part of you that makes transformation possible.",
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_SEASONS',
+    description: 'The Seasons 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      "This Seasons spread follows the natural cycle of death and rebirth in your life. The first card represents autumn: what needs to die, release, or fall away. The second card represents winter: what needs rest, dormancy, and deep restoration. The third card represents spring: what is ready to sprout, the new growth beginning to stir. The fourth card represents summer: what is ready to bloom, the fullness seeking expression. The fifth card reveals the cycle's wisdom: the overarching lesson this seasonal journey offers.",
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_LOVE_RELATIONSHIPS',
+    description: 'Love & Relationships 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      "This Love and Relationships spread explores the heart of romantic connection. The first card reveals your heart: your emotions, desires, and inner state regarding love. The second card shows their heart: the other person's feelings, perspective, and emotional truth. The third card illuminates the connection itself: the nature of what exists between you. The fourth card uncovers challenges: obstacles, tensions, or areas needing attention. The fifth card reveals the potential: where this connection can lead and what it can become.",
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_FIVE_CARD_CAREER_PURPOSE',
+    description: 'Career & Purpose 5-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Career and Purpose spread maps your professional path and calling. The first card shows your current position: where you stand now in your work and sense of purpose. The second card reveals obstacles: challenges, blocks, or resistance you face. The third card uncovers hidden factors: unseen influences, opportunities, or dynamics at play. The fourth card suggests action to take: specific steps or approaches to move forward. The fifth card illuminates the outcome: the result of following this guidance and the direction you are heading.',
+  },
+
   // ==================== SINGLE CARD ORACLE PROMPTS ====================
 
   {
