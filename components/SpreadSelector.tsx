@@ -5,7 +5,7 @@ import { ROUTES, buildRoute } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion } from 'framer-motion';
-import { Coins, ShoppingCart, Eye, Clock, Heart, TrendingUp, Sparkles, Compass } from 'lucide-react';
+import { Coins, ShoppingCart, Eye, Clock, Heart, TrendingUp, Sparkles, Compass, Layers } from 'lucide-react';
 import CreditShop from './CreditShop';
 
 interface SpreadSelectorProps {
@@ -44,6 +44,17 @@ const SPREAD_THEMES: Record<SpreadType, {
     borderAccent: 'hover:border-fuchsia-400/50',
     taglineEn: 'Past • Present • Future',
     taglineFr: 'Passé • Présent • Futur',
+  },
+  [SpreadType.FIVE_CARD]: {
+    // Purple/Violet - Deep Inner Work
+    gradient: 'from-violet-950 via-purple-900 to-violet-950',
+    accent: 'text-violet-300',
+    icon: <Layers className="w-5 h-5" />,
+    pattern: 'radial-gradient(ellipse at 50% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 60%)',
+    glowColor: 'rgba(167, 139, 250, 0.3)',
+    borderAccent: 'hover:border-violet-400/50',
+    taglineEn: 'Deep Inner Work',
+    taglineFr: 'Travail Intérieur Profond',
   },
   [SpreadType.LOVE]: {
     // Rose/Pink - Heart's Sanctum
@@ -132,6 +143,28 @@ const SpreadVisual: React.FC<{ spreadId: SpreadType }> = ({ spreadId }) => {
               whileHover={{ y: -5, scale: 1.1 }}
             />
           ))}
+        </div>
+      );
+
+    case SpreadType.FIVE_CARD:
+      // Pentagon/star arrangement - violet theme
+      return (
+        <div className="flex justify-center items-center relative">
+          {/* Violet glow */}
+          <div className="absolute w-24 h-24 bg-violet-400/10 rounded-full blur-xl group-hover:bg-violet-400/20 transition-all duration-500" />
+          {/* 5 cards in arc arrangement */}
+          <div className="flex gap-1.5 relative z-10">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.div
+                key={i}
+                className={`${cardClass} w-5 h-[35px] shadow-md shadow-violet-500/10`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+                whileHover={{ y: -5, scale: 1.08 }}
+              />
+            ))}
+          </div>
         </div>
       );
 
@@ -283,6 +316,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
     const slugMap: Record<SpreadType, string> = {
       [SpreadType.SINGLE]: 'single',
       [SpreadType.THREE_CARD]: 'three-card',
+      [SpreadType.FIVE_CARD]: 'five-card',
       [SpreadType.LOVE]: 'love',
       [SpreadType.CAREER]: 'career',
       [SpreadType.HORSESHOE]: 'horseshoe',
