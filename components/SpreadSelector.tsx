@@ -5,7 +5,7 @@ import { ROUTES, buildRoute } from '../routes/routes';
 import { SPREADS } from '../constants';
 import { SpreadType, SpreadConfig } from '../types';
 import { motion } from 'framer-motion';
-import { Coins, ShoppingCart, Eye, Clock, Heart, TrendingUp, Sparkles, Compass, Layers } from 'lucide-react';
+import { Coins, ShoppingCart, Eye, Clock, Sparkles, Compass, Layers } from 'lucide-react';
 import CreditShop from './CreditShop';
 
 interface SpreadSelectorProps {
@@ -13,7 +13,7 @@ interface SpreadSelectorProps {
 }
 
 // Spread theme configurations - each spread has a unique color identity
-const SPREAD_THEMES: Record<SpreadType, {
+const SPREAD_THEMES: Partial<Record<SpreadType, {
   gradient: string;
   accent: string;
   icon: React.ReactNode;
@@ -22,7 +22,7 @@ const SPREAD_THEMES: Record<SpreadType, {
   borderAccent: string;
   taglineEn: string;
   taglineFr: string;
-}> = {
+}>> = {
   [SpreadType.SINGLE]: {
     // Cyan/Indigo - The Oracle's Eye
     gradient: 'from-indigo-950 via-slate-900 to-indigo-950',
@@ -55,28 +55,6 @@ const SPREAD_THEMES: Record<SpreadType, {
     borderAccent: 'hover:border-violet-400/50',
     taglineEn: 'Deep Inner Work',
     taglineFr: 'Travail Intérieur Profond',
-  },
-  [SpreadType.LOVE]: {
-    // Rose/Pink - Heart's Sanctum
-    gradient: 'from-rose-950 via-pink-900 to-rose-950',
-    accent: 'text-rose-300',
-    icon: <Heart className="w-5 h-5" />,
-    pattern: 'radial-gradient(ellipse at 50% 40%, rgba(251, 113, 133, 0.2) 0%, transparent 60%)',
-    glowColor: 'rgba(251, 113, 133, 0.3)',
-    borderAccent: 'hover:border-rose-400/50',
-    taglineEn: 'Matters of the Heart',
-    taglineFr: 'Affaires de Cœur',
-  },
-  [SpreadType.CAREER]: {
-    // Bright Gold - The Ascent (true gold, not brown)
-    gradient: 'from-yellow-950 via-amber-900 to-yellow-950',
-    accent: 'text-yellow-300',
-    icon: <TrendingUp className="w-5 h-5" />,
-    pattern: 'linear-gradient(135deg, rgba(253, 224, 71, 0.12) 0%, transparent 40%), linear-gradient(-45deg, rgba(250, 204, 21, 0.1) 0%, transparent 40%)',
-    glowColor: 'rgba(253, 224, 71, 0.35)',
-    borderAccent: 'hover:border-yellow-400/50',
-    taglineEn: 'Path to Success',
-    taglineFr: 'Chemin du Succès',
   },
   [SpreadType.HORSESHOE]: {
     // Deep Blue/Sapphire - Fortune's Arc (new unique color)
@@ -165,57 +143,6 @@ const SpreadVisual: React.FC<{ spreadId: SpreadType }> = ({ spreadId }) => {
               />
             ))}
           </div>
-        </div>
-      );
-
-    case SpreadType.LOVE:
-      // Rounder heart with aligned cards
-      return (
-        <div className="flex justify-center items-center relative">
-          {/* Rounder heart shape - more circular lobes */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%]">
-            <svg width="100" height="85" viewBox="0 0 100 85" className="text-rose-500/20 group-hover:text-rose-500/35 transition-colors duration-300">
-              <path
-                d="M50 80 C20 55, 5 35, 5 22 C5 10, 15 2, 28 2 C38 2, 46 10, 50 18 C54 10, 62 2, 72 2 C85 2, 95 10, 95 22 C95 35, 80 55, 50 80Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-          {/* Aligned cards - tarot ratio */}
-          <div className="flex gap-1.5 relative z-10">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.div
-                key={i}
-                className={`${cardClass} w-5 h-[35px] shadow-md shadow-rose-500/10`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
-                whileHover={{ y: -5, scale: 1.08 }}
-              />
-            ))}
-          </div>
-        </div>
-      );
-
-    case SpreadType.CAREER:
-      // Ascending staircase - bright gold theme
-      return (
-        <div className="flex justify-center items-end gap-1.5 h-[70px] relative">
-          {/* Upward triangle glow - bright yellow/gold */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-28 h-16 bg-yellow-400/15 blur-xl"
-               style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }} />
-          {[0, 1, 2, 3, 4].map((i) => {
-            const heights = [0, 5, 10, 15, 20];
-            return (
-              <motion.div
-                key={i}
-                className={`${cardClass} w-5 h-[35px] relative z-10 shadow-md shadow-yellow-500/15`}
-                style={{ marginBottom: `${heights[i]}px` }}
-                whileHover={{ y: -6, scale: 1.08 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              />
-            );
-          })}
         </div>
       );
 
@@ -313,12 +240,10 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
 
   // Convert spread id to URL-friendly slug (e.g., 'three-card' from SpreadType.THREE_CARD)
   const getSpreadSlug = (spreadId: SpreadType): string => {
-    const slugMap: Record<SpreadType, string> = {
+    const slugMap: Partial<Record<SpreadType, string>> = {
       [SpreadType.SINGLE]: 'single',
       [SpreadType.THREE_CARD]: 'three-card',
       [SpreadType.FIVE_CARD]: 'five-card',
-      [SpreadType.LOVE]: 'love',
-      [SpreadType.CAREER]: 'career',
       [SpreadType.HORSESHOE]: 'horseshoe',
       [SpreadType.CELTIC_CROSS]: 'celtic-cross',
     };

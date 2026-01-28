@@ -15,6 +15,7 @@ import {
   Users,
   Sun,
   Lightbulb,
+  Layers,
 } from 'lucide-react';
 import { SpreadType } from '../../../types';
 
@@ -130,6 +131,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
   onQuestionSelect,
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [expandedPositions, setExpandedPositions] = useState<string | null>(null);
 
   // Get data based on spread type
   const { categories, layouts, questions, customHelper } = useMemo(() => {
@@ -286,24 +288,59 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                   {language === 'en' ? layout.taglineEn : layout.taglineFr}
                                 </p>
 
-                                {/* Card Positions - Only show for layouts with more than 3 positions */}
-                                {layout.positions.en.length > 3 && (
-                                  <div className="space-y-1 mt-3">
-                                    {(language === 'en' ? layout.positions.en : layout.positions.fr).map((position, idx) => (
-                                      <div key={idx} className="flex items-start gap-2">
-                                        <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-medium ${
-                                          isLayoutSelected ? `${colors.bg} ${colors.text}` : 'bg-slate-800 text-slate-500'
-                                        }`}>
-                                          {idx + 1}
-                                        </span>
-                                        <span className={`text-xs leading-5 ${isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                                          {position}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
                               </button>
+
+                              {/* Card Positions Accordion - Only show for layouts with more than 3 positions */}
+                              {layout.positions.en.length > 3 && (
+                                <div className="mt-2">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedPositions(expandedPositions === layout.id ? null : layout.id);
+                                    }}
+                                    className={`w-full px-3 py-2 flex items-center justify-between text-xs rounded-lg transition-colors ${
+                                      isLayoutSelected
+                                        ? 'bg-slate-800/50 hover:bg-slate-800/70'
+                                        : 'bg-slate-900/30 hover:bg-slate-800/30'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Layers className={`w-3.5 h-3.5 ${isLayoutSelected ? colors.text : 'text-slate-500'}`} />
+                                      <span className={isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}>
+                                        {language === 'en' ? 'The cards in this layout' : 'Les cartes de ce tirage'}
+                                      </span>
+                                    </div>
+                                    <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${expandedPositions === layout.id ? 'rotate-180' : ''}`} />
+                                  </button>
+                                  <AnimatePresence>
+                                    {expandedPositions === layout.id && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="pt-2 pl-2 space-y-1">
+                                          {(language === 'en' ? layout.positions.en : layout.positions.fr).map((position, idx) => (
+                                            <div key={idx} className="flex items-start gap-2">
+                                              <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-medium ${
+                                                isLayoutSelected ? `${colors.bg} ${colors.text}` : 'bg-slate-800 text-slate-500'
+                                              }`}>
+                                                {idx + 1}
+                                              </span>
+                                              <span className={`text-xs leading-5 ${isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                                {position}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              )}
 
                               {/* Question Input - Directly under THIS selected layout */}
                               <AnimatePresence>

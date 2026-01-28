@@ -69,12 +69,10 @@ const SubNav: React.FC = () => {
 
   // Map spread IDs to URL slugs
   const getSpreadSlug = (spreadId: SpreadType): string => {
-    const slugMap: Record<SpreadType, string> = {
+    const slugMap: Partial<Record<SpreadType, string>> = {
       [SpreadType.SINGLE]: 'single',
       [SpreadType.THREE_CARD]: 'three-card',
       [SpreadType.FIVE_CARD]: 'five-card',
-      [SpreadType.LOVE]: 'love',
-      [SpreadType.CAREER]: 'career',
       [SpreadType.HORSESHOE]: 'horseshoe',
       [SpreadType.CELTIC_CROSS]: 'celtic-cross',
     };
@@ -94,7 +92,7 @@ const SubNav: React.FC = () => {
   }, [location.pathname]);
 
   // Spread theme icons and colors (matching SpreadSelector)
-  const spreadThemes: Record<SpreadType, { icon: React.ReactNode; iconBg: string }> = {
+  const spreadThemes: Partial<Record<SpreadType, { icon: React.ReactNode; iconBg: string }>> = {
     [SpreadType.SINGLE]: {
       icon: <Eye className="w-4 h-4 text-cyan-400" />,
       iconBg: 'bg-cyan-500/20',
@@ -106,14 +104,6 @@ const SubNav: React.FC = () => {
     [SpreadType.FIVE_CARD]: {
       icon: <Layers className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
-    },
-    [SpreadType.LOVE]: {
-      icon: <Heart className="w-4 h-4 text-rose-400" />,
-      iconBg: 'bg-rose-500/20',
-    },
-    [SpreadType.CAREER]: {
-      icon: <TrendingUp className="w-4 h-4 text-yellow-400" />,
-      iconBg: 'bg-yellow-500/20',
     },
     [SpreadType.HORSESHOE]: {
       icon: <Sparkles className="w-4 h-4 text-blue-400" />,

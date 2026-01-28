@@ -71,7 +71,8 @@ SUITS.forEach(suit => {
 
 export const FULL_DECK: TarotCard[] = [...MAJOR_ARCANA, ...MINOR_ARCANA];
 
-export const SPREADS: Record<SpreadType, SpreadConfig> = {
+// Active spreads available for selection (LOVE and CAREER now available as 5-card layouts)
+export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   [SpreadType.SINGLE]: {
     id: SpreadType.SINGLE,
     nameEn: "Single Card",
@@ -100,24 +101,8 @@ export const SPREADS: Record<SpreadType, SpreadConfig> = {
     positionMeaningsEn: ["First", "Second", "Third", "Fourth", "Fifth"],
     positionMeaningsFr: ["Premier", "Deuxième", "Troisième", "Quatrième", "Cinquième"]
   },
-  [SpreadType.LOVE]: {
-    id: SpreadType.LOVE,
-    nameEn: "Love & Relationships",
-    nameFr: "Amour & Relations",
-    cost: 5,
-    positions: 5,
-    positionMeaningsEn: ["Your Heart", "Their Heart", "The Connection", "Challenges", "Potential"],
-    positionMeaningsFr: ["Votre Cœur", "Son Cœur", "La Connexion", "Défis", "Potentiel"]
-  },
-  [SpreadType.CAREER]: {
-    id: SpreadType.CAREER,
-    nameEn: "Career Path",
-    nameFr: "Chemin de Carrière",
-    cost: 5,
-    positions: 5,
-    positionMeaningsEn: ["Current Position", "Obstacles", "Hidden Factors", "Action to Take", "Outcome"],
-    positionMeaningsFr: ["Position Actuelle", "Obstacles", "Facteurs Cachés", "Action à Prendre", "Résultat"]
-  },
+  // Note: LOVE and CAREER spread types kept in SpreadType enum for backward compatibility
+  // but removed from SPREADS display - now available as 5-card layouts
   [SpreadType.HORSESHOE]: {
     id: SpreadType.HORSESHOE,
     nameEn: "Horseshoe Spread",
