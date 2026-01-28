@@ -21,7 +21,11 @@ import {
   ThreeCardIntroPhase,
 } from './reading';
 import FiveCardIntroPhase from './reading/phases/FiveCardIntroPhase';
-import { SingleCardCategory } from '../constants/singleCardQuestions';
+import {
+  SingleCardCategory,
+  SingleCardLayoutId,
+  getSingleCardCategory,
+} from '../constants/singleCardLayouts';
 import { ThreeCardCategory, ThreeCardLayoutId, getThreeCardCategory } from '../constants/threeCardLayouts';
 import {
   FiveCardCategory,
@@ -158,26 +162,21 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Single card oracle state
   const [singleCardCategory, setSingleCardCategory] = useState<SingleCardCategory | null>(null);
+  const [singleCardLayout, setSingleCardLayout] = useState<SingleCardLayoutId | null>(null);
+  const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
 
   // Guard against multiple save attempts
   const [isSavingReading, setIsSavingReading] = useState(false);
-  const [singleCardQuestionId, setSingleCardQuestionId] = useState<string | null>(null);
-  const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
-  const [isWritingOwnQuestion, setIsWritingOwnQuestion] = useState(false);
 
   // Three card intro state
   const [threeCardCategory, setThreeCardCategory] = useState<ThreeCardCategory | null>(null);
   const [threeCardLayout, setThreeCardLayout] = useState<ThreeCardLayoutId | null>(null);
-  const [threeCardQuestionId, setThreeCardQuestionId] = useState<string | null>(null);
   const [threeCardCustomQuestion, setThreeCardCustomQuestion] = useState('');
-  const [isWritingOwnThreeCard, setIsWritingOwnThreeCard] = useState(false);
 
   // Five card intro state
   const [fiveCardCategory, setFiveCardCategory] = useState<FiveCardCategory | null>(null);
   const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
-  const [fiveCardQuestionId, setFiveCardQuestionId] = useState<string | null>(null);
   const [fiveCardCustomQuestion, setFiveCardCustomQuestion] = useState('');
-  const [isWritingOwnFiveCard, setIsWritingOwnFiveCard] = useState(false);
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -389,33 +388,27 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, []);
 
   // Single card handlers
-  const handleCategorySelect = useCallback((category: SingleCardCategory) => {
+  const handleSingleCardCategorySelect = useCallback((category: SingleCardCategory) => {
     setSingleCardCategory(category);
-    setSingleCardQuestionId(null);
-    setIsWritingOwnQuestion(false);
+    // Auto-set layout to default for this category
+    const categoryConfig = getSingleCardCategory(category);
+    if (categoryConfig) {
+      setSingleCardLayout(categoryConfig.defaultLayout);
+    }
   }, []);
 
-  const handleQuestionSelect = useCallback((questionId: string, questionText: string) => {
-    setSingleCardQuestionId(questionId);
-    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
+  const handleSingleCardLayoutSelect = useCallback((layoutId: SingleCardLayoutId) => {
+    setSingleCardLayout(layoutId);
+  }, []);
 
-  const handleCustomQuestionChange = useCallback((text: string) => {
+  const handleSingleCardCustomQuestionChange = useCallback((text: string) => {
     setSingleCardCustomQuestion(text);
     handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   }, [handleQuestionChange]);
 
-  const handleWriteOwnToggle = useCallback(() => {
-    setIsWritingOwnQuestion(prev => !prev);
-    if (!isWritingOwnQuestion) {
-      setSingleCardQuestionId(null);
-    }
-  }, [isWritingOwnQuestion]);
-
   // Three card handlers
   const handleThreeCardCategorySelect = useCallback((category: ThreeCardCategory) => {
     setThreeCardCategory(category);
-    setThreeCardQuestionId(null);
     // Auto-set layout to default for this category
     const categoryConfig = getThreeCardCategory(category);
     if (categoryConfig) {
@@ -427,27 +420,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setThreeCardLayout(layoutId);
   }, []);
 
-  const handleThreeCardQuestionSelect = useCallback((questionId: string, questionText: string) => {
-    setThreeCardQuestionId(questionId);
-    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
   const handleThreeCardCustomQuestionChange = useCallback((text: string) => {
     setThreeCardCustomQuestion(text);
     handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   }, [handleQuestionChange]);
 
-  const handleThreeCardWriteOwnToggle = useCallback(() => {
-    setIsWritingOwnThreeCard(prev => !prev);
-    if (!isWritingOwnThreeCard) {
-      setThreeCardQuestionId(null);
-    }
-  }, [isWritingOwnThreeCard]);
-
   // Five card handlers
   const handleFiveCardCategorySelect = useCallback((category: FiveCardCategory) => {
     setFiveCardCategory(category);
-    setFiveCardQuestionId(null);
     // Auto-set layout to default for this category
     const categoryConfig = getFiveCardCategory(category);
     if (categoryConfig) {
@@ -459,22 +439,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setFiveCardLayout(layoutId);
   }, []);
 
-  const handleFiveCardQuestionSelect = useCallback((questionId: string, questionText: string) => {
-    setFiveCardQuestionId(questionId);
-    handleQuestionChange({ target: { value: questionText } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
   const handleFiveCardCustomQuestionChange = useCallback((text: string) => {
     setFiveCardCustomQuestion(text);
     handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   }, [handleQuestionChange]);
-
-  const handleFiveCardWriteOwnToggle = useCallback(() => {
-    setIsWritingOwnFiveCard(prev => !prev);
-    if (!isWritingOwnFiveCard) {
-      setFiveCardQuestionId(null);
-    }
-  }, [isWritingOwnFiveCard]);
 
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
@@ -687,13 +655,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             spread={spread}
             language={language}
             selectedCategory={singleCardCategory}
-            selectedQuestionId={singleCardQuestionId}
+            selectedLayout={singleCardLayout}
             customQuestion={singleCardCustomQuestion}
-            isWritingOwn={isWritingOwnQuestion}
-            onCategorySelect={handleCategorySelect}
-            onQuestionSelect={handleQuestionSelect}
-            onCustomQuestionChange={handleCustomQuestionChange}
-            onWriteOwnToggle={handleWriteOwnToggle}
+            onCategorySelect={handleSingleCardCategorySelect}
+            onLayoutSelect={handleSingleCardLayoutSelect}
+            onCustomQuestionChange={handleSingleCardCustomQuestionChange}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
@@ -714,14 +680,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             language={language}
             selectedCategory={threeCardCategory}
             selectedLayout={threeCardLayout}
-            selectedQuestionId={threeCardQuestionId}
             customQuestion={threeCardCustomQuestion}
-            isWritingOwn={isWritingOwnThreeCard}
             onCategorySelect={handleThreeCardCategorySelect}
             onLayoutSelect={handleThreeCardLayoutSelect}
-            onQuestionSelect={handleThreeCardQuestionSelect}
             onCustomQuestionChange={handleThreeCardCustomQuestionChange}
-            onWriteOwnToggle={handleThreeCardWriteOwnToggle}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
@@ -742,14 +704,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             language={language}
             selectedCategory={fiveCardCategory}
             selectedLayout={fiveCardLayout}
-            selectedQuestionId={fiveCardQuestionId}
             customQuestion={fiveCardCustomQuestion}
-            isWritingOwn={isWritingOwnFiveCard}
             onCategorySelect={handleFiveCardCategorySelect}
             onLayoutSelect={handleFiveCardLayoutSelect}
-            onQuestionSelect={handleFiveCardQuestionSelect}
             onCustomQuestionChange={handleFiveCardCustomQuestionChange}
-            onWriteOwnToggle={handleFiveCardWriteOwnToggle}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}

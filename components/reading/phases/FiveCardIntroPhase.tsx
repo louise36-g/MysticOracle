@@ -2,15 +2,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Check, AlertCircle, ChevronDown, Coins } from 'lucide-react';
-import { SpreadConfig, InterpretationStyle } from '../../../types';
+import { SpreadConfig, InterpretationStyle, SpreadType } from '../../../types';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
-import FiveCardQuestionSelector from './FiveCardQuestionSelector';
+import SpreadIntroSelector from './SpreadIntroSelector';
 import {
   FiveCardCategory,
   FiveCardLayoutId,
-  FIVE_CARD_LAYOUTS,
 } from '../../../constants/fiveCardLayouts';
 
 interface FiveCardIntroPhaseProps {
@@ -19,14 +18,10 @@ interface FiveCardIntroPhaseProps {
   // Category, layout & question selection
   selectedCategory: FiveCardCategory | null;
   selectedLayout: FiveCardLayoutId | null;
-  selectedQuestionId: string | null;
   customQuestion: string;
-  isWritingOwn: boolean;
   onCategorySelect: (category: FiveCardCategory) => void;
   onLayoutSelect: (layoutId: FiveCardLayoutId) => void;
-  onQuestionSelect: (questionId: string, questionText: string) => void;
   onCustomQuestionChange: (text: string) => void;
-  onWriteOwnToggle: () => void;
   // Interpretation styles
   isAdvanced: boolean;
   selectedStyles: InterpretationStyle[];
@@ -44,14 +39,10 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
   language,
   selectedCategory,
   selectedLayout,
-  selectedQuestionId,
   customQuestion,
-  isWritingOwn,
   onCategorySelect,
   onLayoutSelect,
-  onQuestionSelect,
   onCustomQuestionChange,
-  onWriteOwnToggle,
   isAdvanced,
   selectedStyles,
   onAdvancedToggle,
@@ -67,12 +58,13 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
     textAccent: 'text-purple-300',
   };
 
-  const hasValidQuestion = selectedQuestionId !== null || (isWritingOwn && customQuestion.trim().length > 0);
+  const hasValidQuestion = customQuestion.trim().length > 0;
   const canProceed = selectedCategory !== null && selectedLayout !== null && hasValidQuestion && credits >= totalCost;
 
-  const layoutLabel = selectedLayout
-    ? (language === 'en' ? FIVE_CARD_LAYOUTS[selectedLayout].labelEn : FIVE_CARD_LAYOUTS[selectedLayout].labelFr)
-    : null;
+  // Dummy handler for question select (we use customQuestion directly now)
+  const handleQuestionSelect = (_questionId: string, questionText: string) => {
+    onCustomQuestionChange(questionText);
+  };
 
   return (
     <div className="flex flex-col items-center px-4 py-6 md:py-8 relative min-h-screen">
@@ -92,38 +84,28 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
             </span>
           </div>
           <h2 className="text-2xl md:text-3xl font-heading text-white mb-1">
-            {language === 'en' ? 'Deep Inner Work' : 'Travail Interieur Profond'}
+            {language === 'en' ? 'Deep Inner Work' : 'Travail Intérieur Profond'}
           </h2>
           <p className={`text-sm ${theme.textAccent} italic`}>
-            {language === 'en' ? 'Five cards illuminate the path within' : 'Cinq cartes illuminent le chemin interieur'}
+            {language === 'en' ? 'Five cards illuminate the path within' : 'Cinq cartes illuminent le chemin intérieur'}
           </p>
         </div>
 
         {/* Main Card */}
         <div className="bg-slate-900/70 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          {/* Question Selection Section */}
+          {/* Spread Intro Selector */}
           <div className="p-4 md:p-5">
-            <FiveCardQuestionSelector
+            <SpreadIntroSelector
+              spreadType={SpreadType.FIVE_CARD}
               language={language}
               selectedCategory={selectedCategory}
               selectedLayout={selectedLayout}
-              selectedQuestionId={selectedQuestionId}
               customQuestion={customQuestion}
-              isWritingOwn={isWritingOwn}
               onCategorySelect={onCategorySelect}
               onLayoutSelect={onLayoutSelect}
-              onQuestionSelect={onQuestionSelect}
               onCustomQuestionChange={onCustomQuestionChange}
-              onWriteOwn={onWriteOwnToggle}
+              onQuestionSelect={handleQuestionSelect}
             />
-
-            {/* Selected layout label */}
-            {selectedCategory && selectedLayout && layoutLabel && (
-              <div className="mt-3 text-xs text-slate-500 text-center">
-                {language === 'en' ? 'Layout: ' : 'Disposition: '}
-                <span className="text-slate-400">{layoutLabel}</span>
-              </div>
-            )}
           </div>
 
           {/* Advanced Options Toggle */}
@@ -159,14 +141,14 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
                     <p className="text-xs text-slate-500 mb-3">
                       {language === 'en'
                         ? 'Add extra perspectives to your reading (+1 credit for any selection)'
-                        : 'Ajoutez des perspectives supplementaires (+1 credit pour toute selection)'}
+                        : 'Ajoutez des perspectives supplémentaires (+1 crédit pour toute sélection)'}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { id: InterpretationStyle.SPIRITUAL, labelEn: 'Spiritual', labelFr: 'Spirituel' },
-                        { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Emotionnel' },
-                        { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numerologie' },
-                        { id: InterpretationStyle.ELEMENTAL, labelEn: 'Elements', labelFr: 'Elements' }
+                        { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Émotionnel' },
+                        { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numérologie' },
+                        { id: InterpretationStyle.ELEMENTAL, labelEn: 'Elements', labelFr: 'Éléments' }
                       ].map((option) => (
                         <button
                           key={option.id}
@@ -208,13 +190,13 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
           <div className="p-4 bg-slate-950/50">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-slate-500 uppercase tracking-wider">
-                {language === 'en' ? 'Cost' : 'Cout'}
+                {language === 'en' ? 'Cost' : 'Coût'}
               </span>
               <div className="flex items-center gap-1.5 text-purple-300">
                 <Coins className="w-4 h-4" />
                 <span className="font-bold text-lg">{totalCost}</span>
                 <span className="text-slate-500 text-xs">
-                  {language === 'en' ? 'credits' : 'credits'}
+                  {language === 'en' ? 'credits' : 'crédits'}
                 </span>
               </div>
             </div>
@@ -224,17 +206,17 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
               className="w-full"
               disabled={!canProceed}
             >
-              {language === 'en' ? 'Shuffle the Deck' : 'Melanger le Jeu'}
+              {language === 'en' ? 'Shuffle the Deck' : 'Mélanger le Jeu'}
             </Button>
             {!canProceed && !validationMessage && (
               <p className="text-center text-xs text-slate-500 mt-2">
                 {!selectedCategory
-                  ? (language === 'en' ? 'Select a theme to continue' : 'Selectionnez un theme pour continuer')
+                  ? (language === 'en' ? 'Select a theme to continue' : 'Sélectionnez un thème pour continuer')
                   : !selectedLayout
-                    ? (language === 'en' ? 'Select a layout' : 'Selectionnez une disposition')
+                    ? (language === 'en' ? 'Select a layout' : 'Sélectionnez une disposition')
                     : !hasValidQuestion
-                      ? (language === 'en' ? 'Select or write a question' : 'Selectionnez ou ecrivez une question')
-                      : (language === 'en' ? 'Insufficient credits' : 'Credits insuffisants')}
+                      ? (language === 'en' ? 'Enter your question' : 'Entrez votre question')
+                      : (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants')}
               </p>
             )}
           </div>

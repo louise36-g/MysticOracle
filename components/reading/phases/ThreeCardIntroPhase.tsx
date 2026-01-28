@@ -2,15 +2,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Check, AlertCircle, ChevronDown, Coins } from 'lucide-react';
-import { SpreadConfig, InterpretationStyle } from '../../../types';
+import { SpreadConfig, InterpretationStyle, SpreadType } from '../../../types';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
-import ThreeCardQuestionSelector from './ThreeCardQuestionSelector';
+import SpreadIntroSelector from './SpreadIntroSelector';
 import {
   ThreeCardCategory,
   ThreeCardLayoutId,
-  THREE_CARD_LAYOUTS,
 } from '../../../constants/threeCardLayouts';
 
 interface ThreeCardIntroPhaseProps {
@@ -19,14 +18,10 @@ interface ThreeCardIntroPhaseProps {
   // Category, layout & question selection
   selectedCategory: ThreeCardCategory | null;
   selectedLayout: ThreeCardLayoutId | null;
-  selectedQuestionId: string | null;
   customQuestion: string;
-  isWritingOwn: boolean;
   onCategorySelect: (category: ThreeCardCategory) => void;
   onLayoutSelect: (layoutId: ThreeCardLayoutId) => void;
-  onQuestionSelect: (questionId: string, questionText: string) => void;
   onCustomQuestionChange: (text: string) => void;
-  onWriteOwnToggle: () => void;
   // Interpretation styles
   isAdvanced: boolean;
   selectedStyles: InterpretationStyle[];
@@ -44,14 +39,10 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
   language,
   selectedCategory,
   selectedLayout,
-  selectedQuestionId,
   customQuestion,
-  isWritingOwn,
   onCategorySelect,
   onLayoutSelect,
-  onQuestionSelect,
   onCustomQuestionChange,
-  onWriteOwnToggle,
   isAdvanced,
   selectedStyles,
   onAdvancedToggle,
@@ -64,13 +55,13 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
   const theme = SPREAD_THEMES[spread.id];
 
   // Determine if we have a valid question to proceed
-  const hasValidQuestion = selectedQuestionId !== null || (isWritingOwn && customQuestion.trim().length > 0);
+  const hasValidQuestion = customQuestion.trim().length > 0;
   const canProceed = selectedCategory !== null && selectedLayout !== null && hasValidQuestion && credits >= totalCost;
 
-  // Get layout label for display
-  const layoutLabel = selectedLayout
-    ? (language === 'en' ? THREE_CARD_LAYOUTS[selectedLayout].labelEn : THREE_CARD_LAYOUTS[selectedLayout].labelFr)
-    : null;
+  // Dummy handler for question select (we use customQuestion directly now)
+  const handleQuestionSelect = (_questionId: string, questionText: string) => {
+    onCustomQuestionChange(questionText);
+  };
 
   return (
     <div className="flex flex-col items-center px-4 py-6 md:py-8 relative min-h-screen">
@@ -99,29 +90,19 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
 
         {/* Main Card */}
         <div className="bg-slate-900/70 backdrop-blur-sm rounded-2xl border border-cyan-500/20 overflow-hidden">
-          {/* Question Selection Section */}
+          {/* Spread Intro Selector */}
           <div className="p-4 md:p-5">
-            <ThreeCardQuestionSelector
+            <SpreadIntroSelector
+              spreadType={SpreadType.THREE_CARD}
               language={language}
               selectedCategory={selectedCategory}
               selectedLayout={selectedLayout}
-              selectedQuestionId={selectedQuestionId}
               customQuestion={customQuestion}
-              isWritingOwn={isWritingOwn}
               onCategorySelect={onCategorySelect}
               onLayoutSelect={onLayoutSelect}
-              onQuestionSelect={onQuestionSelect}
               onCustomQuestionChange={onCustomQuestionChange}
-              onWriteOwn={onWriteOwnToggle}
+              onQuestionSelect={handleQuestionSelect}
             />
-
-            {/* Show selected layout as subtle label for single-layout categories */}
-            {selectedCategory && selectedLayout && layoutLabel && (
-              <div className="mt-3 text-xs text-slate-500 text-center">
-                {language === 'en' ? 'Layout: ' : 'Disposition: '}
-                <span className="text-slate-400">{layoutLabel}</span>
-              </div>
-            )}
           </div>
 
           {/* Advanced Options Toggle - Go Deeper */}
@@ -228,9 +209,11 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
               <p className="text-center text-xs text-slate-500 mt-2">
                 {!selectedCategory
                   ? (language === 'en' ? 'Select a theme to continue' : 'Sélectionnez un thème pour continuer')
-                  : !hasValidQuestion
-                    ? (language === 'en' ? 'Select or write a question' : 'Sélectionnez ou écrivez une question')
-                    : (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants')}
+                  : !selectedLayout
+                    ? (language === 'en' ? 'Select a layout to continue' : 'Sélectionnez une disposition pour continuer')
+                    : !hasValidQuestion
+                      ? (language === 'en' ? 'Enter your question' : 'Entrez votre question')
+                      : (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants')}
               </p>
             )}
           </div>

@@ -1,0 +1,404 @@
+// components/reading/phases/SpreadIntroSelector.tsx
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ChevronDown,
+  Check,
+  Sparkles,
+  Heart,
+  Briefcase,
+  Scale,
+  Leaf,
+  Eye,
+  Compass,
+  Sprout,
+  Users,
+  Sun,
+  Lightbulb,
+} from 'lucide-react';
+import { SpreadType } from '../../../types';
+
+// Import all layout constants
+import {
+  SINGLE_CARD_CATEGORIES,
+  SINGLE_CARD_LAYOUTS,
+  SINGLE_CARD_QUESTIONS,
+  SINGLE_CARD_CUSTOM_QUESTION_HELPER,
+  SingleCardCategory,
+  SingleCardLayoutId,
+} from '../../../constants/singleCardLayouts';
+
+import {
+  THREE_CARD_CATEGORIES,
+  THREE_CARD_LAYOUTS,
+  THREE_CARD_QUESTIONS,
+  THREE_CARD_CUSTOM_QUESTION_HELPER,
+  ThreeCardCategory,
+  ThreeCardLayoutId,
+} from '../../../constants/threeCardLayouts';
+
+import {
+  FIVE_CARD_CATEGORIES,
+  FIVE_CARD_LAYOUTS,
+  FIVE_CARD_QUESTIONS,
+  FIVE_CARD_LAYOUT_QUESTIONS,
+  FIVE_CARD_CUSTOM_QUESTION_HELPER,
+  FiveCardCategory,
+  FiveCardLayoutId,
+} from '../../../constants/fiveCardLayouts';
+
+// Icon mapping
+const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
+  Sparkles,
+  Heart,
+  Briefcase,
+  Scale,
+  Leaf,
+  Eye,
+  Compass,
+  Sprout,
+  Users,
+  Sun,
+  Lightbulb,
+};
+
+// Color classes for categories
+const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; bgHover: string }> = {
+  amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-300', bgHover: 'hover:bg-amber-500/10' },
+  rose: { bg: 'bg-rose-500/20', border: 'border-rose-500/40', text: 'text-rose-300', bgHover: 'hover:bg-rose-500/10' },
+  emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-300', bgHover: 'hover:bg-emerald-500/10' },
+  indigo: { bg: 'bg-indigo-500/20', border: 'border-indigo-500/40', text: 'text-indigo-300', bgHover: 'hover:bg-indigo-500/10' },
+  violet: { bg: 'bg-violet-500/20', border: 'border-violet-500/40', text: 'text-violet-300', bgHover: 'hover:bg-violet-500/10' },
+  cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300', bgHover: 'hover:bg-cyan-500/10' },
+};
+
+// Generic types for the selector
+type CategoryId = SingleCardCategory | ThreeCardCategory | FiveCardCategory;
+type LayoutId = SingleCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId;
+
+interface CategoryConfig {
+  id: string;
+  labelEn: string;
+  labelFr: string;
+  taglineEn?: string;
+  taglineFr?: string;
+  iconName: string;
+  colorClass?: string;
+  layouts: string[];
+  defaultLayout: string;
+}
+
+interface LayoutConfig {
+  id: string;
+  labelEn: string;
+  labelFr: string;
+  taglineEn: string;
+  taglineFr: string;
+  positions: {
+    en: string[];
+    fr: string[];
+  };
+}
+
+interface QuestionConfig {
+  id: string;
+  textEn: string;
+  textFr: string;
+}
+
+interface SpreadIntroSelectorProps {
+  spreadType: SpreadType;
+  language: 'en' | 'fr';
+  selectedCategory: CategoryId | null;
+  selectedLayout: LayoutId | null;
+  customQuestion: string;
+  onCategorySelect: (category: CategoryId) => void;
+  onLayoutSelect: (layoutId: LayoutId) => void;
+  onCustomQuestionChange: (text: string) => void;
+  onQuestionSelect: (questionId: string, questionText: string) => void;
+}
+
+const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
+  spreadType,
+  language,
+  selectedCategory,
+  selectedLayout,
+  customQuestion,
+  onCategorySelect,
+  onLayoutSelect,
+  onCustomQuestionChange,
+  onQuestionSelect,
+}) => {
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  // Get data based on spread type
+  const { categories, layouts, questions, customHelper } = useMemo(() => {
+    switch (spreadType) {
+      case SpreadType.SINGLE:
+        return {
+          categories: SINGLE_CARD_CATEGORIES as CategoryConfig[],
+          layouts: SINGLE_CARD_LAYOUTS as Record<string, LayoutConfig>,
+          questions: SINGLE_CARD_QUESTIONS as Record<string, QuestionConfig[]>,
+          customHelper: SINGLE_CARD_CUSTOM_QUESTION_HELPER,
+        };
+      case SpreadType.THREE_CARD:
+        return {
+          categories: THREE_CARD_CATEGORIES as CategoryConfig[],
+          layouts: THREE_CARD_LAYOUTS as Record<string, LayoutConfig>,
+          questions: THREE_CARD_QUESTIONS as Record<string, QuestionConfig[]>,
+          customHelper: THREE_CARD_CUSTOM_QUESTION_HELPER,
+        };
+      case SpreadType.FIVE_CARD:
+        return {
+          categories: FIVE_CARD_CATEGORIES as CategoryConfig[],
+          layouts: FIVE_CARD_LAYOUTS as Record<string, LayoutConfig>,
+          questions: FIVE_CARD_QUESTIONS as Record<string, QuestionConfig[]>,
+          customHelper: FIVE_CARD_CUSTOM_QUESTION_HELPER,
+        };
+      default:
+        return {
+          categories: [] as CategoryConfig[],
+          layouts: {} as Record<string, LayoutConfig>,
+          questions: {} as Record<string, QuestionConfig[]>,
+          customHelper: { en: '', fr: '' },
+        };
+    }
+  }, [spreadType]);
+
+  // Get questions for current selection (handle 5-card layout-specific questions)
+  const currentQuestions = useMemo(() => {
+    if (!selectedCategory) return [];
+
+    // For 5-card relationships_career, use layout-specific questions
+    if (spreadType === SpreadType.FIVE_CARD && selectedCategory === 'relationships_career' && selectedLayout) {
+      const layoutQuestions = FIVE_CARD_LAYOUT_QUESTIONS[selectedLayout as 'love_relationships' | 'career_purpose'];
+      if (layoutQuestions) return layoutQuestions;
+    }
+
+    return questions[selectedCategory as string] || [];
+  }, [spreadType, selectedCategory, selectedLayout, questions]);
+
+  // Handle category click - expand/collapse and select
+  const handleCategoryClick = (categoryId: string) => {
+    if (expandedCategory === categoryId) {
+      // Already expanded - collapse it
+      setExpandedCategory(null);
+    } else {
+      // Expand this category
+      setExpandedCategory(categoryId);
+      // If category has only one layout, auto-select it
+      const category = categories.find(c => c.id === categoryId);
+      if (category && category.layouts.length === 1) {
+        onCategorySelect(categoryId as CategoryId);
+        onLayoutSelect(category.layouts[0] as LayoutId);
+      }
+    }
+  };
+
+  // Handle layout selection
+  const handleLayoutSelect = (categoryId: string, layoutId: string) => {
+    onCategorySelect(categoryId as CategoryId);
+    onLayoutSelect(layoutId as LayoutId);
+  };
+
+  // Get selected layout config
+  const selectedLayoutConfig = selectedLayout ? layouts[selectedLayout as string] : null;
+
+  return (
+    <div className="space-y-6">
+      {/* Section 1: Category & Layout Selection (Accordion) */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-3">
+          {language === 'en' ? 'Choose Your Focus' : 'Choisissez Votre Thème'}
+        </label>
+
+        <div className="space-y-2">
+          {categories.map((category) => {
+            const Icon = ICON_MAP[category.iconName] || Sparkles;
+            const colors = COLOR_CLASSES[category.colorClass || 'cyan'];
+            const isExpanded = expandedCategory === category.id;
+            const isSelected = selectedCategory === category.id;
+            const categoryLayouts = category.layouts.map(id => layouts[id]).filter(Boolean);
+
+            return (
+              <div key={category.id} className="rounded-xl overflow-hidden border border-slate-700/50">
+                {/* Category Header */}
+                <button
+                  onClick={() => handleCategoryClick(category.id)}
+                  className={`w-full px-4 py-3 flex items-center justify-between transition-all ${
+                    isSelected
+                      ? `${colors.bg} ${colors.border}`
+                      : `bg-slate-800/30 ${colors.bgHover}`
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected ? colors.bg : 'bg-slate-700/50'
+                    }`}>
+                      <Icon className={`w-4 h-4 ${isSelected ? colors.text : 'text-slate-400'}`} />
+                    </div>
+                    <div className="text-left">
+                      <h3 className={`font-medium text-sm ${isSelected ? colors.text : 'text-slate-200'}`}>
+                        {language === 'en' ? category.labelEn : category.labelFr}
+                      </h3>
+                      {category.taglineEn && (
+                        <p className="text-xs text-slate-500">
+                          {language === 'en' ? category.taglineEn : category.taglineFr}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isSelected && <Check className={`w-4 h-4 ${colors.text}`} />}
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Expanded Layouts */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-3 pt-0 space-y-2">
+                        {categoryLayouts.map((layout) => {
+                          const isLayoutSelected = selectedLayout === layout.id;
+
+                          return (
+                            <button
+                              key={layout.id}
+                              onClick={() => handleLayoutSelect(category.id, layout.id)}
+                              className={`w-full p-3 rounded-lg text-left transition-all ${
+                                isLayoutSelected
+                                  ? `${colors.bg} ${colors.border} border`
+                                  : 'bg-slate-900/50 border border-slate-700/30 hover:border-slate-600'
+                              }`}
+                            >
+                              {/* Layout Name & Tagline */}
+                              <div className="flex items-center justify-between mb-2">
+                                <span className={`font-medium text-sm ${isLayoutSelected ? colors.text : 'text-slate-300'}`}>
+                                  {language === 'en' ? layout.labelEn : layout.labelFr}
+                                </span>
+                                {isLayoutSelected && <Check className={`w-3.5 h-3.5 ${colors.text}`} />}
+                              </div>
+                              <p className="text-xs text-slate-500 mb-3">
+                                {language === 'en' ? layout.taglineEn : layout.taglineFr}
+                              </p>
+
+                              {/* Card Positions */}
+                              <div className="space-y-1">
+                                {(language === 'en' ? layout.positions.en : layout.positions.fr).map((position, idx) => (
+                                  <div key={idx} className="flex items-start gap-2">
+                                    <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-medium ${
+                                      isLayoutSelected ? `${colors.bg} ${colors.text}` : 'bg-slate-800 text-slate-500'
+                                    }`}>
+                                      {idx + 1}
+                                    </span>
+                                    <span className={`text-xs leading-5 ${isLayoutSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                      {position}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Section 2: Question Input (Only show when layout selected) */}
+      <AnimatePresence>
+        {selectedLayout && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            {/* Selected Layout Summary */}
+            {selectedLayoutConfig && (
+              <div className="mb-4 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
+                <div className="text-xs text-slate-500 mb-1">
+                  {language === 'en' ? 'Selected Layout' : 'Disposition Choisie'}
+                </div>
+                <div className="text-sm text-slate-300 font-medium">
+                  {language === 'en' ? selectedLayoutConfig.labelEn : selectedLayoutConfig.labelFr}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {(language === 'en' ? selectedLayoutConfig.positions.en : selectedLayoutConfig.positions.fr).map((pos, idx) => (
+                    <span key={idx} className="inline-flex items-center gap-1 text-xs bg-slate-700/50 px-2 py-0.5 rounded-full text-slate-400">
+                      <span className="font-medium">{idx + 1}.</span> {pos}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Question Input - FIRST and PROMINENT */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                {language === 'en' ? 'Your Question' : 'Votre Question'}
+              </label>
+              <textarea
+                value={customQuestion}
+                onChange={(e) => onCustomQuestionChange(e.target.value)}
+                placeholder={language === 'en'
+                  ? 'What would you like guidance on?'
+                  : 'Sur quoi aimeriez-vous recevoir des conseils?'}
+                rows={3}
+                maxLength={500}
+                className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30 text-sm resize-none"
+              />
+              <div className="mt-1.5 flex items-start justify-between gap-4">
+                <p className="text-xs text-slate-500 flex-1">
+                  {language === 'en' ? customHelper.en : customHelper.fr}
+                </p>
+                <span className="text-xs text-slate-500">{customQuestion.length}/500</span>
+              </div>
+            </div>
+
+            {/* Suggested Questions - Backup */}
+            {currentQuestions.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="w-3.5 h-3.5 text-amber-500/70" />
+                  <span className="text-xs text-slate-500">
+                    {language === 'en' ? 'Need inspiration?' : "Besoin d'inspiration?"}
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {currentQuestions.map((q) => (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        const text = language === 'en' ? q.textEn : q.textFr;
+                        onCustomQuestionChange(text);
+                        onQuestionSelect(q.id, text);
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30 hover:border-slate-600 rounded-lg text-slate-400 hover:text-slate-300 transition-all"
+                    >
+                      {language === 'en' ? q.textEn : q.textFr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default SpreadIntroSelector;
