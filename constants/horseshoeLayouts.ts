@@ -151,3 +151,48 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
       fr: ['Expérience sur laquelle bâtir', 'Préparation actuelle', 'Forces ou ressources cachées', 'Obstacles à anticiper', 'Marché et facteurs externes', 'Clé pour réussir', 'Le potentiel de l\'entreprise'],
     },
   },
+  // Category 3: Money & Finances
+  financial_stability: {
+    id: 'financial_stability',
+    labelEn: 'Financial Stability',
+    labelFr: 'Stabilité Financière',
+    taglineEn: 'Seeking security with money? Understand the current foundation, what strengthens or weakens it, and how to build lasting stability.',
+    taglineFr: 'Vous cherchez la sécurité financière? Comprenez la fondation actuelle, ce qui la renforce ou l\'affaiblit, et comment bâtir une stabilité durable.',
+    positions: {
+      en: ['Financial patterns from the past', 'The current financial picture', 'Hidden factors affecting the flow', 'What threatens stability', 'Resources and support available', 'Actions to strengthen the foundation', 'Potential for security'],
+      fr: ['Schémas financiers du passé', 'La situation financière actuelle', 'Facteurs cachés affectant le flux', 'Ce qui menace la stabilité', 'Ressources et soutien disponibles', 'Actions pour renforcer les fondations', 'Potentiel de sécurité'],
+    },
+  },
+  abundance_blocks: {
+    id: 'abundance_blocks',
+    labelEn: 'Blocks to Abundance',
+    labelFr: 'Blocages à l\'Abondance',
+    taglineEn: 'Feeling stuck around money? Uncover deep-seated beliefs, fears, or patterns that may be limiting the flow of prosperity.',
+    taglineFr: 'Vous vous sentez bloqué avec l\'argent? Découvrez les croyances profondes, peurs ou schémas qui peuvent limiter le flux de prospérité.',
+    positions: {
+      en: ['Early messages received about money', 'The current relationship with abundance', 'Limiting beliefs operating beneath', 'How these blocks manifest', 'What abundance truly means here', 'How to begin shifting the energy', 'What becomes possible when released'],
+      fr: ['Messages reçus tôt sur l\'argent', 'La relation actuelle avec l\'abondance', 'Croyances limitantes en jeu', 'Comment ces blocages se manifestent', 'Ce que l\'abondance signifie vraiment ici', 'Comment commencer à changer l\'énergie', 'Ce qui devient possible une fois libéré'],
+    },
+  },
+  money_decisions: {
+    id: 'money_decisions',
+    labelEn: 'Money Decisions',
+    labelFr: 'Décisions Financières',
+    taglineEn: 'Facing a financial choice? Weigh the factors, understand the risks, and find clarity on the path forward.',
+    taglineFr: 'Face à un choix financier? Pesez les facteurs, comprenez les risques, et trouvez la clarté sur le chemin à suivre.',
+    positions: {
+      en: ['What led to this decision point', 'The current financial standing', 'What hasn\'t been fully considered', 'Risks to be aware of', 'External factors at play', 'Guidance for this choice', 'Likely outcome if proceeding'],
+      fr: ['Ce qui a mené à ce point de décision', 'La situation financière actuelle', 'Ce qui n\'a pas été pleinement considéré', 'Risques à connaître', 'Facteurs externes en jeu', 'Guidance pour ce choix', 'Issue probable si on avance'],
+    },
+  },
+  financial_recovery: {
+    id: 'financial_recovery',
+    labelEn: 'Debt & Financial Recovery',
+    labelFr: 'Dette & Rétablissement Financier',
+    taglineEn: 'Working through debt or financial hardship? This spread brings compassion and clarity to the path toward recovery.',
+    taglineFr: 'Vous traversez une dette ou des difficultés financières? Ce tirage apporte compassion et clarté sur le chemin vers le rétablissement.',
+    positions: {
+      en: ['How this situation arose', 'The current weight being carried', 'Emotions present in this situation', 'What\'s making recovery harder', 'Support and resources to draw on', 'The next step forward', 'Potential for healing and renewal'],
+      fr: ['Comment cette situation est apparue', 'Le poids actuel porté', 'Émotions présentes dans cette situation', 'Ce qui rend la récupération plus difficile', 'Soutien et ressources à solliciter', 'La prochaine étape', 'Potentiel de guérison et renouveau'],
+    },
+  },
