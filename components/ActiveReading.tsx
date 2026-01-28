@@ -21,6 +21,7 @@ import {
   ThreeCardIntroPhase,
 } from './reading';
 import FiveCardIntroPhase from './reading/phases/FiveCardIntroPhase';
+import HorseshoeIntroPhase from './reading/phases/HorseshoeIntroPhase';
 import {
   SingleCardCategory,
   SingleCardLayoutId,
@@ -33,6 +34,11 @@ import {
   FIVE_CARD_LAYOUTS,
   getFiveCardCategory,
 } from '../constants/fiveCardLayouts';
+import {
+  HorseshoeCategory,
+  HorseshoeLayoutId,
+  getHorseshoeCategory,
+} from '../constants/horseshoeLayouts';
 import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
@@ -177,6 +183,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [fiveCardCategory, setFiveCardCategory] = useState<FiveCardCategory | null>(null);
   const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
   const [fiveCardCustomQuestion, setFiveCardCustomQuestion] = useState('');
+
+  // Horseshoe intro state
+  const [horseshoeCategory, setHorseshoeCategory] = useState<HorseshoeCategory | null>(null);
+  const [horseshoeLayout, setHorseshoeLayout] = useState<HorseshoeLayoutId | null>(null);
+  const [horseshoeCustomQuestion, setHorseshoeCustomQuestion] = useState('');
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -337,6 +348,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
         return fiveCardLayout;
       }
+      if (spread.id === SpreadType.HORSESHOE && horseshoeLayout) {
+        return horseshoeLayout;
+      }
       return undefined;
     };
 
@@ -365,7 +379,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -441,6 +455,25 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   const handleFiveCardCustomQuestionChange = useCallback((text: string) => {
     setFiveCardCustomQuestion(text);
+    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
+  // Horseshoe handlers
+  const handleHorseshoeCategorySelect = useCallback((category: HorseshoeCategory) => {
+    setHorseshoeCategory(category);
+    // Auto-set layout to default for this category
+    const categoryConfig = getHorseshoeCategory(category);
+    if (categoryConfig) {
+      setHorseshoeLayout(categoryConfig.defaultLayout);
+    }
+  }, []);
+
+  const handleHorseshoeLayoutSelect = useCallback((layoutId: HorseshoeLayoutId) => {
+    setHorseshoeLayout(layoutId);
+  }, []);
+
+  const handleHorseshoeCustomQuestionChange = useCallback((text: string) => {
+    setHorseshoeCustomQuestion(text);
     handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   }, [handleQuestionChange]);
 
@@ -708,6 +741,30 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             onCategorySelect={handleFiveCardCategorySelect}
             onLayoutSelect={handleFiveCardLayoutSelect}
             onCustomQuestionChange={handleFiveCardCustomQuestionChange}
+            isAdvanced={isAdvanced}
+            selectedStyles={selectedStyles}
+            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+            onStyleToggle={toggleStyle}
+            validationMessage={validationMessage}
+            totalCost={displayCost}
+            credits={user?.credits || 0}
+            onStartShuffle={startShuffleAnimation}
+          />
+        );
+      }
+
+      // Use horseshoe intro for horseshoe spread
+      if (spread.id === SpreadType.HORSESHOE) {
+        return (
+          <HorseshoeIntroPhase
+            spread={spread}
+            language={language}
+            selectedCategory={horseshoeCategory}
+            selectedLayout={horseshoeLayout}
+            customQuestion={horseshoeCustomQuestion}
+            onCategorySelect={handleHorseshoeCategorySelect}
+            onLayoutSelect={handleHorseshoeLayoutSelect}
+            onCustomQuestionChange={handleHorseshoeCustomQuestionChange}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
