@@ -331,3 +331,172 @@ Follow the existing 5-card accordion pattern:
 - **Guidance-oriented:** Final positions focus on potential, not fixed outcomes
 - **Non-divinatory:** Tarot offers insight and understanding, not fortune-telling
 - **Consistent UX:** Same accordion pattern as 5-card spreads
+
+---
+
+## Preformed Questions (63 total)
+
+Layout-specific introspective questions. Combined layouts have 4 questions; others have 3.
+
+### Category 1: Love & Relationships
+
+**New Connection** (4 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What do I need to understand about what's drawing me to this person? | Que dois-je comprendre sur ce qui m'attire vers cette personne? |
+| 2 | What am I hoping to find in this connection? | Qu'est-ce que j'espère trouver dans cette connexion? |
+| 3 | What qualities am I truly seeking in a partner? | Quelles qualités est-ce que je recherche vraiment chez un partenaire? |
+| 4 | How can I remain open without losing myself in this? | Comment puis-je rester ouvert(e) sans me perdre dans cette relation? |
+
+**Relationship Check-In** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | How can I show up more fully in this relationship? | Comment puis-je m'investir plus pleinement dans cette relation? |
+| 2 | What am I longing for that I haven't yet expressed? | Qu'est-ce que je désire mais que je n'ai pas encore exprimé? |
+| 3 | What truth about this relationship is asking for my attention? | Quelle vérité sur cette relation demande mon attention? |
+
+**Relationship Troubles** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What are the obstacles in this relationship? | Quels sont les obstacles dans cette relation? |
+| 2 | What do I need to understand about this situation? | Que dois-je comprendre de cette situation? |
+| 3 | What do I need to see clearly about this relationship? | Que dois-je voir clairement dans cette relation? |
+
+**Breakup & Moving On** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What does my heart need most right now? | De quoi mon cœur a-t-il le plus besoin en ce moment? |
+| 2 | What am I trying to hold on to? | À quoi est-ce que j'essaie de m'accrocher? |
+| 3 | What am I carrying that was never mine to hold? | Qu'est-ce que je porte qui ne m'a jamais appartenu? |
+
+### Category 2: Career & Work
+
+**Career Crossroads** (4 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is my work trying to teach me right now? | Qu'est-ce que mon travail essaie de m'apprendre en ce moment? |
+| 2 | What part of me feels unfulfilled in my current role? | Quelle partie de moi se sent insatisfaite dans mon rôle actuel? |
+| 3 | What am I afraid to admit about my career? | Qu'est-ce que j'ai peur d'admettre sur ma carrière? |
+| 4 | What would it mean to feel truly aligned in my work? | Que signifierait être vraiment aligné(e) dans mon travail? |
+
+**Career Direction & Purpose** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is my soul calling me toward professionally? | Vers quoi mon âme m'appelle-t-elle professionnellement? |
+| 2 | What gifts do I have that are asking to be expressed? | Quels dons ai-je qui demandent à être exprimés? |
+| 3 | What beliefs about success are no longer serving me? | Quelles croyances sur le succès ne me servent plus? |
+
+**Workplace Conflicts** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is this conflict revealing about my boundaries? | Que révèle ce conflit sur mes limites? |
+| 2 | What part of me is being triggered in this situation? | Quelle partie de moi est déclenchée dans cette situation? |
+| 3 | How can I find peace without abandoning my needs? | Comment puis-je trouver la paix sans abandonner mes besoins? |
+
+**Starting a Business** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is truly motivating me to take this leap? | Qu'est-ce qui me motive vraiment à faire ce saut? |
+| 2 | What fears do I need to face before moving forward? | Quelles peurs dois-je affronter avant d'avancer? |
+| 3 | What does my vision need from me right now? | De quoi ma vision a-t-elle besoin de moi en ce moment? |
+
+### Category 3: Money & Finances
+
+**Financial Stability** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What does true security mean to me beyond money? | Que signifie la vraie sécurité pour moi au-delà de l'argent? |
+| 2 | What patterns around money did I inherit that need examining? | Quels schémas autour de l'argent ai-je hérités qui méritent examen? |
+| 3 | What would help me trust myself more with finances? | Qu'est-ce qui m'aiderait à me faire plus confiance avec les finances? |
+
+**Blocks to Abundance** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What beliefs about money am I ready to release? | Quelles croyances sur l'argent suis-je prêt(e) à libérer? |
+| 2 | Where in my life am I blocking my own flow? | Où dans ma vie est-ce que je bloque mon propre flux? |
+| 3 | What would I do differently if I truly believed I was worthy of abundance? | Que ferais-je différemment si je croyais vraiment mériter l'abondance? |
+
+**Money Decisions** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is this financial decision really about for me? | De quoi s'agit-il vraiment pour moi dans cette décision financière? |
+| 2 | What am I afraid of losing if I choose wrong? | De quoi ai-je peur si je fais le mauvais choix? |
+| 3 | What does my intuition already know about this choice? | Que sait déjà mon intuition sur ce choix? |
+
+**Debt & Financial Recovery** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What emotions around this situation need my compassion? | Quelles émotions autour de cette situation ont besoin de ma compassion? |
+| 2 | What is this experience teaching me about my relationship with money? | Que m'apprend cette expérience sur ma relation avec l'argent? |
+| 3 | What small step forward can I honour myself for taking? | Quel petit pas en avant puis-je m'honorer d'avoir fait? |
+
+### Category 4: Life Path & Major Decisions
+
+**Am I On The Right Path?** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is my life trying to show me right now? | Qu'est-ce que ma vie essaie de me montrer en ce moment? |
+| 2 | Where am I seeking external validation instead of trusting myself? | Où est-ce que je cherche une validation extérieure au lieu de me faire confiance? |
+| 3 | What would alignment feel like in my body and heart? | À quoi ressemblerait l'alignement dans mon corps et mon cœur? |
+
+**Major Life Transitions** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is ending that I need to honour before moving on? | Qu'est-ce qui se termine et que je dois honorer avant de passer à autre chose? |
+| 2 | What is being born in me through this change? | Qu'est-ce qui naît en moi à travers ce changement? |
+| 3 | How can I be gentle with myself during this passage? | Comment puis-je être doux/douce avec moi-même pendant ce passage? |
+
+**Major Decisions** (4 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is this decision really asking of me? | Que me demande vraiment cette décision? |
+| 2 | What am I hoping will change if I choose differently? | Qu'est-ce que j'espère qui changera si je choisis autrement? |
+| 3 | What do I need to understand before I can move forward? | Que dois-je comprendre avant de pouvoir avancer? |
+| 4 | What would I choose if fear wasn't a factor? | Que choisirais-je si la peur n'était pas un facteur? |
+
+**What's Ahead** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What energies are gathering around me at this time? | Quelles énergies se rassemblent autour de moi en ce moment? |
+| 2 | What do I need to pay attention to in the coming period? | À quoi dois-je prêter attention dans la période à venir? |
+| 3 | How can I prepare myself for what's unfolding? | Comment puis-je me préparer à ce qui se déploie? |
+
+### Category 5: Family & Personal Relationships
+
+**Family Dynamics** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What role have I been playing in my family that no longer fits? | Quel rôle ai-je joué dans ma famille qui ne me convient plus? |
+| 2 | What unspoken expectations am I carrying from my family? | Quelles attentes non-dites est-ce que je porte de ma famille? |
+| 3 | How can I honour my roots while still becoming my own person? | Comment puis-je honorer mes racines tout en devenant ma propre personne? |
+
+**Children & Parenting** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is my child teaching me about myself? | Que m'apprend mon enfant sur moi-même? |
+| 2 | Where am I parenting from fear rather than love? | Où est-ce que je parente par peur plutôt que par amour? |
+| 3 | How can I be more present to what my child truly needs? | Comment puis-je être plus présent(e) à ce dont mon enfant a vraiment besoin? |
+
+**Friendships** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What am I seeking from this friendship that I could also give myself? | Qu'est-ce que je cherche dans cette amitié que je pourrais aussi me donner? |
+| 2 | How have I changed, and does this friendship still reflect who I am? | Comment ai-je changé, et cette amitié reflète-t-elle encore qui je suis? |
+| 3 | What truth about this connection am I avoiding? | Quelle vérité sur cette connexion est-ce que j'évite? |
+
+**Difficult Relatives** (3 questions)
+| # | EN | FR |
+|---|----|----|
+| 1 | What is this person triggering in me that needs healing? | Qu'est-ce que cette personne déclenche en moi qui a besoin de guérison? |
+| 2 | What boundaries would protect my peace without closing my heart? | Quelles limites protégeraient ma paix sans fermer mon cœur? |
+| 3 | What would acceptance look like in this situation? | À quoi ressemblerait l'acceptation dans cette situation? |
+
+---
+
+## Question Design Principles
+
+- **Introspective focus:** Questions turn attention inward, not toward predicting external events
+- **Self-understanding:** Each question invites deeper self-knowledge
+- **Non-judgmental:** Phrasing avoids blame or shame
+- **Open-ended:** Questions cannot be answered with yes/no
+- **Empowering:** Questions assume the querent has inner wisdom to access
