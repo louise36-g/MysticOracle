@@ -123,6 +123,16 @@ export function useReadingGeneration(): UseReadingGenerationReturn {
       const spreadParams = toAPISpreadParams(spread);
       const styleStrings = toStyleStrings(isAdvanced, selectedStyles);
 
+      // Debug logging
+      console.log('[useReadingGeneration] Sending to API:', {
+        spreadId: spreadParams.id,
+        isAdvanced,
+        selectedStyles: selectedStyles.map(s => s.toString()),
+        styleStrings,
+        layoutId,
+        category,
+      });
+
       const result = await generateTarotReading(token, {
         spread: spreadParams,
         style: styleStrings,

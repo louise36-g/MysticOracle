@@ -342,6 +342,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
           styleInstructions = `In addition to the traditional interpretation, incorporate these perspectives throughout your reading:\n${descriptions.join('\n')}`;
         }
       }
+      console.log('[Tarot Generate] Styles received:', style);
       console.log('[Tarot Generate] Style instructions:', styleInstructions);
 
       // Layout-specific position meanings for THREE_CARD
@@ -376,6 +377,12 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       // Use layout-specific positions if layoutId is provided for THREE_CARD
       let positionMeanings =
         language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
+      console.log('[Tarot Generate] Layout check:', {
+        spreadType,
+        layoutId,
+        hasLayoutId: !!layoutId,
+        layoutExists: layoutId ? !!layoutPositions[layoutId] : false,
+      });
       if (spreadType === 'three_card' && layoutId && layoutPositions[layoutId]) {
         positionMeanings = layoutPositions[layoutId][language];
         console.log(

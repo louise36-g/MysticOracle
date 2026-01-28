@@ -231,7 +231,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
-  const [selectedStyles, setSelectedStyles] = useState<InterpretationStyle[]>([InterpretationStyle.CLASSIC]);
+  const [selectedStyles, setSelectedStyles] = useState<InterpretationStyle[]>([]);
 
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
