@@ -22,6 +22,7 @@ import {
 } from './reading';
 import FiveCardIntroPhase from './reading/phases/FiveCardIntroPhase';
 import HorseshoeIntroPhase from './reading/phases/HorseshoeIntroPhase';
+import CelticCrossIntroPhase from './reading/phases/CelticCrossIntroPhase';
 import {
   SingleCardCategory,
   SingleCardLayoutId,
@@ -39,6 +40,10 @@ import {
   HorseshoeLayoutId,
   getHorseshoeCategory,
 } from '../constants/horseshoeLayouts';
+import {
+  CelticCrossCategory,
+  CelticCrossLayoutId,
+} from '../constants/celticCrossLayouts';
 import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
@@ -188,6 +193,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [horseshoeCategory, setHorseshoeCategory] = useState<HorseshoeCategory | null>(null);
   const [horseshoeLayout, setHorseshoeLayout] = useState<HorseshoeLayoutId | null>(null);
   const [horseshoeCustomQuestion, setHorseshoeCustomQuestion] = useState('');
+
+  // Celtic Cross intro state
+  const [celticCrossCategory, setCelticCrossCategory] = useState<CelticCrossCategory | null>(null);
+  const [celticCrossLayout, setCelticCrossLayout] = useState<CelticCrossLayoutId | null>(null);
+  const [celticCrossCustomQuestion, setCelticCrossCustomQuestion] = useState('');
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -351,6 +361,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       if (spread.id === SpreadType.HORSESHOE && horseshoeLayout) {
         return horseshoeLayout;
       }
+      if (spread.id === SpreadType.CELTIC_CROSS && celticCrossLayout) {
+        return celticCrossLayout;
+      }
       return undefined;
     };
 
@@ -477,6 +490,22 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   }, [handleQuestionChange]);
 
+  // Celtic Cross handlers
+  const handleCelticCrossCategorySelect = useCallback((category: CelticCrossCategory) => {
+    setCelticCrossCategory(category);
+    // Auto-set layout to celtic_cross (only layout for this spread)
+    setCelticCrossLayout('celtic_cross');
+  }, []);
+
+  const handleCelticCrossLayoutSelect = useCallback((layoutId: CelticCrossLayoutId) => {
+    setCelticCrossLayout(layoutId);
+  }, []);
+
+  const handleCelticCrossCustomQuestionChange = useCallback((text: string) => {
+    setCelticCrossCustomQuestion(text);
+    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [handleQuestionChange]);
+
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
     // For single card, advanced options cost +1 total (not per style)
@@ -550,6 +579,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       }
       if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
         return fiveCardLayout;
+      }
+      if (spread.id === SpreadType.CELTIC_CROSS && celticCrossLayout) {
+        return celticCrossLayout;
       }
       return undefined;
     };
@@ -765,6 +797,30 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
             onCategorySelect={handleHorseshoeCategorySelect}
             onLayoutSelect={handleHorseshoeLayoutSelect}
             onCustomQuestionChange={handleHorseshoeCustomQuestionChange}
+            isAdvanced={isAdvanced}
+            selectedStyles={selectedStyles}
+            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
+            onStyleToggle={toggleStyle}
+            validationMessage={validationMessage}
+            totalCost={displayCost}
+            credits={user?.credits || 0}
+            onStartShuffle={startShuffleAnimation}
+          />
+        );
+      }
+
+      // Use celtic cross intro for celtic cross spread
+      if (spread.id === SpreadType.CELTIC_CROSS) {
+        return (
+          <CelticCrossIntroPhase
+            spread={spread}
+            language={language}
+            selectedCategory={celticCrossCategory}
+            selectedLayout={celticCrossLayout}
+            customQuestion={celticCrossCustomQuestion}
+            onCategorySelect={handleCelticCrossCategorySelect}
+            onLayoutSelect={handleCelticCrossLayoutSelect}
+            onCustomQuestionChange={handleCelticCrossCustomQuestionChange}
             isAdvanced={isAdvanced}
             selectedStyles={selectedStyles}
             onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
