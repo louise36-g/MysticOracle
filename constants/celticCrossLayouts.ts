@@ -29,6 +29,8 @@ export interface CelticCrossCategoryConfig {
   taglineFr: string;
   iconName: string;
   colorClass: string;
+  layouts: CelticCrossLayoutId[];
+  defaultLayout: CelticCrossLayoutId;
 }
 
 export interface CelticCrossQuestion {
@@ -87,6 +89,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     taglineFr: 'Compréhension profonde des affaires du cœur',
     iconName: 'Heart',
     colorClass: 'rose',
+    layouts: ['celtic_cross'],
+    defaultLayout: 'celtic_cross',
   },
   {
     id: 'career',
@@ -96,6 +100,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     taglineFr: 'Clarté sur votre parcours professionnel',
     iconName: 'Briefcase',
     colorClass: 'amber',
+    layouts: ['celtic_cross'],
+    defaultLayout: 'celtic_cross',
   },
   {
     id: 'money',
@@ -105,6 +111,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     taglineFr: 'Comprendre votre relation avec la prospérité',
     iconName: 'Coins',
     colorClass: 'emerald',
+    layouts: ['celtic_cross'],
+    defaultLayout: 'celtic_cross',
   },
   {
     id: 'life_path',
@@ -114,6 +122,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     taglineFr: 'Naviguer les carrefours majeurs et les transitions',
     iconName: 'Compass',
     colorClass: 'indigo',
+    layouts: ['celtic_cross'],
+    defaultLayout: 'celtic_cross',
   },
   {
     id: 'family',
@@ -123,6 +133,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     taglineFr: 'Aperçu des liens et de l\'appartenance',
     iconName: 'Users',
     colorClass: 'teal',
+    layouts: ['celtic_cross'],
+    defaultLayout: 'celtic_cross',
   },
 ];
 
