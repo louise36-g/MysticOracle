@@ -7,6 +7,8 @@ import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
+import { CELTIC_CROSS_LAYOUT } from '../../../constants/celticCrossLayouts';
+import CelticCrossDisplay from '../CelticCrossDisplay';
 
 interface DrawnCard {
   card: TarotCard;
@@ -76,47 +78,57 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
         </motion.p>
 
         {/* Cards container - responsive sizing */}
-        <div className={`flex gap-2 md:gap-3 flex-wrap justify-center mb-4 md:mb-6 max-w-6xl ${isLargeSpread ? 'max-w-4xl' : ''}`}>
-          {drawnCards.map((item, i) => (
-            <motion.div
-              key={`reveal-${i}`}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.6 + i * 0.1, type: "spring", stiffness: 200 }}
-              className="flex flex-col items-center"
-            >
-              <div
-                className="rounded-lg p-0.5"
-                style={{ boxShadow: `0 0 15px ${theme.glow}` }}
+        {spread.id === SpreadType.CELTIC_CROSS ? (
+          <div className="mb-4 md:mb-6">
+            <CelticCrossDisplay
+              drawnCards={drawnCards}
+              language={language}
+              theme={{ glow: theme.glow, textAccent: theme.textAccent }}
+            />
+          </div>
+        ) : (
+          <div className={`flex gap-2 md:gap-3 flex-wrap justify-center mb-4 md:mb-6 max-w-6xl ${isLargeSpread ? 'max-w-4xl' : ''}`}>
+            {drawnCards.map((item, i) => (
+              <motion.div
+                key={`reveal-${i}`}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.6 + i * 0.1, type: "spring", stiffness: 200 }}
+                className="flex flex-col items-center"
               >
-                <Card
-                  card={item.card}
-                  isRevealed={true}
-                  isReversed={item.isReversed}
-                  className={
-                    isLargeSpread
-                      ? "w-[70px] h-[112px] md:w-[90px] md:h-[144px]"
-                      : isMediumSpread
-                        ? "w-[80px] h-[128px] md:w-[110px] md:h-[176px]"
-                        : "w-[90px] h-[144px] md:w-[130px] md:h-[208px]"
-                  }
-                />
-              </div>
-              <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
-                {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
-                  ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
-                  : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
-                    ? FIVE_CARD_LAYOUTS[fiveCardLayout].positions[language][i]
-                    : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
-              </p>
-              {item.isReversed && (
-                <p className="text-center text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">
-                  {language === 'en' ? 'Reversed' : 'Renversée'}
+                <div
+                  className="rounded-lg p-0.5"
+                  style={{ boxShadow: `0 0 15px ${theme.glow}` }}
+                >
+                  <Card
+                    card={item.card}
+                    isRevealed={true}
+                    isReversed={item.isReversed}
+                    className={
+                      isLargeSpread
+                        ? "w-[70px] h-[112px] md:w-[90px] md:h-[144px]"
+                        : isMediumSpread
+                          ? "w-[80px] h-[128px] md:w-[110px] md:h-[176px]"
+                          : "w-[90px] h-[144px] md:w-[130px] md:h-[208px]"
+                    }
+                  />
+                </div>
+                <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
+                  {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
+                    ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
+                    : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
+                      ? FIVE_CARD_LAYOUTS[fiveCardLayout].positions[language][i]
+                      : language === 'en' ? spread.positionMeaningsEn[i] : spread.positionMeaningsFr[i]}
                 </p>
-              )}
-            </motion.div>
-          ))}
-        </div>
+                {item.isReversed && (
+                  <p className="text-center text-[8px] md:text-[10px] text-white/50 uppercase tracking-wider">
+                    {language === 'en' ? 'Reversed' : 'Renversée'}
+                  </p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Reveal button - always visible */}
         <motion.div
