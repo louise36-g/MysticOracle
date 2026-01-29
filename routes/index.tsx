@@ -220,20 +220,20 @@ export const router = createBrowserRouter([
             element: lazyLoad(() => import('../components/UserProfile')),
           },
 
-          // Reading - spread selector
+          // Reading - category selector
           {
             path: ROUTES.READING,
-            element: lazyLoad(() => import('../components/SpreadSelector')),
+            element: lazyLoad(() => import('../components/CategorySelector')),
           },
-          // Reading with specific spread type (e.g., /reading/single, /reading/three-card)
+          // Reading with category and depth
           {
-            path: ROUTES.READING_SPREAD,
+            path: ROUTES.READING_CATEGORY_DEPTH,
             element: <ReadingLayout />,
           },
-          // Reading with specific phase (e.g., /reading/single/drawing)
+          // Birth cards special route
           {
-            path: ROUTES.READING_PHASE,
-            element: <ReadingLayout />,
+            path: ROUTES.READING_BIRTH_CARDS,
+            element: lazyLoad(() => import('../components/reading/BirthCardEntry')),
           },
           // View saved reading
           {
