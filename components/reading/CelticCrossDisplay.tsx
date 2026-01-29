@@ -86,12 +86,12 @@ const CelticCrossDisplay: React.FC<CelticCrossDisplayProps> = ({
       {/* The Cross (Cards 1-6) */}
       <div className="relative">
         {/* Cross grid using CSS Grid for precise positioning */}
+        {/* Large horizontal gap to separate cards 4 and 6 from the center crossing */}
         <div
-          className="grid gap-1"
+          className="grid gap-y-2 gap-x-8 md:gap-x-12"
           style={{
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'auto auto auto',
             gridTemplateRows: 'repeat(3, auto)',
-            width: 'fit-content',
           }}
         >
           {/* Row 1: Empty - Card 5 (Above) - Empty */}
