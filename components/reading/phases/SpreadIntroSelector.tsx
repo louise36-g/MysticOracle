@@ -59,6 +59,15 @@ import {
   HorseshoeLayoutId,
 } from '../../../constants/horseshoeLayouts';
 
+import {
+  CELTIC_CROSS_CATEGORIES,
+  CELTIC_CROSS_LAYOUTS,
+  CELTIC_CROSS_QUESTIONS,
+  CELTIC_CROSS_CUSTOM_QUESTION_HELPER,
+  CelticCrossCategory,
+  CelticCrossLayoutId,
+} from '../../../constants/celticCrossLayouts';
+
 // Icon mapping
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Sparkles,
@@ -89,8 +98,8 @@ const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; 
 };
 
 // Generic types for the selector
-type CategoryId = SingleCardCategory | ThreeCardCategory | FiveCardCategory | HorseshoeCategory;
-type LayoutId = SingleCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | HorseshoeLayoutId;
+type CategoryId = SingleCardCategory | ThreeCardCategory | FiveCardCategory | HorseshoeCategory | CelticCrossCategory;
+type LayoutId = SingleCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | HorseshoeLayoutId | CelticCrossLayoutId;
 
 interface CategoryConfig {
   id: string;
@@ -187,6 +196,13 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
           layouts: HORSESHOE_LAYOUTS as Record<string, LayoutConfig>,
           questions: HORSESHOE_LAYOUT_QUESTIONS as Record<string, QuestionConfig[]>,
           customHelper: HORSESHOE_CUSTOM_QUESTION_HELPER,
+        };
+      case SpreadType.CELTIC_CROSS:
+        return {
+          categories: CELTIC_CROSS_CATEGORIES as CategoryConfig[],
+          layouts: CELTIC_CROSS_LAYOUTS as Record<string, LayoutConfig>,
+          questions: CELTIC_CROSS_QUESTIONS as Record<string, QuestionConfig[]>,
+          customHelper: CELTIC_CROSS_CUSTOM_QUESTION_HELPER,
         };
       default:
         return {
