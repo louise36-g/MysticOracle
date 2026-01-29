@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { ROUTES, buildRoute } from '../routes/routes';
-import { SpreadConfig, SpreadType, InterpretationStyle, TarotCard } from '../types';
+import { ROUTES } from '../routes/routes';
+import {
+  SpreadConfig,
+  SpreadType,
+  InterpretationStyle,
+  TarotCard,
+  ReadingCategory,
+  ReadingDepth,
+  DEPTH_TO_SPREAD,
+} from '../types';
 import { FULL_DECK, SPREADS } from '../constants';
+import { getCategory } from '../constants/categoryConfig';
 import {
   createReading,
   updateReadingReflection,
@@ -13,38 +22,16 @@ import { shuffleDeck } from '../utils/shuffle';
 import { useReadingGeneration, useOracleChat, useQuestionInput } from '../hooks';
 import {
   ReadingShufflePhase,
-  QuestionIntroPhase,
   DrawingPhase,
   RevealingPhase,
   InterpretationPhase,
-  SingleCardIntroPhase,
-  ThreeCardIntroPhase,
 } from './reading';
-import FiveCardIntroPhase from './reading/phases/FiveCardIntroPhase';
-import HorseshoeIntroPhase from './reading/phases/HorseshoeIntroPhase';
-import CelticCrossIntroPhase from './reading/phases/CelticCrossIntroPhase';
-import {
-  SingleCardCategory,
-  SingleCardLayoutId,
-  getSingleCardCategory,
-} from '../constants/singleCardLayouts';
-import { ThreeCardCategory, ThreeCardLayoutId, getThreeCardCategory } from '../constants/threeCardLayouts';
-import {
-  FiveCardCategory,
-  FiveCardLayoutId,
-  FIVE_CARD_LAYOUTS,
-  getFiveCardCategory,
-} from '../constants/fiveCardLayouts';
-import {
-  HorseshoeCategory,
-  HorseshoeLayoutId,
-  getHorseshoeCategory,
-} from '../constants/horseshoeLayouts';
-import {
-  CelticCrossCategory,
-  CelticCrossLayoutId,
-} from '../constants/celticCrossLayouts';
-import ReadingStepper, { ReadingPhase, SLUG_TO_PHASE } from './reading/ReadingStepper';
+import CategoryIntroPhase from './reading/phases/CategoryIntroPhase';
+import { ThreeCardLayoutId } from '../constants/threeCardLayouts';
+import { FiveCardLayoutId } from '../constants/fiveCardLayouts';
+import { HorseshoeLayoutId } from '../constants/horseshoeLayouts';
+import { CelticCrossLayoutId } from '../constants/celticCrossLayouts';
+import ReadingStepper, { ReadingPhase } from './reading/ReadingStepper';
 
 interface ActiveReadingProps {
   spread?: SpreadConfig;
@@ -80,43 +67,48 @@ const LOADING_MESSAGES = {
   ]
 };
 
-// Map URL slugs to SpreadType enum
-const SLUG_TO_SPREAD_TYPE: Record<string, SpreadType> = {
-  'single': SpreadType.SINGLE,
-  'three-card': SpreadType.THREE_CARD,
-  'five-card': SpreadType.FIVE_CARD,
-  'love': SpreadType.LOVE,
-  'career': SpreadType.CAREER,
-  'horseshoe': SpreadType.HORSESHOE,
-  'celtic-cross': SpreadType.CELTIC_CROSS,
-};
+// Valid reading categories for URL validation
+const VALID_CATEGORIES: ReadingCategory[] = ['love', 'career', 'money', 'life_path', 'family'];
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFinish }) => {
-  const { spreadType: spreadSlug, phase: phaseSlug } = useParams<{ spreadType: string; phase?: string }>();
+  // Category-first URL params: /reading/:category/:depth
+  const { category: categoryParam, depth: depthParam } = useParams<{
+    category: string;
+    depth: string;
+  }>();
+
+  // Parse and validate category and depth from URL
+  const category = categoryParam as ReadingCategory;
+  const depth = parseInt(depthParam || '1', 10) as ReadingDepth;
+  const categoryConfig = getCategory(category);
   const navigate = useNavigate();
-  const location = useLocation();
   const { language, user, canAfford, addToHistory, refreshUser, t } = useApp();
   const { getToken } = useAuth();
   const { generateReading, isGenerating, error: generationError } = useReadingGeneration();
 
-  // Get spread from props or URL params
+  // Get spread from props or from depth (category-first URL)
   const spread = useMemo(() => {
     if (propSpread) return propSpread;
-    if (spreadSlug) {
-      const spreadType = SLUG_TO_SPREAD_TYPE[spreadSlug];
-      if (spreadType && SPREADS[spreadType]) {
+    // Derive spread type from depth
+    if (depth && DEPTH_TO_SPREAD[depth]) {
+      const spreadType = DEPTH_TO_SPREAD[depth];
+      if (SPREADS[spreadType]) {
         return SPREADS[spreadType];
       }
     }
     return null;
-  }, [propSpread, spreadSlug]);
+  }, [propSpread, depth]);
 
-  // Redirect to spread selector if no valid spread
+  // Validate category and depth, redirect if invalid
   useEffect(() => {
-    if (!spread) {
+    // Check for valid category (not birth_cards - that's handled by BirthCardEntry)
+    const isValidCategory = VALID_CATEGORIES.includes(category);
+    const isValidDepth = [1, 3, 5, 7, 10].includes(depth);
+
+    if (!spread || !isValidCategory || !isValidDepth) {
       navigate(ROUTES.READING, { replace: true });
     }
-  }, [spread, navigate]);
+  }, [spread, category, depth, navigate]);
 
   // Handle finish - navigate to spread selector
   const handleFinish = useCallback(() => {
@@ -155,13 +147,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     validateBeforeStart,
   } = useQuestionInput({ language, refreshUser, t });
 
-  // Phase state - initialize from URL if available
-  const [phase, setPhase] = useState<ReadingPhase>(() => {
-    if (phaseSlug && SLUG_TO_PHASE[phaseSlug]) {
-      return SLUG_TO_PHASE[phaseSlug];
-    }
-    return 'intro';
-  });
+  // Phase state - always starts at intro for category-first flow
+  const [phase, setPhase] = useState<ReadingPhase>('intro');
 
   // Card state
   const [deck, setDeck] = useState<TarotCard[]>([]);
@@ -171,33 +158,16 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [readingText, setReadingText] = useState<string>('');
   const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
 
-  // Single card oracle state
-  const [singleCardCategory, setSingleCardCategory] = useState<SingleCardCategory | null>(null);
-  const [singleCardLayout, setSingleCardLayout] = useState<SingleCardLayoutId | null>(null);
-  const [singleCardCustomQuestion, setSingleCardCustomQuestion] = useState('');
-
   // Guard against multiple save attempts
   const [isSavingReading, setIsSavingReading] = useState(false);
 
-  // Three card intro state
-  const [threeCardCategory, setThreeCardCategory] = useState<ThreeCardCategory | null>(null);
+  // Layout state (used for 3-card and 5-card spreads)
   const [threeCardLayout, setThreeCardLayout] = useState<ThreeCardLayoutId | null>(null);
-  const [threeCardCustomQuestion, setThreeCardCustomQuestion] = useState('');
-
-  // Five card intro state
-  const [fiveCardCategory, setFiveCardCategory] = useState<FiveCardCategory | null>(null);
   const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
-  const [fiveCardCustomQuestion, setFiveCardCustomQuestion] = useState('');
 
-  // Horseshoe intro state
-  const [horseshoeCategory, setHorseshoeCategory] = useState<HorseshoeCategory | null>(null);
-  const [horseshoeLayout, setHorseshoeLayout] = useState<HorseshoeLayoutId | null>(null);
-  const [horseshoeCustomQuestion, setHorseshoeCustomQuestion] = useState('');
-
-  // Celtic Cross intro state
-  const [celticCrossCategory, setCelticCrossCategory] = useState<CelticCrossCategory | null>(null);
-  const [celticCrossLayout, setCelticCrossLayout] = useState<CelticCrossLayoutId | null>(null);
-  const [celticCrossCustomQuestion, setCelticCrossCustomQuestion] = useState('');
+  // Horseshoe and Celtic Cross layouts (not user-selectable but tracked for consistency)
+  const [horseshoeLayout] = useState<HorseshoeLayoutId | null>(null);
+  const [celticCrossLayout] = useState<CelticCrossLayoutId | null>(null);
 
   // Handle stepper navigation - go back to a previous phase
   const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
@@ -243,26 +213,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     return true;
   }, [phase]);
 
-  // Map phases to URL slugs for navigation
-  const PHASE_TO_SLUG: Record<ReadingPhase, string> = useMemo(() => ({
-    'intro': 'question',
-    'animating_shuffle': 'shuffle',
-    'drawing': 'draw',
-    'revealing': 'reveal',
-    'reading': 'reading',
-  }), []);
-
-  // Update phase and URL together (for forward navigation)
-  // Uses push (not replace) so browser back/forward works
+  // Update phase state (URL stays at /reading/:category/:depth)
+  // Navigation within the reading flow doesn't change URL to keep it simple
   const setPhaseWithUrl = useCallback((newPhase: ReadingPhase) => {
     setPhase(newPhase);
-    // Update URL to match phase - push to history for back button support
-    const slug = spreadSlug || '';
-    if (slug) {
-      const phaseUrlSlug = PHASE_TO_SLUG[newPhase];
-      navigate(buildRoute(ROUTES.READING_PHASE, { spreadType: slug, phase: phaseUrlSlug }));
-    }
-  }, [spreadSlug, navigate, PHASE_TO_SLUG]);
+  }, []);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -302,40 +257,19 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setDeck(shuffleDeck(FULL_DECK));
   }, []);
 
-  // Sync phase with URL changes (for browser back/forward)
+  // Set default layouts based on category config on mount
   useEffect(() => {
-    // Determine target phase from URL (default to 'intro' if no phase in URL)
-    const urlPhase: ReadingPhase = (phaseSlug && SLUG_TO_PHASE[phaseSlug])
-      ? SLUG_TO_PHASE[phaseSlug]
-      : 'intro';
-
-    if (urlPhase !== phase) {
-      // Reset state based on what phase we're navigating to
-      const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
-      const currentIndex = phaseOrder.indexOf(phase);
-      const targetIndex = phaseOrder.indexOf(urlPhase);
-
-      // Only allow going backwards via URL (prevents forward jumps via URL manipulation)
-      if (targetIndex < currentIndex) {
-        if (targetIndex <= 0) {
-          // Going back to intro - reset everything except question
-          setDrawnCards([]);
-          setReadingText('');
-          setReadingLanguage(null);
-        } else if (targetIndex <= 1) {
-          // Going back to shuffle - reset cards and reading
-          setDrawnCards([]);
-          setReadingText('');
-          setReadingLanguage(null);
-        } else if (targetIndex <= 2) {
-          // Going back to drawing - reset reading, keep partial cards
-          setReadingText('');
-          setReadingLanguage(null);
-        }
-        setPhase(urlPhase);
+    if (categoryConfig) {
+      // Set default 3-card layout if not already set
+      if (!threeCardLayout && depth === 3 && categoryConfig.defaultLayouts?.[3]) {
+        setThreeCardLayout(categoryConfig.defaultLayouts[3] as ThreeCardLayoutId);
+      }
+      // Set default 5-card layout if not already set
+      if (!fiveCardLayout && depth === 5 && categoryConfig.defaultLayouts?.[5]) {
+        setFiveCardLayout(categoryConfig.defaultLayouts[5] as FiveCardLayoutId);
       }
     }
-  }, [phaseSlug, location.pathname, phase]);
+  }, [category, depth, categoryConfig, threeCardLayout, fiveCardLayout]);
 
   // Scroll to top when phase changes
   useEffect(() => {
@@ -375,7 +309,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         drawnCards,
         question,
         language,
-        category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
+        category, // Use the category from URL params
         layoutId: getLayoutId(),
       });
 
@@ -392,7 +326,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -413,98 +347,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         : [...prev, style]
     );
   }, []);
-
-  // Single card handlers
-  const handleSingleCardCategorySelect = useCallback((category: SingleCardCategory) => {
-    setSingleCardCategory(category);
-    // Auto-set layout to default for this category
-    const categoryConfig = getSingleCardCategory(category);
-    if (categoryConfig) {
-      setSingleCardLayout(categoryConfig.defaultLayout);
-    }
-  }, []);
-
-  const handleSingleCardLayoutSelect = useCallback((layoutId: SingleCardLayoutId) => {
-    setSingleCardLayout(layoutId);
-  }, []);
-
-  const handleSingleCardCustomQuestionChange = useCallback((text: string) => {
-    setSingleCardCustomQuestion(text);
-    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
-  // Three card handlers
-  const handleThreeCardCategorySelect = useCallback((category: ThreeCardCategory) => {
-    setThreeCardCategory(category);
-    // Auto-set layout to default for this category
-    const categoryConfig = getThreeCardCategory(category);
-    if (categoryConfig) {
-      setThreeCardLayout(categoryConfig.defaultLayout);
-    }
-  }, []);
-
-  const handleThreeCardLayoutSelect = useCallback((layoutId: ThreeCardLayoutId) => {
-    setThreeCardLayout(layoutId);
-  }, []);
-
-  const handleThreeCardCustomQuestionChange = useCallback((text: string) => {
-    setThreeCardCustomQuestion(text);
-    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
-  // Five card handlers
-  const handleFiveCardCategorySelect = useCallback((category: FiveCardCategory) => {
-    setFiveCardCategory(category);
-    // Auto-set layout to default for this category
-    const categoryConfig = getFiveCardCategory(category);
-    if (categoryConfig) {
-      setFiveCardLayout(categoryConfig.defaultLayout);
-    }
-  }, []);
-
-  const handleFiveCardLayoutSelect = useCallback((layoutId: FiveCardLayoutId) => {
-    setFiveCardLayout(layoutId);
-  }, []);
-
-  const handleFiveCardCustomQuestionChange = useCallback((text: string) => {
-    setFiveCardCustomQuestion(text);
-    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
-  // Horseshoe handlers
-  const handleHorseshoeCategorySelect = useCallback((category: HorseshoeCategory) => {
-    setHorseshoeCategory(category);
-    // Auto-set layout to default for this category
-    const categoryConfig = getHorseshoeCategory(category);
-    if (categoryConfig) {
-      setHorseshoeLayout(categoryConfig.defaultLayout);
-    }
-  }, []);
-
-  const handleHorseshoeLayoutSelect = useCallback((layoutId: HorseshoeLayoutId) => {
-    setHorseshoeLayout(layoutId);
-  }, []);
-
-  const handleHorseshoeCustomQuestionChange = useCallback((text: string) => {
-    setHorseshoeCustomQuestion(text);
-    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
-
-  // Celtic Cross handlers
-  const handleCelticCrossCategorySelect = useCallback((category: CelticCrossCategory) => {
-    setCelticCrossCategory(category);
-    // Auto-set layout to celtic_cross (only layout for this spread)
-    setCelticCrossLayout('celtic_cross');
-  }, []);
-
-  const handleCelticCrossLayoutSelect = useCallback((layoutId: CelticCrossLayoutId) => {
-    setCelticCrossLayout(layoutId);
-  }, []);
-
-  const handleCelticCrossCustomQuestionChange = useCallback((text: string) => {
-    setCelticCrossCustomQuestion(text);
-    handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
-  }, [handleQuestionChange]);
 
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
@@ -595,7 +437,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         drawnCards,
         question,
         language,
-        category: spread.id === SpreadType.SINGLE ? singleCardCategory : undefined,
+        category, // Use the category from URL params
         layoutId,
       });
 
@@ -677,7 +519,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, singleCardCategory, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -713,150 +555,35 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
 
     if (phase === 'intro') {
-      // Use single card intro for single card spread
-      if (spread.id === SpreadType.SINGLE) {
-        return (
-          <SingleCardIntroPhase
-            spread={spread}
-            language={language}
-            selectedCategory={singleCardCategory}
-            selectedLayout={singleCardLayout}
-            customQuestion={singleCardCustomQuestion}
-            onCategorySelect={handleSingleCardCategorySelect}
-            onLayoutSelect={handleSingleCardLayoutSelect}
-            onCustomQuestionChange={handleSingleCardCustomQuestionChange}
-            isAdvanced={isAdvanced}
-            selectedStyles={selectedStyles}
-            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-            onStyleToggle={toggleStyle}
-            validationMessage={validationMessage}
-            totalCost={displayCost}
-            credits={user?.credits || 0}
-            onStartShuffle={startShuffleAnimation}
-          />
-        );
-      }
-
-      // Use three card intro for three card spread
-      if (spread.id === SpreadType.THREE_CARD) {
-        return (
-          <ThreeCardIntroPhase
-            spread={spread}
-            language={language}
-            selectedCategory={threeCardCategory}
-            selectedLayout={threeCardLayout}
-            customQuestion={threeCardCustomQuestion}
-            onCategorySelect={handleThreeCardCategorySelect}
-            onLayoutSelect={handleThreeCardLayoutSelect}
-            onCustomQuestionChange={handleThreeCardCustomQuestionChange}
-            isAdvanced={isAdvanced}
-            selectedStyles={selectedStyles}
-            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-            onStyleToggle={toggleStyle}
-            validationMessage={validationMessage}
-            totalCost={displayCost}
-            credits={user?.credits || 0}
-            onStartShuffle={startShuffleAnimation}
-          />
-        );
-      }
-
-      // Use five card intro for five card spread
-      if (spread.id === SpreadType.FIVE_CARD) {
-        return (
-          <FiveCardIntroPhase
-            spread={spread}
-            language={language}
-            selectedCategory={fiveCardCategory}
-            selectedLayout={fiveCardLayout}
-            customQuestion={fiveCardCustomQuestion}
-            onCategorySelect={handleFiveCardCategorySelect}
-            onLayoutSelect={handleFiveCardLayoutSelect}
-            onCustomQuestionChange={handleFiveCardCustomQuestionChange}
-            isAdvanced={isAdvanced}
-            selectedStyles={selectedStyles}
-            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-            onStyleToggle={toggleStyle}
-            validationMessage={validationMessage}
-            totalCost={displayCost}
-            credits={user?.credits || 0}
-            onStartShuffle={startShuffleAnimation}
-          />
-        );
-      }
-
-      // Use horseshoe intro for horseshoe spread
-      if (spread.id === SpreadType.HORSESHOE) {
-        return (
-          <HorseshoeIntroPhase
-            spread={spread}
-            language={language}
-            selectedCategory={horseshoeCategory}
-            selectedLayout={horseshoeLayout}
-            customQuestion={horseshoeCustomQuestion}
-            onCategorySelect={handleHorseshoeCategorySelect}
-            onLayoutSelect={handleHorseshoeLayoutSelect}
-            onCustomQuestionChange={handleHorseshoeCustomQuestionChange}
-            isAdvanced={isAdvanced}
-            selectedStyles={selectedStyles}
-            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-            onStyleToggle={toggleStyle}
-            validationMessage={validationMessage}
-            totalCost={displayCost}
-            credits={user?.credits || 0}
-            onStartShuffle={startShuffleAnimation}
-          />
-        );
-      }
-
-      // Use celtic cross intro for celtic cross spread
-      if (spread.id === SpreadType.CELTIC_CROSS) {
-        return (
-          <CelticCrossIntroPhase
-            spread={spread}
-            language={language}
-            selectedCategory={celticCrossCategory}
-            selectedLayout={celticCrossLayout}
-            customQuestion={celticCrossCustomQuestion}
-            onCategorySelect={handleCelticCrossCategorySelect}
-            onLayoutSelect={handleCelticCrossLayoutSelect}
-            onCustomQuestionChange={handleCelticCrossCustomQuestionChange}
-            isAdvanced={isAdvanced}
-            selectedStyles={selectedStyles}
-            onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
-            onStyleToggle={toggleStyle}
-            validationMessage={validationMessage}
-            totalCost={displayCost}
-            credits={user?.credits || 0}
-            onStartShuffle={startShuffleAnimation}
-          />
-        );
-      }
-
-      // Existing QuestionIntroPhase for other spreads
+      // Use the new CategoryIntroPhase for category-first flow
+      // This component handles all depths (1, 3, 5, 7, 10) with unified UX
       return (
-        <QuestionIntroPhase
+        <CategoryIntroPhase
           spread={spread}
           language={language}
-          question={question}
-          questionError={questionError}
-          validationMessage={validationMessage}
+          category={category}
+          depth={depth}
+          selectedLayout={threeCardLayout || fiveCardLayout}
+          onLayoutSelect={(layoutId) => {
+            // Set appropriate layout state based on depth
+            if (depth === 3) {
+              setThreeCardLayout(layoutId as ThreeCardLayoutId);
+            } else if (depth === 5) {
+              setFiveCardLayout(layoutId as FiveCardLayoutId);
+            }
+          }}
+          customQuestion={question}
+          onCustomQuestionChange={(text) => {
+            handleQuestionChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
+          }}
           isAdvanced={isAdvanced}
           selectedStyles={selectedStyles}
-          extendedQuestionPaid={extendedQuestionPaid}
-          totalCost={displayCost}
-          credits={user?.credits || 0}
-          showLengthModal={showLengthModal}
-          isProcessingLength={isProcessingLength}
-          onQuestionChange={handleQuestionChange}
-          onGeneralGuidance={handleGeneralGuidance}
           onAdvancedToggle={() => setIsAdvanced(!isAdvanced)}
           onStyleToggle={toggleStyle}
+          validationMessage={validationMessage}
+          totalCost={displayCost}
+          credits={user?.credits || 0}
           onStartShuffle={startShuffleAnimation}
-          onShowLengthModal={setShowLengthModal}
-          onShortenManually={handleShortenManually}
-          onAISummarize={handleAISummarize}
-          onUseFullQuestion={handleUseFullQuestionWrapper}
         />
       );
     }
