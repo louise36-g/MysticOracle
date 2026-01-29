@@ -105,13 +105,13 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     name: "Ancient Wisdom",
     taglineEn: "The complete picture revealed.",
     taglineFr: "Le tableau complet révélé.",
-    icon: React.createElement(Compass, { className: "w-5 h-5" }),
-    primary: 'rgb(52, 211, 153)',       // emerald-400
-    secondary: 'rgb(20, 184, 166)',     // teal-500
-    glow: 'rgba(52, 211, 153, 0.25)',
-    bgGradient: 'from-emerald-950 via-teal-900 to-emerald-950',
-    cardBorder: 'border-emerald-500/50',
-    textAccent: 'text-emerald-300',
+    icon: React.createElement(Sparkles, { className: "w-5 h-5" }),
+    primary: 'rgb(167, 139, 250)',       // violet-400
+    secondary: 'rgb(139, 92, 246)',      // violet-500
+    glow: 'rgba(167, 139, 250, 0.25)',
+    bgGradient: 'from-violet-950 via-purple-900 to-violet-950',
+    cardBorder: 'border-violet-500/50',
+    textAccent: 'text-violet-300',
     atmosphereClass: 'celtic-atmosphere',
   },
 };
