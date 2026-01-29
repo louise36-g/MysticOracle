@@ -20,6 +20,22 @@ export enum SpreadType {
   CELTIC_CROSS = 'celtic_cross'
 }
 
+// Reading categories (category-first UX)
+export type ReadingCategory = 'love' | 'career' | 'money' | 'life_path' | 'family' | 'birth_cards';
+
+// Depth options (maps to card counts)
+export type ReadingDepth = 1 | 3 | 5 | 7 | 10;
+export type BirthCardDepth = 1 | 2 | 3;
+
+// Map depth to SpreadType
+export const DEPTH_TO_SPREAD: Record<ReadingDepth, SpreadType> = {
+  1: SpreadType.SINGLE,
+  3: SpreadType.THREE_CARD,
+  5: SpreadType.FIVE_CARD,
+  7: SpreadType.HORSESHOE,
+  10: SpreadType.CELTIC_CROSS,
+};
+
 export enum InterpretationStyle {
   CLASSIC = 'classic',
   SPIRITUAL = 'spiritual',
