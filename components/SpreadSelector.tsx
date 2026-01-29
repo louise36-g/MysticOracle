@@ -276,8 +276,8 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
           const theme = SPREAD_THEMES[spread.id];
           const isHovered = hoveredSpread === spread.id;
 
-          // Build the spread URL for linking
-          const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
+          // Build the spread URL for linking (deprecated: use CategorySelector instead)
+          const spreadUrl = ROUTES.READING;
 
           // Card content (shared between Link and callback modes)
           const cardContent = (

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
 import {
   MessageCircle,
   Shuffle,
@@ -11,43 +10,22 @@ import {
   Check
 } from 'lucide-react';
 import { SpreadType } from '../../types';
-import { buildRoute, ROUTES } from '../../routes/routes';
 
 // ============================================
 // READING STEPPER - Celestial Progress Navigation
 // ============================================
 // A mystical constellation-style stepper for the tarot reading flow.
-// Uses URL-based navigation so browser back/forward work naturally.
+// Uses internal state for phase navigation.
 
 export type ReadingPhase = 'intro' | 'animating_shuffle' | 'drawing' | 'revealing' | 'reading';
 
-// Map phases to URL slugs
-const PHASE_TO_SLUG: Record<ReadingPhase, string> = {
-  'intro': 'question',
-  'animating_shuffle': 'shuffle',
-  'drawing': 'draw',
-  'revealing': 'reveal',
-  'reading': 'reading',
-};
-
-// Map URL slugs to phases
+// Map URL slugs to phases (kept for backwards compatibility)
 export const SLUG_TO_PHASE: Record<string, ReadingPhase> = {
   'question': 'intro',
   'shuffle': 'animating_shuffle',
   'draw': 'drawing',
   'reveal': 'revealing',
   'reading': 'reading',
-};
-
-// Map SpreadType to URL slug
-const SPREAD_TO_SLUG: Record<SpreadType, string> = {
-  [SpreadType.SINGLE]: 'single',
-  [SpreadType.THREE_CARD]: 'three-card',
-  [SpreadType.FIVE_CARD]: 'five-card',
-  [SpreadType.LOVE]: 'love',
-  [SpreadType.CAREER]: 'career',
-  [SpreadType.HORSESHOE]: 'horseshoe',
-  [SpreadType.CELTIC_CROSS]: 'celtic-cross',
 };
 
 interface StepConfig {
@@ -121,8 +99,6 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
   onExit,
   canNavigateTo,
 }) => {
-  const navigate = useNavigate();
-  const { spreadType: spreadSlug } = useParams<{ spreadType: string }>();
   const currentStepIndex = STEPS.findIndex(s => s.id === currentPhase);
 
   // Default: can navigate to any step before current (question is always navigable)
@@ -141,16 +117,11 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
     return null;
   }, [currentStepIndex, canGoTo]);
 
-  // Handle step click - navigate via URL
+  // Handle step click - uses internal state navigation (no URL changes)
   const handleStepClick = (step: StepConfig) => {
     if (!canGoTo(step.id)) return;
 
-    // Update URL for browser history
-    const slug = spreadSlug || SPREAD_TO_SLUG[spreadType];
-    const phaseSlug = PHASE_TO_SLUG[step.id];
-    navigate(buildRoute(ROUTES.READING_PHASE, { spreadType: slug, phase: phaseSlug }));
-
-    // Also call the state update callback
+    // Call the state update callback - URL navigation is handled by parent
     onNavigate(step.id);
   };
 

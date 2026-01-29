@@ -3,8 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../context/TranslationContext';
 import { ROUTES, buildRoute } from '../routes/routes';
-import { SPREADS } from '../constants';
-import { SpreadType, SpreadConfig } from '../types';
+import { CATEGORIES } from '../constants/categoryConfig';
+import { ReadingCategory } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
@@ -67,23 +67,10 @@ const SubNav: React.FC = () => {
     setOpenDropdown(null);
   };
 
-  // Map spread IDs to URL slugs
-  const getSpreadSlug = (spreadId: SpreadType): string => {
-    const slugMap: Partial<Record<SpreadType, string>> = {
-      [SpreadType.SINGLE]: 'single',
-      [SpreadType.THREE_CARD]: 'three-card',
-      [SpreadType.FIVE_CARD]: 'five-card',
-      [SpreadType.HORSESHOE]: 'horseshoe',
-      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
-    };
-    return slugMap[spreadId] || spreadId;
-  };
-
-  // Handle spread selection: navigate to spread-specific URL
-  const handleSpreadSelect = useCallback((spread: SpreadConfig) => {
+  // Handle category selection: navigate to category selector or specific category
+  const handleCategorySelect = useCallback((categoryId: ReadingCategory) => {
     setOpenDropdown(null);
-    const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
-    navigate(spreadUrl);
+    navigate(ROUTES.READING);
   }, [navigate]);
 
   // Helper to check if path is active
@@ -91,45 +78,23 @@ const SubNav: React.FC = () => {
     return location.pathname.startsWith(path);
   }, [location.pathname]);
 
-  // Spread theme icons and colors (matching SpreadSelector)
-  const spreadThemes: Partial<Record<SpreadType, { icon: React.ReactNode; iconBg: string }>> = {
-    [SpreadType.SINGLE]: {
-      icon: <Eye className="w-4 h-4 text-cyan-400" />,
-      iconBg: 'bg-cyan-500/20',
-    },
-    [SpreadType.THREE_CARD]: {
-      icon: <Clock className="w-4 h-4 text-fuchsia-400" />,
-      iconBg: 'bg-fuchsia-500/20',
-    },
-    [SpreadType.FIVE_CARD]: {
-      icon: <Layers className="w-4 h-4 text-purple-400" />,
-      iconBg: 'bg-purple-500/20',
-    },
-    [SpreadType.HORSESHOE]: {
-      icon: <Sparkles className="w-4 h-4 text-blue-400" />,
-      iconBg: 'bg-blue-500/20',
-    },
-    [SpreadType.CELTIC_CROSS]: {
-      icon: <Compass className="w-4 h-4 text-emerald-400" />,
-      iconBg: 'bg-emerald-500/20',
-    },
-  };
-
-  // Build Tarot spreads menu items with themed icons
-  const tarotItems: DropdownItem[] = Object.values(SPREADS).map(spread => {
-    const theme = spreadThemes[spread.id] || { icon: <Sparkles className="w-4 h-4 text-purple-400" />, iconBg: 'bg-purple-500/20' };
-    const spreadUrl = buildRoute(ROUTES.READING_SPREAD, { spreadType: getSpreadSlug(spread.id) });
+  // Build Tarot category menu items with themed icons
+  const tarotItems: DropdownItem[] = CATEGORIES.map(category => {
     return {
-      id: spread.id,
-      labelEn: spread.nameEn,
-      labelFr: spread.nameFr,
-      descriptionEn: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cards`),
-      descriptionFr: t(`subnav.tarot.${spread.id}.desc`, `${spread.positions} cartes`),
-      icon: theme.icon,
-      iconBg: theme.iconBg,
-      cost: spread.cost,
-      href: spreadUrl,  // Proper link for cmd+click / open in new tab
-      onClick: () => handleSpreadSelect(spread)
+      id: category.id,
+      labelEn: category.labelEn,
+      labelFr: category.labelFr,
+      descriptionEn: category.taglineEn,
+      descriptionFr: category.taglineFr,
+      icon: category.icon,
+      iconBg: category.colorTheme.gradient.includes('rose') ? 'bg-rose-500/20' :
+              category.colorTheme.gradient.includes('amber') ? 'bg-amber-500/20' :
+              category.colorTheme.gradient.includes('emerald') ? 'bg-emerald-500/20' :
+              category.colorTheme.gradient.includes('indigo') ? 'bg-indigo-500/20' :
+              category.colorTheme.gradient.includes('teal') ? 'bg-teal-500/20' :
+              'bg-violet-500/20',
+      href: ROUTES.READING,
+      onClick: () => handleCategorySelect(category.id)
     };
   });
 

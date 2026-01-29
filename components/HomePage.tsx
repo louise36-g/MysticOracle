@@ -2,13 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { ROUTES, buildRoute } from '../routes/routes';
+import { ROUTES } from '../routes/routes';
 import Button from './Button';
 import { Star, Shield, Zap } from 'lucide-react';
 import ReadingModeSelector from './ReadingModeSelector';
-import SpreadSelector from './SpreadSelector';
+import CategorySelector from './CategorySelector';
 import HoroscopeReading from './HoroscopeReading';
-import { SpreadConfig, SpreadType } from '../types';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,24 +16,13 @@ const HomePage: React.FC = () => {
   const [readingMode, setReadingMode] = React.useState<string | null>(null);
 
   const handleReadingModeSelect = (mode: string) => {
+    if (mode === 'tarot') {
+      // Navigate directly to category selector page
+      navigate(ROUTES.READING);
+      return;
+    }
     setReadingMode(mode);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSpreadSelect = (spread: SpreadConfig) => {
-    // Convert spread id to URL-friendly slug
-    const slugMap: Record<SpreadType, string> = {
-      [SpreadType.SINGLE]: 'single',
-      [SpreadType.THREE_CARD]: 'three-card',
-      [SpreadType.FIVE_CARD]: 'five-card',
-      [SpreadType.LOVE]: 'love',
-      [SpreadType.CAREER]: 'career',
-      [SpreadType.HORSESHOE]: 'horseshoe',
-      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
-    };
-    const spreadSlug = slugMap[spread.id] || spread.id;
-    // Navigate to reading with specific spread type
-    navigate(buildRoute(ROUTES.READING_SPREAD, { spreadType: spreadSlug }));
   };
 
   return (
@@ -114,9 +102,6 @@ const HomePage: React.FC = () => {
 
       {/* Reading Mode Selector (Only if logged in) */}
       {user && !readingMode && <ReadingModeSelector onSelect={handleReadingModeSelect} />}
-
-      {/* Tarot Spread Selector */}
-      {user && readingMode === 'tarot' && <SpreadSelector onSelect={handleSpreadSelect} />}
 
       {/* Horoscope Reading */}
       {user && readingMode === 'horoscope' && <HoroscopeReading />}
