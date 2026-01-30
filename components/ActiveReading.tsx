@@ -597,6 +597,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           onCardDraw={handleCardDraw}
           threeCardLayout={threeCardLayout}
           fiveCardLayout={fiveCardLayout}
+          category={category}
         />
       );
     }
@@ -610,6 +611,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           onStartReading={startReading}
           threeCardLayout={threeCardLayout}
           fiveCardLayout={fiveCardLayout}
+          category={category}
         />
       );
     }
@@ -635,6 +637,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         questionCost={questionCost}
         threeCardLayout={threeCardLayout}
         fiveCardLayout={fiveCardLayout}
+        category={category}
         onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
         onFinish={handleFinish}
         onCelebrationComplete={handleCelebrationComplete}

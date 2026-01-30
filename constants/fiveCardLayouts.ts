@@ -29,6 +29,11 @@ export interface FiveCardLayout {
     en: [string, string, string, string, string];
     fr: [string, string, string, string, string];
   };
+  /** Short position names for compact display */
+  shortPositions: {
+    en: [string, string, string, string, string];
+    fr: [string, string, string, string, string];
+  };
 }
 
 export interface FiveCardCategoryConfig {
@@ -62,6 +67,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
       en: ["What's visible", "What's beneath", 'Root cause', 'How it serves you', 'Path to integration'],
       fr: ['Ce qui est visible', 'Ce qui est caché', 'Cause profonde', 'Comment cela vous sert', "Chemin vers l'intégration"],
     },
+    shortPositions: {
+      en: ['Surface', 'Beneath', 'Root', 'Purpose', 'Integration'],
+      fr: ['Surface', 'Caché', 'Racine', 'But', 'Intégration'],
+    },
   },
   mirror: {
     id: 'mirror',
@@ -72,6 +81,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
     positions: {
       en: ['How you see yourself', 'How others see you', 'What you refuse to see', 'The truth beneath', 'Acceptance message'],
       fr: ['Comment vous vous voyez', 'Comment les autres vous voient', 'Ce que vous refusez de voir', 'La vérité profonde', "Message d'acceptation"],
+    },
+    shortPositions: {
+      en: ['Self-view', 'Others see', 'Blind spot', 'Truth', 'Accept'],
+      fr: ['Ma vision', 'Leur vision', 'Angle mort', 'Vérité', 'Accepter'],
     },
   },
   // Gentle Healing layouts
@@ -85,6 +98,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
       en: ['Your inner child now', 'What they need', 'What wounded them', 'How to nurture them', 'The gift they hold'],
       fr: ['Votre enfant intérieur', 'Ce dont il a besoin', "Ce qui l'a blessé", 'Comment le nourrir', "Le cadeau qu'il porte"],
     },
+    shortPositions: {
+      en: ['Now', 'Needs', 'Wounds', 'Healing', 'Gift'],
+      fr: ['Actuel', 'Besoins', 'Blessures', 'Soin', 'Cadeau'],
+    },
   },
   safe_space: {
     id: 'safe_space',
@@ -95,6 +112,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
     positions: {
       en: ['Where you feel unsafe', 'What safety means to you', 'What blocks safety', 'Creating internal safety', 'Your protector energy'],
       fr: ['Où vous vous sentez vulnérable', 'Ce que la sécurité signifie', 'Ce qui bloque la sécurité', 'Créer la sécurité intérieure', 'Votre énergie protectrice'],
+    },
+    shortPositions: {
+      en: ['Unsafe', 'Safety', 'Blocks', 'Create', 'Protect'],
+      fr: ['Vulnérable', 'Sécurité', 'Blocages', 'Créer', 'Protéger'],
     },
   },
   // Know Yourself layouts
@@ -108,6 +129,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
       en: ['Who you were taught to be', 'Who you pretend to be', 'Who you fear being', 'Who you truly are', 'How to embody your truth'],
       fr: ["Qui on vous a appris à être", 'Qui vous prétendez être', "Qui vous craignez d'être", 'Qui vous êtes vraiment', 'Comment incarner votre vérité'],
     },
+    shortPositions: {
+      en: ['Taught', 'Mask', 'Fear', 'True', 'Embody'],
+      fr: ['Appris', 'Masque', 'Peur', 'Vrai', 'Incarner'],
+    },
   },
   values: {
     id: 'values',
@@ -119,17 +144,25 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
       en: ['What you say you value', 'What your actions reveal', 'A value abandoned', 'A value calling you', 'Alignment message'],
       fr: ['Ce que vous dites valoriser', 'Ce que vos actions révèlent', 'Une valeur abandonnée', 'Une valeur qui vous appelle', "Message d'alignement"],
     },
+    shortPositions: {
+      en: ['Stated', 'Actions', 'Lost', 'Calling', 'Align'],
+      fr: ['Dit', 'Actes', 'Perdu', 'Appel', 'Aligner'],
+    },
   },
   // Personal Growth layouts
   alchemy: {
     id: 'alchemy',
     labelEn: 'The Alchemy',
     labelFr: "L'Alchimie",
-    taglineEn: 'Transform struggle into strength. When facing difficulties, this layout shows what feels heavy, the transformation needed, and the gold emerging from your experience.',
-    taglineFr: 'Transformez les difficultés en force. Face aux épreuves, ce tirage montre ce qui pèse, la transformation nécessaire, et l\'or qui émerge de votre expérience.',
+    taglineEn: 'Transform struggle into strength. When facing difficulties, this layout shows where you\'re starting, the challenge pushing growth, and the gold emerging from your experience.',
+    taglineFr: 'Transformez les difficultés en force. Face aux épreuves, ce tirage montre où vous en êtes, le défi qui pousse la croissance, et l\'or qui émerge de votre expérience.',
     positions: {
-      en: ['The lead (what feels heavy)', 'The fire (transformation needed)', 'The process', "The gold (what you're becoming)", "The philosopher's stone"],
-      fr: ['Le plomb (ce qui pèse)', 'Le feu (transformation)', 'Le processus', "L'or (ce que vous devenez)", 'La pierre philosophale'],
+      en: ['Lead (your starting point)', 'Fire (the challenge pushing growth)', 'Crucible (what holds transformation)', 'Gold (your highest potential)', 'Stone (your unique gift)'],
+      fr: ['Plomb (votre point de départ)', 'Feu (le défi qui pousse)', 'Creuset (ce qui contient)', 'Or (votre potentiel)', 'Pierre (votre don unique)'],
+    },
+    shortPositions: {
+      en: ['Lead (Base)', 'Fire (Challenge)', 'Crucible (Transform)', 'Gold (Potential)', 'Stone (Gift)'],
+      fr: ['Plomb (Base)', 'Feu (Défi)', 'Creuset (Transform.)', 'Or (Potentiel)', 'Pierre (Don)'],
     },
   },
   seasons: {
@@ -141,6 +174,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
     positions: {
       en: ['What needs to die (autumn)', 'What needs rest (winter)', 'Ready to sprout (spring)', 'Ready to bloom (summer)', "The cycle's wisdom"],
       fr: ['Ce qui doit mourir (automne)', 'Ce qui a besoin de repos (hiver)', 'Prêt à germer (printemps)', 'Prêt à fleurir (été)', 'La sagesse du cycle'],
+    },
+    shortPositions: {
+      en: ['Autumn', 'Winter', 'Spring', 'Summer', 'Wisdom'],
+      fr: ['Automne', 'Hiver', 'Printemps', 'Été', 'Sagesse'],
     },
   },
   // Relationships and Career layouts
@@ -154,6 +191,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
       en: ['Your Heart', 'Their Heart', 'The Connection', 'Challenges', 'Potential'],
       fr: ['Votre Coeur', 'Son Coeur', 'La Connexion', 'Défis', 'Potentiel'],
     },
+    shortPositions: {
+      en: ['You', 'Them', 'Bond', 'Challenges', 'Potential'],
+      fr: ['Vous', 'Eux', 'Lien', 'Défis', 'Potentiel'],
+    },
   },
   career_purpose: {
     id: 'career_purpose',
@@ -164,6 +205,10 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
     positions: {
       en: ['Current Position', 'Obstacles', 'Hidden Factors', 'Action to Take', 'Outcome'],
       fr: ['Position Actuelle', 'Obstacles', 'Facteurs Cachés', 'Action à Prendre', 'Résultat'],
+    },
+    shortPositions: {
+      en: ['Now', 'Blocks', 'Hidden', 'Action', 'Result'],
+      fr: ['Actuel', 'Blocages', 'Caché', 'Action', 'Résultat'],
     },
   },
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { TarotCard } from '../types';
+import { getCardImageUrl, getCardReversedImageUrl } from '../constants/cardImages';
 
 interface CardProps {
   card?: TarotCard;
@@ -23,8 +24,17 @@ const Card: React.FC<CardProps> = ({
   className = ''
 }) => {
   const { language } = useApp();
-  
-  const isPlaceholder = card?.image?.startsWith('placeholder:');
+
+  // Use custom images from cardImages mapping
+  const customImageUrl = card ? getCardImageUrl(card.id) : '';
+  const customReversedUrl = card ? getCardReversedImageUrl(card.id) : '';
+
+  // Determine which image to show - use reversed image if available and card is reversed
+  const imageUrl = isReversed && customReversedUrl ? customReversedUrl : customImageUrl;
+  const hasCustomImage = !!imageUrl;
+
+  // Fallback for cards without custom images
+  const isPlaceholder = !hasCustomImage && card?.image?.startsWith('placeholder:');
   const placeholderIcon = isPlaceholder ? card?.image.split(':')[1] : '';
 
   return (
@@ -85,10 +95,23 @@ const Card: React.FC<CardProps> = ({
             border: '2px solid #fbbf24',
           }}
         >
-          <div className="w-full h-full relative" style={{ transform: isReversed ? 'rotate(180deg)' : 'none', transition: 'transform 0.5s' }}>
+          <div className="w-full h-full relative" style={{ transform: isReversed && !customReversedUrl ? 'rotate(180deg)' : 'none', transition: 'transform 0.5s' }}>
               {card ? (
                 <>
-                  {!isPlaceholder ? (
+                  {hasCustomImage ? (
+                    <img
+                      src={imageUrl}
+                      alt={language === 'en' ? card.nameEn : card.nameFr}
+                      className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        // Fallback to original image if custom fails
+                        const target = e.target as HTMLImageElement;
+                        if (card.image && !card.image.startsWith('placeholder:')) {
+                          target.src = card.image;
+                        }
+                      }}
+                    />
+                  ) : !isPlaceholder ? (
                     <img
                       src={card.image}
                       alt={language === 'en' ? card.nameEn : card.nameFr}

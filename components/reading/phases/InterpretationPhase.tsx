@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, ChevronDown, ChevronUp } from 'lucide-react';
-import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
+import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
@@ -11,6 +11,7 @@ import { ReadingCompleteCelebration } from '../../rewards';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
+import { getCategory } from '../../../constants/categoryConfig';
 
 interface DrawnCard {
   card: TarotCard;
@@ -36,6 +37,7 @@ interface InterpretationPhaseProps {
   questionCost: number;
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
+  category?: ReadingCategory;
   onContextToggle: () => void;
   onFinish: () => void;
   onCelebrationComplete: () => void;
@@ -63,6 +65,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   questionCost,
   threeCardLayout,
   fiveCardLayout,
+  category,
   onContextToggle,
   onFinish,
   onCelebrationComplete,
@@ -70,12 +73,32 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   onChatInputChange,
   onSendMessage,
 }) => {
-  const theme = SPREAD_THEMES[spread.id];
+  const spreadTheme = SPREAD_THEMES[spread.id];
+  const categoryConfig = category ? getCategory(category) : null;
+  const categoryTheme = categoryConfig?.colorTheme;
+
+  // Unified theme: prefer category colors when available
+  const theme = {
+    textAccent: categoryTheme ? `text-${categoryTheme.accent}` : spreadTheme.textAccent,
+    cardBorder: categoryTheme ? categoryTheme.border : spreadTheme.cardBorder,
+    bgGradient: categoryTheme ? categoryTheme.gradient : spreadTheme.bgGradient,
+    glow: categoryTheme ? categoryTheme.glow : spreadTheme.glow,
+    icon: categoryConfig?.icon || spreadTheme.icon,
+    name: categoryConfig ? (language === 'en' ? categoryConfig.labelEn : categoryConfig.labelFr) : spreadTheme.name,
+    primary: spreadTheme.primary,
+    secondary: spreadTheme.secondary,
+  };
 
   return (
     <div className="relative min-h-screen">
-      {/* Themed Background */}
-      <ThemedBackground spreadType={spread.id} />
+      {/* Themed Background - uses category colors when available */}
+      <ThemedBackground
+        spreadType={spread.id}
+        categoryTheme={categoryTheme ? {
+          gradient: categoryTheme.gradient,
+          glow: categoryTheme.glow,
+        } : undefined}
+      />
 
       <div className="container mx-auto max-w-4xl px-4 py-6 pb-32 relative z-10">
         {/* Loading State */}

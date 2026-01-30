@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
+import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
 import ThemedBackground from '../ThemedBackground';
@@ -9,6 +9,7 @@ import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeC
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
 import { CELTIC_CROSS_LAYOUT } from '../../../constants/celticCrossLayouts';
 import CelticCrossDisplay from '../CelticCrossDisplay';
+import { getCategory } from '../../../constants/categoryConfig';
 
 interface DrawnCard {
   card: TarotCard;
@@ -22,6 +23,7 @@ interface RevealingPhaseProps {
   onStartReading: () => void;
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
+  category?: ReadingCategory;
 }
 
 const RevealingPhase: React.FC<RevealingPhaseProps> = ({
@@ -31,8 +33,23 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
   onStartReading,
   threeCardLayout,
   fiveCardLayout,
+  category,
 }) => {
-  const theme = SPREAD_THEMES[spread.id];
+  const spreadTheme = SPREAD_THEMES[spread.id];
+  const categoryConfig = category ? getCategory(category) : null;
+  const categoryTheme = categoryConfig?.colorTheme;
+
+  // Unified theme: prefer category colors when available
+  const theme = {
+    textAccent: categoryTheme ? `text-${categoryTheme.accent}` : spreadTheme.textAccent,
+    cardBorder: categoryTheme ? categoryTheme.border : spreadTheme.cardBorder,
+    bgGradient: categoryTheme ? categoryTheme.gradient : spreadTheme.bgGradient,
+    glow: categoryTheme ? categoryTheme.glow : spreadTheme.glow,
+    icon: categoryConfig?.icon || spreadTheme.icon,
+    name: categoryConfig ? (language === 'en' ? categoryConfig.labelEn : categoryConfig.labelFr) : spreadTheme.name,
+    taglineEn: categoryConfig?.taglineEn || spreadTheme.taglineEn,
+    taglineFr: categoryConfig?.taglineFr || spreadTheme.taglineFr,
+  };
 
   // Dynamically adjust card size based on number of cards to fit above fold
   const cardCount = drawnCards.length;
@@ -41,8 +58,14 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
 
   return (
     <div className="flex flex-col items-center min-h-screen py-4 md:py-6 relative overflow-hidden">
-      {/* Themed Background */}
-      <ThemedBackground spreadType={spread.id} />
+      {/* Themed Background - uses category colors when available */}
+      <ThemedBackground
+        spreadType={spread.id}
+        categoryTheme={categoryTheme ? {
+          gradient: categoryTheme.gradient,
+          glow: categoryTheme.glow,
+        } : undefined}
+      />
 
       <div className="relative z-10 flex flex-col items-center flex-1 w-full px-4">
         {/* Theme badge - compact */}
@@ -113,7 +136,7 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
                     }
                   />
                 </div>
-                <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[100px] md:max-w-[130px] truncate`}>
+                <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[120px] md:max-w-[150px] line-clamp-2`}>
                   {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
                     ? THREE_CARD_LAYOUTS[threeCardLayout].positions[language][i]
                     : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]

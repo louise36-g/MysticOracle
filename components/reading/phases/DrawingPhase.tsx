@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import { SpreadConfig, TarotCard, SpreadType } from '../../../types';
+import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
+import { getCategory } from '../../../constants/categoryConfig';
 
 interface DrawnCard {
   card: TarotCard;
@@ -19,6 +20,7 @@ interface DrawingPhaseProps {
   onCardDraw: () => void;
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
+  category?: ReadingCategory;
 }
 
 const DrawingPhase: React.FC<DrawingPhaseProps> = ({
@@ -28,15 +30,37 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
   onCardDraw,
   threeCardLayout,
   fiveCardLayout,
+  category,
 }) => {
-  const theme = SPREAD_THEMES[spread.id];
+  const spreadTheme = SPREAD_THEMES[spread.id];
+  const categoryConfig = category ? getCategory(category) : null;
+  const categoryTheme = categoryConfig?.colorTheme;
+
+  // Unified theme: prefer category colors when available
+  const theme = {
+    textAccent: categoryTheme ? `text-${categoryTheme.accent}` : spreadTheme.textAccent,
+    cardBorder: categoryTheme ? categoryTheme.border : spreadTheme.cardBorder,
+    bgGradient: categoryTheme ? categoryTheme.gradient : spreadTheme.bgGradient,
+    primary: spreadTheme.primary,
+    secondary: spreadTheme.secondary,
+    glow: categoryTheme ? categoryTheme.glow : spreadTheme.glow,
+    icon: categoryConfig?.icon || spreadTheme.icon,
+    name: categoryConfig ? (spreadTheme.name) : spreadTheme.name,
+  };
+
   const progressPercent = (drawnCards.length / spread.positions) * 100;
   const cardsRemaining = spread.positions - drawnCards.length;
 
   return (
     <div className="flex flex-col items-center px-4 py-6 md:py-10 relative min-h-screen">
-      {/* Themed Background */}
-      <ThemedBackground spreadType={spread.id} />
+      {/* Themed Background - uses category colors when available */}
+      <ThemedBackground
+        spreadType={spread.id}
+        categoryTheme={categoryTheme ? {
+          gradient: categoryTheme.gradient,
+          glow: categoryTheme.glow,
+        } : undefined}
+      />
 
       {/* Header with progress */}
       <div className="w-full max-w-2xl mb-6 relative z-10">
@@ -44,7 +68,9 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
         <div className="flex justify-center mb-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/30 border border-white/10">
             <span className={theme.textAccent}>{theme.icon}</span>
-            <span className="text-xs text-white/50 uppercase tracking-wider">{theme.name}</span>
+            <span className="text-xs text-white/50 uppercase tracking-wider">
+              {categoryConfig ? (language === 'en' ? categoryConfig.labelEn : categoryConfig.labelFr) : theme.name}
+            </span>
           </div>
         </div>
 

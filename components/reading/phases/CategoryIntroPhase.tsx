@@ -15,7 +15,6 @@ import { THREE_CARD_LAYOUTS, ThreeCardLayoutId, ThreeCardLayout } from '../../..
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId, FiveCardLayout } from '../../../constants/fiveCardLayouts';
 import { HORSESHOE_LAYOUT_QUESTIONS } from '../../../constants/horseshoeLayouts';
 import { CELTIC_CROSS_QUESTIONS } from '../../../constants/celticCrossLayouts';
-import { SPREAD_THEMES } from '../SpreadThemes';
 import ThemedBackground from '../ThemedBackground';
 import Button from '../../Button';
 
@@ -26,9 +25,17 @@ interface DisplayLayout {
   labelFr: string;
   taglineEn: string;
   taglineFr: string;
+  positions: {
+    en: string[];
+    fr: string[];
+  };
+  shortPositions: {
+    en: string[];
+    fr: string[];
+  };
 }
 
-// Interpretation style definitions
+// Paid interpretation style upgrades (Classic is the free default)
 const STYLE_OPTIONS: Array<{
   id: InterpretationStyle;
   labelEn: string;
@@ -36,13 +43,6 @@ const STYLE_OPTIONS: Array<{
   descEn: string;
   descFr: string;
 }> = [
-  {
-    id: InterpretationStyle.CLASSIC,
-    labelEn: 'Classic',
-    labelFr: 'Classique',
-    descEn: 'Traditional tarot meanings',
-    descFr: 'Significations traditionnelles',
-  },
   {
     id: InterpretationStyle.SPIRITUAL,
     labelEn: 'Spiritual',
@@ -112,29 +112,46 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 }) => {
   const [layoutPickerOpen, setLayoutPickerOpen] = useState(false);
 
-  const theme = SPREAD_THEMES[spread.id];
   const categoryConfig = getCategory(category);
+  // Use category color theme for consistent theming (not spread theme)
+  const categoryTheme = categoryConfig?.colorTheme;
   const depthOption = getDepthOption(category, depth);
 
-  // Get layouts based on depth with proper typing
+  // Get layouts filtered by category's available layouts
   const getLayoutsForDepth = (): DisplayLayout[] => {
-    if (depth === 3) {
-      return Object.values(THREE_CARD_LAYOUTS).map((l: ThreeCardLayout) => ({
-        id: l.id,
-        labelEn: l.labelEn,
-        labelFr: l.labelFr,
-        taglineEn: l.taglineEn,
-        taglineFr: l.taglineFr,
-      }));
+    const availableIds = depth === 3
+      ? categoryConfig?.availableLayouts?.[3]
+      : depth === 5
+        ? categoryConfig?.availableLayouts?.[5]
+        : null;
+
+    if (depth === 3 && availableIds) {
+      return availableIds
+        .map((id) => THREE_CARD_LAYOUTS[id as ThreeCardLayoutId])
+        .filter(Boolean)
+        .map((l: ThreeCardLayout) => ({
+          id: l.id,
+          labelEn: l.labelEn,
+          labelFr: l.labelFr,
+          taglineEn: l.taglineEn,
+          taglineFr: l.taglineFr,
+          positions: l.positions,
+          shortPositions: l.shortPositions,
+        }));
     }
-    if (depth === 5) {
-      return Object.values(FIVE_CARD_LAYOUTS).map((l: FiveCardLayout) => ({
-        id: l.id,
-        labelEn: l.labelEn,
-        labelFr: l.labelFr,
-        taglineEn: l.taglineEn,
-        taglineFr: l.taglineFr,
-      }));
+    if (depth === 5 && availableIds) {
+      return availableIds
+        .map((id) => FIVE_CARD_LAYOUTS[id as FiveCardLayoutId])
+        .filter(Boolean)
+        .map((l: FiveCardLayout) => ({
+          id: l.id,
+          labelEn: l.labelEn,
+          labelFr: l.labelFr,
+          taglineEn: l.taglineEn,
+          taglineFr: l.taglineFr,
+          positions: l.positions,
+          shortPositions: l.shortPositions,
+        }));
     }
     return [];
   };
@@ -193,8 +210,11 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   const suggestedQuestions = getSuggestedQuestions();
 
+  // Check if this is birth cards category (no question needed upfront)
+  const isBirthCards = category === 'birth_cards';
+
   // Determine if we can proceed
-  const hasValidQuestion = customQuestion.trim().length > 0;
+  const hasValidQuestion = isBirthCards || customQuestion.trim().length > 0;
   const needsLayout = depth === 3 || depth === 5;
   const hasValidLayout = !needsLayout || selectedLayout !== null;
   const canProceed = hasValidQuestion && hasValidLayout && credits >= totalCost;
@@ -212,7 +232,13 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   return (
     <div className="flex flex-col items-center px-4 py-6 md:py-8 relative min-h-screen">
-      <ThemedBackground spreadType={spread.id} />
+      <ThemedBackground
+        spreadType={spread.id}
+        categoryTheme={categoryTheme ? {
+          gradient: categoryTheme.gradient,
+          glow: categoryTheme.glow,
+        } : undefined}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -223,7 +249,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
         <div className="text-center mb-6">
           {/* Category Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/20 border border-white/10 mb-3">
-            <span className={theme.textAccent}>{categoryConfig?.icon}</span>
+            <span className={`text-${categoryTheme?.accent}`}>{categoryConfig?.icon}</span>
             <span className="text-xs font-medium text-white/60 uppercase tracking-wider">
               {language === 'en' ? categoryConfig?.labelEn : categoryConfig?.labelFr}
             </span>
@@ -239,22 +265,22 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
           </h2>
 
           {/* Tagline */}
-          <p className={`text-sm ${theme.textAccent} italic`}>
+          <p className={`text-sm text-${categoryTheme?.accent} italic`}>
             {language === 'en' ? categoryConfig?.taglineEn : categoryConfig?.taglineFr}
           </p>
         </div>
 
         {/* Main Card */}
-        <div className={`bg-slate-900/70 backdrop-blur-sm rounded-2xl border ${theme.cardBorder} overflow-hidden`}>
+        <div className={`bg-slate-900/70 backdrop-blur-sm rounded-2xl border ${categoryTheme?.border} overflow-hidden`}>
           <div className="p-4 md:p-5 space-y-4">
             {/* Layout Picker (only for depth 3 or 5) */}
             {needsLayout && availableLayouts.length > 0 && (
               <div>
                 <label className="block text-xs text-slate-400 uppercase tracking-wider mb-2">
-                  {language === 'en' ? 'Reading Layout' : 'Disposition de Tirage'}
+                  {language === 'en' ? 'Choose Your Reading Layout' : 'Choisissez Votre Disposition'}
                 </label>
 
-                {/* Collapsed state - shows selected layout */}
+                {/* Collapsed state - shows selected layout name only */}
                 <button
                   onClick={() => setLayoutPickerOpen(!layoutPickerOpen)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
@@ -266,14 +292,14 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                   <div className="flex items-center gap-2">
                     {selectedLayoutDetails ? (
                       <>
-                        <Check className={`w-4 h-4 ${theme.textAccent}`} />
-                        <span className="text-white text-sm">
+                        <Check className={`w-4 h-4 text-${categoryTheme?.accent}`} />
+                        <span className="text-white text-sm font-medium">
                           {language === 'en' ? selectedLayoutDetails.labelEn : selectedLayoutDetails.labelFr}
                         </span>
                       </>
                     ) : (
                       <span className="text-slate-400 text-sm">
-                        {language === 'en' ? 'Select a layout...' : 'Selectionnez une disposition...'}
+                        {language === 'en' ? 'Tap to choose...' : 'Appuyez pour choisir...'}
                       </span>
                     )}
                   </div>
@@ -284,7 +310,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                   />
                 </button>
 
-                {/* Expanded state - shows all layouts */}
+                {/* Expanded state - shows available layouts with positions */}
                 <AnimatePresence>
                   {layoutPickerOpen && (
                     <motion.div
@@ -294,27 +320,49 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                      <div className="mt-3 space-y-3">
                         {availableLayouts.map((layout) => {
                           const isSelected = selectedLayout === layout.id;
+                          const shortPositions = language === 'en' ? layout.shortPositions.en : layout.shortPositions.fr;
 
                           return (
                             <button
                               key={layout.id}
                               onClick={() => handleLayoutSelect(layout.id as ThreeCardLayoutId | FiveCardLayoutId)}
-                              className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                              className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
                                 isSelected
-                                  ? 'bg-slate-700/50 border-white/30'
-                                  : 'bg-slate-800/30 border-white/5 hover:border-white/15'
+                                  ? `bg-white/10 ${categoryTheme?.border}`
+                                  : 'bg-slate-800/30 border-white/10 hover:border-white/20'
                               }`}
                             >
-                              <div className="flex items-center gap-2 mb-1">
-                                {isSelected && <Check className={`w-3.5 h-3.5 ${theme.textAccent}`} />}
-                                <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                              {/* Layout Name */}
+                              <div className="flex items-center gap-2 mb-2">
+                                {isSelected && <Check className={`w-4 h-4 text-${categoryTheme?.accent}`} />}
+                                <span className={`text-base font-medium ${isSelected ? 'text-white' : 'text-slate-200'}`}>
                                   {language === 'en' ? layout.labelEn : layout.labelFr}
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-400 line-clamp-2">
+
+                              {/* Card Positions - Visual display with short names */}
+                              <div className="flex items-center gap-1.5 mb-2">
+                                {shortPositions.map((position, idx) => (
+                                  <div key={idx} className="flex items-center">
+                                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                                      isSelected
+                                        ? `bg-${categoryTheme?.accent}/20 text-${categoryTheme?.accent}`
+                                        : 'bg-white/10 text-slate-300'
+                                    }`}>
+                                      {position}
+                                    </div>
+                                    {idx < shortPositions.length - 1 && (
+                                      <span className="text-slate-500 mx-1">→</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-xs text-slate-400 leading-relaxed">
                                 {language === 'en' ? layout.taglineEn : layout.taglineFr}
                               </p>
                             </button>
@@ -327,52 +375,54 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
               </div>
             )}
 
-            {/* Question Section */}
-            <div>
-              <label className="block text-xs text-slate-400 uppercase tracking-wider mb-2">
-                {language === 'en' ? 'Your Question' : 'Votre Question'}
-              </label>
+            {/* Question Section - hidden for birth cards (questions come after interpretation) */}
+            {!isBirthCards && (
+              <div>
+                <label className="block text-xs text-slate-400 uppercase tracking-wider mb-2">
+                  {language === 'en' ? 'Your Question' : 'Votre Question'}
+                </label>
 
-              {/* Suggested Questions */}
-              <div className="mb-3">
-                <p className="text-xs text-slate-500 mb-2">
-                  {language === 'en' ? 'Suggested questions:' : 'Questions suggerees:'}
-                </p>
-                <div className="space-y-1.5">
-                  {suggestedQuestions.slice(0, 3).map((q) => (
-                    <button
-                      key={q.id}
-                      onClick={() => handleSuggestedQuestionClick(language === 'en' ? q.textEn : q.textFr)}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/15 transition-colors"
-                    >
-                      <span className="text-xs text-slate-300 line-clamp-2">
-                        {language === 'en' ? q.textEn : q.textFr}
-                      </span>
-                    </button>
-                  ))}
+                {/* Custom Question Textarea - First */}
+                <div className="relative mb-3">
+                  <textarea
+                    value={customQuestion}
+                    onChange={(e) => onCustomQuestionChange(e.target.value)}
+                    placeholder={
+                      language === 'en'
+                        ? 'What would you like guidance on?'
+                        : 'Sur quoi souhaitez-vous des conseils?'
+                    }
+                    className="w-full h-24 px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-white/30 focus:outline-none resize-none"
+                    maxLength={300}
+                  />
+                  <span className="absolute bottom-2 right-2 text-xs text-slate-500">
+                    {customQuestion.length}/300
+                  </span>
+                </div>
+
+                {/* Suggested Questions - After */}
+                <div>
+                  <p className="text-xs text-slate-500 mb-2">
+                    {language === 'en' ? 'Or try a suggested question:' : 'Ou essayez une question suggeree:'}
+                  </p>
+                  <div className="space-y-1.5">
+                    {suggestedQuestions.slice(0, 3).map((q) => (
+                      <button
+                        key={q.id}
+                        onClick={() => handleSuggestedQuestionClick(language === 'en' ? q.textEn : q.textFr)}
+                        className="w-full text-left px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/15 transition-colors"
+                      >
+                        <span className="text-xs text-slate-300 line-clamp-2">
+                          {language === 'en' ? q.textEn : q.textFr}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Custom Question Textarea */}
-              <div className="relative">
-                <textarea
-                  value={customQuestion}
-                  onChange={(e) => onCustomQuestionChange(e.target.value)}
-                  placeholder={
-                    language === 'en'
-                      ? 'Or write your own question...'
-                      : 'Ou ecrivez votre propre question...'
-                  }
-                  className="w-full h-24 px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-white/30 focus:outline-none resize-none"
-                  maxLength={300}
-                />
-                <span className="absolute bottom-2 right-2 text-xs text-slate-500">
-                  {customQuestion.length}/300
-                </span>
-              </div>
-            </div>
-
-            {/* Advanced Styles Toggle */}
+            {/* Advanced Styles Toggle - paid upgrade (+1 credit) */}
             <div>
               <button
                 onClick={onAdvancedToggle}
@@ -380,7 +430,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
-                  {language === 'en' ? 'Interpretation Styles' : 'Styles d\'Interpretation'}
+                  {language === 'en' ? 'Upgrade Style (+1 credit)' : 'Style Avance (+1 credit)'}
                 </span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform ${isAdvanced ? 'rotate-180' : ''}`}
@@ -446,7 +496,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
               <span className="text-xs text-slate-500 uppercase tracking-wider">
                 {language === 'en' ? 'Cost' : 'Cout'}
               </span>
-              <div className={`flex items-center gap-1.5 ${theme.textAccent}`}>
+              <div className={`flex items-center gap-1.5 text-${categoryTheme?.accent}`}>
                 <Coins className="w-4 h-4" />
                 <span className="font-bold text-lg">{totalCost}</span>
                 <span className="text-slate-500 text-xs">
@@ -461,7 +511,9 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
               className="w-full"
               disabled={!canProceed}
             >
-              {language === 'en' ? 'Begin Reading' : 'Commencer la Lecture'}
+              {isBirthCards
+                ? (language === 'en' ? 'Reveal Your Card' : 'Révéler Votre Carte')
+                : (language === 'en' ? 'Begin Reading' : 'Commencer la Lecture')}
             </Button>
 
             {/* Helper text when disabled */}
@@ -471,7 +523,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                   ? language === 'en'
                     ? 'Select a layout to continue'
                     : 'Selectionnez une disposition pour continuer'
-                  : !hasValidQuestion
+                  : !isBirthCards && !customQuestion.trim()
                   ? language === 'en'
                     ? 'Enter your question to continue'
                     : 'Entrez votre question pour continuer'

@@ -2,17 +2,34 @@ import React from 'react';
 import { SpreadType } from '../../types';
 import { SPREAD_THEMES } from './SpreadThemes';
 
-interface ThemedBackgroundProps {
-  spreadType: SpreadType;
+interface CategoryColorTheme {
+  gradient: string;
+  glow: string;
 }
 
-const ThemedBackground: React.FC<ThemedBackgroundProps> = ({ spreadType }) => {
-  const theme = SPREAD_THEMES[spreadType];
+interface ThemedBackgroundProps {
+  spreadType: SpreadType;
+  categoryTheme?: CategoryColorTheme; // Optional: when provided, uses category colors instead
+}
+
+const ThemedBackground: React.FC<ThemedBackgroundProps> = ({ spreadType, categoryTheme }) => {
+  const spreadTheme = SPREAD_THEMES[spreadType];
+
+  // Use category gradient if provided, otherwise fall back to spread theme
+  const bgGradient = categoryTheme?.gradient || spreadTheme.bgGradient;
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      {/* Base gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${theme.bgGradient}`} />
+      {/* Base gradient - uses category theme if provided */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient}`} />
+
+      {/* Category-themed glow when using category colors */}
+      {categoryTheme && (
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl opacity-30"
+          style={{ backgroundColor: categoryTheme.glow.replace('/20', '').replace('/30', '') }}
+        />
+      )}
 
       {/* Spread-specific atmospheric effects */}
       {spreadType === SpreadType.SINGLE && (

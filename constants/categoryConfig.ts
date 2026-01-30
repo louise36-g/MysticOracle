@@ -4,8 +4,8 @@
 import React, { createElement } from 'react';
 import { Heart, Briefcase, Coins, Compass, Users, Sparkles } from 'lucide-react';
 import type { ReadingCategory, ReadingDepth, BirthCardDepth } from '../types';
-import type { ThreeCardLayoutId } from './threeCardLayouts';
-import type { FiveCardLayoutId } from './fiveCardLayouts';
+import type { ThreeCardLayoutId, THREE_CARD_LAYOUTS } from './threeCardLayouts';
+import type { FiveCardLayoutId, FIVE_CARD_LAYOUTS } from './fiveCardLayouts';
 
 // Color theme configuration for category styling
 export interface ColorTheme {
@@ -25,9 +25,15 @@ export interface CategoryConfig {
   icon: React.ReactNode;
   colorTheme: ColorTheme;
   depths: ReadingDepth[] | BirthCardDepth[];
+  /** Default layout to pre-select */
   defaultLayouts?: {
     3?: ThreeCardLayoutId;
     5?: FiveCardLayoutId;
+  };
+  /** Available layouts for this category (2 options per depth) */
+  availableLayouts?: {
+    3?: ThreeCardLayoutId[];
+    5?: FiveCardLayoutId[];
   };
 }
 
@@ -39,13 +45,13 @@ export interface DepthOption {
   cost: number;
 }
 
-// Regular depth options (for most categories)
+// Regular depth options (for most categories) - cost = number of cards
 export const REGULAR_DEPTHS: DepthOption[] = [
   { cards: 1, labelEn: 'Quick Insight', labelFr: 'Apercu Rapide', cost: 1 },
-  { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 2 },
-  { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 3 },
-  { cards: 7, labelEn: "Fortune's Arc", labelFr: 'Arc du Destin', cost: 4 },
-  { cards: 10, labelEn: 'Complete Picture', labelFr: 'Tableau Complet', cost: 5 },
+  { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 3 },
+  { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 5 },
+  { cards: 7, labelEn: "Fortune's Arc", labelFr: 'Arc du Destin', cost: 7 },
+  { cards: 10, labelEn: 'Complete Picture', labelFr: 'Tableau Complet', cost: 10 },
 ];
 
 // Birth card depth options (special category)
@@ -65,15 +71,19 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Comprenez le voyage de votre coeur',
     icon: createElement(Heart, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-rose-500 to-pink-600',
-      accent: 'rose-500',
-      glow: 'rose-500/30',
-      border: 'border-rose-500/50',
+      gradient: 'from-rose-950/90 via-pink-900/80 to-rose-950/90',
+      accent: 'rose-400',
+      glow: 'rose-500/20',
+      border: 'border-rose-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'you_them_connection',
       5: 'love_relationships',
+    },
+    availableLayouts: {
+      3: ['you_them_connection', 'mind_body_spirit'],
+      5: ['love_relationships', 'inner_child'],
     },
   },
   {
@@ -84,15 +94,19 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Naviguez votre parcours professionnel',
     icon: createElement(Briefcase, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-amber-500 to-orange-600',
-      accent: 'amber-500',
-      glow: 'amber-500/30',
-      border: 'border-amber-500/50',
+      gradient: 'from-amber-950/90 via-orange-900/80 to-amber-950/90',
+      accent: 'amber-400',
+      glow: 'amber-500/20',
+      border: 'border-amber-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'situation_action_outcome',
       5: 'career_purpose',
+    },
+    availableLayouts: {
+      3: ['situation_action_outcome', 'situation_obstacle_path'],
+      5: ['career_purpose', 'values'],
     },
   },
   {
@@ -103,15 +117,19 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Debloquez votre flux financier',
     icon: createElement(Coins, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-emerald-500 to-green-600',
-      accent: 'emerald-500',
-      glow: 'emerald-500/30',
-      border: 'border-emerald-500/50',
+      gradient: 'from-emerald-950/90 via-green-900/80 to-emerald-950/90',
+      accent: 'emerald-400',
+      glow: 'emerald-500/20',
+      border: 'border-emerald-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'situation_action_outcome',
       5: 'alchemy',
+    },
+    availableLayouts: {
+      3: ['situation_action_outcome', 'option_a_b_guidance'],
+      5: ['alchemy', 'values'],
     },
   },
   {
@@ -122,15 +140,19 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Decouvrez votre vraie direction',
     icon: createElement(Compass, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-indigo-500 to-purple-600',
-      accent: 'indigo-500',
-      glow: 'indigo-500/30',
-      border: 'border-indigo-500/50',
+      gradient: 'from-indigo-950/90 via-purple-900/80 to-indigo-950/90',
+      accent: 'indigo-400',
+      glow: 'indigo-500/20',
+      border: 'border-indigo-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'past_present_future',
       5: 'authentic_self',
+    },
+    availableLayouts: {
+      3: ['past_present_future', 'challenge_support_growth'],
+      5: ['authentic_self', 'alchemy'],
     },
   },
   {
@@ -141,15 +163,19 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Renforcez vos racines',
     icon: createElement(Users, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-teal-500 to-cyan-600',
-      accent: 'teal-500',
-      glow: 'teal-500/30',
-      border: 'border-teal-500/50',
+      gradient: 'from-teal-950/90 via-cyan-900/80 to-teal-950/90',
+      accent: 'teal-400',
+      glow: 'teal-500/20',
+      border: 'border-teal-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'you_them_connection',
       5: 'inner_child',
+    },
+    availableLayouts: {
+      3: ['you_them_connection', 'mind_body_spirit'],
+      5: ['inner_child', 'safe_space'],
     },
   },
   {
@@ -160,10 +186,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Revelez le plan de votre ame',
     icon: createElement(Sparkles, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-violet-500 to-purple-600',
-      accent: 'violet-500',
-      glow: 'violet-500/30',
-      border: 'border-violet-500/50',
+      gradient: 'from-violet-950/90 via-purple-900/80 to-violet-950/90',
+      accent: 'violet-400',
+      glow: 'violet-500/20',
+      border: 'border-violet-500/30',
     },
     depths: [1, 2, 3] as BirthCardDepth[],
     // No default layouts for birth cards - they use a special calculation

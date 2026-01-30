@@ -21,6 +21,11 @@ export interface ThreeCardLayout {
     en: [string, string, string];
     fr: [string, string, string];
   };
+  /** Short position names for compact display */
+  shortPositions: {
+    en: [string, string, string];
+    fr: [string, string, string];
+  };
 }
 
 export interface ThreeCardCategoryConfig {
@@ -50,6 +55,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
       en: ['Past', 'Present', 'Future'],
       fr: ['Passé', 'Présent', 'Futur'],
     },
+    shortPositions: {
+      en: ['Past', 'Present', 'Future'],
+      fr: ['Passé', 'Présent', 'Futur'],
+    },
   },
   you_them_connection: {
     id: 'you_them_connection',
@@ -60,6 +69,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     positions: {
       en: ['You', 'Them', 'The Connection'],
       fr: ['Vous', 'Eux', 'La Connexion'],
+    },
+    shortPositions: {
+      en: ['You', 'Them', 'Bond'],
+      fr: ['Vous', 'Eux', 'Lien'],
     },
   },
   situation_action_outcome: {
@@ -72,6 +85,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
       en: ['Situation', 'Action', 'Outcome'],
       fr: ['Situation', 'Action', 'Résultat'],
     },
+    shortPositions: {
+      en: ['Now', 'Action', 'Result'],
+      fr: ['Actuel', 'Action', 'Résultat'],
+    },
   },
   option_a_b_guidance: {
     id: 'option_a_b_guidance',
@@ -82,6 +99,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     positions: {
       en: ['Option A', 'Option B', 'Guidance'],
       fr: ['Option A', 'Option B', 'Conseil'],
+    },
+    shortPositions: {
+      en: ['Path A', 'Path B', 'Advice'],
+      fr: ['Voie A', 'Voie B', 'Conseil'],
     },
   },
   situation_obstacle_path: {
@@ -94,6 +115,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
       en: ['Situation', 'Obstacle', 'Path Forward'],
       fr: ['Situation', 'Obstacle', 'Voie à Suivre'],
     },
+    shortPositions: {
+      en: ['Now', 'Block', 'Forward'],
+      fr: ['Actuel', 'Blocage', 'Issue'],
+    },
   },
   mind_body_spirit: {
     id: 'mind_body_spirit',
@@ -105,6 +130,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
       en: ['Mind', 'Body', 'Spirit'],
       fr: ['Esprit', 'Corps', 'Âme'],
     },
+    shortPositions: {
+      en: ['Mind', 'Body', 'Spirit'],
+      fr: ['Esprit', 'Corps', 'Âme'],
+    },
   },
   challenge_support_growth: {
     id: 'challenge_support_growth',
@@ -113,6 +142,10 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     taglineEn: 'Navigate difficult times with clarity. Understand the challenge you\'re facing, where to find support, and how this experience helps you grow.',
     taglineFr: 'Naviguez les moments difficiles avec clarté. Comprenez le défi, où trouver du soutien, et comment cette expérience vous fait grandir.',
     positions: {
+      en: ['Challenge', 'Support', 'Growth'],
+      fr: ['Défi', 'Soutien', 'Croissance'],
+    },
+    shortPositions: {
       en: ['Challenge', 'Support', 'Growth'],
       fr: ['Défi', 'Soutien', 'Croissance'],
     },

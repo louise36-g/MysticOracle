@@ -5,6 +5,7 @@ import { ReadingCategory } from '../../types';
 
 interface ColorTheme {
   glow: string;
+  accent?: string; // e.g., 'rose-400'
 }
 
 interface DepthVisualProps {
@@ -24,8 +25,8 @@ interface DepthVisualProps {
  * - 10 cards: Mini Celtic cross layout
  */
 const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
-  // Base card styling
-  const cardBaseClass = 'rounded-sm bg-gradient-to-br from-white/20 to-white/5 border border-white/30';
+  // Base card styling - uses category accent color for border
+  const cardBaseClass = `rounded-sm bg-gradient-to-br from-white/25 to-white/10 border border-white/40`;
 
   // Animation variants for cards
   const cardVariants = {
@@ -155,50 +156,50 @@ const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
     );
   }
 
-  // Celtic Cross (10 cards)
+  // Celtic Cross (10 cards) - proper cross layout with staff to the right
   if (cards === 10) {
     return (
       <div className="flex items-center justify-center h-14">
-        <div className="flex items-center gap-3">
-          {/* Cross portion (6 cards) */}
-          <div className="relative w-14 h-12">
-            {/* Top card (position 5) */}
+        <div className="flex items-end gap-2">
+          {/* Cross portion (6 cards) - proper Celtic Cross shape */}
+          <div className="relative w-16 h-12">
+            {/* Crown/Above - top of cross (position 5) */}
             <motion.div
               custom={4}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
                 left: '50%',
-                top: '0',
+                top: '-2px',
                 transform: 'translateX(-50%)',
                 boxShadow: `0 0 3px ${colorTheme.glow}`,
               }}
             />
 
-            {/* Left card (position 4) */}
+            {/* Past - left of cross (position 4) */}
             <motion.div
               custom={3}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
-                left: '0',
+                left: '2px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 boxShadow: `0 0 3px ${colorTheme.glow}`,
               }}
             />
 
-            {/* Center card (position 1) */}
+            {/* Center/Present card (position 1) */}
             <motion.div
               custom={0}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
                 left: '50%',
                 top: '50%',
@@ -207,13 +208,13 @@ const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
               }}
             />
 
-            {/* Crossing card (position 2) - rotated */}
+            {/* Crossing card (position 2) - rotated horizontally over center */}
             <motion.div
               custom={1}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
                 left: '50%',
                 top: '50%',
@@ -223,39 +224,39 @@ const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
               }}
             />
 
-            {/* Right card (position 6) */}
+            {/* Future - right of cross (position 6) */}
             <motion.div
               custom={5}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
-                right: '0',
+                right: '2px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 boxShadow: `0 0 3px ${colorTheme.glow}`,
               }}
             />
 
-            {/* Bottom card (position 3) */}
+            {/* Foundation/Below - bottom of cross (position 3) */}
             <motion.div
               custom={2}
               initial="hidden"
               animate="visible"
               variants={cardVariants}
-              className={`absolute w-3 h-5 ${cardBaseClass}`}
+              className={`absolute w-2.5 h-4 ${cardBaseClass}`}
               style={{
                 left: '50%',
-                bottom: '0',
+                bottom: '-2px',
                 transform: 'translateX(-50%)',
                 boxShadow: `0 0 3px ${colorTheme.glow}`,
               }}
             />
           </div>
 
-          {/* Staff portion (4 cards) - vertical column */}
-          <div className="flex flex-col gap-0.5">
+          {/* Staff portion (4 cards) - vertical column on the right */}
+          <div className="flex flex-col-reverse gap-0.5">
             {[6, 7, 8, 9].map((i) => (
               <motion.div
                 key={i}
@@ -263,7 +264,7 @@ const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
                 initial="hidden"
                 animate="visible"
                 variants={cardVariants}
-                className={`w-2.5 h-3 ${cardBaseClass}`}
+                className={`w-2 h-2.5 ${cardBaseClass}`}
                 style={{ boxShadow: `0 0 2px ${colorTheme.glow}` }}
               />
             ))}

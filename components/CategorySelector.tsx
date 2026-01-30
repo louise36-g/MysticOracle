@@ -194,8 +194,12 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                             : 'How deep would you like to go?'}
                         </p>
 
-                        {/* Depth Options Grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                        {/* Depth Options Grid - center items when fewer than 5 (like birth cards with 3) */}
+                        <div className={`grid gap-3 ${
+                          depths.length <= 3
+                            ? 'grid-cols-3 max-w-md mx-auto'
+                            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
+                        }`}>
                           {depths.map((depth) => {
                             const isHovered = hoveredDepth === depth.cards;
                             const userCredits = user?.credits ?? 0;
@@ -226,7 +230,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                   <DepthVisual
                                     cards={depth.cards}
                                     category={category.id}
-                                    colorTheme={{ glow: category.colorTheme.glow }}
+                                    colorTheme={{
+                                      glow: category.colorTheme.glow,
+                                      accent: category.colorTheme.accent,
+                                    }}
                                   />
                                 </div>
 
