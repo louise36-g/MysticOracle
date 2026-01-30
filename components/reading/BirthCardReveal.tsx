@@ -73,12 +73,8 @@ interface UnifiedCardData {
   cardName: string;
   cardNameFr: string;
   image: string;
-  asPersonalityEn: string;
-  asPersonalityFr: string;
-  asSoulEn: string;
-  asSoulFr: string;
-  unifiedEnergyEn: string;
-  unifiedEnergyFr: string;
+  descriptionEn: string;
+  descriptionFr: string;
   keyThemesEn: string[];
   keyThemesFr: string[];
 }
@@ -100,12 +96,8 @@ interface YearEnergyData {
   reducedCardId: number;
   reducedCardName: string;
   reducedCardNameFr: string;
-  wheelEnergyEn: string;
-  wheelEnergyFr: string;
-  magicianEnergyEn: string;
-  magicianEnergyFr: string;
-  combinedThemeEn: string;
-  combinedThemeFr: string;
+  descriptionEn: string;
+  descriptionFr: string;
   keywordsEn: string[];
   keywordsFr: string[];
   soulCardInteractions: YearInteraction[];
@@ -260,14 +252,7 @@ const BirthCardReveal: React.FC = () => {
 
       {/* Description */}
       <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
-        {isUnified && unifiedData?.asPersonalityEn ? (
-          <div
-            className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
-            dangerouslySetInnerHTML={{
-              __html: language === 'en' ? unifiedData.asPersonalityEn : unifiedData.asPersonalityFr,
-            }}
-          />
-        ) : personalityData?.descriptionEn ? (
+        {personalityData?.descriptionEn ? (
           <div
             className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
             dangerouslySetInnerHTML={{
@@ -336,14 +321,7 @@ const BirthCardReveal: React.FC = () => {
 
         {/* Description */}
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20">
-          {isUnified && unifiedData?.asSoulEn ? (
-            <div
-              className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
-              dangerouslySetInnerHTML={{
-                __html: language === 'en' ? unifiedData.asSoulEn : unifiedData.asSoulFr,
-              }}
-            />
-          ) : soulData?.descriptionEn ? (
+          {soulData?.descriptionEn ? (
             <div
               className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
@@ -429,11 +407,11 @@ const BirthCardReveal: React.FC = () => {
 
         {/* Description */}
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          {isUnified && unifiedData?.unifiedEnergyEn ? (
+          {isUnified && unifiedData?.descriptionEn ? (
             <div
               className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? unifiedData.unifiedEnergyEn : unifiedData.unifiedEnergyFr,
+                __html: language === 'en' ? unifiedData.descriptionEn : unifiedData.descriptionFr,
               }}
             />
           ) : !isUnified && pairData?.dynamicEn ? (
@@ -513,13 +491,13 @@ const BirthCardReveal: React.FC = () => {
         {/* Year Theme */}
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
           <h4 className="text-sky-300 font-heading text-lg mb-3">
-            {language === 'en' ? '2026 Combined Theme' : 'Thème Combiné 2026'}
+            {language === 'en' ? '2026 Year Energy' : 'Énergie de l\'Année 2026'}
           </h4>
-          {yearData.combinedThemeEn ? (
+          {yearData.descriptionEn ? (
             <div
               className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? yearData.combinedThemeEn : yearData.combinedThemeFr,
+                __html: language === 'en' ? yearData.descriptionEn : yearData.descriptionFr,
               }}
             />
           ) : (
