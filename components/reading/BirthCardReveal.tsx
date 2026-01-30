@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SpreadType, BirthCardDepth } from '../../types';
-import { calculateBirthCards, calculateYearCard, YEAR_CARD_2026 } from '../../constants/birthCardMeanings';
+import { calculateBirthCards } from '../../constants/birthCardMeanings';
 import { getCardImageUrl } from '../../constants/cardImages';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
@@ -21,7 +21,7 @@ import personalityCards from '../../constants/birthCards/personalityCards.json';
 import soulCards from '../../constants/birthCards/soulCards.json';
 import birthCardPairs from '../../constants/birthCards/birthCardPairs.json';
 import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json';
-import yearEnergy2026 from '../../constants/birthCards/yearEnergy2026.json';
+import yearEnergyCycle from '../../constants/birthCards/yearEnergyCycle.json';
 
 interface BirthDate {
   day: string;
@@ -79,29 +79,19 @@ interface UnifiedCardData {
   keyThemesFr: string[];
 }
 
-interface YearInteraction {
-  soulCardId?: number;
-  personalityCardId?: number;
-  soulCardName?: string;
-  personalityCardName?: string;
-  interactionEn: string;
-  interactionFr: string;
-}
-
 interface YearEnergyData {
   year: number;
-  yearCardId: number;
-  yearCardName: string;
-  yearCardNameFr: string;
+  primaryCardId: number;
+  primaryCardName: string;
+  primaryCardNameFr: string;
   reducedCardId: number;
   reducedCardName: string;
   reducedCardNameFr: string;
+  isUnified: boolean;
   descriptionEn: string;
   descriptionFr: string;
   keywordsEn: string[];
   keywordsFr: string[];
-  soulCardInteractions: YearInteraction[];
-  personalityCardInteractions: YearInteraction[];
 }
 
 const BirthCardReveal: React.FC = () => {
@@ -135,7 +125,6 @@ const BirthCardReveal: React.FC = () => {
 
   // Calculate birth cards using corrected logic
   const { soulCard: soulCardId, personalityCard: personalityCardId } = calculateBirthCards(day, month, year);
-  const yearCardId = depth >= 3 ? calculateYearCard(day, month, YEAR_CARD_2026.year) : null;
 
   const isUnified = soulCardId === personalityCardId;
 
@@ -158,12 +147,15 @@ const BirthCardReveal: React.FC = () => {
     ? (unifiedBirthCards.find((u: UnifiedCardData) => u.cardId === soulCardId) as UnifiedCardData | undefined)
     : undefined;
 
-  const yearData = yearEnergy2026 as YearEnergyData;
+  // Get year energy data for current year (defaults to 2026, the current cycle start)
+  const currentYear = new Date().getFullYear();
+  const yearData = (yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
+    || (yearEnergyCycle as YearEnergyData[])[0]; // Fallback to 2026 if not found
 
   // Build image URLs
   const personalityImageUrl = getCardImageUrl(personalityCardId);
   const soulImageUrl = getCardImageUrl(soulCardId);
-  const yearImageUrl = yearCardId !== null ? getCardImageUrl(yearCardId) : '';
+  const yearImageUrl = depth >= 3 && yearData ? getCardImageUrl(yearData.primaryCardId) : '';
 
   // Handle image load error
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
@@ -433,15 +425,7 @@ const BirthCardReveal: React.FC = () => {
 
   // Render Year Tab (for depth >= 3)
   const renderYearTab = () => {
-    if (depth < 3 || yearCardId === null) return null;
-
-    // Find interactions
-    const soulInteraction = yearData.soulCardInteractions.find(
-      (i) => i.soulCardId === soulCardId
-    );
-    const personalityInteraction = yearData.personalityCardInteractions.find(
-      (i) => i.personalityCardId === personalityCardId
-    );
+    if (depth < 3 || !yearData) return null;
 
     return (
       <motion.div
@@ -459,9 +443,9 @@ const BirthCardReveal: React.FC = () => {
           >
             <img
               src={yearImageUrl}
-              alt={yearData.yearCardName}
+              alt={yearData.primaryCardName}
               className="w-48 h-72 md:w-56 md:h-84 object-cover"
-              onError={(e) => handleImageError(e, yearData.yearCardName)}
+              onError={(e) => handleImageError(e, yearData.primaryCardName)}
             />
           </div>
         </div>
@@ -472,9 +456,17 @@ const BirthCardReveal: React.FC = () => {
             {language === 'en' ? `Year ${yearData.year} Energy` : `Énergie de l'Année ${yearData.year}`}
           </h3>
           <p className="text-white/70 text-sm mb-3">
-            {language === 'en' ? yearData.yearCardName : yearData.yearCardNameFr}
-            {' → '}
-            {language === 'en' ? yearData.reducedCardName : yearData.reducedCardNameFr}
+            {yearData.isUnified ? (
+              // Unified year - single card
+              language === 'en' ? yearData.primaryCardName : yearData.primaryCardNameFr
+            ) : (
+              // Dual energy year
+              <>
+                {language === 'en' ? yearData.primaryCardName : yearData.primaryCardNameFr}
+                {' → '}
+                {language === 'en' ? yearData.reducedCardName : yearData.reducedCardNameFr}
+              </>
+            )}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {(language === 'en' ? yearData.keywordsEn : yearData.keywordsFr).map((keyword, i) => (
@@ -488,11 +480,8 @@ const BirthCardReveal: React.FC = () => {
           </div>
         </div>
 
-        {/* Year Theme */}
+        {/* Year Energy Description */}
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
-          <h4 className="text-sky-300 font-heading text-lg mb-3">
-            {language === 'en' ? '2026 Year Energy' : 'Énergie de l\'Année 2026'}
-          </h4>
           {yearData.descriptionEn ? (
             <div
               className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
@@ -501,44 +490,11 @@ const BirthCardReveal: React.FC = () => {
               }}
             />
           ) : (
-            <p className="text-white/60 italic">
+            <p className="text-white/60 italic text-center">
               {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
             </p>
           )}
         </div>
-
-        {/* How Year Interacts with Your Cards */}
-        {(personalityInteraction?.interactionEn || soulInteraction?.interactionEn) && (
-          <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
-            <h4 className="text-sky-300 font-heading text-lg mb-3">
-              {language === 'en' ? 'Your 2026 Journey' : 'Votre Parcours 2026'}
-            </h4>
-            {personalityInteraction?.interactionEn && (
-              <div className="mb-4">
-                <p className="text-amber-300 text-sm font-medium mb-2">
-                  {language === 'en'
-                    ? `With ${personalityInteraction.personalityCardName} Personality:`
-                    : `Avec Personnalité ${personalityData?.cardNameFr}:`}
-                </p>
-                <p className="text-white/80 leading-relaxed">
-                  {language === 'en' ? personalityInteraction.interactionEn : personalityInteraction.interactionFr}
-                </p>
-              </div>
-            )}
-            {!isUnified && soulInteraction?.interactionEn && (
-              <div>
-                <p className="text-violet-300 text-sm font-medium mb-2">
-                  {language === 'en'
-                    ? `With ${soulInteraction.soulCardName} Soul:`
-                    : `Avec Âme ${soulData?.cardNameFr}:`}
-                </p>
-                <p className="text-white/80 leading-relaxed">
-                  {language === 'en' ? soulInteraction.interactionEn : soulInteraction.interactionFr}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
       </motion.div>
     );
   };
@@ -587,11 +543,11 @@ const BirthCardReveal: React.FC = () => {
     });
   }
 
-  if (depth >= 3) {
+  if (depth >= 3 && yearData) {
     tabs.push({
       id: 'year',
       icon: <MoonIcon className="w-5 h-5" />,
-      label: language === 'en' ? `${YEAR_CARD_2026.year}` : `${YEAR_CARD_2026.year}`,
+      label: `${yearData.year}`,
     });
   }
 
