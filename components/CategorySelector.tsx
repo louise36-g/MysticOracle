@@ -1,8 +1,8 @@
 // components/CategorySelector.tsx
 // Category-first selection grid with inline depth expansion
 
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Coins } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -15,11 +15,26 @@ interface CategorySelectorProps {
   className?: string;
 }
 
+interface LocationState {
+  expandCategory?: ReadingCategory;
+}
+
 const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) => {
   const { language, user, t } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState | null;
 
   const [expandedCategory, setExpandedCategory] = useState<ReadingCategory | null>(null);
+
+  // Auto-expand category if passed in location state (from SubNav dropdown)
+  useEffect(() => {
+    if (locationState?.expandCategory) {
+      setExpandedCategory(locationState.expandCategory);
+      // Clear the state so it doesn't persist on navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [locationState?.expandCategory]);
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [hoveredDepth, setHoveredDepth] = useState<number | null>(null);
 

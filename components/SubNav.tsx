@@ -67,10 +67,11 @@ const SubNav: React.FC = () => {
     setOpenDropdown(null);
   };
 
-  // Handle category selection: navigate to category selector or specific category
+  // Handle category selection: navigate to category selector with pre-selected category
   const handleCategorySelect = useCallback((categoryId: ReadingCategory) => {
     setOpenDropdown(null);
-    navigate(ROUTES.READING);
+    // Pass the selected category in location state so CategorySelector can auto-expand it
+    navigate(ROUTES.READING, { state: { expandCategory: categoryId } });
   }, [navigate]);
 
   // Helper to check if path is active
