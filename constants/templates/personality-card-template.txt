@@ -1,0 +1,319 @@
+PERSONALITY CARD TEMPLATE
+==========================
+These are the meanings for each card when it appears as your PERSONALITY CARD
+(the outer expression, how others see you) in a birth card pair where Soul ≠ Personality.
+
+Fill in the descriptions below. When done, paste the whole file to Claude and I'll convert it to JSON.
+
+---
+
+CARD 10 - WHEEL OF FORTUNE (La Roue de Fortune)
+Paired with Soul Card: The Magician (1)
+Keywords: Adaptability, Fortune, Cycles
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 11 - JUSTICE (La Justice)
+Paired with Soul Card: The High Priestess (2)
+Keywords: Fairness, Balance, Truth
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 12 - THE HANGED MAN (Le Pendu)
+Paired with Soul Card: The Empress (3)
+Keywords: Surrender, New Perspective, Patience
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 13 - DEATH (L'Arcane Sans Nom)
+Paired with Soul Card: The Emperor (4)
+Keywords: Transformation, Endings, Renewal
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 14 - TEMPERANCE (Tempérance)
+Paired with Soul Card: The Hierophant (5)
+Keywords: Balance, Moderation, Harmony
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 15 - THE DEVIL (Le Diable)
+Paired with Soul Card: The Lovers (6)
+Keywords: Shadow Work, Liberation, Authenticity
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 16 - THE TOWER (La Maison Dieu)
+Paired with Soul Card: The Chariot (7)
+Keywords: Breakthrough, Awakening, Truth
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 17 - THE STAR (L'Étoile)
+Paired with Soul Card: Strength (8)
+Keywords: Hope, Inspiration, Healing
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 18 - THE MOON (La Lune)
+Paired with Soul Card: The Hermit (9)
+Keywords: Intuition, Dreams, Mystery
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 19 - THE SUN (Le Soleil)
+Paired with Soul Card: Wheel of Fortune (10)
+Keywords: Joy, Vitality, Success
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 20 - JUDGEMENT (Le Jugement)
+Paired with Soul Card: The High Priestess (2)
+Keywords: Awakening, Calling, Rebirth
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 21 - THE WORLD (Le Monde)
+Paired with Soul Card: The Empress (3)
+Keywords: Completion, Integration, Fulfillment
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
+---
+
+CARD 22/0 - THE FOOL (Le Mat)
+Paired with Soul Card: The Emperor (4)
+Keywords: Freedom, New Beginnings, Innocence
+
+English Personality Meaning:
+[What this card means as your outer expression/how others perceive you]
+
+French Personality Meaning:
+[Ce que cette carte signifie comme expression extérieure]
+
+English Strengths:
+[Visible strengths when this is your personality card]
+
+French Strengths:
+[Forces visibles quand c'est votre carte de personnalité]
+
+English Challenges:
+[Growth areas for this personality expression]
+
+French Challenges:
+[Défis de croissance pour cette expression de personnalité]
+
