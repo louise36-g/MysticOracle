@@ -80,6 +80,7 @@ const SubNav: React.FC = () => {
   }, [location.pathname]);
 
   // Build Tarot category menu items with themed icons
+  // Note: No href for tarot items - they use onClick to pass state to CategorySelector
   const tarotItems: DropdownItem[] = CATEGORIES.map(category => {
     return {
       id: category.id,
@@ -94,7 +95,7 @@ const SubNav: React.FC = () => {
               category.colorTheme.gradient.includes('indigo') ? 'bg-indigo-500/20' :
               category.colorTheme.gradient.includes('teal') ? 'bg-teal-500/20' :
               'bg-violet-500/20',
-      href: ROUTES.READING,
+      // No href - onClick handles navigation with state
       onClick: () => handleCategorySelect(category.id)
     };
   });

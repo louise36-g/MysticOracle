@@ -115,20 +115,25 @@ export const CARD_IMAGES: Record<number, string> = {
   ...PENTACLES_IMAGES,
 };
 
+// Cache-busting version - increment when images are updated
+const IMAGE_VERSION = '2026013001';
+
 /**
  * Get the image URL for a card (upright version)
+ * Includes cache-busting query param to force refresh when images change
  */
 export function getCardImageUrl(cardId: number): string {
   const filename = CARD_IMAGES[cardId];
   if (!filename) {
     return ''; // Fallback - no image
   }
-  return `${IMAGE_BASE_PATH}/${filename}`;
+  return `${IMAGE_BASE_PATH}/${filename}?v=${IMAGE_VERSION}`;
 }
 
 /**
  * Get the reversed image URL for a card
  * Returns the reversed version if it exists, otherwise returns upright
+ * Includes cache-busting query param
  */
 export function getCardReversedImageUrl(cardId: number): string {
   const filename = CARD_IMAGES[cardId];
@@ -139,7 +144,7 @@ export function getCardReversedImageUrl(cardId: number): string {
   // e.g., "00-the-fool.jpeg" -> "00-the-fool-reversed.jpeg"
   const ext = filename.substring(filename.lastIndexOf('.'));
   const baseName = filename.substring(0, filename.lastIndexOf('.'));
-  return `${IMAGE_BASE_PATH}/${baseName}-reversed${ext}`;
+  return `${IMAGE_BASE_PATH}/${baseName}-reversed${ext}?v=${IMAGE_VERSION}`;
 }
 
 /**

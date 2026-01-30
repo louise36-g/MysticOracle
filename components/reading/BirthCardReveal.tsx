@@ -26,16 +26,113 @@ import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json
 import yearEnergyCycle from '../../constants/birthCards/yearEnergyCycle.json';
 
 /**
- * Format HTML content by converting newlines to proper HTML breaks
- * Double newlines become paragraph breaks, single newlines become line breaks
+ * Format HTML content by converting newlines to proper HTML structure
+ * - Processes line-by-line to properly detect headers
+ * - Detects plain text headers and wraps in h2
+ * - Preserves existing HTML block elements
+ * - Ensures h2/h3 tags have visible styling
  */
 function formatHtmlContent(content: string): string {
   if (!content) return '';
-  // Convert double newlines to paragraph breaks
-  // Convert single newlines to line breaks
-  return content
-    .replace(/\n\n+/g, '<br><br>')
-    .replace(/\n/g, ' ');
+
+  // Header style constants
+  const h2Style = 'font-size: 1.5rem; font-weight: 600; color: #c4b5fd; text-align: center; margin: 1.5rem 0 0.75rem 0;';
+  const h3Style = 'font-size: 1.25rem; font-weight: 600; color: #a78bfa; text-align: center; margin: 1.25rem 0 0.5rem 0;';
+
+  // Exact header texts to detect (these appear on their own line)
+  const exactHeaders = new Set([
+    'what is a personality card?',
+    'what is a soul card?',
+    'how others experience you',
+    'your visible gifts',
+    'your growth edges',
+    'working with your personality card',
+    'working with your soul card',
+    'daily awareness',
+    'reflection questions',
+    'your personality card in relationship',
+    'your soul card in relationship',
+  ]);
+
+  // Check if line is a header
+  const isHeaderLine = (line: string): boolean => {
+    const trimmed = line.trim().toLowerCase();
+    if (exactHeaders.has(trimmed)) return true;
+    // Pattern: "The [Card Name]: Your Outer/Inner Expression" (card name can be 1-4 words)
+    if (/^the [\w\s]+: your (outer |inner )?expression$/i.test(line.trim())) return true;
+    // Pattern: "Embracing Your [Card] Expression/Energy"
+    if (/^embracing your [\w\s]+ (expression|energy)$/i.test(line.trim())) return true;
+    return false;
+  };
+
+  // Process line by line
+  const lines = content.split('\n');
+  const elements: string[] = [];
+  let currentParagraph: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const text = currentParagraph.join(' ').trim();
+      if (text) {
+        if (/^<(h[1-6]|div|ul|ol|li|blockquote|p)/i.test(text)) {
+          elements.push(text);
+        } else {
+          elements.push(`<p style="margin-bottom: 0.75em;">${text}</p>`);
+        }
+      }
+      currentParagraph = [];
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Empty line = paragraph break
+    if (!trimmed) {
+      flushParagraph();
+      continue;
+    }
+
+    // Check if this is a standalone header line
+    if (isHeaderLine(trimmed)) {
+      flushParagraph();
+      elements.push(`<h2 style="${h2Style}">${trimmed}</h2>`);
+      continue;
+    }
+
+    // Regular content - add to current paragraph
+    currentParagraph.push(trimmed);
+  }
+
+  // Flush any remaining content
+  flushParagraph();
+
+  // Italicize the last element if it's a reflective question (starts with How/What and ends with ?)
+  if (elements.length > 0) {
+    const lastIdx = elements.length - 1;
+    const last = elements[lastIdx];
+    // Check if it's a paragraph containing a question that isn't already italicized
+    if (
+      last.startsWith('<p') &&
+      !last.includes('<em>') &&
+      /\b(How|What)\b.*\?/.test(last)
+    ) {
+      // Extract the content and wrap in em
+      elements[lastIdx] = last.replace(
+        /<p([^>]*)>(.*)<\/p>/,
+        '<p$1><em>$2</em></p>'
+      );
+    }
+  }
+
+  // Join all elements
+  let result = elements.join('');
+
+  // Ensure any existing h2/h3 tags in original content have visible styling
+  result = result.replace(/<h2[^>]*>/gi, `<h2 style="${h2Style}">`);
+  result = result.replace(/<h3[^>]*>/gi, `<h3 style="${h3Style}">`);
+
+  return result;
 }
 
 interface BirthDate {
@@ -125,6 +222,9 @@ const BirthCardReveal: React.FC = () => {
   const [isGeneratingYear, setIsGeneratingYear] = useState(false);
   const [yearError, setYearError] = useState<string | null>(null);
 
+  // Enlarged image modal state
+  const [enlargedImage, setEnlargedImage] = useState<{ url: string; alt: string } | null>(null);
+
   // Redirect if no state
   useEffect(() => {
     if (!state?.birthDate) {
@@ -184,6 +284,16 @@ const BirthCardReveal: React.FC = () => {
   // Handle image load error
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
     console.error(`[BirthCardReveal] Failed to load image for ${cardName}:`, e.currentTarget.src);
+  };
+
+  // Open enlarged image modal
+  const openEnlargedImage = (url: string, alt: string) => {
+    setEnlargedImage({ url, alt });
+  };
+
+  // Close enlarged image modal
+  const closeEnlargedImage = () => {
+    setEnlargedImage(null);
   };
 
   // Format birth date for display
@@ -291,17 +401,18 @@ const BirthCardReveal: React.FC = () => {
     >
       {/* Card Image */}
       <div className="flex justify-center">
-        <div
-          className="rounded-xl overflow-hidden shadow-2xl"
+        <button
+          onClick={() => openEnlargedImage(personalityImageUrl, personalityData?.cardName || 'Personality Card')}
+          className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
           style={{ boxShadow: '0 0 40px rgba(251, 191, 36, 0.3)' }}
         >
           <img
             src={personalityImageUrl}
             alt={personalityData?.cardName || 'Personality Card'}
-            className="w-48 h-72 md:w-56 md:h-84 object-cover"
+            className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
             onError={(e) => handleImageError(e, personalityData?.cardName || 'Personality Card')}
           />
-        </div>
+        </button>
       </div>
 
       {/* Card Name & Keywords */}
@@ -362,17 +473,18 @@ const BirthCardReveal: React.FC = () => {
       >
         {/* Card Image */}
         <div className="flex justify-center">
-          <div
-            className="rounded-xl overflow-hidden shadow-2xl"
+          <button
+            onClick={() => openEnlargedImage(soulImageUrl, soulData?.cardName || 'Soul Card')}
+            className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
             style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
           >
             <img
               src={soulImageUrl}
               alt={soulData?.cardName || 'Soul Card'}
-              className="w-48 h-72 md:w-56 md:h-84 object-cover"
+              className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
               onError={(e) => handleImageError(e, soulData?.cardName || 'Soul Card')}
             />
-          </div>
+          </button>
         </div>
 
         {/* Card Name & Keywords */}
@@ -428,31 +540,50 @@ const BirthCardReveal: React.FC = () => {
         exit={{ opacity: 0, y: -20 }}
         className="space-y-6"
       >
-        {/* Both Cards Side by Side */}
+        {/* Card(s) Display - Single large for unified, side by side for pair */}
         <div className="flex justify-center gap-4">
-          <div
-            className="rounded-xl overflow-hidden shadow-xl"
-            style={{ boxShadow: '0 0 25px rgba(251, 191, 36, 0.3)' }}
-          >
-            <img
-              src={personalityImageUrl}
-              alt={personalityData?.cardName || 'Personality'}
-              className="w-32 h-48 md:w-40 md:h-60 object-cover"
-              onError={(e) => handleImageError(e, personalityData?.cardName || 'Personality')}
-            />
-          </div>
-          {!isUnified && (
-            <div
-              className="rounded-xl overflow-hidden shadow-xl"
-              style={{ boxShadow: '0 0 25px rgba(139, 92, 246, 0.3)' }}
+          {isUnified ? (
+            // Unified: Single large card (same size as Personality/Soul tabs)
+            <button
+              onClick={() => openEnlargedImage(personalityImageUrl, unifiedData?.cardName || 'Unified Card')}
+              className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
+              style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
             >
               <img
-                src={soulImageUrl}
-                alt={soulData?.cardName || 'Soul'}
-                className="w-32 h-48 md:w-40 md:h-60 object-cover"
-                onError={(e) => handleImageError(e, soulData?.cardName || 'Soul')}
+                src={personalityImageUrl}
+                alt={unifiedData?.cardName || 'Unified Card'}
+                className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
+                onError={(e) => handleImageError(e, unifiedData?.cardName || 'Unified Card')}
               />
-            </div>
+            </button>
+          ) : (
+            // Pair: Two cards side by side
+            <>
+              <button
+                onClick={() => openEnlargedImage(personalityImageUrl, personalityData?.cardName || 'Personality')}
+                className="rounded-xl overflow-hidden shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300"
+                style={{ boxShadow: '0 0 25px rgba(251, 191, 36, 0.3)' }}
+              >
+                <img
+                  src={personalityImageUrl}
+                  alt={personalityData?.cardName || 'Personality'}
+                  className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
+                  onError={(e) => handleImageError(e, personalityData?.cardName || 'Personality')}
+                />
+              </button>
+              <button
+                onClick={() => openEnlargedImage(soulImageUrl, soulData?.cardName || 'Soul')}
+                className="rounded-xl overflow-hidden shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300"
+                style={{ boxShadow: '0 0 25px rgba(139, 92, 246, 0.3)' }}
+              >
+                <img
+                  src={soulImageUrl}
+                  alt={soulData?.cardName || 'Soul'}
+                  className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
+                  onError={(e) => handleImageError(e, soulData?.cardName || 'Soul')}
+                />
+              </button>
+            </>
           )}
         </div>
 
@@ -524,30 +655,32 @@ const BirthCardReveal: React.FC = () => {
         {/* Year Card Image(s) - Show both for dual years, single for unified */}
         <div className="flex justify-center gap-4">
           {/* Primary Year Card */}
-          <div
-            className="rounded-xl overflow-hidden shadow-2xl"
+          <button
+            onClick={() => openEnlargedImage(yearPrimaryImageUrl, yearData.primaryCardName)}
+            className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
             style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
           >
             <img
               src={yearPrimaryImageUrl}
               alt={yearData.primaryCardName}
-              className={`${yearData.isUnified ? 'w-48 h-72 md:w-56 md:h-84' : 'w-36 h-54 md:w-44 md:h-66'} object-cover`}
+              className={`${yearData.isUnified ? 'w-48 h-72 md:w-56 md:h-84' : 'w-36 h-54 md:w-44 md:h-66'} object-contain bg-black/20`}
               onError={(e) => handleImageError(e, yearData.primaryCardName)}
             />
-          </div>
+          </button>
           {/* Reduced Year Card (only for dual years) */}
           {!yearData.isUnified && yearReducedImageUrl && (
-            <div
-              className="rounded-xl overflow-hidden shadow-2xl"
+            <button
+              onClick={() => openEnlargedImage(yearReducedImageUrl, yearData.reducedCardName)}
+              className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
               style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
             >
               <img
                 src={yearReducedImageUrl}
                 alt={yearData.reducedCardName}
-                className="w-36 h-54 md:w-44 md:h-66 object-cover"
+                className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
                 onError={(e) => handleImageError(e, yearData.reducedCardName)}
               />
-            </div>
+            </button>
           )}
         </div>
 
@@ -770,7 +903,7 @@ const BirthCardReveal: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 px-4 pb-8 max-w-2xl mx-auto w-full">
+        <div className="flex-1 px-4 pb-8 max-w-4xl mx-auto w-full">
           <AnimatePresence mode="wait">{renderTabContent()}</AnimatePresence>
         </div>
 
@@ -785,6 +918,43 @@ const BirthCardReveal: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* Enlarged Image Modal */}
+      <AnimatePresence>
+        {enlargedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={closeEnlargedImage}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative max-w-lg max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={enlargedImage.url}
+                alt={enlargedImage.alt}
+                className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
+              />
+              <button
+                onClick={closeEnlargedImage}
+                className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+              >
+                <span className="text-2xl leading-none">&times;</span>
+              </button>
+              <p className="text-center text-white/80 mt-4 font-heading">
+                {enlargedImage.alt}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

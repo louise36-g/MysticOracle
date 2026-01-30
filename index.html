@@ -116,25 +116,38 @@
         border-bottom: none;
       }
 
-      /* Birth Card Content Styling */
+      /* Birth Card Content Styling - stronger specificity to override prose */
+      .prose.birth-card-content h2,
       .birth-card-content h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        color: inherit;
-        text-align: center;
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 0.75rem !important;
+        color: #c4b5fd !important;
+        text-align: center !important;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
       }
+      .prose.birth-card-content h3,
       .birth-card-content h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        color: inherit;
-        text-align: center;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        margin-top: 1.25rem !important;
+        margin-bottom: 0.5rem !important;
+        color: #a78bfa !important;
+        text-align: center !important;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
       }
+      .prose.birth-card-content p,
       .birth-card-content p {
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem !important;
+      }
+      .prose.birth-card-content br + br,
+      .birth-card-content br + br {
+        display: block;
+        content: "";
+        margin-top: 0.5rem;
       }
       .birth-card-content a {
         color: #c4b5fd;

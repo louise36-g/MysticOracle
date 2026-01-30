@@ -716,14 +716,27 @@ router.post('/birthcard/year-energy', requireAuth, async (req, res) => {
     const { year, yearEnergy, personalityCard, soulCard, isUnifiedBirthCard, language } =
       validation.data;
 
+    const userId = req.auth.userId;
+    const creditCost = 1; // Year energy reading costs 1 credit
+
     console.log('[Year Energy] Request:', {
-      userId: req.auth.userId,
+      userId,
       year,
       personalityCard: personalityCard.cardName,
       soulCard: soulCard.cardName,
       isUnifiedBirthCard,
       language,
     });
+
+    // Check if user has enough credits
+    const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
+    if (balanceCheck.balance === 0 && !balanceCheck.sufficient) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!balanceCheck.sufficient) {
+      return res.status(400).json({ error: 'Insufficient credits' });
+    }
 
     // Build year energy section
     let yearEnergySection: string;
@@ -777,9 +790,17 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
       'ms'
     );
 
+    // Deduct credits after successful generation
+    await creditService.deductCredits({
+      userId,
+      amount: creditCost,
+      type: 'READING',
+      description: `Year Energy Reading ${year}`,
+    });
+
     res.json({
       interpretation,
-      creditsRequired: 1, // Year energy reading costs 1 credit
+      creditsUsed: creditCost,
     });
   } catch (error) {
     console.error('[Year Energy] Error:', error);
