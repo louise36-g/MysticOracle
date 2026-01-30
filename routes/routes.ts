@@ -9,6 +9,7 @@ export const ROUTES = {
   READING: '/reading',
   READING_CATEGORY_DEPTH: '/reading/:category/:depth',  // e.g., /reading/love/3
   READING_BIRTH_CARDS: '/reading/birth-cards/:depth',   // Birth cards special route
+  READING_BIRTH_CARDS_REVEAL: '/reading/birth-cards/reveal',  // Birth card reading result
   READING_VIEW: '/reading/view/:id',  // View saved reading
 
   // Horoscopes

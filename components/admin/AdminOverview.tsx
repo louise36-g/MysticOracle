@@ -17,20 +17,26 @@ const AdminOverview: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('[AdminOverview] Getting token...');
         const token = await getToken();
-        if (!token) throw new Error('No token');
+        console.log('[AdminOverview] Token received:', token ? 'yes' : 'no');
+        if (!token) throw new Error('No authentication token - please sign in');
 
+        console.log('[AdminOverview] Fetching admin data...');
         const [statsData, revenueData, readingsData] = await Promise.all([
           fetchAdminStats(token),
           fetchAdminRevenue(token),
           fetchAdminReadingStats(token)
         ]);
+        console.log('[AdminOverview] Data fetched successfully');
 
         setStats(statsData);
         setRevenue(revenueData);
         setReadingStats(readingsData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+        console.error('[AdminOverview] Error:', err);
+        const message = err instanceof Error ? err.message : 'Failed to load data';
+        setError(message);
       } finally {
         setLoading(false);
       }

@@ -22,7 +22,6 @@ const BirthCardEntry: React.FC = () => {
   const categoryConfig = getCategory('birth_cards');
 
   const [birthDate, setBirthDate] = useState({ day: '', month: '', year: '' });
-  const [customQuestion, setCustomQuestion] = useState('');
 
   const cost = depthOption?.cost || 1;
   const hasCredits = user && user.credits >= cost;
@@ -55,7 +54,6 @@ const BirthCardEntry: React.FC = () => {
       state: {
         birthDate,
         depth,
-        question: customQuestion,
       },
     });
   };
@@ -246,23 +244,6 @@ const BirthCardEntry: React.FC = () => {
                   </motion.li>
                 ))}
               </ul>
-            </div>
-
-            {/* Optional question */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20 mb-6">
-              <h2 className="text-lg font-heading text-white mb-2">
-                {t('birthCards.optionalQuestion', 'Optional Question')}
-              </h2>
-              <p className="text-white/50 text-sm mb-3">
-                {t('birthCards.questionHint', 'Focus the reading with a specific question')}
-              </p>
-              <textarea
-                value={customQuestion}
-                onChange={(e) => setCustomQuestion(e.target.value)}
-                placeholder={language === 'fr' ? 'Ex: Comment puis-je mieux exprimer mon energie de vie?' : 'e.g., How can I better express my life energy?'}
-                rows={3}
-                className="w-full bg-white/5 border border-violet-500/30 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/50 transition-colors resize-none"
-              />
             </div>
 
             {/* Footer with cost and action */}

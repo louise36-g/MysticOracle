@@ -230,7 +230,12 @@ export const router = createBrowserRouter([
             path: ROUTES.READING_CATEGORY_DEPTH,
             element: <ReadingLayout />,
           },
-          // Birth cards special route
+          // Birth card reveal/result (must be before :depth to ensure matching)
+          {
+            path: ROUTES.READING_BIRTH_CARDS_REVEAL,
+            element: lazyLoad(() => import('../components/reading/BirthCardReveal')),
+          },
+          // Birth cards entry with depth parameter
           {
             path: ROUTES.READING_BIRTH_CARDS,
             element: lazyLoad(() => import('../components/reading/BirthCardEntry')),
