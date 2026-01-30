@@ -342,9 +342,14 @@ function reduceToTarot(num: number): number {
  *
  * The calculation process:
  * 1. Sum all digits of the full birth date (DD + MM + YYYY)
- * 2. Reduce to 1-22 range (if > 22, sum digits again) - this is the Soul Card
- * 3. For Personality Card: if Soul Card > 9, sum its digits
- * 4. If Soul Card <= 9, Soul and Personality are the same
+ * 2. Reduce to 1-22 range (if > 22, sum digits again) - this is the PERSONALITY Card
+ * 3. For Soul Card: if Personality Card is 10-22, sum its digits to get single digit
+ * 4. If Personality Card is 1-9, Soul and Personality are the same (unified)
+ *
+ * Examples:
+ * - Total = 16 → Personality = The Tower (16), Soul = The Chariot (7)
+ * - Total = 5 → Personality = The Hierophant (5), Soul = The Hierophant (5) [unified]
+ * - Total = 22 → Personality = The Fool (0/22), Soul = The Emperor (4)
  *
  * @param day - Day of birth (1-31)
  * @param month - Month of birth (1-12)
@@ -366,21 +371,21 @@ export function calculateBirthCards(
   // Reduce to tarot range (1-22)
   sum = reduceToTarot(sum);
 
-  // Soul Card is the reduced sum (convert 22 to 0 for The Fool if needed)
-  // Note: In traditional numerology, 22 represents The Fool
-  const soulCard = sum === 22 ? 0 : sum;
+  // Personality Card is the first reduction (what you show the world)
+  // Convert 22 to 0 for The Fool
+  const personalityCard = sum === 22 ? 0 : sum;
 
-  // Personality Card: if Soul Card > 9, sum its digits
-  let personalityCard = soulCard;
-  if (soulCard > 9) {
-    personalityCard = soulCard
+  // Soul Card: if Personality is 10-21 or 0 (Fool), reduce to single digit
+  // This is your inner essence
+  let soulCard = personalityCard;
+  if (personalityCard >= 10 || personalityCard === 0) {
+    // For The Fool (0), use 22 for reduction: 2+2 = 4 (Emperor)
+    const valueToReduce = personalityCard === 0 ? 22 : personalityCard;
+    soulCard = valueToReduce
       .toString()
       .split('')
       .reduce((acc, digit) => acc + parseInt(digit, 10), 0);
   }
-
-  // Special case: if both would be the same and > 9, we keep them the same
-  // (e.g., Soul Card 10 gives Personality Card 1, which is different)
 
   return { soulCard, personalityCard };
 }

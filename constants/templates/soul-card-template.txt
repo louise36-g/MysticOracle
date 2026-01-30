@@ -1,15 +1,26 @@
-COMBINED BIRTH CARD TEMPLATE
-=============================
-These are the meanings for when your SOUL CARD and PERSONALITY CARD are THE SAME.
-This happens when your birthdate total reduces directly to 1-9.
-This creates a unified, amplified energy - no separation between inner self and outer expression.
+SOUL CARD TEMPLATE
+===================
+These are the meanings for cards 1-9 when they appear as your SOUL CARD in a pair.
+The Soul Card is the reduced number - your inner essence, your deepest truth.
+This template is for when Soul ≠ Personality (paired with a different Personality Card).
+
+Pairs where these appear as Soul Cards:
+- Soul 1 (Magician) ← Personality 10 (Wheel) or Personality 19 (Sun)
+- Soul 2 (High Priestess) ← Personality 11 (Justice) or Personality 20 (Judgement)
+- Soul 3 (Empress) ← Personality 12 (Hanged Man) or Personality 21 (World)
+- Soul 4 (Emperor) ← Personality 13 (Death) or Personality 22/0 (Fool)
+- Soul 5 (Hierophant) ← Personality 14 (Temperance)
+- Soul 6 (Lovers) ← Personality 15 (Devil)
+- Soul 7 (Chariot) ← Personality 16 (Tower)
+- Soul 8 (Strength) ← Personality 17 (Star)
+- Soul 9 (Hermit) ← Personality 18 (Moon)
 
 Fill in the descriptions below. When done, paste the whole file to Claude and I'll convert it to JSON.
 
 ---
 
 CARD 1 - THE MAGICIAN (Le Bateleur)
-Unified Energy: Soul = Personality = 1
+Soul Card paired with Personality: Wheel of Fortune (10) or The Sun (19)
 
 English Description:
 [Paste your English content here]
@@ -20,7 +31,7 @@ French Description:
 ---
 
 CARD 2 - THE HIGH PRIESTESS (La Papesse)
-Unified Energy: Soul = Personality = 2
+Soul Card paired with Personality: Justice (11) or Judgement (20)
 
 English Description:
 [Paste your English content here]
@@ -31,7 +42,7 @@ French Description:
 ---
 
 CARD 3 - THE EMPRESS (L'Impératrice)
-Unified Energy: Soul = Personality = 3
+Soul Card paired with Personality: The Hanged Man (12) or The World (21)
 
 English Description:
 [Paste your English content here]
@@ -42,7 +53,7 @@ French Description:
 ---
 
 CARD 4 - THE EMPEROR (L'Empereur)
-Unified Energy: Soul = Personality = 4
+Soul Card paired with Personality: Death (13) or The Fool (22/0)
 
 English Description:
 [Paste your English content here]
@@ -53,7 +64,7 @@ French Description:
 ---
 
 CARD 5 - THE HIEROPHANT (Le Pape)
-Unified Energy: Soul = Personality = 5
+Soul Card paired with Personality: Temperance (14)
 
 English Description:
 [Paste your English content here]
@@ -64,7 +75,7 @@ French Description:
 ---
 
 CARD 6 - THE LOVERS (L'Amoureux)
-Unified Energy: Soul = Personality = 6
+Soul Card paired with Personality: The Devil (15)
 
 English Description:
 [Paste your English content here]
@@ -75,7 +86,7 @@ French Description:
 ---
 
 CARD 7 - THE CHARIOT (Le Chariot)
-Unified Energy: Soul = Personality = 7
+Soul Card paired with Personality: The Tower (16)
 
 English Description:
 [Paste your English content here]
@@ -86,7 +97,7 @@ French Description:
 ---
 
 CARD 8 - STRENGTH (La Force)
-Unified Energy: Soul = Personality = 8
+Soul Card paired with Personality: The Star (17)
 
 English Description:
 [Paste your English content here]
@@ -97,7 +108,7 @@ French Description:
 ---
 
 CARD 9 - THE HERMIT (L'Hermite)
-Unified Energy: Soul = Personality = 9
+Soul Card paired with Personality: The Moon (18)
 
 English Description:
 [Paste your English content here]
