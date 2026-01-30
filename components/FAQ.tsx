@@ -92,13 +92,12 @@ const FAQ: React.FC = () => {
     });
   }, []);
 
-  // Get actual costs from constants
-  const singleCardCost = SPREADS[SpreadType.SINGLE].cost;
-  const threeCardCost = SPREADS[SpreadType.THREE_CARD].cost;
-  const loveCost = SPREADS[SpreadType.LOVE].cost;
-  const careerCost = SPREADS[SpreadType.CAREER].cost;
-  const horseshoeCost = SPREADS[SpreadType.HORSESHOE].cost;
-  const celticCrossCost = SPREADS[SpreadType.CELTIC_CROSS].cost;
+  // Get actual costs from constants (with safe access for spreads that may not exist)
+  const singleCardCost = SPREADS[SpreadType.SINGLE]?.cost ?? 1;
+  const threeCardCost = SPREADS[SpreadType.THREE_CARD]?.cost ?? 3;
+  const fiveCardCost = SPREADS[SpreadType.FIVE_CARD]?.cost ?? 5; // Love & Career are now 5-card layouts
+  const horseshoeCost = SPREADS[SpreadType.HORSESHOE]?.cost ?? 7;
+  const celticCrossCost = SPREADS[SpreadType.CELTIC_CROSS]?.cost ?? 10;
 
   // Helper to create styled links
   const StyledLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
@@ -233,8 +232,8 @@ const FAQ: React.FC = () => {
               answer={
                 <span>
                   {language === 'en'
-                    ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Love & Relationships spreads cost ${loveCost} credits. Career Path spreads cost ${careerCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
-                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages Amour & Relations coûtent ${loveCost} crédits. Les tirages Chemin de Carrière coûtent ${careerCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
+                    ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Five Card spreads (Love & Career) cost ${fiveCardCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
+                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages à Cinq Cartes (Amour & Carrière) coûtent ${fiveCardCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
                   }{' '}
                   <StyledLink to={ROUTES.HOW_CREDITS_WORK}>{t('faq.credits.seeFullPricing', 'See full pricing')}</StyledLink>
                 </span>
@@ -311,8 +310,7 @@ const FAQ: React.FC = () => {
                   {t('faq.readings.a3', 'We offer several spread types to suit different needs:')}<br /><br />
                   <strong className="text-slate-300">{t('faq.readings.spread1', 'Single Card')}</strong> ({singleCardCost} {t(singleCardCost === 1 ? 'faq.credit' : 'faq.credits', singleCardCost === 1 ? 'credit' : 'credits')}) — {t('faq.readings.spread1desc', 'Quick guidance for simple questions')}<br />
                   <strong className="text-slate-300">{t('faq.readings.spread2', 'Three Card')}</strong> ({threeCardCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread2desc', 'Past, present, and future perspective')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread5', 'Love & Relationships')}</strong> ({loveCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread5desc', '5-card spread exploring matters of the heart')}<br />
-                  <strong className="text-slate-300">{t('faq.readings.spread6', 'Career Path')}</strong> ({careerCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread6desc', '5-card spread for professional guidance')}<br />
+                  <strong className="text-slate-300">{t('faq.readings.spread5', 'Five Card (Love & Career)')}</strong> ({fiveCardCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread5desc', '5-card spreads for relationships and career')}<br />
                   <strong className="text-slate-300">{t('faq.readings.spread3', 'Horseshoe')}</strong> ({horseshoeCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread3desc', 'Deeper situation analysis with 7 cards')}<br />
                   <strong className="text-slate-300">{t('faq.readings.spread4', 'Celtic Cross')}</strong> ({celticCrossCost} {t('faq.credits', 'credits')}) — {t('faq.readings.spread4desc', 'Comprehensive 10-card reading for complex questions')}
                 </span>

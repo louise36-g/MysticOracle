@@ -130,8 +130,8 @@ const CookieConsent: React.FC = () => {
         />
       )}
 
-      {/* Banner container */}
-      <div className="fixed inset-x-0 bottom-0 z-[100] flex items-end justify-center p-4 pointer-events-none">
+      {/* Banner container - pointer-events only on content, not wrapper */}
+      <div className="fixed bottom-0 left-0 right-0 z-[100] flex items-end justify-center p-4" style={{ pointerEvents: 'none' }}>
         {/* Main Banner */}
         <div className="w-full max-w-2xl pointer-events-auto">
         {showSettings ? (
