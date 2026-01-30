@@ -118,14 +118,14 @@ const BirthCardEntry: React.FC = () => {
     },
     3: {
       en: [
-        { icon: <Star className="w-5 h-5" />, text: 'Your Soul Card - your core life purpose' },
         { icon: <Sun className="w-5 h-5" />, text: 'Your Personality Card - the energy you project' },
+        { icon: <Star className="w-5 h-5" />, text: 'Your Soul Card - your core life purpose' },
         { icon: <MoonIcon className="w-5 h-5" />, text: 'Your Year Card for 2026 - this year\'s theme' },
       ],
       fr: [
-        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Ame - votre but de vie" },
-        { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalite - l'energie que vous projetez" },
-        { icon: <MoonIcon className="w-5 h-5" />, text: "Votre Carte de l'Annee 2026 - le theme de cette annee" },
+        { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalité - l'énergie que vous projetez" },
+        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Âme - votre but de vie" },
+        { icon: <MoonIcon className="w-5 h-5" />, text: "Votre Carte de l'Année 2026 - le thème de cette année" },
       ],
     },
   };
@@ -140,8 +140,8 @@ const BirthCardEntry: React.FC = () => {
       fr: "Decouvrez votre Carte de l'Ame plus votre Carte de Personnalite - le masque que vous portez et l'energie que vous projetez naturellement.",
     },
     3: {
-      en: 'The complete portrait: your Soul Card, Personality Card, and your Year Card for 2026 revealing this year\'s predominant themes and lessons.',
-      fr: "Le portrait complet: votre Carte de l'Ame, votre Carte de Personnalite, et votre Carte de l'Annee 2026 revelant les themes et lecons de cette annee.",
+      en: 'The complete portrait: your Personality Card, Soul Card, and your Year Card for 2026 revealing this year\'s predominant themes and lessons.',
+      fr: "Le portrait complet: votre Carte de Personnalité, votre Carte de l'Âme, et votre Carte de l'Année 2026 révélant les thèmes et leçons prédominants de cette année.",
     },
   };
 
