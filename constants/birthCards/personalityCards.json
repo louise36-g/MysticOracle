@@ -1,0 +1,222 @@
+[
+  {
+    "cardId": 0,
+    "cardName": "The Fool",
+    "cardNameFr": "Le Mat",
+    "image": "00-the-fool.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Freedom", "New Beginnings", "Innocence"],
+    "keyThemesFr": ["Liberté", "Nouveaux Départs", "Innocence"]
+  },
+  {
+    "cardId": 1,
+    "cardName": "The Magician",
+    "cardNameFr": "Le Bateleur",
+    "image": "01-the-magician.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Manifestation", "Willpower", "Skill"],
+    "keyThemesFr": ["Manifestation", "Volonté", "Talent"]
+  },
+  {
+    "cardId": 2,
+    "cardName": "The High Priestess",
+    "cardNameFr": "La Papesse",
+    "image": "02-the-high-priestess.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Intuition", "Mystery", "Inner Knowledge"],
+    "keyThemesFr": ["Intuition", "Mystère", "Connaissance Intérieure"]
+  },
+  {
+    "cardId": 3,
+    "cardName": "The Empress",
+    "cardNameFr": "L'Impératrice",
+    "image": "03-the-empress.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Nurturing", "Abundance", "Creativity"],
+    "keyThemesFr": ["Nourricier", "Abondance", "Créativité"]
+  },
+  {
+    "cardId": 4,
+    "cardName": "The Emperor",
+    "cardNameFr": "L'Empereur",
+    "image": "04-the-emperor.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Authority", "Structure", "Leadership"],
+    "keyThemesFr": ["Autorité", "Structure", "Leadership"]
+  },
+  {
+    "cardId": 5,
+    "cardName": "The Hierophant",
+    "cardNameFr": "Le Pape",
+    "image": "05-the-heirophant.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Tradition", "Teaching", "Spiritual Wisdom"],
+    "keyThemesFr": ["Tradition", "Enseignement", "Sagesse Spirituelle"]
+  },
+  {
+    "cardId": 6,
+    "cardName": "The Lovers",
+    "cardNameFr": "L'Amoureux",
+    "image": "06-the-lovers.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Love", "Choice", "Relationships"],
+    "keyThemesFr": ["Amour", "Choix", "Relations"]
+  },
+  {
+    "cardId": 7,
+    "cardName": "The Chariot",
+    "cardNameFr": "Le Chariot",
+    "image": "07-the-chariot.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Willpower", "Victory", "Determination"],
+    "keyThemesFr": ["Volonté", "Victoire", "Détermination"]
+  },
+  {
+    "cardId": 8,
+    "cardName": "Strength",
+    "cardNameFr": "La Force",
+    "image": "08-strength.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Inner Power", "Courage", "Patience"],
+    "keyThemesFr": ["Pouvoir Intérieur", "Courage", "Patience"]
+  },
+  {
+    "cardId": 9,
+    "cardName": "The Hermit",
+    "cardNameFr": "L'Hermite",
+    "image": "09-the-hermit.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Wisdom", "Solitude", "Inner Light"],
+    "keyThemesFr": ["Sagesse", "Solitude", "Lumière Intérieure"]
+  },
+  {
+    "cardId": 10,
+    "cardName": "Wheel of Fortune",
+    "cardNameFr": "La Roue de Fortune",
+    "image": "10-the-wheel-of-fortune.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Cycles", "Fortune", "Destiny"],
+    "keyThemesFr": ["Cycles", "Fortune", "Destinée"]
+  },
+  {
+    "cardId": 11,
+    "cardName": "Justice",
+    "cardNameFr": "La Justice",
+    "image": "11-justice.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Fairness", "Balance", "Truth"],
+    "keyThemesFr": ["Équité", "Équilibre", "Vérité"]
+  },
+  {
+    "cardId": 12,
+    "cardName": "The Hanged Man",
+    "cardNameFr": "Le Pendu",
+    "image": "12-the-hanged-man.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Surrender", "New Perspective", "Patience"],
+    "keyThemesFr": ["Abandon", "Nouvelle Perspective", "Patience"]
+  },
+  {
+    "cardId": 13,
+    "cardName": "Death",
+    "cardNameFr": "L'Arcane Sans Nom",
+    "image": "13-death.jpg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Transformation", "Endings", "Renewal"],
+    "keyThemesFr": ["Transformation", "Fins", "Renouveau"]
+  },
+  {
+    "cardId": 14,
+    "cardName": "Temperance",
+    "cardNameFr": "Tempérance",
+    "image": "14-temperance.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Balance", "Moderation", "Harmony"],
+    "keyThemesFr": ["Équilibre", "Modération", "Harmonie"]
+  },
+  {
+    "cardId": 15,
+    "cardName": "The Devil",
+    "cardNameFr": "Le Diable",
+    "image": "15-the-devil.jpg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Shadow Work", "Liberation", "Authenticity"],
+    "keyThemesFr": ["Travail de l'Ombre", "Libération", "Authenticité"]
+  },
+  {
+    "cardId": 16,
+    "cardName": "The Tower",
+    "cardNameFr": "La Maison Dieu",
+    "image": "16-the-tower.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Breakthrough", "Awakening", "Truth"],
+    "keyThemesFr": ["Percée", "Éveil", "Vérité"]
+  },
+  {
+    "cardId": 17,
+    "cardName": "The Star",
+    "cardNameFr": "L'Étoile",
+    "image": "17-the-star.jpg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Hope", "Inspiration", "Healing"],
+    "keyThemesFr": ["Espoir", "Inspiration", "Guérison"]
+  },
+  {
+    "cardId": 18,
+    "cardName": "The Moon",
+    "cardNameFr": "La Lune",
+    "image": "18-the-moon.jpg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Intuition", "Dreams", "Mystery"],
+    "keyThemesFr": ["Intuition", "Rêves", "Mystère"]
+  },
+  {
+    "cardId": 19,
+    "cardName": "The Sun",
+    "cardNameFr": "Le Soleil",
+    "image": "19-the-sun.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Joy", "Vitality", "Success"],
+    "keyThemesFr": ["Joie", "Vitalité", "Succès"]
+  },
+  {
+    "cardId": 20,
+    "cardName": "Judgement",
+    "cardNameFr": "Le Jugement",
+    "image": "20-judgement.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Awakening", "Calling", "Rebirth"],
+    "keyThemesFr": ["Éveil", "Appel", "Renaissance"]
+  },
+  {
+    "cardId": 21,
+    "cardName": "The World",
+    "cardNameFr": "Le Monde",
+    "image": "21-the-world.jpeg",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Completion", "Integration", "Fulfillment"],
+    "keyThemesFr": ["Accomplissement", "Intégration", "Plénitude"]
+  }
+]

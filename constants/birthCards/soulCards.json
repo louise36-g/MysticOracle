@@ -1,0 +1,83 @@
+[
+  {
+    "cardId": 1,
+    "cardName": "The Magician",
+    "cardNameFr": "Le Bateleur",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Creative Will", "Inner Manifestation", "Core Purpose"],
+    "keyThemesFr": ["Volonté Créative", "Manifestation Intérieure", "But Essentiel"]
+  },
+  {
+    "cardId": 2,
+    "cardName": "The High Priestess",
+    "cardNameFr": "La Papesse",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Deep Intuition", "Inner Mystery", "Sacred Knowing"],
+    "keyThemesFr": ["Intuition Profonde", "Mystère Intérieur", "Savoir Sacré"]
+  },
+  {
+    "cardId": 3,
+    "cardName": "The Empress",
+    "cardNameFr": "L'Impératrice",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Creative Source", "Inner Abundance", "Nurturing Core"],
+    "keyThemesFr": ["Source Créative", "Abondance Intérieure", "Essence Nourricière"]
+  },
+  {
+    "cardId": 4,
+    "cardName": "The Emperor",
+    "cardNameFr": "L'Empereur",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Inner Authority", "Core Structure", "Foundational Strength"],
+    "keyThemesFr": ["Autorité Intérieure", "Structure Fondamentale", "Force Fondatrice"]
+  },
+  {
+    "cardId": 5,
+    "cardName": "The Hierophant",
+    "cardNameFr": "Le Pape",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Spiritual Core", "Inner Teaching", "Sacred Tradition"],
+    "keyThemesFr": ["Essence Spirituelle", "Enseignement Intérieur", "Tradition Sacrée"]
+  },
+  {
+    "cardId": 6,
+    "cardName": "The Lovers",
+    "cardNameFr": "L'Amoureux",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Heart Truth", "Inner Values", "Soul Connection"],
+    "keyThemesFr": ["Vérité du Cœur", "Valeurs Intérieures", "Connexion de l'Âme"]
+  },
+  {
+    "cardId": 7,
+    "cardName": "The Chariot",
+    "cardNameFr": "Le Chariot",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Inner Drive", "Core Willpower", "Soul Direction"],
+    "keyThemesFr": ["Élan Intérieur", "Volonté Fondamentale", "Direction de l'Âme"]
+  },
+  {
+    "cardId": 8,
+    "cardName": "Strength",
+    "cardNameFr": "La Force",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Inner Courage", "Core Patience", "Gentle Power"],
+    "keyThemesFr": ["Courage Intérieur", "Patience Fondamentale", "Puissance Douce"]
+  },
+  {
+    "cardId": 9,
+    "cardName": "The Hermit",
+    "cardNameFr": "L'Hermite",
+    "descriptionEn": "",
+    "descriptionFr": "",
+    "keyThemesEn": ["Inner Light", "Soul Wisdom", "Deep Guidance"],
+    "keyThemesFr": ["Lumière Intérieure", "Sagesse de l'Âme", "Guidance Profonde"]
+  }
+]

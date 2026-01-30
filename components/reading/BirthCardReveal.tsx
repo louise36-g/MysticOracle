@@ -1,5 +1,8 @@
 // components/reading/BirthCardReveal.tsx
-// Displays the birth card reading results with soul, personality, and year cards
+// Displays the birth card reading results based on depth:
+// - Depth 1: Personality Card only
+// - Depth 2: Personality + Soul Card (or Unified if same)
+// - Depth 3: Year Energy Reading
 // Note: dangerouslySetInnerHTML is used with trusted static JSON content (not user input)
 
 import React, { useEffect, useState } from 'react';
@@ -8,20 +11,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SpreadType, BirthCardDepth } from '../../types';
-import {
-  getBirthCardReading,
-  getBirthCardMeaning,
-  calculateYearCard,
-  YEAR_CARD_2026,
-} from '../../constants/birthCardMeanings';
+import { calculateBirthCards, calculateYearCard, YEAR_CARD_2026 } from '../../constants/birthCardMeanings';
 import { getCardImageUrl } from '../../constants/cardImages';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
 
-// Import JSON data for extended descriptions (trusted static content)
-import birthCardSingles from '../../constants/birthCardSingles.json';
-import birthCardPairs from '../../constants/birthCardPairs.json';
-import yearEnergy from '../../constants/yearEnergy.json';
+// Import JSON data files (trusted static content)
+import personalityCards from '../../constants/birthCards/personalityCards.json';
+import soulCards from '../../constants/birthCards/soulCards.json';
+import birthCardPairs from '../../constants/birthCards/birthCardPairs.json';
+import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json';
+import yearEnergy2026 from '../../constants/birthCards/yearEnergy2026.json';
 
 interface BirthDate {
   day: string;
@@ -32,10 +32,10 @@ interface BirthDate {
 interface LocationState {
   birthDate: BirthDate;
   depth: BirthCardDepth;
-  question?: string;
 }
 
-interface SingleCardData {
+// Type definitions for JSON data
+interface PersonalityCardData {
   cardId: number;
   cardName: string;
   cardNameFr: string;
@@ -46,30 +46,70 @@ interface SingleCardData {
   keyThemesFr: string[];
 }
 
-interface PairCardData {
-  personalityCardId: number;
-  soulCardId: number;
-  personalityName: string;
-  personalityNameFr: string;
-  soulName: string;
-  soulNameFr: string;
+interface SoulCardData {
+  cardId: number;
+  cardName: string;
+  cardNameFr: string;
   descriptionEn: string;
   descriptionFr: string;
+  keyThemesEn: string[];
+  keyThemesFr: string[];
+}
+
+interface PairData {
+  pairId: number;
+  personalityCardId: number;
+  personalityName: string;
+  personalityNameFr: string;
+  soulCardId: number;
+  soulName: string;
+  soulNameFr: string;
   dynamicEn: string;
   dynamicFr: string;
 }
 
-interface YearEnergyData {
+interface UnifiedCardData {
   cardId: number;
   cardName: string;
   cardNameFr: string;
   image: string;
-  yearThemeEn: string;
-  yearThemeFr: string;
-  adviceEn: string;
-  adviceFr: string;
+  asPersonalityEn: string;
+  asPersonalityFr: string;
+  asSoulEn: string;
+  asSoulFr: string;
+  unifiedEnergyEn: string;
+  unifiedEnergyFr: string;
+  keyThemesEn: string[];
+  keyThemesFr: string[];
+}
+
+interface YearInteraction {
+  soulCardId?: number;
+  personalityCardId?: number;
+  soulCardName?: string;
+  personalityCardName?: string;
+  interactionEn: string;
+  interactionFr: string;
+}
+
+interface YearEnergyData {
+  year: number;
+  yearCardId: number;
+  yearCardName: string;
+  yearCardNameFr: string;
+  reducedCardId: number;
+  reducedCardName: string;
+  reducedCardNameFr: string;
+  wheelEnergyEn: string;
+  wheelEnergyFr: string;
+  magicianEnergyEn: string;
+  magicianEnergyFr: string;
+  combinedThemeEn: string;
+  combinedThemeFr: string;
   keywordsEn: string[];
   keywordsFr: string[];
+  soulCardInteractions: YearInteraction[];
+  personalityCardInteractions: YearInteraction[];
 }
 
 const BirthCardReveal: React.FC = () => {
@@ -78,7 +118,8 @@ const BirthCardReveal: React.FC = () => {
   const { language, t } = useApp();
   const state = location.state as LocationState | null;
 
-  const [activeTab, setActiveTab] = useState<'soul' | 'personality' | 'year'>('soul');
+  type TabId = 'personality' | 'soul' | 'dynamic' | 'year';
+  const [activeTab, setActiveTab] = useState<TabId>('personality');
   const [isLoading, setIsLoading] = useState(true);
 
   // Redirect if no state
@@ -86,7 +127,6 @@ const BirthCardReveal: React.FC = () => {
     if (!state?.birthDate) {
       navigate('/reading/birth-cards');
     } else {
-      // Simulate loading for dramatic effect
       const timer = setTimeout(() => setIsLoading(false), 1500);
       return () => clearTimeout(timer);
     }
@@ -96,49 +136,44 @@ const BirthCardReveal: React.FC = () => {
     return null;
   }
 
-  const { birthDate, depth, question } = state;
+  const { birthDate, depth } = state;
   const day = parseInt(birthDate.day, 10);
   const month = parseInt(birthDate.month, 10);
   const year = parseInt(birthDate.year, 10);
 
-  // Calculate birth cards
-  const reading = getBirthCardReading(day, month, year, depth);
-  const soulCardId = reading.soulCard.id;
-  const personalityCardId = reading.personalityCard?.id ?? soulCardId;
+  // Calculate birth cards using corrected logic
+  const { soulCard: soulCardId, personalityCard: personalityCardId } = calculateBirthCards(day, month, year);
   const yearCardId = depth >= 3 ? calculateYearCard(day, month, YEAR_CARD_2026.year) : null;
 
-  const isSingleCard = soulCardId === personalityCardId;
+  const isUnified = soulCardId === personalityCardId;
 
-  // Get extended data from JSON files
-  const singleCardData = birthCardSingles.find(
-    (c: SingleCardData) => c.cardId === soulCardId
-  ) as SingleCardData | undefined;
+  // Get data from JSON files
+  const personalityData = personalityCards.find(
+    (c: PersonalityCardData) => c.cardId === personalityCardId
+  ) as PersonalityCardData | undefined;
 
-  const pairData = birthCardPairs.find(
-    (p: PairCardData) => p.soulCardId === soulCardId && p.personalityCardId === personalityCardId
-  ) as PairCardData | undefined;
+  const soulData = soulCards.find(
+    (c: SoulCardData) => c.cardId === soulCardId
+  ) as SoulCardData | undefined;
 
-  const yearEnergyData = yearCardId !== null
-    ? (yearEnergy.find((y: YearEnergyData) => y.cardId === yearCardId) as YearEnergyData | undefined)
+  const pairData = !isUnified
+    ? (birthCardPairs.find(
+        (p: PairData) => p.personalityCardId === personalityCardId && p.soulCardId === soulCardId
+      ) as PairData | undefined)
     : undefined;
 
-  // Get basic meanings from birthCardMeanings.ts as fallback
-  const soulMeaning = getBirthCardMeaning(soulCardId);
-  const personalityMeaning = getBirthCardMeaning(personalityCardId);
-  const yearMeaning = yearCardId !== null ? getBirthCardMeaning(yearCardId) : undefined;
+  const unifiedData = isUnified
+    ? (unifiedBirthCards.find((u: UnifiedCardData) => u.cardId === soulCardId) as UnifiedCardData | undefined)
+    : undefined;
+
+  const yearData = yearEnergy2026 as YearEnergyData;
 
   // Build image URLs
-  const soulImageUrl = getCardImageUrl(soulCardId);
   const personalityImageUrl = getCardImageUrl(personalityCardId);
+  const soulImageUrl = getCardImageUrl(soulCardId);
   const yearImageUrl = yearCardId !== null ? getCardImageUrl(yearCardId) : '';
 
-  // Debug logging for image URLs
-  if (import.meta.env.DEV) {
-    console.log('[BirthCardReveal] Card IDs:', { soulCardId, personalityCardId, yearCardId });
-    console.log('[BirthCardReveal] Image URLs:', { soulImageUrl, personalityImageUrl, yearImageUrl });
-  }
-
-  // Handle image load error - log and potentially show placeholder
+  // Handle image load error
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
     console.error(`[BirthCardReveal] Failed to load image for ${cardName}:`, e.currentTarget.src);
   };
@@ -175,302 +210,417 @@ const BirthCardReveal: React.FC = () => {
     );
   }
 
+  // Render Personality Tab
+  const renderPersonalityTab = () => (
+    <motion.div
+      key="personality"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="space-y-6"
+    >
+      {/* Card Image */}
+      <div className="flex justify-center">
+        <div
+          className="rounded-xl overflow-hidden shadow-2xl"
+          style={{ boxShadow: '0 0 40px rgba(251, 191, 36, 0.3)' }}
+        >
+          <img
+            src={personalityImageUrl}
+            alt={personalityData?.cardName || 'Personality Card'}
+            className="w-48 h-72 md:w-56 md:h-84 object-cover"
+            onError={(e) => handleImageError(e, personalityData?.cardName || 'Personality Card')}
+          />
+        </div>
+      </div>
+
+      {/* Card Name & Keywords */}
+      <div className="text-center">
+        <h3 className="text-2xl md:text-3xl font-heading text-amber-300 mb-2">
+          {language === 'en' ? personalityData?.cardName : personalityData?.cardNameFr}
+        </h3>
+        <p className="text-white/60 text-sm mb-3">
+          {language === 'en' ? 'Your Personality Card' : 'Votre Carte de Personnalité'}
+        </p>
+        {personalityData && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {(language === 'en' ? personalityData.keyThemesEn : personalityData.keyThemesFr).map(
+              (theme, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-xs rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                >
+                  {theme}
+                </span>
+              )
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Description */}
+      <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
+        {isUnified && unifiedData?.asPersonalityEn ? (
+          <div
+            className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
+            dangerouslySetInnerHTML={{
+              __html: language === 'en' ? unifiedData.asPersonalityEn : unifiedData.asPersonalityFr,
+            }}
+          />
+        ) : personalityData?.descriptionEn ? (
+          <div
+            className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
+            dangerouslySetInnerHTML={{
+              __html: language === 'en' ? personalityData.descriptionEn : personalityData.descriptionFr,
+            }}
+          />
+        ) : (
+          <p className="text-white/60 italic text-center">
+            {language === 'en'
+              ? 'Content coming soon...'
+              : 'Contenu à venir...'}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  // Render Soul Tab (for depth >= 2)
+  const renderSoulTab = () => {
+    if (depth < 2) return null;
+
+    return (
+      <motion.div
+        key="soul"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="space-y-6"
+      >
+        {/* Card Image */}
+        <div className="flex justify-center">
+          <div
+            className="rounded-xl overflow-hidden shadow-2xl"
+            style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
+          >
+            <img
+              src={soulImageUrl}
+              alt={soulData?.cardName || 'Soul Card'}
+              className="w-48 h-72 md:w-56 md:h-84 object-cover"
+              onError={(e) => handleImageError(e, soulData?.cardName || 'Soul Card')}
+            />
+          </div>
+        </div>
+
+        {/* Card Name & Keywords */}
+        <div className="text-center">
+          <h3 className="text-2xl md:text-3xl font-heading text-violet-300 mb-2">
+            {language === 'en' ? soulData?.cardName : soulData?.cardNameFr}
+          </h3>
+          <p className="text-white/60 text-sm mb-3">
+            {language === 'en' ? 'Your Soul Card' : 'Votre Carte de l\'Âme'}
+          </p>
+          {soulData && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {(language === 'en' ? soulData.keyThemesEn : soulData.keyThemesFr).map((theme, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-xs rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30"
+                >
+                  {theme}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20">
+          {isUnified && unifiedData?.asSoulEn ? (
+            <div
+              className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{
+                __html: language === 'en' ? unifiedData.asSoulEn : unifiedData.asSoulFr,
+              }}
+            />
+          ) : soulData?.descriptionEn ? (
+            <div
+              className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{
+                __html: language === 'en' ? soulData.descriptionEn : soulData.descriptionFr,
+              }}
+            />
+          ) : (
+            <p className="text-white/60 italic text-center">
+              {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Render Dynamic/Unified Tab (for depth >= 2)
+  const renderDynamicTab = () => {
+    if (depth < 2) return null;
+
+    return (
+      <motion.div
+        key="dynamic"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="space-y-6"
+      >
+        {/* Both Cards Side by Side */}
+        <div className="flex justify-center gap-4">
+          <div
+            className="rounded-xl overflow-hidden shadow-xl"
+            style={{ boxShadow: '0 0 25px rgba(251, 191, 36, 0.3)' }}
+          >
+            <img
+              src={personalityImageUrl}
+              alt={personalityData?.cardName || 'Personality'}
+              className="w-32 h-48 md:w-40 md:h-60 object-cover"
+              onError={(e) => handleImageError(e, personalityData?.cardName || 'Personality')}
+            />
+          </div>
+          {!isUnified && (
+            <div
+              className="rounded-xl overflow-hidden shadow-xl"
+              style={{ boxShadow: '0 0 25px rgba(139, 92, 246, 0.3)' }}
+            >
+              <img
+                src={soulImageUrl}
+                alt={soulData?.cardName || 'Soul'}
+                className="w-32 h-48 md:w-40 md:h-60 object-cover"
+                onError={(e) => handleImageError(e, soulData?.cardName || 'Soul')}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Header */}
+        <div className="text-center">
+          {isUnified ? (
+            <>
+              <h3 className="text-2xl md:text-3xl font-heading text-white mb-2">
+                {language === 'en' ? 'Unified Energy' : 'Énergie Unifiée'}
+              </h3>
+              <p className="text-violet-300 text-sm">
+                {language === 'en'
+                  ? `${unifiedData?.cardName} as both Personality and Soul`
+                  : `${unifiedData?.cardNameFr} comme Personnalité et Âme`}
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-2xl md:text-3xl font-heading text-white mb-2">
+                {language === 'en' ? 'The Dynamic' : 'La Dynamique'}
+              </h3>
+              <p className="text-white/70 text-sm">
+                <span className="text-amber-300">{language === 'en' ? pairData?.personalityName : pairData?.personalityNameFr}</span>
+                {' + '}
+                <span className="text-violet-300">{language === 'en' ? pairData?.soulName : pairData?.soulNameFr}</span>
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          {isUnified && unifiedData?.unifiedEnergyEn ? (
+            <div
+              className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{
+                __html: language === 'en' ? unifiedData.unifiedEnergyEn : unifiedData.unifiedEnergyFr,
+              }}
+            />
+          ) : !isUnified && pairData?.dynamicEn ? (
+            <div
+              className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{
+                __html: language === 'en' ? pairData.dynamicEn : pairData.dynamicFr,
+              }}
+            />
+          ) : (
+            <p className="text-white/60 italic text-center">
+              {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Render Year Tab (for depth >= 3)
+  const renderYearTab = () => {
+    if (depth < 3 || yearCardId === null) return null;
+
+    // Find interactions
+    const soulInteraction = yearData.soulCardInteractions.find(
+      (i) => i.soulCardId === soulCardId
+    );
+    const personalityInteraction = yearData.personalityCardInteractions.find(
+      (i) => i.personalityCardId === personalityCardId
+    );
+
+    return (
+      <motion.div
+        key="year"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="space-y-6"
+      >
+        {/* Year Card Image */}
+        <div className="flex justify-center">
+          <div
+            className="rounded-xl overflow-hidden shadow-2xl"
+            style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
+          >
+            <img
+              src={yearImageUrl}
+              alt={yearData.yearCardName}
+              className="w-48 h-72 md:w-56 md:h-84 object-cover"
+              onError={(e) => handleImageError(e, yearData.yearCardName)}
+            />
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className="text-center">
+          <h3 className="text-2xl md:text-3xl font-heading text-sky-300 mb-2">
+            {language === 'en' ? `Year ${yearData.year} Energy` : `Énergie de l'Année ${yearData.year}`}
+          </h3>
+          <p className="text-white/70 text-sm mb-3">
+            {language === 'en' ? yearData.yearCardName : yearData.yearCardNameFr}
+            {' → '}
+            {language === 'en' ? yearData.reducedCardName : yearData.reducedCardNameFr}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {(language === 'en' ? yearData.keywordsEn : yearData.keywordsFr).map((keyword, i) => (
+              <span
+                key={i}
+                className="px-3 py-1 text-xs rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30"
+              >
+                {keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Year Theme */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
+          <h4 className="text-sky-300 font-heading text-lg mb-3">
+            {language === 'en' ? '2026 Combined Theme' : 'Thème Combiné 2026'}
+          </h4>
+          {yearData.combinedThemeEn ? (
+            <div
+              className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{
+                __html: language === 'en' ? yearData.combinedThemeEn : yearData.combinedThemeFr,
+              }}
+            />
+          ) : (
+            <p className="text-white/60 italic">
+              {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
+            </p>
+          )}
+        </div>
+
+        {/* How Year Interacts with Your Cards */}
+        {(personalityInteraction?.interactionEn || soulInteraction?.interactionEn) && (
+          <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
+            <h4 className="text-sky-300 font-heading text-lg mb-3">
+              {language === 'en' ? 'Your 2026 Journey' : 'Votre Parcours 2026'}
+            </h4>
+            {personalityInteraction?.interactionEn && (
+              <div className="mb-4">
+                <p className="text-amber-300 text-sm font-medium mb-2">
+                  {language === 'en'
+                    ? `With ${personalityInteraction.personalityCardName} Personality:`
+                    : `Avec Personnalité ${personalityData?.cardNameFr}:`}
+                </p>
+                <p className="text-white/80 leading-relaxed">
+                  {language === 'en' ? personalityInteraction.interactionEn : personalityInteraction.interactionFr}
+                </p>
+              </div>
+            )}
+            {!isUnified && soulInteraction?.interactionEn && (
+              <div>
+                <p className="text-violet-300 text-sm font-medium mb-2">
+                  {language === 'en'
+                    ? `With ${soulInteraction.soulCardName} Soul:`
+                    : `Avec Âme ${soulData?.cardNameFr}:`}
+                </p>
+                <p className="text-white/80 leading-relaxed">
+                  {language === 'en' ? soulInteraction.interactionEn : soulInteraction.interactionFr}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </motion.div>
+    );
+  };
+
   // Tab content based on active selection
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'soul':
-        return (
-          <motion.div
-            key="soul"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {/* Card Image */}
-            <div className="flex justify-center">
-              <div
-                className="rounded-xl overflow-hidden shadow-2xl"
-                style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
-              >
-                <img
-                  src={soulImageUrl}
-                  alt={soulMeaning?.nameEn || 'Soul Card'}
-                  className="w-48 h-72 md:w-56 md:h-84 object-cover"
-                  onError={(e) => handleImageError(e, soulMeaning?.nameEn || 'Soul Card')}
-                />
-              </div>
-            </div>
-
-            {/* Card Name & Keywords */}
-            <div className="text-center">
-              <h3 className="text-2xl md:text-3xl font-heading text-white mb-2">
-                {language === 'en' ? soulMeaning?.nameEn : soulMeaning?.nameFr}
-              </h3>
-              {singleCardData && (
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {(language === 'en' ? singleCardData.keyThemesEn : singleCardData.keyThemesFr).map(
-                    (theme, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 text-xs rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30"
-                      >
-                        {theme}
-                      </span>
-                    )
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20">
-              {singleCardData && singleCardData.descriptionEn ? (
-                // Static trusted content from bundled JSON - safe to render as HTML
-                <div
-                  className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
-                  dangerouslySetInnerHTML={{
-                    __html: language === 'en' ? singleCardData.descriptionEn : singleCardData.descriptionFr,
-                  }}
-                />
-              ) : (
-                <p className="text-white/80 leading-relaxed">
-                  {language === 'en' ? soulMeaning?.soulMeaningEn : soulMeaning?.soulMeaningFr}
-                </p>
-              )}
-            </div>
-          </motion.div>
-        );
-
       case 'personality':
-        if (depth < 2) return null;
-
-        return (
-          <motion.div
-            key="personality"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {/* Show both cards for pairs */}
-            {!isSingleCard ? (
-              <div className="flex justify-center gap-4">
-                <div
-                  className="rounded-xl overflow-hidden shadow-2xl"
-                  style={{ boxShadow: '0 0 30px rgba(251, 191, 36, 0.3)' }}
-                >
-                  <img
-                    src={personalityImageUrl}
-                    alt={personalityMeaning?.nameEn || 'Personality Card'}
-                    className="w-36 h-54 md:w-44 md:h-66 object-cover"
-                    onError={(e) => handleImageError(e, personalityMeaning?.nameEn || 'Personality Card')}
-                  />
-                </div>
-                <div
-                  className="rounded-xl overflow-hidden shadow-2xl opacity-70"
-                  style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.2)' }}
-                >
-                  <img
-                    src={soulImageUrl}
-                    alt={soulMeaning?.nameEn || 'Soul Card'}
-                    className="w-28 h-42 md:w-36 md:h-54 object-cover"
-                    onError={(e) => handleImageError(e, soulMeaning?.nameEn || 'Soul Card')}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <div
-                  className="rounded-xl overflow-hidden shadow-2xl"
-                  style={{ boxShadow: '0 0 40px rgba(251, 191, 36, 0.3)' }}
-                >
-                  <img
-                    src={personalityImageUrl}
-                    alt={personalityMeaning?.nameEn || 'Personality Card'}
-                    className="w-48 h-72 md:w-56 md:h-84 object-cover"
-                    onError={(e) => handleImageError(e, personalityMeaning?.nameEn || 'Personality Card')}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Card Names */}
-            <div className="text-center">
-              {!isSingleCard ? (
-                <>
-                  <h3 className="text-2xl md:text-3xl font-heading text-amber-300 mb-1">
-                    {language === 'en' ? personalityMeaning?.nameEn : personalityMeaning?.nameFr}
-                  </h3>
-                  <p className="text-violet-300 text-sm">
-                    {language === 'en' ? 'with Soul Card: ' : 'avec Carte de l\'Âme: '}
-                    {language === 'en' ? soulMeaning?.nameEn : soulMeaning?.nameFr}
-                  </p>
-                </>
-              ) : (
-                <h3 className="text-2xl md:text-3xl font-heading text-amber-300">
-                  {language === 'en' ? personalityMeaning?.nameEn : personalityMeaning?.nameFr}
-                </h3>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
-              {!isSingleCard && pairData && pairData.descriptionEn ? (
-                <>
-                  {/* Static trusted content from bundled JSON - safe to render as HTML */}
-                  <div
-                    className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
-                    dangerouslySetInnerHTML={{
-                      __html: language === 'en' ? pairData.descriptionEn : pairData.descriptionFr,
-                    }}
-                  />
-                  {pairData.dynamicEn && (
-                    <>
-                      <h4 className="text-amber-300 font-heading text-lg mt-6 mb-3">
-                        {language === 'en' ? 'The Dynamic' : 'La Dynamique'}
-                      </h4>
-                      <div
-                        className="prose prose-invert prose-amber max-w-none text-white/80 leading-relaxed birth-card-content"
-                        dangerouslySetInnerHTML={{
-                          __html: language === 'en' ? pairData.dynamicEn : pairData.dynamicFr,
-                        }}
-                      />
-                    </>
-                  )}
-                </>
-              ) : (
-                <p className="text-white/80 leading-relaxed">
-                  {language === 'en'
-                    ? personalityMeaning?.personalityMeaningEn
-                    : personalityMeaning?.personalityMeaningFr}
-                </p>
-              )}
-            </div>
-          </motion.div>
-        );
-
+        return renderPersonalityTab();
+      case 'soul':
+        return renderSoulTab();
+      case 'dynamic':
+        return renderDynamicTab();
       case 'year':
-        if (depth < 3 || yearCardId === null) return null;
-
-        return (
-          <motion.div
-            key="year"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {/* Card Image */}
-            <div className="flex justify-center">
-              <div
-                className="rounded-xl overflow-hidden shadow-2xl"
-                style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
-              >
-                <img
-                  src={yearImageUrl}
-                  alt={yearMeaning?.nameEn || 'Year Card'}
-                  className="w-48 h-72 md:w-56 md:h-84 object-cover"
-                  onError={(e) => handleImageError(e, yearMeaning?.nameEn || 'Year Card')}
-                />
-              </div>
-            </div>
-
-            {/* Card Name & Year */}
-            <div className="text-center">
-              <h3 className="text-2xl md:text-3xl font-heading text-sky-300 mb-2">
-                {language === 'en' ? yearMeaning?.nameEn : yearMeaning?.nameFr}
-              </h3>
-              <p className="text-white/60 text-sm">
-                {language === 'en' ? `Your Year Card for ${YEAR_CARD_2026.year}` : `Votre Carte de l'Année ${YEAR_CARD_2026.year}`}
-              </p>
-              {yearEnergyData && (
-                <div className="flex flex-wrap justify-center gap-2 mt-3">
-                  {(language === 'en' ? yearEnergyData.keywordsEn : yearEnergyData.keywordsFr).map(
-                    (keyword, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 text-xs rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30"
-                      >
-                        {keyword}
-                      </span>
-                    )
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
-              {yearEnergyData && yearEnergyData.yearThemeEn ? (
-                <>
-                  <h4 className="text-sky-300 font-heading text-lg mb-3">
-                    {language === 'en' ? 'Year Theme' : 'Thème de l\'Année'}
-                  </h4>
-                  <p className="text-white/80 leading-relaxed mb-4">
-                    {language === 'en' ? yearEnergyData.yearThemeEn : yearEnergyData.yearThemeFr}
-                  </p>
-                  {yearEnergyData.adviceEn && (
-                    <>
-                      <h4 className="text-sky-300 font-heading text-lg mt-6 mb-3">
-                        {language === 'en' ? 'Guidance' : 'Conseils'}
-                      </h4>
-                      <p className="text-white/80 leading-relaxed">
-                        {language === 'en' ? yearEnergyData.adviceEn : yearEnergyData.adviceFr}
-                      </p>
-                    </>
-                  )}
-                </>
-              ) : (
-                <>
-                  <p className="text-white/80 leading-relaxed mb-4">
-                    {language === 'en' ? yearMeaning?.soulMeaningEn : yearMeaning?.soulMeaningFr}
-                  </p>
-                  <div className="border-t border-sky-500/20 pt-4 mt-4">
-                    <h4 className="text-sky-300 font-heading text-sm mb-2">
-                      {language === 'en' ? `${YEAR_CARD_2026.year} Universal Energy` : `Énergie Universelle ${YEAR_CARD_2026.year}`}
-                    </h4>
-                    <p className="text-white/70 text-sm leading-relaxed">
-                      {language === 'en' ? YEAR_CARD_2026.meaningEn : YEAR_CARD_2026.meaningFr}
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-          </motion.div>
-        );
-
+        return renderYearTab();
       default:
         return null;
     }
   };
 
   // Build tabs based on depth
-  type TabId = 'soul' | 'personality' | 'year';
   const tabs: Array<{ id: TabId; icon: React.ReactNode; label: string }> = [
-    { id: 'soul', icon: <Star className="w-5 h-5" />, label: language === 'en' ? 'Soul Card' : 'Carte de l\'Âme' },
-  ];
-  if (depth >= 2) {
-    tabs.push({
+    {
       id: 'personality',
       icon: <Sun className="w-5 h-5" />,
       label: language === 'en' ? 'Personality' : 'Personnalité',
+    },
+  ];
+
+  if (depth >= 2) {
+    tabs.push({
+      id: 'soul',
+      icon: <Star className="w-5 h-5" />,
+      label: language === 'en' ? 'Soul' : 'Âme',
+    });
+    tabs.push({
+      id: 'dynamic',
+      icon: <Sparkles className="w-5 h-5" />,
+      label: isUnified
+        ? language === 'en'
+          ? 'Unified'
+          : 'Unifié'
+        : language === 'en'
+        ? 'Dynamic'
+        : 'Dynamique',
     });
   }
+
   if (depth >= 3) {
     tabs.push({
       id: 'year',
       icon: <MoonIcon className="w-5 h-5" />,
-      label: language === 'en' ? `Year ${YEAR_CARD_2026.year}` : `Année ${YEAR_CARD_2026.year}`,
+      label: language === 'en' ? `${YEAR_CARD_2026.year}` : `${YEAR_CARD_2026.year}`,
     });
   }
 
   return (
     <div className="min-h-screen relative">
-      {/* Themed background */}
       <ThemedBackground spreadType={SpreadType.CELTIC_CROSS} />
 
-      {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Back button */}
         <div className="p-4">
@@ -503,21 +653,23 @@ const BirthCardReveal: React.FC = () => {
             {language === 'en' ? 'Your Birth Cards' : 'Vos Cartes de Naissance'}
           </motion.h1>
 
-          {question && (
+          {isUnified && depth >= 2 && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-violet-300/80 text-sm italic max-w-md mx-auto"
+              className="text-violet-300/80 text-sm"
             >
-              "{question}"
+              {language === 'en'
+                ? 'You have unified energy - your Personality and Soul are one!'
+                : 'Vous avez une énergie unifiée - votre Personnalité et votre Âme ne font qu\'un!'}
             </motion.p>
           )}
         </div>
 
         {/* Tab Navigation */}
         <div className="px-4 mb-6">
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 flex-wrap">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

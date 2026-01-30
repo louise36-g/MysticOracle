@@ -1,0 +1,145 @@
+[
+  {
+    "pairId": 1,
+    "personalityCardId": 10,
+    "personalityName": "Wheel of Fortune",
+    "personalityNameFr": "La Roue de Fortune",
+    "soulCardId": 1,
+    "soulName": "The Magician",
+    "soulNameFr": "Le Bateleur",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 2,
+    "personalityCardId": 11,
+    "personalityName": "Justice",
+    "personalityNameFr": "La Justice",
+    "soulCardId": 2,
+    "soulName": "The High Priestess",
+    "soulNameFr": "La Papesse",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 3,
+    "personalityCardId": 12,
+    "personalityName": "The Hanged Man",
+    "personalityNameFr": "Le Pendu",
+    "soulCardId": 3,
+    "soulName": "The Empress",
+    "soulNameFr": "L'Impératrice",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 4,
+    "personalityCardId": 13,
+    "personalityName": "Death",
+    "personalityNameFr": "L'Arcane Sans Nom",
+    "soulCardId": 4,
+    "soulName": "The Emperor",
+    "soulNameFr": "L'Empereur",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 5,
+    "personalityCardId": 14,
+    "personalityName": "Temperance",
+    "personalityNameFr": "Tempérance",
+    "soulCardId": 5,
+    "soulName": "The Hierophant",
+    "soulNameFr": "Le Pape",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 6,
+    "personalityCardId": 15,
+    "personalityName": "The Devil",
+    "personalityNameFr": "Le Diable",
+    "soulCardId": 6,
+    "soulName": "The Lovers",
+    "soulNameFr": "L'Amoureux",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 7,
+    "personalityCardId": 16,
+    "personalityName": "The Tower",
+    "personalityNameFr": "La Maison Dieu",
+    "soulCardId": 7,
+    "soulName": "The Chariot",
+    "soulNameFr": "Le Chariot",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 8,
+    "personalityCardId": 17,
+    "personalityName": "The Star",
+    "personalityNameFr": "L'Étoile",
+    "soulCardId": 8,
+    "soulName": "Strength",
+    "soulNameFr": "La Force",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 9,
+    "personalityCardId": 18,
+    "personalityName": "The Moon",
+    "personalityNameFr": "La Lune",
+    "soulCardId": 9,
+    "soulName": "The Hermit",
+    "soulNameFr": "L'Hermite",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 10,
+    "personalityCardId": 19,
+    "personalityName": "The Sun",
+    "personalityNameFr": "Le Soleil",
+    "soulCardId": 1,
+    "soulName": "The Magician",
+    "soulNameFr": "Le Bateleur",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 11,
+    "personalityCardId": 20,
+    "personalityName": "Judgement",
+    "personalityNameFr": "Le Jugement",
+    "soulCardId": 2,
+    "soulName": "The High Priestess",
+    "soulNameFr": "La Papesse",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 12,
+    "personalityCardId": 21,
+    "personalityName": "The World",
+    "personalityNameFr": "Le Monde",
+    "soulCardId": 3,
+    "soulName": "The Empress",
+    "soulNameFr": "L'Impératrice",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  },
+  {
+    "pairId": 13,
+    "personalityCardId": 0,
+    "personalityName": "The Fool",
+    "personalityNameFr": "Le Mat",
+    "soulCardId": 4,
+    "soulName": "The Emperor",
+    "soulNameFr": "L'Empereur",
+    "dynamicEn": "",
+    "dynamicFr": ""
+  }
+]
