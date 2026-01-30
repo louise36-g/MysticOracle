@@ -25,6 +25,19 @@ import birthCardPairs from '../../constants/birthCards/birthCardPairs.json';
 import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json';
 import yearEnergyCycle from '../../constants/birthCards/yearEnergyCycle.json';
 
+/**
+ * Format HTML content by converting newlines to proper HTML breaks
+ * Double newlines become paragraph breaks, single newlines become line breaks
+ */
+function formatHtmlContent(content: string): string {
+  if (!content) return '';
+  // Convert double newlines to paragraph breaks
+  // Convert single newlines to line breaks
+  return content
+    .replace(/\n\n+/g, '<br><br>')
+    .replace(/\n/g, ' ');
+}
+
 interface BirthDate {
   day: string;
   month: string;
@@ -321,7 +334,7 @@ const BirthCardReveal: React.FC = () => {
           <div
             className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
             dangerouslySetInnerHTML={{
-              __html: language === 'en' ? personalityData.descriptionEn : personalityData.descriptionFr,
+              __html: formatHtmlContent(language === 'en' ? personalityData.descriptionEn : personalityData.descriptionFr),
             }}
           />
         ) : (
@@ -390,7 +403,7 @@ const BirthCardReveal: React.FC = () => {
             <div
               className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? soulData.descriptionEn : soulData.descriptionFr,
+                __html: formatHtmlContent(language === 'en' ? soulData.descriptionEn : soulData.descriptionFr),
               }}
             />
           ) : (
@@ -476,14 +489,14 @@ const BirthCardReveal: React.FC = () => {
             <div
               className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? unifiedData.descriptionEn : unifiedData.descriptionFr,
+                __html: formatHtmlContent(language === 'en' ? unifiedData.descriptionEn : unifiedData.descriptionFr),
               }}
             />
           ) : !isUnified && pairData?.dynamicEn ? (
             <div
               className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? pairData.dynamicEn : pairData.dynamicFr,
+                __html: formatHtmlContent(language === 'en' ? pairData.dynamicEn : pairData.dynamicFr),
               }}
             />
           ) : (
@@ -577,7 +590,7 @@ const BirthCardReveal: React.FC = () => {
             <div
               className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
-                __html: language === 'en' ? yearData.descriptionEn : yearData.descriptionFr,
+                __html: formatHtmlContent(language === 'en' ? yearData.descriptionEn : yearData.descriptionFr),
               }}
             />
           </div>
@@ -620,7 +633,7 @@ const BirthCardReveal: React.FC = () => {
           ) : yearInterpretation ? (
             <div
               className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
-              dangerouslySetInnerHTML={{ __html: yearInterpretation.replace(/\n/g, '<br />') }}
+              dangerouslySetInnerHTML={{ __html: formatHtmlContent(yearInterpretation) }}
             />
           ) : (
             <p className="text-white/60 italic text-center">
