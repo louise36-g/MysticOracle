@@ -2,7 +2,7 @@
 // Birth date entry screen for the Birth Cards category
 // Users enter their birth date to calculate soul, personality, and year cards
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Coins, Calendar, ChevronLeft, Star, Sun, Moon as MoonIcon } from 'lucide-react';
@@ -22,6 +22,40 @@ const BirthCardEntry: React.FC = () => {
   const categoryConfig = getCategory('birth_cards');
 
   const [birthDate, setBirthDate] = useState({ day: '', month: '', year: '' });
+
+  // Refs for auto-focus between inputs
+  const dayRef = useRef<HTMLInputElement>(null);
+  const monthRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+
+  // Handle day input with auto-advance to month
+  const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setBirthDate({ ...birthDate, day: value });
+
+    // Auto-advance to month when day is complete
+    // Advance if: 2 digits entered, OR first digit is 4-9 (can only be single digit day)
+    if (value.length === 2 || (value.length === 1 && parseInt(value) > 3)) {
+      monthRef.current?.focus();
+    }
+  };
+
+  // Handle month input with auto-advance to year
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setBirthDate({ ...birthDate, month: value });
+
+    // Auto-advance to year when month is complete
+    // Advance if: 2 digits entered, OR first digit is 2-9 (can only be single digit month)
+    if (value.length === 2 || (value.length === 1 && parseInt(value) > 1)) {
+      yearRef.current?.focus();
+    }
+  };
+
+  // Handle year input
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBirthDate({ ...birthDate, year: e.target.value });
+  };
 
   const cost = depthOption?.cost || 1;
   const hasCredits = user && user.credits >= cost;
@@ -174,12 +208,13 @@ const BirthCardEntry: React.FC = () => {
                     {t('birthCards.day', 'Day')}
                   </label>
                   <input
+                    ref={dayRef}
                     type="number"
                     min="1"
                     max="31"
                     placeholder="DD"
                     value={birthDate.day}
-                    onChange={(e) => setBirthDate({ ...birthDate, day: e.target.value })}
+                    onChange={handleDayChange}
                     className="w-full bg-white/5 border border-violet-500/30 rounded-lg px-3 py-2.5 text-white text-center text-lg font-mono placeholder-white/30 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/50 transition-colors"
                   />
                 </div>
@@ -190,12 +225,13 @@ const BirthCardEntry: React.FC = () => {
                     {t('birthCards.month', 'Month')}
                   </label>
                   <input
+                    ref={monthRef}
                     type="number"
                     min="1"
                     max="12"
                     placeholder="MM"
                     value={birthDate.month}
-                    onChange={(e) => setBirthDate({ ...birthDate, month: e.target.value })}
+                    onChange={handleMonthChange}
                     className="w-full bg-white/5 border border-violet-500/30 rounded-lg px-3 py-2.5 text-white text-center text-lg font-mono placeholder-white/30 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/50 transition-colors"
                   />
                 </div>
@@ -206,12 +242,13 @@ const BirthCardEntry: React.FC = () => {
                     {t('birthCards.year', 'Year')}
                   </label>
                   <input
+                    ref={yearRef}
                     type="number"
                     min="1900"
                     max={new Date().getFullYear()}
                     placeholder="YYYY"
                     value={birthDate.year}
-                    onChange={(e) => setBirthDate({ ...birthDate, year: e.target.value })}
+                    onChange={handleYearChange}
                     className="w-full bg-white/5 border border-violet-500/30 rounded-lg px-3 py-2.5 text-white text-center text-lg font-mono placeholder-white/30 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/50 transition-colors"
                   />
                 </div>
