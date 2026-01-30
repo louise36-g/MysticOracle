@@ -1,0 +1,237 @@
+BIRTH CARD PAIRS TEMPLATE
+==========================
+Fill in the descriptions below. When done, paste the whole file to Claude and I'll convert it to JSON.
+
+---
+
+PAIR: WHEEL OF FORTUNE (10) + MAGICIAN (1)
+Personality: Wheel of Fortune (La Roue de Fortune)
+Soul: The Magician (Le Bateleur)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic (how the energies interact):
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: JUSTICE (11) + HIGH PRIESTESS (2)
+Personality: Justice (La Justice)
+Soul: The High Priestess (La Papesse)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: HANGED MAN (12) + EMPRESS (3)
+Personality: The Hanged Man (Le Pendu)
+Soul: The Empress (L'Impératrice)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: DEATH (13) + EMPEROR (4)
+Personality: Death (L'Arcane Sans Nom)
+Soul: The Emperor (L'Empereur)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: TEMPERANCE (14) + HIEROPHANT (5)
+Personality: Temperance (Tempérance)
+Soul: The Hierophant (Le Pape)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: DEVIL (15) + LOVERS (6)
+Personality: The Devil (Le Diable)
+Soul: The Lovers (L'Amoureux)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: TOWER (16) + CHARIOT (7)
+Personality: The Tower (La Maison Dieu)
+Soul: The Chariot (Le Chariot)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: STAR (17) + STRENGTH (8)
+Personality: The Star (L'Étoile)
+Soul: Strength (La Force)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: MOON (18) + HERMIT (9)
+Personality: The Moon (La Lune)
+Soul: The Hermit (L'Hermite)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: SUN (19) + WHEEL OF FORTUNE (10)
+Personality: The Sun (Le Soleil)
+Soul: Wheel of Fortune (La Roue de Fortune)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: JUDGEMENT (20) + HIGH PRIESTESS (2)
+Personality: Judgement (Le Jugement)
+Soul: The High Priestess (La Papesse)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: WORLD (21) + EMPRESS (3)
+Personality: The World (Le Monde)
+Soul: The Empress (L'Impératrice)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]
+
+---
+
+PAIR: FOOL (22/0) + EMPEROR (4)
+Personality: The Fool (Le Mat)
+Soul: The Emperor (L'Empereur)
+
+English Description:
+[Write your description here]
+
+French Description:
+[Écrivez votre description ici]
+
+English Dynamic:
+[Write about how these two cards work together]
+
+French Dynamic:
+[Écrivez comment ces deux cartes interagissent]

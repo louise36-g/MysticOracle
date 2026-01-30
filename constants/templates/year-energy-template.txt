@@ -1,0 +1,377 @@
+YEAR ENERGY TEMPLATE
+=====================
+Fill in the descriptions below. When done, paste the whole file to Claude and I'll convert it to JSON.
+
+---
+
+CARD 0 - THE FOOL (Le Mat)
+Keywords: New Beginnings, Adventure, Leap of Faith
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Fool year]
+
+French Advice:
+[Conseils pour une année du Mat]
+
+---
+
+CARD 1 - THE MAGICIAN (Le Bateleur)
+Keywords: Manifestation, Action, New Skills
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Magician year]
+
+French Advice:
+[Conseils pour une année du Bateleur]
+
+---
+
+CARD 2 - THE HIGH PRIESTESS (La Papesse)
+Keywords: Intuition, Inner Wisdom, Patience
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a High Priestess year]
+
+French Advice:
+[Conseils pour une année de la Papesse]
+
+---
+
+CARD 3 - THE EMPRESS (L'Impératrice)
+Keywords: Creativity, Growth, Nurturing
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in an Empress year]
+
+French Advice:
+[Conseils pour une année de l'Impératrice]
+
+---
+
+CARD 4 - THE EMPEROR (L'Empereur)
+Keywords: Structure, Authority, Building Foundations
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in an Emperor year]
+
+French Advice:
+[Conseils pour une année de l'Empereur]
+
+---
+
+CARD 5 - THE HIEROPHANT (Le Pape)
+Keywords: Learning, Tradition, Spiritual Growth
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Hierophant year]
+
+French Advice:
+[Conseils pour une année du Pape]
+
+---
+
+CARD 6 - THE LOVERS (L'Amoureux)
+Keywords: Relationships, Choices, Values
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Lovers year]
+
+French Advice:
+[Conseils pour une année de l'Amoureux]
+
+---
+
+CARD 7 - THE CHARIOT (Le Chariot)
+Keywords: Progress, Determination, Victory
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Chariot year]
+
+French Advice:
+[Conseils pour une année du Chariot]
+
+---
+
+CARD 8 - STRENGTH (La Force)
+Keywords: Inner Power, Courage, Resilience
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Strength year]
+
+French Advice:
+[Conseils pour une année de la Force]
+
+---
+
+CARD 9 - THE HERMIT (L'Hermite)
+Keywords: Reflection, Solitude, Inner Search
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Hermit year]
+
+French Advice:
+[Conseils pour une année de l'Hermite]
+
+---
+
+CARD 10 - WHEEL OF FORTUNE (La Roue de Fortune)
+Keywords: Change, Cycles, Opportunity
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Wheel year]
+
+French Advice:
+[Conseils pour une année de la Roue]
+
+---
+
+CARD 11 - JUSTICE (La Justice)
+Keywords: Balance, Fairness, Decisions
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Justice year]
+
+French Advice:
+[Conseils pour une année de la Justice]
+
+---
+
+CARD 12 - THE HANGED MAN (Le Pendu)
+Keywords: Surrender, New Perspective, Pause
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Hanged Man year]
+
+French Advice:
+[Conseils pour une année du Pendu]
+
+---
+
+CARD 13 - DEATH (L'Arcane Sans Nom)
+Keywords: Transformation, Endings, Rebirth
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Death year]
+
+French Advice:
+[Conseils pour une année de l'Arcane Sans Nom]
+
+---
+
+CARD 14 - TEMPERANCE (Tempérance)
+Keywords: Balance, Moderation, Healing
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Temperance year]
+
+French Advice:
+[Conseils pour une année de Tempérance]
+
+---
+
+CARD 15 - THE DEVIL (Le Diable)
+Keywords: Shadow Work, Liberation, Facing Fears
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Devil year]
+
+French Advice:
+[Conseils pour une année du Diable]
+
+---
+
+CARD 16 - THE TOWER (La Maison Dieu)
+Keywords: Upheaval, Breakthrough, Revelation
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Tower year]
+
+French Advice:
+[Conseils pour une année de la Maison Dieu]
+
+---
+
+CARD 17 - THE STAR (L'Étoile)
+Keywords: Hope, Inspiration, Renewal
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Star year]
+
+French Advice:
+[Conseils pour une année de l'Étoile]
+
+---
+
+CARD 18 - THE MOON (La Lune)
+Keywords: Intuition, Dreams, Facing Illusions
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Moon year]
+
+French Advice:
+[Conseils pour une année de la Lune]
+
+---
+
+CARD 19 - THE SUN (Le Soleil)
+Keywords: Joy, Success, Vitality
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Sun year]
+
+French Advice:
+[Conseils pour une année du Soleil]
+
+---
+
+CARD 20 - JUDGEMENT (Le Jugement)
+Keywords: Awakening, Calling, Evaluation
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a Judgement year]
+
+French Advice:
+[Conseils pour une année du Jugement]
+
+---
+
+CARD 21 - THE WORLD (Le Monde)
+Keywords: Completion, Achievement, Wholeness
+
+English Year Theme:
+[What this year's energy means]
+
+French Year Theme:
+[Ce que signifie l'énergie de cette année]
+
+English Advice:
+[Guidance for someone in a World year]
+
+French Advice:
+[Conseils pour une année du Monde]
