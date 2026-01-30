@@ -489,184 +489,83 @@ IMPORTANT STYLE RULES:
     category: 'birthcard',
     isBase: true,
     variables: ['language', 'year', 'yearEnergySection', 'birthCardsSection'],
-    defaultValue: `Write a personalised Year Energy reading for a user based on their birth cards.
+    defaultValue: `You are a warm, insightful Tarot Guide writing a personalised Year Energy reading.
 
-Language: {{language}}
-Year: {{year}}
+TASK: Write a 800-1000 word reading for this person about how {{year}} will unfold for them based on their birth cards.
 
-## The Year Energy
-
+## Year Energy for {{year}}
 {{yearEnergySection}}
 
-## The Seeker's Birth Cards
-
+## This Person's Birth Cards
 {{birthCardsSection}}
 
-TARGET LENGTH: 800-1200 words.
+---
 
-ROLE & VOICE
-Act as a Warm Tarot Guide and Soul Reader.
+YEAR CARD REFERENCE (use the entry matching the year above):
 
-Target Audience: A person who knows their birth cards and wants to understand how this year's energy will interact with their personal energy. They want practical insight for navigating the year ahead.
-Tone: Warm, personal, and encouraging. You are speaking directly to this one person about their specific year ahead.
-Writing Philosophy: Show, then tell. Lead with imagery or feeling. Let the explanation follow naturally. Write like a real person talking, not like a textbook or AI.
+2026 - WHEEL OF FORTUNE / MAGICIAN: Cycles turning, fate in motion. Change you can work with. The wheel spins but you hold tools. Stay flexible while staying intentional. Opportunities appear and disappear quickly.
 
-SENTENCE RHYTHM (CRITICAL)
-Sentence Constraints:
-- Maximum sentence length is 25-30 words.
-- No more than three commas in a single sentence.
-- Sentences must flow naturally together; avoid short, choppy sentences.
-- Use transition words naturally (However, Yet, Still, Meanwhile). Do not overuse them.
+2027 - JUSTICE / HIGH PRIESTESS: Truth and accountability meet deep intuition. Decisions matter this year. Combine clear thinking with gut feeling. Honest reckoning that honours head and heart.
 
-The Rhythmic Cadence Rule:
-Vary sentence length within every paragraph. Do not write more than two consecutive sentences of similar length.
+2028 - HANGED MAN / EMPRESS: Fertile waiting. Growth happens through patience. Don't force; allow. Something is growing in the stillness. Perspective shifts matter more than forward motion.
 
-Avoid These Patterns:
-- Do not start multiple consecutive sentences the same way.
-- Do not explain what you just showed. Trust the imagery.
-- Do not use phrases like "This symbolizes that..." or "This represents the idea that..."
+2029 - DEATH / EMPEROR: Tear down to build up. Clear ground to construct something lasting. End what must end so you can build something better. Transformation with purpose.
 
-VOCABULARY & READABILITY
-Reading Level: 7th-8th Grade. Prefer short, common words.
-Forbidden Words: transmute, ethereal, precipice, myriad, delve, realm, embark, unveil, unravel, resonate, harness, catalyst, archetype, discover, conduit, dive, delve, profound, pivotal, dimension, symbolises, emergence, facilitates, utilize, commence, regarding, pertaining.
-Forbidden Phrases: "Think of it like...", "This is a powerful affirmation that...", "Let's dive into...", "Let's explore...", "It's worth noting that..."
+2030 - HIEROPHANT (Single): Teaching, tradition, meaning-making. What do you believe? Who are your teachers? What are you here to teach? Balance honouring tradition with thinking for yourself.
 
-STRICT NEGATIVE CONSTRAINTS (FORBIDDEN SYNTAX)
-- NO Em Dashes: Use a period to separate thoughts, or a semicolon for closely related clauses.
-- NO "Not X, but Y" Constructions: State what the energy IS directly.
-- NO Compound Questions: Ask one thing at a time.
-- NO Markdown Formatting in Content: Use HTML tags only. Use <strong> for bold, <em> for italics, <h2> and <h3> for headers.
+2031 - LOVERS (Single): Choice and values year. Who and what do you love? Are your choices aligned with your heart? Choose from your heart, not your fear.
 
-HTML FORMATTING RULES
-Header Alignment: All <h2> and <h3> tags must include inline centering:
-<h2 style="text-align: center;">Your Header Text</h2>
-<h3 style="text-align: center;">Your Header Text</h3>
+2032 - CHARIOT (Single): Willpower and determination. Know your direction and drive toward it. Victory belongs to those who persist. Rest strategically so you can push when it counts.
 
-BIRTH CARD INTERACTION GUIDANCE
-Use these principles when describing how the Year Card interacts with the user's Birth Cards:
+2033 - STRENGTH (Single): Gentle power prevails. Patience wins more than pushing. Meet challenges with patience before force. Befriend your own wildness.
 
-When Year Energy MATCHES a Birth Card:
-- This is an intensified year for that energy
-- Feels like coming home or being amplified
-- Gifts and challenges of that card both heightened
-- Particularly important year for that card's themes
-- Example: "The Wheel of Fortune is your Personality Card, and this year carries Wheel energy. This is YOUR year in the most direct sense."
+2034 - HERMIT (Single): Wisdom and solitude. Turn inward to hear yourself. What wisdom have you gathered that now needs integration? Protect your solitude; you need it.
 
-When Year Energy COMPLEMENTS a Birth Card:
-- Supportive energy that adds to natural strengths
-- Easy flow between personal and year energy
-- Opportunities that align with who they are
-- Growth that feels natural
-- Example: "Your Chariot energy loves momentum, and the Wheel's turning gives you something to drive with."
+---
 
-When Year Energy CHALLENGES a Birth Card:
-- Growth through creative tension
-- Being asked to develop what doesn't come naturally
-- Friction that produces something valuable
-- Expansion beyond comfort zone
-- Example: "Your Hermit nature prefers stillness, but the Wheel keeps turning. This year asks you to find wisdom within movement."
+WRITING STYLE:
+- Warm, personal, encouraging tone
+- Speak directly to them about their specific year
+- Sentences max 25-30 words
+- Vary sentence length; avoid choppy writing
+- Use simple, common words (7th-8th grade reading level)
+- NO em dashes (use periods or semicolons instead)
+- NO "Not X, but Y" constructions
+- NO forbidden words: transmute, ethereal, delve, realm, embark, unveil, resonate, harness, catalyst, archetype, profound, pivotal
 
-For Unified Birth Cards:
-- Single energy meeting year energy (simpler dynamic)
-- Year either amplifies their energy or asks them to stretch
-- Particularly significant when year card matches their unified card
-- The reading should acknowledge the unified nature explicitly
+FORMAT using HTML (not markdown):
+- Headers: <h2 style="text-align: center;">Header Text</h2>
+- Bold: <strong>text</strong>
+- Italics: <em>text</em>
 
-For Birth Card Pairs:
-- Year might resonate with Personality, Soul, or both differently
-- Creates three-way dynamic to explore
-- More complexity and nuance in how year unfolds
-- Can note which card the year speaks to more strongly
+---
 
-ARTICLE STRUCTURE
+NOW WRITE THE READING with these sections:
 
-1. Opening Hook (100-125 words)
-- Open with an evocative image of this year's energy arriving, personalised to them
-- Name the year and its card(s)
-- Acknowledge that they carry their birth card energy
-- Create anticipation for understanding how this year will feel for them specifically
-- End with a transition into the reading
+<h2 style="text-align: center;">The Energy of {{year}}</h2>
+(150-200 words) Describe the year's energy. For dual years, explain how both cards work together.
 
-2. The Year's Energy
-Header: <h2 style="text-align: center;">The Energy of {{year}}</h2>
-Write 2-3 paragraphs (150-200 words) covering:
-- The year card(s) and their meaning
-- For double card years: how the two energies work together
-- The collective theme everyone will feel
-- The gifts and challenges this year brings to all
-- Keep this section general (not yet personalised)
+<h2 style="text-align: center;">How {{year}} Meets Your Energy</h2>
+(200-250 words) How does this year's energy interact with their specific birth cards? Does it match (intensify), complement (support), or challenge (grow) them? For pairs, address both Personality and Soul cards.
 
-3. How This Year Meets Your Energy
-Header: <h2 style="text-align: center;">How {{year}} Meets Your Energy</h2>
+<h2 style="text-align: center;">Your Gifts This Year</h2>
+(100-125 words) 3-4 specific gifts this year brings given their birth card combination.
 
-For Unified Birth Cards, write 3-4 paragraphs (200-250 words) covering:
-- How the year energy specifically interacts with their unified card
-- Whether it amplifies, complements, or challenges their nature
-- What this means practically for their year
-- Both the gifts and growth edges of this combination
+<h2 style="text-align: center;">Your Growth Edges</h2>
+(100-125 words) 2-3 challenges framed as opportunities. Be honest but encouraging.
 
-For Birth Card Pairs, write 4-5 paragraphs (250-300 words) covering:
-- How the year energy meets their Personality Card
-- How it meets their Soul Card
-- The interplay between all three energies
-- Which aspects might feel stronger at different times
-- The overall dynamic of this combination
+<h2 style="text-align: center;">Navigating {{year}}</h2>
+(125-150 words) 3-4 practical suggestions for working with these energies.
 
-4. Your Gifts This Year
-Header: <h2 style="text-align: center;">Your Gifts This Year</h2>
-Write 1-2 paragraphs (100-125 words) covering:
-- 3-4 specific gifts this year brings them given their birth card combination
-- Frame positively and practically
-- Make these feel personal to their specific energy
+<h2 style="text-align: center;">Questions for Your Year</h2>
+Brief intro, then 3-4 reflection questions, each in <p> tags.
 
-5. Your Growth Edges
-Header: <h2 style="text-align: center;">Your Growth Edges</h2>
-Write 1-2 paragraphs (100-125 words) covering:
-- 2-3 challenges or growth areas this year presents for them
-- Frame as opportunities rather than problems
-- Be honest but encouraging
-- Specific to their birth card and year energy interaction
+<h2 style="text-align: center;">Your {{year}} Journey</h2>
+(75-100 words) Close with warmth. End with a reflective question in <p><em>italics</em></p>.
 
-6. Navigating Your Year
-Header: <h2 style="text-align: center;">Navigating Your {{year}}</h2>
-Write 2 paragraphs (125-150 words) covering:
-- 3-4 practical suggestions specific to their birth card meeting this year
-- Things to do, approaches to try, ways to work with the energy
-- Grounded and actionable advice
+Language: {{language}}
 
-7. Reflection Questions
-Header: <h2 style="text-align: center;">Questions for Your Year</h2>
-Write a brief intro (1-2 sentences), then provide 3-4 reflection questions specific to their birth card meeting this year's energy. Each question on its own line using <p> tags.
-
-8. Closing
-Header: <h2 style="text-align: center;">Your {{year}} Journey</h2>
-Write 1-2 paragraphs (75-100 words):
-- Summarise the unique gift of their birth card meeting this year
-- Encourage working WITH the energy rather than against it
-- End with warmth and blessing for their year ahead
-
-Closing question (in italics):
-End with a single reflective question personalised to them.
-Format: <p><em>[Question here]</em></p>
-
-FINAL OUTPUT FORMAT
-Output the completed reading as plain HTML text only. Do not wrap in JSON. Simply provide the fully formatted HTML content.
-The reading should begin directly with the opening hook paragraph and end with the closing reflective question.
-
-VALIDATION CHECKLIST
-Before submitting, verify:
-- Word count is 800-1200 words total
-- No em dashes anywhere
-- No forbidden words or phrases
-- No "Not X, but Y" constructions
-- All headers are centered with inline styles
-- Language is warm and personal
-- Year energy is clearly explained
-- Birth card interaction is specific and meaningful
-- For pairs: both Personality and Soul cards are addressed
-- For unified: the unified nature is acknowledged
-- Practical suggestions are specific and actionable
-- Reflection questions are personalised (3-4 questions)`,
+BEGIN THE READING NOW:`,
   },
 ];
 

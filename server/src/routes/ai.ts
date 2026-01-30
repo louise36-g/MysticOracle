@@ -765,7 +765,7 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
     const startTime = Date.now();
     const interpretation = await openRouterService.generateTarotReading(prompt, {
       temperature: 0.7,
-      maxTokens: 1500, // 800 words ~= 1000-1200 tokens, add buffer
+      maxTokens: 2000, // 800-1000 words ~= 1200-1500 tokens, need buffer for HTML
     });
     const elapsed = Date.now() - startTime;
 
