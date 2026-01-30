@@ -12,29 +12,11 @@ CARD 1 - THE MAGICIAN (Le Bateleur)
 Unified Energy: Soul = Personality
 Keywords: Manifestation, Willpower, Skill, Unified Purpose
 
-English Combined Meaning:
-[What it means when Magician is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Magician is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand le Bateleur est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -42,29 +24,11 @@ CARD 2 - THE HIGH PRIESTESS (La Papesse)
 Unified Energy: Soul = Personality
 Keywords: Intuition, Mystery, Inner Wisdom, Deep Knowing
 
-English Combined Meaning:
-[What it means when High Priestess is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The High Priestess is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand la Papesse est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -72,29 +36,11 @@ CARD 3 - THE EMPRESS (L'Impératrice)
 Unified Energy: Soul = Personality
 Keywords: Creativity, Abundance, Nurturing, Fertility
 
-English Combined Meaning:
-[What it means when Empress is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Empress is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand l'Impératrice est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -102,29 +48,11 @@ CARD 4 - THE EMPEROR (L'Empereur)
 Unified Energy: Soul = Personality
 Keywords: Authority, Structure, Leadership, Stability
 
-English Combined Meaning:
-[What it means when Emperor is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Emperor is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand l'Empereur est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -132,29 +60,11 @@ CARD 5 - THE HIEROPHANT (Le Pape)
 Unified Energy: Soul = Personality
 Keywords: Tradition, Teaching, Spiritual Wisdom, Guidance
 
-English Combined Meaning:
-[What it means when Hierophant is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Hierophant is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand le Pape est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -162,29 +72,11 @@ CARD 6 - THE LOVERS (L'Amoureux)
 Unified Energy: Soul = Personality
 Keywords: Love, Choice, Relationships, Values
 
-English Combined Meaning:
-[What it means when Lovers is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Lovers is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand l'Amoureux est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -192,29 +84,11 @@ CARD 7 - THE CHARIOT (Le Chariot)
 Unified Energy: Soul = Personality
 Keywords: Willpower, Victory, Determination, Progress
 
-English Combined Meaning:
-[What it means when Chariot is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Chariot is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand le Chariot est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -222,29 +96,11 @@ CARD 8 - STRENGTH (La Force)
 Unified Energy: Soul = Personality
 Keywords: Inner Power, Courage, Patience, Gentle Strength
 
-English Combined Meaning:
-[What it means when Strength is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when Strength is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand la Force est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
 ---
 
@@ -252,27 +108,9 @@ CARD 9 - THE HERMIT (L'Hermite)
 Unified Energy: Soul = Personality
 Keywords: Wisdom, Solitude, Inner Light, Guidance
 
-English Combined Meaning:
-[What it means when Hermit is BOTH your soul and personality - the unified energy]
+English Description:
+[Paste your English content here - what it means when The Hermit is BOTH soul and personality]
 
-French Combined Meaning:
-[Ce que cela signifie quand l'Hermite est à la fois votre âme et personnalité]
-
-English Unified Gifts:
-[The amplified strengths of this unified expression]
-
-French Unified Gifts:
-[Les dons amplifiés de cette expression unifiée]
-
-English Unified Challenges:
-[The intensified growth areas when there's no balancing energy]
-
-French Unified Challenges:
-[Les défis intensifiés quand il n'y a pas d'énergie équilibrante]
-
-English Life Theme:
-[The overarching theme of a life with this unified card]
-
-French Life Theme:
-[Le thème principal d'une vie avec cette carte unifiée]
+French Description:
+[Paste your French content here]
 
