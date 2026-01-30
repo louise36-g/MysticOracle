@@ -9,6 +9,7 @@ import {
   getTarotReadingPrompt,
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
+  getYearEnergyReadingPrompt,
 } from '../services/promptService.js';
 
 const router = Router();
@@ -224,6 +225,31 @@ const tarotFollowUpSchema = z.object({
     })
   ),
   question: z.string().min(1).max(500),
+  language: z.enum(['en', 'fr']),
+});
+
+// Schema for year energy reading request
+const yearEnergySchema = z.object({
+  year: z.number().int().min(2020).max(2100),
+  yearEnergy: z.object({
+    primaryCardName: z.string(),
+    primaryCardNameFr: z.string(),
+    reducedCardName: z.string().optional(),
+    reducedCardNameFr: z.string().optional(),
+    isUnified: z.boolean(),
+    description: z.string(), // Already in correct language
+  }),
+  personalityCard: z.object({
+    cardName: z.string(),
+    cardNameFr: z.string(),
+    description: z.string(), // Already in correct language
+  }),
+  soulCard: z.object({
+    cardName: z.string(),
+    cardNameFr: z.string(),
+    description: z.string(), // Already in correct language
+  }),
+  isUnifiedBirthCard: z.boolean(),
   language: z.enum(['en', 'fr']),
 });
 
@@ -669,6 +695,96 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[Tarot Follow-up] Error:', error);
     const message = error instanceof Error ? error.message : 'Failed to generate follow-up';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * POST /api/v1/ai/birthcard/year-energy
+ * Generate a personalized year energy reading based on birth cards
+ */
+router.post('/birthcard/year-energy', requireAuth, async (req, res) => {
+  try {
+    const validation = yearEnergySchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid request data',
+        details: validation.error.errors,
+      });
+    }
+
+    const { year, yearEnergy, personalityCard, soulCard, isUnifiedBirthCard, language } =
+      validation.data;
+
+    console.log('[Year Energy] Request:', {
+      userId: req.auth.userId,
+      year,
+      personalityCard: personalityCard.cardName,
+      soulCard: soulCard.cardName,
+      isUnifiedBirthCard,
+      language,
+    });
+
+    // Build year energy section
+    let yearEnergySection: string;
+    if (yearEnergy.isUnified) {
+      yearEnergySection = `This year carries the unified energy of ${yearEnergy.primaryCardName} (${yearEnergy.primaryCardNameFr}).
+
+${yearEnergy.description || 'Year energy description not yet available.'}`;
+    } else {
+      yearEnergySection = `This year carries dual energy: ${yearEnergy.primaryCardName} (${yearEnergy.primaryCardNameFr}) reducing to ${yearEnergy.reducedCardName} (${yearEnergy.reducedCardNameFr}).
+
+${yearEnergy.description || 'Year energy description not yet available.'}`;
+    }
+
+    // Build birth cards section
+    let birthCardsSection: string;
+    if (isUnifiedBirthCard) {
+      birthCardsSection = `This person has unified birth card energy: their Personality and Soul are both ${personalityCard.cardName} (${personalityCard.cardNameFr}).
+
+${personalityCard.description || 'Birth card description not yet available.'}`;
+    } else {
+      birthCardsSection = `**Personality Card (Outer Expression):** ${personalityCard.cardName} (${personalityCard.cardNameFr})
+${personalityCard.description || 'Personality card description not yet available.'}
+
+**Soul Card (Inner Essence):** ${soulCard.cardName} (${soulCard.cardNameFr})
+${soulCard.description || 'Soul card description not yet available.'}`;
+    }
+
+    // Get prompt from service
+    const prompt = await getYearEnergyReadingPrompt({
+      year,
+      yearEnergySection,
+      birthCardsSection,
+      language,
+    });
+
+    console.log('[Year Energy] Prompt built, length:', prompt.length);
+
+    // Generate interpretation using OpenRouter service
+    const startTime = Date.now();
+    const interpretation = await openRouterService.generateTarotReading(prompt, {
+      temperature: 0.7,
+      maxTokens: 1500, // 800 words ~= 1000-1200 tokens, add buffer
+    });
+    const elapsed = Date.now() - startTime;
+
+    console.log(
+      '[Year Energy] ✅ Generated interpretation:',
+      interpretation.length,
+      'chars in',
+      elapsed,
+      'ms'
+    );
+
+    res.json({
+      interpretation,
+      creditsRequired: 1, // Year energy reading costs 1 credit
+    });
+  } catch (error) {
+    console.error('[Year Energy] Error:', error);
+    const message =
+      error instanceof Error ? error.message : 'Failed to generate year energy reading';
     res.status(500).json({ error: message });
   }
 });

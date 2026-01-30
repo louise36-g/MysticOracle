@@ -5,14 +5,16 @@
 // - Depth 3: Year Energy Reading
 // Note: dangerouslySetInnerHTML is used with trusted static JSON content (not user input)
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar } from 'lucide-react';
+import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar, Loader2 } from 'lucide-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { SpreadType, BirthCardDepth } from '../../types';
 import { calculateBirthCards } from '../../constants/birthCardMeanings';
 import { getCardImageUrl } from '../../constants/cardImages';
+import { generateYearEnergyReading } from '../../services/apiService';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
 
@@ -98,11 +100,17 @@ const BirthCardReveal: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, t } = useApp();
+  const { getToken } = useAuth();
   const state = location.state as LocationState | null;
 
   type TabId = 'personality' | 'soul' | 'dynamic' | 'year';
   const [activeTab, setActiveTab] = useState<TabId>('personality');
   const [isLoading, setIsLoading] = useState(true);
+
+  // AI-generated year energy interpretation state
+  const [yearInterpretation, setYearInterpretation] = useState<string | null>(null);
+  const [isGeneratingYear, setIsGeneratingYear] = useState(false);
+  const [yearError, setYearError] = useState<string | null>(null);
 
   // Redirect if no state
   useEffect(() => {
@@ -168,6 +176,68 @@ const BirthCardReveal: React.FC = () => {
   const handleBack = () => {
     navigate(`/reading/birth-cards/${depth}`);
   };
+
+  // Function to generate AI year energy interpretation
+  const generateYearInterpretation = useCallback(async () => {
+    if (!yearData || depth < 3 || yearInterpretation || isGeneratingYear) return;
+
+    setIsGeneratingYear(true);
+    setYearError(null);
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        setYearError(language === 'en' ? 'Please sign in to view your personalized year reading' : 'Veuillez vous connecter pour voir votre lecture annuelle personnalisée');
+        return;
+      }
+
+      const response = await generateYearEnergyReading(token, {
+        year: yearData.year,
+        yearEnergy: {
+          primaryCardName: yearData.primaryCardName,
+          primaryCardNameFr: yearData.primaryCardNameFr,
+          reducedCardName: yearData.reducedCardName,
+          reducedCardNameFr: yearData.reducedCardNameFr,
+          isUnified: yearData.isUnified,
+          description: language === 'en' ? yearData.descriptionEn : yearData.descriptionFr,
+        },
+        personalityCard: {
+          cardName: personalityData?.cardName || '',
+          cardNameFr: personalityData?.cardNameFr || '',
+          description: language === 'en'
+            ? personalityData?.descriptionEn || ''
+            : personalityData?.descriptionFr || '',
+        },
+        soulCard: {
+          cardName: soulData?.cardName || '',
+          cardNameFr: soulData?.cardNameFr || '',
+          description: language === 'en'
+            ? soulData?.descriptionEn || ''
+            : soulData?.descriptionFr || '',
+        },
+        isUnifiedBirthCard: isUnified,
+        language,
+      });
+
+      setYearInterpretation(response.interpretation);
+    } catch (error) {
+      console.error('[BirthCardReveal] Error generating year interpretation:', error);
+      setYearError(
+        language === 'en'
+          ? 'Unable to generate your personalized year reading. Please try again.'
+          : 'Impossible de générer votre lecture annuelle personnalisée. Veuillez réessayer.'
+      );
+    } finally {
+      setIsGeneratingYear(false);
+    }
+  }, [yearData, depth, yearInterpretation, isGeneratingYear, getToken, language, personalityData, soulData, isUnified]);
+
+  // Generate year interpretation when year tab is selected
+  useEffect(() => {
+    if (activeTab === 'year' && depth >= 3 && !yearInterpretation && !isGeneratingYear) {
+      generateYearInterpretation();
+    }
+  }, [activeTab, depth, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
 
   // Loading animation
   if (isLoading) {
@@ -480,18 +550,65 @@ const BirthCardReveal: React.FC = () => {
           </div>
         </div>
 
-        {/* Year Energy Description */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
-          {yearData.descriptionEn ? (
+        {/* Year Energy Description (Static) */}
+        {yearData.descriptionEn && (
+          <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
+            <h4 className="text-sky-300 font-heading text-lg mb-3">
+              {language === 'en' ? `The ${yearData.year} Energy` : `L'Énergie de ${yearData.year}`}
+            </h4>
             <div
               className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
                 __html: language === 'en' ? yearData.descriptionEn : yearData.descriptionFr,
               }}
             />
+          </div>
+        )}
+
+        {/* AI-Generated Personalized Year Reading */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
+          <h4 className="text-sky-300 font-heading text-lg mb-3">
+            {language === 'en' ? 'Your Personal Year Journey' : 'Votre Parcours Annuel Personnel'}
+          </h4>
+
+          {isGeneratingYear ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="mb-4"
+              >
+                <Loader2 className="w-8 h-8 text-sky-400" />
+              </motion.div>
+              <p className="text-white/60 text-sm">
+                {language === 'en'
+                  ? 'Weaving the year energy with your birth cards...'
+                  : 'Tissage de l\'énergie de l\'année avec vos cartes de naissance...'}
+              </p>
+            </div>
+          ) : yearError ? (
+            <div className="text-center py-4">
+              <p className="text-red-400 mb-4">{yearError}</p>
+              <button
+                onClick={() => {
+                  setYearError(null);
+                  generateYearInterpretation();
+                }}
+                className="px-4 py-2 bg-sky-500/20 text-sky-300 rounded-lg hover:bg-sky-500/30 transition-colors"
+              >
+                {language === 'en' ? 'Try Again' : 'Réessayer'}
+              </button>
+            </div>
+          ) : yearInterpretation ? (
+            <div
+              className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
+              dangerouslySetInnerHTML={{ __html: yearInterpretation.replace(/\n/g, '<br />') }}
+            />
           ) : (
             <p className="text-white/60 italic text-center">
-              {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
+              {language === 'en'
+                ? 'Your personalized year reading will appear here...'
+                : 'Votre lecture annuelle personnalisée apparaîtra ici...'}
             </p>
           )}
         </div>

@@ -513,6 +513,39 @@ export async function generateTarotFollowUp(
   });
 }
 
+export async function generateYearEnergyReading(
+  token: string,
+  params: {
+    year: number;
+    yearEnergy: {
+      primaryCardName: string;
+      primaryCardNameFr: string;
+      reducedCardName?: string;
+      reducedCardNameFr?: string;
+      isUnified: boolean;
+      description: string;
+    };
+    personalityCard: {
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+    };
+    soulCard: {
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+    };
+    isUnifiedBirthCard: boolean;
+    language: 'en' | 'fr';
+  }
+): Promise<{ interpretation: string; creditsRequired: number }> {
+  return apiRequest('/api/v1/ai/birthcard/year-energy', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
 // ============================================
 // ADMIN ENDPOINTS
 // ============================================

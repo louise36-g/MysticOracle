@@ -318,6 +318,34 @@ export async function getHoroscopeFollowUpPrompt(params: {
 }
 
 /**
+ * Get year energy reading prompt with birth card context
+ */
+export async function getYearEnergyReadingPrompt(params: {
+  year: number;
+  yearEnergySection: string;
+  birthCardsSection: string;
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const template = await getPrompt('PROMPT_YEAR_ENERGY_READING');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const variables = {
+      language: languageName,
+      year: String(params.year),
+      yearEnergySection: params.yearEnergySection,
+      birthCardsSection: params.birthCardsSection,
+    };
+
+    return interpolatePrompt(template, variables);
+  } catch (error) {
+    console.error('[PromptService] Error assembling year energy prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Clear the prompt cache (call after prompt updates)
  */
 export function clearCache(): void {
