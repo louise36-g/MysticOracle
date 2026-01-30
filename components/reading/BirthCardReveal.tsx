@@ -163,7 +163,10 @@ const BirthCardReveal: React.FC = () => {
   // Build image URLs
   const personalityImageUrl = getCardImageUrl(personalityCardId);
   const soulImageUrl = getCardImageUrl(soulCardId);
-  const yearImageUrl = depth >= 3 && yearData ? getCardImageUrl(yearData.primaryCardId) : '';
+  const yearPrimaryImageUrl = depth >= 3 && yearData ? getCardImageUrl(yearData.primaryCardId) : '';
+  const yearReducedImageUrl = depth >= 3 && yearData && !yearData.isUnified
+    ? getCardImageUrl(yearData.reducedCardId)
+    : '';
 
   // Handle image load error
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
@@ -505,19 +508,34 @@ const BirthCardReveal: React.FC = () => {
         exit={{ opacity: 0, y: -20 }}
         className="space-y-6"
       >
-        {/* Year Card Image */}
-        <div className="flex justify-center">
+        {/* Year Card Image(s) - Show both for dual years, single for unified */}
+        <div className="flex justify-center gap-4">
+          {/* Primary Year Card */}
           <div
             className="rounded-xl overflow-hidden shadow-2xl"
             style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
           >
             <img
-              src={yearImageUrl}
+              src={yearPrimaryImageUrl}
               alt={yearData.primaryCardName}
-              className="w-48 h-72 md:w-56 md:h-84 object-cover"
+              className={`${yearData.isUnified ? 'w-48 h-72 md:w-56 md:h-84' : 'w-36 h-54 md:w-44 md:h-66'} object-cover`}
               onError={(e) => handleImageError(e, yearData.primaryCardName)}
             />
           </div>
+          {/* Reduced Year Card (only for dual years) */}
+          {!yearData.isUnified && yearReducedImageUrl && (
+            <div
+              className="rounded-xl overflow-hidden shadow-2xl"
+              style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
+            >
+              <img
+                src={yearReducedImageUrl}
+                alt={yearData.reducedCardName}
+                className="w-36 h-54 md:w-44 md:h-66 object-cover"
+                onError={(e) => handleImageError(e, yearData.reducedCardName)}
+              />
+            </div>
+          )}
         </div>
 
         {/* Header */}
