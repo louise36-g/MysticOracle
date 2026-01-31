@@ -1,9 +1,11 @@
-import * as Astronomy from 'astronomy-engine';
+import AstronomyModule from 'astronomy-engine';
+import type { AstroTime, Body as BodyType, Vector } from 'astronomy-engine';
 
-// Re-export commonly used functions for convenience
-const { MakeTime, GeoVector, MoonPhase, Illumination } = Astronomy;
+// Handle ESM/CJS interop - the module exports functions on .default in ESM context
+const Astronomy =
+  (AstronomyModule as unknown as { default?: typeof AstronomyModule }).default || AstronomyModule;
 
-// Use Astronomy.Body directly for type consistency
+// Get Body enum from Astronomy module
 const Body = Astronomy.Body;
 
 /**
@@ -91,15 +93,15 @@ export class PlanetaryCalculationService {
    */
   async calculatePlanetaryData(date: Date): Promise<PlanetaryData> {
     try {
-      const astroTime = MakeTime(date);
+      const astroTime = Astronomy.MakeTime(date);
 
       // Calculate positions for all planets
-      const sunGeo = GeoVector(Body.Sun, astroTime, false);
-      const mercuryGeo = GeoVector(Body.Mercury, astroTime, false);
-      const venusGeo = GeoVector(Body.Venus, astroTime, false);
-      const marsGeo = GeoVector(Body.Mars, astroTime, false);
-      const jupiterGeo = GeoVector(Body.Jupiter, astroTime, false);
-      const saturnGeo = GeoVector(Body.Saturn, astroTime, false);
+      const sunGeo = Astronomy.GeoVector(Body.Sun, astroTime, false);
+      const mercuryGeo = Astronomy.GeoVector(Body.Mercury, astroTime, false);
+      const venusGeo = Astronomy.GeoVector(Body.Venus, astroTime, false);
+      const marsGeo = Astronomy.GeoVector(Body.Mars, astroTime, false);
+      const jupiterGeo = Astronomy.GeoVector(Body.Jupiter, astroTime, false);
+      const saturnGeo = Astronomy.GeoVector(Body.Saturn, astroTime, false);
 
       // Convert to ecliptic longitudes
       const sunLon = this.calculateEclipticLongitude(sunGeo);
@@ -110,7 +112,7 @@ export class PlanetaryCalculationService {
       const saturnLon = this.calculateEclipticLongitude(saturnGeo);
 
       // Create position objects
-      const createPosition = (lon: number, body: Astronomy.Body): PlanetPosition => ({
+      const createPosition = (lon: number, body: BodyType): PlanetPosition => ({
         longitude: lon,
         sign: this.getZodiacSign(lon),
         degrees: this.getDegreesInSign(lon),
@@ -261,16 +263,16 @@ export class PlanetaryCalculationService {
    * @param astroTime Astronomy engine time object
    * @returns Moon data with phase information
    */
-  private calculateMoonData(astroTime: Astronomy.AstroTime): MoonData {
+  private calculateMoonData(astroTime: AstroTime): MoonData {
     // Get Moon's geocentric position
-    const moonGeo = GeoVector(Body.Moon, astroTime, false);
+    const moonGeo = Astronomy.GeoVector(Body.Moon, astroTime, false);
     const moonLon = this.calculateEclipticLongitude(moonGeo);
 
     // Calculate phase angle (angle between Sun, Earth, and Moon)
-    const phaseAngle = MoonPhase(astroTime);
+    const phaseAngle = Astronomy.MoonPhase(astroTime);
 
     // Calculate illumination percentage
-    const illum = Illumination(Body.Moon, astroTime);
+    const illum = Astronomy.Illumination(Body.Moon, astroTime);
     const illumination = Math.round(illum.phase_fraction * 100);
 
     return {
@@ -287,7 +289,7 @@ export class PlanetaryCalculationService {
    * @param geoVector Geocentric position vector
    * @returns Ecliptic longitude in degrees (0-360)
    */
-  private calculateEclipticLongitude(geoVector: Astronomy.Vector): number {
+  private calculateEclipticLongitude(geoVector: Vector): number {
     // Convert Cartesian coordinates to ecliptic longitude
     const x = geoVector.x;
     const y = geoVector.y;
@@ -310,15 +312,15 @@ export class PlanetaryCalculationService {
    * @param astroTime Current time
    * @returns True if planet is in retrograde
    */
-  private isRetrograde(body: Astronomy.Body, astroTime: Astronomy.AstroTime): boolean {
+  private isRetrograde(body: BodyType, astroTime: AstroTime): boolean {
     try {
       // Get current position
-      const currentGeo = GeoVector(body, astroTime, false);
+      const currentGeo = Astronomy.GeoVector(body, astroTime, false);
       const currentLon = this.calculateEclipticLongitude(currentGeo);
 
       // Get position 1 day ahead
       const futureTime = astroTime.AddDays(1);
-      const futureGeo = GeoVector(body, futureTime, false);
+      const futureGeo = Astronomy.GeoVector(body, futureTime, false);
       const futureLon = this.calculateEclipticLongitude(futureGeo);
 
       // Calculate change in longitude
@@ -330,7 +332,7 @@ export class PlanetaryCalculationService {
 
       // Retrograde if longitude decreases (negative delta)
       return deltaLon < 0;
-    } catch (error) {
+    } catch {
       // If detection fails, assume direct motion
       return false;
     }

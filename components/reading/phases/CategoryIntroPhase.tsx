@@ -512,7 +512,9 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
               disabled={!canProceed}
             >
               {isBirthCards
-                ? (language === 'en' ? 'Reveal Your Card' : 'Révéler Votre Carte')
+                ? (depth === 1
+                    ? (language === 'en' ? 'Reveal Your Card' : 'Révéler Votre Carte')
+                    : (language === 'en' ? 'Reveal Your Cards' : 'Révéler Vos Cartes'))
                 : (language === 'en' ? 'Begin Reading' : 'Commencer la Lecture')}
             </Button>
 

@@ -93,27 +93,27 @@ const BirthCardEntry: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/reading/birth-cards');
+    navigate('/reading');
   };
 
   // What you'll discover based on depth
   const discoveries = {
     1: {
       en: [
-        { icon: <Star className="w-5 h-5" />, text: 'Your Soul Card - the energy of your incarnation' },
+        { icon: <Sun className="w-5 h-5" />, text: 'Your Personality Card - how you show up in the world' },
       ],
       fr: [
-        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Ame - l'energie de votre incarnation" },
+        { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalite - comment vous vous presentez au monde" },
       ],
     },
     2: {
       en: [
-        { icon: <Star className="w-5 h-5" />, text: 'Your Soul Card - your core life purpose' },
         { icon: <Sun className="w-5 h-5" />, text: 'Your Personality Card - the energy you project' },
+        { icon: <Star className="w-5 h-5" />, text: 'Your Soul Card - your core life purpose' },
       ],
       fr: [
-        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Ame - votre but de vie" },
         { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalite - l'energie que vous projetez" },
+        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Ame - votre but de vie" },
       ],
     },
     3: {
@@ -123,25 +123,25 @@ const BirthCardEntry: React.FC = () => {
         { icon: <MoonIcon className="w-5 h-5" />, text: 'Your Year Card for 2026 - this year\'s theme' },
       ],
       fr: [
-        { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalité - l'énergie que vous projetez" },
-        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Âme - votre but de vie" },
-        { icon: <MoonIcon className="w-5 h-5" />, text: "Votre Carte de l'Année 2026 - le thème de cette année" },
+        { icon: <Sun className="w-5 h-5" />, text: "Votre Carte de Personnalite - l'energie que vous projetez" },
+        { icon: <Star className="w-5 h-5" />, text: "Votre Carte de l'Ame - votre but de vie" },
+        { icon: <MoonIcon className="w-5 h-5" />, text: "Votre Carte de l'Annee 2026 - le theme de cette annee" },
       ],
     },
   };
 
   const descriptions = {
     1: {
-      en: 'Your Soul Card reveals the energy of your incarnation - your core life purpose and the deepest lessons your soul came here to learn.',
-      fr: "Votre Carte de l'Ame revele l'energie de votre incarnation - votre but de vie et les lecons profondes que votre ame est venue apprendre.",
+      en: 'Your Personality Card reveals how you show up in the world - the energy you naturally project and the patterns others experience when they meet you.',
+      fr: "Votre Carte de Personnalite revele comment vous vous presentez au monde - l'energie que vous projetez naturellement et les schemas que les autres percoivent en vous rencontrant.",
     },
     2: {
-      en: 'Discover your Soul Card plus your Personality Card - the mask you wear and the energy you naturally project into the world.',
-      fr: "Decouvrez votre Carte de l'Ame plus votre Carte de Personnalite - le masque que vous portez et l'energie que vous projetez naturellement.",
+      en: 'Discover your Personality Card plus your Soul Card - how you appear to the world and the deeper purpose your soul came here to fulfil.',
+      fr: "Decouvrez votre Carte de Personnalite plus votre Carte de l'Ame - comment vous apparaissez au monde et le but profond que votre ame est venue accomplir.",
     },
     3: {
       en: 'The complete portrait: your Personality Card, Soul Card, and your Year Card for 2026 revealing this year\'s predominant themes and lessons.',
-      fr: "Le portrait complet: votre Carte de Personnalité, votre Carte de l'Âme, et votre Carte de l'Année 2026 révélant les thèmes et leçons prédominants de cette année.",
+      fr: "Le portrait complet: votre Carte de Personnalite, votre Carte de l'Ame, et votre Carte de l'Annee 2026 revelant les themes et lecons predominants de cette annee.",
     },
   };
 
@@ -308,7 +308,9 @@ const BirthCardEntry: React.FC = () => {
                 className="flex items-center gap-2"
               >
                 <Sparkles className="w-5 h-5" />
-                {t('birthCards.revealYourCards', 'Reveal Your Cards')}
+                {depth === 1
+                  ? t('birthCards.revealYourCard', 'Reveal Your Card')
+                  : t('birthCards.revealYourCards', 'Reveal Your Cards')}
               </Button>
             </div>
 

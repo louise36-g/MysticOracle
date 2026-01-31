@@ -538,6 +538,272 @@ export async function generateYearEnergyReading(
   });
 }
 
+export interface CachedBirthCardSynthesis {
+  interpretation: string;
+  birthDate: string;
+  personalityCardId: number;
+  soulCardId: number;
+  zodiacSign: string;
+  createdAt: string;
+}
+
+export async function getCachedBirthCardSynthesis(
+  token: string,
+  language: 'en' | 'fr'
+): Promise<{ cached: CachedBirthCardSynthesis | null }> {
+  return apiRequest(`/api/v1/ai/birthcard/synthesis?language=${language}`, {
+    method: 'GET',
+    token,
+  });
+}
+
+export async function generateBirthCardSynthesis(
+  token: string,
+  params: {
+    birthDate: string; // ISO date string (YYYY-MM-DD)
+    personalityCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+      element: string;
+      elementFr: string;
+      planet: string;
+      planetFr: string;
+      keywords: string[];
+    };
+    soulCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+      element: string;
+      elementFr: string;
+      planet: string;
+      planetFr: string;
+      keywords: string[];
+    };
+    zodiac: {
+      name: string;
+      nameFr: string;
+      element: string;
+      elementFr: string;
+      quality: string;
+      qualityFr: string;
+      rulingPlanet: string;
+      rulingPlanetFr: string;
+    };
+    isUnified: boolean;
+    language: 'en' | 'fr';
+  }
+): Promise<{ interpretation: string; creditsUsed: number }> {
+  return apiRequest('/api/v1/ai/birthcard/synthesis', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+// ============================================
+// YEAR ENERGY ENDPOINTS
+// ============================================
+
+export interface YearEnergyResponse {
+  year: number;
+  yearNumber: number;
+  yearCard: {
+    id: number;
+    name: string;
+    element: string;
+  };
+  cyclePosition: number;
+  themes: string;
+  challenges: string;
+  opportunities: string;
+}
+
+export interface PersonalYearReadingResponse {
+  synthesis: string;
+  cached: boolean;
+  personalYearNumber: number;
+  personalYearCardId: number;
+}
+
+export interface CachedPersonalYearReading {
+  year: number;
+  synthesis: string;
+  personalYearNumber: number;
+  personalYearCard: {
+    id: number;
+    name: string;
+    element: string;
+  };
+  universalYearCard: {
+    id: number;
+    name: string;
+  };
+  createdAt: string;
+}
+
+export interface ThresholdStatusResponse {
+  isThresholdPeriod: boolean;
+  message?: string;
+  transitionYear?: number;
+  outgoing?: {
+    year: number;
+    yearNumber: number;
+    yearCard: string;
+  } | null;
+  incoming?: {
+    year: number;
+    yearNumber: number;
+    yearCard: string;
+  } | null;
+}
+
+export interface ThresholdReadingResponse {
+  synthesis: string;
+  cached: boolean;
+  transitionYear: number;
+}
+
+/**
+ * Get universal year energy for a specific year
+ */
+export async function getYearEnergy(
+  year: number,
+  language: 'en' | 'fr' = 'en'
+): Promise<YearEnergyResponse> {
+  return apiRequest(`/api/v1/year-energy/${year}?language=${language}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * Get current year's energy
+ */
+export async function getCurrentYearEnergy(
+  language: 'en' | 'fr' = 'en'
+): Promise<YearEnergyResponse> {
+  return apiRequest(`/api/v1/year-energy/current?language=${language}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * Get cached personal year reading
+ */
+export async function getCachedPersonalYearReading(
+  token: string,
+  year: number,
+  language: 'en' | 'fr' = 'en'
+): Promise<{ cached: CachedPersonalYearReading | null }> {
+  return apiRequest(`/api/v1/year-energy/personal/cached?year=${year}&language=${language}`, {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Generate personal year reading
+ */
+export async function generatePersonalYearReading(
+  token: string,
+  params: {
+    personalityCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    soulCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    zodiac: {
+      name: string;
+      nameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    birthDate: string;
+    language: 'en' | 'fr';
+    year?: number;
+  }
+): Promise<PersonalYearReadingResponse> {
+  return apiRequest('/api/v1/year-energy/personal', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+/**
+ * Check if currently in threshold period (Dec 21 - Jan 10)
+ */
+export async function getThresholdStatus(
+  language: 'en' | 'fr' = 'en'
+): Promise<ThresholdStatusResponse> {
+  return apiRequest(`/api/v1/year-energy/threshold/status?language=${language}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * Get cached threshold reading
+ */
+export async function getCachedThresholdReading(
+  token: string,
+  language: 'en' | 'fr' = 'en'
+): Promise<{ isThresholdPeriod: boolean; transitionYear?: number; cached: { synthesis: string; outgoingYear: number; incomingYear: number; createdAt: string } | null }> {
+  return apiRequest(`/api/v1/year-energy/threshold/cached?language=${language}`, {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Generate threshold reading (Dec 21 - Jan 10 only)
+ */
+export async function generateThresholdReading(
+  token: string,
+  params: {
+    personalityCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    soulCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    zodiac: {
+      name: string;
+      nameFr: string;
+      element: string;
+      elementFr: string;
+    };
+    birthDate: string;
+    language: 'en' | 'fr';
+  }
+): Promise<ThresholdReadingResponse> {
+  return apiRequest('/api/v1/year-energy/threshold', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+
 // ============================================
 // ADMIN ENDPOINTS
 // ============================================

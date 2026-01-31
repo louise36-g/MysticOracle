@@ -6,8 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Paths
-const templatePath = path.join(__dirname, '..', 'templates', '01-PERSONALITY-CARD-22.txt');
-const jsonPath = path.join(__dirname, '..', 'birthCards', 'personalityCards.json');
+const templatePath = path.join(__dirname, '..', 'templates', '02-SOUL-CARD-9.txt');
+const jsonPath = path.join(__dirname, '..', 'birthCards', 'soulCards.json');
 
 // Read files
 const template = fs.readFileSync(templatePath, 'utf8');
@@ -16,9 +16,8 @@ const cards = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 // Parse template - split by card sections
 const cardSections = template.split(/---\s*\n/).filter(section => section.trim());
 
-// Card number to cardId mapping (22 = The Fool = cardId 0)
+// Card number to cardId mapping for soul cards (1-9)
 const cardNumberToId = {
-  0: 0,   // The Fool
   1: 1,   // The Magician
   2: 2,   // The High Priestess
   3: 3,   // The Empress
@@ -28,24 +27,40 @@ const cardNumberToId = {
   7: 7,   // The Chariot
   8: 8,   // Strength
   9: 9,   // The Hermit
-  10: 10, // Wheel of Fortune
-  11: 11, // Justice
-  12: 12, // The Hanged Man
-  13: 13, // Death
-  14: 14, // Temperance
-  15: 15, // The Devil
-  16: 16, // The Tower
-  17: 17, // The Star
-  18: 18, // The Moon
-  19: 19, // The Sun
-  20: 20, // Judgement
-  21: 21, // The World
-  22: 0   // Card 22 is The Fool (cardId 0)
 };
+
+// Known section headers for soul cards (English and French variants)
+const knownHeaders = new Set([
+  // English
+  'Your Inner Essence',
+  'Your Soul Gifts',
+  'Your Shadow',
+  'Living From Your Essence',
+  // French - various capitalizations found in template
+  'Votre Essence Intérieure',
+  'Votre essence intérieure',
+  'Vos dons d\'âme',
+  'Vos Dons d\'Âme',
+  'Vos Dons d\'âme',
+  'Vos dons spirituels',
+  'Vos Dons de l\'Âme',
+  'Votre ombre',
+  'Votre Ombre',
+  'Vivre en accord avec son essence',
+  'Vivre en accord avec son Essence',
+  'Vivre en harmonie avec son essence',
+  'Vivre en harmonie avec son Essence',
+]);
 
 // Process each section
 cardSections.forEach(section => {
-  // Extract card number from header like "CARD 0 - THE FOOL" or "CARD 22 - THE FOOL"
+  // Skip the header section (template description)
+  if (section.includes('SOUL CARD TEMPLATE')) {
+    console.log('Skipping header section');
+    return;
+  }
+
+  // Extract card number from header like "CARD 1 - THE MAGICIAN"
   const headerMatch = section.match(/CARD\s+(\d+)\s*-\s*([^\n(]+)/i);
   if (!headerMatch) {
     console.log('Could not find card header in section');
@@ -72,18 +87,6 @@ cardSections.forEach(section => {
   let englishText = englishMatch[1].trim();
   let frenchText = frenchMatch[1].trim();
 
-  // Known section headers (English and French)
-  const knownHeaders = new Set([
-    'Your Outer Expression',
-    'Your Gifts',
-    'Your Shadow',
-    'Working With This Energy',
-    'Votre expression extérieure',
-    'Vos cadeaux',
-    'Votre ombre',
-    'Travailler avec cette énergie',
-  ]);
-
   // Convert section headers to HTML h2 tags
   const convertHeaders = (text) => {
     const lines = text.split('\n');
@@ -107,6 +110,7 @@ cardSections.forEach(section => {
   // Find the card in the JSON array
   const card = cards.find(c => c.cardId === cardId);
   if (card) {
+    // Update the description fields with the new soul card content
     card.descriptionEn = englishText;
     card.descriptionFr = frenchText;
     console.log(`Updated card ${cardNumber} (${card.cardName})`);

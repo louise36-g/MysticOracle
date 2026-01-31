@@ -12,9 +12,16 @@ import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar, Loader2 }
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { SpreadType, BirthCardDepth } from '../../types';
-import { calculateBirthCards } from '../../constants/birthCardMeanings';
+import { calculateBirthCards, getZodiacSign, getMajorArcanaAssociation } from '../../constants/birthCardMeanings';
 import { getCardImageUrl } from '../../constants/cardImages';
-import { generateYearEnergyReading } from '../../services/apiService';
+import {
+  generateBirthCardSynthesis,
+  getCachedBirthCardSynthesis,
+  getCurrentYearEnergy,
+  getCachedPersonalYearReading,
+  generatePersonalYearReading,
+  type YearEnergyResponse,
+} from '../../services/apiService';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
 
@@ -77,7 +84,7 @@ function formatHtmlContent(content: string): string {
         if (/^<(h[1-6]|div|ul|ol|li|blockquote|p)/i.test(text)) {
           elements.push(text);
         } else {
-          elements.push(`<p style="margin-bottom: 0.75em;">${text}</p>`);
+          elements.push(`<p style="margin-bottom: 0.75em; font-size: 1rem; line-height: 1.7;">${text}</p>`);
         }
       }
       currentParagraph = [];
@@ -206,6 +213,19 @@ interface YearEnergyData {
   keywordsFr: string[];
 }
 
+// Major Arcana names for personal year display
+const MAJOR_ARCANA_NAMES: Record<number, { en: string; fr: string }> = {
+  1: { en: 'The Magician', fr: 'Le Bateleur' },
+  2: { en: 'The High Priestess', fr: 'La Papesse' },
+  3: { en: 'The Empress', fr: "L'Impératrice" },
+  4: { en: 'The Emperor', fr: "L'Empereur" },
+  5: { en: 'The Hierophant', fr: 'Le Pape' },
+  6: { en: 'The Lovers', fr: "L'Amoureux" },
+  7: { en: 'The Chariot', fr: 'Le Chariot' },
+  8: { en: 'Strength', fr: 'La Force' },
+  9: { en: 'The Hermit', fr: "L'Hermite" },
+};
+
 const BirthCardReveal: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -217,10 +237,37 @@ const BirthCardReveal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('personality');
   const [isLoading, setIsLoading] = useState(true);
 
-  // AI-generated year energy interpretation state
+  // Calculate personal year number immediately (birth month + birth day + current year, reduced to 1-9)
+  const calculatePersonalYearNumber = (birthMonth: number, birthDay: number, year: number): number => {
+    const sum = birthMonth + birthDay + year;
+    let result = sum;
+    while (result > 9) {
+      result = result.toString().split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+    }
+    return result;
+  };
+
+  const currentYear = new Date().getFullYear();
+  const calculatedPersonalYear = state?.birthDate
+    ? calculatePersonalYearNumber(
+        parseInt(state.birthDate.month, 10),
+        parseInt(state.birthDate.day, 10),
+        currentYear
+      )
+    : null;
+
+  // Year energy state (from new API)
+  const [universalYearEnergy, setUniversalYearEnergy] = useState<YearEnergyResponse | null>(null);
+  const [isLoadingYearEnergy, setIsLoadingYearEnergy] = useState(false);
   const [yearInterpretation, setYearInterpretation] = useState<string | null>(null);
   const [isGeneratingYear, setIsGeneratingYear] = useState(false);
   const [yearError, setYearError] = useState<string | null>(null);
+  const [personalYearNumber, setPersonalYearNumber] = useState<number | null>(calculatedPersonalYear);
+
+  // AI-generated synthesis interpretation state (for depth 2 Dynamic tab)
+  const [synthesisInterpretation, setSynthesisInterpretation] = useState<string | null>(null);
+  const [isGeneratingSynthesis, setIsGeneratingSynthesis] = useState(false);
+  const [synthesisError, setSynthesisError] = useState<string | null>(null);
 
   // Enlarged image modal state
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; alt: string } | null>(null);
@@ -269,7 +316,6 @@ const BirthCardReveal: React.FC = () => {
     : undefined;
 
   // Get year energy data for current year (defaults to 2026, the current cycle start)
-  const currentYear = new Date().getFullYear();
   const yearData = (yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
     || (yearEnergyCycle as YearEnergyData[])[0]; // Fallback to 2026 if not found
 
@@ -303,9 +349,25 @@ const BirthCardReveal: React.FC = () => {
     navigate(`/reading/birth-cards/${depth}`);
   };
 
-  // Function to generate AI year energy interpretation
+  // Function to fetch universal year energy from API
+  const fetchYearEnergy = useCallback(async () => {
+    if (depth < 3 || universalYearEnergy || isLoadingYearEnergy) return;
+
+    setIsLoadingYearEnergy(true);
+    try {
+      const energy = await getCurrentYearEnergy(language);
+      setUniversalYearEnergy(energy);
+    } catch (error) {
+      console.error('[BirthCardReveal] Error fetching year energy:', error);
+      // Fall back to static data if API fails
+    } finally {
+      setIsLoadingYearEnergy(false);
+    }
+  }, [depth, universalYearEnergy, isLoadingYearEnergy, language]);
+
+  // Function to generate AI year energy interpretation using new API
   const generateYearInterpretation = useCallback(async () => {
-    if (!yearData || depth < 3 || yearInterpretation || isGeneratingYear) return;
+    if (depth < 3 || yearInterpretation || isGeneratingYear) return;
 
     setIsGeneratingYear(true);
     setYearError(null);
@@ -317,35 +379,58 @@ const BirthCardReveal: React.FC = () => {
         return;
       }
 
-      const response = await generateYearEnergyReading(token, {
-        year: yearData.year,
-        yearEnergy: {
-          primaryCardName: yearData.primaryCardName,
-          primaryCardNameFr: yearData.primaryCardNameFr,
-          reducedCardName: yearData.reducedCardName,
-          reducedCardNameFr: yearData.reducedCardNameFr,
-          isUnified: yearData.isUnified,
-          description: language === 'en' ? yearData.descriptionEn : yearData.descriptionFr,
-        },
+      const currentYear = new Date().getFullYear();
+      const birthDateISO = `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`;
+
+      // Check for cached reading first
+      try {
+        const cacheResponse = await getCachedPersonalYearReading(token, currentYear, language);
+        if (cacheResponse.cached &&
+            cacheResponse.cached.synthesis &&
+            cacheResponse.cached.year === currentYear) {
+          console.log('[BirthCardReveal] Using cached personal year reading');
+          setYearInterpretation(cacheResponse.cached.synthesis);
+          setPersonalYearNumber(cacheResponse.cached.personalYearNumber);
+          setIsGeneratingYear(false);
+          return;
+        }
+      } catch (cacheError) {
+        console.log('[BirthCardReveal] No cached year reading found, generating new one');
+      }
+
+      // Generate new personal year reading
+      const zodiacSign = getZodiacSign(month, day);
+      const personalityAssociation = getMajorArcanaAssociation(personalityCardId);
+      const soulAssociation = getMajorArcanaAssociation(soulCardId);
+
+      const response = await generatePersonalYearReading(token, {
         personalityCard: {
+          cardId: personalityCardId,
           cardName: personalityData?.cardName || '',
           cardNameFr: personalityData?.cardNameFr || '',
-          description: language === 'en'
-            ? personalityData?.descriptionEn || ''
-            : personalityData?.descriptionFr || '',
+          element: personalityAssociation?.element || 'Spirit',
+          elementFr: personalityAssociation?.elementFr || 'Esprit',
         },
         soulCard: {
+          cardId: soulCardId,
           cardName: soulData?.cardName || '',
           cardNameFr: soulData?.cardNameFr || '',
-          description: language === 'en'
-            ? soulData?.descriptionEn || ''
-            : soulData?.descriptionFr || '',
+          element: soulAssociation?.element || 'Spirit',
+          elementFr: soulAssociation?.elementFr || 'Esprit',
         },
-        isUnifiedBirthCard: isUnified,
+        zodiac: {
+          name: zodiacSign.name,
+          nameFr: zodiacSign.nameFr,
+          element: zodiacSign.element,
+          elementFr: zodiacSign.elementFr,
+        },
+        birthDate: birthDateISO,
         language,
+        year: currentYear,
       });
 
-      setYearInterpretation(response.interpretation);
+      setYearInterpretation(response.synthesis);
+      setPersonalYearNumber(response.personalYearNumber);
     } catch (error) {
       console.error('[BirthCardReveal] Error generating year interpretation:', error);
       setYearError(
@@ -356,14 +441,155 @@ const BirthCardReveal: React.FC = () => {
     } finally {
       setIsGeneratingYear(false);
     }
-  }, [yearData, depth, yearInterpretation, isGeneratingYear, getToken, language, personalityData, soulData, isUnified]);
+  }, [depth, yearInterpretation, isGeneratingYear, getToken, language, birthDate, month, day, personalityCardId, soulCardId, personalityData, soulData]);
 
-  // Generate year interpretation when year tab is selected
+  // Fetch year energy and generate interpretation when year tab is selected
   useEffect(() => {
-    if (activeTab === 'year' && depth >= 3 && !yearInterpretation && !isGeneratingYear) {
-      generateYearInterpretation();
+    if (activeTab === 'year' && depth >= 3) {
+      if (!universalYearEnergy && !isLoadingYearEnergy) {
+        fetchYearEnergy();
+      }
+      if (!yearInterpretation && !isGeneratingYear) {
+        generateYearInterpretation();
+      }
     }
-  }, [activeTab, depth, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
+  }, [activeTab, depth, universalYearEnergy, isLoadingYearEnergy, fetchYearEnergy, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
+
+  // Get zodiac sign and elemental associations for synthesis
+  const zodiacSign = getZodiacSign(month, day);
+  const personalityAssociation = getMajorArcanaAssociation(personalityCardId);
+  const soulAssociation = getMajorArcanaAssociation(soulCardId);
+
+  // Format birth date as ISO string for API
+  const birthDateISO = `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`;
+
+  // Function to generate AI birth card synthesis interpretation (for depth 2)
+  const generateSynthesisInterpretation = useCallback(async () => {
+    if (depth < 2 || isUnified || synthesisInterpretation || isGeneratingSynthesis) return;
+
+    setIsGeneratingSynthesis(true);
+    setSynthesisError(null);
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        setSynthesisError(language === 'en' ? 'Please sign in to view your personalized reading' : 'Veuillez vous connecter pour voir votre lecture personnalisée');
+        return;
+      }
+
+      // First, check for cached synthesis
+      try {
+        console.log('[BirthCardReveal] Checking for cached synthesis...');
+        console.log('[BirthCardReveal] Current birthDateISO:', birthDateISO);
+        const cacheResponse = await getCachedBirthCardSynthesis(token, language);
+        console.log('[BirthCardReveal] Cache response:', cacheResponse.cached ? 'found' : 'not found');
+
+        if (cacheResponse.cached) {
+          // Backend now returns birthDate as normalized YYYY-MM-DD string
+          const cachedDate = cacheResponse.cached.birthDate;
+
+          console.log('[BirthCardReveal] Cache check:', {
+            cachedDate,
+            birthDateISO,
+            dateMatch: cachedDate === birthDateISO,
+            cachedPersonality: cacheResponse.cached.personalityCardId,
+            currentPersonality: personalityCardId,
+            personalityMatch: cacheResponse.cached.personalityCardId === personalityCardId,
+            cachedSoul: cacheResponse.cached.soulCardId,
+            currentSoul: soulCardId,
+            soulMatch: cacheResponse.cached.soulCardId === soulCardId,
+            hasInterpretation: !!cacheResponse.cached.interpretation,
+            interpretationLength: cacheResponse.cached.interpretation?.length || 0,
+          });
+
+          if (cachedDate === birthDateISO &&
+              cacheResponse.cached.personalityCardId === personalityCardId &&
+              cacheResponse.cached.soulCardId === soulCardId &&
+              cacheResponse.cached.interpretation) {
+            console.log('[BirthCardReveal] ✅ Using cached synthesis!');
+            setSynthesisInterpretation(cacheResponse.cached.interpretation);
+            setIsGeneratingSynthesis(false);
+            return;
+          } else {
+            console.log('[BirthCardReveal] ❌ Cache exists but does not match current request');
+            if (cachedDate !== birthDateISO) console.log('  → Date mismatch');
+            if (cacheResponse.cached.personalityCardId !== personalityCardId) console.log('  → Personality card mismatch');
+            if (cacheResponse.cached.soulCardId !== soulCardId) console.log('  → Soul card mismatch');
+            if (!cacheResponse.cached.interpretation) console.log('  → No interpretation for this language');
+          }
+        }
+      } catch (cacheError) {
+        console.log('[BirthCardReveal] Error checking cache:', cacheError);
+      }
+
+      console.log('[BirthCardReveal] Generating new synthesis...');
+
+      // Generate new synthesis (it will be cached automatically)
+      const response = await generateBirthCardSynthesis(token, {
+        birthDate: birthDateISO,
+        personalityCard: {
+          cardId: personalityCardId,
+          cardName: personalityData?.cardName || '',
+          cardNameFr: personalityData?.cardNameFr || '',
+          description: language === 'en'
+            ? personalityData?.descriptionEn || ''
+            : personalityData?.descriptionFr || '',
+          element: personalityAssociation?.element || 'Spirit',
+          elementFr: personalityAssociation?.elementFr || 'Esprit',
+          planet: personalityAssociation?.planet || '',
+          planetFr: personalityAssociation?.planetFr || '',
+          keywords: language === 'en'
+            ? personalityAssociation?.keywords || []
+            : personalityAssociation?.keywordsFr || [],
+        },
+        soulCard: {
+          cardId: soulCardId,
+          cardName: soulData?.cardName || '',
+          cardNameFr: soulData?.cardNameFr || '',
+          description: language === 'en'
+            ? soulData?.descriptionEn || ''
+            : soulData?.descriptionFr || '',
+          element: soulAssociation?.element || 'Spirit',
+          elementFr: soulAssociation?.elementFr || 'Esprit',
+          planet: soulAssociation?.planet || '',
+          planetFr: soulAssociation?.planetFr || '',
+          keywords: language === 'en'
+            ? soulAssociation?.keywords || []
+            : soulAssociation?.keywordsFr || [],
+        },
+        zodiac: {
+          name: zodiacSign.name,
+          nameFr: zodiacSign.nameFr,
+          element: zodiacSign.element,
+          elementFr: zodiacSign.elementFr,
+          quality: zodiacSign.quality,
+          qualityFr: zodiacSign.qualityFr,
+          rulingPlanet: zodiacSign.rulingPlanet,
+          rulingPlanetFr: zodiacSign.rulingPlanetFr,
+        },
+        isUnified,
+        language,
+      });
+
+      setSynthesisInterpretation(response.interpretation);
+    } catch (error) {
+      console.error('[BirthCardReveal] Error generating synthesis interpretation:', error);
+      setSynthesisError(
+        language === 'en'
+          ? 'Unable to generate your personalized reading. Please try again.'
+          : 'Impossible de générer votre lecture personnalisée. Veuillez réessayer.'
+      );
+    } finally {
+      setIsGeneratingSynthesis(false);
+    }
+  }, [depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, getToken, language, personalityCardId, soulCardId, personalityData, soulData, personalityAssociation, soulAssociation, zodiacSign, birthDateISO]);
+
+  // Generate synthesis interpretation when dynamic tab is selected (depth 2 only, non-unified)
+  useEffect(() => {
+    if (activeTab === 'dynamic' && depth >= 2 && !isUnified && !synthesisInterpretation && !isGeneratingSynthesis) {
+      generateSynthesisInterpretation();
+    }
+  }, [activeTab, depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, generateSynthesisInterpretation]);
 
   // Loading animation
   if (isLoading) {
@@ -443,7 +669,7 @@ const BirthCardReveal: React.FC = () => {
       <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
         {personalityData?.descriptionEn ? (
           <div
-            className="prose prose-invert prose-amber max-w-none text-white/90 leading-relaxed birth-card-content"
+            className="max-w-none text-white/90 leading-relaxed birth-card-content"
             dangerouslySetInnerHTML={{
               __html: formatHtmlContent(language === 'en' ? personalityData.descriptionEn : personalityData.descriptionFr),
             }}
@@ -513,7 +739,7 @@ const BirthCardReveal: React.FC = () => {
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20">
           {soulData?.descriptionEn ? (
             <div
-              className="prose prose-invert prose-violet max-w-none text-white/90 leading-relaxed birth-card-content"
+              className="max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
                 __html: formatHtmlContent(language === 'en' ? soulData.descriptionEn : soulData.descriptionFr),
               }}
@@ -614,35 +840,98 @@ const BirthCardReveal: React.FC = () => {
           )}
         </div>
 
-        {/* Description */}
+        {/* Description - AI-generated for pairs, static for unified */}
         <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           {isUnified && unifiedData?.descriptionEn ? (
             <div
-              className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
+              className="max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{
                 __html: formatHtmlContent(language === 'en' ? unifiedData.descriptionEn : unifiedData.descriptionFr),
               }}
             />
-          ) : !isUnified && pairData?.dynamicEn ? (
-            <div
-              className="prose prose-invert max-w-none text-white/90 leading-relaxed birth-card-content"
-              dangerouslySetInnerHTML={{
-                __html: formatHtmlContent(language === 'en' ? pairData.dynamicEn : pairData.dynamicFr),
-              }}
-            />
+          ) : !isUnified ? (
+            // AI-Generated Synthesis for non-unified pairs
+            <>
+              {isGeneratingSynthesis ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    className="mb-4"
+                  >
+                    <Loader2 className="w-8 h-8 text-violet-400" />
+                  </motion.div>
+                  <p className="text-white/60 text-sm">
+                    {language === 'en'
+                      ? 'Weaving together your cards, zodiac, and elemental energies...'
+                      : 'Tissage de vos cartes, zodiaque et énergies élémentaires...'}
+                  </p>
+                </div>
+              ) : synthesisError ? (
+                <div className="text-center py-4">
+                  <p className="text-red-400 mb-4">{synthesisError}</p>
+                  <button
+                    onClick={() => {
+                      setSynthesisError(null);
+                      generateSynthesisInterpretation();
+                    }}
+                    className="px-4 py-2 bg-violet-500/20 text-violet-300 rounded-lg hover:bg-violet-500/30 transition-colors"
+                  >
+                    {language === 'en' ? 'Try Again' : 'Réessayer'}
+                  </button>
+                </div>
+              ) : synthesisInterpretation ? (
+                <div
+                  className="max-w-none text-white/90 leading-relaxed birth-card-content"
+                  dangerouslySetInnerHTML={{ __html: formatHtmlContent(synthesisInterpretation) }}
+                />
+              ) : (
+                <p className="text-white/60 italic text-center">
+                  {language === 'en'
+                    ? 'Your personalized reading will appear here...'
+                    : 'Votre lecture personnalisée apparaîtra ici...'}
+                </p>
+              )}
+            </>
           ) : (
             <p className="text-white/60 italic text-center">
               {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
             </p>
           )}
         </div>
+
+        {/* Zodiac & Elemental Info - Show for non-unified pairs */}
+        {!isUnified && synthesisInterpretation && (
+          <div className="bg-black/20 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div className="flex flex-wrap justify-center gap-3 text-sm">
+              <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {language === 'en' ? zodiacSign.name : zodiacSign.nameFr}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                {language === 'en' ? `${personalityAssociation?.element || 'Spirit'} + ${soulAssociation?.element || 'Spirit'}` : `${personalityAssociation?.elementFr || 'Esprit'} + ${soulAssociation?.elementFr || 'Esprit'}`}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                {language === 'en' ? zodiacSign.quality : zodiacSign.qualityFr}
+              </span>
+            </div>
+          </div>
+        )}
       </motion.div>
     );
   };
 
   // Render Year Tab (for depth >= 3)
   const renderYearTab = () => {
-    if (depth < 3 || !yearData) return null;
+    if (depth < 3) return null;
+
+    // Use API data if available, fall back to static data
+    const yearEnergy = universalYearEnergy;
+    const displayYear = new Date().getFullYear();
+    const yearCardImageUrl = yearEnergy ? getCardImageUrl(yearEnergy.yearCard.id) : yearPrimaryImageUrl;
+    // Use calculated personal year immediately, or from state if set by API
+    const displayPersonalYear = personalYearNumber || calculatedPersonalYear;
+    const personalYearCardImageUrl = displayPersonalYear ? getCardImageUrl(displayPersonalYear) : null;
+    const personalYearCardName = displayPersonalYear ? MAJOR_ARCANA_NAMES[displayPersonalYear] : null;
 
     return (
       <motion.div
@@ -652,81 +941,136 @@ const BirthCardReveal: React.FC = () => {
         exit={{ opacity: 0, y: -20 }}
         className="space-y-6"
       >
-        {/* Year Card Image(s) - Show both for dual years, single for unified */}
-        <div className="flex justify-center gap-4">
-          {/* Primary Year Card */}
-          <button
-            onClick={() => openEnlargedImage(yearPrimaryImageUrl, yearData.primaryCardName)}
-            className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
-            style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
-          >
-            <img
-              src={yearPrimaryImageUrl}
-              alt={yearData.primaryCardName}
-              className={`${yearData.isUnified ? 'w-48 h-72 md:w-56 md:h-84' : 'w-36 h-54 md:w-44 md:h-66'} object-contain bg-black/20`}
-              onError={(e) => handleImageError(e, yearData.primaryCardName)}
-            />
-          </button>
-          {/* Reduced Year Card (only for dual years) */}
-          {!yearData.isUnified && yearReducedImageUrl && (
-            <button
-              onClick={() => openEnlargedImage(yearReducedImageUrl, yearData.reducedCardName)}
-              className="rounded-xl overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
-              style={{ boxShadow: '0 0 40px rgba(139, 92, 246, 0.3)' }}
+        {/* Loading state for year energy */}
+        {isLoadingYearEnergy && !yearEnergy ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              className="mb-4"
             >
-              <img
-                src={yearReducedImageUrl}
-                alt={yearData.reducedCardName}
-                className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
-                onError={(e) => handleImageError(e, yearData.reducedCardName)}
-              />
-            </button>
-          )}
-        </div>
+              <Loader2 className="w-8 h-8 text-sky-400" />
+            </motion.div>
+            <p className="text-white/60 text-sm">
+              {language === 'en' ? 'Loading year energy...' : 'Chargement de l\'énergie de l\'année...'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Year Card Images - Universal and Personal Year */}
+            <div className="flex justify-center gap-8 mb-6">
+              {/* Universal Year Card */}
+              <div className="text-center">
+                <div
+                  className="rounded-xl overflow-hidden shadow-2xl hover:scale-105 transition-transform duration-300 mb-3"
+                  style={{ boxShadow: '0 0 40px rgba(56, 189, 248, 0.3)' }}
+                >
+                  <img
+                    src={yearCardImageUrl}
+                    alt={yearEnergy?.yearCard.name || 'Year Card'}
+                    className="w-40 h-60 md:w-48 md:h-72 object-contain bg-black/20"
+                    onError={(e) => handleImageError(e, yearEnergy?.yearCard.name || 'Year Card')}
+                  />
+                </div>
+                <p className="text-sky-300 font-heading text-lg mb-1">
+                  {yearEnergy?.yearCard.name || (language === 'en' ? 'The Magician' : 'Le Bateleur')}
+                </p>
+                <p className="text-white/50 text-xs">
+                  {language === 'en' ? 'Universal Year Card' : 'Carte Année Universelle'}
+                </p>
+              </div>
 
-        {/* Header */}
-        <div className="text-center">
-          <h3 className="text-2xl md:text-3xl font-heading text-sky-300 mb-2">
-            {language === 'en' ? `Year ${yearData.year} Energy` : `Énergie de l'Année ${yearData.year}`}
-          </h3>
-          <p className="text-white/70 text-sm mb-3">
-            {yearData.isUnified ? (
-              // Unified year - single card
-              language === 'en' ? yearData.primaryCardName : yearData.primaryCardNameFr
-            ) : (
-              // Dual energy year
-              <>
-                {language === 'en' ? yearData.primaryCardName : yearData.primaryCardNameFr}
-                {' → '}
-                {language === 'en' ? yearData.reducedCardName : yearData.reducedCardNameFr}
-              </>
+              {/* Personal Year Card - always show if we have the number */}
+              {displayPersonalYear && personalYearCardImageUrl && (
+                <div className="text-center">
+                  <div
+                    className="rounded-xl overflow-hidden shadow-2xl hover:scale-105 transition-transform duration-300 mb-3"
+                    style={{ boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)' }}
+                  >
+                    <img
+                      src={personalYearCardImageUrl}
+                      alt={personalYearCardName?.en || 'Personal Year Card'}
+                      className="w-40 h-60 md:w-48 md:h-72 object-contain bg-black/20"
+                      onError={(e) => handleImageError(e, 'Personal Year Card')}
+                    />
+                  </div>
+                  <p className="text-violet-300 font-heading text-lg mb-1">
+                    {language === 'en' ? personalYearCardName?.en : personalYearCardName?.fr}
+                  </p>
+                  <p className="text-white/50 text-xs">
+                    {language === 'en' ? 'Your Personal Year Card' : 'Votre Carte Année Personnelle'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Header */}
+            <div className="text-center">
+              <h3 className="text-2xl md:text-3xl font-heading text-sky-300 mb-2">
+                {language === 'en' ? `Year ${currentYear} Energy` : `Énergie de l'Année ${currentYear}`}
+              </h3>
+              <p className="text-white/70 text-sm mb-3">
+                {yearEnergy?.yearCard.name || (yearData ? (language === 'en' ? yearData.primaryCardName : yearData.primaryCardNameFr) : '')}
+                {yearEnergy && ` (${yearEnergy.yearCard.element})`}
+              </p>
+              {yearEnergy && (
+                <div className="flex flex-wrap justify-center gap-2">
+                  <span className="px-3 py-1 text-xs rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                    {language === 'en' ? `Universal Year ${yearEnergy.yearNumber}` : `Année Universelle ${yearEnergy.yearNumber}`}
+                  </span>
+                  <span className="px-3 py-1 text-xs rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                    {language === 'en' ? `Cycle ${yearEnergy.cyclePosition}/9` : `Cycle ${yearEnergy.cyclePosition}/9`}
+                  </span>
+                  {personalYearNumber && (
+                    <span className="px-3 py-1 text-xs rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                      {language === 'en' ? `Personal Year ${personalYearNumber}` : `Année Personnelle ${personalYearNumber}`}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Universal Year Energy Sections */}
+            {yearEnergy && (
+              <div className="space-y-4">
+                {/* Themes */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
+                  <h4 className="text-sky-300 font-heading text-lg mb-3 flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    {language === 'en' ? 'Universal Themes' : 'Thèmes Universels'}
+                  </h4>
+                  <div
+                    className="max-w-none text-white/90 leading-relaxed birth-card-content"
+                    dangerouslySetInnerHTML={{ __html: formatHtmlContent(yearEnergy.themes) }}
+                  />
+                </div>
+
+                {/* Challenges */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
+                  <h4 className="text-amber-300 font-heading text-lg mb-3 flex items-center gap-2">
+                    <MoonIcon className="w-5 h-5" />
+                    {language === 'en' ? 'Challenges' : 'Défis'}
+                  </h4>
+                  <div
+                    className="max-w-none text-white/90 leading-relaxed birth-card-content"
+                    dangerouslySetInnerHTML={{ __html: formatHtmlContent(yearEnergy.challenges) }}
+                  />
+                </div>
+
+                {/* Opportunities */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-emerald-500/20">
+                  <h4 className="text-emerald-300 font-heading text-lg mb-3 flex items-center gap-2">
+                    <Sun className="w-5 h-5" />
+                    {language === 'en' ? 'Opportunities' : 'Opportunités'}
+                  </h4>
+                  <div
+                    className="max-w-none text-white/90 leading-relaxed birth-card-content"
+                    dangerouslySetInnerHTML={{ __html: formatHtmlContent(yearEnergy.opportunities) }}
+                  />
+                </div>
+              </div>
             )}
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {(language === 'en' ? yearData.keywordsEn : yearData.keywordsFr).map((keyword, i) => (
-              <span
-                key={i}
-                className="px-3 py-1 text-xs rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30"
-              >
-                {keyword}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Year Energy Description (Static) */}
-        {yearData.descriptionEn && (
-          <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-sky-500/20">
-            <h4 className="text-sky-300 font-heading text-lg mb-3">
-              {language === 'en' ? `The ${yearData.year} Energy` : `L'Énergie de ${yearData.year}`}
-            </h4>
-            <div
-              className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
-              dangerouslySetInnerHTML={{
-                __html: formatHtmlContent(language === 'en' ? yearData.descriptionEn : yearData.descriptionFr),
-              }}
-            />
-          </div>
+          </>
         )}
 
         {/* AI-Generated Personalized Year Reading */}
@@ -765,7 +1109,7 @@ const BirthCardReveal: React.FC = () => {
             </div>
           ) : yearInterpretation ? (
             <div
-              className="prose prose-invert prose-sky max-w-none text-white/90 leading-relaxed birth-card-content"
+              className="max-w-none text-white/90 leading-relaxed birth-card-content"
               dangerouslySetInnerHTML={{ __html: formatHtmlContent(yearInterpretation) }}
             />
           ) : (
@@ -865,7 +1209,10 @@ const BirthCardReveal: React.FC = () => {
             transition={{ delay: 0.1 }}
             className="text-3xl md:text-4xl font-heading text-white mb-2"
           >
-            {language === 'en' ? 'Your Birth Cards' : 'Vos Cartes de Naissance'}
+            {depth === 1
+              ? (language === 'en' ? 'Your Birth Card' : 'Votre Carte de Naissance')
+              : (language === 'en' ? 'Your Birth Cards' : 'Vos Cartes de Naissance')
+            }
           </motion.h1>
 
           {isUnified && depth >= 2 && (

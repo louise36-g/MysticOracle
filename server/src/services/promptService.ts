@@ -346,6 +346,37 @@ export async function getYearEnergyReadingPrompt(params: {
 }
 
 /**
+ * Get birth card synthesis prompt (for depth 2 readings)
+ * Weaves together Personality, Soul, zodiac, and elemental energies
+ */
+export async function getBirthCardSynthesisPrompt(params: {
+  personalitySection: string;
+  soulSection: string;
+  zodiacSection: string;
+  elementalSection: string;
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const template = await getPrompt('PROMPT_BIRTH_CARD_SYNTHESIS');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const variables = {
+      language: languageName,
+      personalitySection: params.personalitySection,
+      soulSection: params.soulSection,
+      zodiacSection: params.zodiacSection,
+      elementalSection: params.elementalSection,
+    };
+
+    return interpolatePrompt(template, variables);
+  } catch (error) {
+    console.error('[PromptService] Error assembling birth card synthesis prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Clear the prompt cache (call after prompt updates)
  */
 export function clearCache(): void {
@@ -409,6 +440,8 @@ export function getPromptService() {
     getTarotFollowUpPrompt,
     getHoroscopePrompt,
     getHoroscopeFollowUpPrompt,
+    getYearEnergyReadingPrompt,
+    getBirthCardSynthesisPrompt,
     interpolatePrompt,
     clearCache,
     seedPrompts,
@@ -423,6 +456,8 @@ export default {
   getTarotFollowUpPrompt,
   getHoroscopePrompt,
   getHoroscopeFollowUpPrompt,
+  getYearEnergyReadingPrompt,
+  getBirthCardSynthesisPrompt,
   interpolatePrompt,
   clearCache,
   seedPrompts,

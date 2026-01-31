@@ -10,6 +10,108 @@
 //   - Your deeper motivation, inner truth, and soul-level learning
 
 /**
+ * Zodiac sign data with dates, elements, and qualities
+ */
+export interface ZodiacSign {
+  name: string;
+  nameFr: string;
+  element: 'Fire' | 'Earth' | 'Air' | 'Water';
+  elementFr: string;
+  quality: 'Cardinal' | 'Fixed' | 'Mutable';
+  qualityFr: string;
+  startMonth: number;
+  startDay: number;
+  endMonth: number;
+  endDay: number;
+  rulingPlanet: string;
+  rulingPlanetFr: string;
+}
+
+export const ZODIAC_SIGNS: ZodiacSign[] = [
+  { name: 'Aries', nameFr: 'Bélier', element: 'Fire', elementFr: 'Feu', quality: 'Cardinal', qualityFr: 'Cardinal', startMonth: 3, startDay: 21, endMonth: 4, endDay: 19, rulingPlanet: 'Mars', rulingPlanetFr: 'Mars' },
+  { name: 'Taurus', nameFr: 'Taureau', element: 'Earth', elementFr: 'Terre', quality: 'Fixed', qualityFr: 'Fixe', startMonth: 4, startDay: 20, endMonth: 5, endDay: 20, rulingPlanet: 'Venus', rulingPlanetFr: 'Vénus' },
+  { name: 'Gemini', nameFr: 'Gémeaux', element: 'Air', elementFr: 'Air', quality: 'Mutable', qualityFr: 'Mutable', startMonth: 5, startDay: 21, endMonth: 6, endDay: 20, rulingPlanet: 'Mercury', rulingPlanetFr: 'Mercure' },
+  { name: 'Cancer', nameFr: 'Cancer', element: 'Water', elementFr: 'Eau', quality: 'Cardinal', qualityFr: 'Cardinal', startMonth: 6, startDay: 21, endMonth: 7, endDay: 22, rulingPlanet: 'Moon', rulingPlanetFr: 'Lune' },
+  { name: 'Leo', nameFr: 'Lion', element: 'Fire', elementFr: 'Feu', quality: 'Fixed', qualityFr: 'Fixe', startMonth: 7, startDay: 23, endMonth: 8, endDay: 22, rulingPlanet: 'Sun', rulingPlanetFr: 'Soleil' },
+  { name: 'Virgo', nameFr: 'Vierge', element: 'Earth', elementFr: 'Terre', quality: 'Mutable', qualityFr: 'Mutable', startMonth: 8, startDay: 23, endMonth: 9, endDay: 22, rulingPlanet: 'Mercury', rulingPlanetFr: 'Mercure' },
+  { name: 'Libra', nameFr: 'Balance', element: 'Air', elementFr: 'Air', quality: 'Cardinal', qualityFr: 'Cardinal', startMonth: 9, startDay: 23, endMonth: 10, endDay: 22, rulingPlanet: 'Venus', rulingPlanetFr: 'Vénus' },
+  { name: 'Scorpio', nameFr: 'Scorpion', element: 'Water', elementFr: 'Eau', quality: 'Fixed', qualityFr: 'Fixe', startMonth: 10, startDay: 23, endMonth: 11, endDay: 21, rulingPlanet: 'Pluto', rulingPlanetFr: 'Pluton' },
+  { name: 'Sagittarius', nameFr: 'Sagittaire', element: 'Fire', elementFr: 'Feu', quality: 'Mutable', qualityFr: 'Mutable', startMonth: 11, startDay: 22, endMonth: 12, endDay: 21, rulingPlanet: 'Jupiter', rulingPlanetFr: 'Jupiter' },
+  { name: 'Capricorn', nameFr: 'Capricorne', element: 'Earth', elementFr: 'Terre', quality: 'Cardinal', qualityFr: 'Cardinal', startMonth: 12, startDay: 22, endMonth: 1, endDay: 19, rulingPlanet: 'Saturn', rulingPlanetFr: 'Saturne' },
+  { name: 'Aquarius', nameFr: 'Verseau', element: 'Air', elementFr: 'Air', quality: 'Fixed', qualityFr: 'Fixe', startMonth: 1, startDay: 20, endMonth: 2, endDay: 18, rulingPlanet: 'Uranus', rulingPlanetFr: 'Uranus' },
+  { name: 'Pisces', nameFr: 'Poissons', element: 'Water', elementFr: 'Eau', quality: 'Mutable', qualityFr: 'Mutable', startMonth: 2, startDay: 19, endMonth: 3, endDay: 20, rulingPlanet: 'Neptune', rulingPlanetFr: 'Neptune' },
+];
+
+/**
+ * Get zodiac sign from birth month and day
+ */
+export function getZodiacSign(month: number, day: number): ZodiacSign {
+  // Handle Capricorn spanning year boundary
+  for (const sign of ZODIAC_SIGNS) {
+    if (sign.startMonth === 12 && sign.endMonth === 1) {
+      // Capricorn special case
+      if ((month === 12 && day >= sign.startDay) || (month === 1 && day <= sign.endDay)) {
+        return sign;
+      }
+    } else if (
+      (month === sign.startMonth && day >= sign.startDay) ||
+      (month === sign.endMonth && day <= sign.endDay) ||
+      (month > sign.startMonth && month < sign.endMonth)
+    ) {
+      return sign;
+    }
+  }
+  // Fallback (should never reach)
+  return ZODIAC_SIGNS[0];
+}
+
+/**
+ * Major Arcana elemental and planetary associations
+ * Each card has an element and ruling planet based on traditional tarot correspondences
+ */
+export interface MajorArcanaAssociation {
+  cardId: number;
+  element: string;
+  elementFr: string;
+  planet: string;
+  planetFr: string;
+  keywords: string[];
+  keywordsFr: string[];
+}
+
+export const MAJOR_ARCANA_ASSOCIATIONS: MajorArcanaAssociation[] = [
+  { cardId: 0, element: 'Air', elementFr: 'Air', planet: 'Uranus', planetFr: 'Uranus', keywords: ['freedom', 'beginnings', 'spontaneity', 'trust'], keywordsFr: ['liberté', 'commencements', 'spontanéité', 'confiance'] },
+  { cardId: 1, element: 'Air', elementFr: 'Air', planet: 'Mercury', planetFr: 'Mercure', keywords: ['willpower', 'manifestation', 'skill', 'communication'], keywordsFr: ['volonté', 'manifestation', 'compétence', 'communication'] },
+  { cardId: 2, element: 'Water', elementFr: 'Eau', planet: 'Moon', planetFr: 'Lune', keywords: ['intuition', 'mystery', 'inner knowledge', 'receptivity'], keywordsFr: ['intuition', 'mystère', 'connaissance intérieure', 'réceptivité'] },
+  { cardId: 3, element: 'Earth', elementFr: 'Terre', planet: 'Venus', planetFr: 'Vénus', keywords: ['abundance', 'nurturing', 'creativity', 'sensuality'], keywordsFr: ['abondance', 'nourriture', 'créativité', 'sensualité'] },
+  { cardId: 4, element: 'Fire', elementFr: 'Feu', planet: 'Aries', planetFr: 'Bélier', keywords: ['authority', 'structure', 'protection', 'leadership'], keywordsFr: ['autorité', 'structure', 'protection', 'leadership'] },
+  { cardId: 5, element: 'Earth', elementFr: 'Terre', planet: 'Taurus', planetFr: 'Taureau', keywords: ['tradition', 'wisdom', 'teaching', 'spiritual guidance'], keywordsFr: ['tradition', 'sagesse', 'enseignement', 'guidance spirituelle'] },
+  { cardId: 6, element: 'Air', elementFr: 'Air', planet: 'Gemini', planetFr: 'Gémeaux', keywords: ['love', 'choices', 'harmony', 'relationships'], keywordsFr: ['amour', 'choix', 'harmonie', 'relations'] },
+  { cardId: 7, element: 'Water', elementFr: 'Eau', planet: 'Cancer', planetFr: 'Cancer', keywords: ['willpower', 'victory', 'determination', 'control'], keywordsFr: ['volonté', 'victoire', 'détermination', 'contrôle'] },
+  { cardId: 8, element: 'Fire', elementFr: 'Feu', planet: 'Leo', planetFr: 'Lion', keywords: ['courage', 'patience', 'inner strength', 'compassion'], keywordsFr: ['courage', 'patience', 'force intérieure', 'compassion'] },
+  { cardId: 9, element: 'Earth', elementFr: 'Terre', planet: 'Virgo', planetFr: 'Vierge', keywords: ['solitude', 'wisdom', 'introspection', 'guidance'], keywordsFr: ['solitude', 'sagesse', 'introspection', 'guidance'] },
+  { cardId: 10, element: 'Fire', elementFr: 'Feu', planet: 'Jupiter', planetFr: 'Jupiter', keywords: ['cycles', 'fate', 'change', 'opportunity'], keywordsFr: ['cycles', 'destin', 'changement', 'opportunité'] },
+  { cardId: 11, element: 'Air', elementFr: 'Air', planet: 'Libra', planetFr: 'Balance', keywords: ['balance', 'truth', 'fairness', 'karma'], keywordsFr: ['équilibre', 'vérité', 'justice', 'karma'] },
+  { cardId: 12, element: 'Water', elementFr: 'Eau', planet: 'Neptune', planetFr: 'Neptune', keywords: ['surrender', 'new perspective', 'sacrifice', 'letting go'], keywordsFr: ['abandon', 'nouvelle perspective', 'sacrifice', 'lâcher-prise'] },
+  { cardId: 13, element: 'Water', elementFr: 'Eau', planet: 'Scorpio', planetFr: 'Scorpion', keywords: ['transformation', 'endings', 'rebirth', 'release'], keywordsFr: ['transformation', 'fins', 'renaissance', 'libération'] },
+  { cardId: 14, element: 'Fire', elementFr: 'Feu', planet: 'Sagittarius', planetFr: 'Sagittaire', keywords: ['balance', 'moderation', 'patience', 'alchemy'], keywordsFr: ['équilibre', 'modération', 'patience', 'alchimie'] },
+  { cardId: 15, element: 'Earth', elementFr: 'Terre', planet: 'Capricorn', planetFr: 'Capricorne', keywords: ['shadow', 'bondage', 'materialism', 'liberation'], keywordsFr: ['ombre', 'attachement', 'matérialisme', 'libération'] },
+  { cardId: 16, element: 'Fire', elementFr: 'Feu', planet: 'Mars', planetFr: 'Mars', keywords: ['sudden change', 'revelation', 'awakening', 'destruction'], keywordsFr: ['changement soudain', 'révélation', 'éveil', 'destruction'] },
+  { cardId: 17, element: 'Air', elementFr: 'Air', planet: 'Aquarius', planetFr: 'Verseau', keywords: ['hope', 'inspiration', 'renewal', 'serenity'], keywordsFr: ['espoir', 'inspiration', 'renouveau', 'sérénité'] },
+  { cardId: 18, element: 'Water', elementFr: 'Eau', planet: 'Pisces', planetFr: 'Poissons', keywords: ['intuition', 'dreams', 'illusion', 'the unconscious'], keywordsFr: ['intuition', 'rêves', 'illusion', 'inconscient'] },
+  { cardId: 19, element: 'Fire', elementFr: 'Feu', planet: 'Sun', planetFr: 'Soleil', keywords: ['joy', 'success', 'vitality', 'clarity'], keywordsFr: ['joie', 'succès', 'vitalité', 'clarté'] },
+  { cardId: 20, element: 'Fire', elementFr: 'Feu', planet: 'Pluto', planetFr: 'Pluton', keywords: ['rebirth', 'judgement', 'calling', 'awakening'], keywordsFr: ['renaissance', 'jugement', 'appel', 'éveil'] },
+  { cardId: 21, element: 'Earth', elementFr: 'Terre', planet: 'Saturn', planetFr: 'Saturne', keywords: ['completion', 'wholeness', 'integration', 'achievement'], keywordsFr: ['accomplissement', 'plénitude', 'intégration', 'réalisation'] },
+];
+
+/**
+ * Get Major Arcana associations by card ID
+ */
+export function getMajorArcanaAssociation(cardId: number): MajorArcanaAssociation | undefined {
+  return MAJOR_ARCANA_ASSOCIATIONS.find(a => a.cardId === cardId);
+}
+
+/**
  * Interface for Birth Card meaning data
  * Each Major Arcana (0-21) has specific meanings when appearing as a Soul Card vs Personality Card
  */

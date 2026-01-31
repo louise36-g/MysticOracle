@@ -56,8 +56,8 @@ export const REGULAR_DEPTHS: DepthOption[] = [
 
 // Birth card depth options (special category)
 export const BIRTH_CARD_DEPTHS: DepthOption[] = [
-  { cards: 1, labelEn: 'Soul Card', labelFr: 'Carte de l\'Ame', cost: 1 },
-  { cards: 2, labelEn: 'Soul + Personality', labelFr: 'Ame + Personnalite', cost: 2 },
+  { cards: 1, labelEn: 'Personality Card', labelFr: 'Carte de Personnalite', cost: 1 },
+  { cards: 2, labelEn: 'Personality + Soul', labelFr: 'Personnalite + Ame', cost: 2 },
   { cards: 3, labelEn: 'Year Energy', labelFr: 'Energie de l\'Annee', cost: 3 },
 ];
 

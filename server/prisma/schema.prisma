@@ -23,6 +23,7 @@ model User {
 
   // Profile
   language          String   @default("en") // 'en' | 'fr'
+  birthDate         DateTime? @db.Date       // User's birth date for birth card readings
 
   // Credits & Economy
   credits           Int      @default(3)
@@ -47,10 +48,13 @@ model User {
   accountStatus     AccountStatus @default(ACTIVE)
 
   // Relations
-  readings          Reading[]
-  transactions      Transaction[]
-  achievements      UserAchievement[]
-  horoscopeCache    HoroscopeCache[]
+  readings             Reading[]
+  transactions         Transaction[]
+  achievements         UserAchievement[]
+  horoscopeCache       HoroscopeCache[]
+  birthCardSynthesis   BirthCardSynthesis?
+  personalYearReadings PersonalYearReading[]
+  thresholdReadings    ThresholdReading[]
 
   @@index([email])
   @@index([referralCode])
@@ -184,6 +188,147 @@ model HoroscopeQA {
   createdAt       DateTime @default(now())
 
   @@index([horoscopeCacheId])
+}
+
+// ============================================
+// BIRTH CARD SYNTHESIS CACHING
+// ============================================
+
+model BirthCardSynthesis {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Birth date used to generate this synthesis
+  birthDate       DateTime @db.Date
+
+  // Calculated card IDs
+  personalityCardId Int     // Major Arcana card ID (0-21)
+  soulCardId        Int     // Major Arcana card ID (1-9)
+
+  // Zodiac & elemental context
+  zodiacSign      String   // e.g., "Aries", "Taurus"
+  personalityElement String // e.g., "Fire", "Water"
+  soulElement     String
+
+  // AI-generated synthesis content (stored in both languages)
+  synthesisEn     String   @db.Text
+  synthesisFr     String   @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([birthDate])
+}
+
+// ============================================
+// YEAR ENERGY & PERSONAL YEAR READINGS
+// ============================================
+
+// Global Year Energy (one per calendar year, generated once ~Dec 15)
+model YearEnergy {
+  id              String   @id @default(cuid())
+
+  // Year identification
+  year            Int      @unique  // e.g., 2026
+  yearNumber      Int               // Numerological reduction (2026 = 1)
+  yearCardId      Int               // Major Arcana card ID (1 = Magician)
+  cyclePosition   Int               // Position in 9-year cycle (1-9)
+
+  // Universal themes (AI-generated, both languages)
+  themesEn        String   @db.Text  // Main themes for the year
+  themesFr        String   @db.Text
+  challengesEn    String   @db.Text  // Universal challenges
+  challengesFr    String   @db.Text
+  opportunitiesEn String   @db.Text  // Universal opportunities
+  opportunitiesFr String   @db.Text
+
+  // Element of the year card
+  yearElement     String            // e.g., "Air" for Magician
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relation to personal readings
+  personalReadings PersonalYearReading[]
+
+  @@index([year])
+  @@map("year_energies")
+}
+
+// Personal Year Reading (one per user per calendar year)
+model PersonalYearReading {
+  id              String   @id @default(cuid())
+
+  // User reference
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Year reference
+  yearEnergyId    String
+  yearEnergy      YearEnergy @relation(fields: [yearEnergyId], references: [id], onDelete: Cascade)
+  year            Int                // Denormalized for quick queries
+
+  // User's birth cards (snapshot at generation time)
+  personalityCardId Int
+  soulCardId        Int
+  zodiacSign        String
+
+  // Personal year calculation
+  personalYearNumber Int             // User's personal year (birthday + year)
+  personalYearCardId Int             // Card for their personal year
+
+  // Element interactions
+  personalityElement String
+  soulElement        String
+  personalYearElement String
+
+  // AI-generated synthesis (weaves all energies together)
+  synthesisEn     String   @db.Text
+  synthesisFr     String   @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, year])  // One reading per user per year
+  @@index([userId])
+  @@index([year])
+  @@map("personal_year_readings")
+}
+
+// Threshold Reading (special Dec 21 - Jan 10 period)
+model ThresholdReading {
+  id              String   @id @default(cuid())
+
+  // User reference
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Which transition (e.g., 2026 means Dec 2025 → Jan 2026 transition)
+  transitionYear  Int               // The incoming year
+
+  // Outgoing year context
+  outgoingYearNumber  Int
+  outgoingYearCardId  Int
+
+  // Incoming year context
+  incomingYearNumber  Int
+  incomingYearCardId  Int
+
+  // User's birth cards
+  personalityCardId Int
+  soulCardId        Int
+
+  // AI-generated threshold synthesis
+  synthesisEn     String   @db.Text  // What to release, what's emerging
+  synthesisFr     String   @db.Text
+
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, transitionYear])  // One threshold reading per user per transition
+  @@index([userId])
+  @@index([transitionYear])
+  @@map("threshold_readings")
 }
 
 // ============================================
