@@ -16,6 +16,8 @@ export function createMockCreditService(): MockedObject<CreditService> {
     processRefund: vi.fn(),
     updateTransactionStatus: vi.fn(),
     getSpreadCost: vi.fn(),
+    calculateReadingCost: vi.fn(),
+    refundCredits: vi.fn(),
   } as unknown as MockedObject<CreditService>;
 }
 

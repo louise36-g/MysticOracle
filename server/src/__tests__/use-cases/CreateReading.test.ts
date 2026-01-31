@@ -66,9 +66,19 @@ describe('CreateReadingUseCase', () => {
     );
 
     // Default successful mocks
-    mockCreditService.getSpreadCost.mockReturnValue(1);
+    mockCreditService.calculateReadingCost.mockReturnValue({
+      baseCost: 1,
+      styleCost: 0,
+      extendedCost: 0,
+      totalCost: 1,
+    });
     mockCreditService.checkSufficientCredits.mockResolvedValue(createBalanceCheck(10, 1));
     mockCreditService.deductCredits.mockResolvedValue(createSuccessfulCreditResult(9));
+    mockCreditService.refundCredits.mockResolvedValue({
+      success: true,
+      newBalance: 10,
+      transactionId: 'refund-id',
+    });
     mockReadingRepo.create.mockResolvedValue(mockReading);
     mockUserRepo.findById.mockResolvedValue({
       id: 'user-1',
@@ -107,7 +117,7 @@ describe('CreateReadingUseCase', () => {
         userId: 'user-1',
         amount: 1,
         type: 'READING',
-        description: 'Single Card reading', // Uses SpreadType.name from domain object
+        description: 'Single Card', // Uses SpreadType.name from domain object
       });
     });
 
@@ -179,14 +189,18 @@ describe('CreateReadingUseCase', () => {
     });
 
     it('should return INSUFFICIENT_CREDITS when user lacks credits', async () => {
+      // Use a more expensive spread
+      mockCreditService.calculateReadingCost.mockReturnValue({
+        baseCost: 10,
+        styleCost: 0,
+        extendedCost: 0,
+        totalCost: 10,
+      });
       mockCreditService.checkSufficientCredits.mockResolvedValue({
         sufficient: false,
         balance: 5,
         required: 10,
       });
-
-      // Use a more expensive spread
-      mockCreditService.getSpreadCost.mockReturnValue(10);
 
       const result = await useCase.execute({
         ...validInput,
@@ -212,6 +226,13 @@ describe('CreateReadingUseCase', () => {
 
     spreadTypes.forEach(({ type, cost, name }) => {
       it(`should handle ${type} spread correctly`, async () => {
+        // Mock calculateReadingCost to return the correct cost for this spread type
+        mockCreditService.calculateReadingCost.mockReturnValue({
+          baseCost: cost,
+          styleCost: 0,
+          extendedCost: 0,
+          totalCost: cost,
+        });
         // Mock sufficient credits for the specific cost
         mockCreditService.checkSufficientCredits.mockResolvedValue(createBalanceCheck(100, cost));
 
@@ -219,12 +240,12 @@ describe('CreateReadingUseCase', () => {
         const result = await useCase.execute(input);
 
         expect(result.success).toBe(true);
-        // Verify the correct cost is used (from SpreadType domain object)
+        // Verify the correct cost is used (from calculateReadingCost)
         expect(mockCreditService.checkSufficientCredits).toHaveBeenCalledWith('user-1', cost);
         expect(mockCreditService.deductCredits).toHaveBeenCalledWith(
           expect.objectContaining({
             amount: cost,
-            description: `${name} reading`,
+            description: name, // Just the spread name for classic style
           })
         );
       });
