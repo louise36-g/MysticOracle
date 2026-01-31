@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { createClerkClient, verifyToken } from '@clerk/backend';
+import { verifyToken } from '@clerk/backend';
 import prisma from '../db/prisma.js';
 
 // Extend Express Request type
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       auth: {
@@ -14,9 +15,11 @@ declare global {
   }
 }
 
-const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY!,
-});
+// Get secret key - returns the key or empty string for test environments
+// The Clerk SDK will handle validation and throw appropriate errors
+const getSecretKey = (): string => {
+  return process.env.CLERK_SECRET_KEY || '';
+};
 
 /**
  * Middleware to verify Clerk JWT token
@@ -33,7 +36,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     // Verify the JWT token with Clerk
     const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY!,
+      secretKey: getSecretKey(),
     });
 
     if (!payload || !payload.sub) {
@@ -64,7 +67,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
       const token = authHeader.split(' ')[1];
 
       const payload = await verifyToken(token, {
-        secretKey: process.env.CLERK_SECRET_KEY!,
+        secretKey: getSecretKey(),
       });
 
       if (payload && payload.sub) {
@@ -76,7 +79,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
     }
 
     next();
-  } catch (error) {
+  } catch {
     // Continue without auth
     next();
   }

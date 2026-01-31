@@ -10,6 +10,7 @@ import type {
   CreditUpdateDTO,
   UserWithCounts,
   UserListOptions,
+  ReadingSummary,
 } from '../../../application/ports/repositories/IUserRepository.js';
 
 export class PrismaUserRepository implements IUserRepository {
@@ -84,7 +85,11 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async updateCredits(userId: string, update: CreditUpdateDTO): Promise<User> {
-    const data: any = {
+    const data: {
+      credits: { increment: number };
+      totalCreditsEarned?: { increment: number };
+      totalCreditsSpent?: { increment: number };
+    } = {
       credits: { increment: update.creditsDelta },
     };
 
@@ -112,7 +117,10 @@ export class PrismaUserRepository implements IUserRepository {
       sortOrder = 'desc',
     } = options || {};
 
-    const where: any = {};
+    const where: {
+      OR?: Array<{ username?: object; email?: object; id?: object }>;
+      accountStatus?: AccountStatus;
+    } = {};
 
     if (search) {
       where.OR = [
@@ -142,7 +150,10 @@ export class PrismaUserRepository implements IUserRepository {
   async count(
     options?: Omit<UserListOptions, 'limit' | 'offset' | 'sortBy' | 'sortOrder'>
   ): Promise<number> {
-    const where: any = {};
+    const where: {
+      OR?: Array<{ username?: object; email?: object; id?: object }>;
+      accountStatus?: AccountStatus;
+    } = {};
 
     if (options?.search) {
       where.OR = [
@@ -174,7 +185,7 @@ export class PrismaUserRepository implements IUserRepository {
   async findByIdWithReadings(
     id: string,
     readingLimit = 50
-  ): Promise<(User & { readings: any[] }) | null> {
+  ): Promise<(User & { readings: ReadingSummary[] }) | null> {
     return this.prisma.user.findUnique({
       where: { id },
       include: {

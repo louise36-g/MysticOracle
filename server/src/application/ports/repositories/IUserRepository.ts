@@ -3,7 +3,7 @@
  * Abstracts database operations for User entity
  */
 
-import type { User, AccountStatus, Prisma } from '@prisma/client';
+import type { User, AccountStatus } from '@prisma/client';
 
 // DTOs for creating/updating users
 export interface CreateUserDTO {
@@ -88,7 +88,13 @@ export interface IUserRepository {
   findByIdWithReadings(
     id: string,
     readingLimit?: number
-  ): Promise<(User & { readings: any[] }) | null>;
+  ): Promise<(User & { readings: ReadingSummary[] }) | null>;
 }
 
-export default IUserRepository;
+// Summary type for readings list
+export interface ReadingSummary {
+  id: string;
+  spreadType: string;
+  createdAt: Date;
+  creditCost: number;
+}

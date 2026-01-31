@@ -12,13 +12,14 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { idempotencyService, IdempotencyRecord } from '../services/IdempotencyService.js';
+import { idempotencyService } from '../services/IdempotencyService.js';
 
 // Header name for idempotency key
 const IDEMPOTENCY_HEADER = 'x-idempotency-key';
 
 // Extend Request type to include idempotency info
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       idempotencyKey?: string;

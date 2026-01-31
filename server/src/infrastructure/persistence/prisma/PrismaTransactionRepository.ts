@@ -96,7 +96,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   async findByUser(userId: string, options?: TransactionListOptions): Promise<Transaction[]> {
     const { limit = 50, offset = 0, type } = options || {};
 
-    const where: any = { userId };
+    const where: { userId: string; type?: TransactionType } = { userId };
     if (type) {
       where.type = type;
     }
@@ -113,7 +113,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     userId: string,
     options?: Omit<TransactionListOptions, 'limit' | 'offset'>
   ): Promise<number> {
-    const where: any = { userId };
+    const where: { userId: string; type?: TransactionType } = { userId };
     if (options?.type) {
       where.type = options.type;
     }
@@ -124,7 +124,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   async findMany(options?: TransactionListOptions): Promise<TransactionWithUser[]> {
     const { limit = 50, offset = 0, type } = options || {};
 
-    const where: any = {};
+    const where: { type?: TransactionType } = {};
     if (type) {
       where.type = type;
     }
@@ -143,7 +143,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async count(options?: Omit<TransactionListOptions, 'limit' | 'offset'>): Promise<number> {
-    const where: any = {};
+    const where: { type?: TransactionType } = {};
     if (options?.type) {
       where.type = options.type;
     }

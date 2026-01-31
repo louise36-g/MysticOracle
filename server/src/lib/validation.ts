@@ -2,6 +2,11 @@
 // Zod Validation Schemas for Tarot Article Import
 
 import { z } from 'zod';
+import type {
+  Prisma,
+  CardType as PrismaCardType,
+  ArticleStatus as PrismaArticleStatus,
+} from '@prisma/client';
 
 // ============================================
 // ENUMS (matching Prisma schema)
@@ -320,11 +325,12 @@ export function validateTarotArticle(input: unknown): TarotArticleValidationResu
   // Run core validation
   const coreResult = TarotArticleCoreSchema.safeParse(normalized);
 
-  // Prepare stats
-  const content = (normalized as any)?.content || '';
-  const faq = (normalized as any)?.faq || [];
-  const tags = (normalized as any)?.tags || [];
-  const categories = (normalized as any)?.categories || [];
+  // Prepare stats - normalized is an object with optional fields
+  const normalizedObj = normalized as Record<string, unknown>;
+  const content = (normalizedObj?.content as string) || '';
+  const faq = (normalizedObj?.faq as unknown[]) || [];
+  const tags = (normalizedObj?.tags as string[]) || [];
+  const categories = (normalizedObj?.categories as string[]) || [];
 
   const stats = {
     wordCount: getWordCount(content),
@@ -549,17 +555,20 @@ function toCamelCase(str: string): string {
 /**
  * Recursively convert object keys from snake_case to camelCase
  */
-function normalizeKeys(obj: any): any {
+function normalizeKeys(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj.map(normalizeKeys);
   }
 
   if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj).reduce((acc, key) => {
-      const camelKey = toCamelCase(key);
-      acc[camelKey] = normalizeKeys(obj[key]);
-      return acc;
-    }, {} as any);
+    return Object.keys(obj).reduce(
+      (acc, key) => {
+        const camelKey = toCamelCase(key);
+        acc[camelKey] = normalizeKeys((obj as Record<string, unknown>)[key]);
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
   }
 
   return obj;
@@ -892,7 +901,7 @@ export function convertToPrismaFormat(data: TarotArticleInput) {
     featuredImageAlt: data.featuredImageAlt,
 
     // Card metadata - convert to Prisma enum keys
-    cardType: mapCardTypeToPrisma(data.cardType) as any,
+    cardType: mapCardTypeToPrisma(data.cardType) as PrismaCardType,
     cardNumber: data.cardNumber,
     astrologicalCorrespondence: data.astrologicalCorrespondence,
     element: data.element, // Element enum doesn't use @map, so no conversion needed
@@ -907,7 +916,7 @@ export function convertToPrismaFormat(data: TarotArticleInput) {
     seoMetaDescription: data.seo.metaDescription,
 
     // FAQ (stored as JSON)
-    faq: data.faq as any,
+    faq: data.faq as Prisma.InputJsonValue,
 
     // Breadcrumbs
     breadcrumbCategory: data.breadcrumbCategory,
@@ -921,7 +930,7 @@ export function convertToPrismaFormat(data: TarotArticleInput) {
     isChallengeCard: data.isChallengeCard,
 
     // Status (also needs mapping if provided)
-    status: (data.status || 'DRAFT') as any,
+    status: (data.status || 'DRAFT') as PrismaArticleStatus,
   };
 }
 
@@ -950,7 +959,9 @@ export function convertToPrismaFormatLenient(data: TarotArticleLenientInput) {
     featuredImageAlt: data.featuredImageAlt || '',
 
     // Card metadata - convert to Prisma enum keys
-    cardType: data.cardType ? (mapCardTypeToPrisma(data.cardType) as any) : 'MAJOR_ARCANA',
+    cardType: data.cardType
+      ? (mapCardTypeToPrisma(data.cardType) as PrismaCardType)
+      : ('MAJOR_ARCANA' as PrismaCardType),
     cardNumber: data.cardNumber || '0',
     astrologicalCorrespondence: data.astrologicalCorrespondence || '',
     element: data.element || 'FIRE',
@@ -965,7 +976,7 @@ export function convertToPrismaFormatLenient(data: TarotArticleLenientInput) {
     seoMetaDescription: data.seo?.metaDescription || '',
 
     // FAQ (stored as JSON)
-    faq: (data.faq || []) as any,
+    faq: (data.faq || []) as Prisma.InputJsonValue,
 
     // Breadcrumbs
     breadcrumbCategory: data.breadcrumbCategory || '',
@@ -979,6 +990,6 @@ export function convertToPrismaFormatLenient(data: TarotArticleLenientInput) {
     isChallengeCard: data.isChallengeCard || false,
 
     // Status (also needs mapping if provided)
-    status: (data.status || 'DRAFT') as any,
+    status: (data.status || 'DRAFT') as PrismaArticleStatus,
   };
 }

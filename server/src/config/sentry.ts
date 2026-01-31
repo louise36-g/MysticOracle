@@ -89,7 +89,7 @@ export function setUser(userId: string | null, email?: string): void {
  * Express error handler for Sentry
  * Should be added after all routes
  */
-import type { RequestHandler, ErrorRequestHandler } from 'express';
+import type { ErrorRequestHandler } from 'express';
 
 export function getSentryErrorHandler(): ErrorRequestHandler {
   return Sentry.expressErrorHandler() as ErrorRequestHandler;

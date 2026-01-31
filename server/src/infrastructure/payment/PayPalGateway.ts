@@ -156,9 +156,14 @@ export class PayPalGateway implements IPaymentGateway {
 
       if (captureData.status === 'COMPLETED') {
         // Parse custom data to get credits
-        const customId =
-          (captureData.purchaseUnits?.[0] as any)?.payments?.captures?.[0]?.customId ||
-          captureData.purchaseUnits?.[0]?.customId;
+        // PayPal SDK types don't include nested payments structure after capture
+        const purchaseUnit = captureData.purchaseUnits?.[0] as
+          | (Record<string, unknown> & { customId?: string })
+          | undefined;
+        const payments = purchaseUnit?.payments as
+          | { captures?: { customId?: string }[] }
+          | undefined;
+        const customId = payments?.captures?.[0]?.customId || purchaseUnit?.customId;
 
         let credits = 0;
         if (customId) {
