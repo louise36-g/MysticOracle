@@ -214,6 +214,48 @@ export async function claimDailyBonus(token: string): Promise<{
   });
 }
 
+/**
+ * Get invoice HTML for a transaction
+ * Returns HTML string that can be opened in new window for printing
+ */
+export async function getInvoiceHtml(
+  token: string,
+  transactionId: string,
+  language: 'en' | 'fr' = 'fr'
+): Promise<string> {
+  const response = await fetch(
+    `${API_URL}/api/v1/users/me/transactions/${transactionId}/invoice?language=${language}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch invoice');
+  }
+
+  return response.text();
+}
+
+/**
+ * Open invoice in new window for viewing/printing
+ * Uses blob URL for security
+ */
+export async function openInvoice(
+  token: string,
+  transactionId: string,
+  language: 'en' | 'fr' = 'fr'
+): Promise<void> {
+  const html = await getInvoiceHtml(token, transactionId, language);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  // Clean up blob URL after a delay to allow the window to load
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // ============================================
 // READINGS ENDPOINTS
 // ============================================

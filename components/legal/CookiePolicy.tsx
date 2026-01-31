@@ -119,7 +119,7 @@ Contact us at privacy@mysticoracle.com or use the cookie settings panel.`
           content: `For any questions about our use of cookies:
 
 **Email:** privacy@mysticoracle.com
-**Address:** [Company Address], France
+**Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Data Protection Officer:**
 dpo@mysticoracle.com
@@ -242,7 +242,7 @@ Contactez-nous à privacy@mysticoracle.com ou utilisez le panneau de paramètres
           content: `Pour toute question concernant notre utilisation des cookies :
 
 **Email :** privacy@mysticoracle.com
-**Adresse :** [Adresse de la Société], France
+**Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Délégué à la Protection des Données :**
 dpo@mysticoracle.com

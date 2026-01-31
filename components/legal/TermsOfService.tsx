@@ -18,8 +18,8 @@ const TermsOfService: React.FC = () => {
           content: `By accessing or using MysticOracle ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.
 
 **Service Provider:**
-MysticOracle is operated by [Company Name], registered in France.
-**SIRET:** [Your SIRET Number]
+MysticOracle is operated by La Petite Voie, an auto-entrepreneur registered in France.
+**SIRET:** 92357809000014
 **Contact:** contact@mysticoracle.com`
         },
         {
@@ -110,7 +110,7 @@ These Terms are governed by French law.
 **Dispute Resolution:**
 • We encourage you to contact us first to resolve any disputes amicably
 • For EU consumers: You may use the EU Online Dispute Resolution platform at https://ec.europa.eu/consumers/odr
-• Jurisdiction: Courts of [City], France
+• Jurisdiction: Courts of Paris, France
 
 **Consumer Rights:**
 Nothing in these Terms affects your statutory rights as a consumer under French and EU law.`
@@ -133,7 +133,7 @@ Nothing in these Terms affects your statutory rights as a consumer under French 
           content: `For any questions about these Terms:
 
 **Email:** contact@mysticoracle.com
-**Address:** [Company Address], France
+**Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Customer Support:**
 Response time: Within 48 hours on business days`
@@ -152,8 +152,8 @@ Response time: Within 48 hours on business days`
           content: `En accédant ou en utilisant MysticOracle ("le Service"), vous acceptez d'être lié par ces Conditions d'Utilisation ("Conditions"). Si vous n'acceptez pas ces Conditions, veuillez ne pas utiliser notre Service.
 
 **Fournisseur du Service :**
-MysticOracle est exploité par [Nom de la Société], enregistrée en France.
-**SIRET :** [Votre Numéro SIRET]
+MysticOracle est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
+**SIRET :** 92357809000014
 **Contact :** contact@mysticoracle.com`
         },
         {
@@ -244,7 +244,7 @@ Ces Conditions sont régies par le droit français.
 **Résolution des Litiges :**
 • Nous vous encourageons à nous contacter d'abord pour résoudre tout litige à l'amiable
 • Pour les consommateurs de l'UE : Vous pouvez utiliser la plateforme de Règlement en Ligne des Litiges de l'UE à https://ec.europa.eu/consumers/odr
-• Juridiction : Tribunaux de [Ville], France
+• Juridiction : Tribunaux de Paris, France
 
 **Droits des Consommateurs :**
 Rien dans ces Conditions n'affecte vos droits légaux en tant que consommateur en vertu du droit français et européen.`
@@ -267,7 +267,7 @@ Rien dans ces Conditions n'affecte vos droits légaux en tant que consommateur e
           content: `Pour toute question concernant ces Conditions :
 
 **Email :** contact@mysticoracle.com
-**Adresse :** [Adresse de la Société], France
+**Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Support Client :**
 Délai de réponse : Sous 48 heures les jours ouvrables`

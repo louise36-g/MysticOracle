@@ -15,10 +15,10 @@ const PrivacyPolicy: React.FC = () => {
         {
           icon: Shield,
           title: '1. Data Controller',
-          content: `MysticOracle is operated by [Company Name], a company registered in France.
+          content: `MysticOracle is operated by La Petite Voie, an auto-entrepreneur registered in France.
 
-**Registered Address:** [Your Address], France
-**SIRET:** [Your SIRET Number]
+**Registered Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
+**SIRET:** 92357809000014
 **Contact:** privacy@mysticoracle.com
 
 For any questions regarding your personal data, you may contact our Data Protection team at the address above.`
@@ -99,9 +99,9 @@ For any questions regarding your personal data, you may contact our Data Protect
           content: `We share your data with the following categories of recipients:
 
 **Service Providers:**
-• **Hosting Provider:** [Provider Name] - Data stored in EU
+• **Hosting Provider:** Render - Data stored in EU (Frankfurt)
 • **Payment Processors:** Stripe/PayPal - PCI DSS compliant
-• **Email Service:** [Provider Name] - For transactional emails
+• **Email Service:** Brevo (Sendinblue) - For transactional emails
 
 **AI Services:**
 • **OpenRouter/LLM Providers:** Your questions and reading requests are processed by AI services. No personal identifiers are sent with these requests.
@@ -204,7 +204,7 @@ Email: privacy@mysticoracle.com`
           content: `For any questions about this Privacy Policy or your personal data:
 
 **Email:** privacy@mysticoracle.com
-**Address:** [Company Address], France
+**Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 We aim to respond to all inquiries within 30 days.`
         }
@@ -219,10 +219,10 @@ We aim to respond to all inquiries within 30 days.`
         {
           icon: Shield,
           title: '1. Responsable du Traitement',
-          content: `MysticOracle est exploité par [Nom de la Société], une société enregistrée en France.
+          content: `MysticOracle est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
 
-**Adresse du Siège:** [Votre Adresse], France
-**SIRET:** [Votre Numéro SIRET]
+**Adresse du Siège:** 7 rue Beauregard, 77171 Chalautre la Grande, France
+**SIRET:** 92357809000014
 **Contact:** privacy@mysticoracle.com
 
 Pour toute question concernant vos données personnelles, vous pouvez contacter notre équipe Protection des Données à l'adresse ci-dessus.`
@@ -303,9 +303,9 @@ Pour toute question concernant vos données personnelles, vous pouvez contacter 
           content: `Nous partageons vos données avec les catégories de destinataires suivantes :
 
 **Prestataires de Services :**
-• **Hébergeur :** [Nom du Prestataire] - Données stockées dans l'UE
+• **Hébergeur :** Render - Données stockées dans l'UE (Francfort)
 • **Processeurs de Paiement :** Stripe/PayPal - Conformes PCI DSS
-• **Service Email :** [Nom du Prestataire] - Pour les emails transactionnels
+• **Service Email :** Brevo (Sendinblue) - Pour les emails transactionnels
 
 **Services d'IA :**
 • **OpenRouter/Fournisseurs LLM :** Vos questions et demandes de lecture sont traitées par des services d'IA. Aucun identifiant personnel n'est envoyé avec ces requêtes.
@@ -408,7 +408,7 @@ Email : privacy@mysticoracle.com`
           content: `Pour toute question concernant cette Politique de Confidentialité ou vos données personnelles :
 
 **Email :** privacy@mysticoracle.com
-**Adresse :** [Adresse de la Société], France
+**Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 Nous nous efforçons de répondre à toutes les demandes sous 30 jours.`
         }

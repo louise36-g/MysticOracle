@@ -252,6 +252,66 @@ router.get(
 
 /**
  * @openapi
+ * /api/v1/users/me/transactions/{id}/invoice:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get invoice for a transaction
+ *     description: Generate and download an invoice for a completed purchase transaction
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Transaction ID
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *           enum: [en, fr]
+ *           default: fr
+ *         description: Invoice language
+ *     responses:
+ *       200:
+ *         description: Invoice HTML document
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ *       404:
+ *         description: Transaction not found or not a purchase
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get('/me/transactions/:id/invoice', requireAuth, async (req, res) => {
+  try {
+    const { invoiceService } = await import('../services/invoiceService.js');
+    const userId = req.auth.userId;
+    const transactionId = req.params.id;
+    const language = (req.query.language as 'en' | 'fr') || 'fr';
+
+    const html = await invoiceService.generateInvoiceHtml(transactionId, userId, language);
+
+    if (!html) {
+      return res
+        .status(404)
+        .json({ error: 'Invoice not found or transaction is not a completed purchase' });
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Content-Disposition', `inline; filename="invoice-${transactionId}.html"`);
+    res.send(html);
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ error: 'Failed to generate invoice' });
+  }
+});
+
+/**
+ * @openapi
  * /api/v1/users/me/daily-bonus:
  *   post:
  *     tags:

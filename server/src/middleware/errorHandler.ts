@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApplicationError, isOperationalError } from '../shared/errors/ApplicationError.js';
 import { formatError } from '../shared/errors/formatters.js';
+import { errorTrackingService } from '../services/errorTrackingService.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   // Log all errors
@@ -23,8 +24,22 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   const errorResponse = formatError(err, req.path, useLegacyFormat);
   res.status(statusCode).json(errorResponse);
 
-  // For non-operational errors, notify monitoring service
+  // For non-operational errors, track for monitoring
   if (!isOperationalError(err)) {
-    // TODO: Send to error tracking service (Sentry, etc.)
+    const context = {
+      path: req.path,
+      method: req.method,
+      userId: req.auth?.userId,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+      query: req.query,
+    };
+
+    // Track as critical if it's a 500 error
+    if (statusCode >= 500) {
+      errorTrackingService.trackCriticalError(err, context);
+    } else {
+      errorTrackingService.trackError(err, context, 'high');
+    }
   }
 }
