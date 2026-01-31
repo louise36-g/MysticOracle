@@ -100,14 +100,6 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
       }
 
       const fullUrl = `${API_URL}${endpoint}`;
-      console.log(`[apiRequest] ${method} ${fullUrl}`);
-
-      // DEBUG: Show URL for PATCH requests
-      if (method === 'PATCH' && endpoint.includes('tarot-articles')) {
-        console.log('[DEBUG] API_URL:', API_URL);
-        console.log('[DEBUG] endpoint:', endpoint);
-        console.log('[DEBUG] fullUrl:', fullUrl);
-      }
 
       const response = await fetch(fullUrl, {
         method,
