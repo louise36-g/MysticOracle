@@ -9,6 +9,8 @@ interface EnvConfig {
   required: string[];
   // Required only in production
   requiredInProduction: string[];
+  // Recommended in production (warn if missing)
+  recommendedInProduction: string[];
   // Optional with defaults
   optional: Record<string, string>;
 }
@@ -21,6 +23,9 @@ const envConfig: EnvConfig = {
     'STRIPE_WEBHOOK_SECRET',
     'OPENROUTER_API_KEY',
     'BREVO_API_KEY',
+  ],
+  recommendedInProduction: [
+    'SENTRY_DSN', // Error tracking
   ],
   optional: {
     PORT: '3001',
@@ -57,6 +62,12 @@ export function validateEnv(): ValidationResult {
         missing.push(envVar);
       }
     }
+    // Warn about recommended but not required vars
+    for (const envVar of envConfig.recommendedInProduction) {
+      if (!process.env[envVar]) {
+        warnings.push(`${envVar} not set (recommended for production)`);
+      }
+    }
   } else {
     // Warn about missing production vars in development
     for (const envVar of envConfig.requiredInProduction) {
@@ -87,8 +98,8 @@ export function validateEnv(): ValidationResult {
 export function validateEnvOrExit(): void {
   const result = validateEnv();
 
-  // Log warnings in development
-  if (result.warnings.length > 0 && process.env.NODE_ENV !== 'production') {
+  // Log warnings (in development and production for recommended vars)
+  if (result.warnings.length > 0) {
     console.warn('⚠️  Environment warnings:');
     result.warnings.forEach(warning => console.warn(`   - ${warning}`));
   }

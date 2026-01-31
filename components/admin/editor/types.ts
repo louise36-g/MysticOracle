@@ -49,7 +49,7 @@ export interface TaxonomyItem {
 }
 
 export interface TaxonomySelectorProps {
-  title: string;
+  title?: string;
   items: TaxonomyItem[];
   selectedIds?: string[];
   selectedNames?: string[];

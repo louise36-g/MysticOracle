@@ -76,19 +76,20 @@ async function fixBlogUrls() {
         : 0;
 
       // Pattern 3: [INSERT CARD_NAME URL] (excluding guides/readings)
-      const pattern3MatchesEn = originalContentEn.match(/\[INSERT\s+([A-Z\s]+)\s+URL\]/gi) || [];
+      const pattern3MatchesEn: string[] =
+        originalContentEn.match(/\[INSERT\s+([A-Z\s]+)\s+URL\]/gi) || [];
       const pattern3En = pattern3MatchesEn.filter(
-        match =>
+        (match: string) =>
           !match.includes('MAJOR ARCANA') &&
           !match.includes('GUIDE') &&
           !match.includes('READING') &&
           !match.includes('IMAGE')
       ).length;
-      const pattern3MatchesFr = post.contentFr
+      const pattern3MatchesFr: string[] = post.contentFr
         ? originalContentFr.match(/\[INSERT\s+([A-Z\s]+)\s+URL\]/gi) || []
         : [];
       const pattern3Fr = pattern3MatchesFr.filter(
-        match =>
+        (match: string) =>
           !match.includes('MAJOR ARCANA') &&
           !match.includes('GUIDE') &&
           !match.includes('READING') &&
@@ -100,11 +101,11 @@ async function fixBlogUrls() {
 
       const incorrectUrlPatternEn = (
         originalContentEn.match(/href=["'](\/?[a-z0-9-]+-tarot-card-meaning)["']/gi) || []
-      ).filter(match => !match.includes('/tarot/articles/')).length;
+      ).filter((match: string) => !match.includes('/tarot/articles/')).length;
       const incorrectUrlPatternFr = post.contentFr
         ? (
             originalContentFr.match(/href=["'](\/?[a-z0-9-]+-tarot-card-meaning)["']/gi) || []
-          ).filter(match => !match.includes('/tarot/articles/')).length
+          ).filter((match: string) => !match.includes('/tarot/articles/')).length
         : 0;
 
       const changesEnCount = incorrectUrlPatternEn + placeholderPatternEn;

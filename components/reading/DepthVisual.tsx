@@ -37,7 +37,7 @@ const DepthVisual: React.FC<DepthVisualProps> = ({ cards, colorTheme }) => {
       transition: {
         delay: i * 0.05,
         duration: 0.3,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     }),
   };

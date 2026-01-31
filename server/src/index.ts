@@ -13,6 +13,10 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 dotenv.config();
 
+// Initialize Sentry early (before other imports that might throw)
+import { initSentry, getSentryErrorHandler } from './config/sentry.js';
+initSentry();
+
 // Validate environment variables (fail fast if misconfigured)
 import { validateEnvOrExit } from './config/env.js';
 validateEnvOrExit();
@@ -260,6 +264,9 @@ app.use('/api', deprecatedRouter);
 // Server-Side Rendering routes (for SEO)
 // Must come AFTER API routes to avoid conflicts
 app.use('/', ssrRoutes);
+
+// Sentry error handler (must be before other error handlers)
+app.use(getSentryErrorHandler());
 
 // Error handling middleware
 app.use(errorHandler);

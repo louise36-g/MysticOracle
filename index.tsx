@@ -1,3 +1,7 @@
+// Initialize Sentry first (before any other code runs)
+import { initSentry, captureException } from './config/sentry';
+initSentry();
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
@@ -14,6 +18,12 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 // Global error handler to catch render errors
 window.onerror = (message, source, lineno, colno, error) => {
   console.error('Global error:', { message, source, lineno, colno, error });
+
+  // Capture in Sentry
+  if (error) {
+    captureException(error, { source, lineno, colno });
+  }
+
   const root = document.getElementById('root');
   if (root && !root.textContent?.includes('Something went wrong')) {
     // Build DOM elements safely to prevent XSS
@@ -34,7 +44,10 @@ window.onerror = (message, source, lineno, colno, error) => {
     container.appendChild(pre);
     container.appendChild(button);
 
-    root.innerHTML = '';
+    // Clear root safely and append new content
+    while (root.firstChild) {
+      root.removeChild(root.firstChild);
+    }
     root.appendChild(container);
   }
   return true;
@@ -42,6 +55,10 @@ window.onerror = (message, source, lineno, colno, error) => {
 
 window.onunhandledrejection = (event) => {
   console.error('Unhandled promise rejection:', event.reason);
+  // Capture in Sentry
+  if (event.reason instanceof Error) {
+    captureException(event.reason);
+  }
 };
 
 const root = document.getElementById('root');
