@@ -6,7 +6,7 @@ import {
   restoreBlogPost,
   permanentlyDeleteBlogPost,
   emptyBlogTrash,
-} from '../../../services/apiService';
+} from '../../../services/api';
 import { Trash2, Trash, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BlogPost, Pagination } from './types';
 

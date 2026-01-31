@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../context/TranslationContext';
-import { fetchHoroscope, askHoroscopeQuestion } from '../../services/apiService';
+import { fetchHoroscope, askHoroscopeQuestion } from '../../services/api';
 import { willNextQuestionCostCredit, incrementHoroscopeQuestionCount } from '../../services/storageService';
 import Button from '../Button';
 import { Send, ArrowLeft, Calendar, Sparkles, Star } from 'lucide-react';

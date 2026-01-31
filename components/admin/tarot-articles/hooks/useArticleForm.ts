@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { TarotArticle } from '../../../../services/apiService';
+import { TarotArticle } from '../../../../services/api';
 
 // Validation error types
 export interface ValidationErrors {

@@ -1,4 +1,4 @@
-import { BlogPost as BlogPostType, BlogCategory, BlogTag } from '../apiService';
+import { BlogPost as BlogPostType, BlogCategory, BlogTag } from '../api';
 
 /**
  * SEOManager

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { FAQItem, CTAItem } from '../../services/apiService';
+import { FAQItem, CTAItem } from '../../services/api';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../context/TranslationContext';

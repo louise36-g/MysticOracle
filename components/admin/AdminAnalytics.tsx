@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminAnalytics, AdminAnalytics as AnalyticsData } from '../../services/apiService';
+import { fetchAdminAnalytics, AdminAnalytics as AnalyticsData } from '../../services/api';
 import { TrendingUp, Award, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 

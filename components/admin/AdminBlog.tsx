@@ -6,7 +6,7 @@ import {
   fetchAdminBlogTags,
   fetchAdminBlogMedia,
   fetchAdminBlogPosts,
-} from '../../services/apiService';
+} from '../../services/api';
 import { FileText, Folder, Tag, Image, Trash, AlertCircle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {

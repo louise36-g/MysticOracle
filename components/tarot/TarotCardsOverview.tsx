@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { fetchTarotOverview, TarotOverviewData } from '../../services/apiService';
+import { fetchTarotOverview, TarotOverviewData } from '../../services/api';
 import TarotCategorySection, { CategoryType, CATEGORY_CONFIG } from './TarotCategorySection';
 import TarotCardPreview from './TarotCardPreview';
 import Button from '../Button';

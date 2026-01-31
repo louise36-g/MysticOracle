@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
 import { useTranslation } from '../../context/TranslationContext';
-import { fetchTarotArticles, TarotArticle } from '../../services/apiService';
+import { fetchTarotArticles, TarotArticle } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 
 interface RelatedCardsProps {

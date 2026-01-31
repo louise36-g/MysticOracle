@@ -8,7 +8,7 @@ import {
   toggleUserAdmin,
   AdminUser,
   AdminUserList
-} from '../../services/apiService';
+} from '../../services/api';
 import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 

@@ -7,7 +7,7 @@ import {
   fetchTarotArticles,
   BlogPost,
   BlogCategory,
-} from '../../services/apiService';
+} from '../../services/api';
 import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../context/TranslationContext';

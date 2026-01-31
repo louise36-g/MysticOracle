@@ -7,7 +7,7 @@ import {
   uploadBlogMedia,
   deleteBlogMedia,
   BlogMedia,
-} from '../../services/apiService';
+} from '../../services/api';
 import { Upload, Trash2, Copy, Check, Image as ImageIcon, FolderOpen, ChevronDown } from 'lucide-react';
 
 // Folder configuration

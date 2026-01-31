@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, BookOpen, Coins, ArrowRight, X } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
-import { markWelcomeCompleted } from '../services/apiService';
+import { markWelcomeCompleted } from '../services/api';
 import { ROUTES } from '../routes/routes';
 import Button from './Button';
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminHealth, fetchAdminErrorLogs, clearAdminErrorLogs, SystemHealth, ErrorLogEntry } from '../../services/apiService';
+import { fetchAdminHealth, fetchAdminErrorLogs, clearAdminErrorLogs, SystemHealth, ErrorLogEntry } from '../../services/api';
 import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw, Database, CreditCard, Mail, Bot, Users, Trash2, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

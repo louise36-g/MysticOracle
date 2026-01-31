@@ -16,7 +16,7 @@ import {
   BlogMedia,
   CreateBlogPostData,
   LinkRegistry,
-} from '../../services/apiService';
+} from '../../services/api';
 import {
   Settings,
   FileText,

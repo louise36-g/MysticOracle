@@ -6,7 +6,7 @@ import {
   fetchLinkRegistry,
   BlogPost as BlogPostType,
   LinkRegistry
-} from '../../services/apiService';
+} from '../../services/api';
 
 interface UseBlogPostParams {
   slug?: string;

@@ -10,7 +10,7 @@ import {
   permanentlyDeleteTarotArticle,
   emptyTarotArticlesTrash,
   TarotArticle,
-} from '../../../../services/apiService';
+} from '../../../../services/api';
 import { PaginationState } from '../types';
 
 interface UseTrashListOptions {

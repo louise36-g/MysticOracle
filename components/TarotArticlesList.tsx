@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
 import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
-import { fetchTarotArticles, TarotArticle } from '../services/apiService';
+import { fetchTarotArticles, TarotArticle } from '../services/api';
 import { useTranslation } from '../context/TranslationContext';
 import { buildRoute, ROUTES } from '../routes/routes';
 

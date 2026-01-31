@@ -1,5 +1,5 @@
 import React from 'react';
-import { BlogMedia } from '../../../services/apiService';
+import { BlogMedia } from '../../../services/api';
 
 export interface EditorLanguage {
   code: string;

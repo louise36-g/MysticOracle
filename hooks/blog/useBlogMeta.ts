@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BlogPost as BlogPostType } from '../../services/apiService';
+import { BlogPost as BlogPostType } from '../../services/api';
 import { SEOManager } from '../../services/blog';
 
 interface UseBlogMetaParams {

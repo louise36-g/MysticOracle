@@ -4,7 +4,7 @@
  * Scans content for linkable terms and generates link suggestions.
  */
 
-import type { LinkRegistry } from '../../services/apiService';
+import type { LinkRegistry } from '../../services/api';
 
 export interface LinkSuggestion {
   term: string;

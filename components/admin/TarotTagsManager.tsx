@@ -7,7 +7,7 @@ import {
   updateUnifiedTag,
   deleteUnifiedTag,
   UnifiedTag,
-} from '../../services/apiService';
+} from '../../services/api';
 import { Plus, Edit2, Trash2, Tag, X, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

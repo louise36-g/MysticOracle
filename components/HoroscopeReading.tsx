@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { fetchHoroscope, askHoroscopeQuestion } from '../services/apiService';
+import { fetchHoroscope, askHoroscopeQuestion } from '../services/api';
 import { willNextQuestionCostCredit, incrementHoroscopeQuestionCount } from '../services/storageService';
 import Button from './Button';
 import { Send } from 'lucide-react';

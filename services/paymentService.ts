@@ -3,8 +3,8 @@
  * Re-exports payment functions from apiService with additional utilities
  */
 
-// Re-export payment types and functions from apiService
-export type { CreditPackage } from './apiService';
+// Re-export payment types and functions from api
+export type { CreditPackage } from './api';
 export {
   fetchCreditPackages,
   createStripeCheckout,
@@ -12,7 +12,7 @@ export {
   createPayPalOrder,
   capturePayPalOrder,
   fetchPurchaseHistory,
-} from './apiService';
+} from './api';
 
 /**
  * Redirect to Stripe checkout URL
@@ -32,4 +32,4 @@ export function redirectToPayPalApproval(approvalUrl: string): void {
  * Get purchase history (alias for fetchPurchaseHistory)
  * @deprecated Use fetchPurchaseHistory instead
  */
-export { fetchPurchaseHistory as getPurchaseHistory } from './apiService';
+export { fetchPurchaseHistory as getPurchaseHistory } from './api';

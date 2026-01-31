@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SEOManager } from '../SEOManager';
-import { BlogPost as BlogPostType } from '../../apiService';
+import { BlogPost as BlogPostType } from '../../api';
 
 // Mock blog post data
 const mockPost: BlogPostType = {

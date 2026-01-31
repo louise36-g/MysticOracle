@@ -5,7 +5,7 @@
  * Shortcode format: [[type:slug]] or [[type:slug|Custom Text]]
  */
 
-import type { LinkRegistry } from '../../services/apiService';
+import type { LinkRegistry } from '../../services/api';
 
 export type LinkType = 'tarot' | 'blog' | 'spread' | 'horoscope';
 

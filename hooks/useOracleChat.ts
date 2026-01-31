@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { generateTarotFollowUp, addFollowUpQuestion } from '../services/apiService';
+import { generateTarotFollowUp, addFollowUpQuestion } from '../services/api';
 
 /**
  * Message in the chat history

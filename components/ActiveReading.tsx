@@ -17,7 +17,7 @@ import { getCategory } from '../constants/categoryConfig';
 import {
   createReading,
   updateReadingReflection,
-} from '../services/apiService';
+} from '../services/api';
 import { shuffleDeck } from '../utils/shuffle';
 import { useReadingGeneration, useOracleChat, useQuestionInput } from '../hooks';
 import {

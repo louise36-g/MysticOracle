@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, MessageCircle, BookOpen, Pencil } from 'lucide-react';
 import { SpreadType } from '../../types';
 import { SPREADS, FULL_DECK } from '../../constants';
-import { ReadingData } from '../../services/apiService';
+import { ReadingData } from '../../services/api';
 import { useApp } from '../../context/AppContext';
 import { formatRelativeDate } from '../../utils/dateFormatters';
 

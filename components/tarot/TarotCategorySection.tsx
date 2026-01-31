@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { TarotOverviewCard } from '../../services/apiService';
+import { TarotOverviewCard } from '../../services/api';
 import TarotCardPreview from './TarotCardPreview';
 import { useTranslation } from '../../context/TranslationContext';
 import { buildRoute, ROUTES } from '../../routes/routes';

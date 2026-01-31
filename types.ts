@@ -88,11 +88,17 @@ export interface User {
   language: Language;
 }
 
+export interface ReadingCard {
+  cardId: string;
+  position: number;
+  isReversed?: boolean;
+}
+
 export interface ReadingHistoryItem {
   id: string;
   date: string;
   spreadType: SpreadType;
-  cards: number[]; // IDs of drawn cards
+  cards: ReadingCard[] | unknown; // Array of { cardId, position, isReversed } - flexible for legacy data
   interpretation: string;
   question?: string;
   userId?: string; // Optional for backwards compatibility

@@ -13,7 +13,7 @@ import {
   TarotArticle,
   fetchLinkRegistry,
   LinkRegistry,
-} from '../../services/apiService';
+} from '../../services/api';
 import { ROUTES } from '../../routes/routes';
 
 // Sub-components

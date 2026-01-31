@@ -14,7 +14,7 @@ import {
   uploadBlogMedia,
   deleteBlogMedia,
   BlogMedia,
-} from '../../services/apiService';
+} from '../../services/api';
 import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle, Link2, Loader2 } from 'lucide-react';
 import {
   scanForLinkableTerms,

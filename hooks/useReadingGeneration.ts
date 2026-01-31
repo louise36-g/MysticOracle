@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { SpreadConfig, InterpretationStyle, TarotCard } from '../types';
-import { generateTarotReading } from '../services/apiService';
+import { generateTarotReading } from '../services/api';
 import { toAPISpreadParams, toStyleStrings } from '../utils/readingApiHelpers';
 
 /**

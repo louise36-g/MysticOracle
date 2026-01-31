@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { adjustUserCredits } from '../../services/apiService';
+import { adjustUserCredits } from '../../services/api';
 import { Bug, Plus, Zap, Bot, CheckCircle, AlertCircle, RefreshCw, Coins } from 'lucide-react';
 
 // Debug mode key for localStorage

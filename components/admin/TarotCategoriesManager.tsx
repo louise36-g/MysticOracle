@@ -7,7 +7,7 @@ import {
   updateUnifiedCategory,
   deleteUnifiedCategory,
   UnifiedCategory,
-} from '../../services/apiService';
+} from '../../services/api';
 import { Plus, Trash2, Folder, X, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

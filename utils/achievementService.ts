@@ -1,6 +1,6 @@
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
-import { ReadingData } from '../services/apiService';
+import { ReadingData } from '../services/api';
 
 // Achievement progress calculator types
 export interface AchievementProgress {

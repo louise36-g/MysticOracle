@@ -6,7 +6,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
 import { ROUTES, buildRoute } from '../../../routes/routes';
-import { TarotArticle } from '../../../services/apiService';
+import { TarotArticle } from '../../../services/api';
 import {
   Search,
   Edit2,

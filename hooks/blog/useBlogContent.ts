@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react';
-import { BlogPost as BlogPostType, LinkRegistry, FAQItem } from '../../services/apiService';
+import { BlogPost as BlogPostType, LinkRegistry, FAQItem } from '../../services/api';
 import { ContentProcessor, ImageLayoutManager } from '../../services/blog';
 
 interface UseBlogContentParams {

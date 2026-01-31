@@ -21,7 +21,7 @@ import {
   getCachedPersonalYearReading,
   generatePersonalYearReading,
   type YearEnergyResponse,
-} from '../../services/apiService';
+} from '../../services/api';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
 

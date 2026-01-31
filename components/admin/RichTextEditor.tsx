@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useEditor, EditorContent } from '@tiptap/react';
-import { fetchAdminBlogMedia, BlogMedia } from '../../services/apiService';
+import { fetchAdminBlogMedia, BlogMedia } from '../../services/api';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';

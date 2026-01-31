@@ -1,6 +1,6 @@
 import React from 'react';
 import { CreditCard, Gift, Award, Share2, Sparkles, MessageCircle, TrendingUp, TrendingDown, Coins } from 'lucide-react';
-import { Transaction } from '../../services/apiService';
+import { Transaction } from '../../services/api';
 import { useApp } from '../../context/AppContext';
 import { formatRelativeDate } from '../../utils/dateFormatters';
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
-import * as api from '../services/apiService';
+import * as api from '../services/api';
 import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
 import { cleanupDeprecatedStorage } from '../services/storageService';
 

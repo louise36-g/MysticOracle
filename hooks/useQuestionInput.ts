@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { summarizeQuestion } from '../services/apiService';
+import { summarizeQuestion } from '../services/api';
 
 /**
  * Question length thresholds

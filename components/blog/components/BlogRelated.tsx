@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BlogPost } from '../../../services/apiService';
+import { BlogPost } from '../../../services/api';
 import { ROUTES, buildRoute } from '../../../routes/routes';
 
 interface BlogRelatedProps {

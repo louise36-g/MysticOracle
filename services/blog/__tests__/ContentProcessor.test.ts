@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ContentProcessor } from '../ContentProcessor';
-import { FAQItem } from '../../apiService';
+import { FAQItem } from '../../api';
 
 describe('ContentProcessor', () => {
   let processor: ContentProcessor;

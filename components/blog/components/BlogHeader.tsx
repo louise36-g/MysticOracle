@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Eye, User, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
-import { BlogPost as BlogPostType } from '../../../services/apiService';
+import { BlogPost as BlogPostType } from '../../../services/api';
 import { ROUTES } from '../../../routes/routes';
 
 interface BlogHeaderProps {

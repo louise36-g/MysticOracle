@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { processShortcodes } from '../../components/internal-links';
-import { FAQItem, LinkRegistry, BlogPost as BlogPostType } from '../apiService';
+import { FAQItem, LinkRegistry, BlogPost as BlogPostType } from '../api';
 import { ImageLayoutManager } from './ImageLayoutManager';
 
 export interface ProcessedContent {

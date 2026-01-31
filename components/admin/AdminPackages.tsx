@@ -8,7 +8,7 @@ import {
   deleteAdminPackage,
   seedAdminPackages,
   AdminCreditPackage
-} from '../../services/apiService';
+} from '../../services/api';
 import { Plus, Edit2, Trash2, Package, Check, X, GripVertical, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 

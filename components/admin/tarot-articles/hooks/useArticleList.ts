@@ -10,7 +10,7 @@ import {
   updateTarotArticleStatus,
   reorderTarotArticle,
   TarotArticle,
-} from '../../../../services/apiService';
+} from '../../../../services/api';
 import { CardType, ArticleStatus, PaginationState } from '../types';
 
 interface UseArticleListOptions {

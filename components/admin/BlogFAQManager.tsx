@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { FAQItem } from '../../services/apiService';
+import { FAQItem } from '../../services/api';
 
 interface BlogFAQManagerProps {
   faq: FAQItem[];

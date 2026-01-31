@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 import { useApp } from '../../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Check, AlertTriangle, X, Code, Upload, Eye, Loader } from 'lucide-react';
-import { fetchAdminTarotArticle, updateTarotArticle } from '../../services/apiService';
+import { fetchAdminTarotArticle, updateTarotArticle } from '../../services/api';
 
 interface ValidationStats {
   wordCount: number;

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { processShortcodes } from '../../internal-links';
-import type { LinkRegistry } from '../../../services/apiService';
+import type { LinkRegistry } from '../../../services/api';
 
 // DOMPurify sanitization config
 const SANITIZE_CONFIG = {

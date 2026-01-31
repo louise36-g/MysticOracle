@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
-import { fetchAdminBlogMedia, uploadBlogMedia, deleteBlogMedia } from '../../../services/apiService';
+import { fetchAdminBlogMedia, uploadBlogMedia, deleteBlogMedia } from '../../../services/api';
 import { Upload, Trash2, Copy, Check } from 'lucide-react';
 import type { BlogMedia } from './types';
 

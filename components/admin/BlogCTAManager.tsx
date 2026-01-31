@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Trash2, ExternalLink } from 'lucide-react';
-import { CTAItem } from '../../services/apiService';
+import { CTAItem } from '../../services/api';
 
 interface BlogCTAManagerProps {
   cta?: CTAItem;

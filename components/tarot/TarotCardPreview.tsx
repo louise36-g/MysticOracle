@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
-import { TarotOverviewCard } from '../../services/apiService';
+import { TarotOverviewCard } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 
 interface TarotCardPreviewProps {

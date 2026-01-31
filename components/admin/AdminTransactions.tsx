@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
-import { fetchAdminTransactions, fetchRevenueMonths } from '../../services/apiService';
+import { fetchAdminTransactions, fetchRevenueMonths } from '../../services/api';
 import { ChevronLeft, ChevronRight, Filter, Download, Calendar, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 

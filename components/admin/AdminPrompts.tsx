@@ -7,7 +7,7 @@ import {
   resetAdminPrompt,
   seedAdminPrompts,
   AdminPrompt,
-} from '../../services/apiService';
+} from '../../services/api';
 import { MessageSquare, Edit2, Check, X, RotateCcw, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 

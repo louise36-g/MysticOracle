@@ -1,4 +1,4 @@
-import type { BlogPost, BlogCategory, BlogTag, BlogMedia, ImportResult } from '../../../services/apiService';
+import type { BlogPost, BlogCategory, BlogTag, BlogMedia, ImportResult } from '../../../services/api';
 
 export type TabType = 'posts' | 'categories' | 'tags' | 'media' | 'trash';
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
-import { importBlogArticles } from '../../../services/apiService';
+import { importBlogArticles } from '../../../services/api';
 import { X, Upload, FileJson, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ImportResult } from './types';

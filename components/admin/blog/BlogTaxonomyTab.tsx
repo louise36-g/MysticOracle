@@ -10,7 +10,7 @@ import {
   createBlogTag,
   updateBlogTag,
   deleteBlogTag,
-} from '../../../services/apiService';
+} from '../../../services/api';
 import { Plus, Folder, Tag, Edit2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BlogCategory, BlogTag } from './types';

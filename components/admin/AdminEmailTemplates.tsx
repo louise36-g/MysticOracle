@@ -9,7 +9,7 @@ import {
   deleteAdminEmailTemplate,
   seedAdminEmailTemplates,
   AdminEmailTemplate
-} from '../../services/apiService';
+} from '../../services/api';
 import { Plus, Edit2, Trash2, Mail, Check, X, Eye, Code, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 

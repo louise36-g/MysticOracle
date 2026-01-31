@@ -13,7 +13,7 @@ import {
   reorderBlogPost,
   CreateBlogPostData,
   BlogCategory,
-} from '../../../services/apiService';
+} from '../../../services/api';
 import {
   Search,
   Plus,

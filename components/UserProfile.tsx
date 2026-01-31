@@ -8,7 +8,7 @@ import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, Boo
 import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
-import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/apiService';
+import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/api';
 import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, TransactionTypeFilter } from './profile';
 import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
 import { filterByDateRange, type DateRangeOption } from '../utils/dateFilters';
