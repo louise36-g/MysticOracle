@@ -9,6 +9,7 @@ import { Webhook } from 'svix';
 import prisma from '../db/prisma.js';
 import { sendWelcomeEmail } from '../services/email.js';
 import { CREDIT_COSTS } from '../services/CreditService.js';
+import { debug, logger } from '../lib/logger.js';
 
 // Clerk webhook payload types
 interface ClerkWebhookData {
@@ -118,7 +119,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
           description: 'Welcome bonus',
         });
 
-        console.log(`✅ User created: ${data.id}`);
+        logger.info(`✅ User created: ${data.id}`);
 
         // Send welcome email
         if (email) {
@@ -164,7 +165,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
     }
 
     default:
-      console.log(`Unhandled Clerk event type: ${eventType}`);
+      debug.log(`Unhandled Clerk event type: ${eventType}`);
   }
 
   res.json({ received: true });

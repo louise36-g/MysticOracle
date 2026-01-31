@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -102,7 +103,7 @@ router.post('/bootstrap', requireAuth, async (req, res) => {
       select: { id: true, username: true, email: true, isAdmin: true },
     });
 
-    console.log(`Bootstrap: Granted admin access to ${user.username} (${user.email})`);
+    logger.info(`Bootstrap: Granted admin access to ${user.username} (${user.email})`);
 
     res.json({
       success: true,

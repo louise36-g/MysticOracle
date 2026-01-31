@@ -6,6 +6,7 @@ import { getAISettings } from '../services/aiSettings.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
 import { openRouterService } from '../services/openRouterService.js';
 import prisma from '../db/prisma.js';
+import { debug } from '../lib/logger.js';
 import {
   getTarotReadingPrompt,
   getTarotFollowUpPrompt,
@@ -311,7 +312,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
 
     const { spread, style, cards, question, language, category, layoutId } = validation.data;
 
-    console.log('[Tarot Generate] Request:', {
+    debug.log('[Tarot Generate] Request:', {
       userId: req.auth.userId,
       spread: spread.nameEn,
       cardCount: cards.length,
@@ -327,7 +328,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
     let maxTokens: number;
 
     if (isSingleCard) {
-      console.log('[Tarot Generate] Single card detected, building prompt...');
+      debug.log('[Tarot Generate] Single card detected, building prompt...');
       // Use single card prompt
       const card = cards[0];
       const cardName = language === 'en' ? card.card.nameEn : card.card.nameFr;
@@ -338,7 +339,7 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
       const cardElement = getCardElement(cardIdNum);
       const cardNumber = getCardNumber(cardIdNum);
 
-      console.log('[Tarot Generate] Card info:', { cardName, isReversed, cardElement, cardNumber });
+      debug.log('[Tarot Generate] Card info:', { cardName, isReversed, cardElement, cardNumber });
 
       // Map style array to expected format (handles both EN and FR style names)
       const styleMap: Record<string, string> = {
@@ -358,9 +359,9 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
         elementaire: 'elemental',
       };
       const mappedStyles = style.map(s => styleMap[s.toLowerCase()] || s).filter(Boolean);
-      console.log('[Tarot Generate] Mapped styles:', mappedStyles);
+      debug.log('[Tarot Generate] Mapped styles:', mappedStyles);
 
-      console.log('[Tarot Generate] Calling getSingleCardReadingPrompt...');
+      debug.log('[Tarot Generate] Calling getSingleCardReadingPrompt...');
       prompt = await getSingleCardReadingPrompt({
         category: category || 'general',
         question,
@@ -371,11 +372,11 @@ router.post('/tarot/generate', requireAuth, async (req, res) => {
         styles: mappedStyles,
         language,
       });
-      console.log('[Tarot Generate] Prompt built, length:', prompt.length);
+      debug.log('[Tarot Generate] Prompt built, length:', prompt.length);
 
       // Base 2500 tokens + 500 per style (reasoning models need extra tokens for thinking)
       maxTokens = 2500 + mappedStyles.length * 500;
-      console.log('[Tarot Generate] Max tokens:', maxTokens);
+      debug.log('[Tarot Generate] Max tokens:', maxTokens);
     } else {
       // Existing multi-card logic
       const spreadType = spread.id;
@@ -428,8 +429,8 @@ AFTER all card interpretations, include these dedicated synthesis sections:
 ${synthesisInstructions}`;
         }
       }
-      console.log('[Tarot Generate] Styles received:', style);
-      console.log('[Tarot Generate] Style instructions:', styleInstructions);
+      debug.log('[Tarot Generate] Styles received:', style);
+      debug.log('[Tarot Generate] Style instructions:', styleInstructions);
 
       // Layout-specific position meanings for THREE_CARD and FIVE_CARD
       const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
@@ -601,7 +602,7 @@ ${synthesisInstructions}`;
       // Use layout-specific positions if layoutId is provided for THREE_CARD or FIVE_CARD
       let positionMeanings =
         language === 'en' ? spread.positionMeaningsEn : spread.positionMeaningsFr;
-      console.log('[Tarot Generate] Layout check:', {
+      debug.log('[Tarot Generate] Layout check:', {
         spreadType,
         layoutId,
         hasLayoutId: !!layoutId,
@@ -613,11 +614,7 @@ ${synthesisInstructions}`;
         layoutPositions[layoutId]
       ) {
         positionMeanings = layoutPositions[layoutId][language];
-        console.log(
-          '[Tarot Generate] Using layout-specific positions:',
-          layoutId,
-          positionMeanings
-        );
+        debug.log('[Tarot Generate] Using layout-specific positions:', layoutId, positionMeanings);
       }
 
       const cardsDescription = cards
@@ -654,11 +651,11 @@ ${synthesisInstructions}`;
       // Add 300 tokens per style option for synthesis sections (100-150 words each)
       const styleBonus = style.length > 0 ? style.length * 300 : 0;
       maxTokens = baseTokens + styleBonus;
-      console.log('[Tarot Generate] Token calculation:', { baseTokens, styleBonus, maxTokens });
+      debug.log('[Tarot Generate] Token calculation:', { baseTokens, styleBonus, maxTokens });
     }
 
     // Generate interpretation using unified service
-    console.log('[Tarot Generate] Calling OpenRouter service...');
+    debug.log('[Tarot Generate] Calling OpenRouter service...');
     const startTime = Date.now();
     const interpretation = await openRouterService.generateTarotReading(prompt, {
       temperature: 0.7,
@@ -666,7 +663,7 @@ ${synthesisInstructions}`;
     });
     const elapsed = Date.now() - startTime;
 
-    console.log(
+    debug.log(
       '[Tarot Generate] ✅ Generated interpretation:',
       interpretation.length,
       'chars in',
@@ -702,7 +699,7 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
 
     const { reading, history, question, language } = validation.data;
 
-    console.log('[Tarot Follow-up] Request:', {
+    debug.log('[Tarot Follow-up] Request:', {
       userId: req.auth.userId,
       question: question.substring(0, 50) + '...',
       language,
@@ -727,7 +724,7 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
       }
     );
 
-    console.log('[Tarot Follow-up] ✅ Generated answer:', answer.length, 'chars');
+    debug.log('[Tarot Follow-up] ✅ Generated answer:', answer.length, 'chars');
 
     res.json({
       answer,
@@ -760,7 +757,7 @@ router.post('/birthcard/year-energy', requireAuth, async (req, res) => {
     const userId = req.auth.userId;
     const creditCost = 3; // Year energy reading costs 3 credits
 
-    console.log('[Year Energy] Request:', {
+    debug.log('[Year Energy] Request:', {
       userId,
       year,
       personalityCard: personalityCard.cardName,
@@ -813,7 +810,7 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
       language,
     });
 
-    console.log('[Year Energy] Prompt built, length:', prompt.length);
+    debug.log('[Year Energy] Prompt built, length:', prompt.length);
 
     // Generate interpretation using OpenRouter service
     const startTime = Date.now();
@@ -823,7 +820,7 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
     });
     const elapsed = Date.now() - startTime;
 
-    console.log(
+    debug.log(
       '[Year Energy] ✅ Generated interpretation:',
       interpretation.length,
       'chars in',
@@ -861,7 +858,7 @@ router.get('/birthcard/synthesis', requireAuth, async (req, res) => {
     const userId = req.auth.userId;
     const language = (req.query.language as string) || 'en';
 
-    console.log(
+    debug.log(
       '[Birth Card Synthesis Cache] Checking cache for user:',
       userId,
       'language:',
@@ -873,7 +870,7 @@ router.get('/birthcard/synthesis', requireAuth, async (req, res) => {
     });
 
     if (!cached) {
-      console.log('[Birth Card Synthesis Cache] No cache found for user:', userId);
+      debug.log('[Birth Card Synthesis Cache] No cache found for user:', userId);
       return res.json({ cached: null });
     }
 
@@ -885,7 +882,7 @@ router.get('/birthcard/synthesis', requireAuth, async (req, res) => {
 
     const interpretation = language === 'en' ? cached.synthesisEn : cached.synthesisFr;
 
-    console.log('[Birth Card Synthesis Cache] Found cache:', {
+    debug.log('[Birth Card Synthesis Cache] Found cache:', {
       userId,
       normalizedBirthDate,
       personalityCardId: cached.personalityCardId,
@@ -935,7 +932,7 @@ router.post('/birthcard/synthesis', requireAuth, async (req, res) => {
     const userId = req.auth.userId;
     const creditCost = 2; // Birth card synthesis costs 2 credits
 
-    console.log('[Birth Card Synthesis] Request:', {
+    debug.log('[Birth Card Synthesis] Request:', {
       userId,
       personalityCard: personalityCard.cardName,
       soulCard: soulCard.cardName,
@@ -1062,7 +1059,7 @@ ${elementalAnalysis}`;
       language,
     });
 
-    console.log('[Birth Card Synthesis] Prompt built, length:', prompt.length);
+    debug.log('[Birth Card Synthesis] Prompt built, length:', prompt.length);
 
     // Generate interpretation using OpenRouter service
     const startTime = Date.now();
@@ -1072,7 +1069,7 @@ ${elementalAnalysis}`;
     });
     const elapsed = Date.now() - startTime;
 
-    console.log(
+    debug.log(
       '[Birth Card Synthesis] ✅ Generated interpretation:',
       interpretation.length,
       'chars in',
@@ -1117,7 +1114,7 @@ ${elementalAnalysis}`;
             : { synthesisFr: interpretation }),
         },
       });
-      console.log('[Birth Card Synthesis] ✅ Cached synthesis for user:', userId);
+      debug.log('[Birth Card Synthesis] ✅ Cached synthesis for user:', userId);
     } catch (cacheError) {
       // Don't fail the request if caching fails, just log it
       console.error('[Birth Card Synthesis] Failed to cache synthesis:', cacheError);

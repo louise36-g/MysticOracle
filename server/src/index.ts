@@ -13,6 +13,10 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 dotenv.config();
 
+// Validate environment variables (fail fast if misconfigured)
+import { validateEnvOrExit } from './config/env.js';
+validateEnvOrExit();
+
 // Import DI container
 import { createAppContainer } from './shared/di/container.js';
 

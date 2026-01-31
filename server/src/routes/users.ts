@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { creditService, CREDIT_COSTS } from '../services/CreditService.js';
@@ -6,6 +7,8 @@ import { AchievementService } from '../services/AchievementService.js';
 import { NotFoundError, ConflictError } from '../shared/errors/ApplicationError.js';
 import { parsePaginationParams, createPaginatedResponse } from '../shared/pagination/pagination.js';
 import { validateQuery, paginationQuerySchema } from '../middleware/validateQuery.js';
+import { debug, logger } from '../lib/logger.js';
+import { sendEmail } from '../services/email.js';
 
 // Create achievement service instance
 const achievementService = new AchievementService(prisma);
@@ -37,7 +40,7 @@ const router = Router();
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
-    console.log('[Users /me] Fetching user with ID:', userId);
+    debug.log('[Users /me] Fetching user with ID:', userId);
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -53,11 +56,11 @@ router.get('/me', requireAuth, async (req, res) => {
     });
 
     if (!user) {
-      console.log('[Users /me] User not found for ID:', userId);
+      debug.log('[Users /me] User not found for ID:', userId);
       throw new NotFoundError('User', userId);
     }
 
-    console.log('[Users /me] Found user, credits:', user.credits);
+    debug.log('[Users /me] Found user, credits:', user.credits);
     res.json(user);
   } catch (error) {
     console.error('[Users /me] Error fetching user:', error);
@@ -149,7 +152,7 @@ router.get('/me/readings', requireAuth, validateQuery(paginationQuerySchema), as
     const userId = req.auth.userId;
     const params = parsePaginationParams(req.query, 20, 100);
 
-    console.log('[User API] Fetching readings for userId:', userId, 'params:', params);
+    debug.log('[User API] Fetching readings for userId:', userId, 'params:', params);
 
     const [readings, total] = await Promise.all([
       prisma.reading.findMany({
@@ -164,7 +167,7 @@ router.get('/me/readings', requireAuth, validateQuery(paginationQuerySchema), as
       prisma.reading.count({ where: { userId } }),
     ]);
 
-    console.log(
+    debug.log(
       '[User API] Found',
       readings.length,
       'readings out of',
@@ -522,6 +525,143 @@ router.delete('/me', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[Users DELETE /me] Error:', error);
     res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
+// Withdrawal request validation schema
+const withdrawalRequestSchema = z.object({
+  email: z.string().email(),
+  orderReference: z.string().min(1, 'Order reference is required'),
+  purchaseDate: z.string().min(1, 'Purchase date is required'),
+  reason: z.string().optional(),
+});
+
+/**
+ * @openapi
+ * /api/v1/users/withdrawal-request:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Submit a withdrawal/refund request
+ *     description: |
+ *       Submit a request to exercise the 14-day withdrawal right under EU consumer law.
+ *       The request will be processed within 14 days.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - orderReference
+ *               - purchaseDate
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               orderReference:
+ *                 type: string
+ *                 description: Transaction or order ID
+ *               purchaseDate:
+ *                 type: string
+ *                 format: date
+ *               reason:
+ *                 type: string
+ *                 description: Optional reason for withdrawal
+ *     responses:
+ *       200:
+ *         description: Withdrawal request submitted successfully
+ *       400:
+ *         description: Invalid request data
+ *       401:
+ *         description: Not authenticated
+ */
+router.post('/withdrawal-request', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+
+    // Validate request body
+    const validation = withdrawalRequestSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.error.errors,
+      });
+    }
+
+    const { email, orderReference, purchaseDate, reason } = validation.data;
+
+    // Get user info
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, username: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Log the withdrawal request
+    logger.info(
+      `[Withdrawal Request] User: ${userId}, Order: ${orderReference}, Date: ${purchaseDate}`
+    );
+
+    // Send notification email to refunds inbox
+    try {
+      await sendEmail({
+        to: 'refunds@mysticoracle.com',
+        subject: `Withdrawal Request - ${orderReference}`,
+        htmlContent: `
+          <h2>New Withdrawal Request</h2>
+          <p><strong>User ID:</strong> ${userId}</p>
+          <p><strong>User Email:</strong> ${user.email || email}</p>
+          <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
+          <p><strong>Contact Email:</strong> ${email}</p>
+          <p><strong>Order Reference:</strong> ${orderReference}</p>
+          <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
+          <p><strong>Reason:</strong> ${reason || 'Not provided'}</p>
+          <p><strong>Request Date:</strong> ${new Date().toISOString()}</p>
+          <hr>
+          <p>This request must be processed within 14 days per EU Directive 2011/83/EU.</p>
+        `,
+      });
+    } catch (emailError) {
+      // Log but don't fail - the request is still valid
+      console.error('[Withdrawal Request] Failed to send notification email:', emailError);
+    }
+
+    // Send confirmation email to user
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Withdrawal Request Received - MysticOracle',
+        htmlContent: `
+          <h2>Withdrawal Request Confirmation</h2>
+          <p>We have received your withdrawal request for order <strong>${orderReference}</strong>.</p>
+          <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
+          <p><strong>Request Date:</strong> ${new Date().toLocaleDateString()}</p>
+          <p>Your request will be processed within 14 days as required by EU consumer protection law.</p>
+          <p>If you have any questions, please contact us at refunds@mysticoracle.com</p>
+          <hr>
+          <p style="color: #666; font-size: 12px;">MysticOracle - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
+        `,
+      });
+    } catch (emailError) {
+      // Log but don't fail
+      console.error('[Withdrawal Request] Failed to send confirmation email:', emailError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Withdrawal request submitted successfully',
+      requestId: `WR-${Date.now()}`,
+    });
+  } catch (error) {
+    console.error('[Users POST /withdrawal-request] Error:', error);
+    res.status(500).json({ error: 'Failed to submit withdrawal request' });
   }
 });
 

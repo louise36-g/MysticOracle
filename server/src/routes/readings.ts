@@ -9,6 +9,7 @@ import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { idempotent } from '../middleware/idempotency.js';
+import { debug } from '../lib/logger.js';
 
 const router = Router();
 
@@ -43,8 +44,8 @@ const reflectionSchema = z.object({
 // Uses idempotency middleware to prevent duplicate charges on retried requests
 router.post('/', requireAuth, idempotent, async (req, res) => {
   try {
-    console.log('[Reading API] Received reading creation request from userId:', req.auth.userId);
-    console.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
+    debug.log('[Reading API] Received reading creation request from userId:', req.auth.userId);
+    debug.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
 
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
@@ -54,7 +55,7 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
         .json({ error: 'Invalid request data', details: validation.error.errors });
     }
 
-    console.log('[Reading API] Validation passed, executing use case...');
+    debug.log('[Reading API] Validation passed, executing use case...');
 
     // Resolve use case from DI container
     const createReadingUseCase = req.container.resolve('createReadingUseCase');
@@ -85,7 +86,7 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
       return res.status(statusCode).json({ error: result.error });
     }
 
-    console.log('[Reading API] ✅ Reading created successfully! ID:', result.reading?.id);
+    debug.log('[Reading API] ✅ Reading created successfully! ID:', result.reading?.id);
     res.status(201).json(result.reading);
   } catch (error) {
     console.error('[Reading API] Unexpected error creating reading:', error);

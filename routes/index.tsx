@@ -184,6 +184,10 @@ export const router = createBrowserRouter([
         path: ROUTES.COOKIES,
         element: lazyLoad(() => import('../components/legal/CookiePolicy')),
       },
+      {
+        path: ROUTES.WITHDRAWAL,
+        element: lazyLoad(() => import('../components/legal/WithdrawalForm')),
+      },
 
       // Info routes
       {

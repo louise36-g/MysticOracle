@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import { ConflictError } from '../shared/errors/ApplicationError.js';
 import { processBlogContent } from '../utils/urlReplacer.js';
+import { debug } from '../lib/logger.js';
 
 const router = Router();
 
@@ -713,14 +714,14 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
   try {
     const { postId, categorySlug, newPosition } = req.body;
 
-    console.log('=== REORDER REQUEST ===');
-    console.log('postId:', postId, 'type:', typeof postId);
-    console.log('categorySlug:', categorySlug);
-    console.log('newPosition:', newPosition);
+    debug.log('=== REORDER REQUEST ===');
+    debug.log('postId:', postId, 'type:', typeof postId);
+    debug.log('categorySlug:', categorySlug);
+    debug.log('newPosition:', newPosition);
 
     // Validate input
     if (!postId || typeof newPosition !== 'number') {
-      console.log('❌ Validation failed: missing fields');
+      debug.log('❌ Validation failed: missing fields');
       return res.status(400).json({
         error: 'Missing required fields: postId, newPosition',
       });
@@ -745,7 +746,7 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
         select: { id: true, slug: true, deletedAt: true },
         orderBy: { updatedAt: 'desc' },
       });
-      console.log(
+      debug.log(
         '❌ Post not found. Sample post IDs:',
         samplePosts.map(p => ({ id: p.id, slug: p.slug, deleted: !!p.deletedAt }))
       );
@@ -770,11 +771,11 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
       select: { id: true, sortOrder: true },
     });
 
-    console.log('Posts in context:', allPosts.length);
-    console.log('Requested newPosition:', newPosition);
+    debug.log('Posts in context:', allPosts.length);
+    debug.log('Requested newPosition:', newPosition);
 
     if (newPosition >= allPosts.length) {
-      console.log('❌ Position exceeds post count');
+      debug.log('❌ Position exceeds post count');
       return res.status(400).json({
         error: `newPosition (${newPosition}) exceeds number of posts (${allPosts.length})`,
       });
@@ -812,7 +813,7 @@ router.patch('/admin/posts/reorder', requireAuth, requireAdmin, async (req, res)
     // Invalidate blog cache
     await cacheService.flushPattern('blog:');
 
-    console.log('✅ Reorder successful');
+    debug.log('✅ Reorder successful');
     res.json({
       success: true,
       message: 'Post reordered successfully',

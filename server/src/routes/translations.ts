@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import cacheService, { CacheService } from '../services/cache.js';
+import { debug } from '../lib/logger.js';
 
 // Types for cached translation data
 interface CachedLanguage {
@@ -2350,7 +2351,7 @@ router.post('/admin/seed', requireAuth, requireAdmin, async (req, res) => {
 
       await prisma.$transaction(operations);
       processedCount += batch.length;
-      console.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
+      debug.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
     }
 
     // Invalidate cache and bump version

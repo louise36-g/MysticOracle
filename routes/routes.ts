@@ -32,6 +32,7 @@ export const ROUTES = {
   PRIVACY: '/privacy',
   TERMS: '/terms',
   COOKIES: '/cookies',
+  WITHDRAWAL: '/withdrawal',
 
   // Info
   FAQ: '/faq',

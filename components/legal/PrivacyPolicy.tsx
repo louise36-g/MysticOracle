@@ -19,9 +19,12 @@ const PrivacyPolicy: React.FC = () => {
 
 **Registered Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 **SIRET:** 92357809000014
-**Contact:** privacy@mysticoracle.com
 
-For any questions regarding your personal data, you may contact our Data Protection team at the address above.`
+**Data Protection Officer (DPO):**
+Email: dpo@mysticoracle.com
+Address: 7 rue Beauregard, 77171 Chalautre la Grande, France
+
+For any questions regarding your personal data or to exercise your rights, contact our DPO at the email address above. We aim to respond within 30 days.`
         },
         {
           icon: Users,
@@ -223,9 +226,12 @@ We aim to respond to all inquiries within 30 days.`
 
 **Adresse du Siège:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 **SIRET:** 92357809000014
-**Contact:** privacy@mysticoracle.com
 
-Pour toute question concernant vos données personnelles, vous pouvez contacter notre équipe Protection des Données à l'adresse ci-dessus.`
+**Délégué à la Protection des Données (DPO):**
+Email: dpo@mysticoracle.com
+Adresse: 7 rue Beauregard, 77171 Chalautre la Grande, France
+
+Pour toute question concernant vos données personnelles ou pour exercer vos droits, contactez notre DPO à l'adresse email ci-dessus. Nous nous engageons à répondre sous 30 jours.`
         },
         {
           icon: Users,

@@ -13,6 +13,7 @@ import { requireAuth } from '../middleware/auth.js';
 import prisma from '../db/prisma.js';
 import { openRouterService } from '../services/openRouterService.js';
 import { getYearEnergyReadingPrompt } from '../services/promptService.js';
+import { debug } from '../lib/logger.js';
 
 const router = Router();
 
@@ -299,7 +300,7 @@ router.post('/personal', requireAuth, async (req, res) => {
         const synthesis =
           language === 'en' ? existingReading.synthesisEn : existingReading.synthesisFr;
         if (synthesis) {
-          console.log('[YearEnergy] Using cached personal year reading');
+          debug.log('[YearEnergy] Using cached personal year reading');
           return res.json({
             synthesis,
             cached: true,
@@ -396,7 +397,7 @@ Signe: ${zodiac.nameFr}
       language,
     });
 
-    console.log('[YearEnergy] Generating personal year reading for user:', userId);
+    debug.log('[YearEnergy] Generating personal year reading for user:', userId);
 
     // Generate with AI
     const synthesis = await openRouterService.generateTarotReading(prompt, {
@@ -437,7 +438,7 @@ Signe: ${zodiac.nameFr}
       },
     });
 
-    console.log('[YearEnergy] Personal year reading cached for user:', userId);
+    debug.log('[YearEnergy] Personal year reading cached for user:', userId);
 
     res.json({
       synthesis,
@@ -591,7 +592,7 @@ router.post('/threshold', requireAuth, async (req, res) => {
       const synthesis =
         language === 'en' ? existingReading.synthesisEn : existingReading.synthesisFr;
       if (synthesis) {
-        console.log('[YearEnergy] Using cached threshold reading');
+        debug.log('[YearEnergy] Using cached threshold reading');
         return res.json({
           synthesis,
           cached: true,
@@ -670,7 +671,7 @@ Rédigez une lecture de seuil de 600-800 mots qui:
 
 Écrivez à la deuxième personne ("vous"), avec chaleur et profondeur mystique. Pas de titres, prose fluide uniquement.`;
 
-    console.log('[YearEnergy] Generating threshold reading for user:', userId);
+    debug.log('[YearEnergy] Generating threshold reading for user:', userId);
 
     const synthesis = await openRouterService.generateTarotReading(prompt, {
       temperature: 0.7,
@@ -699,7 +700,7 @@ Rédigez une lecture de seuil de 600-800 mots qui:
       },
     });
 
-    console.log('[YearEnergy] Threshold reading cached for user:', userId);
+    debug.log('[YearEnergy] Threshold reading cached for user:', userId);
 
     res.json({
       synthesis,
