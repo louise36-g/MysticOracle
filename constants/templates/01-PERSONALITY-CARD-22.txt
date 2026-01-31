@@ -11,7 +11,7 @@ CARD 0 - THE FOOL (Le Mat)
 As Personality Card:
 
 English Description:
-You carry the energy of The Fool as your Personality Card. When you walk into a room, you bring something rare: the feeling that anything could happen next. People are drawn to your openness, your willingness to leap without needing to see the landing. This is how the world experiences you. Not reckless, but free. Not naive, but unafraid to begin again and again.
+Your personality bears the print of The Fool's energy. When you walk into a room, you bring something rare: the feeling that anything could happen next. People are drawn to your openness, your willingness to leap without needing to see the landing. This is how the world experiences you. Not reckless, but free. Not naive, but unafraid to begin again and again.
 
 Your Outer Expression
 You move through life with a lightness that others find both refreshing and a little mysterious. Where they see risk, you see possibility. Where they hesitate at the edge, you have already stepped off, trusting that the path will form beneath your feet. This is not blind optimism. It is something deeper; an instinctive faith in the unfolding of things.
@@ -66,7 +66,7 @@ CARD 1 - THE MAGICIAN (Le Bateleur)
 As Personality Card:
 
 English Description:
-You carry the energy of The Magician as your Personality Card. When you speak, ideas spark to life. When you enter a room, a quiet certainty moves with you; others notice it, even if they cannot name it. This is the force that shapes how the world sees you. Not as someone who waits for things to happen, but as someone who makes them happen.
+The energy of The Magician is imprinted in your personality. When you speak, ideas spark to life. When you enter a room, a quiet certainty moves with you; others notice it, even if they cannot name it. This is the force that shapes how the world sees you. Not as someone who waits for things to happen, but as someone who makes them happen.
 
 Your Outer Expression
 You move through life with a kind of focused intensity that draws people toward you. There is a natural confidence in how you approach problems and possibilities alike. You see resources where others see obstacles. You find connections where others see scattered pieces. People come to you because they sense you can help them turn their ideas into something real, something tangible.
@@ -172,7 +172,7 @@ CARD 3 - THE EMPRESS (L'Impératrice)
 As Personality Card:
 
 English Description:
-If The Empress is your Personality Card, you bring a warmth that makes others want to stay a while. People feel nurtured in your presence, often without understanding why. Something about you invites them to soften, to open, to breathe more easily. This is how the world meets you: generous, creative, full of life. You make things flourish simply by being near them.
+With The Empress energy influencing your personality, you bring a warmth that makes others want to stay a while. People feel nurtured in your presence, often without understanding why. Something about you invites them to soften, to open, to breathe more easily. This is how the world meets you: generous, creative, full of life. You make things flourish simply by being near them.
 
 Your Outer Expression
 You move through life with a natural generosity that touches everything around you. Your creativity is not something you do; it is something you are. Whether you are tending a garden, a project, or a friendship, you bring the same quality of care. You notice what needs nurturing and you offer it freely, often without being asked.
@@ -227,7 +227,7 @@ CARD 4 - THE EMPEROR (L'Empereur)
 As Personality Card:
 
 English Description:
-The Emperor as your Personality Card means you hold a particular kind of presence that others instinctively trust. When uncertainty swirls, people look to you. When decisions need making, they wait for your voice. You carry an authority that does not need to announce itself. It simply is. This is how the world experiences you: steady, strong, capable of holding things together when others cannot.
+The Emperor is the underlying energy of your personality, this means you hold a particular kind of presence that others instinctively trust. When uncertainty swirls, people look to you. When decisions need making, they wait for your voice. You carry an authority that does not need to announce itself. It simply is. This is how the world experiences you: steady, strong, capable of holding things together when others cannot.
 
 Your Outer Expression
 You move through life with a natural command that organises the space around you. Where there is chaos, you bring structure. Where there is confusion, you offer clarity. This is not something you learned; it is something you are. People sense they can lean on you, and they do. Your presence feels solid, dependable, like a foundation that will not shift.
@@ -282,7 +282,7 @@ CARD 5 - THE HIEROPHANT (Le Pape)
 As Personality Card:
 
 English Description:
-As someone with The Hierophant as your Personality Card, you move through the world with a quiet authority that others trust. People come to you with their questions, their confusion, their search for meaning. They sense you are connected to something larger than yourself, and that connection steadies them. This is how the world meets you: wise, grounded, a bridge between the sacred and the everyday.
+As someone with The Hierophant influencing your personality, you move through the world with a quiet authority that others trust. People come to you with their questions, their confusion, their search for meaning. They sense you are connected to something larger than yourself, and that connection steadies them. This is how the world meets you: wise, grounded, a bridge between the sacred and the everyday.
 
 Your Outer Expression
 You carry yourself with a kind of earned wisdom that others recognise. It is not that you claim to have all the answers; it is that you seem to know where to look for them. You speak with care. You listen with patience. When people are lost, they gravitate toward you because your presence reminds them that there is something to hold onto.
@@ -337,7 +337,7 @@ CARD 6 - THE LOVERS (L'Amoureux)
 As Personality Card:
 
 English Description:
-When The Lovers is your Personality Card, you carry a gift for connection that others feel instantly. People sense your capacity to truly see them, to meet them where they are. You move through life guided by your values, drawn toward what feels true and right. This is how the world experiences you: warm, sincere, someone who brings people closer together simply by being present.
+The Lovers colors and influences your personality, you carry a gift for connection that others feel instantly. People sense your capacity to truly see them, to meet them where they are. You move through life guided by your values, drawn toward what feels true and right. This is how the world experiences you: warm, sincere, someone who brings people closer together simply by being present.
 
 Your Outer Expression
 You engage with life through relationship. Not only romantic love, but all the ways we connect; friendships, collaborations, the quiet understanding between strangers. You pay attention to the spaces between people. You notice when something is off, when harmony has been broken, when someone needs to be seen. This attentiveness is woven into how you move through the world.
@@ -392,7 +392,7 @@ CARD 7 - THE CHARIOT (Le Chariot)
 As Personality Card:
 
 English Description:
-With The Chariot as your Personality Card, there is a forward momentum to you that others cannot help but notice. You move through life with direction and drive. When you set your sights on something, people sense you will reach it. This is how the world meets you: focused, determined, someone who does not stop when the road gets difficult. Your will is visible in everything you do.
+The strong energy of The Chariot is the underlying energy of your personality, there is a forward momentum to you that others cannot help but notice. You move through life with direction and drive. When you set your sights on something, people sense you will reach it. This is how the world meets you: focused, determined, someone who does not stop when the road gets difficult. Your will is visible in everything you do.
 
 Your Outer Expression
 You engage with life as a series of challenges to be met and overcome. Where others hesitate, you push forward. Where others waver, you hold the course. There is a discipline to your energy that inspires those around you. People watch you and think: if they can do it, perhaps I can too. Your determination is contagious.
@@ -447,7 +447,7 @@ CARD 8 - STRENGTH (La Force)
 As Personality Card:
 
 English Description:
-When Strength is your Personality Card, you hold a quiet power that others feel long before they understand it. You do not need to raise your voice to be heard. You do not need to push to make things move. People sense a steadiness in you, a calm that does not waver when the world shakes. This is how others experience you: patient, grounded, strong in a way that soothes rather than overwhelms.
+Strength is the underpinning energy of your personality, you hold a quiet power that others feel long before they understand it. You do not need to raise your voice to be heard. You do not need to push to make things move. People sense a steadiness in you, a calm that does not waver when the world shakes. This is how others experience you: patient, grounded, strong in a way that soothes rather than overwhelms.
 
 Your Outer Expression
 You move through life with a gentleness that is often mistaken for softness. But those who know you understand: your gentleness is not weakness. It is mastery. You have learned to meet intensity with patience, fear with presence, chaos with calm. You do not conquer what rises within you; you befriend it. This is a rare skill, and others feel its effects even when they cannot name what you are doing.
@@ -502,7 +502,7 @@ CARD 9 - THE HERMIT (L'Hermite)
 As Personality Card:
 
 English Description:
-The Hermit energy as your Personality Card shapes you into someone who carries their own light. You do not need the crowd to feel whole; in fact, you often feel most yourself when you are alone. Others sense a depth in you, a self-contained wisdom that intrigues them even when they cannot quite name it. This is not coldness or distance. It is the quiet glow of someone who has learned to find home within themselves.
+The quiet energy of The Hermit underpinning your personality shapes you into someone who carries their own light. You do not need the crowd to feel whole; in fact, you often feel most yourself when you are alone. Others sense a depth in you, a self-contained wisdom that intrigues them even when they cannot quite name it. This is not coldness or distance. It is the quiet glow of someone who has learned to find home within themselves.
 
 Your Outer Expression
 You engage with the world thoughtfully, carefully, at your own pace. While others rush toward noise and company, you move inward. You seek meaning over distraction. Conversations with you tend to go deeper than expected; you are not interested in surface talk. People leave your presence feeling like something real was exchanged, even if not many words were spoken.
@@ -557,7 +557,7 @@ CARD 10 - WHEEL OF FORTUNE (La Roue de Fortune)
 As Personality Card:
 
 English Description:
-Life turns, and you turn with it. The Wheel of Fortune energy as your Personality Card gives you a natural understanding of cycles that most people struggle to accept. You know that what rises will fall, and what falls will rise again. Others watch you move through change with a kind of philosophical grace, and they wonder how you do it. The truth is, you have always sensed that nothing stays the same, and you have made peace with that.
+Life turns, and you turn with it. The Wheel of Fortune energy influences your personality giving you a natural understanding of cycles that most people struggle to accept. You know that what rises will fall, and what falls will rise again. Others watch you move through change with a kind of philosophical grace, and they wonder how you do it. The truth is, you have always sensed that nothing stays the same, and you have made peace with that.
 
 Your Outer Expression
 You meet life with an openness that comes from understanding its rhythms. When things shift, you do not grip. When the ground moves beneath you, you find your footing again. This adaptability is not passivity; it is wisdom. You have learned that fighting the turning of things only exhausts you, and so you flow instead.
@@ -612,7 +612,7 @@ CARD 11 - JUSTICE (La Justice)
 As Personality Card:
 
 English Description:
-Truth matters to you. It always has. With Justice as your Personality Card, you see the world through a lens of fairness that others find both clarifying and a little unnerving. You notice imbalance. You sense when something is not right, even before you can articulate why. People trust your judgement because they know you will weigh things honestly, without favouritism, without flinching from the hard conclusions.
+Truth matters to you. It always has. This is the underlying energy of Justice forming your personality, you see the world through a lens of fairness that others find both clarifying and a little unnerving. You notice imbalance. You sense when something is not right, even before you can articulate why. People trust your judgement because they know you will weigh things honestly, without favouritism, without flinching from the hard conclusions.
 
 Your Outer Expression
 You move through life with a clarity that cuts through confusion. Where others get tangled in emotion or politics, you find the thread of what is fair and you follow it. This is not coldness; it is precision. You do not make decisions lightly. You consider all sides, you weigh the evidence, and then you speak with a certainty that others find steadying.
@@ -667,7 +667,51 @@ CARD 12 - THE HANGED MAN (Le Pendu)
 As Personality Card:
 
 English Description:
-You see things others miss. As someone with The Hanged Man as your Personality Card, you have always been willing to look at life from angles that make other people uncomfortable. While the world rushes forward, you pause. You wait. You let things reveal themselves in their own time. This willingness to hang suspended, to surrender the need for immediate answers, gives you a perspective that others find both strange and strangely wise.
+You often see things others miss. As someone with The Hanged Man energy shaping your personality Card, you have always been willing to look at life from angles that make other people uncomfortable. While the world rushes forward, you pause. You wait. You let things reveal themselves in their own time. This willingness to hang suspended, to surrender the need for immediate answers, gives you a perspective that others find both strange and strangely wise.
+
+Your Outer Expression
+You move through life at your own pace, unbothered by the urgency that drives everyone else. Where others push, you yield. Where they demand answers, you sit with questions. This patience is not passivity; it is a kind of trust. You understand that some things cannot be forced, that clarity comes when it is ready, not when we insist upon it.
+
+People notice something different about you. You do not follow the expected path. You question what others accept without thought. There is a quality of surrender in your presence that can feel unsettling to those who need constant motion, but deeply calming to those who have learned to value stillness. You remind people that there is wisdom in waiting.
+
+Your Gifts
+Your greatest visible gift is your ability to see what others cannot. In work, you bring fresh perspectives that unlock stuck situations. In relationships, you offer patience that allows people to unfold at their own pace. You do not rush anyone, including yourself. This makes you someone others trust with their uncertainties.
+
+There is also a quieter gift here: your acceptance. You do not fight what is. You let life move through you rather than constantly battling against it. This surrender is a kind of strength most people never discover.
+
+Your Shadow
+The shadow of The Hanged Man appears when your patience becomes paralysis. You may wait so long that life passes you by. Surrender can become an excuse not to act, not to choose, not to risk. You might tell yourself you are being wise when really you are being afraid.
+
+There is also a tendency toward martyrdom. You may sacrifice too much, suspending your own needs indefinitely for others. Your willingness to hang can become a way of avoiding the responsibility of standing upright. What are you waiting for that you could actually choose right now?
+
+Working With This Energy
+You will feel The Hanged Man rising when something asks you to pause, to reconsider, to look at a situation from an entirely new angle. This is your gift. Trust your instinct to wait when waiting is what is needed.
+
+When you slip into shadow, you may notice yourself stuck, endlessly contemplating without moving. Or you may feel like a sacrifice rather than a willing participant in your own life. These are signs that your surrender has lost its purpose.
+
+In your closest relationships, remember that presence is your offering. But even presence requires showing up, not just observing from a distance. You can hold space and still take action. Both are yours to give.You see things others miss. As someone with The Hanged Man as your Personality Card, you have always been willing to look at life from angles that make other people uncomfortable. While the world rushes forward, you pause. You wait. You let things reveal themselves in their own time. This willingness to hang suspended, to surrender the need for immediate answers, gives you a perspective that others find both strange and strangely wise.
+
+Your Outer Expression
+You move through life at your own pace, unbothered by the urgency that drives everyone else. Where others push, you yield. Where they demand answers, you sit with questions. This patience is not passivity; it is a kind of trust. You understand that some things cannot be forced, that clarity comes when it is ready, not when we insist upon it.
+
+People notice something different about you. You do not follow the expected path. You question what others accept without thought. There is a quality of surrender in your presence that can feel unsettling to those who need constant motion, but deeply calming to those who have learned to value stillness. You remind people that there is wisdom in waiting.
+
+Your Gifts
+Your greatest visible gift is your ability to see what others cannot. In work, you bring fresh perspectives that unlock stuck situations. In relationships, you offer patience that allows people to unfold at their own pace. You do not rush anyone, including yourself. This makes you someone others trust with their uncertainties.
+
+There is also a quieter gift here: your acceptance. You do not fight what is. You let life move through you rather than constantly battling against it. This surrender is a kind of strength most people never discover.
+
+Your Shadow
+The shadow of The Hanged Man appears when your patience becomes paralysis. You may wait so long that life passes you by. Surrender can become an excuse not to act, not to choose, not to risk. You might tell yourself you are being wise when really you are being afraid.
+
+There is also a tendency toward martyrdom. You may sacrifice too much, suspending your own needs indefinitely for others. Your willingness to hang can become a way of avoiding the responsibility of standing upright. What are you waiting for that you could actually choose right now?
+
+Working With This Energy
+You will feel The Hanged Man rising when something asks you to pause, to reconsider, to look at a situation from an entirely new angle. This is your gift. Trust your instinct to wait when waiting is what is needed.
+
+When you slip into shadow, you may notice yourself stuck, endlessly contemplating without moving. Or you may feel like a sacrifice rather than a willing participant in your own life. These are signs that your surrender has lost its purpose.
+
+In your closest relationships, remember that presence is your offering. But even presence requires showing up, not just observing from a distance. You can hold space and still take action. Both are yours to give.You see things others miss. As someone with The Hanged Man as your Personality Card, you have always been willing to look at life from angles that make other people uncomfortable. While the world rushes forward, you pause. You wait. You let things reveal themselves in their own time. This willingness to hang suspended, to surrender the need for immediate answers, gives you a perspective that others find both strange and strangely wise.
 
 Your Outer Expression
 You move through life at your own pace, unbothered by the urgency that drives everyone else. Where others push, you yield. Where they demand answers, you sit with questions. This patience is not passivity; it is a kind of trust. You understand that some things cannot be forced, that clarity comes when it is ready, not when we insist upon it.
@@ -691,8 +735,10 @@ When you slip into shadow, you may notice yourself stuck, endlessly contemplatin
 
 In your closest relationships, remember that presence is your offering. But even presence requires showing up, not just observing from a distance. You can hold space and still take action. Both are yours to give.
 
+
+
 French Description:
-Vous voyez des choses qui manquent aux autres. En tant que personne ayant Le Pendu comme carte de personnalité, vous avez toujours été prêt à regarder la vie sous des angles qui mettent les autres mal à l'aise. Pendant que le monde avance, vous faites une pause. Vous attendez. Vous laissez les choses se révéler à leur rythme. Cette volonté de rester suspendu, d’abandonner le besoin de réponses immédiates, vous donne une perspective que d’autres trouvent à la fois étrange et étrangement sage.
+Vous voyez des choses que d'autres ne voient pas. En tant que personne ayant Le Pendu comme carte de personnalité, vous avez toujours été prêt à regarder la vie sous des angles qui mettent les autres mal à l'aise. Pendant que le monde avance, vous faites une pause. Vous attendez. Vous laissez les choses se révéler à leur rythme. Cette volonté de rester suspendu, d’abandonner le besoin de réponses immédiates, vous donne une perspective que d’autres trouvent à la fois étrange et étrangement sage.
 
 Votre expression extérieure
 Vous avancez dans la vie à votre rythme, sans être dérangé par l’urgence qui anime tout le monde. Là où les autres poussent, vous cédez. Là où ils exigent des réponses, vous vous asseyez avec des questions. Cette patience n’est pas de la passivité ; c'est une sorte de confiance. Vous comprenez que certaines choses ne peuvent pas être forcées, que la clarté vient quand elle est prête, pas quand on insiste dessus.
@@ -722,7 +768,7 @@ CARD 13 - DEATH (Le Mort)
 As Personality Card:
 
 English Description:
-Endings do not frighten you the way they frighten most people. With Death as your Personality Card, you understand something others struggle to accept: that letting go is not loss, but passage. You have a natural comfort with life's harder truths, with the parts that make people look away. This gives you an intensity that others find both unsettling and deeply reassuring. When everything falls apart, you are the one who knows how to walk through.
+Endings do not frighten you the way they frighten most people. With energy of Death influencing your personality, you understand something many struggle to accept: that letting go is not loss, but passage. You have a natural comfort with life's harder truths, with the parts that make people look away. This gives you an intensity that others find both unsettling and deeply reassuring. When everything falls apart, you are the one who knows how to walk through.
 
 Your Outer Expression
 You move through life with an honesty that cuts through pretence. You do not cling to what has run its course. You recognise when something needs to end, and you are willing to be the one who names it. This fearlessness is not coldness; it is clarity. You see the necessity of closure when others are still bargaining for more time.
@@ -777,7 +823,7 @@ CARD 14 - TEMPERANCE (Tempérance)
 As Personality Card:
 
 English Description:
-Balance comes naturally to you; it always has. Temperance as your Personality Card gives you a gift for finding the middle way when others see only extremes. You blend what seems contradictory. You bring calm where there was friction. People feel more at ease around you, as though your very presence smooths the sharp edges of things. This is how the world experiences you: steady, healing, someone who knows how to hold opposites together.
+Balance comes naturally to you; it always has. Temperance's energy plays a strong role in your personality giving you a gift for finding the middle way when others see only extremes. You blend what seems contradictory. You bring calm where there was friction. People feel more at ease around you, as though your very presence smooths the sharp edges of things. This is how the world experiences you: steady, healing, someone who knows how to hold opposites together.
 
 Your Outer Expression
 You move through life with a patient grace that others notice. You do not rush toward conclusions. You do not force resolutions. Instead, you allow things to find their own equilibrium, gently guiding rather than pushing. There is something alchemical about the way you work; you take what is separate and help it become whole.
@@ -832,7 +878,7 @@ CARD 15 - THE DEVIL (Le Diable)
 As Personality Card:
 
 English Description:
-There is something magnetic about you that people cannot quite explain. The Devil as your Personality Card gives you a raw honesty that cuts through polite pretence. You are not afraid of the shadows; you live there comfortably, naming desires and truths that others bury. This makes you both unsettling and deeply liberating to be around. People sense they can be real with you, because you are unflinchingly real yourself.
+The Devil energy in your personality Card gives you a raw honesty that cuts through polite pretence. You are not afraid of the shadows; you live there comfortably, naming desires and truths that others bury. This makes you both unsettling and deeply liberating to be around. People sense they can be real with you, because you are unflinchingly real yourself.
 
 Your Outer Expression
 You move through life with an intensity that draws people in. You do not perform innocence or pretend away the darker currents of human nature. Where others sanitise, you speak plainly. Where they avoid, you look directly. This honesty is not cruelty; it is a refusal to participate in comfortable lies. You would rather have an uncomfortable truth than a pleasant fiction.
@@ -857,7 +903,7 @@ When you slip into shadow, you may notice yourself drawn to excess, to intensity
 In your closest relationships, remember that vulnerability is not the same as exposure. You can be honest and still be gentle. Your magnetism shines brightest when it invites others closer, not when it strips them bare.
 
 French Description:
-Il y a quelque chose de magnétique chez vous que les gens ne peuvent pas vraiment expliquer. Le Diable en tant que carte de personnalité vous donne une honnêteté brute qui dépasse les faux-semblants polis. Vous n'avez pas peur des ombres ; vous y vivez confortablement, nommant des désirs et des vérités que d’autres enterrent. Cela vous rend à la fois troublant et profondément libérateur. Les gens sentent qu’ils peuvent être réels avec vous, parce que vous êtes vous-même inébranlablement réel.
+Le Diable en tant que carte de personnalité vous donne une honnêteté brute qui dépasse les faux-semblants polis. Vous n'avez pas peur des ombres ; vous y vivez confortablement, nommant des désirs et des vérités que d’autres enterrent. Cela vous rend à la fois troublant et profondément libérateur. Les gens sentent qu’ils peuvent être réels avec vous, parce que vous êtes vous-même inébranlablement réel.
 
 Votre expression extérieure
 Vous avancez dans la vie avec une intensité qui attire les gens. Vous ne faites pas preuve d’innocence et ne prétendez pas éloigner les courants les plus sombres de la nature humaine. Là où d’autres assainissent, vous parlez clairement. Là où ils évitent, vous regardez directement. Cette honnêteté n’est pas de la cruauté ; c'est un refus de participer à des mensonges confortables. Vous préférez une vérité inconfortable plutôt qu’une fiction agréable.
@@ -879,15 +925,15 @@ Vous sentirez le Diable se lever lorsque les situations appellent une honnêtet�
 
 Lorsque vous vous glissez dans l’ombre, vous remarquerez peut-être que vous êtes attiré par l’excès, par l’intensité pour elle-même, ou que vous utilisez la vérité comme une lame plutôt que comme un miroir. Ce sont des signes que votre pouvoir se tourne vers l’intérieur, liant plutôt que libérant.
 
-Dans vos relations les plus proches, rappelez-vous que la vulnérabilité n’est pas la même chose que l’exposition. Vous pouvez être honnête tout en restant doux. Votre magnétisme brille plus lorsqu’il invite les autres à se rapprocher, pas lorsqu’il les met à nu.
+Dans vos relations les plus proches, rappelez-vous que la vulnérabilité n'est pas la même chose que l'exposition. Vous pouvez être honnête tout en restant doux. Votre magnétisme brille plus lorsqu'il invite les autres à se rapprocher, pas lorsqu'il les met à nu.
 
-------
+---
 
 CARD 16 - THE TOWER (La Tour)
 As Personality Card:
 
 English Description:
-You have never been able to leave things as they are. The Tower energy as your Personality Card means you see what is false, what is crumbling, what is ready to fall. And you are not afraid to be the one who speaks it aloud. Others may find this unsettling, but those who know you understand: you do not destroy for the sake of destruction. You clear the ground so something true can finally be built.
+You have never been able to leave things as they are. The influence of The Tower energy in your personality means you see what is false, what is crumbling, what is ready to fall. And you are not afraid to be the one who speaks it aloud. Others may find this unsettling, but those who know you understand: you do not destroy for the sake of destruction. You clear the ground so something true can finally be built.
 
 Your Outer Expression
 You move through life with a directness that shakes things up. You do not do small talk when the room is on fire. You do not smooth over cracks that run all the way through. Where others maintain comfortable fictions, you tell the truth that breaks them open. This makes you both electrifying and, at times, difficult to be around.
@@ -942,7 +988,7 @@ CARD 17 - THE STAR (L'Étoile)
 As Personality Card:
 
 English Description:
-With The Star is your Personality Card, you carry a gentle radiance that soothes without effort, people feel lighter after being around you. Hope comes naturally to you, not as forced optimism, but as a quiet faith that runs beneath everything you do. Others sense this. They are drawn to your calm, to the way you make difficult things feel somehow more bearable. You are a reminder that after the storm, the sky does clear.
+The Star's natural, healing, energy is the over-riding force of your personality Card, you carry a gentle radiance that soothes without effort, people feel lighter after being around you. Hope comes naturally to you, not as forced optimism, but as a quiet faith that runs beneath everything you do. Others sense this. They are drawn to your calm, to the way you make difficult things feel somehow more bearable. You are a reminder that after the storm, the sky does clear.
 
 Your Outer Expression
 You move through life with a softness that others find healing. You do not push or demand. You simply offer your presence, and that presence has a way of restoring what has been worn down. There is an openness to you, an authenticity that invites others to drop their guards. You feel safe to be around because you are genuinely yourself.
@@ -997,7 +1043,7 @@ CARD 18 - THE MOON (La Lune)
 As Personality Card:
 
 English Description:
-Not everyone understands you, and you have made a kind of peace with that. The Moon as your Personality Card means you inhabit the spaces between certainty, the half-lit places where intuition matters more than logic. Others sense a depth in you they cannot quite reach. You are comfortable with mystery, with not knowing, with the shifting nature of things. This makes you both fascinating and, at times, hard to pin down.
+Not everyone understands you, and you have made a kind of peace with that. The Moon's gentle but deeply intuitive energy influences your personality often meaning that you inhabit the spaces between certainty, the half-lit places where intuition matters more than logic. Others sense a depth in you they cannot quite reach. You are comfortable with mystery, with not knowing, with the shifting nature of things. This makes you both fascinating and, at times, hard to pin down.
 
 Your Outer Expression
 You move through life guided by currents others cannot see. While they demand clarity, you trust the dark. Your imagination is vivid, your intuition sharp, and you navigate uncertainty with a grace that puzzles those who need firmer ground. You do not force things into the light before they are ready. You let them emerge in their own time.
@@ -1052,7 +1098,7 @@ CARD 19 - THE SUN (Le Soleil)
 As Personality Card:
 
 English Description:
-With Sun as your Personality Card gives you a warmth that people feel before you speak a word. Joy comes easily to you, and it spreads. Others find themselves lighter in your company, more willing to laugh, more able to believe things might work out. You radiate something genuine, and that radiance draws people toward you like warmth on a cold day.
+The joyous, innocent, carefree fun of The Sun's energy adds an extra dimension to your personality; it gives you a warmth that people feel before you speak a word. Joy comes easily to you, and it spreads. Others find themselves lighter in your company, more willing to laugh, more able to believe things might work out. You radiate something genuine, and that radiance draws people toward you like warmth on a cold day.
 
 Your Outer Expression
 You move through life with a vitality that is hard to miss. You are fully, unapologetically yourself, and this authenticity gives others permission to be themselves too. You do not shrink or dim to make people comfortable. You shine, and in your light, others remember what it feels like to be alive.
@@ -1107,7 +1153,7 @@ CARD 20 - JUDGEMENT (Le Jugement)
 As Personality Card:
 
 English Description:
-You carry a sense of purpose that others notice, even when you yourself cannot name it. This is the energy of Judgement as your Personality Card. There is a rising quality to your presence, as though you are perpetually answering a summons only you can hear. People are drawn to your clarity, your conviction, your ability to help them find their own higher ground.
+The strong purposeful energy of Judgement gives you that deeper touch to your personality. There is a rising quality to your presence, as though you are perpetually answering a summons only you can hear. People are drawn to your clarity, your conviction, your ability to help them find their own higher ground.
 
 Your Outer Expression
 You move through life with a sense of direction that comes from within. You evaluate, you reflect, you ask hard questions of yourself and the world around you. This is not judgement in the petty sense; it is discernment. You are always reaching toward what is truer, higher, more aligned. Others feel this pull in you, and it awakens something in them too.
@@ -1162,7 +1208,7 @@ CARD 21 - THE WORLD (Le Monde)
 As Personality Card:
 
 English Description:
-There is a completeness to you that others sense without being able to name it. This is the energy of The World as your Personality Card. You seem at home in yourself in a way that many people spend their whole lives seeking. You have integrated what others are still sorting through. People feel this groundedness when they are near you, and it makes them want to stay a while, as though your presence reminds them that wholeness is possible.
+The World brings an energy of completeness to your personality that others sense without being able to name it. You seem at home in yourself in a way that many people spend their whole lives seeking. You have integrated what others are still sorting through. People feel this groundedness when they are near you, and it makes them want to stay a while, as though your presence reminds them that wholeness is possible.
 
 Your Outer Expression
 You move through life with a settled quality that does not need external validation. You are not rushing toward some finish line; you know that you are already here. This does not mean you have stopped growing. It means you are no longer at war with yourself. You have gathered the scattered pieces and made them into something whole.
