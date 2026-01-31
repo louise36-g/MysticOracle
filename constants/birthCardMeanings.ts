@@ -1,6 +1,13 @@
 // constants/birthCardMeanings.ts
 // Birth Card meanings and calculation logic for the Birth Cards feature
-// Soul Cards and Personality Cards are derived from the birth date through numerological reduction
+//
+// PERSONALITY CARD - Calculated from DAY OF BIRTH only
+//   - Represents how you show up in the world
+//   - Your outward expression, habits, learned responses, and social self
+//
+// SOUL CARD - Calculated from FULL BIRTHDATE (day + month + year)
+//   - Represents what you are here to grow into
+//   - Your deeper motivation, inner truth, and soul-level learning
 
 /**
  * Interface for Birth Card meaning data
@@ -341,15 +348,21 @@ function reduceToTarot(num: number): number {
  * Calculate Birth Cards from a birth date
  *
  * The calculation process:
- * 1. Sum all digits of the full birth date (DD + MM + YYYY)
- * 2. Reduce to 1-22 range (if > 22, sum digits again) - this is the PERSONALITY Card
- * 3. For Soul Card: if Personality Card is 10-22, sum its digits to get single digit
- * 4. If Personality Card is 1-9, Soul and Personality are the same (unified)
+ *
+ * PERSONALITY CARD - How you show up in the world
+ * - Calculated from the DAY OF BIRTH ONLY
+ * - Reduced to a Major Arcana card (1-22)
+ * - Represents your outward expression, habits, learned responses, and social self
+ *
+ * SOUL CARD - What you are here to grow into
+ * - Calculated from the FULL BIRTHDATE (day + month + year)
+ * - Reduced to a Major Arcana card (1-22)
+ * - Represents your deeper motivation, inner truth, and soul-level learning
  *
  * Examples:
- * - Total = 16 → Personality = The Tower (16), Soul = The Chariot (7)
- * - Total = 5 → Personality = The Hierophant (5), Soul = The Hierophant (5) [unified]
- * - Total = 22 → Personality = The Fool (0/22), Soul = The Emperor (4)
+ * - Day = 15 → Personality = The Devil (15)
+ * - Day = 28 → Personality = 2+8 = 10 = Wheel of Fortune
+ * - Full date 15/03/1990 → Soul = 1+5+0+3+1+9+9+0 = 28 → 2+8 = 10 = Wheel of Fortune
  *
  * @param day - Day of birth (1-31)
  * @param month - Month of birth (1-12)
@@ -364,28 +377,28 @@ export function calculateBirthCards(
   soulCard: number;
   personalityCard: number;
 } {
-  // Combine into full date string and sum all digits
-  const dateStr = `${day}${month}${year}`;
-  let sum = dateStr.split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
-
-  // Reduce to tarot range (1-22)
-  sum = reduceToTarot(sum);
-
-  // Personality Card is the first reduction (what you show the world)
-  // Convert 22 to 0 for The Fool
-  const personalityCard = sum === 22 ? 0 : sum;
-
-  // Soul Card: if Personality is 10-21 or 0 (Fool), reduce to single digit
-  // This is your inner essence
-  let soulCard = personalityCard;
-  if (personalityCard >= 10 || personalityCard === 0) {
-    // For The Fool (0), use 22 for reduction: 2+2 = 4 (Emperor)
-    const valueToReduce = personalityCard === 0 ? 22 : personalityCard;
-    soulCard = valueToReduce
+  // PERSONALITY CARD: from day of birth only
+  // Day can be 1-31, reduce to 1-22 range
+  let personalitySum = day;
+  if (personalitySum > 22) {
+    // Reduce days 23-31 by summing digits
+    personalitySum = personalitySum
       .toString()
       .split('')
       .reduce((acc, digit) => acc + parseInt(digit, 10), 0);
   }
+  // Convert 22 to 0 for The Fool
+  const personalityCard = personalitySum === 22 ? 0 : personalitySum;
+
+  // SOUL CARD: from full birthdate (day + month + year)
+  const fullDateStr = `${day}${month}${year}`;
+  let soulSum = fullDateStr.split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+
+  // Reduce to tarot range (1-22)
+  soulSum = reduceToTarot(soulSum);
+
+  // Convert 22 to 0 for The Fool
+  const soulCard = soulSum === 22 ? 0 : soulSum;
 
   return { soulCard, personalityCard };
 }
@@ -419,9 +432,9 @@ export function getBirthCardMeaning(cardId: number): BirthCardMeaning | undefine
 /**
  * Get all birth card information for a birth date at a specific depth
  *
- * @param day - Day of birth
- * @param month - Month of birth
- * @param year - Year of birth
+ * @param day - Day of birth (used alone for Personality Card)
+ * @param month - Month of birth (used with day+year for Soul Card)
+ * @param year - Year of birth (used with day+month for Soul Card)
  * @param depth - Reading depth (1 = Soul only, 2 = Soul + Personality, 3 = + Year Card)
  * @returns Object with card IDs and meanings based on depth
  */

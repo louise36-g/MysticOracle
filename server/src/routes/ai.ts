@@ -717,7 +717,7 @@ router.post('/birthcard/year-energy', requireAuth, async (req, res) => {
       validation.data;
 
     const userId = req.auth.userId;
-    const creditCost = 1; // Year energy reading costs 1 credit
+    const creditCost = 3; // Year energy reading costs 3 credits
 
     console.log('[Year Energy] Request:', {
       userId,
