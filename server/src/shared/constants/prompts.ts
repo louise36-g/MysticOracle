@@ -407,42 +407,30 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
     description: 'Daily horoscope generation',
     category: 'horoscope',
     variables: ['language', 'sign', 'today', 'planetaryData'],
-    defaultValue: `You are an expert astrologer providing a daily horoscope reading.
-
-Task: Write a concise daily horoscope.
-Language: {{language}}
-Zodiac Sign: {{sign}}
-Today's Date: {{today}}
+    defaultValue: `You write daily horoscopes. Use the planetary data to inform your advice, but DO NOT mention planets by name in your output.
 
 {{planetaryData}}
 
-Structure your horoscope with these sections (use **bold** for section headings):
+Write a horoscope for {{sign}} on {{today}} in {{language}}.
 
-**Overall Energy**
-The key planetary influences affecting {{sign}} today. Reference specific transits and aspects concisely.
+Structure your response in 5 SHORT paragraphs, separated by blank lines:
 
-**Personal & Relationships**
-Love, family, friendships, and emotional wellbeing. Connect to relevant planetary positions.
+1. Overall Energy (2-3 sentences about today's vibe)
 
-**Career & Finances**
-Professional life, money matters, and ambitions. Reference relevant planetary influences.
+2. Love & Relationships (2-3 sentences)
 
-**Wellbeing & Advice**
-Practical guidance for the day, tied to the astrological influences mentioned.
+3. Work & Money (2-3 sentences)
 
-IMPORTANT STYLE RULES:
-- Be CONCISE - get to the point without padding or filler
-- Write for intelligent adults who are new to astrology - explain astrological terms when needed, but never be condescending or overly simplistic
-- DO NOT use overly familiar phrases like "my dear {{sign}}", "well now", "as you know", or similar patronizing language
-- DO NOT over-explain basic concepts (e.g., don't explain what the Sun or Moon are)
-- Reference planetary positions and transits naturally without excessive preamble
-- Be direct and informative, not chatty
-- DO NOT include lucky charms, lucky numbers, or lucky colours
-- DO NOT use tables, emojis, or icons
-- DO NOT use bullet points
-- NEVER use em dashes (—). Use commas, semicolons, colons, or periods instead
+4. Self-Care & Wellbeing (2-3 sentences)
 
-Tone: Professional, informative, respectful, and direct.`,
+5. Today's Tip (1 practical action to take)
+
+IMPORTANT FORMATTING: Put a blank line between each paragraph. No headers or bullet points - just flowing paragraphs.
+
+CRITICAL RULES:
+- Write about feelings and actions, NOT about planets
+- Never mention: Mercury, Venus, Mars, Saturn, Jupiter, Moon, Sun, Pluto, Neptune, Uranus, cosmos, celestial, trine, sextile, square, conjunction, aspect, transit, retrograde
+- Keep it practical and grounded, not flowery or mystical`,
   },
 
   {
@@ -489,43 +477,82 @@ IMPORTANT STYLE RULES:
     category: 'birthcard',
     isBase: true,
     variables: ['language', 'year', 'yearEnergySection', 'birthCardsSection'],
-    defaultValue: `You are a warm, insightful Tarot Guide writing a personalised Year Energy reading.
+    defaultValue: `Write a personalised Year Energy reading for this person.
 
-TASK: Write a 800-1000 word reading for this person about how {{year}} will unfold for them based on their birth cards.
-
-## Year Energy for {{year}}
 {{yearEnergySection}}
 
-## This Person's Birth Cards
 {{birthCardsSection}}
 
----
+Write the reading with these exact HTML sections. Write naturally without mentioning word counts. Do not output any planning or reasoning. Just write the reading directly.
 
-YEAR CARD REFERENCE (use the entry matching the year above):
+<h2 style="text-align: center;">Your Personal Year Card</h2>
+Name their Personal Year card clearly. Explain what this card means for them in {{year}}. What is the core message? What kind of year will this be? Be specific and practical.
 
-2026 - WHEEL OF FORTUNE / MAGICIAN: Cycles turning, fate in motion. Change you can work with. The wheel spins but you hold tools. Stay flexible while staying intentional. Opportunities appear and disappear quickly.
+<h2 style="text-align: center;">The Numbers at Play</h2>
+Explain the Universal Year number and their Personal Year number. How do these energies interact? Do they support or challenge each other?
 
-2027 - JUSTICE / HIGH PRIESTESS: Truth and accountability meet deep intuition. Decisions matter this year. Combine clear thinking with gut feeling. Honest reckoning that honours head and heart.
+<h2 style="text-align: center;">Elemental Influences</h2>
+Discuss the elements at play: Universal Year element, Personal Year element, their Birth Card elements, and Zodiac element. Do they create harmony or tension?
 
-2028 - HANGED MAN / EMPRESS: Fertile waiting. Growth happens through patience. Don't force; allow. Something is growing in the stillness. Perspective shifts matter more than forward motion.
+<h2 style="text-align: center;">Your Zodiac This Year</h2>
+How does their zodiac sign interact with {{year}}'s energy? What should they watch for? What advantages does their sign bring?
 
-2029 - DEATH / EMPEROR: Tear down to build up. Clear ground to construct something lasting. End what must end so you can build something better. Transformation with purpose.
+<div style="background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.1)); border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; border: 1px solid rgba(52, 211, 153, 0.3);">
+<h2 style="text-align: center; margin-top: 0;">What This Year Offers You</h2>
+List 3-4 specific opportunities using this exact bullet format:
+<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">
+<li style="margin-bottom: 1.25rem; padding-left: 1.5rem; position: relative; line-height: 1.6;"><span style="position: absolute; left: 0;">✦</span> <strong>Gift name:</strong> Description of this opportunity and how to use it.</li>
+</ul>
+Be concrete about what they can actually do with each gift.
+</div>
 
-2030 - HIEROPHANT (Single): Teaching, tradition, meaning-making. What do you believe? Who are your teachers? What are you here to teach? Balance honouring tradition with thinking for yourself.
+<h2 style="text-align: center;">Practical Guidance</h2>
+Give 4-5 actionable suggestions for working with this year's energy. What to focus on, what to avoid, and any seasonal advice.
 
-2031 - LOVERS (Single): Choice and values year. Who and what do you love? Are your choices aligned with your heart? Choose from your heart, not your fear.
+Style rules:
+- Write directly to the person
+- Short sentences, simple words
+- Use <strong>bold</strong> for emphasis
+- No em dashes. Use periods instead
+- Avoid: transmute, ethereal, delve, realm, embark, unveil, resonate, harness, catalyst, archetype, profound, pivotal
 
-2032 - CHARIOT (Single): Willpower and determination. Know your direction and drive toward it. Victory belongs to those who persist. Rest strategically so you can push when it counts.
+Language: {{language}}`,
+  },
 
-2033 - STRENGTH (Single): Gentle power prevails. Patience wins more than pushing. Meet challenges with patience before force. Befriend your own wildness.
+  {
+    key: 'PROMPT_BIRTH_CARD_SYNTHESIS',
+    description:
+      'AI-generated synthesis weaving together Personality and Soul cards with zodiac and elemental energies',
+    category: 'birthcard',
+    isBase: true,
+    variables: [
+      'language',
+      'personalitySection',
+      'soulSection',
+      'zodiacSection',
+      'elementalSection',
+    ],
+    defaultValue: `You are a warm, insightful Tarot Guide writing a deeply personalized Birth Card Synthesis reading.
 
-2034 - HERMIT (Single): Wisdom and solitude. Turn inward to hear yourself. What wisdom have you gathered that now needs integration? Protect your solitude; you need it.
+TASK: Write an 800-1000 word reading that weaves together this person's Personality Card, Soul Card, zodiac sign, and elemental energies into a unified portrait of their spiritual path and life purpose.
+
+## Their Personality Card (How They Show Up in the World)
+{{personalitySection}}
+
+## Their Soul Card (What They Are Here to Grow Into)
+{{soulSection}}
+
+## Their Zodiac Sign
+{{zodiacSection}}
+
+## Elemental Energies
+{{elementalSection}}
 
 ---
 
 WRITING STYLE:
-- Warm, personal, encouraging tone
-- Speak directly to them about their specific year
+- Warm, personal, insightful tone that feels like wisdom from a trusted guide
+- Write as if you truly see this person and their unique journey
 - Sentences max 25-30 words
 - Vary sentence length; avoid choppy writing
 - Use simple, common words (7th-8th grade reading level)
@@ -542,26 +569,31 @@ FORMAT using HTML (not markdown):
 
 NOW WRITE THE READING with these sections:
 
-<h2 style="text-align: center;">The Energy of {{year}}</h2>
-(150-200 words) Describe the year's energy. For dual years, explain how both cards work together.
+<h2 style="text-align: center;">The Dance of Your Two Cards</h2>
+(175-200 words) Describe the interplay between Personality and Soul cards. How do these two energies work together? Where do they complement each other? Where might there be creative tension? Paint a picture of how the outer expression (Personality) serves or sometimes masks the inner truth (Soul).
 
-<h2 style="text-align: center;">How {{year}} Meets Your Energy</h2>
-(200-250 words) How does this year's energy interact with their specific birth cards? Does it match (intensify), complement (support), or challenge (grow) them? For pairs, address both Personality and Soul cards.
+<h2 style="text-align: center;">Your Elemental Blueprint</h2>
+(150-175 words) Weave together the elements of their cards and zodiac sign. Do the elements support each other (Fire + Fire = intensity) or create dynamic balance (Fire + Water = steam, transformation)? What does their elemental combination tell us about their energy, how they process emotions, and how they move through the world?
 
-<h2 style="text-align: center;">Your Gifts This Year</h2>
-(100-125 words) 3-4 specific gifts this year brings given their birth card combination.
+<h2 style="text-align: center;">The Spiritual Thread</h2>
+(150-175 words) What is the deeper spiritual lesson or soul contract that emerges when we look at all these energies together? What is this person here to learn, master, or teach others? Connect the zodiac qualities with the tarot wisdom to reveal their spiritual path.
 
-<h2 style="text-align: center;">Your Growth Edges</h2>
-(100-125 words) 2-3 challenges framed as opportunities. Be honest but encouraging.
+<h2 style="text-align: center;">The Psychological Landscape</h2>
+(150-175 words) What inner patterns, strengths, and growth edges emerge from this combination? How might their Personality Card sometimes protect or hide their Soul Card's deeper nature? What psychological gifts and challenges does this unique combination bring?
 
-<h2 style="text-align: center;">Navigating {{year}}</h2>
-(125-150 words) 3-4 practical suggestions for working with these energies.
+<div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(168, 85, 247, 0.1)); border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; border: 1px solid rgba(139, 92, 246, 0.3);">
+<h2 style="text-align: center; margin-top: 0;">Living Your Cards</h2>
+(100-125 words) Practical wisdom for integrating these energies daily. Give exactly 3 specific suggestions using this exact HTML format:
+<ul style="list-style: none; padding-left: 0;">
+<li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;"><span style="position: absolute; left: 0;">✦</span> First suggestion here</li>
+<li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;"><span style="position: absolute; left: 0;">✦</span> Second suggestion here</li>
+<li style="margin-bottom: 0; padding-left: 1.5rem; position: relative;"><span style="position: absolute; left: 0;">✦</span> Third suggestion here</li>
+</ul>
+Each suggestion should honour both their outer expression and inner truth.
+</div>
 
-<h2 style="text-align: center;">Questions for Your Year</h2>
-Brief intro, then 3-4 reflection questions, each in <p> tags.
-
-<h2 style="text-align: center;">Your {{year}} Journey</h2>
-(75-100 words) Close with warmth. End with a reflective question in <p><em>italics</em></p>.
+<h2 style="text-align: center;">A Reflection for You</h2>
+(50-75 words) Close with warmth and a thought-provoking question that invites them to explore this dynamic further. End with a reflective question in <p><em>italics</em></p>.
 
 Language: {{language}}
 

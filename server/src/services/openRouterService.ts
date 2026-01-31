@@ -284,6 +284,34 @@ export class OpenRouterService {
           throw new Error('No content in AI response');
         }
 
+        // Detect and reject content that looks like AI planning/reasoning instead of actual output
+        const planningPatterns = [
+          /^Let's (think|write|craft|aim|do|pick|create)/im,
+          /^We need to/im,
+          /^Paragraph \d+:/im,
+          /Word count:/im,
+          /^\d+-\d+ words/im,
+          /Let's check for forbidden/im,
+          /Check for forbidden words/im,
+          /Use specific language\./im,
+          /each \d+-\d+ words/im,
+          /We must not use/im,
+          /Also avoid/im,
+          /avoid "[^"]+"/im,
+          /^\*\*Guidance\*\*\s+We/im,
+        ];
+
+        const looksLikePlanning = planningPatterns.some(pattern => pattern.test(content));
+        if (looksLikePlanning) {
+          console.error(
+            '[OpenRouterService] Content appears to be AI planning/reasoning, not actual output'
+          );
+          console.error('[OpenRouterService] Content preview:', content.substring(0, 300));
+          throw new Error(
+            'AI returned planning/reasoning instead of actual content. Please retry.'
+          );
+        }
+
         // Log token usage if available
         if (data.usage) {
           console.log('[OpenRouterService] Token usage:', {
