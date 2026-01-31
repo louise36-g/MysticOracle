@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { optionalAuth } from '../middleware/auth.js';
-import cacheService, { CacheService } from '../services/cache.js';
+import cacheService from '../services/cache.js';
 import { getHoroscopePrompt, getHoroscopeFollowUpPrompt } from '../services/promptService.js';
 import { openRouterService, type OpenRouterMessage } from '../services/openRouterService.js';
 import { PlanetaryCalculationService } from '../services/planetaryCalculationService.js';

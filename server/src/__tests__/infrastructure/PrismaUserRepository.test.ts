@@ -29,6 +29,7 @@ describe('PrismaUserRepository', () => {
     referredById: null,
     accountStatus: 'ACTIVE' as AccountStatus,
     isAdmin: false,
+    birthDate: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
