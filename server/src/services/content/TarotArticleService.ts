@@ -378,8 +378,9 @@ export class TarotArticleService extends ContentService<
   }> {
     const cacheKey = `${this.cachePrefix}:overview`;
     const cached = (await this.getCachedItem(cacheKey)) as unknown;
-    if (cached)
+    if (cached) {
       return cached as ReturnType<typeof this.getOverview> extends Promise<infer R> ? R : never;
+    }
 
     const selectFields = {
       id: true,

@@ -105,7 +105,7 @@ export class RevenueExportService {
     const start = new Date(firstTransaction.createdAt);
     const now = new Date();
 
-    let current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
     while (current <= now) {
       months.push({
         year: current.getFullYear(),

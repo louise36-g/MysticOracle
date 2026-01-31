@@ -79,7 +79,7 @@ import paymentRoutes from './routes/payments.js';
 import webhookRoutes from './routes/webhooks.js';
 import adminRoutes from './routes/admin.js';
 import horoscopeRoutes from './routes/horoscopes.js';
-import translationRoutes from './routes/translations.js';
+import translationRoutes from './routes/translations/index.js';
 import blogRoutes from './routes/blog.js';
 import aiRoutes from './routes/ai.js';
 import tarotArticleRoutes from './routes/tarot-articles/index.js';
