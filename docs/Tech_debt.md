@@ -4,11 +4,24 @@
 
 ---
 
-## Last Updated: January 2026
+## Last Updated: January 31, 2026
 
 ---
 
 ## Recently Completed (January 2026)
+
+### ✅ Horoscope System Improvements
+Complete overhaul of horoscope generation:
+- **AI Model Upgrade:** Switched from free tier to `openai/gpt-4o-mini` for reliable output
+- **Post-Processing:** Added `cleanHoroscopeText()` function to remove astrological jargon
+- **Formatting:** Added intelligent paragraph breaks after sentence boundaries
+- **Planning Detection:** Added patterns to reject AI reasoning output in OpenRouterService
+- **Prompt Refinement:** Updated system prompt to request 5 structured paragraphs without planet mentions
+
+### ✅ Card Image Standardization
+- Identified and resized 10 card images with non-standard dimensions
+- All reading-cards-mini now standardized to 256x384 pixels
+- Files fixed: 10-the-wheel-of-fortune-reversed.jpeg, 20-judgement-reversed.jpeg, 18-the-moon-reversed.jpg, 17-the-star-reversed.jpg, 06-the-lovers-reversed.jpeg, 08-strength-cover.jpeg, 18-the-moon-cover.jpeg, 03-of-pentacles-cover.jpg, 03-of-cups-cover.jpeg, 06-the-lovers-cover.jpeg
 
 ### ✅ Content System Refactoring (9 Phases)
 Complete overhaul of blog and tarot article systems:
@@ -88,23 +101,78 @@ Changes needed:
 - Node.js 20.19.0+ minimum
 - Test all enum comparisons after upgrade
 
+### React Router v6 → v7
+**Estimated Effort:** 2-4 hours
+
+Changes needed:
+- Review breaking changes in v7
+- Update route definitions
+- Test all navigation flows
+
 ---
 
 ## High Priority
 
-### 1. Horoscope Generation Fails Without Clear Error
+### 1. Oversized Backend Files
 
-**Location:** `server/src/routes/horoscopes.ts`
+**Files requiring splitting:**
 
-When `OPENROUTER_API_KEY` is missing, the error message wasn't clear. Improved in this session but needs testing.
+| File | Lines | Recommended Split |
+|------|-------|-------------------|
+| `server/src/routes/translations.ts` | 2,370 | Split into admin.ts, public.ts, seed.ts |
+| `services/apiService.ts` | 2,058 | Split by domain: user, reading, blog, admin |
+| `server/src/routes/blog.ts` | ~800 | Split into admin.ts, public.ts |
 
-**Fix:** Verify error messages display correctly in production.
+**Fix:** Apply same modular pattern used for tarot-articles (public.ts, admin.ts, shared.ts).
+
+---
+
+### 2. Test Coverage Gaps
+
+**Current Coverage:**
+- Unit tests: ~21% of use-cases
+- Route tests: ~6% of routes covered
+- Integration tests: Minimal
+- E2E tests: None
+
+**Critical Untested Areas:**
+- GDPR compliance (cookie consent, data deletion)
+- Payment webhook edge cases
+- Credit deduction race conditions
+- Email template rendering
+- Translation fallback chains
+
+**Fix:** Prioritize tests for payment and credit flows first.
+
+---
+
+### 3. Missing Documentation
+
+**Required Documentation:**
+- `docs/API_ERRORS.md` — Comprehensive error codes and handling
+- `docs/PAYMENT_FLOW.md` — Stripe/PayPal flow diagrams, webhook handling
+- `docs/CREDIT_SYSTEM.md` — Credit deduction rules, bonus logic, race condition prevention
+- `docs/DEPLOYMENT.md` — Render setup, environment variables, rollback procedures
+
+**Fix:** Create documentation as features are touched.
+
+---
+
+### 4. Infrastructure Gaps
+
+**Missing:**
+- **Environment Validation:** No startup validation of required env vars
+- **Error Tracking:** No Sentry or similar for production error monitoring
+- **Performance Monitoring:** No APM tooling
+- **Rate Limiting:** Basic rate limiting exists but untested under load
+
+**Fix:** Add env validation first (quick win), then error tracking.
 
 ---
 
 ## Medium Priority
 
-### 2. Large Component Files
+### 5. Large Component Files
 
 **Locations:**
 - `components/ActiveReading.tsx` (~900 lines)
@@ -118,7 +186,7 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 3. Inconsistent Credit Deduction Patterns
+### 6. Inconsistent Credit Deduction Patterns
 
 **Issue:** Some features deduct credits on frontend (validation only), others rely entirely on backend.
 
@@ -131,7 +199,7 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 4. ESLint Warnings to Address
+### 7. ESLint Warnings to Address
 
 **Current Count:** 81 issues (13 errors, 68 warnings)
 
@@ -146,7 +214,7 @@ Main categories:
 
 ## Low Priority
 
-### 5. Missing Error Boundaries
+### 8. Missing Error Boundaries
 
 **Issue:** React components don't have error boundaries. Uncaught errors crash entire app.
 
@@ -154,7 +222,7 @@ Main categories:
 
 ---
 
-### 6. Console Warnings in Development
+### 9. Console Warnings in Development
 
 **Issue:** Various React warnings about keys, dependencies, etc.
 
@@ -162,17 +230,11 @@ Main categories:
 
 ---
 
-### 7. Hardcoded Strings
+### 10. Hardcoded Strings
 
 **Issue:** Some UI strings are hardcoded instead of using translation system.
 
 **Fix:** Move all user-facing strings to translation files.
-
----
-
-### ~~8. No API Versioning~~ ✅ DONE
-
-API endpoints now use `/api/v1/` prefix with deprecation headers on old routes.
 
 ---
 
@@ -191,9 +253,15 @@ API endpoints now use `/api/v1/` prefix with deprecation headers on old routes.
 | ESLint/Prettier setup | Medium | ✅ Done | Configured with flat config |
 | Payment webhook tests | Critical | ✅ Done | 14 tests added |
 | Idempotency tests | High | ✅ Done | 15 tests added |
+| Horoscope system | High | ✅ Done | AI model, post-processing, formatting |
+| Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
 | Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
-| Horoscope error messages | High | Improved | Needs verification |
+| React Router v6→v7 | Medium | Pending | Phase 4 |
+| Oversized backend files | High | Open | translations.ts, apiService.ts |
+| Test coverage gaps | High | Open | ~21% coverage, critical flows untested |
+| Missing documentation | Medium | Open | API_ERRORS, PAYMENT_FLOW, CREDIT_SYSTEM |
+| Infrastructure gaps | Medium | Open | No env validation, no error tracking |
 | Large components | Medium | Partial | AdminTarotArticles done, others pending |
 | Credit deduction patterns | Medium | Partial | - |
 | ESLint warnings | Medium | Open | 81 issues to fix |
