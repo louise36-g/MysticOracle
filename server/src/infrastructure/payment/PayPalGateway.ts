@@ -93,8 +93,12 @@ export class PayPalGateway implements IPaymentGateway {
       throw new Error('PayPal did not return an approval URL');
     }
 
+    if (!order.id) {
+      throw new Error('PayPal did not return an order ID');
+    }
+
     return {
-      sessionId: order.id!,
+      sessionId: order.id,
       url: approvalUrl,
       provider: 'PAYPAL',
     };

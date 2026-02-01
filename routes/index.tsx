@@ -110,8 +110,9 @@ const TarotArticleRedirect = () => {
   return <Navigate to={`/tarot/${slug}`} replace />;
 };
 
-export const router = createBrowserRouter([
-  {
+export const router = createBrowserRouter(
+  [
+    {
     // Root layout wraps all public routes
     element: <RootLayout />,
     errorElement: <RouteErrorBoundary />,
@@ -368,4 +369,14 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+],
+  {
+    future: {
+      // Enable v7 future flags for smoother migration
+      v7_relativeSplatPath: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_skipActionErrorRevalidation: true,
+    },
+  }
+);

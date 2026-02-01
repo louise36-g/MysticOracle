@@ -6,3 +6,5 @@ export { default as TransactionItem } from './TransactionItem';
 export { default as TransactionFilters } from './TransactionFilters';
 export type { TransactionTypeFilter } from './TransactionFilters';
 export { default as EmptyState } from './EmptyState';
+export { ProfileHeader } from './ProfileHeader';
+export { ReferralSection } from './ReferralSection';

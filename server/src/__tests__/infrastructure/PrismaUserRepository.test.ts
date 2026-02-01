@@ -3,7 +3,7 @@
  * Unit tests for the PrismaUserRepository implementation
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/PrismaUserRepository.js';
 import { createMockPrismaClient } from '../mocks/prisma.js';
 import type { User, AccountStatus } from '@prisma/client';

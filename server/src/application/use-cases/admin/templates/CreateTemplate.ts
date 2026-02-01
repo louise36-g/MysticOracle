@@ -4,10 +4,7 @@
  */
 
 import { EmailTemplate } from '@prisma/client';
-import type {
-  IEmailTemplateRepository,
-  CreateTemplateDTO,
-} from '../../../ports/repositories/IEmailTemplateRepository.js';
+import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
 
 export interface CreateTemplateInput {
   slug: string;

@@ -3,7 +3,7 @@
  * Unit tests for the CreditService
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { CreditService, CREDIT_COSTS } from '../../services/CreditService.js';
 import { createMockPrismaClient } from '../mocks/prisma.js';
 

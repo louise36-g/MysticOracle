@@ -14,7 +14,7 @@ import {
   createMockCreditService,
   createMockTransaction,
 } from '../utils/testHelpers.js';
-import type { WebhookEvent } from '../../application/ports/services/IPaymentGateway.js';
+// WebhookEvent type is used in test helpers, not directly in this file
 
 describe('ProcessPaymentWebhookUseCase', () => {
   let useCase: ProcessPaymentWebhookUseCase;

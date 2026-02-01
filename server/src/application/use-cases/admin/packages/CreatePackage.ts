@@ -4,10 +4,7 @@
  */
 
 import { CreditPackage } from '@prisma/client';
-import type {
-  ICreditPackageRepository,
-  CreatePackageDTO,
-} from '../../../ports/repositories/ICreditPackageRepository.js';
+import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
 
 export interface CreatePackageInput {
   credits: number;

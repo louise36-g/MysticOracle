@@ -107,11 +107,11 @@ export async function exampleCompleteFlow(prisma: PrismaClient, rawInput: unknow
   // Step 1: Validate input
   const validationResult = validateArticleExtended(rawInput);
 
-  if (!validationResult.success) {
+  if (!validationResult.success || !validationResult.data) {
     throw new Error(`Validation failed: ${validationResult.errorMessages?.join(', ')}`);
   }
 
-  const validatedData = validationResult.data!;
+  const validatedData = validationResult.data;
 
   // Step 2: Generate schema for SEO
   const { schema, schemaHtml } = processArticleSchema({
@@ -232,7 +232,7 @@ export async function exampleBulkImport(prisma: PrismaClient, articles: unknown[
       // Validate with extended checks
       const validation = validateArticleExtended(rawArticle);
 
-      if (!validation.success) {
+      if (!validation.success || !validation.data) {
         results.failed.push({
           data: rawArticle,
           errors: validation.errorMessages,
@@ -240,7 +240,7 @@ export async function exampleBulkImport(prisma: PrismaClient, articles: unknown[
         continue;
       }
 
-      const validatedData = validation.data!;
+      const validatedData = validation.data;
 
       // Generate schema
       const { schema, schemaHtml } = processArticleSchema({

@@ -3,7 +3,7 @@
  * Lists users with pagination, search, and sorting
  */
 
-import { AccountStatus, User } from '@prisma/client';
+import { AccountStatus } from '@prisma/client';
 import type {
   IUserRepository,
   UserListOptions,

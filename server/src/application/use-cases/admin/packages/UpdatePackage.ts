@@ -4,10 +4,7 @@
  */
 
 import { CreditPackage } from '@prisma/client';
-import type {
-  ICreditPackageRepository,
-  UpdatePackageDTO,
-} from '../../../ports/repositories/ICreditPackageRepository.js';
+import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
 
 export interface UpdatePackageInput {
   id: string;

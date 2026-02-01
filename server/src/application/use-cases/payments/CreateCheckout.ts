@@ -3,11 +3,7 @@
  * Handles creating checkout sessions for payment
  */
 
-import type {
-  IPaymentGateway,
-  CreditPackage,
-  CheckoutSession,
-} from '../../ports/services/IPaymentGateway.js';
+import type { IPaymentGateway, CreditPackage } from '../../ports/services/IPaymentGateway.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { ITransactionRepository } from '../../ports/repositories/ITransactionRepository.js';
 
