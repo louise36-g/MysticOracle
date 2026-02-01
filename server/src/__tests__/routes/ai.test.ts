@@ -56,7 +56,7 @@ import { openRouterService } from '../../services/openRouterService.js';
 import { getTarotReadingPrompt, getTarotFollowUpPrompt } from '../../services/promptService.js';
 
 // Import the router after mocks are set up
-import aiRoutes from '../../routes/ai.js';
+import aiRoutes from '../../routes/ai/index.js';
 
 // Type cast mocked functions
 const mockGenerateTarotReading = openRouterService.generateTarotReading as Mock;

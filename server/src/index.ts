@@ -81,7 +81,7 @@ import adminRoutes from './routes/admin/index.js';
 import horoscopeRoutes from './routes/horoscopes.js';
 import translationRoutes from './routes/translations/index.js';
 import blogRoutes from './routes/blog/index.js';
-import aiRoutes from './routes/ai.js';
+import aiRoutes from './routes/ai/index.js';
 import tarotArticleRoutes from './routes/tarot-articles/index.js';
 import taxonomyRoutes from './routes/taxonomy.js';
 import ssrRoutes from './routes/ssr.js';
