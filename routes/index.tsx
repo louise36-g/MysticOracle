@@ -369,14 +369,5 @@ export const router = createBrowserRouter(
       },
     ],
   },
-],
-  {
-    future: {
-      // Enable v7 future flags for smoother migration
-      v7_relativeSplatPath: true,
-      v7_fetcherPersist: true,
-      v7_normalizeFormMethod: true,
-      v7_skipActionErrorRevalidation: true,
-    },
-  }
+]
 );
