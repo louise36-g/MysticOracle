@@ -9,6 +9,7 @@
  * - templates.ts: Email templates CRUD + seed
  * - settings.ts: System settings, AI config, services, health
  * - maintenance.ts: Cache, maintenance jobs, error logs
+ * - invoices.ts: Invoices listing, stats, and accounting
  * - debug.ts: Debug endpoints for testing
  */
 
@@ -24,6 +25,7 @@ import templatesRoutes from './templates.js';
 import settingsRoutes from './settings.js';
 import maintenanceRoutes from './maintenance.js';
 import debugRoutes from './debug.js';
+import invoicesRoutes from './invoices.js';
 import promptsRouter from '../prompts.js';
 
 const router = Router();
@@ -41,6 +43,7 @@ router.use('/email-templates', templatesRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/maintenance', maintenanceRoutes);
 router.use('/debug', debugRoutes);
+router.use('/invoices', invoicesRoutes);
 router.use('/prompts', promptsRouter);
 
 // Top-level endpoints that don't fit in a specific module

@@ -299,6 +299,10 @@ export const router = createBrowserRouter(
                 path: ROUTES.ADMIN_HEALTH,
                 element: lazyLoad(() => import('../components/admin/AdminHealth')),
               },
+              {
+                path: ROUTES.ADMIN_ACCOUNTING,
+                element: lazyLoad(() => import('../components/admin/AdminAccounting')),
+              },
 
               // Admin Blog routes
               {

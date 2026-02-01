@@ -12,6 +12,7 @@ import {
   Activity,
   Languages,
   FileText,
+  Receipt,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -43,6 +44,12 @@ const AdminNav: React.FC = () => {
       labelKey: 'admin.AdminDashboard.tab_transactions',
       labelDefault: 'Transactions',
       icon: <CreditCard className="w-4 h-4" />,
+    },
+    {
+      to: ROUTES.ADMIN_ACCOUNTING,
+      labelKey: 'admin.AdminDashboard.tab_accounting',
+      labelDefault: 'Accounting',
+      icon: <Receipt className="w-4 h-4" />,
     },
     {
       to: ROUTES.ADMIN_PACKAGES,
