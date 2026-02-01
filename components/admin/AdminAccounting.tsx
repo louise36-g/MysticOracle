@@ -12,7 +12,8 @@ import {
   CreditCard,
   Calendar,
   ExternalLink,
-  Filter,
+  Download,
+  Loader2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -84,6 +85,9 @@ const AdminAccounting: React.FC = () => {
   const [dateTo, setDateTo] = useState('');
   const [paymentProvider, setPaymentProvider] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
+
+  // Export state
+  const [exporting, setExporting] = useState(false);
 
   // Load stats
   useEffect(() => {
@@ -166,6 +170,40 @@ const AdminAccounting: React.FC = () => {
     window.open(`${API_URL}/api/v1/admin/invoices/${invoiceId}/html?language=fr`, '_blank');
   };
 
+  const handleExport = async (format: 'csv' | 'json' = 'csv') => {
+    try {
+      setExporting(true);
+      const token = await getToken();
+      if (!token) throw new Error('No token');
+
+      const params = new URLSearchParams({ format });
+      if (dateFrom) params.append('dateFrom', dateFrom);
+      if (dateTo) params.append('dateTo', dateTo);
+      if (paymentProvider) params.append('paymentProvider', paymentProvider);
+
+      const response = await fetch(`${API_URL}/api/v1/admin/invoices/export?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoices-${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Export failed:', err);
+      setError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const formatCurrency = (amount: number, currency = 'EUR') => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -192,6 +230,32 @@ const AdminAccounting: React.FC = () => {
           <p className="text-slate-400 text-sm mt-1">
             {t('admin.accounting.subtitle', 'View all invoices and revenue statistics')}
           </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleExport('csv')}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 text-white rounded-lg transition-colors"
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {t('admin.accounting.exportCsv', 'Export CSV')}
+          </button>
+          <button
+            onClick={() => handleExport('json')}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-700/50 text-white rounded-lg transition-colors"
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {t('admin.accounting.exportJson', 'Export JSON')}
+          </button>
         </div>
       </div>
 

@@ -411,6 +411,188 @@ router.get('/stats', async (req, res) => {
 });
 
 // ============================================
+// EXPORT INVOICES (CSV)
+// ============================================
+
+const exportInvoicesSchema = z.object({
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  paymentProvider: z.enum(['STRIPE', 'PAYPAL']).optional(),
+  format: z.enum(['csv', 'json']).default('csv'),
+});
+
+/**
+ * @openapi
+ * /api/v1/admin/invoices/export:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Export invoices as CSV or JSON
+ *     description: Export all invoices matching filters for accounting software
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: paymentProvider
+ *         schema:
+ *           type: string
+ *           enum: [STRIPE, PAYPAL]
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [csv, json]
+ *           default: csv
+ *     responses:
+ *       200:
+ *         description: Exported invoice data
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *           application/json:
+ *             schema:
+ *               type: array
+ */
+router.get('/export', async (req, res) => {
+  try {
+    const validation = exportInvoicesSchema.safeParse(req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.error.errors,
+      });
+    }
+
+    const { dateFrom, dateTo, paymentProvider, format } = validation.data;
+
+    // Build where clause
+    const where: Prisma.TransactionWhereInput = {
+      type: 'PURCHASE',
+      paymentStatus: 'COMPLETED',
+    };
+
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) {
+        where.createdAt.gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        const endDate = new Date(dateTo);
+        endDate.setHours(23, 59, 59, 999);
+        where.createdAt.lte = endDate;
+      }
+    }
+
+    if (paymentProvider) {
+      where.paymentProvider = paymentProvider;
+    }
+
+    // Fetch all matching invoices (no pagination for export)
+    const invoices = await prisma.transaction.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            username: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Transform data for export
+    const exportData = invoices.map((tx, index) => {
+      const year = tx.createdAt.getFullYear();
+      const invoiceNumber = `MO-${year}-${String(index + 1).padStart(5, '0')}`;
+
+      return {
+        invoiceNumber,
+        date: tx.createdAt.toISOString().split('T')[0],
+        username: tx.user.username,
+        email: tx.user.email,
+        description: tx.description,
+        credits: tx.amount,
+        amount: tx.paymentAmount ? Number(tx.paymentAmount).toFixed(2) : '0.00',
+        currency: tx.currency || 'EUR',
+        paymentProvider: tx.paymentProvider || 'N/A',
+        paymentId: tx.paymentId || 'N/A',
+        transactionId: tx.id,
+      };
+    });
+
+    if (format === 'json') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="invoices-${new Date().toISOString().split('T')[0]}.json"`
+      );
+      return res.json(exportData);
+    }
+
+    // Generate CSV
+    const headers = [
+      'Invoice Number',
+      'Date',
+      'Username',
+      'Email',
+      'Description',
+      'Credits',
+      'Amount',
+      'Currency',
+      'Payment Provider',
+      'Payment ID',
+      'Transaction ID',
+    ];
+
+    const csvRows = [
+      headers.join(','),
+      ...exportData.map(row =>
+        [
+          row.invoiceNumber,
+          row.date,
+          `"${row.username.replace(/"/g, '""')}"`,
+          `"${row.email.replace(/"/g, '""')}"`,
+          `"${row.description.replace(/"/g, '""')}"`,
+          row.credits,
+          row.amount,
+          row.currency,
+          row.paymentProvider,
+          row.paymentId,
+          row.transactionId,
+        ].join(',')
+      ),
+    ];
+
+    const csv = csvRows.join('\n');
+
+    // Add BOM for Excel compatibility with UTF-8
+    const bom = '\uFEFF';
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="invoices-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(bom + csv);
+  } catch (error) {
+    console.error('[Admin Invoices] Error exporting invoices:', error);
+    res.status(500).json({ error: 'Failed to export invoices' });
+  }
+});
+
+// ============================================
 // GET SINGLE INVOICE
 // ============================================
 
