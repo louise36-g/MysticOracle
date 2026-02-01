@@ -78,7 +78,7 @@ import readingRoutes from './routes/readings.js';
 import paymentRoutes from './routes/payments.js';
 import webhookRoutes from './routes/webhooks.js';
 import adminRoutes from './routes/admin/index.js';
-import horoscopeRoutes from './routes/horoscopes.js';
+import horoscopeRoutes from './routes/horoscopes/index.js';
 import translationRoutes from './routes/translations/index.js';
 import blogRoutes from './routes/blog/index.js';
 import aiRoutes from './routes/ai/index.js';

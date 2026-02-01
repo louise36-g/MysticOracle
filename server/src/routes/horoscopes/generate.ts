@@ -1,72 +1,24 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import prisma from '../db/prisma.js';
-import { optionalAuth } from '../middleware/auth.js';
-import cacheService from '../services/cache.js';
-import { getHoroscopePrompt, getHoroscopeFollowUpPrompt } from '../services/promptService.js';
-import { openRouterService, type OpenRouterMessage } from '../services/openRouterService.js';
-import { PlanetaryCalculationService } from '../services/planetaryCalculationService.js';
+/**
+ * Horoscopes Routes - Generation Logic
+ *
+ * Functions:
+ * - cleanHoroscopeText() - Post-process to remove astrological jargon
+ * - generateHoroscope() - Generate horoscope with planetary data
+ */
 
-const router = Router();
+import { getHoroscopePrompt, openRouterService, PlanetaryCalculationService } from './shared.js';
+
 const planetaryService = new PlanetaryCalculationService();
 
-const zodiacSigns = [
-  'Aries',
-  'Taurus',
-  'Gemini',
-  'Cancer',
-  'Leo',
-  'Virgo',
-  'Libra',
-  'Scorpio',
-  'Sagittarius',
-  'Capricorn',
-  'Aquarius',
-  'Pisces',
-  // French names
-  'Bélier',
-  'Taureau',
-  'Gémeaux',
-  'Cancer',
-  'Lion',
-  'Vierge',
-  'Balance',
-  'Scorpion',
-  'Sagittaire',
-  'Capricorne',
-  'Verseau',
-  'Poissons',
-];
-
-// Normalize sign to English for caching consistency
-const normalizeSign = (sign: string): string => {
-  const frToEn: Record<string, string> = {
-    Bélier: 'Aries',
-    Taureau: 'Taurus',
-    Gémeaux: 'Gemini',
-    Cancer: 'Cancer',
-    Lion: 'Leo',
-    Vierge: 'Virgo',
-    Balance: 'Libra',
-    Scorpion: 'Scorpio',
-    Sagittaire: 'Sagittarius',
-    Capricorne: 'Capricorn',
-    Verseau: 'Aquarius',
-    Poissons: 'Pisces',
-  };
-  return frToEn[sign] || sign;
-};
-
-const getHoroscopeSchema = z.object({
-  sign: z.string().refine(s => zodiacSigns.includes(s), 'Invalid zodiac sign'),
-  language: z.enum(['en', 'fr']).default('en'),
-});
+// ============================================
+// TEXT CLEANING
+// ============================================
 
 /**
  * Post-process horoscope to remove excessive astrological jargon
  * Keeps the practical advice, removes planet name padding
  */
-function cleanHoroscopeText(text: string): string {
+export function cleanHoroscopeText(text: string): string {
   let cleaned = text;
 
   // Replace em-dashes with commas first
@@ -74,7 +26,7 @@ function cleanHoroscopeText(text: string): string {
 
   // Planet names for matching
   const planets = 'Sun|Moon|Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto';
-  const zodiacSigns =
+  const zodiacSignsRegex =
     'Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces';
   const aspects = 'trine|sextile|square|conjunction|opposition|aspect|quincunx';
 
@@ -92,11 +44,11 @@ function cleanHoroscopeText(text: string): string {
     /[^.]*\bretrograde\b[^.]*\./gi,
     // Sentences with "in [Zodiac Sign]" in astrological context
     new RegExp(
-      `[^.]*\\b(${planets})\\s+(in|through|enters|moves|transits)\\s+(${zodiacSigns})[^.]*\\.`,
+      `[^.]*\\b(${planets})\\s+(in|through|enters|moves|transits)\\s+(${zodiacSignsRegex})[^.]*\\.`,
       'gi'
     ),
     // "[Planet]-[Sign]" combinations in sentences
-    new RegExp(`[^.]*\\b(${planets})[,\\-–](${zodiacSigns})\\b[^.]*\\.`, 'gi'),
+    new RegExp(`[^.]*\\b(${planets})[,\\-–](${zodiacSignsRegex})\\b[^.]*\\.`, 'gi'),
     // "Today's [aspect/alignment/energy] brings..."
     /[^.]*Today's\s+(alignment|aspect|energy|cosmic|celestial|planetary)[^.]*\./gi,
     // "With [Planet]..." sentences
@@ -112,7 +64,7 @@ function cleanHoroscopeText(text: string): string {
     // "The cosmic/celestial [noun]..."
     /[^.]*\bthe\s+(cosmic|celestial)\s+\w+[^.]*\./gi,
     // Sentences mentioning zodiac sign influence directly
-    new RegExp(`[^.]*\\b(${zodiacSigns})('s|\\s+)influence[^.]*\\.`, 'gi'),
+    new RegExp(`[^.]*\\b(${zodiacSignsRegex})('s|\\s+)influence[^.]*\\.`, 'gi'),
     // "When [Planet]..." sentences
     new RegExp(`[^.]*\\bWhen\\s+(the\\s+)?(${planets})\\s+[^.]*\\.`, 'gi'),
     // "[Planet], [description]," type constructions at sentence start
@@ -149,7 +101,7 @@ function cleanHoroscopeText(text: string): string {
     // ", when [Planet]" clauses
     new RegExp(`,\\s*when\\s+(the\\s+)?(${planets})\\s+[^,]*`, 'gi'),
     // "[Planet]-[Sign]'s" constructions
-    new RegExp(`(${planets})[,\\-–](${zodiacSigns})('s)?\\s+\\w+`, 'gi'),
+    new RegExp(`(${planets})[,\\-–](${zodiacSignsRegex})('s)?\\s+\\w+`, 'gi'),
   ];
 
   for (const pattern of fragmentPatterns) {
@@ -179,11 +131,11 @@ function cleanHoroscopeText(text: string): string {
   cleaned = cleaned.replace(new RegExp(`let\\s+(${planets})('s|'s)`, 'gi'), 'let the');
   // Replace remaining "[Planet] in [Sign]" inline references
   cleaned = cleaned.replace(
-    new RegExp(`(${planets})\\s+in\\s+(${zodiacSigns})`, 'gi'),
+    new RegExp(`(${planets})\\s+in\\s+(${zodiacSignsRegex})`, 'gi'),
     'the current energy'
   );
   // Remove "in [Sign]" zodiac references after other words
-  cleaned = cleaned.replace(new RegExp(`\\s+in\\s+(${zodiacSigns})`, 'gi'), '');
+  cleaned = cleaned.replace(new RegExp(`\\s+in\\s+(${zodiacSignsRegex})`, 'gi'), '');
 
   // Clean up punctuation issues
   cleaned = cleaned.replace(/\s+/g, ' ');
@@ -246,11 +198,15 @@ function cleanHoroscopeText(text: string): string {
   return cleaned.trim();
 }
 
+// ============================================
+// GENERATION
+// ============================================
+
 /**
  * Generate horoscope with real planetary data using unified OpenRouterService
  * Phase 3: Enhanced with astronomy-engine calculations
  */
-async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
+export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<string> {
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -289,220 +245,3 @@ async function generateHoroscope(sign: string, language: 'en' | 'fr'): Promise<s
     throw error;
   }
 }
-
-// GET /api/horoscopes/:sign - Get daily horoscope (cached)
-router.get('/:sign', optionalAuth, async (req, res) => {
-  try {
-    const { sign } = req.params;
-    const language = (req.query.language as 'en' | 'fr') || 'en';
-
-    // Validate
-    const validation = getHoroscopeSchema.safeParse({ sign, language });
-    if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid sign or language' });
-    }
-
-    // Normalize sign for consistent caching
-    const normalizedSign = normalizeSign(sign);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dateKey = today.toISOString().split('T')[0];
-    const memoryCacheKey = `horoscope:${normalizedSign}:${language}:${dateKey}`;
-
-    // Calculate seconds until midnight for cache TTL
-    const now = new Date();
-    const midnight = new Date(now);
-    midnight.setHours(24, 0, 0, 0);
-    const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
-
-    // Check in-memory cache first (reduces DB load)
-    const memoryCached = await cacheService.get<{ horoscope: string; createdAt: Date }>(
-      memoryCacheKey
-    );
-    if (memoryCached) {
-      return res.json({
-        horoscope: memoryCached.horoscope,
-        cached: true,
-        generatedAt: memoryCached.createdAt,
-      });
-    }
-
-    // Check database cache
-    const dbCached = await prisma.horoscopeCache.findUnique({
-      where: {
-        sign_language_date: {
-          sign: normalizedSign,
-          language,
-          date: today,
-        },
-      },
-    });
-
-    if (dbCached) {
-      // Populate memory cache from DB (expires at midnight)
-      await cacheService.set(
-        memoryCacheKey,
-        {
-          horoscope: dbCached.horoscope,
-          createdAt: dbCached.createdAt,
-        },
-        secondsUntilMidnight
-      );
-
-      return res.json({
-        horoscope: dbCached.horoscope,
-        cached: true,
-        generatedAt: dbCached.createdAt,
-      });
-    }
-
-    // Generate new horoscope
-    const horoscope = await generateHoroscope(normalizedSign, language);
-    const createdAt = new Date();
-
-    // Save to database (upsert to handle race conditions)
-    await prisma.horoscopeCache.upsert({
-      where: {
-        sign_language_date: {
-          sign: normalizedSign,
-          language,
-          date: today,
-        },
-      },
-      create: {
-        sign: normalizedSign,
-        language,
-        date: today,
-        horoscope,
-        userId: req.auth?.userId || null,
-      },
-      update: {
-        horoscope,
-        userId: req.auth?.userId || null,
-      },
-    });
-
-    // Save to memory cache (expires at midnight)
-    await cacheService.set(memoryCacheKey, { horoscope, createdAt }, secondsUntilMidnight);
-
-    res.json({
-      horoscope,
-      cached: false,
-      generatedAt: createdAt,
-    });
-  } catch (error) {
-    console.error('Horoscope error:', error);
-
-    // Check if this is a planetary calculation failure
-    if (error instanceof Error && error.message === 'PLANETARY_CALCULATION_FAILED') {
-      return res.status(503).json({
-        error:
-          "The stars appear a bit clouded right now - we're having trouble reading the planetary positions. Please try again in a few moments. We've been notified and are working to fix the issue.",
-        code: 'PLANETARY_CALCULATION_FAILED',
-        retryable: true,
-      });
-    }
-
-    const message = error instanceof Error ? error.message : 'Failed to get horoscope';
-    res.status(500).json({ error: message });
-  }
-});
-
-// POST /api/horoscopes/:sign/followup - Ask follow-up question
-router.post('/:sign/followup', optionalAuth, async (req, res) => {
-  try {
-    const { sign } = req.params;
-    const { question, horoscope, history } = req.body;
-    const language = (req.query.language as 'en' | 'fr') || 'en';
-
-    if (!question || !horoscope) {
-      return res.status(400).json({ error: 'Question and horoscope required' });
-    }
-
-    const normalizedSign = normalizeSign(sign);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Check if answer is cached
-    const cachedHoroscope = await prisma.horoscopeCache.findUnique({
-      where: {
-        sign_language_date: {
-          sign: normalizedSign,
-          language,
-          date: today,
-        },
-      },
-      include: { questions: true },
-    });
-
-    // Look for cached answer
-    const normalizedQuestion = question.trim().toLowerCase();
-    const cachedAnswer = cachedHoroscope?.questions.find(
-      q => q.question.trim().toLowerCase() === normalizedQuestion
-    );
-
-    if (cachedAnswer) {
-      return res.json({
-        answer: cachedAnswer.answer,
-        cached: true,
-      });
-    }
-
-    // Generate new answer using unified service
-    const todayStr = new Date().toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-
-    // Convert history to OpenRouter message format
-    const conversationHistory: OpenRouterMessage[] =
-      history?.map((h: { role: string; content: string }) => ({
-        role: h.role as 'user' | 'assistant',
-        content: h.content,
-      })) || [];
-
-    // Get prompt from service (with caching and fallback to defaults)
-    const historyText =
-      history
-        ?.map(
-          (h: { role: string; content: string }) =>
-            `${h.role === 'user' ? 'Seeker' : 'Astrologer'}: ${h.content}`
-        )
-        .join('\n') || '';
-
-    const prompt = await getHoroscopeFollowUpPrompt({
-      sign: normalizedSign,
-      today: todayStr,
-      horoscope,
-      history: historyText,
-      question,
-      language,
-    });
-
-    // Use unified service
-    const answer = await openRouterService.generateHoroscopeFollowUp(prompt, conversationHistory, {
-      temperature: 0.7,
-      maxTokens: 500,
-    });
-
-    // Cache the Q&A if we have a horoscope cache entry
-    if (cachedHoroscope) {
-      await prisma.horoscopeQA.create({
-        data: {
-          horoscopeCacheId: cachedHoroscope.id,
-          question: question.trim(),
-          answer,
-        },
-      });
-    }
-
-    res.json({ answer, cached: false });
-  } catch (error) {
-    console.error('Follow-up error:', error);
-    res.status(500).json({ error: 'Failed to answer question' });
-  }
-});
-
-export default router;
