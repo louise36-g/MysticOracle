@@ -13,6 +13,7 @@ import type { IReadingRepository } from '../../ports/repositories/IReadingReposi
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
 import { CREDIT_COSTS } from '../../../services/CreditService.js';
+import type { AchievementService } from '../../../services/AchievementService.js';
 
 // Input DTO
 export interface AddFollowUpInput {
@@ -41,7 +42,8 @@ export class AddFollowUpUseCase {
   constructor(
     private readingRepository: IReadingRepository,
     private userRepository: IUserRepository,
-    private creditService: CreditService
+    private creditService: CreditService,
+    private achievementService?: AchievementService
   ) {}
 
   async execute(input: AddFollowUpInput): Promise<AddFollowUpResult> {
@@ -158,6 +160,17 @@ export class AddFollowUpUseCase {
         }
       } catch (updateError) {
         console.warn('[AddFollowUp] Failed to update question count:', updateError);
+      }
+
+      // 7. Check and unlock question_seeker achievement (non-critical)
+      if (this.achievementService) {
+        try {
+          await this.achievementService.checkAndUnlockAchievements(input.userId, {
+            askedFollowUp: true,
+          });
+        } catch (achievementError) {
+          console.warn('[AddFollowUp] Failed to check achievements:', achievementError);
+        }
       }
 
       return {

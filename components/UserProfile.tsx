@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
 import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/api';
-import { ReadingFilters, ReadingHistoryCard, ReadingHistoryAccordion, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, TransactionTypeFilter } from './profile';
+import { ReadingFilters, ReadingHistoryCard, ReadingHistoryAccordion, AchievementCard, TransactionItem, TransactionFilters, TransactionHistoryAccordion, EmptyState, SortOption, TransactionTypeFilter } from './profile';
 import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
 import { filterByDateRange, type DateRangeOption } from '../utils/dateFilters';
 import { createShareUrl, type SharePlatform } from '../utils/socialShare';
@@ -353,7 +353,7 @@ const UserProfile: React.FC = () => {
                         <Award className="w-5 h-5 text-amber-400" />
                         {t('UserProfile.tsx.UserProfile.achievements_2', 'Achievements')}
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
                         {achievementsWithProgress.map((achievement) => {
                             // Find unlock date from backend data
                             const userAchievement = user?.achievementsData?.find(
@@ -520,10 +520,10 @@ const UserProfile: React.FC = () => {
                             }}
                         />
                     ) : (
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-                            {filteredTransactions.map((transaction) => (
-                                <TransactionItem key={transaction.id} transaction={transaction} />
-                            ))}
+                        <div className="max-h-[500px] overflow-y-auto pr-1">
+                            <TransactionHistoryAccordion
+                                transactions={filteredTransactions}
+                            />
                         </div>
                     )}
                 </motion.section>

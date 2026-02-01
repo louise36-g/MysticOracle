@@ -255,6 +255,7 @@ export class CreateReadingUseCase {
         await this.achievementService.checkAndUnlockAchievements(input.userId, {
           totalReadings: newTotalReadings,
           spreadType: spreadType.value as PrismaSpreadType,
+          readingDate: new Date(),
         });
       } catch (achievementError) {
         // Log but don't fail - reading was created successfully

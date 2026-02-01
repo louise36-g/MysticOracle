@@ -8,7 +8,12 @@ import {
     Compass,
     Crown,
     Share2,
-    BookOpen
+    BookOpen,
+    Moon,
+    MessageCircle,
+    Eye,
+    CalendarRange,
+    Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
@@ -36,44 +41,69 @@ const ACHIEVEMENT_ICONS: Record<string, {
     bgColor: string;
 }> = {
     first_reading: {
-        icon: <Sparkles className="w-8 h-8" />,
+        icon: <Sparkles className="w-5 h-5" />,
         unlockedColor: 'text-cyan-400',
         bgColor: 'from-cyan-500/30 to-cyan-600/20',
     },
     five_readings: {
-        icon: <BookOpen className="w-8 h-8" />,
+        icon: <BookOpen className="w-5 h-5" />,
         unlockedColor: 'text-purple-400',
         bgColor: 'from-purple-500/30 to-purple-600/20',
     },
     ten_readings: {
-        icon: <Trophy className="w-8 h-8" />,
+        icon: <Trophy className="w-5 h-5" />,
         unlockedColor: 'text-amber-400',
         bgColor: 'from-amber-500/30 to-amber-600/20',
     },
+    oracle: {
+        icon: <Eye className="w-5 h-5" />,
+        unlockedColor: 'text-violet-400',
+        bgColor: 'from-violet-500/30 to-violet-600/20',
+    },
     celtic_master: {
-        icon: <Compass className="w-8 h-8" />,
+        icon: <Compass className="w-5 h-5" />,
         unlockedColor: 'text-emerald-400',
         bgColor: 'from-emerald-500/30 to-emerald-600/20',
     },
     all_spreads: {
-        icon: <Crown className="w-8 h-8" />,
+        icon: <Crown className="w-5 h-5" />,
         unlockedColor: 'text-rose-400',
         bgColor: 'from-rose-500/30 to-rose-600/20',
     },
     week_streak: {
-        icon: <Flame className="w-8 h-8" />,
+        icon: <Flame className="w-5 h-5" />,
         unlockedColor: 'text-orange-400',
         bgColor: 'from-orange-500/30 to-orange-600/20',
     },
+    true_believer: {
+        icon: <Zap className="w-5 h-5" />,
+        unlockedColor: 'text-yellow-400',
+        bgColor: 'from-yellow-500/30 to-yellow-600/20',
+    },
+    lunar_cycle: {
+        icon: <CalendarRange className="w-5 h-5" />,
+        unlockedColor: 'text-indigo-400',
+        bgColor: 'from-indigo-500/30 to-indigo-600/20',
+    },
+    question_seeker: {
+        icon: <MessageCircle className="w-5 h-5" />,
+        unlockedColor: 'text-teal-400',
+        bgColor: 'from-teal-500/30 to-teal-600/20',
+    },
+    full_moon_reader: {
+        icon: <Moon className="w-5 h-5" />,
+        unlockedColor: 'text-slate-300',
+        bgColor: 'from-slate-400/30 to-slate-500/20',
+    },
     share_reading: {
-        icon: <Share2 className="w-8 h-8" />,
+        icon: <Share2 className="w-5 h-5" />,
         unlockedColor: 'text-blue-400',
         bgColor: 'from-blue-500/30 to-blue-600/20',
     },
 };
 
 const DEFAULT_ICON_CONFIG = {
-    icon: <Star className="w-8 h-8" />,
+    icon: <Star className="w-5 h-5" />,
     unlockedColor: 'text-amber-400',
     bgColor: 'from-amber-500/30 to-amber-600/20',
 };
@@ -81,7 +111,6 @@ const DEFAULT_ICON_CONFIG = {
 // Constants
 const HOURS_FOR_NEW_BADGE = 24;
 const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
-const ACHIEVEMENT_CARD_HEIGHT_PX = 280;
 
 /**
  * Calculates hours since achievement was unlocked
@@ -126,8 +155,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            style={{ height: `${ACHIEVEMENT_CARD_HEIGHT_PX}px` }}
-            className={`relative p-4 rounded-xl border text-center transition-colors duration-200 flex flex-col ${
+            className={`relative p-3 rounded-lg border text-center transition-colors duration-200 ${
                 isUnlocked
                     ? 'bg-gradient-to-b from-slate-800/80 to-slate-900/60 border-slate-600/50 hover:border-slate-500/60'
                     : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-600/50'
@@ -141,21 +169,21 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 w-64
-                                   bg-slate-800 border border-slate-600 rounded-lg p-3 shadow-xl
+                        className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 w-52
+                                   bg-slate-800 border border-slate-600 rounded-lg p-2.5 shadow-xl
                                    pointer-events-none"
                     >
                         <div className="text-left">
-                            <p className="text-sm font-medium text-white mb-1">{name}</p>
-                            <p className="text-xs text-slate-400 mb-2">{description}</p>
+                            <p className="text-xs font-medium text-white mb-1">{name}</p>
+                            <p className="text-[11px] text-slate-400 mb-1.5">{description}</p>
                             {isUnlocked && formattedUnlockDate && (
-                                <p className="text-xs text-emerald-400">
+                                <p className="text-[11px] text-emerald-400">
                                     {t('profile.AchievementCard.unlocked', 'Unlocked: ')}
                                     {formattedUnlockDate}
                                 </p>
                             )}
                             {!isUnlocked && (
-                                <p className="text-xs text-amber-400">
+                                <p className="text-[11px] text-amber-400">
                                     {t('profile.AchievementCard.progress', 'Progress: ')}
                                     {progress.current}/{progress.target}
                                 </p>
@@ -163,7 +191,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                         </div>
                         {/* Arrow */}
                         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px]">
-                            <div className="border-8 border-transparent border-t-slate-800"></div>
+                            <div className="border-6 border-transparent border-t-slate-800"></div>
                         </div>
                     </motion.div>
                 )}
@@ -175,16 +203,16 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                     initial={{ scale: 0, rotate: -12 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.2 }}
-                    className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-500 to-orange-500
-                               text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg
-                               border-2 border-white/20"
+                    className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-amber-500 to-orange-500
+                               text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg
+                               border border-white/20"
                 >
                     {t('profile.AchievementCard.new', 'NEW!')}
                 </motion.div>
             )}
 
             {/* Icon */}
-            <div className={`relative mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center shrink-0
+            <div className={`relative mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center
                            ${isUnlocked
                                ? `bg-gradient-to-br ${iconConfig.bgColor}`
                                : 'bg-slate-700/50'
@@ -194,26 +222,21 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                         {iconConfig.icon}
                     </span>
                 ) : (
-                    <Lock className="w-6 h-6 text-slate-500" />
+                    <Lock className="w-4 h-4 text-slate-500" />
                 )}
             </div>
 
             {/* Name */}
-            <h4 className={`text-sm font-medium mb-2 ${
+            <h4 className={`text-xs font-medium mb-1.5 line-clamp-1 ${
                 isUnlocked ? 'text-white' : 'text-slate-300'
             }`}>
                 {name}
             </h4>
 
-            {/* Description */}
-            <p className="text-xs text-slate-500 mb-4 leading-relaxed flex-grow">
-                {description}
-            </p>
-
             {/* Progress Bar (locked only) */}
             {!isUnlocked && (
-                <div className="mb-4 mt-auto">
-                    <div className="w-full bg-slate-700/50 rounded-full h-1.5 overflow-hidden">
+                <div className="mb-1.5">
+                    <div className="w-full bg-slate-700/50 rounded-full h-1 overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progressPercent}%` }}
@@ -221,25 +244,20 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                             className="h-full bg-gradient-to-r from-purple-500 to-amber-500 rounded-full"
                         />
                     </div>
-                    <p className="text-xs text-slate-500 mt-2">
+                    <p className="text-[10px] text-slate-500 mt-1">
                         {progress.current}/{progress.target}
                     </p>
                 </div>
             )}
 
             {/* Status / Reward */}
-            <div className={!isUnlocked ? 'mt-auto' : ''}>
+            <div>
                 {isUnlocked ? (
-                    <div className="flex flex-col items-center gap-1.5">
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
-                            {t('profile.AchievementCard.unlocked_2', 'Unlocked')}
-                        </span>
-                        <span className="text-xs text-amber-400/80">
-                            +{achievement.reward} {t('profile.AchievementCard.credits', 'credits')}
-                        </span>
-                    </div>
+                    <span className="text-[10px] text-amber-400/80">
+                        +{achievement.reward} {t('profile.AchievementCard.credits', 'credits')}
+                    </span>
                 ) : (
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400/80">
+                    <span className="text-[10px] text-amber-400/60">
                         +{achievement.reward} {t('profile.AchievementCard.credits_2', 'credits')}
                     </span>
                 )}

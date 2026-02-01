@@ -16,6 +16,31 @@ export interface UserAchievementData {
 }
 
 /**
+ * Get the ISO week identifier for a date
+ */
+function getWeekNumber(date: Date): string {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNum = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${weekNum.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Calculate unique weeks with readings
+ */
+export function calculateWeeksWithReadings(readings: ReadingData[]): number {
+    const uniqueWeeks = new Set<string>();
+    readings.forEach(reading => {
+        if (reading.createdAt) {
+            uniqueWeeks.add(getWeekNumber(new Date(reading.createdAt)));
+        }
+    });
+    return uniqueWeeks.size;
+}
+
+/**
  * Calculate unique spread types used by the user
  * Pure function - no side effects
  */
@@ -83,6 +108,9 @@ export function calculateAchievementProgress(
         case 'ten_readings':
             return { current: Math.min(totalReadings, 10), target: 10 };
 
+        case 'oracle':
+            return { current: Math.min(totalReadings, 25), target: 25 };
+
         case 'celtic_master':
             return {
                 current: hasCompletedSpreadType(readings, SpreadType.CELTIC_CROSS) ? 1 : 0,
@@ -99,6 +127,30 @@ export function calculateAchievementProgress(
             return {
                 current: Math.min(loginStreak, 7),
                 target: 7
+            };
+
+        case 'true_believer':
+            return {
+                current: Math.min(loginStreak, 30),
+                target: 30
+            };
+
+        case 'lunar_cycle':
+            return {
+                current: Math.min(calculateWeeksWithReadings(readings), 4),
+                target: 4
+            };
+
+        case 'question_seeker':
+            return {
+                current: unlockedAchievements.includes('question_seeker') ? 1 : 0,
+                target: 1
+            };
+
+        case 'full_moon_reader':
+            return {
+                current: unlockedAchievements.includes('full_moon_reader') ? 1 : 0,
+                target: 1
             };
 
         case 'share_reading':

@@ -119,8 +119,13 @@ export const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
   { id: 'first_reading', nameEn: 'First Steps', nameFr: 'Premiers Pas', descriptionEn: 'Complete your first reading', descriptionFr: 'Complétez votre première lecture', reward: 3 },
   { id: 'five_readings', nameEn: 'Seeker', nameFr: 'Chercheur', descriptionEn: 'Complete 5 readings', descriptionFr: 'Complétez 5 lectures', reward: 5 },
   { id: 'ten_readings', nameEn: 'Adept', nameFr: 'Adepte', descriptionEn: 'Complete 10 readings', descriptionFr: 'Complétez 10 lectures', reward: 10 },
+  { id: 'oracle', nameEn: 'Oracle', nameFr: 'Oracle', descriptionEn: 'Complete 25 readings', descriptionFr: 'Complétez 25 lectures', reward: 15 },
   { id: 'celtic_master', nameEn: 'Celtic Master', nameFr: 'Maître Celtique', descriptionEn: 'Complete a Celtic Cross reading', descriptionFr: 'Complétez une lecture Croix Celtique', reward: 5 },
   { id: 'all_spreads', nameEn: 'Spread Explorer', nameFr: 'Explorateur', descriptionEn: 'Try all spread types', descriptionFr: 'Essayez tous les types de tirage', reward: 10 },
   { id: 'week_streak', nameEn: 'Devoted', nameFr: 'Dévoué', descriptionEn: 'Login 7 days in a row', descriptionFr: 'Connectez-vous 7 jours de suite', reward: 10 },
+  { id: 'true_believer', nameEn: 'True Believer', nameFr: 'Vrai Croyant', descriptionEn: 'Login 30 days in a row', descriptionFr: 'Connectez-vous 30 jours de suite', reward: 20 },
+  { id: 'lunar_cycle', nameEn: 'Lunar Cycle', nameFr: 'Cycle Lunaire', descriptionEn: 'Complete readings in 4 different weeks', descriptionFr: 'Complétez des lectures sur 4 semaines différentes', reward: 10 },
+  { id: 'question_seeker', nameEn: 'Question Seeker', nameFr: 'Chercheur de Réponses', descriptionEn: 'Ask a follow-up question', descriptionFr: 'Posez une question de suivi', reward: 2 },
+  { id: 'full_moon_reader', nameEn: 'Full Moon Reader', nameFr: 'Lecteur de Pleine Lune', descriptionEn: 'Complete a reading during a full moon', descriptionFr: 'Complétez une lecture pendant la pleine lune', reward: 5 },
   { id: 'share_reading', nameEn: 'Sharing is Caring', nameFr: 'Partage', descriptionEn: 'Share a reading', descriptionFr: 'Partagez une lecture', reward: 3 },
 ];

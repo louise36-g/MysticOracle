@@ -6,9 +6,14 @@
  * - first_reading: totalReadings === 1
  * - five_readings: totalReadings === 5
  * - ten_readings: totalReadings === 10
+ * - oracle: totalReadings === 25
  * - celtic_master: spreadType === CELTIC_CROSS
  * - all_spreads: used all 6 spread types
  * - week_streak: loginStreak >= 7
+ * - true_believer: loginStreak >= 30
+ * - lunar_cycle: readings in 4+ different weeks
+ * - question_seeker: asked a follow-up question
+ * - full_moon_reader: reading during full moon
  * - share_reading: (manual trigger when user shares)
  */
 
@@ -19,9 +24,14 @@ const ACHIEVEMENTS: Record<string, { reward: number }> = {
   first_reading: { reward: 3 },
   five_readings: { reward: 5 },
   ten_readings: { reward: 10 },
+  oracle: { reward: 15 },
   celtic_master: { reward: 5 },
   all_spreads: { reward: 10 },
   week_streak: { reward: 10 },
+  true_believer: { reward: 20 },
+  lunar_cycle: { reward: 10 },
+  question_seeker: { reward: 2 },
+  full_moon_reader: { reward: 5 },
   share_reading: { reward: 3 },
 };
 
@@ -45,6 +55,37 @@ export interface AchievementContext {
   spreadType?: SpreadType;
   loginStreak?: number;
   sharedReading?: boolean;
+  askedFollowUp?: boolean;
+  readingDate?: Date;
+}
+
+/**
+ * Check if a given date falls on a full moon
+ * Uses a simplified calculation based on the lunar cycle
+ */
+function isFullMoon(date: Date): boolean {
+  // Known full moon date: January 13, 2025
+  const knownFullMoon = new Date(2025, 0, 13);
+  const lunarCycleMs = 29.53059 * 24 * 60 * 60 * 1000; // ~29.53 days in ms
+
+  const diffMs = Math.abs(date.getTime() - knownFullMoon.getTime());
+  const cyclePosition = diffMs % lunarCycleMs;
+
+  // Consider it a full moon if within 24 hours of the actual full moon
+  const toleranceMs = 24 * 60 * 60 * 1000;
+  return cyclePosition < toleranceMs || lunarCycleMs - cyclePosition < toleranceMs;
+}
+
+/**
+ * Get the ISO week number for a date
+ */
+function getWeekNumber(date: Date): string {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${weekNum.toString().padStart(2, '0')}`;
 }
 
 export class AchievementService {
@@ -87,6 +128,12 @@ export class AchievementService {
           const unlocked = await this.unlockAchievement(userId, 'ten_readings');
           if (unlocked) unlockedAchievements.push(unlocked);
         }
+
+        // Oracle - 25 readings
+        if (context.totalReadings >= 25 && !unlockedIds.has('oracle')) {
+          const unlocked = await this.unlockAchievement(userId, 'oracle');
+          if (unlocked) unlockedAchievements.push(unlocked);
+        }
       }
 
       // Celtic Cross achievement
@@ -121,6 +168,47 @@ export class AchievementService {
       ) {
         const unlocked = await this.unlockAchievement(userId, 'week_streak');
         if (unlocked) unlockedAchievements.push(unlocked);
+      }
+
+      // True Believer - 30 day streak
+      if (
+        context.loginStreak !== undefined &&
+        context.loginStreak >= 30 &&
+        !unlockedIds.has('true_believer')
+      ) {
+        const unlocked = await this.unlockAchievement(userId, 'true_believer');
+        if (unlocked) unlockedAchievements.push(unlocked);
+      }
+
+      // Lunar Cycle - readings in 4+ different weeks
+      if (context.spreadType && !unlockedIds.has('lunar_cycle')) {
+        const readings = await this.prisma.reading.findMany({
+          where: { userId },
+          select: { createdAt: true },
+        });
+
+        const uniqueWeeks = new Set(readings.map(r => getWeekNumber(r.createdAt)));
+        // Add current reading's week
+        uniqueWeeks.add(getWeekNumber(context.readingDate || new Date()));
+
+        if (uniqueWeeks.size >= 4) {
+          const unlocked = await this.unlockAchievement(userId, 'lunar_cycle');
+          if (unlocked) unlockedAchievements.push(unlocked);
+        }
+      }
+
+      // Question Seeker - asked a follow-up question
+      if (context.askedFollowUp && !unlockedIds.has('question_seeker')) {
+        const unlocked = await this.unlockAchievement(userId, 'question_seeker');
+        if (unlocked) unlockedAchievements.push(unlocked);
+      }
+
+      // Full Moon Reader - reading during full moon
+      if (context.readingDate && !unlockedIds.has('full_moon_reader')) {
+        if (isFullMoon(context.readingDate)) {
+          const unlocked = await this.unlockAchievement(userId, 'full_moon_reader');
+          if (unlocked) unlockedAchievements.push(unlocked);
+        }
       }
 
       // Share reading achievement

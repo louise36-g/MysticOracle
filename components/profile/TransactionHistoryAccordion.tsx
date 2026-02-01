@@ -1,37 +1,33 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Calendar, Clock, CalendarDays, CalendarRange, History } from 'lucide-react';
-import { ReadingData } from '../../services/api';
+import { Transaction } from '../../services/api';
 import { useApp } from '../../context/AppContext';
-import ReadingHistoryCard from './ReadingHistoryCard';
+import TransactionItem from './TransactionItem';
 
 type TimePeriod = 'today' | 'week' | 'month' | 'year' | 'all';
 
-interface ReadingHistoryAccordionProps {
-  readings: ReadingData[];
-  expandedReading: string | null;
-  onToggleReading: (id: string) => void;
+interface TransactionHistoryAccordionProps {
+  transactions: Transaction[];
 }
 
-interface GroupedReadings {
-  today: ReadingData[];
-  week: ReadingData[];
-  month: ReadingData[];
-  year: ReadingData[];
-  older: ReadingData[];
+interface GroupedTransactions {
+  today: Transaction[];
+  week: Transaction[];
+  month: Transaction[];
+  year: Transaction[];
+  older: Transaction[];
 }
 
-const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
-  readings,
-  expandedReading,
-  onToggleReading,
+const TransactionHistoryAccordion: React.FC<TransactionHistoryAccordionProps> = ({
+  transactions,
 }) => {
   const { t, language } = useApp();
   const [expandedSections, setExpandedSections] = useState<Set<TimePeriod>>(new Set());
 
-  // Group readings by time period
-  const groupedReadings = useMemo(() => {
-    const groups: GroupedReadings = {
+  // Group transactions by time period
+  const groupedTransactions = useMemo(() => {
+    const groups: GroupedTransactions = {
       today: [],
       week: [],
       month: [],
@@ -39,7 +35,7 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
       older: [],
     };
 
-    if (!readings || readings.length === 0) {
+    if (!transactions || transactions.length === 0) {
       return groups;
     }
 
@@ -50,81 +46,81 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    readings.forEach((reading) => {
-      if (!reading || !reading.createdAt) {
-        groups.older.push(reading);
+    transactions.forEach((transaction) => {
+      if (!transaction || !transaction.createdAt) {
+        groups.older.push(transaction);
         return;
       }
 
-      const readingDate = new Date(reading.createdAt);
+      const transactionDate = new Date(transaction.createdAt);
 
-      if (isNaN(readingDate.getTime())) {
-        groups.older.push(reading);
+      if (isNaN(transactionDate.getTime())) {
+        groups.older.push(transaction);
         return;
       }
 
-      if (readingDate >= startOfToday) {
-        groups.today.push(reading);
-      } else if (readingDate >= startOfWeek) {
-        groups.week.push(reading);
-      } else if (readingDate >= startOfMonth) {
-        groups.month.push(reading);
-      } else if (readingDate >= startOfYear) {
-        groups.year.push(reading);
+      if (transactionDate >= startOfToday) {
+        groups.today.push(transaction);
+      } else if (transactionDate >= startOfWeek) {
+        groups.week.push(transaction);
+      } else if (transactionDate >= startOfMonth) {
+        groups.month.push(transaction);
+      } else if (transactionDate >= startOfYear) {
+        groups.year.push(transaction);
       } else {
-        groups.older.push(reading);
+        groups.older.push(transaction);
       }
     });
 
     return groups;
-  }, [readings]);
+  }, [transactions]);
 
   const sections: {
     id: TimePeriod;
     labelEn: string;
     labelFr: string;
     icon: React.ReactNode;
-    readings: ReadingData[];
+    transactions: Transaction[];
   }[] = [
     {
       id: 'today',
       labelEn: 'Today',
       labelFr: "Aujourd'hui",
       icon: <Clock className="w-4 h-4" />,
-      readings: groupedReadings.today,
+      transactions: groupedTransactions.today,
     },
     {
       id: 'week',
       labelEn: 'This Week',
       labelFr: 'Cette semaine',
       icon: <Calendar className="w-4 h-4" />,
-      readings: groupedReadings.week,
+      transactions: groupedTransactions.week,
     },
     {
       id: 'month',
       labelEn: 'This Month',
       labelFr: 'Ce mois',
       icon: <CalendarDays className="w-4 h-4" />,
-      readings: groupedReadings.month,
+      transactions: groupedTransactions.month,
     },
     {
       id: 'year',
       labelEn: 'This Year',
       labelFr: 'Cette année',
       icon: <CalendarRange className="w-4 h-4" />,
-      readings: groupedReadings.year,
+      transactions: groupedTransactions.year,
     },
     {
       id: 'all',
       labelEn: 'All',
       labelFr: 'Tout',
       icon: <History className="w-4 h-4" />,
-      readings: groupedReadings.older,
+      transactions: groupedTransactions.older,
     },
   ];
 
   // Filter out empty sections
-  const nonEmptySections = sections.filter((section) => section.readings.length > 0);
+  const nonEmptySections = sections.filter((section) => section.transactions.length > 0);
 
   const toggleSection = (section: TimePeriod) => {
     setExpandedSections((prev) => {
@@ -138,7 +134,7 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
     });
   };
 
-  if (!readings || readings.length === 0) {
+  if (!transactions || transactions.length === 0) {
     return null;
   }
 
@@ -146,7 +142,10 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
     <div className="space-y-3">
       {nonEmptySections.map((section) => {
         const isExpanded = expandedSections.has(section.id);
-        const count = section.readings.length;
+        const count = section.transactions.length;
+
+        // Calculate net credits for this section
+        const netCredits = section.transactions.reduce((sum, t) => sum + t.amount, 0);
 
         return (
           <div
@@ -159,7 +158,7 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
               className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-700/20 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+                <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
                   {section.icon}
                 </div>
                 <div className="text-left">
@@ -168,14 +167,19 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
                   </h3>
                   <p className="text-xs text-slate-500">
                     {count} {count === 1
-                      ? t('profile.ReadingHistoryAccordion.reading', 'reading')
-                      : t('profile.ReadingHistoryAccordion.readings', 'readings')}
+                      ? t('profile.TransactionHistoryAccordion.transaction', 'transaction')
+                      : t('profile.TransactionHistoryAccordion.transactions', 'transactions')}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="px-2.5 py-1 bg-purple-500/20 text-purple-300 text-sm font-medium rounded-full">
-                  {count}
+                {/* Net credits badge */}
+                <span className={`px-2.5 py-1 text-sm font-medium rounded-full ${
+                  netCredits >= 0
+                    ? 'bg-green-500/20 text-green-300'
+                    : 'bg-red-500/20 text-red-300'
+                }`}>
+                  {netCredits >= 0 ? '+' : ''}{netCredits}
                 </span>
                 <ChevronDown
                   className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
@@ -194,13 +198,11 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="px-4 pb-4 space-y-3 border-t border-slate-700/30 pt-3">
-                    {section.readings.map((reading) => (
-                      <ReadingHistoryCard
-                        key={reading.id}
-                        reading={reading}
-                        isExpanded={expandedReading === reading.id}
-                        onToggle={() => onToggleReading(reading.id)}
+                  <div className="px-4 pb-4 space-y-2 border-t border-slate-700/30 pt-3">
+                    {section.transactions.map((transaction) => (
+                      <TransactionItem
+                        key={transaction.id}
+                        transaction={transaction}
                       />
                     ))}
                   </div>
@@ -214,4 +216,4 @@ const ReadingHistoryAccordion: React.FC<ReadingHistoryAccordionProps> = ({
   );
 };
 
-export default ReadingHistoryAccordion;
+export default TransactionHistoryAccordion;

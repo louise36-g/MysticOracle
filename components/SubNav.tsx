@@ -10,14 +10,12 @@ import {
   ChevronDown,
   Sparkles,
   Moon,
-  Compass,
   BookOpen,
   HelpCircle,
   CreditCard,
   Users,
   Lock,
   Coins,
-  Heart,
   Layers,
   Eye,
   Clock,
@@ -99,54 +97,6 @@ const SubNav: React.FC = () => {
       onClick: () => handleCategorySelect(category.id)
     };
   });
-
-  // Coming Soon items
-  const comingSoonItems: DropdownItem[] = [
-    {
-      id: 'runes',
-      labelEn: t('subnav.comingSoon.runes.label', 'Rune Reading'),
-      labelFr: t('subnav.comingSoon.runes.label', 'Lecture des Runes'),
-      descriptionEn: t('subnav.comingSoon.runes.desc', 'Ancient Nordic wisdom'),
-      descriptionFr: t('subnav.comingSoon.runes.desc', 'Sagesse nordique ancienne'),
-      icon: <Compass className="w-4 h-4 text-amber-400" />,
-      iconBg: 'bg-amber-500/20',
-      comingSoon: true,
-      onClick: () => {}
-    },
-    {
-      id: 'birthchart',
-      labelEn: t('subnav.comingSoon.birthchart.label', 'Birth Chart'),
-      labelFr: t('subnav.comingSoon.birthchart.label', 'Thème Astral'),
-      descriptionEn: t('subnav.comingSoon.birthchart.desc', 'Your cosmic blueprint'),
-      descriptionFr: t('subnav.comingSoon.birthchart.desc', 'Votre empreinte cosmique'),
-      icon: <Moon className="w-4 h-4 text-blue-400" />,
-      iconBg: 'bg-blue-500/20',
-      comingSoon: true,
-      onClick: () => {}
-    },
-    {
-      id: 'iching',
-      labelEn: t('subnav.comingSoon.iching.label', 'I Ching'),
-      labelFr: t('subnav.comingSoon.iching.label', 'Yi King'),
-      descriptionEn: t('subnav.comingSoon.iching.desc', 'Book of Changes'),
-      descriptionFr: t('subnav.comingSoon.iching.desc', 'Livre des mutations'),
-      icon: <BookOpen className="w-4 h-4 text-emerald-400" />,
-      iconBg: 'bg-emerald-500/20',
-      comingSoon: true,
-      onClick: () => {}
-    },
-    {
-      id: 'biofeedback',
-      labelEn: t('subnav.comingSoon.biofeedback.label', 'Biofeedback'),
-      labelFr: t('subnav.comingSoon.biofeedback.label', 'Biofeedback'),
-      descriptionEn: t('subnav.comingSoon.biofeedback.desc', 'Mind-body connection'),
-      descriptionFr: t('subnav.comingSoon.biofeedback.desc', 'Connexion corps-esprit'),
-      icon: <Heart className="w-4 h-4 text-rose-400" />,
-      iconBg: 'bg-rose-500/20',
-      comingSoon: true,
-      onClick: () => {}
-    }
-  ];
 
   // Learn items - About Us at top
   const learnItems: DropdownItem[] = [
@@ -345,28 +295,6 @@ const SubNav: React.FC = () => {
             <Moon className="w-4 h-4" />
             <span>{t('subnav.horoscope.title', 'Horoscopes')}</span>
           </Link>
-
-          {/* Coming Soon Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('comingsoon')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                openDropdown === 'comingsoon'
-                  ? 'text-slate-300 bg-white/5'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Compass className="w-4 h-4" />
-              <span>{t('subnav.comingSoon.title', 'Coming Soon')}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'comingsoon' ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {openDropdown === 'comingsoon' && renderDropdown(comingSoonItems)}
-            </AnimatePresence>
-          </div>
 
           {/* Divider */}
           <div className="w-px h-6 bg-white/10 mx-2" />
