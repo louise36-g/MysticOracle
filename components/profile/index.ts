@@ -1,6 +1,7 @@
 export { default as ReadingFilters } from './ReadingFilters';
 export type { SortOption, DateRangeOption } from './ReadingFilters';
 export { default as ReadingHistoryCard } from './ReadingHistoryCard';
+export { default as ReadingHistoryAccordion } from './ReadingHistoryAccordion';
 export { default as AchievementCard } from './AchievementCard';
 export { default as TransactionItem } from './TransactionItem';
 export { default as TransactionFilters } from './TransactionFilters';

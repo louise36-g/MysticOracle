@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
 import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/api';
-import { ReadingFilters, ReadingHistoryCard, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, TransactionTypeFilter } from './profile';
+import { ReadingFilters, ReadingHistoryCard, ReadingHistoryAccordion, AchievementCard, TransactionItem, TransactionFilters, EmptyState, SortOption, TransactionTypeFilter } from './profile';
 import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
 import { filterByDateRange, type DateRangeOption } from '../utils/dateFilters';
 import { createShareUrl, type SharePlatform } from '../utils/socialShare';
@@ -400,7 +400,7 @@ const UserProfile: React.FC = () => {
                         />
                     </div>
 
-                    {/* Reading List */}
+                    {/* Reading List - Accordion View */}
                     {isLoadingReadings ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
@@ -418,15 +418,12 @@ const UserProfile: React.FC = () => {
                             }}
                         />
                     ) : (
-                        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                            {filteredReadings.map((reading) => (
-                                <ReadingHistoryCard
-                                    key={reading.id}
-                                    reading={reading}
-                                    isExpanded={expandedReading === reading.id}
-                                    onToggle={() => setExpandedReading(expandedReading === reading.id ? null : reading.id)}
-                                />
-                            ))}
+                        <div className="max-h-[700px] overflow-y-auto pr-1">
+                            <ReadingHistoryAccordion
+                                readings={filteredReadings}
+                                expandedReading={expandedReading}
+                                onToggleReading={(id) => setExpandedReading(expandedReading === id ? null : id)}
+                            />
                         </div>
                     )}
                 </motion.section>
