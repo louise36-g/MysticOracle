@@ -88,7 +88,7 @@ import ssrRoutes from './routes/ssr.js';
 import devRoutes from './routes/dev.js';
 import promptRoutes from './routes/prompts.js';
 import internalLinksRoutes from './routes/internal-links.js';
-import yearEnergyRoutes from './routes/yearEnergy.js';
+import yearEnergyRoutes from './routes/yearEnergy/index.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
 import { Router } from 'express';
