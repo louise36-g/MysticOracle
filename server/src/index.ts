@@ -73,7 +73,7 @@ const adminLimiter = rateLimit({
 
 // Import routes
 import healthRoutes from './routes/health.js';
-import userRoutes from './routes/users.js';
+import userRoutes from './routes/users/index.js';
 import readingRoutes from './routes/readings.js';
 import paymentRoutes from './routes/payments.js';
 import webhookRoutes from './routes/webhooks.js';
