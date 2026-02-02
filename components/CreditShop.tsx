@@ -19,8 +19,6 @@ import {
   Loader2,
   AlertTriangle,
   Coffee,
-  Gift,
-  Star,
   TrendingUp,
 } from 'lucide-react';
 import {
@@ -30,12 +28,6 @@ import {
   redirectToStripeCheckout,
   createPayPalOrder,
 } from '../services/paymentService';
-import {
-  FIRST_PURCHASE_BONUS_PERCENT,
-  hasCompletedFirstPurchase,
-  markFirstPurchaseComplete,
-  calculateFirstPurchaseBonus,
-} from '../utils/firstPurchaseBonus';
 
 // PayPal icon component
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -118,11 +110,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     }, 300);
   }, []);
 
-  // First-purchase bonus tracking
-  const isFirstPurchase = useMemo(() => {
-    return !hasCompletedFirstPurchase(clerkUser?.id);
-  }, [clerkUser?.id]);
-
   // Low balance detection
   const hasLowBalance = useMemo(() => {
     return (user?.credits ?? 0) <= LOW_BALANCE_THRESHOLD;
@@ -137,12 +124,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       return currentPricePerCredit < bestPricePerCredit ? pkg : best;
     }, packages[0]).id;
   }, [packages]);
-
-  // Calculate bonus credits for first purchase
-  const getFirstPurchaseBonus = useCallback((credits: number): number => {
-    if (!isFirstPurchase) return 0;
-    return Math.floor(credits * (FIRST_PURCHASE_BONUS_PERCENT / 100));
-  }, [isFirstPurchase]);
 
   // Load packages on mount
   useEffect(() => {
@@ -286,8 +267,8 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
         'Power User': 'Best Value',
       },
       fr: {
-        'Meilleure Valeur': 'Bonne Valeur',
-        'Power User': 'Meilleure Valeur',
+        'Meilleure Valeur': 'Bonne affaire',
+        'Power User': 'Le plus avantageux',
       },
     };
     return labelMap[language]?.[label] || label;
@@ -381,40 +362,8 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
           {/* Content */}
           <div className="p-6">
 
-            {/* First Purchase Bonus Banner - Shiny */}
-            {isFirstPurchase && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 bg-gradient-to-r from-amber-900/50 via-yellow-800/40 to-amber-900/50 border border-amber-500/60 rounded-xl relative overflow-hidden"
-              >
-                {/* Animated shimmer */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/20 to-transparent"
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                />
-                <div className="relative flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30">
-                    <Gift className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" />
-                      <span className="font-bold text-amber-200">
-                        +{FIRST_PURCHASE_BONUS_PERCENT}% {t('CreditShop.tsx.CreditShop.bonus', 'BONUS')}
-                      </span>
-                    </div>
-                    <span className="text-xs text-amber-200/70">
-                      {t('CreditShop.tsx.CreditShop.extra_credits_on', 'Extra credits on your first purchase!')}
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
             {/* Low Balance Nudge */}
-            {hasLowBalance && !isFirstPurchase && (
+            {hasLowBalance && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -441,9 +390,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   const isSelected = selectedPackage?.id === pkg.id;
                   const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
                   const isBestValue = pkg.id === bestValuePackageId;
-                  const bonusCredits = getFirstPurchaseBonus(pkg.credits);
-                  const totalCredits = pkg.credits + bonusCredits;
-                  const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
                   const isStarter = index === 0;
 
                   return (
@@ -495,14 +441,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                           €{pkg.priceEur.toFixed(2)}
                         </p>
                       </div>
-
-                      {/* First purchase bonus - compact */}
-                      {isFirstPurchase && bonusCredits > 0 && (
-                        <div className="flex items-center gap-1 mt-1 text-amber-400 text-xs">
-                          <Gift className="w-3 h-3" />
-                          <span>+{bonusCredits} bonus</span>
-                        </div>
-                      )}
                     </motion.button>
                   );
                 })}
@@ -515,9 +453,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   const label = language === 'en' ? pkg.labelEn : pkg.labelFr;
                   const name = language === 'en' ? pkg.nameEn : pkg.nameFr;
                   const isBestValue = pkg.id === bestValuePackageId;
-                  const bonusCredits = getFirstPurchaseBonus(pkg.credits);
-                  const totalCredits = pkg.credits + bonusCredits;
-                  const pricePerCredit = pkg.priceEur / (isFirstPurchase ? totalCredits : pkg.credits);
+                  const pricePerCredit = pkg.priceEur / pkg.credits;
 
                   return (
                     <motion.button
@@ -567,15 +503,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                         <span className="text-3xl font-bold text-white">{pkg.credits}</span>
                         <span className="text-sm text-slate-400">{t('CreditShop.tsx.CreditShop.credits_2', 'credits')}</span>
                       </div>
-
-                      {/* First purchase bonus */}
-                      {isFirstPurchase && bonusCredits > 0 && (
-                        <div className="flex items-center gap-1.5 mb-2 text-amber-400">
-                          <Gift className="w-4 h-4" />
-                          <span className="text-sm font-medium">+{bonusCredits} bonus</span>
-                          <span className="text-xs text-slate-500">= {totalCredits} total</span>
-                        </div>
-                      )}
 
                       {/* Package name */}
                       <p className="text-sm text-slate-400 mb-3">{name}</p>
