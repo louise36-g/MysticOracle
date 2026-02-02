@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Coins, Calendar, Users, Award, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
@@ -6,18 +6,29 @@ import { useTranslation } from '../context/TranslationContext';
 import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
+import CreditShop from './CreditShop';
 import { ROUTES } from '../routes/routes';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
 
 interface HowCreditsWorkProps {
-  onOpenCreditShop: () => void;
+  onOpenCreditShop?: () => void;
 }
 
 const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
+  const [showCreditShop, setShowCreditShop] = useState(false);
+
+  // Use provided callback or manage our own modal
+  const handleOpenCreditShop = () => {
+    if (onOpenCreditShop) {
+      onOpenCreditShop();
+    } else {
+      setShowCreditShop(true);
+    }
+  };
 
   // Get spread costs directly from constants
   const spreadCosts = [
@@ -52,6 +63,12 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
   };
 
   return (
+    <>
+    {/* Credit Shop Modal (only rendered if not using external handler) */}
+    {!onOpenCreditShop && (
+      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
+    )}
+
     <div className="min-h-screen pb-20">
       {/* Hero Section */}
       <section className="relative py-16 px-4 text-center overflow-hidden">
@@ -244,7 +261,7 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
               </div>
             </div>
 
-            <Button onClick={onOpenCreditShop} className="flex items-center gap-2">
+            <Button onClick={handleOpenCreditShop} className="flex items-center gap-2">
               <Coins className="w-4 h-4" />
               {t('credits.buy.button', 'View Credit Packages')}
             </Button>
@@ -275,6 +292,7 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
         </motion.section>
       </div>
     </div>
+    </>
   );
 };
 
