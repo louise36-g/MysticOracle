@@ -344,10 +344,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                               </div>
 
                               {/* Card Positions - Visual display with short names */}
-                              <div className="flex items-center gap-1.5 mb-2">
+                              <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                                 {shortPositions.map((position, idx) => (
                                   <div key={idx} className="flex items-center">
-                                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                                    <div className={`px-2.5 py-1 rounded text-sm font-medium ${
                                       isSelected
                                         ? `bg-${categoryTheme?.accent}/20 text-${categoryTheme?.accent}`
                                         : 'bg-white/10 text-slate-300'
@@ -362,7 +362,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                               </div>
 
                               {/* Description */}
-                              <p className="text-xs text-slate-400 leading-relaxed">
+                              <p className="text-sm text-slate-400 leading-relaxed">
                                 {language === 'en' ? layout.taglineEn : layout.taglineFr}
                               </p>
                             </button>
@@ -410,9 +410,9 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                       <button
                         key={q.id}
                         onClick={() => handleSuggestedQuestionClick(language === 'en' ? q.textEn : q.textFr)}
-                        className="w-full text-left px-3 py-2 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/15 transition-colors"
+                        className="w-full text-left px-3 py-2.5 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/15 transition-colors"
                       >
-                        <span className="text-xs text-slate-300 line-clamp-2">
+                        <span className="text-sm text-slate-300 line-clamp-2">
                           {language === 'en' ? q.textEn : q.textFr}
                         </span>
                       </button>
@@ -453,19 +453,19 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                           <button
                             key={style.id}
                             onClick={() => onStyleToggle(style.id)}
-                            className={`p-2.5 rounded-lg border text-left transition-colors ${
+                            className={`p-3 rounded-lg border text-left transition-colors ${
                               isSelected
                                 ? 'bg-slate-700/50 border-white/20'
                                 : 'bg-slate-800/30 border-white/5 hover:border-white/15'
                             }`}
                           >
                             <div className="flex items-center gap-1.5 mb-0.5">
-                              {isSelected && <Check className="w-3 h-3 text-green-400" />}
-                              <span className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-green-400" />}
+                              <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-300'}`}>
                                 {language === 'en' ? style.labelEn : style.labelFr}
                               </span>
                             </div>
-                            <p className="text-xs text-slate-500 line-clamp-1">
+                            <p className="text-sm text-slate-500 line-clamp-1">
                               {language === 'en' ? style.descEn : style.descFr}
                             </p>
                           </button>
