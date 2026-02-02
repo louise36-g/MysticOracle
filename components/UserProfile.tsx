@@ -1,142 +1,168 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
-import { DailyBonusCard } from './rewards';
-import { Calendar, Coins, Share2, Copy, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { ACHIEVEMENTS, SpreadType } from '../types';
-import { SPREADS } from '../constants';
-import { fetchUserReadings, ReadingData, fetchUserTransactions, Transaction } from '../services/api';
-import { ReadingFilters, ReadingHistoryCard, ReadingHistoryAccordion, AchievementCard, TransactionItem, TransactionFilters, TransactionHistoryAccordion, EmptyState, SortOption, TransactionTypeFilter } from './profile';
-import { getAchievementsWithProgress, debugAchievementStatus } from '../utils/achievementService';
-import { filterByDateRange, type DateRangeOption } from '../utils/dateFilters';
-import { createShareUrl, type SharePlatform } from '../utils/socialShare';
+import Toast from './ui/Toast';
+import { Calendar, Coins, Copy, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame, Gift, Clock, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ACHIEVEMENTS } from '../types';
+import { fetchUnifiedReadings, UnifiedReadingData, fetchUserTransactions, Transaction } from '../services/api';
+import { ReadingTypeFilter, ReadingFilterType, AchievementCard, TransactionFilters, TransactionTypeFilter, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState } from './profile';
+import { getAchievementsWithProgress } from '../utils/achievementService';
 
 // Constants
 const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
 const STAGGER_DELAY = 0.08;
 
 const UserProfile: React.FC = () => {
-    const { user, logout, t, language } = useApp();
+    const { user, logout, t, language, claimDailyBonus } = useApp();
     const { user: clerkUser, isSignedIn } = useUser();
     const { signOut } = useClerk();
     const { getToken } = useAuth();
 
     // UI State
-    const [isCopied, setIsCopied] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
     const [expandedReading, setExpandedReading] = useState<string | null>(null);
+    const [achievementsExpanded, setAchievementsExpanded] = useState(false);
+
+    // Toast State
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'bonus' | 'copy' | 'error'; visible: boolean }>({
+        message: '',
+        type: 'success',
+        visible: false,
+    });
+
+    // Daily Bonus State
+    const [isClaiming, setIsClaiming] = useState(false);
+    const [timeUntilBonus, setTimeUntilBonus] = useState<string>('');
+    const [canClaimBonus, setCanClaimBonus] = useState(false);
 
     // Data State
-    const [backendReadings, setBackendReadings] = useState<ReadingData[]>([]);
+    const [backendReadings, setBackendReadings] = useState<UnifiedReadingData[]>([]);
     const [isLoadingReadings, setIsLoadingReadings] = useState(true);
     const [readingsError, setReadingsError] = useState<string | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
-    // Reading Filter State
-    const [searchQuery, setSearchQuery] = useState('');
-    const [spreadFilter, setSpreadFilter] = useState<SpreadType | 'all'>('all');
-    const [sortOrder, setSortOrder] = useState<SortOption>('newest');
-    const [dateRange, setDateRange] = useState<DateRangeOption>('all');
-
-    // Transaction Filter State
+    // Filter State
+    const [readingTypeFilter, setReadingTypeFilter] = useState<ReadingFilterType>('single');
     const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionTypeFilter>('all');
-    const [transactionDateRange, setTransactionDateRange] = useState<DateRangeOption>('all');
 
     // Fetch data on mount
     useEffect(() => {
         const loadData = async () => {
             if (!isSignedIn) return;
-            try {
-                setIsLoadingReadings(true);
-                setIsLoadingTransactions(true);
-                setReadingsError(null);
-                const token = await getToken();
-                if (token) {
-                    const [readingsResult, transactionsResult] = await Promise.all([
-                        fetchUserReadings(token, 100, 0),
-                        fetchUserTransactions(token, 100, 0)
-                    ]);
-                    setBackendReadings(readingsResult.data || []);
-                    setTransactions(transactionsResult.data || []);
-                }
-            } catch (error) {
-                console.error('Failed to load data:', error);
-                setReadingsError(t('UserProfile.tsx.UserProfile.failed_to_load', 'Failed to load history'));
-            } finally {
+            setIsLoadingReadings(true);
+            setIsLoadingTransactions(true);
+            setReadingsError(null);
+
+            const token = await getToken();
+            if (!token) {
                 setIsLoadingReadings(false);
                 setIsLoadingTransactions(false);
+                return;
             }
+
+            // Fetch readings and transactions independently so one failure doesn't block the other
+            fetchUnifiedReadings(token, { limit: 100, offset: 0, type: 'all', language: language as 'en' | 'fr' })
+                .then(result => setBackendReadings(result.data || []))
+                .catch(error => {
+                    console.error('Failed to load readings:', error);
+                    setReadingsError(t('UserProfile.tsx.UserProfile.failed_to_load', 'Failed to load history'));
+                })
+                .finally(() => setIsLoadingReadings(false));
+
+            fetchUserTransactions(token, 100, 0)
+                .then(result => setTransactions(result.data || []))
+                .catch(error => console.error('Failed to load transactions:', error))
+                .finally(() => setIsLoadingTransactions(false));
         };
         loadData();
-    }, [isSignedIn, getToken, t]);
+    }, [isSignedIn, getToken, t, language]);
 
-    // Helper functions for reading filtering
-    const searchMatchesReading = (reading: ReadingData, query: string): boolean => {
-        const searchLower = query.toLowerCase();
-        return reading.question?.toLowerCase().includes(searchLower) ||
-               reading.interpretation?.toLowerCase().includes(searchLower) ||
-               false;
-    };
-
-    const sortReadings = (readings: ReadingData[], order: SortOption): ReadingData[] => {
-        const sorted = [...readings];
-        sorted.sort((a, b) => {
-            const dateA = new Date(a.createdAt).getTime();
-            const dateB = new Date(b.createdAt).getTime();
-            return order === 'newest' ? dateB - dateA : dateA - dateB;
-        });
-        return sorted;
-    };
-
-    // Filter and sort readings
-    const filteredReadings = useMemo(() => {
-        let result = [...(backendReadings || [])];
-
-        // Apply date range filter
-        result = filterByDateRange(result, dateRange, 'createdAt');
-
-        // Apply spread filter (case-insensitive - backend uses UPPERCASE, frontend uses lowercase)
-        if (spreadFilter !== 'all') {
-            result = result.filter(r => r.spreadType?.toLowerCase() === spreadFilter.toLowerCase());
-        }
-
-        // Apply search filter
-        if (searchQuery.trim()) {
-            result = result.filter(r => searchMatchesReading(r, searchQuery));
-        }
-
-        // Apply sort
-        result = sortReadings(result, sortOrder);
-
-        return result;
-    }, [backendReadings, spreadFilter, searchQuery, sortOrder, dateRange]);
-
-    // Filter transactions
-    const filteredTransactions = useMemo(() => {
-        let result = [...(transactions || [])];
-
-        // Apply type filter
-        if (transactionTypeFilter !== 'all') {
-            if (transactionTypeFilter === 'purchases') {
-                result = result.filter(t => t.type === 'PURCHASE');
-            } else if (transactionTypeFilter === 'bonuses') {
-                result = result.filter(t => ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type));
-            } else if (transactionTypeFilter === 'readings') {
-                result = result.filter(t => ['READING', 'QUESTION'].includes(t.type));
+    // Daily bonus timer
+    useEffect(() => {
+        const calculateTimeUntilNext = () => {
+            if (!user?.lastLoginDate) {
+                setCanClaimBonus(true);
+                setTimeUntilBonus('');
+                return;
             }
+
+            const lastClaim = new Date(user.lastLoginDate);
+            const now = new Date();
+            const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
+            const diff = nextClaimTime.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                setCanClaimBonus(true);
+                setTimeUntilBonus('');
+            } else {
+                setCanClaimBonus(false);
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                setTimeUntilBonus(hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`);
+            }
+        };
+
+        calculateTimeUntilNext();
+        const interval = setInterval(calculateTimeUntilNext, 60000);
+        return () => clearInterval(interval);
+    }, [user?.lastLoginDate]);
+
+    // Show toast helper
+    const showToast = useCallback((message: string, type: 'success' | 'bonus' | 'copy' | 'error' = 'success') => {
+        setToast({ message, type, visible: true });
+    }, []);
+
+    const hideToast = useCallback(() => {
+        setToast(prev => ({ ...prev, visible: false }));
+    }, []);
+
+    // Filter readings by type
+    const filteredReadings = useMemo(() => {
+        if (!backendReadings || backendReadings.length === 0) return [];
+
+        if (readingTypeFilter === 'all') {
+            return backendReadings;
         }
 
-        // Apply date range filter
-        result = filterByDateRange(result, transactionDateRange, 'createdAt');
+        if (readingTypeFilter === 'birth_cards') {
+            return backendReadings.filter(r =>
+                r.readingType === 'birth_synthesis' ||
+                r.readingType === 'personal_year' ||
+                r.readingType === 'threshold'
+            );
+        }
 
-        return result;
-    }, [transactions, transactionTypeFilter, transactionDateRange]);
+        // Filter to specific tarot spread type
+        return backendReadings.filter(r =>
+            r.readingType === 'tarot' &&
+            r.spreadType?.toLowerCase() === readingTypeFilter
+        );
+    }, [backendReadings, readingTypeFilter]);
 
-    const totalValidReadings = (backendReadings || []).length;
+    // Filter transactions by type
+    const filteredTransactions = useMemo(() => {
+        if (!transactions || transactions.length === 0) return [];
+
+        if (transactionTypeFilter === 'all') return transactions;
+
+        if (transactionTypeFilter === 'purchases') {
+            return transactions.filter(t => t.type === 'PURCHASE');
+        }
+        if (transactionTypeFilter === 'bonuses') {
+            return transactions.filter(t =>
+                ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type)
+            );
+        }
+        if (transactionTypeFilter === 'readings') {
+            return transactions.filter(t => ['READING', 'QUESTION'].includes(t.type));
+        }
+
+        return transactions;
+    }, [transactions, transactionTypeFilter]);
 
     // Calculate achievements with progress using the service
     const achievementsWithProgress = useMemo(() => {
@@ -149,11 +175,6 @@ const UserProfile: React.FC = () => {
                 unlockedAchievements: user.achievements || [],
                 readings: backendReadings || [],
             };
-
-            // Debug achievement status in development (disabled - check console manually if needed)
-            // if (process.env.NODE_ENV === 'development') {
-            //     debugAchievementStatus(userData);
-            // }
 
             return getAchievementsWithProgress(userData);
         } catch (error) {
@@ -169,7 +190,6 @@ const UserProfile: React.FC = () => {
     if (!isSignedIn) return null;
 
     // Combine user data
-    // user.achievements is already an array of achievement ID strings from AppContext
     const achievementIds = user?.achievements || [];
     const displayUser = {
         username: user?.username || clerkUser?.username || clerkUser?.firstName || 'User',
@@ -184,8 +204,28 @@ const UserProfile: React.FC = () => {
 
     const copyReferral = () => {
         navigator.clipboard.writeText(displayUser.referralCode);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+        showToast(language === 'en' ? 'Referral code copied!' : 'Code copié !', 'copy');
+    };
+
+    const handleClaimBonus = async () => {
+        if (!canClaimBonus || isClaiming) return;
+        setIsClaiming(true);
+        try {
+            const result = await claimDailyBonus();
+            if (result.success) {
+                const streakBonus = (user?.loginStreak || 0) >= 6;
+                const credits = streakBonus ? 7 : 2;
+                showToast(
+                    language === 'en' ? `+${credits} credits claimed!` : `+${credits} crédits réclamés !`,
+                    'bonus'
+                );
+                setCanClaimBonus(false);
+            }
+        } catch (error) {
+            showToast(language === 'en' ? 'Failed to claim bonus' : 'Échec de la réclamation', 'error');
+        } finally {
+            setIsClaiming(false);
+        }
     };
 
     const handleSignOut = () => { signOut(); logout(); };
@@ -199,208 +239,206 @@ const UserProfile: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-4 sm:space-y-6">
 
-                {/* Profile Header */}
+                {/* Compact Profile Header */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
                     className={SECTION_CLASSES}
                 >
-                    <div className="flex flex-col md:flex-row items-center gap-6">
-                        {/* Avatar */}
-                        <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 p-[3px]">
+                    <div className="flex items-center gap-4">
+                        {/* Smaller Avatar */}
+                        <div className="relative shrink-0">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 p-[2px]">
                                 <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
-                                    <span className="text-3xl font-heading text-purple-100">
+                                    <span className="text-xl font-heading text-purple-100">
                                         {displayUser.username.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
                             </div>
                             {displayUser.emailVerified && (
-                                <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 border-2 border-slate-900">
-                                    <CheckCircle className="w-3 h-3 text-white" />
+                                <div className="absolute -bottom-0.5 -right-0.5 bg-emerald-500 rounded-full p-1 border-2 border-slate-900">
+                                    <CheckCircle className="w-2.5 h-2.5 text-white" />
                                 </div>
                             )}
                         </div>
 
-                        {/* User Info */}
-                        <div className="text-center md:text-left flex-1">
-                            <h1 className="text-2xl md:text-3xl font-heading text-white mb-1">{displayUser.username}</h1>
-                            <p className="text-slate-400 mb-2">{displayUser.email}</p>
-                            <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-slate-500">
-                                <Calendar className="w-4 h-4" />
-                                <span>{t('UserProfile.tsx.UserProfile.member_since', 'Member since')} {new Date(displayUser.joinDate).toLocaleDateString()}</span>
+                        {/* User Info + Inline Stats */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h1 className="text-lg font-heading text-white truncate">{displayUser.username}</h1>
+                                {/* Inline stat pills */}
+                                <div className="flex items-center gap-1.5">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                                        <Flame className="w-3 h-3" />{displayUser.loginStreak}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full">
+                                        <BookOpen className="w-3 h-3" />{user?.totalReadings || 0}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full">
+                                        <Award className="w-3 h-3" />{displayUser.achievements.length}
+                                    </span>
+                                </div>
                             </div>
+                            <p className="text-sm text-slate-400 truncate">{displayUser.email}</p>
+                            <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                                <Calendar className="w-3 h-3" />
+                                {t('UserProfile.tsx.UserProfile.member_since', 'Member since')} {new Date(displayUser.joinDate).toLocaleDateString()}
+                            </p>
                         </div>
 
-                        {/* Credits */}
+                        {/* Credits Button - Compact */}
                         <button
                             onClick={() => setIsShopOpen(true)}
-                            className="bg-slate-800/80 border border-amber-500/30 rounded-xl p-4 min-w-[140px] text-center
+                            className="shrink-0 bg-slate-800/80 border border-amber-500/30 rounded-lg px-3 py-2
                                        hover:border-amber-400/50 hover:bg-slate-800 transition-all duration-200 group"
                         >
-                            <p className="text-sm text-slate-400 uppercase tracking-wider mb-1">
-                                {t('UserProfile.tsx.UserProfile.credits', 'Credits')}
-                            </p>
-                            <p className="text-3xl font-bold text-amber-400 flex items-center justify-center gap-2 group-hover:text-amber-300 transition-colors">
-                                {displayUser.credits}
-                                <Coins className="w-5 h-5" />
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <Coins className="w-4 h-4 text-amber-400 group-hover:text-amber-300" />
+                                <span className="text-xl font-bold text-amber-400 group-hover:text-amber-300">
+                                    {displayUser.credits}
+                                </span>
+                            </div>
                         </button>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-700/40">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-orange-400 mb-1">
-                                <Flame className="w-4 h-4 sm:w-5 sm:h-5" />
-                                <span className="text-xl sm:text-2xl font-bold">{displayUser.loginStreak}</span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.day_streak', 'Day Streak')}</p>
-                        </div>
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-purple-400 mb-1">
-                                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-                                <span className="text-xl sm:text-2xl font-bold">{user?.totalReadings || 0}</span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.readings', 'Readings')}</p>
-                        </div>
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-amber-400 mb-1">
-                                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
-                                <span className="text-xl sm:text-2xl font-bold">{displayUser.achievements.length}</span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-slate-500">{t('UserProfile.tsx.UserProfile.achievements', 'Achievements')}</p>
-                        </div>
                     </div>
                 </motion.section>
 
-                {/* Daily Bonus & Referral */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: STAGGER_DELAY }}>
-                        <DailyBonusCard />
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: STAGGER_DELAY * 2 }}
-                        className={SECTION_CLASSES}
+                {/* Action Bar - Daily Bonus & Referral */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY }}
+                    className="flex gap-3"
+                >
+                    {/* Daily Bonus Button */}
+                    <button
+                        onClick={handleClaimBonus}
+                        disabled={!canClaimBonus || isClaiming}
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                                   border transition-all duration-200 ${
+                            canClaimBonus
+                                ? 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500/50 text-white hover:from-amber-500 hover:to-orange-500'
+                                : 'bg-slate-800/60 border-slate-700/50 text-slate-400'
+                        }`}
                     >
-                        <h3 className="text-base font-medium text-purple-200 mb-1 flex items-center gap-2">
-                            <Share2 className="w-4 h-4" />
-                            {t('UserProfile.tsx.UserProfile.referral_code', 'Referral Code')}
-                        </h3>
-                        <p className="text-sm text-slate-400 mb-3">
-                            {t('UserProfile.tsx.UserProfile.share_both_get', 'Share & both get +5 credits')}
-                        </p>
-                        <div className="flex gap-2 mb-3">
-                            <div className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 font-mono text-purple-200 tracking-wider">
-                                {displayUser.referralCode}
-                            </div>
-                            <button
-                                onClick={copyReferral}
-                                className="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-lg transition-colors duration-200"
-                            >
-                                {isCopied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                            </button>
-                        </div>
+                        {isClaiming ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : canClaimBonus ? (
+                            <>
+                                <Gift className="w-4 h-4" />
+                                <span className="font-medium text-sm">
+                                    {language === 'en' ? 'Claim +2' : 'Réclamer +2'}
+                                    {(user?.loginStreak || 0) >= 6 && ' (+5)'}
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="font-medium text-sm">
+                                    {language === 'en' ? 'Next bonus' : 'Prochain bonus'}
+                                </span>
+                                <Clock className="w-4 h-4" />
+                                <span className="font-medium text-sm">{timeUntilBonus || '...'}</span>
+                            </>
+                        )}
+                    </button>
 
-                        {/* Social Share Buttons */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => {
-                                    const text = language === 'en'
-                                        ? `Join me on MysticOracle and get 5 free credits! Use code: ${displayUser.referralCode}`
-                                        : `Rejoignez-moi sur MysticOracle et obtenez 5 crédits gratuits ! Code: ${displayUser.referralCode}`;
-                                    window.open(createShareUrl('whatsapp', text), '_blank');
-                                }}
-                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-500
-                                           text-white rounded-lg transition-colors duration-200 text-sm"
-                            >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                                </svg>
-                                WhatsApp
-                            </button>
-                            <button
-                                onClick={() => {
-                                    const text = language === 'en'
-                                        ? `Join me on MysticOracle! Use code ${displayUser.referralCode} for 5 free credits 🔮✨`
-                                        : `Rejoignez-moi sur MysticOracle ! Code ${displayUser.referralCode} pour 5 crédits gratuits 🔮✨`;
-                                    window.open(createShareUrl('twitter', text), '_blank');
-                                }}
-                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-400
-                                           text-white rounded-lg transition-colors duration-200 text-sm"
-                            >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                </svg>
-                                X (Twitter)
-                            </button>
+                    {/* Referral Button with Tooltip */}
+                    <div className="flex-1 relative group">
+                        <button
+                            onClick={copyReferral}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                                       bg-slate-800/60 border border-slate-700/50 text-slate-300
+                                       hover:bg-slate-700/60 hover:border-slate-600/50 transition-all duration-200"
+                        >
+                            <Copy className="w-4 h-4" />
+                            <span className="font-mono text-sm tracking-wider">{displayUser.referralCode}</span>
+                        </button>
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5
+                                        bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-300
+                                        opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                        whitespace-nowrap pointer-events-none z-10">
+                            {language === 'en'
+                                ? 'Share this code - you both get +5 credits!'
+                                : 'Partagez ce code - vous recevez tous les deux +5 crédits !'}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-700" />
                         </div>
-                    </motion.div>
-                </div>
+                    </div>
+                </motion.div>
 
-                {/* Achievements */}
+                {/* Collapsible Achievements */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 3 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 2 }}
                     className={SECTION_CLASSES}
                 >
-                    <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
-                        <Award className="w-5 h-5 text-amber-400" />
-                        {t('UserProfile.tsx.UserProfile.achievements_2', 'Achievements')}
-                    </h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
-                        {achievementsWithProgress.map((achievement) => {
-                            // Find unlock date from backend data
-                            const userAchievement = user?.achievementsData?.find(
-                                (a: any) => a.achievementId === achievement.id
-                            );
-                            return (
-                                <AchievementCard
-                                    key={achievement.id}
-                                    achievement={achievement}
-                                    isUnlocked={achievement.isUnlocked}
-                                    progress={achievement.progress}
-                                    unlockedAt={userAchievement?.unlockedAt}
-                                />
-                            );
-                        })}
-                    </div>
+                    <button
+                        onClick={() => setAchievementsExpanded(!achievementsExpanded)}
+                        className="w-full flex items-center justify-between py-1"
+                    >
+                        <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
+                            <Award className="w-4 h-4 text-amber-400" />
+                            {t('UserProfile.tsx.UserProfile.achievements_2', 'Achievements')}
+                            <span className="text-xs text-slate-500 font-normal">
+                                ({achievementsWithProgress.filter(a => a.isUnlocked).length}/{achievementsWithProgress.length})
+                            </span>
+                        </h2>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                            achievementsExpanded ? 'rotate-180' : ''
+                        }`} />
+                    </button>
+
+                    <AnimatePresence>
+                        {achievementsExpanded && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-4 border-t border-slate-700/40 mt-3">
+                                    {achievementsWithProgress.map((achievement) => {
+                                        const userAchievement = user?.achievementsData?.find(
+                                            (a: any) => a.achievementId === achievement.id
+                                        );
+                                        return (
+                                            <AchievementCard
+                                                key={achievement.id}
+                                                achievement={achievement}
+                                                isUnlocked={achievement.isUnlocked}
+                                                progress={achievement.progress}
+                                                unlockedAt={userAchievement?.unlockedAt}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.section>
 
                 {/* Reading History */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 4 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 3 }}
                     className={SECTION_CLASSES}
                 >
-                    <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
-                        <History className="w-5 h-5 text-purple-400" />
-                        {t('UserProfile.tsx.UserProfile.reading_history', 'Reading History')}
-                    </h2>
-
-                    {/* Filters */}
-                    <div className="mb-5">
-                        <ReadingFilters
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            spreadFilter={spreadFilter}
-                            onSpreadFilterChange={setSpreadFilter}
-                            sortOrder={sortOrder}
-                            onSortChange={setSortOrder}
-                            dateRange={dateRange}
-                            onDateRangeChange={setDateRange}
-                            resultCount={filteredReadings.length}
-                            totalCount={totalValidReadings}
+                    {/* Header with inline filter */}
+                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                        <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
+                            <History className="w-4 h-4 text-purple-400" />
+                            {t('UserProfile.tsx.UserProfile.reading_history', 'Reading History')}
+                        </h2>
+                        <ReadingTypeFilter
+                            value={readingTypeFilter}
+                            onChange={setReadingTypeFilter}
                         />
                     </div>
 
-                    {/* Reading List - Accordion View */}
+                    {/* Reading List */}
                     {isLoadingReadings ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
@@ -410,16 +448,12 @@ const UserProfile: React.FC = () => {
                         <p className="text-red-400 text-center py-12">{readingsError}</p>
                     ) : filteredReadings.length === 0 ? (
                         <EmptyState
-                            type={totalValidReadings === 0 ? 'readings' : 'filtered'}
-                            onAction={totalValidReadings === 0 ? undefined : () => {
-                                setSearchQuery('');
-                                setSpreadFilter('all');
-                                setDateRange('all');
-                            }}
+                            type={backendReadings.length === 0 ? 'readings' : 'filtered'}
+                            onAction={backendReadings.length === 0 ? undefined : () => setReadingTypeFilter('all')}
                         />
                     ) : (
                         <div className="max-h-[700px] overflow-y-auto pr-1">
-                            <ReadingHistoryAccordion
+                            <MonthlyReadingAccordion
                                 readings={filteredReadings}
                                 expandedReading={expandedReading}
                                 onToggleReading={(id) => setExpandedReading(expandedReading === id ? null : id)}
@@ -432,55 +466,45 @@ const UserProfile: React.FC = () => {
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 5 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 4 }}
                     className={SECTION_CLASSES}
                 >
-                    <h2 className="text-lg font-heading text-purple-100 mb-5 flex items-center gap-2">
-                        <CreditCard className="w-5 h-5 text-green-400" />
-                        {t('UserProfile.tsx.UserProfile.credit_history', 'Credit History')}
-                    </h2>
+                    {/* Header with inline filter */}
+                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                        <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
+                            <CreditCard className="w-4 h-4 text-green-400" />
+                            {t('UserProfile.tsx.UserProfile.credit_history', 'Credit History')}
+                        </h2>
+                        {transactions && transactions.length > 0 && (
+                            <TransactionFilters
+                                typeFilter={transactionTypeFilter}
+                                onTypeFilterChange={setTransactionTypeFilter}
+                            />
+                        )}
+                    </div>
 
                     {/* Low Credits Warning */}
                     {displayUser.credits < 3 && (
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mb-5 p-4 rounded-lg bg-gradient-to-r from-amber-900/30 to-orange-900/30
-                                       border border-amber-500/30 flex items-center justify-between gap-4"
+                            className="mb-5 p-3 rounded-lg bg-gradient-to-r from-amber-900/30 to-orange-900/30
+                                       border border-amber-500/30 flex items-center justify-between gap-3"
                         >
-                            <div className="flex items-center gap-3">
-                                <Coins className="w-5 h-5 text-amber-400" />
-                                <div>
-                                    <p className="text-sm font-medium text-amber-200">
-                                        {t('UserProfile.tsx.UserProfile.low_on_credits', 'Low on Credits')}
-                                    </p>
-                                    <p className="text-xs text-amber-300/70">
-                                        {t('UserProfile.tsx.UserProfile.get_more_credits', 'Get more credits to continue your readings')}
-                                    </p>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                <Coins className="w-4 h-4 text-amber-400" />
+                                <p className="text-sm text-amber-200">
+                                    {t('UserProfile.tsx.UserProfile.low_on_credits', 'Low on Credits')}
+                                </p>
                             </div>
                             <button
                                 onClick={() => setIsShopOpen(true)}
-                                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
-                                           transition-colors duration-200 text-sm font-medium whitespace-nowrap"
+                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+                                           transition-colors duration-200 text-xs font-medium whitespace-nowrap"
                             >
                                 {t('UserProfile.tsx.UserProfile.get_credits', 'Get Credits')}
                             </button>
                         </motion.div>
-                    )}
-
-                    {/* Filters */}
-                    {transactions && transactions.length > 0 && (
-                        <div className="mb-5">
-                            <TransactionFilters
-                                typeFilter={transactionTypeFilter}
-                                onTypeFilterChange={setTransactionTypeFilter}
-                                dateRange={transactionDateRange}
-                                onDateRangeChange={setTransactionDateRange}
-                                resultCount={filteredTransactions.length}
-                                totalCount={transactions.length}
-                            />
-                        </div>
                     )}
 
                     {/* Summary */}
@@ -508,22 +532,15 @@ const UserProfile: React.FC = () => {
                             <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading_2', 'Loading...')}</span>
                         </div>
                     ) : !transactions || transactions.length === 0 ? (
-                        <EmptyState
-                            type="transactions"
-                        />
+                        <EmptyState type="transactions" />
                     ) : filteredTransactions.length === 0 ? (
                         <EmptyState
                             type="filtered"
-                            onAction={() => {
-                                setTransactionTypeFilter('all');
-                                setTransactionDateRange('all');
-                            }}
+                            onAction={() => setTransactionTypeFilter('all')}
                         />
                     ) : (
                         <div className="max-h-[500px] overflow-y-auto pr-1">
-                            <TransactionHistoryAccordion
-                                transactions={filteredTransactions}
-                            />
+                            <MonthlyTransactionAccordion transactions={filteredTransactions} />
                         </div>
                     )}
                 </motion.section>
@@ -547,6 +564,14 @@ const UserProfile: React.FC = () => {
 
                 {/* Credit Shop Modal */}
                 <CreditShop isOpen={isShopOpen} onClose={() => setIsShopOpen(false)} />
+
+                {/* Toast Notifications */}
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    isVisible={toast.visible}
+                    onClose={hideToast}
+                />
             </div>
         </div>
     );
