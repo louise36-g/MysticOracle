@@ -9,9 +9,22 @@ import prisma from '../../db/prisma.js';
 import { openRouterService } from '../../services/openRouterService.js';
 import { getYearEnergyReadingPrompt } from '../../services/promptService.js';
 import { debug } from '../../lib/logger.js';
+import { creditService } from '../../services/CreditService.js';
 
 // Re-export commonly used imports
-export { Router, z, requireAuth, prisma, openRouterService, getYearEnergyReadingPrompt, debug };
+export {
+  Router,
+  z,
+  requireAuth,
+  prisma,
+  openRouterService,
+  getYearEnergyReadingPrompt,
+  debug,
+  creditService,
+};
+
+// Credit cost for year energy reading
+export const YEAR_ENERGY_CREDIT_COST = 3;
 
 // ============================================
 // MAJOR ARCANA DATA

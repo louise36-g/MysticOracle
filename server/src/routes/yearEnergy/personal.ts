@@ -16,6 +16,8 @@ import {
   personalYearSchema,
   calculatePersonalYear,
   MAJOR_ARCANA,
+  creditService,
+  YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
 
 const router = Router();
@@ -84,11 +86,15 @@ router.get('/cached', requireAuth, async (req, res) => {
  * Weaves universal year energy with user's birth cards
  */
 router.post('/', requireAuth, async (req, res) => {
+  let transactionId: string | undefined;
+
   try {
     const userId = req.auth.userId;
+    console.log('[YearEnergy POST] Request received for user:', userId);
     const validation = personalYearSchema.safeParse(req.body);
 
     if (!validation.success) {
+      console.log('[YearEnergy POST] Validation failed:', validation.error.errors);
       return res.status(400).json({
         error: 'Invalid request data',
         details: validation.error.errors,
@@ -96,34 +102,49 @@ router.post('/', requireAuth, async (req, res) => {
     }
 
     const { personalityCard, soulCard, zodiac, birthDate, language } = validation.data;
+    console.log('[YearEnergy POST] Validated data:', {
+      personalityCard: personalityCard.cardId,
+      soulCard: soulCard.cardId,
+      birthDate,
+      language,
+    });
     const year = validation.data.year || new Date().getFullYear();
 
-    // Check for cached reading first
-    const existingReading = await prisma.personalYearReading.findUnique({
-      where: {
-        userId_year: { userId, year },
-      },
+    // Always charge credits for Year Energy readings
+    // Users can view past readings in their history instead of regenerating
+
+    // Check if user has enough credits
+    const balanceCheck = await creditService.checkSufficientCredits(
+      userId,
+      YEAR_ENERGY_CREDIT_COST
+    );
+    if (balanceCheck.balance === 0 && !balanceCheck.sufficient) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!balanceCheck.sufficient) {
+      return res.status(400).json({
+        error: 'Insufficient credits',
+        required: YEAR_ENERGY_CREDIT_COST,
+        available: balanceCheck.balance,
+      });
+    }
+
+    // Deduct credits BEFORE generating (will refund if generation fails)
+    const deductResult = await creditService.deductCredits({
+      userId,
+      amount: YEAR_ENERGY_CREDIT_COST,
+      type: 'READING',
+      description: `Year Energy Reading ${year}`,
     });
 
-    if (existingReading) {
-      // Check if birth cards match (in case user changed birth date)
-      if (
-        existingReading.personalityCardId === personalityCard.cardId &&
-        existingReading.soulCardId === soulCard.cardId
-      ) {
-        const synthesis =
-          language === 'en' ? existingReading.synthesisEn : existingReading.synthesisFr;
-        if (synthesis) {
-          debug.log('[YearEnergy] Using cached personal year reading');
-          return res.json({
-            synthesis,
-            cached: true,
-            personalYearNumber: existingReading.personalYearNumber,
-            personalYearCardId: existingReading.personalYearCardId,
-          });
-        }
-      }
+    if (!deductResult.success) {
+      console.error('[YearEnergy] Credit deduction failed:', deductResult.error);
+      return res.status(400).json({ error: 'Failed to process credits' });
     }
+
+    transactionId = deductResult.transactionId;
+    debug.log('[YearEnergy] Deducted', YEAR_ENERGY_CREDIT_COST, 'credits for user:', userId);
 
     // Fetch year energy
     const yearEnergy = await prisma.yearEnergy.findUnique({
@@ -259,9 +280,30 @@ Signe: ${zodiac.nameFr}
       cached: false,
       personalYearNumber,
       personalYearCardId: personalYearNumber,
+      creditsUsed: YEAR_ENERGY_CREDIT_COST,
     });
   } catch (error) {
     console.error('[YearEnergy] Error generating personal reading:', error);
+
+    // Refund credits if we deducted them but generation failed
+    if (transactionId) {
+      try {
+        const refundResult = await creditService.refundCredits(
+          req.auth.userId,
+          YEAR_ENERGY_CREDIT_COST,
+          'Year energy generation failed',
+          transactionId
+        );
+        if (refundResult.success) {
+          debug.log('[YearEnergy] Refunded credits after generation failure');
+        } else {
+          console.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
+        }
+      } catch (refundError) {
+        console.error('[YearEnergy] CRITICAL: Refund error:', refundError);
+      }
+    }
+
     const message = error instanceof Error ? error.message : 'Failed to generate reading';
     res.status(500).json({ error: message });
   }

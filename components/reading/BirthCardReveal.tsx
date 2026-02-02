@@ -16,9 +16,7 @@ import { calculateBirthCards, getZodiacSign, getMajorArcanaAssociation } from '.
 import { getCardImageUrl } from '../../constants/cardImages';
 import {
   generateBirthCardSynthesis,
-  getCachedBirthCardSynthesis,
   getCurrentYearEnergy,
-  getCachedPersonalYearReading,
   generatePersonalYearReading,
   type YearEnergyResponse,
 } from '../../services/api';
@@ -382,23 +380,8 @@ const BirthCardReveal: React.FC = () => {
       const currentYear = new Date().getFullYear();
       const birthDateISO = `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`;
 
-      // Check for cached reading first
-      try {
-        const cacheResponse = await getCachedPersonalYearReading(token, currentYear, language);
-        if (cacheResponse.cached &&
-            cacheResponse.cached.synthesis &&
-            cacheResponse.cached.year === currentYear) {
-          console.log('[BirthCardReveal] Using cached personal year reading');
-          setYearInterpretation(cacheResponse.cached.synthesis);
-          setPersonalYearNumber(cacheResponse.cached.personalYearNumber);
-          setIsGeneratingYear(false);
-          return;
-        }
-      } catch (cacheError) {
-        console.log('[BirthCardReveal] No cached year reading found, generating new one');
-      }
-
-      // Generate new personal year reading
+      // Always call the generate endpoint - it handles caching internally
+      // and properly checks if birth cards match before returning cached data
       const zodiacSign = getZodiacSign(month, day);
       const personalityAssociation = getMajorArcanaAssociation(personalityCardId);
       const soulAssociation = getMajorArcanaAssociation(soulCardId);
@@ -477,54 +460,9 @@ const BirthCardReveal: React.FC = () => {
         return;
       }
 
-      // First, check for cached synthesis
-      try {
-        console.log('[BirthCardReveal] Checking for cached synthesis...');
-        console.log('[BirthCardReveal] Current birthDateISO:', birthDateISO);
-        const cacheResponse = await getCachedBirthCardSynthesis(token, language);
-        console.log('[BirthCardReveal] Cache response:', cacheResponse.cached ? 'found' : 'not found');
-
-        if (cacheResponse.cached) {
-          // Backend now returns birthDate as normalized YYYY-MM-DD string
-          const cachedDate = cacheResponse.cached.birthDate;
-
-          console.log('[BirthCardReveal] Cache check:', {
-            cachedDate,
-            birthDateISO,
-            dateMatch: cachedDate === birthDateISO,
-            cachedPersonality: cacheResponse.cached.personalityCardId,
-            currentPersonality: personalityCardId,
-            personalityMatch: cacheResponse.cached.personalityCardId === personalityCardId,
-            cachedSoul: cacheResponse.cached.soulCardId,
-            currentSoul: soulCardId,
-            soulMatch: cacheResponse.cached.soulCardId === soulCardId,
-            hasInterpretation: !!cacheResponse.cached.interpretation,
-            interpretationLength: cacheResponse.cached.interpretation?.length || 0,
-          });
-
-          if (cachedDate === birthDateISO &&
-              cacheResponse.cached.personalityCardId === personalityCardId &&
-              cacheResponse.cached.soulCardId === soulCardId &&
-              cacheResponse.cached.interpretation) {
-            console.log('[BirthCardReveal] ✅ Using cached synthesis!');
-            setSynthesisInterpretation(cacheResponse.cached.interpretation);
-            setIsGeneratingSynthesis(false);
-            return;
-          } else {
-            console.log('[BirthCardReveal] ❌ Cache exists but does not match current request');
-            if (cachedDate !== birthDateISO) console.log('  → Date mismatch');
-            if (cacheResponse.cached.personalityCardId !== personalityCardId) console.log('  → Personality card mismatch');
-            if (cacheResponse.cached.soulCardId !== soulCardId) console.log('  → Soul card mismatch');
-            if (!cacheResponse.cached.interpretation) console.log('  → No interpretation for this language');
-          }
-        }
-      } catch (cacheError) {
-        console.log('[BirthCardReveal] Error checking cache:', cacheError);
-      }
-
-      console.log('[BirthCardReveal] Generating new synthesis...');
-
-      // Generate new synthesis (it will be cached automatically)
+      // Always generate new synthesis (charges 2 credits)
+      // Users can view past readings in their history instead of regenerating
+      console.log('[BirthCardReveal] Generating birth card synthesis...');
       const response = await generateBirthCardSynthesis(token, {
         birthDate: birthDateISO,
         personalityCard: {

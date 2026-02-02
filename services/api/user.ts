@@ -163,6 +163,73 @@ export async function fetchUserReadings(
   return apiRequest(`/api/v1/users/me/readings?limit=${limit}&offset=${offset}`, { token });
 }
 
+// ============================================
+// UNIFIED READING HISTORY (All Types)
+// ============================================
+
+export type ReadingType = 'tarot' | 'birth_synthesis' | 'personal_year' | 'threshold';
+
+export interface UnifiedReadingData {
+  id: string;
+  readingType: ReadingType;
+  createdAt: string;
+  creditCost: number;
+  // Tarot-specific
+  spreadType?: string;
+  interpretationStyle?: string;
+  question?: string;
+  cards?: ReadingCard[] | unknown;
+  interpretation?: string;
+  userReflection?: string;
+  followUps?: Array<{
+    id: string;
+    question: string;
+    answer: string;
+    creditCost: number;
+    createdAt: string;
+  }>;
+  // Birth card specific
+  personalityCardId?: number;
+  soulCardId?: number;
+  zodiacSign?: string;
+  synthesisEn?: string;
+  synthesisFr?: string;
+  // Personal year specific
+  year?: number;
+  personalYearNumber?: number;
+  personalYearCardId?: number;
+  // Threshold specific
+  transitionYear?: number;
+  outgoingYearNumber?: number;
+  outgoingYearCardId?: number;
+  incomingYearNumber?: number;
+  incomingYearCardId?: number;
+}
+
+export type ReadingTypeFilter = 'all' | 'tarot' | 'birth_cards';
+
+/**
+ * Fetch unified reading history (all types: tarot, birth cards, year energy, threshold)
+ */
+export async function fetchUnifiedReadings(
+  token: string,
+  options: {
+    limit?: number;
+    offset?: number;
+    type?: ReadingTypeFilter;
+    language?: 'en' | 'fr';
+  } = {}
+): Promise<PaginatedResponse<UnifiedReadingData>> {
+  const { limit = 50, offset = 0, type = 'all', language = 'en' } = options;
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+    type,
+    language,
+  });
+  return apiRequest(`/api/v1/users/me/readings/all?${params}`, { token });
+}
+
 export async function createReading(
   token: string,
   data: {

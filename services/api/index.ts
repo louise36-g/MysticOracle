@@ -19,12 +19,22 @@ export {
   getInvoiceHtml,
   openInvoice,
   fetchUserReadings,
+  fetchUnifiedReadings,
   createReading,
   addFollowUpQuestion,
   updateReadingReflection,
   fetchUserTransactions,
 } from './user';
-export type { UserProfile, ReadingCard, ReadingData, PaginatedResponse, Transaction } from './user';
+export type {
+  UserProfile,
+  ReadingCard,
+  ReadingData,
+  PaginatedResponse,
+  Transaction,
+  UnifiedReadingData,
+  ReadingType,
+  ReadingTypeFilter,
+} from './user';
 
 // Payments API
 export {

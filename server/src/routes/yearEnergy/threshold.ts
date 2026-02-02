@@ -16,6 +16,8 @@ import {
   personalYearSchema,
   isThresholdPeriod,
   MAJOR_ARCANA,
+  creditService,
+  YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
 
 const router = Router();
@@ -137,6 +139,8 @@ router.get('/cached', requireAuth, async (req, res) => {
  * Generate threshold reading for year transition period
  */
 router.post('/', requireAuth, async (req, res) => {
+  let transactionId: string | undefined;
+
   try {
     const userId = req.auth.userId;
     const { isThreshold, transitionYear } = isThresholdPeriod();
@@ -160,25 +164,41 @@ router.post('/', requireAuth, async (req, res) => {
     const outgoingYear = transitionYear - 1;
     const incomingYear = transitionYear;
 
-    // Check for cached reading
-    const existingReading = await prisma.thresholdReading.findUnique({
-      where: {
-        userId_transitionYear: { userId, transitionYear },
-      },
+    // Always charge credits for Threshold readings
+    // Users can view past readings in their history instead of regenerating
+
+    // Check if user has enough credits
+    const balanceCheck = await creditService.checkSufficientCredits(
+      userId,
+      YEAR_ENERGY_CREDIT_COST
+    );
+    if (balanceCheck.balance === 0 && !balanceCheck.sufficient) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!balanceCheck.sufficient) {
+      return res.status(400).json({
+        error: 'Insufficient credits',
+        required: YEAR_ENERGY_CREDIT_COST,
+        available: balanceCheck.balance,
+      });
+    }
+
+    // Deduct credits BEFORE generating (will refund if generation fails)
+    const deductResult = await creditService.deductCredits({
+      userId,
+      amount: YEAR_ENERGY_CREDIT_COST,
+      type: 'READING',
+      description: `Threshold Reading ${outgoingYear}-${incomingYear}`,
     });
 
-    if (existingReading) {
-      const synthesis =
-        language === 'en' ? existingReading.synthesisEn : existingReading.synthesisFr;
-      if (synthesis) {
-        debug.log('[YearEnergy] Using cached threshold reading');
-        return res.json({
-          synthesis,
-          cached: true,
-          transitionYear,
-        });
-      }
+    if (!deductResult.success) {
+      console.error('[YearEnergy] Credit deduction failed:', deductResult.error);
+      return res.status(400).json({ error: 'Failed to process credits' });
     }
+
+    transactionId = deductResult.transactionId;
+    debug.log('[YearEnergy] Deducted', YEAR_ENERGY_CREDIT_COST, 'credits for threshold reading');
 
     // Fetch both years' energy
     const [outgoingEnergy, incomingEnergy] = await Promise.all([
@@ -285,9 +305,30 @@ Rédigez une lecture de seuil de 600-800 mots qui:
       synthesis,
       cached: false,
       transitionYear,
+      creditsUsed: YEAR_ENERGY_CREDIT_COST,
     });
   } catch (error) {
     console.error('[YearEnergy] Error generating threshold reading:', error);
+
+    // Refund credits if we deducted them but generation failed
+    if (transactionId) {
+      try {
+        const refundResult = await creditService.refundCredits(
+          req.auth.userId,
+          YEAR_ENERGY_CREDIT_COST,
+          'Threshold reading generation failed',
+          transactionId
+        );
+        if (refundResult.success) {
+          debug.log('[YearEnergy] Refunded credits after threshold generation failure');
+        } else {
+          console.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
+        }
+      } catch (refundError) {
+        console.error('[YearEnergy] CRITICAL: Refund error:', refundError);
+      }
+    }
+
     const message = error instanceof Error ? error.message : 'Failed to generate reading';
     res.status(500).json({ error: message });
   }
