@@ -3,6 +3,26 @@
  */
 
 /**
+ * Gets the start of day (midnight) for a given date in local timezone
+ */
+const getStartOfDay = (date: Date): Date => {
+  const result = new Date(date);
+  result.setHours(0, 0, 0, 0);
+  return result;
+};
+
+/**
+ * Calculates the difference in calendar days between two dates
+ * (ignores time component, compares dates at midnight)
+ */
+const getCalendarDaysDiff = (date1: Date, date2: Date): number => {
+  const startOfDay1 = getStartOfDay(date1);
+  const startOfDay2 = getStartOfDay(date2);
+  const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+  return Math.round((startOfDay1.getTime() - startOfDay2.getTime()) / MILLISECONDS_PER_DAY);
+};
+
+/**
  * Formats a date string as a relative date (Today, Yesterday, X days ago, or formatted date)
  * @param dateString - ISO date string to format
  * @param t - Translation function
@@ -17,9 +37,8 @@ export const formatRelativeDate = (
   const date = new Date(dateString);
   const now = new Date();
 
-  const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
-  const diffTime = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffTime / MILLISECONDS_PER_DAY);
+  // Calculate difference in calendar days (not elapsed time)
+  const diffDays = getCalendarDaysDiff(now, date);
 
   if (diffDays === 0) return t('common.today', 'Today');
   if (diffDays === 1) return t('common.yesterday', 'Yesterday');

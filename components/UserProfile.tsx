@@ -457,6 +457,7 @@ const UserProfile: React.FC = () => {
                                 readings={filteredReadings}
                                 expandedReading={expandedReading}
                                 onToggleReading={(id) => setExpandedReading(expandedReading === id ? null : id)}
+                                filterType={readingTypeFilter}
                             />
                         </div>
                     )}

@@ -4,11 +4,24 @@ import { ChevronDown, Calendar, History } from 'lucide-react';
 import { UnifiedReadingData } from '../../services/api';
 import { useApp } from '../../context/AppContext';
 import UnifiedHistoryCard from './UnifiedHistoryCard';
+import { ReadingFilterType } from './ReadingTypeFilter';
+
+// Labels for each filter type
+const FILTER_LABELS: Record<ReadingFilterType, { en: string; fr: string }> = {
+  all: { en: 'All Readings', fr: 'Toutes les lectures' },
+  single: { en: 'Single Card', fr: 'Carte unique' },
+  three_card: { en: '3-Card', fr: '3 cartes' },
+  five_card: { en: '5-Card', fr: '5 cartes' },
+  horseshoe: { en: 'Horseshoe', fr: 'Fer à cheval' },
+  celtic_cross: { en: 'Celtic Cross', fr: 'Croix celtique' },
+  birth_cards: { en: 'Birth Cards', fr: 'Cartes de naissance' },
+};
 
 interface MonthlyReadingAccordionProps {
   readings: UnifiedReadingData[];
   expandedReading: string | null;
   onToggleReading: (id: string) => void;
+  filterType?: ReadingFilterType;
 }
 
 interface MonthGroup {
@@ -21,8 +34,12 @@ const MonthlyReadingAccordion: React.FC<MonthlyReadingAccordionProps> = ({
   readings,
   expandedReading,
   onToggleReading,
+  filterType = 'all',
 }) => {
   const { t, language } = useApp();
+
+  // Get the label for the current filter type
+  const filterLabel = FILTER_LABELS[filterType]?.[language === 'en' ? 'en' : 'fr'] || FILTER_LABELS.all[language === 'en' ? 'en' : 'fr'];
   // Auto-expand "This Month" by default
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['this-month']));
 
@@ -157,7 +174,7 @@ const MonthlyReadingAccordion: React.FC<MonthlyReadingAccordionProps> = ({
       {/* This Month Section */}
       {renderAccordionSection(
         'this-month',
-        language === 'en' ? 'This Month' : 'Ce mois-ci',
+        language === 'en' ? `This Month - ${filterLabel}` : `Ce mois-ci - ${filterLabel}`,
         <Calendar className="w-4 h-4" />,
         thisMonth
       )}
@@ -175,7 +192,7 @@ const MonthlyReadingAccordion: React.FC<MonthlyReadingAccordionProps> = ({
               </div>
               <div className="text-left">
                 <h3 className="text-base font-medium text-white">
-                  {language === 'en' ? 'All' : 'Tout'}
+                  {filterLabel}
                 </h3>
                 <p className="text-xs text-slate-500">
                   {olderByMonth.reduce((sum, g) => sum + g.readings.length, 0)}{' '}

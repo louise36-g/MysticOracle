@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, MessageCircle, BookOpen, Sparkles, Calendar, Sun, Moon } from 'lucide-react';
+import { ChevronDown, MessageCircle, BookOpen, Sparkles, Calendar, Sun, Moon, Share2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { SpreadType } from '../../types';
 import { SPREADS, FULL_DECK } from '../../constants';
@@ -8,6 +8,7 @@ import { UnifiedReadingData } from '../../services/api';
 import { useApp } from '../../context/AppContext';
 import { formatRelativeDate } from '../../utils/dateFormatters';
 import CardThumbnail from './CardThumbnail';
+import { ShareBirthCardModal } from '../share';
 
 // Major Arcana names for birth card display
 const MAJOR_ARCANA: Record<number, { nameEn: string; nameFr: string }> = {
@@ -94,6 +95,9 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
   const { t, language } = useApp();
   const lang = language as 'en' | 'fr';
   const typeInfo = getReadingTypeInfo(reading.readingType, lang);
+
+  // Share modal state for birth card readings
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Get the interpretation text based on reading type
   const interpretationContent = useMemo(() => {
@@ -282,9 +286,26 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
               {/* Birth Card-specific: Card Details */}
               {(reading.readingType === 'birth_synthesis' || reading.readingType === 'personal_year' || reading.readingType === 'threshold') && (
                 <div>
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
-                    {lang === 'en' ? 'Birth Cards' : 'Cartes de Naissance'}
-                  </p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      {lang === 'en' ? 'Birth Cards' : 'Cartes de Naissance'}
+                    </p>
+                    {/* Share button - only for birth_synthesis readings with valid card IDs */}
+                    {reading.readingType === 'birth_synthesis' &&
+                      reading.personalityCardId !== undefined &&
+                      reading.soulCardId !== undefined && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsShareModalOpen(true);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 rounded-full border border-violet-500/30 transition-colors"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>{lang === 'en' ? 'Share' : 'Partager'}</span>
+                        </button>
+                      )}
+                  </div>
                   <div className="flex flex-wrap gap-4 items-start">
                     {reading.personalityCardId !== undefined && (
                       <div className="flex flex-col items-center gap-2">
@@ -399,6 +420,20 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Share Modal for Birth Card readings */}
+      {reading.readingType === 'birth_synthesis' &&
+        reading.personalityCardId !== undefined &&
+        reading.soulCardId !== undefined && (
+          <ShareBirthCardModal
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            personalityCardId={reading.personalityCardId}
+            soulCardId={reading.soulCardId}
+            zodiacSign={reading.zodiacSign}
+            readingText={interpretationContent}
+          />
+        )}
     </div>
   );
 };

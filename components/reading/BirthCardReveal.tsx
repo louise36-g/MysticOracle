@@ -8,7 +8,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar, Loader2 } from 'lucide-react';
+import { Star, Sun, Moon as MoonIcon, ChevronLeft, Sparkles, Calendar, Loader2, Share2 } from 'lucide-react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { SpreadType, BirthCardDepth } from '../../types';
@@ -22,6 +22,7 @@ import {
 } from '../../services/api';
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
+import { ShareBirthCardModal } from '../share';
 
 // Import JSON data files (trusted static content)
 import personalityCards from '../../constants/birthCards/personalityCards.json';
@@ -31,9 +32,24 @@ import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json
 import yearEnergyCycle from '../../constants/birthCards/yearEnergyCycle.json';
 
 /**
+ * Convert markdown inline formatting to HTML
+ * - **text** → <strong>text</strong>
+ * - *text* → <em>text</em>
+ */
+function convertMarkdownInline(text: string): string {
+  // Convert **bold** to <strong>
+  let result = text.replace(/\*\*([^*]+)\*\*/g, '<strong style="color: #fcd34d;">$1</strong>');
+  // Convert *italic* to <em> (but not if it's part of a list marker)
+  result = result.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  return result;
+}
+
+/**
  * Format HTML content by converting newlines to proper HTML structure
  * - Processes line-by-line to properly detect headers
  * - Detects plain text headers and wraps in h2
+ * - Handles numbered lists (1. 2. 3.)
+ * - Converts markdown bold/italic
  * - Preserves existing HTML block elements
  * - Ensures h2/h3 tags have visible styling
  */
@@ -70,10 +86,28 @@ function formatHtmlContent(content: string): string {
     return false;
   };
 
+  // Check if line is a numbered list item (1. 2. 3. etc)
+  const isNumberedListItem = (line: string): boolean => {
+    return /^\d+\.\s+/.test(line.trim());
+  };
+
   // Process line by line
   const lines = content.split('\n');
   const elements: string[] = [];
   let currentParagraph: string[] = [];
+  let inList = false;
+  let listItems: string[] = [];
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      const listHtml = listItems
+        .map(item => `<li style="margin-bottom: 0.75em; padding-left: 0.5em;">${convertMarkdownInline(item)}</li>`)
+        .join('');
+      elements.push(`<ol style="margin: 1em 0; padding-left: 1.5em; list-style-type: decimal;">${listHtml}</ol>`);
+      listItems = [];
+      inList = false;
+    }
+  };
 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
@@ -82,7 +116,7 @@ function formatHtmlContent(content: string): string {
         if (/^<(h[1-6]|div|ul|ol|li|blockquote|p)/i.test(text)) {
           elements.push(text);
         } else {
-          elements.push(`<p style="margin-bottom: 0.75em; font-size: 1rem; line-height: 1.7;">${text}</p>`);
+          elements.push(`<p style="margin-bottom: 0.75em; font-size: 1rem; line-height: 1.7;">${convertMarkdownInline(text)}</p>`);
         }
       }
       currentParagraph = [];
@@ -95,14 +129,31 @@ function formatHtmlContent(content: string): string {
     // Empty line = paragraph break
     if (!trimmed) {
       flushParagraph();
+      flushList();
       continue;
     }
 
     // Check if this is a standalone header line
     if (isHeaderLine(trimmed)) {
       flushParagraph();
-      elements.push(`<h2 style="${h2Style}">${trimmed}</h2>`);
+      flushList();
+      elements.push(`<h2 style="${h2Style}">${convertMarkdownInline(trimmed)}</h2>`);
       continue;
+    }
+
+    // Check if this is a numbered list item
+    if (isNumberedListItem(trimmed)) {
+      flushParagraph();
+      inList = true;
+      // Extract the content after the number and period
+      const listContent = trimmed.replace(/^\d+\.\s+/, '');
+      listItems.push(listContent);
+      continue;
+    }
+
+    // If we were in a list but this line isn't a list item, flush the list
+    if (inList && !isNumberedListItem(trimmed)) {
+      flushList();
     }
 
     // Regular content - add to current paragraph
@@ -111,6 +162,7 @@ function formatHtmlContent(content: string): string {
 
   // Flush any remaining content
   flushParagraph();
+  flushList();
 
   // Italicize the last element if it's a reflective question (starts with How/What and ends with ?)
   if (elements.length > 0) {
@@ -269,6 +321,9 @@ const BirthCardReveal: React.FC = () => {
 
   // Enlarged image modal state
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; alt: string } | null>(null);
+
+  // Share modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Redirect if no state
   useEffect(() => {
@@ -1192,8 +1247,20 @@ const BirthCardReveal: React.FC = () => {
           <AnimatePresence mode="wait">{renderTabContent()}</AnimatePresence>
         </div>
 
-        {/* Footer action */}
-        <div className="p-4 text-center">
+        {/* Footer actions */}
+        <div className="p-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {/* Share button - visible for depth >= 2 */}
+          {depth >= 2 && (
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg shadow-lg shadow-violet-500/30 transition-all hover:scale-105"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="font-medium">
+                {language === 'en' ? 'Share Your Birth Cards' : 'Partagez vos Cartes'}
+              </span>
+            </button>
+          )}
           <Button
             onClick={() => navigate('/reading')}
             variant="outline"
@@ -1240,6 +1307,20 @@ const BirthCardReveal: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Share Birth Cards Modal */}
+      <ShareBirthCardModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        personalityCardId={personalityCardId}
+        soulCardId={soulCardId}
+        zodiacSign={language === 'en' ? zodiacSign.name : zodiacSign.nameFr}
+        readingText={
+          isUnified
+            ? (language === 'en' ? unifiedData?.descriptionEn : unifiedData?.descriptionFr)
+            : synthesisInterpretation || undefined
+        }
+      />
     </div>
   );
 };
