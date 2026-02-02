@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/c
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
-import { Moon, Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles } from 'lucide-react';
+import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -75,9 +75,12 @@ const Header: React.FC<HeaderProps> = () => {
           className="flex items-center gap-2 cursor-pointer"
           aria-label="MysticOracle - Go to homepage"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 flex items-center justify-center" aria-hidden="true">
-            <Moon className="w-5 h-5 text-white fill-current" />
-          </div>
+          <img
+            src="/logos/mysticoracle-comet-cream.svg"
+            alt=""
+            className="h-10 w-auto"
+            aria-hidden="true"
+          />
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             MysticOracle
           </span>

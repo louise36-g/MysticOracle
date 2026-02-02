@@ -207,19 +207,32 @@ const BirthCardShareImage: React.FC<BirthCardShareImageProps> = ({
         drawLabel(ctx, soulLabel, soulX + CARD_WIDTH / 2, cardY + CARD_HEIGHT + 12, '#a78bfa');
       }
 
-      // 5. Draw branding at bottom
+      // 5. Draw branding at bottom with logo
+      // Load and draw the card logo
+      try {
+        const logoImg = await loadImage('/logos/mysticoracle-card-gold.svg');
+        const logoHeight = 45;
+        const logoWidth = 30; // Maintaining 50:75 aspect ratio
+        const logoX = IMAGE_WIDTH / 2 - 100 - logoWidth / 2;
+        const logoY = IMAGE_HEIGHT - 55;
+        ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+      } catch (logoErr) {
+        // Logo is optional, continue without it
+        console.warn('[BirthCardShareImage] Could not load logo:', logoErr);
+      }
+
       ctx.font = '500 24px Georgia, serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText('mysticoracle.com', IMAGE_WIDTH / 2, IMAGE_HEIGHT - 25);
+      ctx.fillText('mysticoracle.com', IMAGE_WIDTH / 2 + 10, IMAGE_HEIGHT - 25);
 
       // Add subtle line above branding
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(450, IMAGE_HEIGHT - 60);
-      ctx.lineTo(750, IMAGE_HEIGHT - 60);
+      ctx.moveTo(400, IMAGE_HEIGHT - 65);
+      ctx.lineTo(800, IMAGE_HEIGHT - 65);
       ctx.stroke();
 
       // Export as PNG
