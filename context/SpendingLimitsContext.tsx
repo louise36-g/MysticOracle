@@ -283,49 +283,23 @@ export const SpendingLimitsProvider: React.FC<{ children: React.ReactNode }> = (
     return { allowed: true };
   }, [isSelfExclusionActive, state.selfExclusion.endDate, getLimitStatus, spentToday, spentThisWeek, spentThisMonth]);
 
-  // Set a spending limit (with cooling-off period for increases)
+  // Set a spending limit (takes effect immediately)
   const setLimit = useCallback((field: keyof SpendingLimits, value: number | null): { success: boolean; message: string; effectiveAt?: number } => {
-    const currentValue = state.limits[field];
-
-    // Decreasing or setting a new limit takes effect immediately
-    if (currentValue === null || value === null || value <= currentValue) {
-      setState(prev => ({
-        ...prev,
-        limits: { ...prev.limits, [field]: value },
-        // Remove any pending change for this field
-        pendingChanges: prev.pendingChanges.filter(c => c.field !== field)
-      }));
-      return {
-        success: true,
-        message: value === null
-          ? `${field.charAt(0).toUpperCase() + field.slice(1)} limit removed.`
-          : `${field.charAt(0).toUpperCase() + field.slice(1)} limit set to €${value}.`
-      };
-    }
-
-    // Increasing a limit requires cooling-off period
-    const effectiveAt = Date.now() + (COOLING_OFF_HOURS * 60 * 60 * 1000);
-    const newPendingChange: PendingLimitChange = {
-      field,
-      newValue: value,
-      requestedAt: Date.now(),
-      effectiveAt
-    };
-
+    // All limit changes take effect immediately
     setState(prev => ({
       ...prev,
-      pendingChanges: [
-        ...prev.pendingChanges.filter(c => c.field !== field),
-        newPendingChange
-      ]
+      limits: { ...prev.limits, [field]: value },
+      // Clear any pending changes for this field
+      pendingChanges: prev.pendingChanges.filter(c => c.field !== field)
     }));
 
     return {
       success: true,
-      message: `Limit increase scheduled. To protect you, increases take effect after 24 hours. Your new €${value} ${field} limit will be active on ${new Date(effectiveAt).toLocaleString()}.`,
-      effectiveAt
+      message: value === null
+        ? `${field.charAt(0).toUpperCase() + field.slice(1)} limit removed.`
+        : `${field.charAt(0).toUpperCase() + field.slice(1)} limit set to €${value}.`
     };
-  }, [state.limits]);
+  }, []);
 
   // Record a purchase
   const recordPurchase = useCallback((amount: number, packageName: string) => {

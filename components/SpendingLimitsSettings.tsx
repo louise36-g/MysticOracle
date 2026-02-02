@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Clock, Download, AlertTriangle, Info, Coffee, X, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Shield, Download, AlertTriangle, Info, Coffee, X, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { useSpendingLimits, SpendingLimits } from '../context/SpendingLimitsContext';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
@@ -29,7 +29,6 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
   const {
     limits,
     selfExclusion,
-    pendingChanges,
     spentToday,
     spentThisWeek,
     spentThisMonth,
@@ -61,7 +60,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
 
   const handleSetLimit = useCallback((field: keyof SpendingLimits, value: number | null) => {
     const result = setLimit(field, value);
-    showFeedback(result.effectiveAt ? 'info' : 'success', result.message);
+    showFeedback('success', result.message);
     setCustomValues(prev => ({ ...prev, [field]: '' }));
   }, [setLimit, showFeedback]);
 
@@ -98,7 +97,6 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
 
   const renderLimitRow = (field: keyof SpendingLimits, label: string, spent: number, presets: number[]) => {
     const currentStatus = status[field];
-    const pending = pendingChanges.find(c => c.field === field);
 
     return (
       <div className="space-y-3">
@@ -122,18 +120,6 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
               animate={{ width: `${Math.min(100, currentStatus.percentage)}%` }}
               transition={{ duration: 0.5 }}
             />
-          </div>
-        )}
-
-        {/* Pending change notice */}
-        {pending && (
-          <div className="flex items-center gap-2 text-sm text-amber-400 bg-amber-900/20 p-2 rounded">
-            <Clock className="w-4 h-4" />
-            <span>
-              {language === 'en'
-                ? `Increase to €${pending.newValue} pending until ${new Date(pending.effectiveAt).toLocaleString()}`
-                : `Augmentation à €${pending.newValue} en attente jusqu'au ${new Date(pending.effectiveAt).toLocaleString()}`}
-            </span>
           </div>
         )}
 
@@ -297,8 +283,8 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                     <div className="p-4 space-y-6 border-t border-slate-700">
                       <p className="text-sm text-slate-400">
                         {language === 'en'
-                          ? 'Set limits to help manage your spending. Lowering limits takes effect immediately. Raising limits requires a 24-hour cooling-off period.'
-                          : 'Définissez des limites pour gérer vos dépenses. La baisse des limites prend effet immédiatement. L\'augmentation nécessite un délai de réflexion de 24 heures.'}
+                          ? 'Set limits to help manage your spending. All changes take effect immediately.'
+                          : 'Définissez des limites pour gérer vos dépenses. Tous les changements prennent effet immédiatement.'}
                       </p>
 
                       {renderLimitRow('daily', language === 'en' ? 'Daily Limit' : 'Limite Quotidienne', spentToday, PRESET_LIMITS.daily)}
