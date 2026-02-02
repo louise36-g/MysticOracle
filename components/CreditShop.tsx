@@ -263,12 +263,12 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     // Map database labels to display labels
     const labelMap: Record<string, Record<string, string>> = {
       en: {
-        'Best Value': 'Good Value',
-        'Power User': 'Best Value',
+        'Most Savings': 'Good Value',
+        'Ultimate Pack': 'Best Value',
       },
       fr: {
-        'Meilleure Valeur': 'Bonne affaire',
-        'Power User': 'Le plus avantageux',
+        "Plus d'économies": 'Bonne affaire',
+        'Pack Ultime': 'Le plus avantageux',
       },
     };
     return labelMap[language]?.[label] || label;

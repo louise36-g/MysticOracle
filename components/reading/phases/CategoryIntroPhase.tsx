@@ -1,7 +1,7 @@
 // components/reading/phases/CategoryIntroPhase.tsx
 // Unified intro phase for category-first flow with collapsible layout picker
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Coins, ChevronDown, Check, Sparkles } from 'lucide-react';
 import {
@@ -111,6 +111,23 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
   onStartShuffle,
 }) => {
   const [layoutPickerOpen, setLayoutPickerOpen] = useState(false);
+  const [shakeQuestion, setShakeQuestion] = useState(false);
+  const questionRef = useRef<HTMLTextAreaElement>(null);
+
+  // Shake and focus the question input when validation fails for question
+  useEffect(() => {
+    if (validationMessage && (
+      validationMessage.toLowerCase().includes('question') ||
+      validationMessage.toLowerCase().includes('votre question')
+    )) {
+      setShakeQuestion(true);
+      // Focus the question input
+      questionRef.current?.focus();
+      // Reset shake after animation completes
+      const timer = setTimeout(() => setShakeQuestion(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [validationMessage]);
 
   const categoryConfig = getCategory(category);
   // Use category color theme for consistent theming (not spread theme)
@@ -383,22 +400,33 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                 </label>
 
                 {/* Custom Question Textarea - First */}
-                <div className="relative mb-3">
+                <motion.div
+                  className="relative mb-3"
+                  animate={shakeQuestion ? {
+                    x: [0, -10, 10, -10, 10, -5, 5, 0],
+                    transition: { duration: 0.5 }
+                  } : {}}
+                >
                   <textarea
+                    ref={questionRef}
                     value={customQuestion}
                     onChange={(e) => onCustomQuestionChange(e.target.value)}
                     placeholder={
                       language === 'en'
-                        ? 'What would you like guidance on?'
-                        : 'Sur quoi souhaitez-vous des conseils?'
+                        ? 'Enter your question here...'
+                        : 'Entrez votre question ici...'
                     }
-                    className="w-full h-24 px-3 py-2.5 rounded-lg bg-slate-800/50 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-white/30 focus:outline-none resize-none"
+                    className={`w-full h-24 px-3 py-2.5 rounded-lg bg-slate-800/50 border text-white text-base placeholder:text-slate-400 placeholder:text-base focus:border-purple-500/50 focus:outline-none resize-none transition-all ${
+                      shakeQuestion
+                        ? 'border-red-500/70 ring-2 ring-red-500/30'
+                        : 'border-white/10'
+                    }`}
                     maxLength={300}
                   />
                   <span className="absolute bottom-2 right-2 text-xs text-slate-500">
                     {customQuestion.length}/300
                   </span>
-                </div>
+                </motion.div>
 
                 {/* Suggested Questions - After */}
                 <div>
