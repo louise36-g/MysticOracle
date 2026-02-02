@@ -277,6 +277,22 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  // Transform package labels for display
+  const getDisplayLabel = (label: string): string => {
+    // Map database labels to display labels
+    const labelMap: Record<string, Record<string, string>> = {
+      en: {
+        'Best Value': 'Good Value',
+        'Power User': 'Best Value',
+      },
+      fr: {
+        'Meilleure Valeur': 'Bonne Valeur',
+        'Power User': 'Meilleure Valeur',
+      },
+    };
+    return labelMap[language]?.[label] || label;
+  };
+
   if (!isOpen) return null;
 
   // Use portal to render modal at body level for proper centering
@@ -452,7 +468,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                           )}
                           {pkg.badge && (
                             <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
-                              {label}
+                              {getDisplayLabel(label)}
                             </span>
                           )}
                           {pkg.discount > 0 && (
@@ -522,7 +538,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                         <div className="flex flex-wrap gap-1.5">
                           {pkg.badge && (
                             <span className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}>
-                              {label}
+                              {getDisplayLabel(label)}
                             </span>
                           )}
                           {isBestValue && !pkg.badge && (
