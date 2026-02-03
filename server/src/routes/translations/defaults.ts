@@ -61,6 +61,70 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'horoscope.aquarius': { en: 'Aquarius', fr: 'Verseau' },
   'horoscope.pisces': { en: 'Pisces', fr: 'Poissons' },
 
+  // Horoscope Reading Component
+  'horoscope.HoroscopeReading.daily_horoscope': { en: 'Daily Horoscope', fr: 'Horoscope du Jour' },
+  'horoscope.HoroscopeReading.ask_the_stars': { en: 'Ask the Stars', fr: 'Interrogez les Étoiles' },
+  'horoscope.HoroscopeReading.suggested_questions': {
+    en: 'Suggested questions:',
+    fr: 'Questions suggérées :',
+  },
+  'horoscope.HoroscopeReading.you': { en: 'You', fr: 'Vous' },
+  'horoscope.HoroscopeReading.the_stars': { en: 'The Stars', fr: 'Les Étoiles' },
+  'horoscope.HoroscopeReading.consulting_cosmos': {
+    en: 'Consulting the cosmos...',
+    fr: 'Consultation du cosmos...',
+  },
+  'horoscope.HoroscopeReading.choose_another_sign': {
+    en: 'Choose another sign',
+    fr: 'Choisir un autre signe',
+  },
+  'horoscope.HoroscopeReading.select_zodiac_sign': {
+    en: 'Select Your Zodiac Sign',
+    fr: 'Sélectionnez Votre Signe du Zodiaque',
+  },
+  'horoscope.HoroscopeReading.insufficient_credits_message': {
+    en: "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars.",
+    fr: 'Vous avez utilisé votre question gratuite pour cette paire. Chaque crédit débloque 2 questions - gagnez plus de crédits grâce aux connexions quotidiennes, aux succès ou aux parrainages pour continuer à explorer les étoiles.',
+  },
+
+  // Horoscopes Index Page
+  'horoscopes.HoroscopesIndex.title': { en: 'Daily Horoscopes', fr: 'Horoscopes du Jour' },
+  'horoscopes.HoroscopesIndex.subtitle': {
+    en: 'Select your zodiac sign to discover what the stars have in store for you today.',
+    fr: "Sélectionnez votre signe du zodiaque pour découvrir ce que les étoiles vous réservent aujourd'hui.",
+  },
+  'horoscopes.HoroscopesIndex.fire': { en: 'Fire', fr: 'Feu' },
+  'horoscopes.HoroscopesIndex.earth': { en: 'Earth', fr: 'Terre' },
+  'horoscopes.HoroscopesIndex.air': { en: 'Air', fr: 'Air' },
+  'horoscopes.HoroscopesIndex.water': { en: 'Water', fr: 'Eau' },
+
+  // Horoscope Sign Page
+  'horoscopes.HoroscopeSignPage.not_found': { en: 'Sign Not Found', fr: 'Signe Non Trouvé' },
+  'horoscopes.HoroscopeSignPage.all_signs': {
+    en: 'All Zodiac Signs',
+    fr: 'Tous les Signes du Zodiaque',
+  },
+  'horoscopes.HoroscopeSignPage.ruling': { en: 'Ruling', fr: 'Planète' },
+  'horoscopes.HoroscopeSignPage.element': { en: 'Element', fr: 'Élément' },
+  'horoscopes.HoroscopeSignPage.ask_the_stars': {
+    en: 'Ask the Stars',
+    fr: 'Interrogez les Étoiles',
+  },
+  'horoscopes.HoroscopeSignPage.suggested_questions': {
+    en: 'Suggested questions:',
+    fr: 'Questions suggérées :',
+  },
+  'horoscopes.HoroscopeSignPage.you': { en: 'You', fr: 'Vous' },
+  'horoscopes.HoroscopeSignPage.the_stars': { en: 'The Stars', fr: 'Les Étoiles' },
+  'horoscopes.HoroscopeSignPage.consulting': {
+    en: 'Consulting the cosmos...',
+    fr: 'Consultation du cosmos...',
+  },
+  'horoscopes.HoroscopeSignPage.view_all_signs': {
+    en: 'View All Zodiac Signs',
+    fr: 'Découvrir tous les signes',
+  },
+
   // Profile
   'profile.title': { en: 'Your Profile', fr: 'Votre Profil' },
   'profile.credits': { en: 'Credits', fr: 'Crédits' },
@@ -98,6 +162,26 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'common.today': { en: 'Today', fr: "Aujourd'hui" },
   'common.yesterday': { en: 'Yesterday', fr: 'Hier' },
   'common.days_ago': { en: 'days ago', fr: 'il y a' },
+  'common.back': { en: 'Back to All Signs', fr: 'Retour à tous les signes' },
+
+  // Footer
+  'footer.tagline': {
+    en: 'AI-powered tarot readings and horoscopes',
+    fr: "Tirages tarot et horoscopes propulsés par l'IA",
+  },
+  'footer.help': { en: 'Help', fr: 'Aide' },
+  'footer.faq': { en: 'FAQ', fr: 'FAQ' },
+  'footer.howCreditsWork': { en: 'How Credits Work', fr: 'Comment fonctionnent les crédits' },
+  'footer.legal': { en: 'Legal', fr: 'Mentions légales' },
+  'footer.privacyPolicy': { en: 'Privacy Policy', fr: 'Politique de confidentialité' },
+  'footer.termsOfService': { en: 'Terms of Service', fr: "Conditions d'utilisation" },
+  'footer.cookiePolicy': { en: 'Cookie Policy', fr: 'Politique des cookies' },
+  'footer.contact': { en: 'Contact', fr: 'Contact' },
+  'footer.allRightsReserved': { en: 'All rights reserved.', fr: 'Tous droits réservés.' },
+  'footer.disclaimer': {
+    en: 'For entertainment purposes only. Not a substitute for professional advice.',
+    fr: 'À des fins de divertissement uniquement. Ne remplace pas un avis professionnel.',
+  },
 
   // Transaction Types
   'transaction.type.purchase': { en: 'Purchase', fr: 'Achat' },
@@ -397,6 +481,11 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Past, present, and future perspective',
     fr: 'Perspective passé, présent et futur',
   },
+  'faq.readings.spread5': { en: 'Five Card (Love & Career)', fr: 'Cinq Cartes (Amour & Carrière)' },
+  'faq.readings.spread5desc': {
+    en: '5-card spreads for relationships and career',
+    fr: 'Tirages à 5 cartes pour les relations et la carrière',
+  },
   'faq.readings.spread3': { en: 'Horseshoe', fr: 'Fer à Cheval' },
   'faq.readings.spread3desc': {
     en: 'Deeper situation analysis with 7 cards',
@@ -423,6 +512,8 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'MysticOracle is fully available in English and French. You can switch languages anytime using the flag icon in the header. Your readings will be generated in your selected language.',
     fr: "MysticOracle est entièrement disponible en anglais et en français. Vous pouvez changer de langue à tout moment en utilisant l'icône de drapeau dans l'en-tête. Vos lectures seront générées dans la langue sélectionnée.",
   },
+  'faq.credit': { en: 'credit', fr: 'crédit' },
+  'faq.credits': { en: 'credits', fr: 'crédits' },
 
   'faq.privacy.title': { en: 'Privacy & Security', fr: 'Confidentialité & Sécurité' },
   'faq.privacy.q1': { en: 'Is my data private?', fr: 'Mes données sont-elles privées ?' },
@@ -517,6 +608,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'subnav.horoscope.title': { en: 'Horoscope', fr: 'Horoscope' },
   'subnav.comingSoon.title': { en: 'Coming Soon', fr: 'Bientôt' },
   'subnav.learn.title': { en: 'Learn', fr: 'Découvrir' },
+  'subnav.soon': { en: 'Soon', fr: 'Bientôt' },
 
   // SubNav - Tarot Spreads
   'subnav.tarot.single.desc': { en: '1 card', fr: '1 carte' },
@@ -548,6 +640,8 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   // SubNav - Learn Items
   'subnav.learn.about.label': { en: 'About Us', fr: 'À Propos' },
   'subnav.learn.about.desc': { en: 'Our story', fr: 'Notre histoire' },
+  'subnav.learn.tarotCards.label': { en: 'The Arcanas', fr: 'Les Arcanes' },
+  'subnav.learn.tarotCards.desc': { en: 'Explore all 78 cards', fr: 'Explorez les 78 cartes' },
   'subnav.learn.blog.label': { en: 'Blog', fr: 'Blog' },
   'subnav.learn.blog.desc': { en: 'Articles & guides', fr: 'Articles & guides' },
   'subnav.learn.credits.label': {
