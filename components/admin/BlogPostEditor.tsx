@@ -52,6 +52,7 @@ import {
   SidebarSelect,
   SidebarLabel,
   SidebarTextArea,
+  TranslationToolbar,
   AVAILABLE_LANGUAGES,
 } from './editor';
 
@@ -282,8 +283,34 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     />
   );
 
+  const handleImportFrench = (data: { title: string; excerpt: string; content: string; seoMetaTitle?: string; seoMetaDescription?: string }) => {
+    setPost({
+      ...post,
+      titleFr: data.title,
+      excerptFr: data.excerpt,
+      contentFr: data.content,
+      metaTitleFr: data.seoMetaTitle || '',
+      metaDescFr: data.seoMetaDescription || '',
+    });
+  };
+
   const mainContent = (
     <>
+      {/* Translation Toolbar (only in French mode) */}
+      <TranslationToolbar
+        editLanguage={editLanguage}
+        language={language}
+        englishData={{
+          title: post.titleEn,
+          excerpt: post.excerptEn || '',
+          content: post.contentEn || '',
+          seoMetaTitle: post.metaTitleEn,
+          seoMetaDescription: post.metaDescEn,
+        }}
+        onImportFrench={handleImportFrench}
+        filenamePrefix={post.slug || 'blog-post'}
+      />
+
       {/* Title */}
       <EditorField
         label={language === 'en' ? 'Title' : 'Titre'}

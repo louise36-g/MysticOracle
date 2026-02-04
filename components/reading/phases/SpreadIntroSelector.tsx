@@ -146,6 +146,8 @@ interface SpreadIntroSelectorProps {
   selectedStyles?: InterpretationStyle[];
   onAdvancedToggle?: () => void;
   onStyleToggle?: (style: InterpretationStyle) => void;
+  // Question validation error state
+  showQuestionError?: boolean;
 }
 
 const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
@@ -162,6 +164,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
   selectedStyles = [],
   onAdvancedToggle,
   onStyleToggle,
+  showQuestionError = false,
 }) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedPositions, setExpandedPositions] = useState<string | null>(null);
@@ -406,22 +409,40 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                   >
                                     {/* Custom Question Input */}
                                     <div className="mb-4">
-                                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                                      <label className={`block text-sm font-medium mb-2 ${showQuestionError && !customQuestion.trim() ? 'text-red-400' : 'text-slate-300'}`}>
                                         {language === 'en' ? 'Your Question' : 'Votre Question'}
+                                        {showQuestionError && !customQuestion.trim() && (
+                                          <span className="ml-2 text-red-400 font-normal">
+                                            ({language === 'en' ? 'required' : 'obligatoire'})
+                                          </span>
+                                        )}
                                       </label>
-                                      <textarea
-                                        value={customQuestion}
-                                        onChange={(e) => onCustomQuestionChange(e.target.value)}
-                                        placeholder={language === 'en'
-                                          ? 'What would you like guidance on?'
-                                          : 'Sur quoi aimeriez-vous recevoir des conseils?'}
-                                        rows={3}
-                                        maxLength={500}
-                                        className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30 text-sm resize-none"
-                                      />
+                                      <motion.div
+                                        animate={showQuestionError && !customQuestion.trim() ? {
+                                          x: [0, -10, 10, -10, 10, 0],
+                                          transition: { duration: 0.5 }
+                                        } : {}}
+                                      >
+                                        <textarea
+                                          value={customQuestion}
+                                          onChange={(e) => onCustomQuestionChange(e.target.value)}
+                                          placeholder={language === 'en'
+                                            ? 'What would you like guidance on?'
+                                            : 'Sur quoi aimeriez-vous recevoir des conseils?'}
+                                          rows={3}
+                                          maxLength={500}
+                                          className={`w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 text-sm resize-none transition-colors ${
+                                            showQuestionError && !customQuestion.trim()
+                                              ? 'border-2 border-red-500 focus:border-red-500 focus:ring-red-500/30'
+                                              : 'border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30'
+                                          }`}
+                                        />
+                                      </motion.div>
                                       <div className="mt-1.5 flex items-start justify-between gap-4">
-                                        <p className="text-xs text-slate-500 flex-1">
-                                          {language === 'en' ? customHelper.en : customHelper.fr}
+                                        <p className={`text-xs flex-1 ${showQuestionError && !customQuestion.trim() ? 'text-red-400 font-medium' : 'text-slate-500'}`}>
+                                          {showQuestionError && !customQuestion.trim()
+                                            ? (language === 'en' ? 'Please enter your question to continue' : 'Veuillez entrer votre question pour continuer')
+                                            : (language === 'en' ? customHelper.en : customHelper.fr)}
                                         </p>
                                         <span className="text-xs text-slate-500">{customQuestion.length}/500</span>
                                       </div>

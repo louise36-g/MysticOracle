@@ -1,5 +1,5 @@
 // components/reading/phases/FiveCardIntroPhase.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, Coins } from 'lucide-react';
 import { SpreadConfig, InterpretationStyle, SpreadType } from '../../../types';
@@ -57,6 +57,7 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
     icon: '🔮',
     textAccent: 'text-purple-300',
   };
+  const [showQuestionError, setShowQuestionError] = useState(false);
 
   const hasValidQuestion = customQuestion.trim().length > 0;
   const canProceed = selectedCategory !== null && selectedLayout !== null && hasValidQuestion && credits >= totalCost;
@@ -64,6 +65,19 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
   // Dummy handler for question select (we use customQuestion directly now)
   const handleQuestionSelect = (_questionId: string, questionText: string) => {
     onCustomQuestionChange(questionText);
+  };
+
+  // Handle button click - show error if question is missing
+  const handleStartClick = () => {
+    if (selectedCategory && selectedLayout && !hasValidQuestion) {
+      setShowQuestionError(true);
+      // Reset after animation
+      setTimeout(() => setShowQuestionError(false), 2000);
+      return;
+    }
+    if (canProceed) {
+      onStartShuffle();
+    }
   };
 
   return (
@@ -109,6 +123,7 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
               selectedStyles={selectedStyles}
               onAdvancedToggle={onAdvancedToggle}
               onStyleToggle={onStyleToggle}
+              showQuestionError={showQuestionError}
             />
           </div>
 
@@ -139,21 +154,21 @@ const FiveCardIntroPhase: React.FC<FiveCardIntroPhaseProps> = ({
               </div>
             </div>
             <Button
-              onClick={onStartShuffle}
+              onClick={handleStartClick}
               size="lg"
               className="w-full"
-              disabled={!canProceed}
+              disabled={!selectedCategory || !selectedLayout || credits < totalCost}
             >
               {language === 'en' ? 'Shuffle the Deck' : 'Battez le jeu'}
             </Button>
             {!canProceed && !validationMessage && (
-              <p className="text-center text-xs text-slate-500 mt-2">
+              <p className={`text-center text-xs mt-2 ${showQuestionError ? 'text-red-400 font-medium' : 'text-slate-500'}`}>
                 {!selectedCategory
                   ? (language === 'en' ? 'Select a theme to continue' : 'Sélectionnez un thème pour continuer')
                   : !selectedLayout
                     ? (language === 'en' ? 'Select a layout' : 'Sélectionnez une disposition')
                     : !hasValidQuestion
-                      ? (language === 'en' ? 'Enter your question' : 'Entrez votre question')
+                      ? (language === 'en' ? 'Please enter your question to continue' : 'Veuillez entrer votre question pour continuer')
                       : (language === 'en' ? 'Insufficient credits' : 'Crédits insuffisants')}
               </p>
             )}

@@ -113,6 +113,10 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
     next();
   } catch (error) {
     console.error('Admin auth error:', error);
-    return res.status(403).json({ error: 'Admin verification failed' });
+    console.error('User ID:', req.auth?.userId);
+    return res.status(403).json({
+      error: 'Admin verification failed',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }

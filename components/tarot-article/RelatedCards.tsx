@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
 import { useTranslation } from '../../context/TranslationContext';
+import { useApp } from '../../context/AppContext';
 import { fetchTarotArticles, TarotArticle } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 
@@ -18,6 +19,7 @@ let articlesCache: TarotArticle[] | null = null;
  */
 export function RelatedCards({ cards }: RelatedCardsProps) {
   const { t } = useTranslation();
+  const { language } = useApp();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -136,7 +138,7 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                     {article.featuredImage ? (
                       <img
                         src={article.featuredImage}
-                        alt={article.featuredImageAlt || article.title}
+                        alt={language === 'fr' && article.featuredImageAltFr ? article.featuredImageAltFr : (article.featuredImageAlt || article.title)}
                         width={200}
                         height={267}
                         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
@@ -161,7 +163,7 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                   </div>
                   <div className="p-3">
                     <h3 className="font-heading text-sm text-purple-100 text-center line-clamp-2 group-hover:text-white transition-colors">
-                      {article.title.split(':')[0].trim()}
+                      {(language === 'fr' && article.titleFr ? article.titleFr : article.title).split(':')[0].trim()}
                     </h3>
                   </div>
                 </motion.div>

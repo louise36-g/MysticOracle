@@ -137,8 +137,8 @@ export function cleanHoroscopeText(text: string): string {
   // Remove "in [Sign]" zodiac references after other words
   cleaned = cleaned.replace(new RegExp(`\\s+in\\s+(${zodiacSignsRegex})`, 'gi'), '');
 
-  // Clean up punctuation issues
-  cleaned = cleaned.replace(/\s+/g, ' ');
+  // Clean up punctuation issues (preserve newlines for paragraph formatting)
+  cleaned = cleaned.replace(/[^\S\n]+/g, ' '); // Collapse spaces but keep newlines
   cleaned = cleaned.replace(/\s+\./g, '.');
   cleaned = cleaned.replace(/\s+,/g, ',');
   cleaned = cleaned.replace(/,\s*,+/g, ',');
@@ -147,8 +147,8 @@ export function cleanHoroscopeText(text: string): string {
   cleaned = cleaned.replace(/\.\s*,/g, '.');
   cleaned = cleaned.replace(/^\s+/gm, '');
 
-  // Remove empty lines and double spaces
-  cleaned = cleaned.replace(/\n\s*\n/g, '\n');
+  // Normalize multiple newlines to double newline (paragraph break)
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
   cleaned = cleaned.replace(/  +/g, ' ');
 
   // Fix sentences that now start with lowercase
@@ -177,12 +177,20 @@ export function cleanHoroscopeText(text: string): string {
   // Add paragraph breaks before common section-starting phrases
   // Only match after sentence-ending punctuation to avoid breaking mid-sentence
   const paragraphStarters = [
+    // English patterns
     /([.!?])\s+(In the realm of|When it comes to|In terms of|Regarding your|As for your)\s+/gi,
     /([.!?])\s+(In matters of|On the work front|At work today|Career-wise|Financially speaking)\s+/gi,
     /([.!?])\s+(As you navigate|As you move through|As the day unfolds|As evening approaches|The evening)\s+/gi,
     /([.!?])\s+(Inside,|Internally,|Emotionally,|For self-care,|Take time to)\s+/gi,
     /([.!?])\s+(For practical|Practical steps|Here are some|Today's tip:)\s+/gi,
     /([.!?])\s+(May you|May the day|As you close|As the day draws)\s+/gi,
+    // French patterns
+    /([.!?])\s+(Dans le domaine|En ce qui concerne|Concernant|Quant à|Pour ce qui est)\s+/gi,
+    /([.!?])\s+(Sur le plan|Au niveau|En matière de|Du côté de|Côté)\s+/gi,
+    /([.!?])\s+(Au travail|Professionnellement|Financièrement|Pour les finances|Pour le travail)\s+/gi,
+    /([.!?])\s+(Pour votre bien-être|Prenez soin|Accordez-vous|N'oubliez pas de|Pensez à)\s+/gi,
+    /([.!?])\s+(Aujourd'hui,? essayez|Conseil du jour|Pour aujourd'hui|Le conseil)\s+/gi,
+    /([.!?])\s+(Dans votre vie|Dans vos relations|En amour|Pour l'amour|Les relations)\s+/gi,
   ];
 
   for (const pattern of paragraphStarters) {

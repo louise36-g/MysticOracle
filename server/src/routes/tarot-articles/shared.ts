@@ -14,10 +14,13 @@ export { prisma, cacheService, CacheService, z, sortByCardNumber };
 export const articleListFields = {
   id: true,
   title: true,
+  titleFr: true,
   slug: true,
   excerpt: true,
+  excerptFr: true,
   featuredImage: true,
   featuredImageAlt: true,
+  featuredImageAltFr: true,
   cardType: true,
   cardNumber: true,
   datePublished: true,
@@ -49,13 +52,13 @@ export function transformArticleResponse(article: {
 }) {
   return {
     ...article,
-    categoryObjects: article.articleCategories.map((ac) => ({
+    categoryObjects: article.articleCategories.map(ac => ({
       id: ac.category.id,
       slug: ac.category.slug,
       name: ac.category.nameEn,
       nameFr: ac.category.nameFr,
     })),
-    tagObjects: article.articleTags.map((at) => ({
+    tagObjects: article.articleTags.map(at => ({
       id: at.tag.id,
       slug: at.tag.slug,
       name: at.tag.nameEn,

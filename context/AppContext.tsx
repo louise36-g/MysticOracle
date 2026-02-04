@@ -11,6 +11,40 @@ import { cleanupDeprecatedStorage } from '../services/storageService';
  */
 const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
 
+/**
+ * Language persistence key for localStorage
+ */
+const LANGUAGE_STORAGE_KEY = 'mysticoracle-language';
+
+/**
+ * Detect initial language preference
+ * Priority: 1. localStorage (user's previous choice) 2. Browser language 3. English default
+ */
+const detectInitialLanguage = (): Language => {
+  // 1. Check localStorage first (user's previous choice)
+  try {
+    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (saved === 'fr' || saved === 'en') {
+      return saved;
+    }
+  } catch (e) {
+    // localStorage might not be available
+  }
+
+  // 2. Check browser language - if French, use French
+  try {
+    const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
+    if (browserLang.toLowerCase().startsWith('fr')) {
+      return 'fr';
+    }
+  } catch (e) {
+    // navigator might not be available (SSR)
+  }
+
+  // 3. Default to English
+  return 'en';
+};
+
 interface User {
   id: string;
   email: string;
@@ -73,7 +107,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
 
   const [user, setUser] = useState<User | null>(null);
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(detectInitialLanguage);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
@@ -175,6 +209,13 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       setUser(mappedUser);
       setLanguageState(mappedUser.language);
 
+      // Sync user's language preference to localStorage
+      try {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, mappedUser.language);
+      } catch (e) {
+        // localStorage might not be available
+      }
+
       // Fetch reading history (skip on refreshUser calls to speed up credit updates)
       if (!skipHistory) {
         const result = await api.fetchUserReadings(token);
@@ -235,6 +276,15 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
 
   const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);
+
+    // Always save to localStorage (for anonymous users and as backup)
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    } catch (e) {
+      // localStorage might not be available
+    }
+
+    // For logged-in users, also save to database
     if (user && isSignedIn) {
       try {
         const token = await getToken();

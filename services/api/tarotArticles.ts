@@ -23,15 +23,19 @@ export interface CTAItem {
 export interface TarotArticle {
   id: string;
   title: string;
+  titleFr?: string;
   slug: string;
   excerpt: string;
+  excerptFr?: string;
   content: string;
+  contentFr?: string;
   author: string;
   readTime: string;
   datePublished: string;
   dateModified: string;
   featuredImage: string;
   featuredImageAlt: string;
+  featuredImageAltFr?: string;
   cardType: string;
   cardNumber: string;
   astrologicalCorrespondence: string;
@@ -41,6 +45,9 @@ export interface TarotArticle {
   seoFocusKeyword: string;
   seoMetaTitle: string;
   seoMetaDescription: string;
+  seoFocusKeywordFr?: string;
+  seoMetaTitleFr?: string;
+  seoMetaDescriptionFr?: string;
   faq: FAQItem[];
   breadcrumbCategory: string;
   breadcrumbCategoryUrl?: string;
@@ -75,10 +82,13 @@ export interface AdminTarotArticlesListResponse {
 export interface TarotOverviewCard {
   id: string;
   title: string;
+  titleFr?: string;
   slug: string;
   excerpt: string;
+  excerptFr?: string;
   featuredImage: string;
   featuredImageAlt: string;
+  featuredImageAltFr?: string;
   cardType: string;
   cardNumber: string;
   readTime: string;

@@ -104,9 +104,58 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, []);
 
+  // Get localized content - use French if available, fallback to English
+  const localizedContent = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.contentFr) {
+      return article.contentFr;
+    }
+    return article.content;
+  }, [article, language]);
+
+  const localizedTitle = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.titleFr) {
+      return article.titleFr;
+    }
+    return article.title;
+  }, [article, language]);
+
+  const localizedExcerpt = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.excerptFr) {
+      return article.excerptFr;
+    }
+    return article.excerpt;
+  }, [article, language]);
+
+  const localizedSeoTitle = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.seoMetaTitleFr) {
+      return article.seoMetaTitleFr;
+    }
+    return article.seoMetaTitle;
+  }, [article, language]);
+
+  const localizedSeoDescription = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.seoMetaDescriptionFr) {
+      return article.seoMetaDescriptionFr;
+    }
+    return article.seoMetaDescription;
+  }, [article, language]);
+
+  const localizedImageAlt = useMemo(() => {
+    if (!article) return '';
+    if (language === 'fr' && article.featuredImageAltFr) {
+      return article.featuredImageAltFr;
+    }
+    return article.featuredImageAlt;
+  }, [article, language]);
+
   // Process content with hooks - SANITIZED via DOMPurify
   const sanitizedContent = useContentProcessor({
-    content: article?.content,
+    content: localizedContent,
     linkRegistry,
   });
 
@@ -118,7 +167,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   );
 
   const { sections, activeSection, scrollToSection } = useSectionNavigation({
-    content: article?.content,
+    content: localizedContent,
     contentRef: contentRef as React.RefObject<HTMLDivElement>,
   });
 
@@ -172,18 +221,21 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     <div className="relative min-h-screen">
       {/* ===== SEO HEAD ===== */}
       <Helmet>
-        <title>{article.seoMetaTitle} | MysticOracle</title>
-        <meta name="description" content={article.seoMetaDescription} />
+        <title>{localizedSeoTitle} | MysticOracle</title>
+        <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <meta name="keywords" content={article.tags.join(', ')} />
         <meta name="author" content={article.author} />
+        <html lang={language} />
 
         {/* Open Graph */}
         <meta property="og:type" content="article" />
-        <meta property="og:title" content={article.seoMetaTitle} />
-        <meta property="og:description" content={article.seoMetaDescription} />
+        <meta property="og:title" content={localizedSeoTitle} />
+        <meta property="og:description" content={localizedSeoDescription} />
         <meta property="og:image" content={article.featuredImage} />
+        <meta property="og:image:alt" content={localizedImageAlt} />
         <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:locale" content={language === 'fr' ? 'fr_FR' : 'en_US'} />
         <meta property="article:published_time" content={article.datePublished} />
         <meta property="article:modified_time" content={article.dateModified} />
         <meta property="article:author" content={article.author} />
@@ -193,9 +245,10 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={article.seoMetaTitle} />
-        <meta name="twitter:description" content={article.seoMetaDescription} />
+        <meta name="twitter:title" content={localizedSeoTitle} />
+        <meta name="twitter:description" content={localizedSeoDescription} />
         <meta name="twitter:image" content={article.featuredImage} />
+        <meta name="twitter:image:alt" content={localizedImageAlt} />
 
         {/* JSON-LD Schema */}
         <script type="application/ld+json">
@@ -246,13 +299,13 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
           >
             <Breadcrumbs
               category={article.breadcrumbCategory}
-              title={article.title}
+              title={localizedTitle}
             />
           </motion.div>
 
           {/* ===== ARTICLE HEADER ===== */}
           <ArticleHeader
-            title={article.title}
+            title={localizedTitle}
             author={article.author}
             readTime={article.readTime}
             dateModified={article.dateModified}
@@ -274,7 +327,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             >
               <FeaturedImage
                 src={article.featuredImage}
-                alt={article.featuredImageAlt}
+                alt={localizedImageAlt}
                 onClick={() => setLightboxImage(article.featuredImage)}
               />
             </motion.div>
@@ -294,6 +347,31 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
               dangerouslySetInnerHTML={contentHtmlProp}
             />
           </motion.div>
+
+          {/* ===== CTA BANNER ===== */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="mt-12"
+          >
+            <div className="cta-banner p-6 rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#c026d3] border border-purple-500/20 text-center relative overflow-hidden">
+              <h3 className="text-xl md:text-2xl font-heading text-white mb-2 relative z-10">
+                {language === 'fr' ? 'Prêt à Découvrir Votre Chemin ?' : 'Ready to Discover Your Path?'}
+              </h3>
+              <p className="text-white/90 mb-4 max-w-xl mx-auto text-sm relative z-10">
+                {language === 'fr'
+                  ? 'Laissez le tarot illuminer votre voyage avec des conseils bienveillants.'
+                  : 'Let the tarot illuminate your journey with gentle guidance.'}
+              </p>
+              <Link
+                to={ROUTES.READING}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-purple-700 rounded-lg hover:bg-purple-50 transition-all font-medium text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 relative z-10"
+              >
+                {language === 'fr' ? 'Obtenez votre tirage maintenant' : 'Get your reading now'}
+              </Link>
+            </div>
+          </motion.section>
 
           {/* ===== ARTICLE FOOTER ===== */}
           <motion.footer

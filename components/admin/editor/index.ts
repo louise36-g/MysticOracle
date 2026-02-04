@@ -21,3 +21,6 @@ export {
   SidebarTextArea,
   SidebarLabel,
 } from './EditorField';
+
+// Translation tools
+export { default as TranslationToolbar } from './TranslationToolbar';

@@ -411,23 +411,36 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
 
 {{planetaryData}}
 
-Write a horoscope for {{sign}} on {{today}} in {{language}}.
+Write a DETAILED horoscope for {{sign}} on {{today}} in {{language}}.
 
-Structure your response in 5 SHORT paragraphs, separated by blank lines:
+Structure your response in 5 FULL paragraphs (each paragraph should be 4-6 sentences). CRITICAL: You MUST put TWO blank lines between each paragraph for proper formatting.
 
-1. Overall Energy (2-3 sentences about today's vibe)
+1. Overall Energy (4-6 sentences about today's vibe, emotional tone, and general atmosphere)
 
-2. Love & Relationships (2-3 sentences)
 
-3. Work & Money (2-3 sentences)
+2. Love & Relationships (4-6 sentences with specific advice for singles AND couples)
 
-4. Self-Care & Wellbeing (2-3 sentences)
 
-5. Today's Tip (1 practical action to take)
+3. Work & Money (4-6 sentences covering career opportunities, financial decisions, and professional relationships)
 
-IMPORTANT FORMATTING: Put a blank line between each paragraph. No headers or bullet points - just flowing paragraphs.
 
-CRITICAL RULES:
+4. Self-Care & Wellbeing (4-6 sentences about mental health, physical wellness, and personal growth)
+
+
+5. Today's Tip (2-3 sentences with a practical, actionable suggestion)
+
+IMPORTANT LENGTH REQUIREMENT:
+- Total response should be 350-450 words
+- Each of the first 4 paragraphs should be substantial (50-80 words each)
+- Write the SAME amount of detail in French as you would in English
+- Do not be more concise in French - provide equal depth and detail
+
+FORMATTING RULES:
+- Put TWO blank lines (\\n\\n) between each paragraph
+- No headers, no bullet points, no numbered lists - just flowing paragraphs
+- Each section should be its own paragraph with clear separation
+
+CRITICAL CONTENT RULES:
 - Write about feelings and actions, NOT about planets
 - Never mention: Mercury, Venus, Mars, Saturn, Jupiter, Moon, Sun, Pluto, Neptune, Uranus, cosmos, celestial, trine, sextile, square, conjunction, aspect, transit, retrograde
 - Keep it practical and grounded, not flowery or mystical`,

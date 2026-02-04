@@ -102,10 +102,10 @@ const SubNav: React.FC = () => {
   const learnItems: DropdownItem[] = [
     {
       id: 'about',
-      labelEn: t('subnav.learn.about.label', 'About Us'),
-      labelFr: t('subnav.learn.about.label', 'À Propos'),
-      descriptionEn: t('subnav.learn.about.desc', 'Our story'),
-      descriptionFr: t('subnav.learn.about.desc', 'Notre histoire'),
+      labelEn: 'About Us',
+      labelFr: 'À Propos',
+      descriptionEn: 'Our story',
+      descriptionFr: 'Notre histoire',
       icon: <Users className="w-4 h-4 text-pink-400" />,
       iconBg: 'bg-pink-500/20',
       href: ROUTES.ABOUT,
@@ -113,10 +113,10 @@ const SubNav: React.FC = () => {
     },
     {
       id: 'tarot-cards',
-      labelEn: t('subnav.learn.tarotCards.label', 'The Arcanas'),
-      labelFr: t('subnav.learn.tarotCards.label', 'Les Arcanes'),
-      descriptionEn: t('subnav.learn.tarotCards.desc', 'Explore all 78 cards'),
-      descriptionFr: t('subnav.learn.tarotCards.desc', 'Explorez les 78 cartes'),
+      labelEn: 'The Arcanas',
+      labelFr: 'Les Arcanes',
+      descriptionEn: 'Explore all 78 cards',
+      descriptionFr: 'Explorez les 78 cartes',
       icon: <Layers className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
       href: ROUTES.TAROT_CARDS,
@@ -124,10 +124,10 @@ const SubNav: React.FC = () => {
     },
     {
       id: 'blog',
-      labelEn: t('subnav.learn.blog.label', 'Blog'),
-      labelFr: t('subnav.learn.blog.label', 'Blog'),
-      descriptionEn: t('subnav.learn.blog.desc', 'Articles & guides'),
-      descriptionFr: t('subnav.learn.blog.desc', 'Articles & guides'),
+      labelEn: 'Blog',
+      labelFr: 'Blog',
+      descriptionEn: 'Articles & guides',
+      descriptionFr: 'Articles & guides',
       icon: <BookOpen className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
       href: ROUTES.BLOG,
@@ -135,10 +135,10 @@ const SubNav: React.FC = () => {
     },
     {
       id: 'how-credits-work',
-      labelEn: t('subnav.learn.credits.label', 'How Credits Work'),
-      labelFr: t('subnav.learn.credits.label', 'Comment fonctionnent les crédits'),
-      descriptionEn: t('subnav.learn.credits.desc', 'Pricing & packages'),
-      descriptionFr: t('subnav.learn.credits.desc', 'Tarifs & forfaits'),
+      labelEn: 'How Credits Work',
+      labelFr: 'Comment fonctionnent les crédits',
+      descriptionEn: 'Pricing & packages',
+      descriptionFr: 'Tarifs & forfaits',
       icon: <CreditCard className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
       href: ROUTES.HOW_CREDITS_WORK,
@@ -146,10 +146,10 @@ const SubNav: React.FC = () => {
     },
     {
       id: 'faq',
-      labelEn: t('subnav.learn.faq.label', 'Help & FAQ'),
-      labelFr: t('subnav.learn.faq.label', 'Aide & FAQ'),
-      descriptionEn: t('subnav.learn.faq.desc', 'Get answers'),
-      descriptionFr: t('subnav.learn.faq.desc', 'Trouvez des réponses'),
+      labelEn: 'Help & FAQ',
+      labelFr: 'Aide & FAQ',
+      descriptionEn: 'Get answers',
+      descriptionFr: 'Trouvez des réponses',
       icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
       href: ROUTES.FAQ,
@@ -178,17 +178,17 @@ const SubNav: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className={`font-medium text-sm ${item.comingSoon ? 'text-slate-400' : 'text-slate-200'}`}>
-                    {t(`subnav.${item.id}.label`, language === 'en' ? item.labelEn : item.labelFr)}
+                    {language === 'fr' ? item.labelFr : item.labelEn}
                   </span>
                   {item.comingSoon && (
                     <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-700 text-slate-400">
-                      {t('subnav.soon', 'Soon')}
+                      {language === 'fr' ? 'Bientôt' : 'Soon'}
                     </span>
                   )}
                 </div>
                 {(item.descriptionEn || item.descriptionFr) && (
                   <div className="text-xs text-slate-500 truncate">
-                    {t(`subnav.${item.id}.description`, language === 'en' ? item.descriptionEn : item.descriptionFr)}
+                    {language === 'fr' ? item.descriptionFr : item.descriptionEn}
                   </div>
                 )}
               </div>
@@ -257,7 +257,7 @@ const SubNav: React.FC = () => {
             }`}
           >
             <Home className="w-4 h-4" />
-            <span>{t('nav.home', 'Home')}</span>
+            <span>{language === 'fr' ? 'Accueil' : 'Home'}</span>
           </Link>
 
           {/* Tarot Dropdown */}
@@ -275,7 +275,7 @@ const SubNav: React.FC = () => {
               }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>{t('subnav.tarot.title', 'Tarot Readings')}</span>
+              <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'tarot' ? 'rotate-180' : ''}`} />
             </Link>
             <AnimatePresence>
@@ -293,7 +293,7 @@ const SubNav: React.FC = () => {
             }`}
           >
             <Moon className="w-4 h-4" />
-            <span>{t('subnav.horoscope.title', 'Horoscopes')}</span>
+            <span>{language === 'fr' ? 'Horoscopes' : 'Horoscopes'}</span>
           </Link>
 
           {/* Divider */}
@@ -313,7 +313,7 @@ const SubNav: React.FC = () => {
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>{t('subnav.learn.title', 'Learn')}</span>
+              <span>{language === 'fr' ? 'Apprendre' : 'Learn'}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>

@@ -15,7 +15,7 @@ import {
   deleteBlogMedia,
   BlogMedia,
 } from '../../services/api';
-import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle, Link2, Loader2 } from 'lucide-react';
+import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle, Link2, Loader2, Eye } from 'lucide-react';
 import {
   scanForLinkableTerms,
   applyLinkSuggestions,
@@ -34,6 +34,10 @@ import {
   TitleInput,
   ExcerptInput,
   SidebarTextArea,
+  SidebarInput,
+  SidebarLabel,
+  TranslationToolbar,
+  AVAILABLE_LANGUAGES,
 } from './editor';
 import { useArticleForm } from './tarot-articles/hooks/useArticleForm';
 
@@ -55,6 +59,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editLanguage, setEditLanguage] = useState<string>('en');
 
   // Sidebar data
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
@@ -78,6 +83,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const [showTags, setShowTags] = useState(true);
   const [showFAQ, setShowFAQ] = useState(true);
   const [showRelated, setShowRelated] = useState(false);
+  const [showSEO, setShowSEO] = useState(false);
 
   // Internal links
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -215,7 +221,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   // Internal links handlers
   const handleOpenLinkModal = async () => {
     if (!article) return;
-    const content = article.content || '';
+    const content = editLanguage === 'en' ? (article.content || '') : (article.contentFr || '');
     if (!content.trim()) {
       setError(language === 'en' ? 'Add some content first before adding internal links' : 'Ajoutez du contenu avant d\'ajouter des liens internes');
       return;
@@ -243,9 +249,10 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
 
   const handleApplyLinks = (selected: LinkSuggestion[]) => {
     if (!article) return;
-    const content = article.content || '';
+    const content = editLanguage === 'en' ? (article.content || '') : (article.contentFr || '');
     const updatedContent = applyLinkSuggestions(content, selected);
-    setArticle(prev => prev ? { ...prev, content: updatedContent } : prev);
+    const fieldToUpdate = editLanguage === 'en' ? 'content' : 'contentFr';
+    setArticle(prev => prev ? { ...prev, [fieldToUpdate]: updatedContent } : prev);
   };
 
   if (loading) {
@@ -268,13 +275,17 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     ? `/tarot/${article.slug}`
     : `/admin/tarot/preview/${article.id}`;
 
+  const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
+
   const topBar = (
     <EditorTopBar
-      title={article.title}
+      title={editLanguage === 'en' ? article.title : (article.titleFr || article.title)}
       onBack={onCancel}
       onSave={() => handleSave(false)}
       saving={saving}
       language={language}
+      editLanguage={editLanguage}
+      onEditLanguageChange={setEditLanguage}
       previewUrl={previewUrl}
       isPublished={article.status === 'PUBLISHED'}
       showPublish
@@ -282,18 +293,90 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     />
   );
 
+  // Get current field values based on edit language
+  const currentTitle = editLanguage === 'en' ? article.title : (article.titleFr || '');
+  const currentExcerpt = editLanguage === 'en' ? article.excerpt : (article.excerptFr || '');
+  const currentContent = editLanguage === 'en' ? article.content : (article.contentFr || '');
+
+  // Handle field changes based on edit language
+  const handleTitleChange = (value: string) => {
+    if (editLanguage === 'en') {
+      handleFieldChange('title', value);
+    } else {
+      handleFieldChange('titleFr', value);
+    }
+  };
+
+  const handleExcerptChange = (value: string) => {
+    if (editLanguage === 'en') {
+      handleFieldChange('excerpt', value);
+    } else {
+      handleFieldChange('excerptFr', value);
+    }
+  };
+
+  const handleContentChange = (html: string) => {
+    if (editLanguage === 'en') {
+      handleFieldChange('content', html);
+    } else {
+      handleFieldChange('contentFr', html);
+    }
+  };
+
+  const handleImportFrench = (data: {
+    title: string;
+    excerpt: string;
+    content: string;
+    seoMetaTitle?: string;
+    seoMetaDescription?: string;
+    seoFocusKeyword?: string;
+    featuredImageAlt?: string;
+  }) => {
+    setArticle(prev => prev ? {
+      ...prev,
+      titleFr: data.title,
+      excerptFr: data.excerpt,
+      contentFr: data.content,
+      seoMetaTitleFr: data.seoMetaTitle || '',
+      seoMetaDescriptionFr: data.seoMetaDescription || '',
+      seoFocusKeywordFr: data.seoFocusKeyword || '',
+      featuredImageAltFr: data.featuredImageAlt || '',
+    } : prev);
+  };
+
   const mainContent = (
     <>
+      {/* Translation Toolbar (only in French mode) */}
+      <TranslationToolbar
+        editLanguage={editLanguage}
+        language={language}
+        englishData={{
+          title: article.title,
+          excerpt: article.excerpt,
+          content: article.content,
+          seoMetaTitle: article.seoMetaTitle,
+          seoMetaDescription: article.seoMetaDescription,
+          seoFocusKeyword: article.seoFocusKeyword,
+          featuredImageAlt: article.featuredImageAlt,
+        }}
+        onImportFrench={handleImportFrench}
+        filenamePrefix={article.slug}
+      />
+
       <div className="space-y-2">
-        <EditorField label={language === 'en' ? 'Title *' : 'Titre *'}>
+        <EditorField
+          label={language === 'en' ? 'Title *' : 'Titre *'}
+          languageFlag={currentLangFlag}
+        >
           <TitleInput
-            value={article.title}
-            onChange={(value) => handleFieldChange('title', value)}
-            onBlur={() => handleFieldBlur('title')}
-            hasError={hasError('title')}
+            value={currentTitle}
+            onChange={handleTitleChange}
+            onBlur={() => handleFieldBlur(editLanguage === 'en' ? 'title' : 'titleFr')}
+            hasError={editLanguage === 'en' && hasError('title')}
+            placeholder={editLanguage === 'en' ? 'Enter the card title...' : 'Entrez le titre de la carte...'}
           />
         </EditorField>
-        {getFieldError('title') && (
+        {editLanguage === 'en' && getFieldError('title') && (
           <div className="flex items-center gap-2 text-red-400 text-sm">
             <AlertCircle className="w-4 h-4" />
             <span>{getFieldError('title')}</span>
@@ -302,15 +385,19 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       </div>
 
       <div className="space-y-2">
-        <EditorField label={language === 'en' ? 'Excerpt *' : 'Extrait *'}>
+        <EditorField
+          label={language === 'en' ? 'Excerpt *' : 'Extrait *'}
+          languageFlag={currentLangFlag}
+        >
           <ExcerptInput
-            value={article.excerpt}
-            onChange={(value) => handleFieldChange('excerpt', value)}
-            onBlur={() => handleFieldBlur('excerpt')}
-            hasError={hasError('excerpt')}
+            value={currentExcerpt}
+            onChange={handleExcerptChange}
+            onBlur={() => handleFieldBlur(editLanguage === 'en' ? 'excerpt' : 'excerptFr')}
+            hasError={editLanguage === 'en' && hasError('excerpt')}
+            placeholder={editLanguage === 'en' ? 'Brief summary of the card...' : 'Bref résumé de la carte...'}
           />
         </EditorField>
-        {getFieldError('excerpt') && (
+        {editLanguage === 'en' && getFieldError('excerpt') && (
           <div className="flex items-center gap-2 text-red-400 text-sm">
             <AlertCircle className="w-4 h-4" />
             <span>{getFieldError('excerpt')}</span>
@@ -319,7 +406,10 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       </div>
 
       <div className="space-y-2">
-        <EditorField label={language === 'en' ? 'Content *' : 'Contenu *'}>
+        <EditorField
+          label={language === 'en' ? 'Content *' : 'Contenu *'}
+          languageFlag={currentLangFlag}
+        >
           {/* Internal Links Button */}
           <div className="flex justify-end mb-2">
             <button
@@ -335,19 +425,19 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
               {language === 'en' ? 'Add Internal Links' : 'Ajouter des liens internes'}
             </button>
           </div>
-          <div className={hasError('content') ? 'ring-1 ring-red-500/50 rounded-lg' : ''}>
+          <div className={editLanguage === 'en' && hasError('content') ? 'ring-1 ring-red-500/50 rounded-lg' : ''}>
             <RichTextEditor
-              content={article.content}
-              onChange={(html) => handleFieldChange('content', html)}
-              onBlur={() => handleFieldBlur('content')}
-              placeholder="Write your article content..."
+              content={currentContent}
+              onChange={handleContentChange}
+              onBlur={() => handleFieldBlur(editLanguage === 'en' ? 'content' : 'contentFr')}
+              placeholder={editLanguage === 'en' ? 'Write your article content...' : 'Écrivez le contenu de l\'article...'}
               mediaLibrary={media}
               onMediaUpload={handleMediaUpload}
               onMediaDelete={handleMediaDelete}
             />
           </div>
         </EditorField>
-        {getFieldError('content') && (
+        {editLanguage === 'en' && getFieldError('content') && (
           <div className="flex items-center gap-2 text-red-400 text-sm">
             <AlertCircle className="w-4 h-4" />
             <span>{getFieldError('content')}</span>
@@ -441,6 +531,69 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
           placeholder={language === 'en' ? 'One slug per line...' : 'Un slug par ligne...'}
           rows={4}
         />
+      </SidebarSection>
+
+      <SidebarSection
+        title="SEO"
+        icon={<Eye className="w-4 h-4" />}
+        isOpen={showSEO}
+        onToggle={() => setShowSEO(!showSEO)}
+      >
+        <div className="space-y-3">
+          <div>
+            <SidebarLabel>
+              {language === 'en' ? 'Meta Title' : 'Meta Titre'} ({editLanguage.toUpperCase()})
+            </SidebarLabel>
+            <SidebarInput
+              value={editLanguage === 'en' ? (article.seoMetaTitle || '') : (article.seoMetaTitleFr || '')}
+              onChange={(value) => handleFieldChange(
+                editLanguage === 'en' ? 'seoMetaTitle' : 'seoMetaTitleFr',
+                value
+              )}
+              placeholder={editLanguage === 'en' ? article.title : (article.titleFr || article.title)}
+            />
+          </div>
+          <div>
+            <SidebarLabel>
+              {language === 'en' ? 'Meta Description' : 'Meta Description'} ({editLanguage.toUpperCase()})
+            </SidebarLabel>
+            <SidebarTextArea
+              value={editLanguage === 'en' ? (article.seoMetaDescription || '') : (article.seoMetaDescriptionFr || '')}
+              onChange={(value) => handleFieldChange(
+                editLanguage === 'en' ? 'seoMetaDescription' : 'seoMetaDescriptionFr',
+                value
+              )}
+              placeholder={editLanguage === 'en' ? article.excerpt : (article.excerptFr || article.excerpt)}
+              rows={3}
+            />
+          </div>
+          <div>
+            <SidebarLabel>
+              {language === 'en' ? 'Focus Keyword' : 'Mot-clé cible'} ({editLanguage.toUpperCase()})
+            </SidebarLabel>
+            <SidebarInput
+              value={editLanguage === 'en' ? (article.seoFocusKeyword || '') : (article.seoFocusKeywordFr || '')}
+              onChange={(value) => handleFieldChange(
+                editLanguage === 'en' ? 'seoFocusKeyword' : 'seoFocusKeywordFr',
+                value
+              )}
+              placeholder={language === 'en' ? 'e.g., the fool tarot card' : 'ex: carte de tarot le fou'}
+            />
+          </div>
+          <div>
+            <SidebarLabel>
+              {language === 'en' ? 'Image Alt Text' : 'Alt de l\'image'} ({editLanguage.toUpperCase()})
+            </SidebarLabel>
+            <SidebarInput
+              value={editLanguage === 'en' ? (article.featuredImageAlt || '') : (article.featuredImageAltFr || '')}
+              onChange={(value) => handleFieldChange(
+                editLanguage === 'en' ? 'featuredImageAlt' : 'featuredImageAltFr',
+                value
+              )}
+              placeholder={language === 'en' ? 'Describe the image...' : 'Décrivez l\'image...'}
+            />
+          </div>
+        </div>
       </SidebarSection>
     </>
   );

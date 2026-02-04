@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Coins, Calendar, Users, Award, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
-import { useTranslation } from '../context/TranslationContext';
+import { useApp } from '../context/AppContext';
 import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
@@ -18,7 +18,7 @@ interface HowCreditsWorkProps {
 
 const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => {
   const navigate = useNavigate();
-  const { t, language } = useTranslation();
+  const { language } = useApp();
   const [showCreditShop, setShowCreditShop] = useState(false);
 
   // Use provided callback or manage our own modal
@@ -62,6 +62,67 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
     navigate(ROUTES.READING);
   };
 
+  const content = {
+    en: {
+      heroTitle: 'How Credits Work',
+      heroSubtitle: 'Simple, transparent, no subscriptions',
+      whatAreTitle: 'What Are Credits?',
+      whatAreDesc: "Credits are your currency for tarot readings on MysticOracle. There are no monthly fees or subscriptions — you simply purchase credits when you need them, and they never expire. Each reading type has a fixed cost, so you always know exactly what you're spending.",
+      costsTitle: 'Reading Costs',
+      readingType: 'Reading Type',
+      credits: 'Credits',
+      credit: 'credit',
+      creditsPlural: 'credits',
+      followUp: 'Follow-up Question',
+      costsNote: 'More complex spreads with additional cards provide deeper insights and cost more credits.',
+      earnTitle: 'Earning Free Credits',
+      dailyTitle: 'Daily Bonus',
+      dailyDesc: 'Visit each day to claim free credits. Build a streak for bigger rewards — 7-day streaks unlock bonus credits!',
+      referralsTitle: 'Referrals',
+      referralsDesc: 'Share your referral link with friends. When they sign up and make their first reading, you both earn credits.',
+      achievementsTitle: 'Achievements',
+      achievementsDesc: 'Complete milestones like your first reading, trying all spread types, or maintaining streaks to unlock bonus credits.',
+      buyTitle: 'Buying Credits',
+      buyDesc: 'Need more credits? Purchase them instantly through our secure checkout. We offer several packages to suit your needs, with bigger packages offering better value.',
+      stripe: 'Credit/Debit Cards (Stripe)',
+      paypal: 'PayPal',
+      viewPackages: 'View Credit Packages',
+      ctaTitle: 'Ready to begin?',
+      ctaDesc: 'Start your journey with a tarot reading and discover what the cards reveal for you.',
+      ctaButton: 'Start a Reading',
+    },
+    fr: {
+      heroTitle: 'Comment fonctionnent les crédits',
+      heroSubtitle: 'Simple, transparent, sans abonnement',
+      whatAreTitle: 'Que sont les crédits ?',
+      whatAreDesc: "Les crédits sont votre monnaie pour les tirages de tarot sur MysticOracle. Il n'y a pas de frais mensuels ni d'abonnements — vous achetez simplement des crédits quand vous en avez besoin, et ils n'expirent jamais. Chaque type de tirage a un coût fixe, vous savez donc toujours exactement ce que vous dépensez.",
+      costsTitle: 'Coûts des tirages',
+      readingType: 'Type de tirage',
+      credits: 'Crédits',
+      credit: 'crédit',
+      creditsPlural: 'crédits',
+      followUp: 'Question de suivi',
+      costsNote: 'Les tirages plus complexes avec des cartes supplémentaires offrent des aperçus plus profonds et coûtent plus de crédits.',
+      earnTitle: 'Gagner des crédits gratuits',
+      dailyTitle: 'Bonus quotidien',
+      dailyDesc: 'Visitez chaque jour pour réclamer des crédits gratuits. Construisez une série pour de plus grandes récompenses — les séries de 7 jours débloquent des crédits bonus !',
+      referralsTitle: 'Parrainages',
+      referralsDesc: "Partagez votre lien de parrainage avec vos amis. Quand ils s'inscrivent et font leur premier tirage, vous gagnez tous les deux des crédits.",
+      achievementsTitle: 'Succès',
+      achievementsDesc: "Complétez des étapes comme votre premier tirage, essayer tous les types de tirages, ou maintenir des séries pour débloquer des crédits bonus.",
+      buyTitle: 'Acheter des crédits',
+      buyDesc: "Besoin de plus de crédits ? Achetez-les instantanément via notre paiement sécurisé. Nous offrons plusieurs forfaits pour répondre à vos besoins, avec de meilleurs tarifs pour les plus gros forfaits.",
+      stripe: 'Cartes de crédit/débit (Stripe)',
+      paypal: 'PayPal',
+      viewPackages: 'Voir les forfaits de crédits',
+      ctaTitle: 'Prêt à commencer ?',
+      ctaDesc: 'Commencez votre voyage avec un tirage de tarot et découvrez ce que les cartes révèlent pour vous.',
+      ctaButton: 'Commencer un tirage',
+    },
+  };
+
+  const t = content[language];
+
   return (
     <>
     {/* Credit Shop Modal (only rendered if not using external handler) */}
@@ -83,10 +144,10 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
             <Coins className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-4">
-            {t('credits.hero.title', 'How Credits Work')}
+            {t.heroTitle}
           </h1>
           <p className="text-lg text-slate-300 max-w-xl mx-auto">
-            {t('credits.hero.subtitle', 'Simple, transparent, no subscriptions')}
+            {t.heroSubtitle}
           </p>
         </motion.div>
       </section>
@@ -101,11 +162,11 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
         >
           <h2 className="text-2xl font-heading text-amber-100 mb-4 flex items-center gap-3">
             <span className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 text-sm font-bold">1</span>
-            {t('credits.whatAre.title', 'What Are Credits?')}
+            {t.whatAreTitle}
           </h2>
           <div className="bg-slate-900/50 border border-white/5 rounded-xl p-6">
             <p className="text-slate-300 leading-relaxed">
-              {t('credits.whatAre.description', 'Credits are your currency for tarot readings on MysticOracle. There are no monthly fees or subscriptions — you simply purchase credits when you need them, and they never expire. Each reading type has a fixed cost, so you always know exactly what you\'re spending.')}
+              {t.whatAreDesc}
             </p>
           </div>
         </motion.section>
@@ -119,14 +180,14 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
         >
           <h2 className="text-2xl font-heading text-amber-100 mb-4 flex items-center gap-3">
             <span className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 text-sm font-bold">2</span>
-            {t('credits.costs.title', 'Reading Costs')}
+            {t.costsTitle}
           </h2>
 
           <div className="grid gap-3">
             {/* Header row */}
             <div className="grid grid-cols-2 gap-4 px-4 py-2 text-sm text-slate-400 font-medium">
-              <span>{t('credits.costs.readingType', 'Reading Type')}</span>
-              <span className="text-right">{t('credits.costs.credits', 'Credits')}</span>
+              <span>{t.readingType}</span>
+              <span className="text-right">{t.credits}</span>
             </div>
 
             {/* Spread costs */}
@@ -143,7 +204,7 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
                   {language === 'fr' ? spread.nameFr : spread.nameEn}
                 </span>
                 <span className="text-right text-amber-400 font-semibold">
-                  {spread.cost} {spread.cost === 1 ? t('credits.credit', 'credit') : t('credits.credits', 'credits')}
+                  {spread.cost} {spread.cost === 1 ? t.credit : t.creditsPlural}
                 </span>
               </motion.div>
             ))}
@@ -157,16 +218,16 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
               className="grid grid-cols-2 gap-4 bg-slate-900/50 border border-white/5 rounded-lg px-4 py-3 hover:border-purple-500/30 transition-colors"
             >
               <span className="text-slate-200">
-                {t('credits.costs.followUp', 'Follow-up Question')}
+                {t.followUp}
               </span>
               <span className="text-right text-amber-400 font-semibold">
-                {FOLLOW_UP_CREDIT_COST} {t('credits.credit', 'credit')}
+                {FOLLOW_UP_CREDIT_COST} {t.credit}
               </span>
             </motion.div>
           </div>
 
           <p className="mt-4 text-sm text-slate-400">
-            {t('credits.costs.note', 'More complex spreads with additional cards provide deeper insights and cost more credits.')}
+            {t.costsNote}
           </p>
         </motion.section>
 
@@ -179,7 +240,7 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
         >
           <h2 className="text-2xl font-heading text-amber-100 mb-6 flex items-center gap-3">
             <span className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 text-sm font-bold">3</span>
-            {t('credits.earn.title', 'Earning Free Credits')}
+            {t.earnTitle}
           </h2>
 
           <div className="grid md:grid-cols-3 gap-4">
@@ -192,10 +253,10 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
                 <Calendar className="w-6 h-6 text-cyan-400" />
               </div>
               <h3 className="text-lg font-heading text-purple-200 mb-2">
-                {t('credits.earn.daily.title', 'Daily Bonus')}
+                {t.dailyTitle}
               </h3>
               <p className="text-sm text-slate-400">
-                {t('credits.earn.daily.description', 'Visit each day to claim free credits. Build a streak for bigger rewards — 7-day streaks unlock bonus credits!')}
+                {t.dailyDesc}
               </p>
             </motion.div>
 
@@ -208,10 +269,10 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
                 <Users className="w-6 h-6 text-purple-400" />
               </div>
               <h3 className="text-lg font-heading text-purple-200 mb-2">
-                {t('credits.earn.referrals.title', 'Referrals')}
+                {t.referralsTitle}
               </h3>
               <p className="text-sm text-slate-400">
-                {t('credits.earn.referrals.description', 'Share your referral link with friends. When they sign up and make their first reading, you both earn credits.')}
+                {t.referralsDesc}
               </p>
             </motion.div>
 
@@ -224,10 +285,10 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
                 <Award className="w-6 h-6 text-amber-400" />
               </div>
               <h3 className="text-lg font-heading text-purple-200 mb-2">
-                {t('credits.earn.achievements.title', 'Achievements')}
+                {t.achievementsTitle}
               </h3>
               <p className="text-sm text-slate-400">
-                {t('credits.earn.achievements.description', 'Complete milestones like your first reading, trying all spread types, or maintaining streaks to unlock bonus credits.')}
+                {t.achievementsDesc}
               </p>
             </motion.div>
           </div>
@@ -242,28 +303,28 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
         >
           <h2 className="text-2xl font-heading text-amber-100 mb-4 flex items-center gap-3">
             <span className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 text-sm font-bold">4</span>
-            {t('credits.buy.title', 'Buying Credits')}
+            {t.buyTitle}
           </h2>
 
           <div className="bg-gradient-to-br from-slate-900/80 to-purple-900/20 border border-purple-500/20 rounded-xl p-6">
             <p className="text-slate-300 mb-6">
-              {t('credits.buy.description', 'Need more credits? Purchase them instantly through our secure checkout. We offer several packages to suit your needs, with bigger packages offering better value.')}
+              {t.buyDesc}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <div className="flex items-center gap-2 text-sm text-slate-400">
                 <CreditCard className="w-4 h-4" />
-                <span>{t('credits.buy.stripe', 'Credit/Debit Cards (Stripe)')}</span>
+                <span>{t.stripe}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-400">
                 <span className="font-bold text-blue-400">P</span>
-                <span>{t('credits.buy.paypal', 'PayPal')}</span>
+                <span>{t.paypal}</span>
               </div>
             </div>
 
             <Button onClick={handleOpenCreditShop} className="flex items-center gap-2">
               <Coins className="w-4 h-4" />
-              {t('credits.buy.button', 'View Credit Packages')}
+              {t.viewPackages}
             </Button>
           </div>
         </motion.section>
@@ -279,13 +340,13 @@ const HowCreditsWork: React.FC<HowCreditsWorkProps> = ({ onOpenCreditShop }) => 
           <div className="bg-gradient-to-r from-purple-900/30 via-slate-900/50 to-purple-900/30 border border-purple-500/20 rounded-2xl p-8">
             <Sparkles className="w-10 h-10 text-amber-400 mx-auto mb-4" />
             <h2 className="text-2xl font-heading text-amber-100 mb-3">
-              {t('credits.cta.title', 'Ready to begin?')}
+              {t.ctaTitle}
             </h2>
             <p className="text-slate-400 mb-6 max-w-md mx-auto">
-              {t('credits.cta.description', 'Start your journey with a tarot reading and discover what the cards reveal for you.')}
+              {t.ctaDesc}
             </p>
             <Button size="lg" onClick={handleStartReading} className="flex items-center gap-2 mx-auto">
-              {t('credits.cta.button', 'Start a Reading')}
+              {t.ctaButton}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>

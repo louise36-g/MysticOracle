@@ -21,25 +21,38 @@ import { sortByCardNumber } from '../../lib/tarot/sorting.js';
 export interface TarotArticle {
   id: string;
   title: string;
+  titleFr?: string;
   slug: string;
   excerpt: string;
+  excerptFr?: string;
   content: string;
+  contentFr?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   cardType: string;
   cardNumber: string;
   categories: string[];
   tags: string[];
   deletedAt: Date | null;
+  // SEO fields
+  seoFocusKeyword?: string;
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoFocusKeywordFr?: string;
+  seoMetaTitleFr?: string;
+  seoMetaDescriptionFr?: string;
   [key: string]: unknown;
 }
 
 export interface TarotArticleListItem {
   id: string;
   title: string;
+  titleFr?: string;
   slug: string;
   excerpt: string;
+  excerptFr?: string;
   featuredImage: string;
   featuredImageAlt: string;
+  featuredImageAltFr?: string;
   cardType: string;
   cardNumber: string;
   status: string;
@@ -101,10 +114,13 @@ export class TarotArticleService extends ContentService<
   private listSelectFields = {
     id: true,
     title: true,
+    titleFr: true,
     slug: true,
     excerpt: true,
+    excerptFr: true,
     featuredImage: true,
     featuredImageAlt: true,
+    featuredImageAltFr: true,
     cardType: true,
     cardNumber: true,
     datePublished: true,
@@ -385,10 +401,13 @@ export class TarotArticleService extends ContentService<
     const selectFields = {
       id: true,
       title: true,
+      titleFr: true,
       slug: true,
       excerpt: true,
+      excerptFr: true,
       featuredImage: true,
       featuredImageAlt: true,
+      featuredImageAltFr: true,
       cardType: true,
       cardNumber: true,
       readTime: true,

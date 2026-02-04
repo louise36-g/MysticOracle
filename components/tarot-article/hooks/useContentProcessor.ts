@@ -53,10 +53,19 @@ function processContent(html: string): string {
 
   // FIRST: Wrap "Key Takeaways" H2 section in key-takeaways-container
   // Must happen BEFORE upright/reversed wrapping to prevent nesting issues
+  // Supports both English and French variants
   const keyTakeawaysH2s = doc.querySelectorAll('h2');
   keyTakeawaysH2s.forEach((h2) => {
     const text = h2.textContent?.toLowerCase() || '';
-    if (!text.includes('key takeaways')) return;
+    // English: "key takeaways", French: "points clés", "à retenir", "l'essentiel"
+    const isKeyTakeaways = text.includes('key takeaways') ||
+      text.includes('points clés') ||
+      text.includes('points cles') ||
+      text.includes('à retenir') ||
+      text.includes('a retenir') ||
+      text.includes("l'essentiel") ||
+      text.includes('lessentiel');
+    if (!isKeyTakeaways) return;
 
     // Skip if already in a key-takeaways container
     if (h2.closest('.key-takeaways-container') || h2.closest('.key-takeaways')) return;

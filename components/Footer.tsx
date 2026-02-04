@@ -5,7 +5,7 @@ import { Moon } from 'lucide-react';
 import { ROUTES } from '../routes/routes';
 
 const Footer: React.FC = () => {
-  const { t } = useApp();
+  const { language } = useApp();
 
   const currentYear = new Date().getFullYear();
 
@@ -24,27 +24,27 @@ const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-slate-500 text-sm text-center md:text-left">
-              {t('footer.tagline', 'AI-powered tarot readings and horoscopes')}
+              {language === 'fr' ? 'Tirages de tarot et horoscopes avec IA' : 'AI-powered tarot readings and horoscopes'}
             </p>
           </div>
 
           {/* Help */}
           <div className="flex flex-col items-center">
             <h4 className="text-slate-300 font-medium mb-3">
-              {t('footer.help', 'Help')}
+              {language === 'fr' ? 'Aide' : 'Help'}
             </h4>
             <nav className="flex flex-col items-center gap-2">
               <Link
                 to={ROUTES.FAQ}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
-                {t('footer.faq', 'FAQ')}
+                FAQ
               </Link>
               <Link
                 to={ROUTES.HOW_CREDITS_WORK}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
-                {t('footer.howCreditsWork', 'How Credits Work')}
+                {language === 'fr' ? 'Comment fonctionnent les crédits' : 'How Credits Work'}
               </Link>
             </nav>
           </div>
@@ -52,26 +52,26 @@ const Footer: React.FC = () => {
           {/* Legal Links */}
           <div className="flex flex-col items-center">
             <h4 className="text-slate-300 font-medium mb-3">
-              {t('footer.legal', 'Legal')}
+              {language === 'fr' ? 'Mentions légales' : 'Legal'}
             </h4>
             <nav className="flex flex-col items-center gap-2">
               <Link
                 to={ROUTES.PRIVACY}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
-                {t('footer.privacyPolicy', 'Privacy Policy')}
+                {language === 'fr' ? 'Politique de confidentialité' : 'Privacy Policy'}
               </Link>
               <Link
                 to={ROUTES.TERMS}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
-                {t('footer.termsOfService', 'Terms of Service')}
+                {language === 'fr' ? 'Conditions d\'utilisation' : 'Terms of Service'}
               </Link>
               <Link
                 to={ROUTES.COOKIES}
                 className="text-slate-400 hover:text-purple-300 text-sm transition-colors"
               >
-                {t('footer.cookiePolicy', 'Cookie Policy')}
+                {language === 'fr' ? 'Politique des cookies' : 'Cookie Policy'}
               </Link>
             </nav>
           </div>
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
           {/* Contact */}
           <div className="flex flex-col items-center md:items-end">
             <h4 className="text-slate-300 font-medium mb-3">
-              {t('footer.contact', 'Contact')}
+              Contact
             </h4>
             <a
               href="mailto:privacy@mysticoracle.com"
@@ -93,10 +93,10 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="border-t border-white/5 mt-8 pt-6 text-center">
           <p className="text-slate-500 text-xs">
-            © {currentYear} MysticOracle. {t('footer.allRightsReserved', 'All rights reserved.')}
+            © {currentYear} MysticOracle. {language === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}
           </p>
           <p className="text-slate-600 text-xs mt-2">
-            {t('footer.disclaimer', 'For entertainment purposes only. Not a substitute for professional advice.')}
+            {language === 'fr' ? 'À des fins de divertissement uniquement. Ne remplace pas un avis professionnel.' : 'For entertainment purposes only. Not a substitute for professional advice.'}
           </p>
         </div>
       </div>

@@ -43,10 +43,13 @@ router.get('/overview', async (req, res) => {
     const selectFields = {
       id: true,
       title: true,
+      titleFr: true,
       slug: true,
       excerpt: true,
+      excerptFr: true,
       featuredImage: true,
       featuredImageAlt: true,
+      featuredImageAltFr: true,
       cardType: true,
       cardNumber: true,
       readTime: true,

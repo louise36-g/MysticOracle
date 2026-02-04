@@ -779,13 +779,18 @@ model TarotArticle {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Content
+  // Content - English (primary)
   title              String
   slug               String   @unique
   excerpt            String
   content            String   @db.Text
   author             String
   readTime           String
+
+  // Content - French (optional translations)
+  titleFr            String   @default("")
+  excerptFr          String   @default("")
+  contentFr          String   @default("") @db.Text
 
   // Dates (for schema)
   datePublished      DateTime
@@ -794,6 +799,7 @@ model TarotArticle {
   // Images
   featuredImage      String
   featuredImageAlt   String
+  featuredImageAltFr String   @default("")
 
   // Card Metadata
   cardType                   CardType
@@ -809,12 +815,17 @@ model TarotArticle {
   articleCategories  TarotArticleCategory[]
   articleTags        TarotArticleTag[]
 
-  // SEO
+  // SEO - English
   seoFocusKeyword    String
   seoMetaTitle       String
   seoMetaDescription String
 
-  // FAQ (stored as JSON)
+  // SEO - French (optional)
+  seoFocusKeywordFr    String   @default("")
+  seoMetaTitleFr       String   @default("")
+  seoMetaDescriptionFr String   @default("")
+
+  // FAQ (stored as JSON - contains both languages)
   faq                Json     // Array of { question: string, answer: string }
 
   // Breadcrumbs

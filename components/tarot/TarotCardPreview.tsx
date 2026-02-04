@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
 import { TarotOverviewCard } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
+import { useApp } from '../../context/AppContext';
 
 interface TarotCardPreviewProps {
   card: TarotOverviewCard;
@@ -20,6 +21,12 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
   elementColor = '#a78bfa',
   fullWidth = false,
 }) => {
+  const { language } = useApp();
+
+  // Get localized content - use French if available, fallback to English
+  const title = language === 'fr' && card.titleFr ? card.titleFr : card.title;
+  const excerpt = language === 'fr' && card.excerptFr ? card.excerptFr : card.excerpt;
+  const imageAlt = language === 'fr' && card.featuredImageAltFr ? card.featuredImageAltFr : card.featuredImageAlt;
   return (
     <Link
       to={buildRoute(ROUTES.TAROT_ARTICLE, { slug: card.slug })}
@@ -36,7 +43,7 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
           {card.featuredImage ? (
             <img
               src={card.featuredImage}
-              alt={card.featuredImageAlt || card.title}
+              alt={imageAlt || title}
               className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
               loading="lazy"
               onError={(e) => {
@@ -74,11 +81,11 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
               {card.cardNumber}
             </span>
             {card.cardNumber !== undefined && card.cardNumber !== null && ' - '}
-            {card.title}
+            {title}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-xs text-slate-400 line-clamp-2">{card.excerpt}</p>
+          <p className="text-xs text-slate-400 line-clamp-2">{excerpt}</p>
         </div>
       </motion.div>
     </Link>

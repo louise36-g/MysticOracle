@@ -50,13 +50,16 @@ const Header: React.FC<HeaderProps> = () => {
     // If on reading page with in-progress reading, confirm before reset
     if (location.pathname.startsWith('/reading') && hasStartedReading()) {
       e.preventDefault();
-      if (confirm(t('reading.confirmNewReading', 'Start a new reading? Current progress will be lost.'))) {
+      const message = language === 'fr'
+        ? 'Commencer un nouveau tirage ? Votre progression actuelle sera perdue.'
+        : 'Start a new reading? Current progress will be lost.';
+      if (confirm(message)) {
         clearReading();
         navigate(ROUTES.READING);
       }
     }
     // Otherwise let normal Link behavior happen
-  }, [location.pathname, hasStartedReading, clearReading, navigate, t]);
+  }, [location.pathname, hasStartedReading, clearReading, navigate, language]);
 
   // Helper to check if path is active
   const isActive = useCallback((path: string) => {
@@ -112,8 +115,8 @@ const Header: React.FC<HeaderProps> = () => {
           <button
             onClick={toggleLanguage}
             className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors"
-            aria-label={t('nav.switchLanguageLabel', language === 'en' ? 'Switch to French' : 'Switch to English')}
-            title={t('nav.switchLanguageTitle', language === 'en' ? 'Switch to French' : 'Passer en anglais')}
+            aria-label={language === 'en' ? 'Switch to French' : 'Switch to English'}
+            title={language === 'en' ? 'Switch to French' : 'Passer en anglais'}
           >
             {language === 'en' ? <FlagEN className="w-5 h-5" aria-hidden="true" /> : <FlagFR className="w-5 h-5" aria-hidden="true" />}
           </button>
@@ -121,7 +124,7 @@ const Header: React.FC<HeaderProps> = () => {
           <SignedOut>
             <SignInButton mode="modal">
               <Button variant="primary" size="sm">
-                {t('nav.signIn', 'Sign In')}
+                {language === 'fr' ? 'Connexion' : 'Sign In'}
               </Button>
             </SignInButton>
           </SignedOut>
@@ -180,7 +183,7 @@ const Header: React.FC<HeaderProps> = () => {
                     className="flex items-center gap-2 font-bold text-amber-400 hover:text-amber-300 transition-colors"
                   >
                     <Coins className="w-4 h-4" />
-                    {userCredits} {t('nav.credits', 'Credits')}
+                    {userCredits} {language === 'fr' ? 'Crédits' : 'Credits'}
                   </button>
                 </div>
               )}
@@ -191,7 +194,7 @@ const Header: React.FC<HeaderProps> = () => {
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOME) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Home className="w-5 h-5" />
-                {t('nav.home', 'Home')}
+                {language === 'fr' ? 'Accueil' : 'Home'}
               </Link>
 
               <Link
@@ -200,7 +203,7 @@ const Header: React.FC<HeaderProps> = () => {
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.READING) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Sparkles className="w-5 h-5" />
-                {t('nav.newReading', 'New Reading')}
+                {language === 'fr' ? 'Nouveau tirage' : 'New Reading'}
               </Link>
 
               <Link
@@ -218,7 +221,7 @@ const Header: React.FC<HeaderProps> = () => {
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOW_CREDITS_WORK) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <CreditCard className="w-5 h-5" />
-                {t('nav.howCreditsWork', 'How Credits Work')}
+                {language === 'fr' ? 'Comment fonctionnent les crédits' : 'How Credits Work'}
               </Link>
 
               <Link
@@ -227,7 +230,7 @@ const Header: React.FC<HeaderProps> = () => {
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.FAQ) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <HelpCircle className="w-5 h-5" />
-                {t('nav.helpFaq', 'Help & FAQ')}
+                {language === 'fr' ? 'Aide & FAQ' : 'Help & FAQ'}
               </Link>
 
               {isSignedIn && (
@@ -237,7 +240,7 @@ const Header: React.FC<HeaderProps> = () => {
                   className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.PROFILE) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <User className="w-5 h-5" />
-                  {t('nav.myAccount', 'My Account')}
+                  {language === 'fr' ? 'Mon compte' : 'My Account'}
                 </Link>
               )}
 
@@ -260,12 +263,12 @@ const Header: React.FC<HeaderProps> = () => {
                   {language === 'en' ? (
                     <>
                       <FlagFR className="w-5 h-5" />
-                      <span>{t('nav.switchToFrench', 'Passer en Français')}</span>
+                      <span>Passer en Français</span>
                     </>
                   ) : (
                     <>
                       <FlagEN className="w-5 h-5" />
-                      <span>{t('nav.switchToEnglish', 'Switch to English')}</span>
+                      <span>Switch to English</span>
                     </>
                   )}
                 </button>
@@ -275,7 +278,7 @@ const Header: React.FC<HeaderProps> = () => {
                 <div className="pt-2">
                   <SignInButton mode="modal">
                     <Button className="w-full" variant="primary">
-                      {t('nav.signIn', 'Sign In')}
+                      {language === 'fr' ? 'Connexion' : 'Sign In'}
                     </Button>
                   </SignInButton>
                 </div>
