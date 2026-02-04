@@ -165,7 +165,7 @@ const BirthCardEntry: React.FC = () => {
             className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span>{t('common.back', 'Back')}</span>
+            <span>{language === 'fr' ? 'Retour' : 'Back'}</span>
           </button>
         </div>
 
@@ -186,7 +186,7 @@ const BirthCardEntry: React.FC = () => {
                 <Sparkles className="w-8 h-8 text-white" />
               </motion.div>
               <h1 className="text-2xl font-heading text-white mb-2">
-                {t('birthCards.title', 'Birth Cards')}
+                {language === 'fr' ? 'Cartes de Naissance' : 'Birth Cards'}
               </h1>
               <p className="text-violet-300 font-medium mb-1">{depthLabel}</p>
               <p className="text-white/60 text-sm">{description}</p>
@@ -197,7 +197,7 @@ const BirthCardEntry: React.FC = () => {
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-5 h-5 text-violet-400" />
                 <h2 className="text-lg font-heading text-white">
-                  {t('birthCards.enterBirthDate', 'Enter Your Birth Date')}
+                  {language === 'fr' ? 'Entrez votre date de naissance' : 'Enter Your Birth Date'}
                 </h2>
               </div>
 
@@ -205,7 +205,7 @@ const BirthCardEntry: React.FC = () => {
                 {/* Day input */}
                 <div>
                   <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
-                    {t('birthCards.day', 'Day')}
+                    {language === 'fr' ? 'Jour' : 'Day'}
                   </label>
                   <input
                     ref={dayRef}
@@ -222,7 +222,7 @@ const BirthCardEntry: React.FC = () => {
                 {/* Month input */}
                 <div>
                   <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
-                    {t('birthCards.month', 'Month')}
+                    {language === 'fr' ? 'Mois' : 'Month'}
                   </label>
                   <input
                     ref={monthRef}
@@ -239,7 +239,7 @@ const BirthCardEntry: React.FC = () => {
                 {/* Year input */}
                 <div>
                   <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
-                    {t('birthCards.year', 'Year')}
+                    {language === 'fr' ? 'Année' : 'Year'}
                   </label>
                   <input
                     ref={yearRef}
@@ -257,7 +257,7 @@ const BirthCardEntry: React.FC = () => {
               {/* Date validation feedback */}
               {(birthDate.day || birthDate.month || birthDate.year) && !isValidDate() && (
                 <p className="text-amber-400 text-sm text-center">
-                  {t('birthCards.invalidDate', 'Please enter a valid date')}
+                  {language === 'fr' ? 'Veuillez entrer une date valide' : 'Please enter a valid date'}
                 </p>
               )}
             </div>
@@ -265,7 +265,7 @@ const BirthCardEntry: React.FC = () => {
             {/* What you'll discover */}
             <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20 mb-6">
               <h2 className="text-lg font-heading text-white mb-4">
-                {t('birthCards.whatYoullDiscover', "What You'll Discover")}
+                {language === 'fr' ? 'Ce que vous découvrirez' : "What You'll Discover"}
               </h2>
               <ul className="space-y-3">
                 {discoveryList.map((item, index) => (
@@ -291,12 +291,12 @@ const BirthCardEntry: React.FC = () => {
                 <span className="text-white/80">{cost}</span>
                 <span className="text-white/50 text-sm">
                   {cost === 1
-                    ? t('credits.credit', 'credit')
-                    : t('credits.credits', 'credits')}
+                    ? (language === 'fr' ? 'crédit' : 'credit')
+                    : (language === 'fr' ? 'crédits' : 'credits')}
                 </span>
                 {user && (
                   <span className="text-white/40 text-sm ml-2">
-                    ({user.credits} {t('credits.available', 'available')})
+                    ({user.credits} {language === 'fr' ? 'disponibles' : 'available'})
                   </span>
                 )}
               </div>
@@ -309,8 +309,8 @@ const BirthCardEntry: React.FC = () => {
               >
                 <Sparkles className="w-5 h-5" />
                 {depth === 1
-                  ? t('birthCards.revealYourCard', 'Reveal Your Card')
-                  : t('birthCards.revealYourCards', 'Reveal Your Cards')}
+                  ? (language === 'fr' ? 'Dévoilez votre carte' : 'Reveal Your Card')
+                  : (language === 'fr' ? 'Dévoilez vos cartes' : 'Reveal Your Cards')}
               </Button>
             </div>
 
@@ -321,7 +321,7 @@ const BirthCardEntry: React.FC = () => {
                 animate={{ opacity: 1 }}
                 className="text-amber-400 text-sm text-center mt-4"
               >
-                {t('credits.notEnough', 'Not enough credits for this reading')}
+                {language === 'fr' ? 'Crédits insuffisants pour ce tirage' : 'Not enough credits for this reading'}
               </motion.p>
             )}
           </motion.div>

@@ -261,7 +261,7 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-3xl md:text-4xl font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-200 to-amber-200 mb-3">
-          {t('SpreadSelector.tsx.SpreadSelector.choose_your_spread', 'Choose Your Spread')}
+          {language === 'fr' ? 'Choisissez votre tirage' : 'Choose Your Spread'}
         </h2>
         <p className="text-slate-400 max-w-xl mx-auto">
           {language === 'en'

@@ -155,7 +155,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   {/* Question */}
                   <p className="text-white/90 text-center mb-6 font-medium">
                     {language === 'fr'
-                      ? 'Jusqu\'ou souhaitez-vous aller?'
+                      ? 'Jusqu\'où voulez-vous plonger ?'
                       : 'How deep would you like to go?'}
                   </p>
 

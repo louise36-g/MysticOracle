@@ -84,7 +84,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
             </span>
           </div>
           <h2 className="text-2xl md:text-3xl font-heading text-white mb-1">
-            {language === 'en' ? 'Complete Picture' : 'Tableau Complet'}
+            {language === 'en' ? 'Complete Picture' : 'Croix Celtique'}
           </h2>
           <p className={`text-sm ${theme.textAccent} italic`}>
             {language === 'en' ? 'Ten cards illuminate the full story' : 'Dix cartes illuminent l\'histoire complète'}
@@ -144,7 +144,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
               className="w-full"
               disabled={!canProceed}
             >
-              {language === 'en' ? 'Shuffle the Deck' : 'Mélanger le Jeu'}
+              {language === 'en' ? 'Shuffle the Deck' : 'Battez le jeu'}
             </Button>
             {!canProceed && !validationMessage && (
               <p className="text-center text-xs text-slate-500 mt-2">

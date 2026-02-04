@@ -51,7 +51,7 @@ export const REGULAR_DEPTHS: DepthOption[] = [
   { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 3 },
   { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 5 },
   { cards: 7, labelEn: "Fortune's Arc", labelFr: 'Arc du Destin', cost: 7 },
-  { cards: 10, labelEn: 'Complete Picture', labelFr: 'Tableau Complet', cost: 10 },
+  { cards: 10, labelEn: 'Complete Picture', labelFr: 'Croix Celtique', cost: 10 },
 ];
 
 // Birth card depth options (special category)

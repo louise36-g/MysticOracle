@@ -144,7 +144,7 @@ const HorseshoeIntroPhase: React.FC<HorseshoeIntroPhaseProps> = ({
               className="w-full"
               disabled={!canProceed}
             >
-              {language === 'en' ? 'Shuffle the Deck' : 'Mélanger le Jeu'}
+              {language === 'en' ? 'Shuffle the Deck' : 'Battez le jeu'}
             </Button>
             {!canProceed && !validationMessage && (
               <p className="text-center text-xs text-slate-500 mt-2">
