@@ -209,18 +209,18 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
     return [
       {
         id: 'default_1',
-        textEn: 'What do I need to understand about this situation?',
-        textFr: 'Que dois-je comprendre de cette situation?',
+        textEn: 'What do I need to be aware of at this moment?',
+        textFr: 'De quoi dois-je prendre conscience en ce moment ?',
       },
       {
         id: 'default_2',
-        textEn: 'What is being revealed to me at this time?',
-        textFr: 'Qu\'est-ce qui m\'est revele en ce moment?',
+        textEn: 'What insight is the tarot offering me at this time?',
+        textFr: 'Quel éclairage le tarot m\'apporte-t-il en ce moment ?',
       },
       {
         id: 'default_3',
-        textEn: 'How can I move forward with clarity and purpose?',
-        textFr: 'Comment puis-je avancer avec clarte et intention?',
+        textEn: 'How can I find clarity and purpose?',
+        textFr: 'Comment puis-je retrouver clarté et intention ?',
       },
     ];
   };
@@ -245,6 +245,21 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
   const handleLayoutSelect = (layoutId: ThreeCardLayoutId | FiveCardLayoutId) => {
     onLayoutSelect(layoutId);
     setLayoutPickerOpen(false);
+  };
+
+  // Handle button click - show error if question is missing
+  const handleStartClick = () => {
+    // If everything is ready except the question, show the shake error
+    if (hasValidLayout && credits >= totalCost && !hasValidQuestion) {
+      setShakeQuestion(true);
+      questionRef.current?.focus();
+      setTimeout(() => setShakeQuestion(false), 2000);
+      return;
+    }
+    // Otherwise proceed normally
+    if (canProceed) {
+      onStartShuffle();
+    }
   };
 
   return (
@@ -534,10 +549,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
             </div>
 
             <Button
-              onClick={onStartShuffle}
+              onClick={handleStartClick}
               size="lg"
               className="w-full"
-              disabled={!canProceed}
+              disabled={!hasValidLayout || credits < totalCost}
             >
               {isBirthCards
                 ? (depth === 1
@@ -548,15 +563,15 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
             {/* Helper text when disabled */}
             {!canProceed && !validationMessage && (
-              <p className="text-center text-xs text-slate-500 mt-2">
+              <p className={`text-center text-xs mt-2 ${shakeQuestion ? 'text-red-400 font-medium' : 'text-slate-500'}`}>
                 {needsLayout && !selectedLayout
                   ? language === 'en'
                     ? 'Select a layout to continue'
                     : 'Selectionnez une disposition pour continuer'
                   : !isBirthCards && !customQuestion.trim()
                   ? language === 'en'
-                    ? 'Enter your question to continue'
-                    : 'Entrez votre question pour continuer'
+                    ? 'Please enter your question to continue'
+                    : 'Veuillez entrer votre question pour continuer'
                   : credits < totalCost
                   ? language === 'en'
                     ? 'Insufficient credits'
