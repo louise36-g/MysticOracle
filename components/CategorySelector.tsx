@@ -538,19 +538,21 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                           onMouseLeave={() => setHoveredDepth(null)}
                           disabled={!canAfford}
                           className={`
-                            group relative p-4 rounded-xl border transition-all duration-300 backdrop-blur-md
-                            ${isHovered && canAfford
-                              ? 'border-white/50 bg-white/15'
-                              : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30'
-                            }
+                            group relative p-4 rounded-xl border backdrop-blur-md
+                            border-white/10 bg-white/5
                             ${!canAfford ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                           `}
-                          whileHover={canAfford ? { scale: 1.05, y: -6 } : {}}
+                          whileHover={canAfford ? {
+                            scale: 1.05,
+                            y: -6,
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                            boxShadow: `0 15px 40px ${categoryColors[category.id].glow}50, 0 0 30px ${categoryColors[category.id].glow}40, 0 0 60px ${categoryColors[category.id].glow}20`,
+                            transition: { type: "tween", duration: 0.2, ease: "easeOut" }
+                          } : {}}
                           whileTap={canAfford ? { scale: 0.95 } : {}}
                           style={{
-                            boxShadow: isHovered && canAfford
-                              ? `0 15px 40px ${categoryColors[category.id].glow}50, 0 0 30px ${categoryColors[category.id].glow}40, 0 0 60px ${categoryColors[category.id].glow}20`
-                              : `0 4px 15px rgba(0,0,0,0.2), 0 0 10px ${categoryColors[category.id].glow}15`
+                            boxShadow: `0 4px 15px rgba(0,0,0,0.2), 0 0 10px ${categoryColors[category.id].glow}15`
                           }}
                         >
                           {/* Card visual */}
