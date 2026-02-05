@@ -144,7 +144,7 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-[#0f0c29] text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
       {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         {/* Deep Midnight Blue Base */}
         <div className="absolute inset-0 bg-[#0f0c29]"></div>
         {/* Radial Gradients for "Mystical" Atmosphere */}
