@@ -33,6 +33,7 @@ server/.env.*.local
 *.sln
 *.sw?
 server/public/
+!server/public/cards/
 
 # Git worktrees
 .worktrees/

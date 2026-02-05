@@ -194,6 +194,16 @@ app.use(
   express.static(path.join(process.cwd(), 'public', 'uploads'))
 );
 
+// Static card images with long cache (optimized WebP images)
+app.use(
+  '/cards',
+  (req, res, next) => {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    next();
+  },
+  express.static(path.join(process.cwd(), 'public', 'cards'))
+);
+
 // Add middleware for API cache headers (before routes)
 app.use('/api', (req, res, next) => {
   // Only cache GET requests to public endpoints
