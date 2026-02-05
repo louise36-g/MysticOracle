@@ -22,18 +22,32 @@ const zodiacSigns = [
   { slug: 'pisces', en: 'Pisces', fr: 'Poissons', symbol: '\u2653', dates: 'Feb 19 - Mar 20', datesFr: '19 fév - 20 mars', element: 'water' },
 ];
 
-const elementColors = {
-  fire: 'from-red-500/20 to-orange-500/20 border-orange-500/30 hover:border-orange-400/50',
-  earth: 'from-green-500/20 to-emerald-500/20 border-emerald-500/30 hover:border-emerald-400/50',
-  air: 'from-sky-500/20 to-blue-500/20 border-sky-500/30 hover:border-sky-400/50',
-  water: 'from-blue-500/20 to-indigo-500/20 border-indigo-500/30 hover:border-indigo-400/50',
-};
-
-const elementTextColors = {
-  fire: 'text-orange-300',
-  earth: 'text-emerald-300',
-  air: 'text-sky-300',
-  water: 'text-indigo-300',
+// Vibrant element styles with glowing colors
+const elementStyles = {
+  fire: {
+    primary: '#ff8c00',
+    glow: 'rgba(255, 140, 0, 0.6)',
+    gradient: 'from-orange-500/40 via-amber-500/30 to-red-500/40',
+    border: 'border-orange-500/40',
+  },
+  earth: {
+    primary: '#22c55e',
+    glow: 'rgba(34, 197, 94, 0.6)',
+    gradient: 'from-green-500/40 via-emerald-500/30 to-teal-500/40',
+    border: 'border-emerald-500/40',
+  },
+  air: {
+    primary: '#38bdf8',
+    glow: 'rgba(56, 189, 248, 0.6)',
+    gradient: 'from-sky-400/40 via-cyan-500/30 to-blue-500/40',
+    border: 'border-sky-500/40',
+  },
+  water: {
+    primary: '#a78bfa',
+    glow: 'rgba(167, 139, 250, 0.6)',
+    gradient: 'from-violet-400/40 via-purple-500/30 to-indigo-500/40',
+    border: 'border-violet-500/40',
+  },
 };
 
 const HoroscopesIndex: React.FC = () => {
@@ -127,72 +141,103 @@ const HoroscopesIndex: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Zodiac Signs Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {zodiacSigns.map((sign, index) => (
-            <Link
-              key={sign.slug}
-              to={buildRoute(ROUTES.HOROSCOPE_SIGN, { sign: sign.slug })}
-              className={`
-                relative group p-6 rounded-2xl border bg-gradient-to-br backdrop-blur-sm
-                transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl
-                ${elementColors[sign.element as keyof typeof elementColors]}
-              `}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+        {/* Zodiac Signs Grid - 4 columns, horizontal cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {zodiacSigns.map((sign, index) => {
+            const style = elementStyles[sign.element as keyof typeof elementStyles];
+            return (
+              <Link
+                key={sign.slug}
+                to={buildRoute(ROUTES.HOROSCOPE_SIGN, { sign: sign.slug })}
+                className="group relative"
               >
-              {/* Symbol */}
-              <div className="text-5xl mb-3 text-center opacity-80 group-hover:opacity-100 transition-opacity">
-                {sign.symbol}
-              </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: index * 0.04, duration: 0.4 }}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative py-4 px-4 rounded-xl overflow-hidden"
+                >
+                  {/* Card background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient}`} />
 
-              {/* Sign Name */}
-              <h2
-                className={`text-xl font-heading font-bold text-center mb-1 ${
-                  elementTextColors[sign.element as keyof typeof elementTextColors]
-                }`}
-              >
-                {language === 'en' ? sign.en : sign.fr}
-              </h2>
+                  {/* Animated border glow on hover */}
+                  <div
+                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      boxShadow: `inset 0 0 0 2px ${style.primary}, 0 0 25px ${style.glow}, 0 0 50px ${style.glow}`,
+                    }}
+                  />
 
-              {/* Dates */}
-              <p className="text-xs text-slate-400 text-center">
-                {language === 'en' ? sign.dates : sign.datesFr}
-              </p>
+                  {/* Default border */}
+                  <div
+                    className="absolute inset-0 rounded-xl border-2 group-hover:border-transparent transition-colors"
+                    style={{ borderColor: `${style.primary}40` }}
+                  />
 
-              {/* Hover Effect */}
-              <div className="absolute inset-0 rounded-2xl bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-              </motion.div>
-            </Link>
-          ))}
+                  {/* Inner shine */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent rounded-xl" />
+
+                  {/* Content - horizontal layout: name/dates left, symbol right */}
+                  <div className="relative flex items-center justify-between gap-3">
+                    {/* Sign name and dates */}
+                    <div className="flex flex-col items-start min-w-0">
+                      <h2 className="text-base font-heading font-semibold text-white group-hover:text-white transition-colors">
+                        {language === 'en' ? sign.en : sign.fr}
+                      </h2>
+                      <p className="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors">
+                        {language === 'en' ? sign.dates : sign.datesFr}
+                      </p>
+                    </div>
+
+                    {/* Zodiac symbol with glow - right side */}
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="absolute inset-0 text-3xl flex items-center justify-center blur-md opacity-60 group-hover:opacity-100 transition-opacity"
+                        style={{ color: style.primary }}
+                      >
+                        {sign.symbol}
+                      </div>
+                      <span
+                        className="relative text-3xl block"
+                        style={{
+                          color: style.primary,
+                          textShadow: `0 0 12px ${style.glow}`,
+                        }}
+                      >
+                        {sign.symbol}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Element Legend */}
+        {/* Element Legend with vibrant colors */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-slate-400"
+          className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-slate-400"
         >
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-orange-500/50" />
-            <span>{t('horoscopes.HoroscopesIndex.fire', language === 'en' ? 'Fire' : 'Feu')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-500/50" />
-            <span>{t('horoscopes.HoroscopesIndex.earth', language === 'en' ? 'Earth' : 'Terre')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-sky-500/50" />
-            <span>{t('horoscopes.HoroscopesIndex.air', language === 'en' ? 'Air' : 'Air')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-indigo-500/50" />
-            <span>{t('horoscopes.HoroscopesIndex.water', language === 'en' ? 'Water' : 'Eau')}</span>
-          </div>
+          {[
+            { label: language === 'fr' ? 'Feu' : 'Fire', color: '#ff8c00' },
+            { label: language === 'fr' ? 'Terre' : 'Earth', color: '#22c55e' },
+            { label: language === 'fr' ? 'Air' : 'Air', color: '#38bdf8' },
+            { label: language === 'fr' ? 'Eau' : 'Water', color: '#a78bfa' },
+          ].map(({ label, color }) => (
+            <div key={label} className="flex items-center gap-2">
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}80` }}
+              />
+              <span>{label}</span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </>
