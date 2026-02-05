@@ -55,7 +55,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
   // Use the spread theme
   const theme = SPREAD_THEMES[spread.id] || {
     icon: '🔮',
-    textAccent: 'text-violet-300',
+    textAccent: 'text-[#D8AEF6]',
   };
   const [showQuestionError, setShowQuestionError] = useState(false);
 
@@ -145,7 +145,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
               <span className="text-xs text-slate-500 uppercase tracking-wider">
                 {language === 'en' ? 'Cost' : 'Coût'}
               </span>
-              <div className="flex items-center gap-1.5 text-violet-300">
+              <div className="flex items-center gap-1.5 text-[#D8AEF6]">
                 <Coins className="w-4 h-4" />
                 <span className="font-bold text-lg">{totalCost}</span>
                 <span className="text-slate-500 text-xs">

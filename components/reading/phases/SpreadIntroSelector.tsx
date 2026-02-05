@@ -84,17 +84,23 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Coins,
 };
 
-// Color classes for categories
+// Luminous color classes for categories - using custom hex values
 const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; bgHover: string }> = {
-  amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-300', bgHover: 'hover:bg-amber-500/10' },
-  rose: { bg: 'bg-rose-500/20', border: 'border-rose-500/40', text: 'text-rose-300', bgHover: 'hover:bg-rose-500/10' },
-  emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-300', bgHover: 'hover:bg-emerald-500/10' },
-  indigo: { bg: 'bg-indigo-500/20', border: 'border-indigo-500/40', text: 'text-indigo-300', bgHover: 'hover:bg-indigo-500/10' },
-  violet: { bg: 'bg-violet-500/20', border: 'border-violet-500/40', text: 'text-violet-300', bgHover: 'hover:bg-violet-500/10' },
-  cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300', bgHover: 'hover:bg-cyan-500/10' },
-  blue: { bg: 'bg-blue-500/20', border: 'border-blue-500/40', text: 'text-blue-300', bgHover: 'hover:bg-blue-500/10' },
-  purple: { bg: 'bg-purple-500/20', border: 'border-purple-500/40', text: 'text-purple-300', bgHover: 'hover:bg-purple-500/10' },
-  teal: { bg: 'bg-teal-500/20', border: 'border-teal-500/40', text: 'text-teal-300', bgHover: 'hover:bg-teal-500/10' },
+  // Love - Coral Pink
+  amber: { bg: 'bg-[#D4A24C]/20', border: 'border-[#D4A24C]/40', text: 'text-[#E4B86C]', bgHover: 'hover:bg-[#D4A24C]/10' },
+  rose: { bg: 'bg-[#E8607A]/20', border: 'border-[#E8607A]/40', text: 'text-[#F08A9D]', bgHover: 'hover:bg-[#E8607A]/10' },
+  // Money - Emerald Green
+  emerald: { bg: 'bg-[#50C878]/20', border: 'border-[#50C878]/40', text: 'text-[#70D898]', bgHover: 'hover:bg-[#50C878]/10' },
+  // Life Path - Sky Blue
+  indigo: { bg: 'bg-[#5BA8D9]/20', border: 'border-[#5BA8D9]/40', text: 'text-[#7BC8F9]', bgHover: 'hover:bg-[#5BA8D9]/10' },
+  // Birth Cards - Lavender Purple
+  violet: { bg: 'bg-[#B88ED6]/20', border: 'border-[#B88ED6]/40', text: 'text-[#D8AEF6]', bgHover: 'hover:bg-[#B88ED6]/10' },
+  // Family - Teal
+  cyan: { bg: 'bg-[#45B5AA]/20', border: 'border-[#45B5AA]/40', text: 'text-[#65D5CA]', bgHover: 'hover:bg-[#45B5AA]/10' },
+  // Additional mappings
+  blue: { bg: 'bg-[#5BA8D9]/20', border: 'border-[#5BA8D9]/40', text: 'text-[#7BC8F9]', bgHover: 'hover:bg-[#5BA8D9]/10' },
+  purple: { bg: 'bg-[#B88ED6]/20', border: 'border-[#B88ED6]/40', text: 'text-[#D8AEF6]', bgHover: 'hover:bg-[#B88ED6]/10' },
+  teal: { bg: 'bg-[#45B5AA]/20', border: 'border-[#45B5AA]/40', text: 'text-[#65D5CA]', bgHover: 'hover:bg-[#45B5AA]/10' },
 };
 
 // Generic types for the selector

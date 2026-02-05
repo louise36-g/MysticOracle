@@ -36,7 +36,7 @@ const LayoutSelector: React.FC<LayoutSelectorProps> = ({
               onClick={() => onLayoutSelect(layoutId)}
               className={`w-full p-3 rounded-lg border transition-all text-left ${
                 isSelected
-                  ? 'bg-cyan-500/20 border-cyan-500/40'
+                  ? 'bg-[#5BA8D9]/20 border-[#5BA8D9]/40'
                   : 'bg-slate-800/50 border-transparent hover:bg-slate-800 hover:border-slate-700'
               }`}
             >
@@ -44,18 +44,18 @@ const LayoutSelector: React.FC<LayoutSelectorProps> = ({
               <div className="flex items-center gap-3 mb-2">
                 <div
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    isSelected ? 'border-cyan-400' : 'border-slate-600'
+                    isSelected ? 'border-[#5BA8D9]' : 'border-slate-600'
                   }`}
                 >
                   {isSelected && (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="w-2 h-2 rounded-full bg-cyan-400"
+                      className="w-2 h-2 rounded-full bg-[#5BA8D9]"
                     />
                   )}
                 </div>
-                <span className={`text-sm font-medium ${isSelected ? 'text-cyan-300' : 'text-slate-400'}`}>
+                <span className={`text-sm font-medium ${isSelected ? 'text-[#7BC8F9]' : 'text-slate-400'}`}>
                   {language === 'en' ? layout.labelEn : layout.labelFr}
                 </span>
               </div>
@@ -66,13 +66,13 @@ const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                   <React.Fragment key={idx}>
                     <div
                       className={`flex flex-col items-center ${
-                        isSelected ? 'text-cyan-300' : 'text-slate-500'
+                        isSelected ? 'text-[#7BC8F9]' : 'text-slate-500'
                       }`}
                     >
                       <div
                         className={`w-8 h-12 rounded border-2 ${
                           isSelected
-                            ? 'border-cyan-500/60 bg-cyan-500/10'
+                            ? 'border-[#5BA8D9]/60 bg-[#5BA8D9]/10'
                             : 'border-slate-600 bg-slate-800/50'
                         }`}
                       />
@@ -81,7 +81,7 @@ const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                       </span>
                     </div>
                     {idx < positions.length - 1 && (
-                      <span className={`text-xs ${isSelected ? 'text-cyan-500/60' : 'text-slate-600'}`}>
+                      <span className={`text-xs ${isSelected ? 'text-[#5BA8D9]/60' : 'text-slate-600'}`}>
                         →
                       </span>
                     )}

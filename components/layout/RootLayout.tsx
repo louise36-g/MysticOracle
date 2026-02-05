@@ -32,11 +32,18 @@ function PageLoader() {
 // Branded loading screen for initial load
 function BrandedLoadingScreen() {
   return (
-    <div className="min-h-screen bg-[#0f0c29] flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background effects */}
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{
+        backgroundImage: 'url("/background-mysticoracle.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Subtle glow effect */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-amber-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-800/20 rounded-full blur-3xl animate-pulse" />
       </div>
 
       {/* Logo/Brand */}
@@ -50,7 +57,7 @@ function BrandedLoadingScreen() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-[46px] h-20 rounded-lg bg-gradient-to-br from-purple-800 to-indigo-900 border border-amber-500/40 shadow-lg"
+              className="w-[46px] h-20 rounded-lg bg-gradient-to-br from-purple-900 to-purple-800 border border-amber-500/40 shadow-lg shadow-purple-950/50"
               style={{
                 animation: 'bounce 1s ease-in-out infinite',
                 animationDelay: `${i * 0.15}s`,
@@ -142,18 +149,17 @@ export function RootLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0c29] text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* Deep Midnight Blue Base */}
-        <div className="absolute inset-0 bg-[#0f0c29]"></div>
-        {/* Radial Gradients for "Mystical" Atmosphere */}
-        <div className="absolute top-0 left-0 w-full h-[800px] bg-gradient-to-b from-purple-900/20 to-transparent"></div>
-        <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-[radial-gradient(circle,_rgba(88,28,135,0.2)_0%,_transparent_70%)] blur-3xl"></div>
-        <div className="absolute bottom-[10%] -left-[10%] w-[60%] h-[60%] bg-[radial-gradient(circle,_rgba(251,191,36,0.05)_0%,_transparent_70%)] blur-3xl"></div>
-        {/* Subtle Noise Texture */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}></div>
-      </div>
+    <div className="min-h-screen bg-[#0a0510] text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
+      {/* Cosmic Background Image */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url("/background-mysticoracle.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
 
       <Header />
       <SubNav />

@@ -67,12 +67,12 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     taglineEn: "Where hearts reveal their truth.",
     taglineFr: "Où les cœurs révèlent leur vérité.",
     icon: React.createElement(Heart, { className: "w-5 h-5" }),
-    primary: 'rgb(244, 63, 94)',        // rose-500
-    secondary: 'rgb(251, 113, 133)',    // rose-400
-    glow: 'rgba(244, 63, 94, 0.25)',
-    bgGradient: 'from-rose-950 via-pink-900 to-rose-950',
-    cardBorder: 'border-rose-500/50',
-    textAccent: 'text-rose-300',
+    primary: '#E8607A',                  // Luminous coral pink
+    secondary: '#F08A9D',                // Light coral
+    glow: 'rgba(232, 96, 122, 0.25)',
+    bgGradient: 'from-[#E8607A]/20 via-[#D94D68]/10 to-[#E8607A]/20',
+    cardBorder: 'border-[#E8607A]/50',
+    textAccent: 'text-[#F08A9D]',
     atmosphereClass: 'love-atmosphere',
   },
   [SpreadType.CAREER]: {
@@ -80,12 +80,12 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     taglineEn: "Chart your path to success.",
     taglineFr: "Tracez votre chemin vers le succès.",
     icon: React.createElement(TrendingUp, { className: "w-5 h-5" }),
-    primary: 'rgb(253, 224, 71)',       // yellow-300
-    secondary: 'rgb(245, 158, 11)',     // amber-500
-    glow: 'rgba(253, 224, 71, 0.35)',
-    bgGradient: 'from-yellow-950 via-amber-900 to-yellow-950',
-    cardBorder: 'border-yellow-400/50',
-    textAccent: 'text-yellow-300',
+    primary: '#D4A24C',                  // Luminous gold amber
+    secondary: '#E4B86C',                // Light gold
+    glow: 'rgba(212, 162, 76, 0.35)',
+    bgGradient: 'from-[#D4A24C]/20 via-[#C4923C]/10 to-[#D4A24C]/20',
+    cardBorder: 'border-[#D4A24C]/50',
+    textAccent: 'text-[#E4B86C]',
     atmosphereClass: 'career-atmosphere',
   },
   [SpreadType.HORSESHOE]: {

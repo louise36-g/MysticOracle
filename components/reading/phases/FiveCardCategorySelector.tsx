@@ -21,12 +21,13 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Users,
 };
 
-const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string }> = {
-  indigo: { bg: 'bg-indigo-500/20', border: 'border-indigo-500/40', text: 'text-indigo-300' },
-  rose: { bg: 'bg-rose-500/20', border: 'border-rose-500/40', text: 'text-rose-300' },
-  amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-300' },
-  emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-300' },
-  violet: { bg: 'bg-violet-500/20', border: 'border-violet-500/40', text: 'text-violet-300' },
+// Luminous color palette styles using hex values
+const COLOR_CLASSES: Record<string, { bg: string; border: string; text: string; hex: string }> = {
+  indigo: { bg: 'bg-[#5BA8D9]/20', border: 'border-[#5BA8D9]/40', text: 'text-[#7BC8F9]', hex: '#5BA8D9' },
+  rose: { bg: 'bg-[#E8607A]/20', border: 'border-[#E8607A]/40', text: 'text-[#F08A9D]', hex: '#E8607A' },
+  amber: { bg: 'bg-[#D4A24C]/20', border: 'border-[#D4A24C]/40', text: 'text-[#E4B86C]', hex: '#D4A24C' },
+  emerald: { bg: 'bg-[#50C878]/20', border: 'border-[#50C878]/40', text: 'text-[#70D898]', hex: '#50C878' },
+  violet: { bg: 'bg-[#B88ED6]/20', border: 'border-[#B88ED6]/40', text: 'text-[#D8AEF6]', hex: '#B88ED6' },
 };
 
 const FiveCardCategorySelector: React.FC<FiveCardCategorySelectorProps> = ({

@@ -137,7 +137,7 @@ const HomePage: React.FC = () => {
               className="flex items-center justify-center gap-3 mb-2"
             >
               <Star className="w-3 h-3 text-amber-400/50" />
-              <span className="text-xs uppercase tracking-[0.25em] text-purple-300/80 font-medium">
+              <span className="text-xs uppercase tracking-[0.25em] text-amber-100/90 font-medium">
                 {language === 'en' ? 'Guidance & Self-Discovery' : 'Guidance & Découverte de Soi'}
               </span>
               <Star className="w-3 h-3 text-amber-400/50" />

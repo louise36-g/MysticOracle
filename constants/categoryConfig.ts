@@ -71,10 +71,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Comprenez le voyage de votre coeur',
     icon: createElement(Heart, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-rose-950/90 via-pink-900/80 to-rose-950/90',
-      accent: 'rose-400',
-      glow: 'rose-500/20',
-      border: 'border-rose-500/30',
+      gradient: 'from-[#E8607A]/30 via-[#D94D68]/20 to-[#E8607A]/30',
+      accent: '#E8607A',
+      glow: '#E8607A',
+      border: 'border-[#E8607A]/40',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
@@ -94,10 +94,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Naviguez votre parcours professionnel',
     icon: createElement(Briefcase, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-amber-950/90 via-orange-900/80 to-amber-950/90',
-      accent: 'amber-400',
-      glow: 'amber-500/20',
-      border: 'border-amber-500/30',
+      gradient: 'from-[#D4A24C]/30 via-[#C4923C]/20 to-[#D4A24C]/30',
+      accent: '#D4A24C',
+      glow: '#D4A24C',
+      border: 'border-[#D4A24C]/40',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
@@ -117,10 +117,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Debloquez votre flux financier',
     icon: createElement(Coins, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-emerald-950/90 via-green-900/80 to-emerald-950/90',
-      accent: 'emerald-400',
-      glow: 'emerald-500/20',
-      border: 'border-emerald-500/30',
+      gradient: 'from-[#50C878]/30 via-[#40B868]/20 to-[#50C878]/30',
+      accent: '#50C878',
+      glow: '#50C878',
+      border: 'border-[#50C878]/40',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
@@ -140,10 +140,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Decouvrez votre vraie direction',
     icon: createElement(Compass, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-sky-950/90 via-blue-900/80 to-sky-950/90',
-      accent: 'sky-400',
-      glow: 'sky-500/20',
-      border: 'border-sky-500/30',
+      gradient: 'from-[#5BA8D9]/30 via-[#4B98C9]/20 to-[#5BA8D9]/30',
+      accent: '#5BA8D9',
+      glow: '#5BA8D9',
+      border: 'border-[#5BA8D9]/40',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
@@ -163,10 +163,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Renforcez vos racines',
     icon: createElement(Users, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-cyan-950/90 via-cyan-900/80 to-cyan-950/90',
-      accent: 'cyan-400',
-      glow: 'cyan-500/20',
-      border: 'border-cyan-500/30',
+      gradient: 'from-[#45B5AA]/30 via-[#35A59A]/20 to-[#45B5AA]/30',
+      accent: '#45B5AA',
+      glow: '#45B5AA',
+      border: 'border-[#45B5AA]/40',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
@@ -186,10 +186,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Revelez le plan de votre ame',
     icon: createElement(Sparkles, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-violet-950/90 via-purple-900/80 to-violet-950/90',
-      accent: 'violet-400',
-      glow: 'violet-500/20',
-      border: 'border-violet-500/30',
+      gradient: 'from-[#B88ED6]/30 via-[#A87EC6]/20 to-[#B88ED6]/30',
+      accent: '#B88ED6',
+      glow: '#B88ED6',
+      border: 'border-[#B88ED6]/40',
     },
     depths: [1, 2, 3] as BirthCardDepth[],
     // No default layouts for birth cards - they use a special calculation

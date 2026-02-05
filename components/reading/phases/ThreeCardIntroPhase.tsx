@@ -142,7 +142,7 @@ const ThreeCardIntroPhase: React.FC<ThreeCardIntroPhaseProps> = ({
               <span className="text-xs text-slate-500 uppercase tracking-wider">
                 {language === 'en' ? 'Cost' : 'Coût'}
               </span>
-              <div className="flex items-center gap-1.5 text-cyan-300">
+              <div className="flex items-center gap-1.5 text-[#7BC8F9]">
                 <Coins className="w-4 h-4" />
                 <span className="font-bold text-lg">{totalCost}</span>
                 <span className="text-slate-500 text-xs">

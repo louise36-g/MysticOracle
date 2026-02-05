@@ -69,11 +69,11 @@ const ThreeCardQuestionSelector: React.FC<ThreeCardQuestionSelectorProps> = ({
               onClick={() => onCategorySelect(cat.id)}
               className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 selectedCategory === cat.id
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                  ? 'bg-[#5BA8D9]/20 text-[#7BC8F9] border border-[#5BA8D9]/40'
                   : 'bg-slate-800/50 text-slate-400 border border-transparent hover:bg-slate-800 hover:text-slate-300'
               }`}
             >
-              <span className={selectedCategory === cat.id ? 'text-cyan-400' : 'text-slate-500'}>
+              <span className={selectedCategory === cat.id ? 'text-[#5BA8D9]' : 'text-slate-500'}>
                 {ICON_MAP[cat.iconName]}
               </span>
               <span className="truncate">{language === 'en' ? cat.labelEn : cat.labelFr}</span>
@@ -118,7 +118,7 @@ const ThreeCardQuestionSelector: React.FC<ThreeCardQuestionSelectorProps> = ({
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-950/60 border border-slate-700 rounded-lg text-left hover:border-cyan-500/50 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-950/60 border border-slate-700 rounded-lg text-left hover:border-[#5BA8D9]/50 transition-colors"
               >
                 <span className={selectedQuestion ? 'text-white' : 'text-slate-500'}>
                   {selectedQuestion
@@ -144,7 +144,7 @@ const ThreeCardQuestionSelector: React.FC<ThreeCardQuestionSelectorProps> = ({
                           setIsDropdownOpen(false);
                         }}
                         className={`w-full px-4 py-3 text-left text-sm hover:bg-slate-800 transition-colors ${
-                          selectedQuestionId === q.id ? 'bg-cyan-500/10 text-cyan-300' : 'text-slate-300'
+                          selectedQuestionId === q.id ? 'bg-[#5BA8D9]/10 text-[#7BC8F9]' : 'text-slate-300'
                         }`}
                       >
                         {language === 'en' ? q.textEn : q.textFr}
@@ -185,7 +185,7 @@ const ThreeCardQuestionSelector: React.FC<ThreeCardQuestionSelectorProps> = ({
               placeholder={language === 'en' ? 'What would you like guidance on?' : 'Sur quoi aimeriez-vous recevoir des conseils?'}
               rows={2}
               maxLength={500}
-              className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-cyan-500 focus:ring-cyan-500/30 text-sm resize-none"
+              className="w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 border border-slate-700 focus:border-[#5BA8D9] focus:ring-[#5BA8D9]/30 text-sm resize-none"
             />
             <div className="mt-2 flex items-start justify-between gap-4">
               <p className="text-xs text-slate-500 flex-1">

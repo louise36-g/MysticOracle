@@ -30,42 +30,41 @@ const categorySymbols: Record<ReadingCategory, string> = {
   birth_cards: '✧',
 };
 
-// Unified color system - matches categoryConfig accent colors (Tailwind -400 variants)
-// These must stay in sync with categoryConfig.ts colorTheme.accent values
+// Luminous color palette - vibrant, distinctive colors for each category
 const categoryColors: Record<ReadingCategory, {
-  accent: string;      // Main accent color (matches categoryConfig accent)
-  glow: string;        // Slightly brighter for glow effects
-  ambient: string;     // For subtle ambient patterns
+  accent: string;      // Main accent color
+  glow: string;        // Slightly darker/saturated for glow effects
+  ambient: string;     // Lighter for subtle ambient patterns
 }> = {
   love: {
-    accent: '#fb7185',    // rose-400 (matches categoryConfig.accent)
-    glow: '#f43f5e',      // rose-500
-    ambient: '#fda4af',   // rose-300
+    accent: '#E8607A',    // Coral pink
+    glow: '#D94D68',      // Darker coral
+    ambient: '#F08A9D',   // Light coral
   },
   career: {
-    accent: '#fbbf24',    // amber-400
-    glow: '#f59e0b',      // amber-500
-    ambient: '#fcd34d',   // amber-300
+    accent: '#D4A24C',    // Gold amber
+    glow: '#C4923C',      // Darker gold
+    ambient: '#E4B86C',   // Light gold
   },
   money: {
-    accent: '#34d399',    // emerald-400
-    glow: '#10b981',      // emerald-500
-    ambient: '#6ee7b7',   // emerald-300
+    accent: '#50C878',    // Emerald green
+    glow: '#40B868',      // Darker emerald
+    ambient: '#70D898',   // Light emerald
   },
   life_path: {
-    accent: '#38bdf8',    // sky-400
-    glow: '#0ea5e9',      // sky-500
-    ambient: '#7dd3fc',   // sky-300
+    accent: '#5BA8D9',    // Sky blue
+    glow: '#4B98C9',      // Darker sky
+    ambient: '#7BC8F9',   // Light sky
   },
   family: {
-    accent: '#22d3ee',    // cyan-400
-    glow: '#06b6d4',      // cyan-500
-    ambient: '#67e8f9',   // cyan-300
+    accent: '#45B5AA',    // Teal
+    glow: '#35A59A',      // Darker teal
+    ambient: '#65D5CA',   // Light teal
   },
   birth_cards: {
-    accent: '#a78bfa',    // violet-400
-    glow: '#8b5cf6',      // violet-500
-    ambient: '#c4b5fd',   // violet-300
+    accent: '#B88ED6',    // Lavender purple
+    glow: '#A87EC6',      // Darker lavender
+    ambient: '#D8AEF6',   // Light lavender
   },
 };
 
@@ -368,13 +367,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-300 mb-2">
+        <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-2">
           {language === 'fr'
             ? "Choisissez Votre Chemin"
             : 'Choose Your Path'}
         </h2>
 
-        <p className="text-slate-400 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
           {language === 'fr'
             ? 'Chaque porte mène vers une sagesse différente. Laquelle vous appelle ?'
             : 'Each doorway leads to different wisdom. Which one calls to you?'}
