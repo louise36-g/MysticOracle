@@ -106,7 +106,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
         </div>
 
         {/* Main Card */}
-        <div className="bg-slate-900/70 backdrop-blur-sm rounded-2xl border border-violet-500/20 overflow-hidden">
+        <div className="bg-black/30 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
           {/* Spread Intro Selector */}
           <div className="p-4 md:p-5">
             <SpreadIntroSelector
@@ -140,7 +140,7 @@ const CelticCrossIntroPhase: React.FC<CelticCrossIntroPhaseProps> = ({
           )}
 
           {/* CTA Button */}
-          <div className="p-4 bg-slate-950/50">
+          <div className="p-4 bg-black/20">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-slate-500 uppercase tracking-wider">
                 {language === 'en' ? 'Cost' : 'Coût'}

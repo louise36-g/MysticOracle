@@ -114,8 +114,8 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
   },
   [SpreadType.CELTIC_CROSS]: {
     id: SpreadType.CELTIC_CROSS,
-    nameEn: "Celtic Cross Spreads",
-    nameFr: "Tirages en Croix Celtique",
+    nameEn: "Celtic Cross",
+    nameFr: "Croix Celtique",
     cost: 10,
     positions: 10,
     positionMeaningsEn: ["Present", "Challenge", "Past", "Future", "Above", "Below", "Advice", "External Influences", "Hopes/Fears", "Outcome"],

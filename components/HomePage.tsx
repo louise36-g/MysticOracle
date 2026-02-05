@@ -38,10 +38,23 @@ const FloatingStar: React.FC<{
   </motion.div>
 );
 
-// Mystical decorative symbol
-const MysticalSymbol: React.FC<{ className?: string }> = ({ className = '' }) => (
+// Crescent moon for divider
+const CrescentMoon: React.FC<{ className?: string }> = ({ className = '' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
+    <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" />
+  </svg>
+);
+
+// Tarot card silhouette for background
+const TarotCardSilhouette: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg className={className} viewBox="0 0 100 160" fill="currentColor">
+    <rect x="5" y="5" width="90" height="150" rx="8" ry="8" strokeWidth="2" stroke="currentColor" fill="none" opacity="0.3" />
+    <rect x="12" y="12" width="76" height="136" rx="4" ry="4" strokeWidth="1" stroke="currentColor" fill="none" opacity="0.2" />
+    {/* Star in center */}
+    <path d="M50 45 L53 55 L63 57 L55 63 L57 73 L50 68 L43 73 L45 63 L37 57 L47 55 Z" opacity="0.15" />
+    {/* Bottom decorative element */}
+    <circle cx="50" cy="120" r="15" strokeWidth="1" stroke="currentColor" fill="none" opacity="0.15" />
+    <circle cx="50" cy="120" r="8" strokeWidth="1" stroke="currentColor" fill="none" opacity="0.1" />
   </svg>
 );
 
@@ -96,6 +109,24 @@ const HomePage: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="relative pt-6 pb-4 px-4"
         >
+          {/* Tarot card silhouettes in background */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+            <motion.div
+              className="absolute -left-8 top-1/2 -translate-y-1/2 text-purple-500/[0.07] -rotate-12"
+              animate={{ y: [0, -5, 0], rotate: [-12, -10, -12] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <TarotCardSilhouette className="w-32 h-48" />
+            </motion.div>
+            <motion.div
+              className="absolute -right-8 top-1/2 -translate-y-1/2 text-purple-500/[0.07] rotate-12"
+              animate={{ y: [0, 5, 0], rotate: [12, 14, 12] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            >
+              <TarotCardSilhouette className="w-32 h-48" />
+            </motion.div>
+          </div>
+
           {/* Elegant header with integrated branding */}
           <div className="max-w-4xl mx-auto relative">
             {/* Upper tagline with decorative elements */}
@@ -105,55 +136,72 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex items-center justify-center gap-3 mb-2"
             >
-              <MysticalSymbol className="w-4 h-4 text-amber-400/60" />
-              <span className="text-xs uppercase tracking-[0.25em] text-purple-300/70 font-medium">
+              <Star className="w-3 h-3 text-amber-400/50" />
+              <span className="text-xs uppercase tracking-[0.25em] text-purple-300/80 font-medium">
                 {language === 'en' ? 'Guidance & Self-Discovery' : 'Guidance & Découverte de Soi'}
               </span>
-              <MysticalSymbol className="w-4 h-4 text-amber-400/60" />
+              <Star className="w-3 h-3 text-amber-400/50" />
             </motion.div>
 
-            {/* Title with enhanced glow */}
+            {/* Title with breathing glow animation */}
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="relative text-center text-4xl md:text-5xl font-heading font-bold mb-2"
+              className="relative text-center text-5xl md:text-6xl font-heading font-bold mb-2"
             >
-              {/* Glow layer behind text */}
-              <span
-                className="absolute inset-0 text-purple-400 blur-xl opacity-50"
+              {/* Breathing glow layer behind text */}
+              <motion.span
+                className="absolute inset-0 text-purple-400 blur-xl"
+                animate={{ opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 aria-hidden="true"
               >
                 MysticOracle
-              </span>
+              </motion.span>
+              {/* Secondary amber glow for warmth */}
+              <motion.span
+                className="absolute inset-0 text-amber-400 blur-2xl"
+                animate={{ opacity: [0.1, 0.25, 0.1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                aria-hidden="true"
+              >
+                MysticOracle
+              </motion.span>
               {/* Main text with gradient */}
               <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-purple-200 to-purple-400">
                 MysticOracle
               </span>
             </motion.h1>
 
-            {/* Subtle tagline about modern tech */}
+            {/* Tagline - slightly brighter */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-center text-sm text-slate-400/80 max-w-md mx-auto"
+              className="text-center text-sm text-slate-300 max-w-md mx-auto"
             >
               {language === 'en'
                 ? 'Where ancient knowledge meets modern innovation — wisdom for all'
                 : 'Où la sagesse ancienne rencontre l\'innovation moderne — pour tous'}
             </motion.p>
 
-            {/* Enhanced decorative divider */}
-            <div className="flex items-center justify-center gap-3 mt-4">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-500/40" />
-              <MysticalSymbol className="w-3 h-3 text-purple-400/40" />
-              <div className="h-px w-8 bg-purple-500/30" />
-              <div className="w-2 h-2 rounded-full bg-amber-400/60 shadow-lg shadow-amber-400/30" />
-              <div className="h-px w-8 bg-purple-500/30" />
-              <MysticalSymbol className="w-3 h-3 text-purple-400/40" />
-              <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-500/40" />
-            </div>
+            {/* Simplified elegant divider - just a crescent moon */}
+            <motion.div
+              className="flex items-center justify-center gap-4 mt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-purple-500/40" />
+              <motion.div
+                animate={{ rotate: [0, 5, 0, -5, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <CrescentMoon className="w-4 h-4 text-amber-400/70" />
+              </motion.div>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-purple-500/40" />
+            </motion.div>
           </div>
         </motion.div>
       )}

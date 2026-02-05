@@ -230,7 +230,7 @@ const SpreadVisual: React.FC<{ spreadId: SpreadType }> = ({ spreadId }) => {
 const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
   const { language, user, t } = useApp();
   const [showCreditShop, setShowCreditShop] = useState(false);
-  const [hoveredSpread, setHoveredSpread] = useState<SpreadType | null>(null);
+  const [selectedSpread, setSelectedSpread] = useState<SpreadType | null>(null);
 
   const handleBuyCredits = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -238,159 +238,160 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
     setShowCreditShop(true);
   };
 
-  // Convert spread id to URL-friendly slug (e.g., 'three-card' from SpreadType.THREE_CARD)
-  const getSpreadSlug = (spreadId: SpreadType): string => {
-    const slugMap: Partial<Record<SpreadType, string>> = {
-      [SpreadType.SINGLE]: 'single',
-      [SpreadType.THREE_CARD]: 'three-card',
-      [SpreadType.FIVE_CARD]: 'five-card',
-      [SpreadType.HORSESHOE]: 'horseshoe',
-      [SpreadType.CELTIC_CROSS]: 'celtic-cross',
-    };
-    return slugMap[spreadId] || spreadId;
+  const handleSpreadClick = (spread: SpreadConfig) => {
+    const hasEnoughCredits = user && user.credits >= spread.cost;
+    if (!hasEnoughCredits) return;
+
+    if (onSelect) {
+      onSelect(spread);
+    }
   };
+
+  const spreadsArray = Object.values(SPREADS);
 
   return (
     <>
-    <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
-    <div className="max-w-5xl mx-auto py-12 px-4">
-      <motion.div
-        className="text-center mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className="text-3xl md:text-4xl font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-200 to-amber-200 mb-3">
-          {language === 'fr' ? 'Choisissez votre tirage' : 'Choose Your Spread'}
-        </h2>
-        <p className="text-slate-400 max-w-xl mx-auto">
-          {language === 'en'
-            ? 'Each spread reveals different facets of your journey. Select the path that calls to you.'
-            : 'Chaque tirage révèle différentes facettes de votre voyage. Sélectionnez le chemin qui vous appelle.'}
-        </p>
-      </motion.div>
+      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {Object.values(SPREADS).map((spread, index) => {
-          const hasEnoughCredits = user && user.credits >= spread.cost;
-          const theme = SPREAD_THEMES[spread.id];
-          const isHovered = hoveredSpread === spread.id;
+      <div className="max-w-4xl mx-auto py-3 px-6 md:px-10 mb-8">
+        {/* Minimal header */}
+        <motion.div
+          className="text-center mb-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h2 className="text-xs font-medium text-slate-500 tracking-widest uppercase">
+            {language === 'fr' ? 'Sélectionnez votre tirage' : 'Select your spread'}
+          </h2>
+        </motion.div>
 
-          // Build the spread URL for linking (deprecated: use CategorySelector instead)
-          const spreadUrl = ROUTES.READING;
+        {/* Horizontal spread selector - floating cards */}
+        <div className="relative">
 
-          // Card content (shared between Link and callback modes)
-          const cardContent = (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.08 }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onHoverStart={() => setHoveredSpread(spread.id)}
-              onHoverEnd={() => setHoveredSpread(null)}
-              className={`
-                relative rounded-2xl overflow-hidden cursor-pointer group
-                border border-white/10 ${theme.borderAccent}
-                transition-all duration-500
-                ${!hasEnoughCredits ? 'opacity-80' : ''}
-              `}
-              style={{
-                boxShadow: isHovered ? `0 20px 40px -15px ${theme.glowColor}` : 'none',
-              }}
-            >
-              {/* Themed background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
-              <div className="absolute inset-0" style={{ background: theme.pattern }} />
+          {/* Cards in horizontal scroll on mobile, centered flex on desktop */}
+          <div className="flex gap-2 overflow-x-auto pb-2 px-2 md:overflow-visible md:flex-wrap md:justify-center scrollbar-hide">
+            {spreadsArray.map((spread, index) => {
+              const hasEnoughCredits = user && user.credits >= spread.cost;
+              const theme = SPREAD_THEMES[spread.id];
+              const isSelected = selectedSpread === spread.id;
+              const totalCards = spreadsArray.length;
 
-              {/* Animated glow on hover */}
-              <motion.div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: `radial-gradient(circle at 50% 50%, ${theme.glowColor} 0%, transparent 70%)`,
-                }}
-              />
+              // Fan angle calculation for hover effect
+              const baseAngle = (index - (totalCards - 1) / 2) * 2;
 
-              {/* Card content */}
-              <div className="relative z-10 p-6">
-                {/* Header with icon and title */}
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`${theme.accent} opacity-80`}>{theme.icon}</span>
-                      <h3 className="text-xl font-heading text-white/95">
+              return (
+                <motion.div
+                  key={spread.id}
+                  initial={{ opacity: 0, y: 20, rotateZ: baseAngle }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    rotateZ: isSelected ? 0 : baseAngle,
+                    scale: isSelected ? 1.05 : 1,
+                  }}
+                  whileHover={{
+                    y: -12,
+                    rotateZ: 0,
+                    scale: 1.05,
+                    zIndex: 10,
+                  }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.05,
+                    type: "spring",
+                    stiffness: 300,
+                  }}
+                  onClick={() => handleSpreadClick(spread)}
+                  onHoverStart={() => setSelectedSpread(spread.id)}
+                  onHoverEnd={() => setSelectedSpread(null)}
+                  className={`
+                    relative flex-shrink-0 w-[120px] rounded-lg overflow-hidden cursor-pointer
+                    border backdrop-blur-md transition-all duration-300
+                    ${isSelected ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/5'}
+                    ${!hasEnoughCredits ? 'opacity-60 cursor-not-allowed' : ''}
+                    hover:border-white/30 hover:bg-white/10
+                  `}
+                  style={{
+                    boxShadow: isSelected
+                      ? `0 10px 25px -8px ${theme?.glowColor || 'rgba(139, 92, 246, 0.4)'}`
+                      : '0 4px 12px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  {/* Subtle themed tint */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${theme?.gradient || 'from-slate-900 to-slate-800'} opacity-40`} />
+
+                  {/* Shimmer on hover */}
+                  <div className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
+                  {/* Content */}
+                  <div className="relative z-10 p-2">
+                    {/* Icon and name */}
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`${theme?.accent || 'text-purple-300'} opacity-80 [&>svg]:w-4 [&>svg]:h-4`}>
+                        {theme?.icon}
+                      </span>
+                      <h3 className="text-xs font-heading text-white/95 truncate">
                         {language === 'en' ? spread.nameEn : spread.nameFr}
                       </h3>
                     </div>
-                    <p className={`text-xs ${theme.accent} opacity-70 font-medium tracking-wide`}>
-                      {language === 'en' ? theme.taglineEn : theme.taglineFr}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] uppercase tracking-wider text-white/40">
-                      {t('SpreadSelector.tsx.SpreadSelector.cards', 'Cards')}
-                    </span>
-                    <p className="text-lg font-bold text-white/80">{spread.positions}</p>
-                  </div>
-                </div>
 
-                {/* Visual spread representation - fixed height for alignment */}
-                <div className="h-[88px] flex items-center justify-center my-4">
-                  <SpreadVisual spreadId={spread.id} />
-                </div>
+                    {/* Visual spread - compact */}
+                    <div className="h-[50px] flex items-center justify-center mb-1 scale-[0.7] origin-center">
+                      <SpreadVisual spreadId={spread.id} />
+                    </div>
 
-                {/* Footer with credits */}
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <span className="text-xs text-white/40 uppercase tracking-wider">
-                    {t('SpreadSelector.tsx.SpreadSelector.cost', 'Cost')}
-                  </span>
-                  <div className={`flex items-center gap-1.5 ${!hasEnoughCredits ? 'text-red-400' : theme.accent}`}>
-                    <Coins className="w-4 h-4" />
-                    <span className="font-bold text-lg">{spread.cost}</span>
+                    {/* Footer: cards count and cost */}
+                    <div className="flex items-center justify-between text-[9px]">
+                      <span className="text-white/50">
+                        {spread.positions} {language === 'en' ? 'cards' : 'cartes'}
+                      </span>
+                      <div className={`flex items-center gap-0.5 ${!hasEnoughCredits ? 'text-red-400' : theme?.accent || 'text-purple-300'}`}>
+                        <Coins className="w-2.5 h-2.5" />
+                        <span className="font-bold">{spread.cost}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Insufficient credits overlay */}
-              {!hasEnoughCredits && (
-                <motion.div
-                  className="absolute inset-0 z-20 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 p-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <span className="px-4 py-2 bg-red-500/20 border border-red-500/40 rounded-full text-sm text-red-300 font-medium">
-                    {t('SpreadSelector.tsx.SpreadSelector.insufficient_credits', 'Insufficient Credits')}
-                  </span>
-                  <button
-                    onClick={handleBuyCredits}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white text-sm font-semibold hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    {t('SpreadSelector.tsx.SpreadSelector.buy_credits', 'Buy Credits')}
-                  </button>
+                  {/* Insufficient credits badge */}
+                  {!hasEnoughCredits && (
+                    <div
+                      className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBuyCredits(e);
+                      }}
+                    >
+                      <button
+                        className="flex items-center gap-1 px-2 py-1 bg-amber-500/90 hover:bg-amber-400 rounded text-white text-[9px] font-semibold transition-all"
+                      >
+                        <ShoppingCart className="w-2.5 h-2.5" />
+                        {t('SpreadSelector.tsx.SpreadSelector.buy_credits', 'Buy Credits')}
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
-              )}
-            </motion.div>
-          );
+              );
+            })}
+          </div>
+        </div>
 
-          // If callback provided (legacy), use onClick; otherwise use Link
-          if (onSelect) {
-            return (
-              <div key={spread.id} onClick={() => onSelect(spread)}>
-                {cardContent}
-              </div>
-            );
-          }
-
-          // Use Link for proper navigation (can be opened in new tab)
-          return (
-            <Link key={spread.id} to={spreadUrl} className="block">
-              {cardContent}
-            </Link>
-          );
-        })}
+        {/* Selected spread tagline - shows when hovering */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: selectedSpread ? 1 : 0 }}
+          transition={{ duration: 0.15 }}
+          className="text-center mt-2 h-5"
+        >
+          {selectedSpread && SPREAD_THEMES[selectedSpread] && (
+            <p className={`text-xs ${SPREAD_THEMES[selectedSpread]?.accent} opacity-70`}>
+              {language === 'en'
+                ? SPREAD_THEMES[selectedSpread]?.taglineEn
+                : SPREAD_THEMES[selectedSpread]?.taglineFr}
+            </p>
+          )}
+        </motion.div>
       </div>
-    </div>
     </>
   );
 };

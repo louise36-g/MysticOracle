@@ -105,7 +105,7 @@ const QuestionIntroPhase: React.FC<QuestionIntroPhaseProps> = ({
         </div>
 
         {/* Main Card */}
-        <div className="bg-slate-900/70 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
+        <div className="bg-black/30 backdrop-blur-xl rounded-2xl border border-purple-500/20 overflow-hidden">
           {/* Question Input Section */}
           <div className="p-4 md:p-5">
             <label className={`block text-sm font-medium mb-2 ${questionError ? 'text-red-400' : 'text-slate-300'}`}>
@@ -211,7 +211,7 @@ const QuestionIntroPhase: React.FC<QuestionIntroPhaseProps> = ({
           )}
 
           {/* CTA Button */}
-          <div className="p-4 bg-slate-950/50">
+          <div className="p-4 bg-black/20">
             <Button onClick={onStartShuffle} size="lg" className="w-full">
               {language === 'en' ? 'Begin Reading' : 'Commencer la Lecture'}
             </Button>

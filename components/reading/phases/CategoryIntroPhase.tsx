@@ -303,7 +303,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
         </div>
 
         {/* Main Card */}
-        <div className={`bg-slate-900/70 backdrop-blur-sm rounded-2xl border ${categoryTheme?.border} overflow-hidden`}>
+        <div className={`bg-black/30 backdrop-blur-xl rounded-2xl border ${categoryTheme?.border} overflow-hidden`}>
           <div className="p-4 md:p-5 space-y-4">
             {/* Layout Picker (only for depth 3 or 5) */}
             {needsLayout && availableLayouts.length > 0 && (
@@ -315,10 +315,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                 {/* Collapsed state - shows selected layout name only */}
                 <button
                   onClick={() => setLayoutPickerOpen(!layoutPickerOpen)}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                  className={`w-full flex items-center justify-between p-3 rounded-lg border backdrop-blur-sm transition-colors ${
                     layoutPickerOpen
-                      ? 'bg-slate-800/50 border-white/20'
-                      : 'bg-slate-800/30 border-white/10 hover:border-white/20'
+                      ? 'bg-white/15 border-white/30'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -361,10 +361,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                             <button
                               key={layout.id}
                               onClick={() => handleLayoutSelect(layout.id as ThreeCardLayoutId | FiveCardLayoutId)}
-                              className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                              className={`w-full text-left p-4 rounded-xl border-2 backdrop-blur-sm transition-all ${
                                 isSelected
-                                  ? `bg-white/10 ${categoryTheme?.border}`
-                                  : 'bg-slate-800/30 border-white/10 hover:border-white/20'
+                                  ? `bg-white/15 ${categoryTheme?.border}`
+                                  : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                               }`}
                             >
                               {/* Layout Name */}
@@ -431,10 +431,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                         ? 'Enter your question here...'
                         : 'Entrez votre question ici...'
                     }
-                    className={`w-full h-24 px-3 py-2.5 rounded-lg bg-slate-800/50 border text-white text-base placeholder:text-slate-400 placeholder:text-base focus:border-purple-500/50 focus:outline-none resize-none transition-all ${
+                    className={`w-full h-24 px-3 py-2.5 rounded-lg bg-black/30 backdrop-blur-sm border text-white text-base placeholder:text-slate-400 placeholder:text-base focus:border-purple-500/50 focus:outline-none resize-none transition-all ${
                       shakeQuestion
                         ? 'border-red-500/70 ring-2 ring-red-500/30'
-                        : 'border-white/10'
+                        : 'border-white/20'
                     }`}
                     maxLength={300}
                   />
@@ -453,7 +453,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                       <button
                         key={q.id}
                         onClick={() => handleSuggestedQuestionClick(language === 'en' ? q.textEn : q.textFr)}
-                        className="w-full text-left px-3 py-2.5 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/15 transition-colors"
+                        className="w-full text-left px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
                       >
                         <span className="text-sm text-slate-300 line-clamp-2">
                           {language === 'en' ? q.textEn : q.textFr}
@@ -496,10 +496,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                           <button
                             key={style.id}
                             onClick={() => onStyleToggle(style.id)}
-                            className={`p-3 rounded-lg border text-left transition-colors ${
+                            className={`p-3 rounded-lg border text-left backdrop-blur-sm transition-colors ${
                               isSelected
-                                ? 'bg-slate-700/50 border-white/20'
-                                : 'bg-slate-800/30 border-white/5 hover:border-white/15'
+                                ? 'bg-white/15 border-white/30'
+                                : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                             }`}
                           >
                             <div className="flex items-center gap-1.5 mb-0.5">
@@ -534,7 +534,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
           )}
 
           {/* Footer - Cost & CTA */}
-          <div className="p-4 bg-slate-950/50">
+          <div className="p-4 bg-black/20">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-slate-500 uppercase tracking-wider">
                 {language === 'en' ? 'Cost' : 'Cout'}

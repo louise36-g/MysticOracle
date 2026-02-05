@@ -275,19 +275,19 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
             const categoryLayouts = category.layouts.map(id => layouts[id]).filter(Boolean);
 
             return (
-              <div key={category.id} className="rounded-xl overflow-hidden border border-slate-700/50">
+              <div key={category.id} className="rounded-xl overflow-hidden border border-white/10 backdrop-blur-md">
                 {/* Category Header */}
                 <button
                   onClick={() => handleCategoryClick(category.id)}
                   className={`w-full px-4 py-3 flex items-center justify-between transition-all ${
                     isSelected
-                      ? `${colors.bg} ${colors.border}`
-                      : `bg-slate-800/30 ${colors.bgHover}`
+                      ? `${colors.bg} border-l-2 ${colors.border}`
+                      : `bg-white/5 hover:bg-white/10`
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isSelected ? colors.bg : 'bg-slate-700/50'
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center backdrop-blur-sm ${
+                      isSelected ? colors.bg : 'bg-white/10'
                     }`}>
                       <Icon className={`w-4 h-4 ${isSelected ? colors.text : 'text-slate-400'}`} />
                     </div>
@@ -326,10 +326,10 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                             <div key={layout.id}>
                               <button
                                 onClick={() => handleLayoutSelect(category.id, layout.id)}
-                                className={`w-full p-3 rounded-lg text-left transition-all ${
+                                className={`w-full p-3 rounded-lg text-left transition-all backdrop-blur-sm ${
                                   isLayoutSelected
                                     ? `${colors.bg} ${colors.border} border`
-                                    : 'bg-slate-900/50 border border-slate-700/30 hover:border-slate-600'
+                                    : 'bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20'
                                 }`}
                               >
                                 {/* Layout Name & Tagline */}
@@ -356,8 +356,8 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                     }}
                                     className={`w-full px-3 py-2 flex items-center justify-between text-xs rounded-lg transition-colors ${
                                       isLayoutSelected
-                                        ? 'bg-slate-800/50 hover:bg-slate-800/70'
-                                        : 'bg-slate-900/30 hover:bg-slate-800/30'
+                                        ? 'bg-white/10 hover:bg-white/15'
+                                        : 'bg-white/5 hover:bg-white/10'
                                     }`}
                                   >
                                     <div className="flex items-center gap-2">
@@ -431,10 +431,10 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                             : 'Sur quoi aimeriez-vous recevoir des conseils?'}
                                           rows={3}
                                           maxLength={500}
-                                          className={`w-full bg-slate-950/60 rounded-lg p-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 text-sm resize-none transition-colors ${
+                                          className={`w-full bg-black/30 backdrop-blur-sm rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 text-sm resize-none transition-colors ${
                                             showQuestionError && !customQuestion.trim()
                                               ? 'border-2 border-red-500 focus:border-red-500 focus:ring-red-500/30'
-                                              : 'border border-slate-700 focus:border-purple-500 focus:ring-purple-500/30'
+                                              : 'border border-white/20 focus:border-purple-500 focus:ring-purple-500/30'
                                           }`}
                                         />
                                       </motion.div>
@@ -466,7 +466,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                                 onCustomQuestionChange(text);
                                                 onQuestionSelect(q.id, text);
                                               }}
-                                              className="w-full px-3 py-2 text-left text-xs bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30 hover:border-slate-600 rounded-lg text-slate-400 hover:text-slate-300 transition-all"
+                                              className="w-full px-3 py-2 text-left text-xs bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg text-slate-400 hover:text-slate-300 transition-all"
                                             >
                                               {language === 'en' ? q.textEn : q.textFr}
                                             </button>
@@ -480,7 +480,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                       <div className="mt-4 pt-4 border-t border-slate-700/50">
                                         <button
                                           onClick={onAdvancedToggle}
-                                          className="w-full flex items-center justify-between text-sm hover:bg-slate-800/30 rounded-lg px-2 py-2 -mx-2 transition-colors"
+                                          className="w-full flex items-center justify-between text-sm hover:bg-white/10 rounded-lg px-2 py-2 -mx-2 transition-colors"
                                         >
                                           <div className="flex items-center gap-2">
                                             <Settings className="w-4 h-4 text-slate-500" />
@@ -524,7 +524,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                                       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                                                         selectedStyles.includes(option.id)
                                                           ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                                                          : 'bg-slate-800/50 text-slate-500 border border-transparent hover:bg-slate-800'
+                                                          : 'bg-white/5 text-slate-500 border border-white/10 hover:bg-white/10'
                                                       }`}
                                                     >
                                                       <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${
