@@ -1,17 +1,28 @@
 /**
  * PayPalGateway - PayPal implementation of IPaymentGateway
+ *
+ * Note: Uses createRequire for CommonJS import due to ESM compatibility issues
+ * with @paypal/paypal-server-sdk on Node.js v25+
  */
 
-import {
-  Client,
-  Environment,
-  OrdersController,
-  CheckoutPaymentIntent,
-  OrderApplicationContextLandingPage,
-  OrderApplicationContextUserAction,
-  Order,
-  ApiError,
-} from '@paypal/paypal-server-sdk';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const PayPalSDK = require('@paypal/paypal-server-sdk');
+
+const { Client, Environment, OrdersController } = PayPalSDK;
+
+// Type for Order response
+interface Order {
+  id?: string;
+  status?: string;
+  links?: Array<{ rel?: string; href?: string }>;
+  purchaseUnits?: Array<{ customId?: string; payments?: unknown }>;
+}
+
+// Enum values as string literals
+const CheckoutPaymentIntent = { Capture: 'CAPTURE' as const };
+const OrderApplicationContextLandingPage = { Login: 'LOGIN' as const };
+const OrderApplicationContextUserAction = { PayNow: 'PAY_NOW' as const };
 import type {
   IPaymentGateway,
   CheckoutParams,
@@ -192,15 +203,9 @@ export class PayPalGateway implements IPaymentGateway {
       };
     } catch (error) {
       console.error('PayPal capture error:', error);
-      if (error instanceof ApiError) {
-        return {
-          success: false,
-          error: error.message,
-        };
-      }
       return {
         success: false,
-        error: 'Failed to capture PayPal payment',
+        error: error instanceof Error ? error.message : 'Failed to capture PayPal payment',
       };
     }
   }
