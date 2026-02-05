@@ -5,7 +5,7 @@ initSentry();
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import { TranslationProvider } from './context/TranslationContext';

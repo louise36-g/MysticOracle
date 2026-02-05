@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';

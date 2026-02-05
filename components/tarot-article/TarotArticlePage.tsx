@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { ArrowLeft } from 'lucide-react';

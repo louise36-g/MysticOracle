@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => {
               // Authentication
               'vendor-clerk': ['@clerk/clerk-react'],
               // UI utilities
-              'vendor-ui': ['lucide-react', 'dompurify', 'react-helmet-async'],
+              'vendor-ui': ['lucide-react', 'dompurify', '@dr.pogodin/react-helmet'],
             }
           }
         }
