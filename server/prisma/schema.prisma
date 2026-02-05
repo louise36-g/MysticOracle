@@ -138,6 +138,7 @@ model ReadingCard {
 enum SpreadType {
   SINGLE
   THREE_CARD
+  FIVE_CARD
   LOVE
   CAREER
   HORSESHOE

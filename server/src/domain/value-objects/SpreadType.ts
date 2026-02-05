@@ -29,6 +29,12 @@ const SPREAD_CONFIGS: Record<PrismaSpreadType, SpreadConfig> = {
     cost: 3,
     description: 'Past, present, and future insights',
   },
+  FIVE_CARD: {
+    name: 'Five Card',
+    cardCount: 5,
+    cost: 5,
+    description: 'Deep exploration of a situation or theme',
+  },
   LOVE: {
     name: 'Love Spread',
     cardCount: 5,
