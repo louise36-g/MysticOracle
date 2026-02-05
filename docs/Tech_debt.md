@@ -119,7 +119,7 @@ Changes needed:
 
 | File | Lines | Recommended Split |
 |------|-------|-------------------|
-| `server/src/routes/translations.ts` | 2,370 | Split into admin.ts, public.ts, seed.ts |
+| ~~`server/src/routes/translations.ts`~~ | ~~2,370~~ | ✅ Already split: translations/ directory (admin.ts, public.ts, shared.ts, defaults.ts) |
 | ~~`services/apiService.ts`~~ | ~~2,058~~ | ✅ Already split: services/api/ has 12 modular files |
 | `server/src/routes/blog.ts` | ~800 | Split into admin.ts, public.ts |
 
@@ -177,7 +177,7 @@ Changes needed:
 **Locations:**
 - ~~`components/ActiveReading.tsx`~~ (✅ Refactored: ~900 → 642 lines, uses useReadingFlow hook, phases extracted)
 - ~~`components/admin/AdminBlog.tsx`~~ (✅ Refactored: ~800 → 232 lines)
-- `components/UserProfile.tsx` (~580 lines)
+- ~~`components/UserProfile.tsx`~~ (✅ Refactored: ~580 → 474 lines, uses useProfileData and useDailyBonus hooks)
 - ~~`components/admin/AdminTarotArticles.tsx`~~ (✅ Refactored: 1,045 → 224 lines)
 
 These components handle too many concerns and are difficult to maintain.
@@ -258,7 +258,7 @@ Main categories:
 | Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | React Router v6→v7 | Medium | Pending | Phase 4 |
-| Oversized backend files | High | Partial | translations.ts still 2,370 lines (apiService.ts already modular) |
+| Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
 | Test coverage gaps | High | Open | ~21% coverage, critical flows untested |
 | Missing documentation | Medium | Partial | API_ERRORS, PAYMENT_FLOW still needed (CREDIT_SYSTEM done) |
 | Infrastructure gaps | Medium | Open | No env validation, no error tracking |

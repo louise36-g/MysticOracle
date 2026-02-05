@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
@@ -7,9 +7,9 @@ import Toast from './ui/Toast';
 import { Calendar, Coins, Copy, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame, Gift, Clock, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS } from '../types';
-import { fetchUnifiedReadings, UnifiedReadingData, fetchUserTransactions, Transaction } from '../services/api';
-import { ReadingTypeFilter, ReadingFilterType, AchievementCard, TransactionFilters, TransactionTypeFilter, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState } from './profile';
+import { ReadingTypeFilter, AchievementCard, TransactionFilters, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState } from './profile';
 import { getAchievementsWithProgress } from '../utils/achievementService';
+import { useProfileData, useDailyBonus } from '../hooks';
 
 // Constants
 const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
@@ -19,7 +19,6 @@ const UserProfile: React.FC = () => {
     const { user, logout, t, language, claimDailyBonus } = useApp();
     const { user: clerkUser, isSignedIn } = useUser();
     const { signOut } = useClerk();
-    const { getToken } = useAuth();
 
     // UI State
     const [isShopOpen, setIsShopOpen] = useState(false);
@@ -33,84 +32,6 @@ const UserProfile: React.FC = () => {
         visible: false,
     });
 
-    // Daily Bonus State
-    const [isClaiming, setIsClaiming] = useState(false);
-    const [timeUntilBonus, setTimeUntilBonus] = useState<string>('');
-    const [canClaimBonus, setCanClaimBonus] = useState(false);
-
-    // Data State
-    const [backendReadings, setBackendReadings] = useState<UnifiedReadingData[]>([]);
-    const [isLoadingReadings, setIsLoadingReadings] = useState(true);
-    const [readingsError, setReadingsError] = useState<string | null>(null);
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
-
-    // Filter State
-    const [readingTypeFilter, setReadingTypeFilter] = useState<ReadingFilterType>('single');
-    const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionTypeFilter>('all');
-
-    // Fetch data on mount
-    useEffect(() => {
-        const loadData = async () => {
-            if (!isSignedIn) return;
-            setIsLoadingReadings(true);
-            setIsLoadingTransactions(true);
-            setReadingsError(null);
-
-            const token = await getToken();
-            if (!token) {
-                setIsLoadingReadings(false);
-                setIsLoadingTransactions(false);
-                return;
-            }
-
-            // Fetch readings and transactions independently so one failure doesn't block the other
-            fetchUnifiedReadings(token, { limit: 100, offset: 0, type: 'all', language: language as 'en' | 'fr' })
-                .then(result => setBackendReadings(result.data || []))
-                .catch(error => {
-                    console.error('Failed to load readings:', error);
-                    setReadingsError(t('UserProfile.tsx.UserProfile.failed_to_load', 'Failed to load history'));
-                })
-                .finally(() => setIsLoadingReadings(false));
-
-            fetchUserTransactions(token, 100, 0)
-                .then(result => setTransactions(result.data || []))
-                .catch(error => console.error('Failed to load transactions:', error))
-                .finally(() => setIsLoadingTransactions(false));
-        };
-        loadData();
-    }, [isSignedIn, getToken, t, language]);
-
-    // Daily bonus timer
-    useEffect(() => {
-        const calculateTimeUntilNext = () => {
-            if (!user?.lastLoginDate) {
-                setCanClaimBonus(true);
-                setTimeUntilBonus('');
-                return;
-            }
-
-            const lastClaim = new Date(user.lastLoginDate);
-            const now = new Date();
-            const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
-            const diff = nextClaimTime.getTime() - now.getTime();
-
-            if (diff <= 0) {
-                setCanClaimBonus(true);
-                setTimeUntilBonus('');
-            } else {
-                setCanClaimBonus(false);
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                setTimeUntilBonus(hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`);
-            }
-        };
-
-        calculateTimeUntilNext();
-        const interval = setInterval(calculateTimeUntilNext, 60000);
-        return () => clearInterval(interval);
-    }, [user?.lastLoginDate]);
-
     // Show toast helper
     const showToast = useCallback((message: string, type: 'success' | 'bonus' | 'copy' | 'error' = 'success') => {
         setToast({ message, type, visible: true });
@@ -120,49 +41,47 @@ const UserProfile: React.FC = () => {
         setToast(prev => ({ ...prev, visible: false }));
     }, []);
 
-    // Filter readings by type
-    const filteredReadings = useMemo(() => {
-        if (!backendReadings || backendReadings.length === 0) return [];
+    // Profile data hook - handles readings and transactions
+    const {
+        readings: backendReadings,
+        filteredReadings,
+        isLoadingReadings,
+        readingsError,
+        readingTypeFilter,
+        setReadingTypeFilter,
+        transactions,
+        filteredTransactions,
+        isLoadingTransactions,
+        transactionTypeFilter,
+        setTransactionTypeFilter,
+        purchasedCredits,
+        earnedCredits,
+        spentCredits,
+    } = useProfileData({
+        isSignedIn: isSignedIn ?? false,
+        language: language as 'en' | 'fr',
+        t,
+    });
 
-        if (readingTypeFilter === 'all') {
-            return backendReadings;
-        }
-
-        if (readingTypeFilter === 'birth_cards') {
-            return backendReadings.filter(r =>
-                r.readingType === 'birth_synthesis' ||
-                r.readingType === 'personal_year' ||
-                r.readingType === 'threshold'
+    // Daily bonus hook
+    const {
+        canClaimBonus,
+        isClaiming,
+        timeUntilBonus,
+        claimBonus: handleClaimBonus,
+    } = useDailyBonus({
+        lastLoginDate: user?.lastLoginDate,
+        loginStreak: user?.loginStreak || 0,
+        language: language as 'en' | 'fr',
+        claimBonusFn: claimDailyBonus,
+        onSuccess: (credits) => {
+            showToast(
+                language === 'en' ? `+${credits} credits claimed!` : `+${credits} crédits réclamés !`,
+                'bonus'
             );
-        }
-
-        // Filter to specific tarot spread type
-        return backendReadings.filter(r =>
-            r.readingType === 'tarot' &&
-            r.spreadType?.toLowerCase() === readingTypeFilter
-        );
-    }, [backendReadings, readingTypeFilter]);
-
-    // Filter transactions by type
-    const filteredTransactions = useMemo(() => {
-        if (!transactions || transactions.length === 0) return [];
-
-        if (transactionTypeFilter === 'all') return transactions;
-
-        if (transactionTypeFilter === 'purchases') {
-            return transactions.filter(t => t.type === 'PURCHASE');
-        }
-        if (transactionTypeFilter === 'bonuses') {
-            return transactions.filter(t =>
-                ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type)
-            );
-        }
-        if (transactionTypeFilter === 'readings') {
-            return transactions.filter(t => ['READING', 'QUESTION'].includes(t.type));
-        }
-
-        return transactions;
-    }, [transactions, transactionTypeFilter]);
+        },
+        onError: (message) => showToast(message, 'error'),
+    });
 
     // Calculate achievements with progress using the service
     const achievementsWithProgress = useMemo(() => {
@@ -207,33 +126,7 @@ const UserProfile: React.FC = () => {
         showToast(language === 'en' ? 'Referral code copied!' : 'Code copié !', 'copy');
     };
 
-    const handleClaimBonus = async () => {
-        if (!canClaimBonus || isClaiming) return;
-        setIsClaiming(true);
-        try {
-            const result = await claimDailyBonus();
-            if (result.success) {
-                const streakBonus = (user?.loginStreak || 0) >= 6;
-                const credits = streakBonus ? 7 : 2;
-                showToast(
-                    language === 'en' ? `+${credits} credits claimed!` : `+${credits} crédits réclamés !`,
-                    'bonus'
-                );
-                setCanClaimBonus(false);
-            }
-        } catch (error) {
-            showToast(language === 'en' ? 'Failed to claim bonus' : 'Échec de la réclamation', 'error');
-        } finally {
-            setIsClaiming(false);
-        }
-    };
-
     const handleSignOut = () => { signOut(); logout(); };
-
-    // Transaction summary calculations
-    const purchasedCredits = (transactions || []).filter(t => t.type === 'PURCHASE').reduce((sum, t) => sum + t.amount, 0);
-    const earnedCredits = (transactions || []).filter(t => ['DAILY_BONUS', 'ACHIEVEMENT', 'REFERRAL_BONUS', 'REFUND'].includes(t.type)).reduce((sum, t) => sum + t.amount, 0);
-    const spentCredits = (transactions || []).filter(t => ['READING', 'QUESTION'].includes(t.type)).reduce((sum, t) => sum + t.amount, 0);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950">
