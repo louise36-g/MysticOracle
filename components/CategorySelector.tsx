@@ -401,11 +401,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               <motion.div
                 className="absolute inset-0 mx-4 md:mx-8 rounded-3xl pointer-events-none"
                 style={{
-                  background: `radial-gradient(ellipse at center, ${categoryColors[category.id].glow}40 0%, transparent 70%)`,
+                  background: `radial-gradient(ellipse at center, ${categoryColors[category.id].glow}30 0%, transparent 70%)`,
                 }}
                 animate={{
                   scale: [1, 1.05, 1],
-                  opacity: [0.4, 0.7, 0.4],
+                  opacity: [0.3, 0.5, 0.3],
                 }}
                 transition={{
                   duration: 3,
@@ -415,7 +415,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               />
 
               <div
-                className="relative overflow-hidden rounded-3xl border backdrop-blur-xl bg-black/40 mx-4 md:mx-8 mb-8"
+                className="relative overflow-hidden rounded-3xl border backdrop-blur-xl bg-black/30 mx-4 md:mx-8 mb-8"
                 style={{
                   borderColor: 'rgba(255, 255, 255, 0.15)',
                   boxShadow: `
@@ -434,9 +434,9 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   }}
                 />
 
-                {/* Category color tint - increased opacity */}
+                {/* Category color tint */}
                 <div
-                  className={`absolute inset-0 pointer-events-none opacity-50 bg-gradient-to-br ${category.colorTheme.gradient}`}
+                  className={`absolute inset-0 pointer-events-none opacity-35 bg-gradient-to-br ${category.colorTheme.gradient}`}
                 />
 
                 {/* Category-specific ambient patterns */}
