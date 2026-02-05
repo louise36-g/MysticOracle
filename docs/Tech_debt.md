@@ -150,7 +150,7 @@ Changes needed:
 
 **Required Documentation:**
 - `docs/API_ERRORS.md` — Comprehensive error codes and handling
-- `docs/PAYMENT_FLOW.md` — Stripe/PayPal flow diagrams, webhook handling
+- ~~`docs/PAYMENT_FLOW.md`~~ — ✅ Done: Stripe/PayPal flow, webhook handling, idempotency
 - ~~`docs/CREDIT_SYSTEM.md`~~ — ✅ Done: Credit deduction rules, bonus logic, race condition prevention
 - `docs/DEPLOYMENT.md` — Render setup, environment variables, rollback procedures
 
@@ -260,7 +260,7 @@ Main categories:
 | React Router v6→v7 | Medium | Pending | Phase 4 |
 | Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
 | Test coverage gaps | High | Open | ~21% coverage, critical flows untested |
-| Missing documentation | Medium | Partial | API_ERRORS, PAYMENT_FLOW still needed (CREDIT_SYSTEM done) |
+| Missing documentation | Medium | Partial | API_ERRORS still needed (CREDIT_SYSTEM, PAYMENT_FLOW done) |
 | Infrastructure gaps | Medium | Open | No env validation, no error tracking |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | Partial | - |
