@@ -14,8 +14,11 @@ const DailyQuoteCard: React.FC<DailyQuoteCardProps> = ({ className = '' }) => {
 
   return (
     <div
-      className={`relative bg-gradient-to-br from-indigo-900/30 via-slate-900/40 to-purple-900/30 p-6 rounded-2xl border border-indigo-500/20 backdrop-blur-sm flex flex-col overflow-hidden transition-all duration-500 hover:border-indigo-400/40 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-1 ${className}`}
+      className={`group relative bg-gradient-to-br from-indigo-900/30 via-slate-900/40 to-purple-900/30 p-6 rounded-2xl border border-white/10 backdrop-blur-sm flex flex-col overflow-hidden transition-all duration-500 hover:border-indigo-400/30 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 ${className}`}
     >
+      {/* Animated border gradient glow on hover - matches reading mode cards */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/40 via-purple-500/40 to-amber-500/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-purple-500/10 to-transparent rounded-bl-full" />
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-tr-full" />
@@ -30,8 +33,10 @@ const DailyQuoteCard: React.FC<DailyQuoteCardProps> = ({ className = '' }) => {
 
       {/* Header with icon and label */}
       <div className="relative flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 bg-gradient-to-br from-amber-500/30 to-orange-600/30 rounded-xl flex items-center justify-center border border-amber-400/20">
+        <div className="relative w-11 h-11 bg-gradient-to-br from-amber-500/40 to-orange-600/40 rounded-xl flex items-center justify-center border border-amber-400/20 group-hover:scale-110 transition-transform duration-300">
           <Quote className="w-5 h-5 text-amber-400" />
+          {/* Glow ring - matches reading mode cards */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 opacity-30 blur-md -z-10 group-hover:opacity-60 transition-opacity" />
         </div>
         <div className="flex flex-col">
           <span className="text-xs text-amber-400/90 uppercase tracking-widest font-medium">
