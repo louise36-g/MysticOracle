@@ -51,7 +51,7 @@ export const REGULAR_DEPTHS: DepthOption[] = [
   { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 3 },
   { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 5 },
   { cards: 7, labelEn: "Fortune's Arc", labelFr: 'Arc du Destin', cost: 7 },
-  { cards: 10, labelEn: 'Complete Picture', labelFr: 'Croix Celtique', cost: 10 },
+  { cards: 10, labelEn: 'Celtic Cross', labelFr: 'Croix Celtique', cost: 10 },
 ];
 
 // Birth card depth options (special category)
@@ -163,10 +163,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Renforcez vos racines',
     icon: createElement(Users, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-teal-950/90 via-cyan-900/80 to-teal-950/90',
-      accent: 'teal-400',
-      glow: 'teal-500/20',
-      border: 'border-teal-500/30',
+      gradient: 'from-cyan-950/90 via-cyan-900/80 to-cyan-950/90',
+      accent: 'cyan-400',
+      glow: 'cyan-500/20',
+      border: 'border-cyan-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {

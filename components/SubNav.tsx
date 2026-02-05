@@ -90,8 +90,8 @@ const SubNav: React.FC = () => {
       iconBg: category.colorTheme.gradient.includes('rose') ? 'bg-rose-500/20' :
               category.colorTheme.gradient.includes('amber') ? 'bg-amber-500/20' :
               category.colorTheme.gradient.includes('emerald') ? 'bg-emerald-500/20' :
-              category.colorTheme.gradient.includes('indigo') ? 'bg-indigo-500/20' :
-              category.colorTheme.gradient.includes('teal') ? 'bg-teal-500/20' :
+              category.colorTheme.gradient.includes('cyan') ? 'bg-cyan-500/20' :
+              category.colorTheme.gradient.includes('sky') ? 'bg-sky-500/20' :
               'bg-violet-500/20',
       // No href - onClick handles navigation with state
       onClick: () => handleCategorySelect(category.id)

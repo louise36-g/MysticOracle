@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hand, Moon, Sparkles, Eye, Clock, Heart, TrendingUp, Compass, Layers } from 'lucide-react';
-import { Language, SpreadType } from '../../types';
+import { Language, SpreadType, ReadingCategory } from '../../types';
 import { useApp } from '../../context/AppContext';
+import { getCategory } from '../../constants/categoryConfig';
 
 // Theme configuration for shuffle phase (matching ActiveReading & SpreadSelector)
 const SHUFFLE_THEMES: Record<SpreadType, {
@@ -84,18 +85,82 @@ interface ReadingShufflePhaseProps {
   onStop?: () => void;
   minDuration?: number;
   spreadType?: SpreadType;
+  category?: ReadingCategory;
 }
 
 const NUM_CARDS = 7;
+
+// Category-to-color mapping for consistent colors with CategorySelector
+const CATEGORY_COLORS: Record<ReadingCategory, {
+  primary: string;
+  secondary: string;
+  glow: string;
+  bgGradient: string;
+  textAccent: string;
+}> = {
+  love: {
+    primary: 'rgb(251, 113, 133)',    // rose-400
+    secondary: 'rgb(244, 63, 94)',     // rose-500
+    glow: 'rgba(244, 63, 94, 0.25)',
+    bgGradient: 'from-rose-950 via-pink-900 to-rose-950',
+    textAccent: 'text-rose-300',
+  },
+  career: {
+    primary: 'rgb(251, 191, 36)',     // amber-400
+    secondary: 'rgb(245, 158, 11)',    // amber-500
+    glow: 'rgba(245, 158, 11, 0.25)',
+    bgGradient: 'from-amber-950 via-orange-900 to-amber-950',
+    textAccent: 'text-amber-300',
+  },
+  money: {
+    primary: 'rgb(52, 211, 153)',     // emerald-400
+    secondary: 'rgb(16, 185, 129)',    // emerald-500
+    glow: 'rgba(16, 185, 129, 0.25)',
+    bgGradient: 'from-emerald-950 via-green-900 to-emerald-950',
+    textAccent: 'text-emerald-300',
+  },
+  life_path: {
+    primary: 'rgb(56, 189, 248)',     // sky-400
+    secondary: 'rgb(14, 165, 233)',    // sky-500
+    glow: 'rgba(14, 165, 233, 0.25)',
+    bgGradient: 'from-sky-950 via-blue-900 to-sky-950',
+    textAccent: 'text-sky-300',
+  },
+  family: {
+    primary: 'rgb(34, 211, 238)',     // cyan-400
+    secondary: 'rgb(6, 182, 212)',     // cyan-500
+    glow: 'rgba(6, 182, 212, 0.25)',
+    bgGradient: 'from-cyan-950 via-cyan-900 to-cyan-950',
+    textAccent: 'text-cyan-300',
+  },
+  birth_cards: {
+    primary: 'rgb(167, 139, 250)',    // violet-400
+    secondary: 'rgb(139, 92, 246)',    // violet-500
+    glow: 'rgba(139, 92, 246, 0.25)',
+    bgGradient: 'from-violet-950 via-purple-900 to-violet-950',
+    textAccent: 'text-violet-300',
+  },
+};
 
 const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   language,
   onStop,
   minDuration = 5000,
   spreadType = SpreadType.THREE_CARD,
+  category,
 }) => {
   const { t } = useApp();
-  const theme = SHUFFLE_THEMES[spreadType];
+  // Use category colors if available, otherwise fall back to spread theme
+  const categoryColors = category ? CATEGORY_COLORS[category] : null;
+  const spreadTheme = SHUFFLE_THEMES[spreadType];
+  const theme = categoryColors ? {
+    ...spreadTheme,
+    primary: categoryColors.primary,
+    secondary: categoryColors.secondary,
+    glow: categoryColors.glow,
+    bgGradient: categoryColors.bgGradient,
+    textAccent: categoryColors.textAccent,
+  } : spreadTheme;
   const [canStop, setCanStop] = useState(false);
   const [shufflePhase, setShufflePhase] = useState(0);
 

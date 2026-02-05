@@ -551,7 +551,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Render phase content
   const renderPhaseContent = () => {
     if (phase === 'animating_shuffle') {
-      return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} />;
+      return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} category={category} />;
     }
 
     if (phase === 'intro') {
