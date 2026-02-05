@@ -140,10 +140,10 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Decouvrez votre vraie direction',
     icon: createElement(Compass, { className: 'w-6 h-6' }),
     colorTheme: {
-      gradient: 'from-indigo-950/90 via-purple-900/80 to-indigo-950/90',
-      accent: 'indigo-400',
-      glow: 'indigo-500/20',
-      border: 'border-indigo-500/30',
+      gradient: 'from-sky-950/90 via-blue-900/80 to-sky-950/90',
+      accent: 'sky-400',
+      glow: 'sky-500/20',
+      border: 'border-sky-500/30',
     },
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
