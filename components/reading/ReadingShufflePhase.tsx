@@ -61,7 +61,7 @@ const SHUFFLE_THEMES: Record<SpreadType, {
     textAccent: 'text-yellow-300',
   },
   [SpreadType.HORSESHOE]: {
-    name: "Fortune's Arc",
+    name: "Horseshoe",
     icon: <Sparkles className="w-5 h-5" />,
     primary: 'rgb(96, 165, 250)',       // blue-400
     secondary: 'rgb(59, 130, 246)',     // blue-500

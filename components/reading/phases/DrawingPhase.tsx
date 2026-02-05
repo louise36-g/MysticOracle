@@ -134,8 +134,8 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
               >
                 <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
               </motion.div>
-              <span className={`${theme.textAccent} font-heading text-sm md:text-base font-bold tracking-wider`}>
-                {language === 'en' ? 'TAP' : 'TOUCHER'}
+              <span className={`${theme.textAccent} font-heading text-[10px] md:text-xs font-bold tracking-wider text-center leading-tight`}>
+                {language === 'en' ? 'Draw a card' : 'Tirer une carte'}
               </span>
             </div>
           </motion.div>

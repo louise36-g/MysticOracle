@@ -89,6 +89,37 @@ export function interpolatePrompt(template: string, variables: Record<string, st
   });
 }
 
+/**
+ * Get language-specific section headers for tarot readings
+ */
+function getSectionHeaders(language: 'en' | 'fr', spreadLayoutGuidance: string): string {
+  if (language === 'en') {
+    return `**The Spread Layout**
+${spreadLayoutGuidance}
+
+**Individual Card Meanings**
+Analyze EACH card that was drawn. For each card, create a subheading with the card name followed by its position meaning in parentheses (e.g., "**The Fool** (Who you were taught to be)" or "**Three of Cups** (The Connection)"). Explain what this specific card means in Tarot, what it means in its position, and if reversed, explain the reversed meaning. Use the ACTUAL card names as headings.
+
+**How the Cards Work Together**
+Write ONE concise paragraph that synthesizes the cards into a unified narrative. Show the natural progression and flow between the cards, revealing the complete story they tell together. Be direct and avoid repetition.
+
+**Conclusion**
+Actionable guidance and advice drawn from the complete reading. Weave the themes from the user's question throughout this section using vocabulary specific to their situation.`;
+  } else {
+    return `**La Disposition du Tirage**
+${spreadLayoutGuidance}
+
+**Signification de Chaque Carte**
+Analysez CHAQUE carte tirée. Pour chaque carte, créez un sous-titre avec le nom de la carte suivi de sa signification de position entre parenthèses (par exemple, "**Le Fou** (Passé)" ou "**Trois de Coupes** (La Connexion)"). Expliquez ce que cette carte signifie dans le Tarot, ce qu'elle signifie dans sa position, et si elle est renversée, expliquez la signification inversée. Utilisez les VRAIS noms des cartes comme titres.
+
+**Comment les Cartes Interagissent**
+Rédigez UN paragraphe concis qui synthétise les cartes en un récit unifié. Montrez la progression naturelle et le flux entre les cartes. Soyez direct et évitez les répétitions.
+
+**Conclusion**
+Conseils et orientations pratiques tirés de la lecture complète. Tissez naturellement les thèmes de la question de l'utilisateur tout au long de cette section.`;
+  }
+}
+
 // Mapping from 5-card layoutId to prompt key
 const FIVE_CARD_LAYOUT_GUIDANCE_MAP: Record<string, string> = {
   iceberg: 'SPREAD_GUIDANCE_FIVE_CARD_ICEBERG',
@@ -140,6 +171,9 @@ export async function getTarotReadingPrompt(params: {
     // Interpolate variables
     const languageName = params.language === 'en' ? 'English' : 'French';
 
+    // Generate language-specific section headers
+    const sectionHeaders = getSectionHeaders(params.language, spreadGuidance);
+
     const variables = {
       language: languageName,
       spreadName: '', // Will be filled by caller if needed
@@ -147,6 +181,7 @@ export async function getTarotReadingPrompt(params: {
       question: params.question,
       cardsDescription: params.cardsDescription,
       spreadLayoutGuidance: spreadGuidance,
+      sectionHeaders: sectionHeaders,
     };
 
     return interpolatePrompt(basePrompt, variables);

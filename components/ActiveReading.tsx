@@ -177,7 +177,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     phase,
     setPhase,
     navigateToPhase: handleNavigateToPhase,
-    canNavigateTo,
+    canNavigateTo: baseCanNavigateTo,
   } = useReadingFlow({
     onPhaseReset: (targetPhase) => {
       // Reset state based on what phase we're going back to
@@ -196,13 +196,26 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     },
   });
 
+  // Reading state - needs to be declared before canNavigateTo
+  const [readingText, setReadingText] = useState<string>('');
+  const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
+
+  // Wrap canNavigateTo to block all navigation once reading is interpreted
+  // This prevents users from regenerating readings without paying credits
+  const canNavigateTo = useCallback(
+    (targetPhase: ReadingPhase): boolean => {
+      // Once a reading has been generated, block all navigation
+      if (readingText) {
+        return false;
+      }
+      return baseCanNavigateTo(targetPhase);
+    },
+    [readingText, baseCanNavigateTo]
+  );
+
   // Card state
   const [deck, setDeck] = useState<TarotCard[]>([]);
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([]);
-
-  // Reading state
-  const [readingText, setReadingText] = useState<string>('');
-  const [readingLanguage, setReadingLanguage] = useState<string | null>(null);
 
   // Guard against multiple save attempts
   const [isSavingReading, setIsSavingReading] = useState(false);
@@ -323,12 +336,22 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [isGenerating, loadingMessages.length]);
 
   const toggleStyle = useCallback((style: InterpretationStyle) => {
-    setSelectedStyles(prev =>
-      prev.includes(style)
+    setSelectedStyles(prev => {
+      const isRemoving = prev.includes(style);
+      const newStyles = isRemoving
         ? prev.filter(s => s !== style)
-        : [...prev, style]
-    );
-  }, []);
+        : [...prev, style];
+
+      // Auto-enable isAdvanced when adding styles, auto-disable when all removed
+      if (!isRemoving && !isAdvanced) {
+        setIsAdvanced(true);
+      } else if (isRemoving && newStyles.length === 0) {
+        setIsAdvanced(false);
+      }
+
+      return newStyles;
+    });
+  }, [isAdvanced]);
 
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
@@ -375,7 +398,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     if (drawnCards.length >= spread.positions) return;
 
     const newCard = deck[drawnCards.length];
-    const isReversed = Math.random() < 0.1;
+    const isReversed = Math.random() < 0.15;
 
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 

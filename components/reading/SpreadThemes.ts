@@ -89,9 +89,9 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     atmosphereClass: 'career-atmosphere',
   },
   [SpreadType.HORSESHOE]: {
-    name: "Fortune's Arc",
-    taglineEn: "Seven steps to destiny.",
-    taglineFr: "Sept pas vers le destin.",
+    name: "Horseshoe",
+    taglineEn: "Seven cards for luck and clarity.",
+    taglineFr: "Sept cartes pour la chance et la clarté.",
     icon: React.createElement(Sparkles, { className: "w-5 h-5" }),
     primary: 'rgb(96, 165, 250)',       // blue-400
     secondary: 'rgb(59, 130, 246)',     // blue-500

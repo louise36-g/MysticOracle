@@ -255,7 +255,10 @@ ${synthesisInstructions}`;
         }
       }
       debug.log('[Tarot Generate] Styles received:', style);
-      debug.log('[Tarot Generate] Style instructions:', styleInstructions);
+      debug.log(
+        '[Tarot Generate] Style instructions preview:',
+        styleInstructions.substring(0, 100) + '...'
+      );
 
       // Use layout-specific positions if layoutId is provided for THREE_CARD or FIVE_CARD
       let positionMeanings =

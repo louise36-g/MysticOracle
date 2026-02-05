@@ -136,8 +136,10 @@ export function getCardImageUrl(cardId: number): string {
  * This function now returns the same URL as upright - rotation is handled in the Card component
  */
 export function getCardReversedImageUrl(cardId: number): string {
-  // Return upright image - Card component handles rotation via CSS
-  return getCardImageUrl(cardId);
+  // Return empty string - Card component handles reversal via CSS rotation
+  // We don't have separate reversed images, so return empty to trigger CSS rotation
+  void cardId; // unused, kept for API compatibility
+  return '';
 }
 
 /**

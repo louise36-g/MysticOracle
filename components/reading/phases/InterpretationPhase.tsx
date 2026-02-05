@@ -215,6 +215,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                               width={100}
                               height={155}
                               className="shadow-lg"
+                              hideOverlay={true}
                             />
                             <span className={`text-[10px] ${theme.textAccent} mt-2 font-bold uppercase tracking-wider text-center max-w-[100px]`}>
                               {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
@@ -257,26 +258,49 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                 className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-10"
                 style={{ boxShadow: `0 0 60px ${theme.glow}` }}
               >
-                <div className="prose prose-invert max-w-none">
+                <div className="max-w-none">
                   {readingText.split('\n').map((line, i) => {
                     if (!line.trim()) return null;
-                    if (line.startsWith('**')) {
+                    const trimmedLine = line.trim();
+
+                    // Headers: lines starting with **, #, or numbered lists with ** (e.g., "1. **Header**")
+                    // Also detect lines that are entirely bold (card names like "**The Fool** (Position)")
+                    const isNumberedHeader = /^\d+\.\s*\*\*/.test(trimmedLine);
+                    const isMarkdownHeader = trimmedLine.startsWith('#');
+                    const isBoldHeader = trimmedLine.startsWith('**') && (
+                      trimmedLine.endsWith('**') ||
+                      trimmedLine.includes('** -') ||
+                      trimmedLine.includes('**:') ||
+                      /\*\*\s*\(/.test(trimmedLine) // Card name with position like "**The Fool** (Present)"
+                    );
+
+                    const isHeader = isNumberedHeader || isMarkdownHeader || isBoldHeader;
+
+                    if (isHeader) {
+                      // Remove all markdown header syntax: ##, ###, **, numbered prefixes, etc.
+                      const cleanText = trimmedLine
+                        .replace(/^\d+\.\s*/, '')     // Remove numbered list prefix (1. 2. etc.)
+                        .replace(/^#{1,6}\s*/, '')    // Remove # headers
+                        .replace(/\*\*/g, '')         // Remove all ** markers
+                        .replace(/\s*-\s*$/, '')      // Remove trailing dash
+                        .trim();
+
+                      // Skip if the cleaned text is empty
+                      if (!cleanText) return null;
+
                       return (
-                        <h3 key={`line-${i}`} className={`text-lg md:text-xl font-bold ${theme.textAccent} mt-6 mb-3 first:mt-0`}>
-                          {line.replace(/\*\*/g, '')}
-                        </h3>
+                        <p key={`line-${i}`} className={`text-lg md:text-xl font-bold ${theme.textAccent} mt-6 mb-3 first:mt-0`}>
+                          {cleanText}
+                        </p>
                       );
                     }
-                    if (line.startsWith('#')) {
-                      return (
-                        <h2 key={`line-${i}`} className="text-xl md:text-2xl font-bold text-white mt-8 mb-4 first:mt-0">
-                          {line.replace(/#/g, '').trim()}
-                        </h2>
-                      );
-                    }
+
+                    // Regular paragraph - strip all ** markers
+                    const cleanParagraph = line.replace(/\*\*/g, '');
+
                     return (
                       <p key={`line-${i}`} className="text-slate-300 leading-relaxed mb-4 text-base md:text-lg">
-                        {line.replace(/\*\*/g, '')}
+                        {cleanParagraph}
                       </p>
                     );
                   })}
