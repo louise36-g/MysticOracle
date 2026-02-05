@@ -41,9 +41,9 @@ Complete overhaul of blog and tarot article systems:
 - New unified taxonomy at `/api/v1/taxonomy/*`
 
 ### ✅ Stripe Updated to v20
-- Updated from v14.0.0 to v20.1.2
-- API version updated to `2025-12-15.clover`
-- All 82 tests pass
+- Updated from v14.0.0 to v20.3.0
+- API version updated to `2026-01-28.clover`
+- All 256 tests pass
 
 ### ✅ Dead Code Removed
 - Removed unused `deductCredits` function from `services/apiService.ts`

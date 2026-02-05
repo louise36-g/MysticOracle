@@ -98,7 +98,7 @@ router.get(
     try {
       const userId = req.auth.userId;
       const typeFilter = req.query.type as string | undefined;
-      const language = (req.query.language as string) || 'en';
+      const _language = (req.query.language as string) || 'en'; // Reserved for future localization
 
       debug.log('[User API] Fetching unified readings for userId:', userId, 'type:', typeFilter);
 

@@ -249,7 +249,10 @@ describe('Auth Middleware', () => {
       await requireAdmin(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(403);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Admin verification failed' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Admin verification failed',
+        details: 'Database error',
+      });
       expect(mockNext).not.toHaveBeenCalled();
     });
   });
