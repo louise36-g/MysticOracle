@@ -120,7 +120,7 @@ Changes needed:
 | File | Lines | Recommended Split |
 |------|-------|-------------------|
 | `server/src/routes/translations.ts` | 2,370 | Split into admin.ts, public.ts, seed.ts |
-| `services/apiService.ts` | 2,058 | Split by domain: user, reading, blog, admin |
+| ~~`services/apiService.ts`~~ | ~~2,058~~ | ✅ Already split: services/api/ has 12 modular files |
 | `server/src/routes/blog.ts` | ~800 | Split into admin.ts, public.ts |
 
 **Fix:** Apply same modular pattern used for tarot-articles (public.ts, admin.ts, shared.ts).
@@ -151,7 +151,7 @@ Changes needed:
 **Required Documentation:**
 - `docs/API_ERRORS.md` — Comprehensive error codes and handling
 - `docs/PAYMENT_FLOW.md` — Stripe/PayPal flow diagrams, webhook handling
-- `docs/CREDIT_SYSTEM.md` — Credit deduction rules, bonus logic, race condition prevention
+- ~~`docs/CREDIT_SYSTEM.md`~~ — ✅ Done: Credit deduction rules, bonus logic, race condition prevention
 - `docs/DEPLOYMENT.md` — Render setup, environment variables, rollback procedures
 
 **Fix:** Create documentation as features are touched.
@@ -175,9 +175,9 @@ Changes needed:
 ### 5. Large Component Files
 
 **Locations:**
-- `components/ActiveReading.tsx` (~900 lines)
-- `components/admin/AdminBlog.tsx` (~800 lines)
-- `components/UserProfile.tsx` (~600 lines)
+- ~~`components/ActiveReading.tsx`~~ (✅ Refactored: ~900 → 642 lines, uses useReadingFlow hook, phases extracted)
+- ~~`components/admin/AdminBlog.tsx`~~ (✅ Refactored: ~800 → 232 lines)
+- `components/UserProfile.tsx` (~580 lines)
 - ~~`components/admin/AdminTarotArticles.tsx`~~ (✅ Refactored: 1,045 → 224 lines)
 
 These components handle too many concerns and are difficult to maintain.
@@ -258,11 +258,11 @@ Main categories:
 | Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | React Router v6→v7 | Medium | Pending | Phase 4 |
-| Oversized backend files | High | Open | translations.ts, apiService.ts |
+| Oversized backend files | High | Partial | translations.ts still 2,370 lines (apiService.ts already modular) |
 | Test coverage gaps | High | Open | ~21% coverage, critical flows untested |
-| Missing documentation | Medium | Open | API_ERRORS, PAYMENT_FLOW, CREDIT_SYSTEM |
+| Missing documentation | Medium | Partial | API_ERRORS, PAYMENT_FLOW still needed (CREDIT_SYSTEM done) |
 | Infrastructure gaps | Medium | Open | No env validation, no error tracking |
-| Large components | Medium | Partial | AdminTarotArticles done, others pending |
+| Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | Partial | - |
 | ESLint warnings | Medium | Open | 81 issues to fix |
 | Error boundaries | Low | Open | - |

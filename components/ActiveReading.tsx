@@ -19,7 +19,7 @@ import {
   updateReadingReflection,
 } from '../services/api';
 import { shuffleDeck } from '../utils/shuffle';
-import { useReadingGeneration, useOracleChat, useQuestionInput } from '../hooks';
+import { useReadingGeneration, useOracleChat, useQuestionInput, useReadingFlow } from '../hooks';
 import {
   ReadingShufflePhase,
   DrawingPhase,
@@ -66,6 +66,31 @@ const LOADING_MESSAGES = {
     "Regard dans le vide..."
   ]
 };
+
+/**
+ * Determine layout ID based on spread type and selected layouts
+ */
+function getLayoutId(
+  spreadType: SpreadType,
+  threeCardLayout: ThreeCardLayoutId | null,
+  fiveCardLayout: FiveCardLayoutId | null,
+  horseshoeLayout: HorseshoeLayoutId | null,
+  celticCrossLayout: CelticCrossLayoutId | null
+): string | undefined {
+  if (spreadType === SpreadType.THREE_CARD && threeCardLayout) {
+    return threeCardLayout;
+  }
+  if (spreadType === SpreadType.FIVE_CARD && fiveCardLayout) {
+    return fiveCardLayout;
+  }
+  if (spreadType === SpreadType.HORSESHOE && horseshoeLayout) {
+    return horseshoeLayout;
+  }
+  if (spreadType === SpreadType.CELTIC_CROSS && celticCrossLayout) {
+    return celticCrossLayout;
+  }
+  return undefined;
+}
 
 // Valid reading categories for URL validation
 const VALID_CATEGORIES: ReadingCategory[] = ['love', 'career', 'money', 'life_path', 'family'];
@@ -147,8 +172,29 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     validateBeforeStart,
   } = useQuestionInput({ language, refreshUser, t });
 
-  // Phase state - always starts at intro for category-first flow
-  const [phase, setPhase] = useState<ReadingPhase>('intro');
+  // Phase management using dedicated hook
+  const {
+    phase,
+    setPhase,
+    navigateToPhase: handleNavigateToPhase,
+    canNavigateTo,
+  } = useReadingFlow({
+    onPhaseReset: (targetPhase) => {
+      // Reset state based on what phase we're going back to
+      const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
+      const targetIndex = phaseOrder.indexOf(targetPhase);
+      if (targetIndex <= 1) {
+        // Going back to intro or shuffle - reset everything except question
+        setDrawnCards([]);
+        setReadingText('');
+        setReadingLanguage(null);
+      } else if (targetIndex <= 2) {
+        // Going back to drawing - reset reading, keep partial cards
+        setReadingText('');
+        setReadingLanguage(null);
+      }
+    },
+  });
 
   // Card state
   const [deck, setDeck] = useState<TarotCard[]>([]);
@@ -169,55 +215,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const [horseshoeLayout] = useState<HorseshoeLayoutId | null>(null);
   const [celticCrossLayout] = useState<CelticCrossLayoutId | null>(null);
 
-  // Handle stepper navigation - go back to a previous phase
-  const handleNavigateToPhase = useCallback((targetPhase: ReadingPhase) => {
-    // Define phase order for comparison
-    const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
-    const currentIndex = phaseOrder.indexOf(phase);
-    const targetIndex = phaseOrder.indexOf(targetPhase);
-
-    // Only allow going backwards
-    if (targetIndex >= currentIndex) return;
-
-    // Reset state based on what phase we're going back to
-    if (targetIndex <= 0) {
-      // Going back to intro - reset everything except question
-      setDrawnCards([]);
-      setReadingText('');
-      setReadingLanguage(null);
-    } else if (targetIndex <= 1) {
-      // Going back to shuffle - reset cards and reading
-      setDrawnCards([]);
-      setReadingText('');
-      setReadingLanguage(null);
-    } else if (targetIndex <= 2) {
-      // Going back to drawing - reset reading, keep partial cards
-      setReadingText('');
-      setReadingLanguage(null);
-    }
-
-    setPhase(targetPhase);
-  }, [phase]);
-
-  // Determine which phases can be navigated to
-  // Question (intro) is always navigable since credits aren't spent until shuffle starts
-  const canNavigateTo = useCallback((targetPhase: ReadingPhase): boolean => {
-    const phaseOrder: ReadingPhase[] = ['intro', 'animating_shuffle', 'drawing', 'revealing', 'reading'];
-    const currentIndex = phaseOrder.indexOf(phase);
-    const targetIndex = phaseOrder.indexOf(targetPhase);
-
-    // Can only go backwards
-    if (targetIndex >= currentIndex) return false;
-
-    // All previous phases are navigable (including intro)
-    return true;
-  }, [phase]);
-
-  // Update phase state (URL stays at /reading/:category/:depth)
-  // Navigation within the reading flow doesn't change URL to keep it simple
-  const setPhaseWithUrl = useCallback((newPhase: ReadingPhase) => {
-    setPhase(newPhase);
-  }, []);
 
   // Options state
   const [isAdvanced, setIsAdvanced] = useState(false);
@@ -284,22 +281,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [language]);
 
   const regenerateReading = useCallback(async () => {
-    // Determine layoutId based on spread type
-    const getLayoutId = (): string | undefined => {
-      if (spread.id === SpreadType.THREE_CARD && threeCardLayout) {
-        return threeCardLayout;
-      }
-      if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
-        return fiveCardLayout;
-      }
-      if (spread.id === SpreadType.HORSESHOE && horseshoeLayout) {
-        return horseshoeLayout;
-      }
-      if (spread.id === SpreadType.CELTIC_CROSS && celticCrossLayout) {
-        return celticCrossLayout;
-      }
-      return undefined;
-    };
+    const layoutId = getLayoutId(spread.id, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -310,7 +292,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         question,
         language,
         category, // Use the category from URL params
-        layoutId: getLayoutId(),
+        layoutId,
       });
 
       // Handle null result (API error)
@@ -380,14 +362,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setDeck(shuffleDeck(FULL_DECK));
     setDrawnCards([]);
 
-    setPhaseWithUrl('animating_shuffle');
+    setPhase('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhaseWithUrl]);
+  }, [validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhase]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
-    setPhaseWithUrl('drawing');
-  }, [setPhaseWithUrl]);
+    setPhase('drawing');
+  }, [setPhase]);
 
   const handleCardDraw = useCallback(() => {
     if (drawnCards.length >= spread.positions) return;
@@ -398,9 +380,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 
     if (drawnCards.length + 1 === spread.positions) {
-      setTimeout(() => setPhaseWithUrl('revealing'), 1000);
+      setTimeout(() => setPhase('revealing'), 1000);
     }
-  }, [drawnCards.length, deck, spread.positions, setPhaseWithUrl]);
+  }, [drawnCards.length, deck, spread.positions, setPhase]);
 
   const startReading = useCallback(async () => {
     console.log('[Reading] startReading called at', new Date().toISOString());
@@ -412,22 +394,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
     setIsSavingReading(true);
 
-    setPhaseWithUrl('reading');
+    setPhase('reading');
 
-    // Determine layoutId based on spread type
-    const getLayoutId = (): string | undefined => {
-      if (spread.id === SpreadType.THREE_CARD && threeCardLayout) {
-        return threeCardLayout;
-      }
-      if (spread.id === SpreadType.FIVE_CARD && fiveCardLayout) {
-        return fiveCardLayout;
-      }
-      if (spread.id === SpreadType.CELTIC_CROSS && celticCrossLayout) {
-        return celticCrossLayout;
-      }
-      return undefined;
-    };
-    const layoutId = getLayoutId();
+    const layoutId = getLayoutId(spread.id, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -519,7 +488,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhaseWithUrl, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
