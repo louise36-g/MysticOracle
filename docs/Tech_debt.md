@@ -130,19 +130,24 @@ Changes needed:
 ### 2. Test Coverage Gaps
 
 **Current Coverage:**
-- Unit tests: ~21% of use-cases
-- Route tests: ~6% of routes covered
+- Unit tests: 288 tests passing (18 test files)
+- Route tests: Translation routes, auth middleware, AI routes
 - Integration tests: Minimal
 - E2E tests: None
 
-**Critical Untested Areas:**
-- GDPR compliance (cookie consent, data deletion)
-- Payment webhook edge cases
-- Credit deduction race conditions
-- Email template rendering
-- Translation fallback chains
+**Recently Added:**
+- ✅ ExportUserData use case tests (GDPR Article 20)
+- ✅ DeleteUserAccount use case tests (GDPR Article 17)
+- ✅ Translations routes tests (caching, language fetching)
+- ✅ Payment webhook tests (idempotency, refunds)
+- ✅ Credit deduction concurrent tests
 
-**Fix:** Prioritize tests for payment and credit flows first.
+**Still Untested:**
+- Email template rendering
+- Blog/content routes
+- Admin routes (partial)
+
+**Fix:** Continue adding route-level tests for admin and content routes.
 
 ---
 
@@ -259,7 +264,7 @@ Main categories:
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | React Router v6→v7 | Medium | Pending | Phase 4 |
 | Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
-| Test coverage gaps | High | Open | ~21% coverage, critical flows untested |
+| Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
 | Infrastructure gaps | Medium | Open | No env validation, no error tracking |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
