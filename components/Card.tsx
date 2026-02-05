@@ -12,6 +12,7 @@ interface CardProps {
   width?: number;
   height?: number;
   className?: string;
+  hideOverlay?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -21,7 +22,8 @@ const Card: React.FC<CardProps> = ({
   onClick,
   width = 180,
   height = 300,
-  className = ''
+  className = '',
+  hideOverlay = false
 }) => {
   const { language } = useApp();
 
@@ -135,14 +137,16 @@ const Card: React.FC<CardProps> = ({
                     </div>
                   )}
 
-                  <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 pt-12 text-center ${isPlaceholder ? '' : ''}`}>
-                     <h3 className="text-amber-100 font-heading text-sm md:text-base font-bold tracking-wide drop-shadow-md leading-tight">
-                        {language === 'en' ? card.nameEn : card.nameFr}
-                     </h3>
-                     <p className="text-[10px] text-amber-400/80 uppercase tracking-widest mt-1">
-                        {language === 'en' ? card.keywordsEn[0] : card.keywordsFr[0]}
-                     </p>
-                  </div>
+                  {!hideOverlay && (
+                    <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 pt-12 text-center ${isPlaceholder ? '' : ''}`}>
+                       <h3 className="text-amber-100 font-heading text-sm md:text-base font-bold tracking-wide drop-shadow-md leading-tight">
+                          {language === 'en' ? card.nameEn : card.nameFr}
+                       </h3>
+                       <p className="text-[10px] text-amber-400/80 uppercase tracking-widest mt-1">
+                          {language === 'en' ? card.keywordsEn[0] : card.keywordsFr[0]}
+                       </p>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-900">

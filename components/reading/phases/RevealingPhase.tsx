@@ -9,6 +9,7 @@ import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeC
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
 import { CELTIC_CROSS_LAYOUT } from '../../../constants/celticCrossLayouts';
 import CelticCrossDisplay from '../CelticCrossDisplay';
+import HorseshoeDisplay from '../HorseshoeDisplay';
 import { getCategory } from '../../../constants/categoryConfig';
 
 interface DrawnCard {
@@ -109,6 +110,14 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
               theme={{ glow: theme.glow, textAccent: theme.textAccent }}
             />
           </div>
+        ) : spread.id === SpreadType.HORSESHOE ? (
+          <div className="mb-4 md:mb-6">
+            <HorseshoeDisplay
+              drawnCards={drawnCards}
+              language={language}
+              theme={{ glow: theme.glow, textAccent: theme.textAccent }}
+            />
+          </div>
         ) : (
           <div className={`flex gap-2 md:gap-3 flex-wrap justify-center mb-4 md:mb-6 max-w-6xl ${isLargeSpread ? 'max-w-4xl' : ''}`}>
             {drawnCards.map((item, i) => (
@@ -134,6 +143,7 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
                           ? "w-[80px] h-[128px] md:w-[110px] md:h-[176px]"
                           : "w-[90px] h-[144px] md:w-[130px] md:h-[208px]"
                     }
+                    hideOverlay={true}
                   />
                 </div>
                 <p className={`text-center mt-2 ${theme.textAccent} font-heading text-[10px] md:text-xs uppercase tracking-widest max-w-[120px] md:max-w-[150px] line-clamp-2`}>

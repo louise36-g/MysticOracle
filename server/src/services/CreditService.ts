@@ -44,6 +44,7 @@ export const CREDIT_COSTS = {
   SPREAD: {
     SINGLE: 1,
     THREE_CARD: 3,
+    FIVE_CARD: 5,
     LOVE: 5,
     CAREER: 5,
     HORSESHOE: 7,

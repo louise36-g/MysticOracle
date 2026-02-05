@@ -50,7 +50,7 @@ export const REGULAR_DEPTHS: DepthOption[] = [
   { cards: 1, labelEn: 'Quick Insight', labelFr: 'Apercu Rapide', cost: 1 },
   { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 3 },
   { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 5 },
-  { cards: 7, labelEn: "Fortune's Arc", labelFr: 'Arc du Destin', cost: 7 },
+  { cards: 7, labelEn: 'Horseshoe', labelFr: 'Fer à Cheval', cost: 7 },
   { cards: 10, labelEn: 'Celtic Cross', labelFr: 'Croix Celtique', cost: 10 },
 ];
 

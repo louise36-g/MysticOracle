@@ -583,12 +583,18 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                             <span className="font-bold">{depth.cost}</span>
                           </div>
 
-                          {/* Locked overlay */}
+                          {/* Locked overlay with buy credits button */}
                           {!canAfford && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl backdrop-blur-sm">
-                              <span className="text-xs text-white/80 bg-black/80 px-4 py-2 rounded-full border border-white/20">
-                                {language === 'fr' ? 'Crédits insuffisants' : 'Need more credits'}
-                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowCreditShop(true);
+                                }}
+                                className="text-xs font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30 hover:from-amber-300 hover:to-yellow-400 hover:scale-105 transition-all duration-200"
+                              >
+                                {language === 'fr' ? 'Acheter des crédits' : 'Get More Credits'}
+                              </button>
                             </div>
                           )}
                         </motion.button>
@@ -702,12 +708,18 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 </motion.p>
                               )}
 
-                              {/* Locked overlay */}
+                              {/* Locked overlay with buy credits button */}
                               {!canAfford && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl backdrop-blur-sm">
-                                  <span className="text-xs text-white/80 bg-black/80 px-4 py-2 rounded-full border border-white/20">
-                                    {language === 'fr' ? 'Crédits insuffisants' : 'Need more credits'}
-                                  </span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowCreditShop(true);
+                                    }}
+                                    className="text-xs font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30 hover:from-amber-300 hover:to-yellow-400 hover:scale-105 transition-all duration-200"
+                                  >
+                                    {language === 'fr' ? 'Acheter des crédits' : 'Get More Credits'}
+                                  </button>
                                 </div>
                               )}
                             </motion.button>

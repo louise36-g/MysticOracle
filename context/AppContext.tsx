@@ -234,25 +234,37 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     } catch (error) {
       console.error('[AppContext] Error fetching user from backend:', error);
       // User might not exist in our DB yet (Clerk webhook will create them)
-      // Create a temporary user object from Clerk data
+      // Only create a temporary user object if we don't already have user data
+      // This prevents overwriting valid credits (e.g., 76) with fallback (3) on refresh failures
       if (clerkUser) {
         const username = clerkUser.username || clerkUser.firstName || 'User';
         const adminUsernames = ['mooks', 'louise', 'louisegriffin'];
-        setUser({
-          id: clerkUser.id,
-          email: clerkUser.primaryEmailAddress?.emailAddress || '',
-          username,
-          credits: 3,
-          totalReadings: 0,
-          totalQuestionsAsked: 0,
-          loginStreak: 1,
-          lastLoginDate: new Date().toISOString(),
-          welcomeCompleted: false,
-          referralCode: '',
-          isAdmin: adminUsernames.includes(username.toLowerCase()),
-          language: 'en',
-          achievements: [],
-          spreadsUsed: [],
+
+        setUser((prevUser) => {
+          // If we already have user data with credits, preserve it instead of overwriting
+          if (prevUser && prevUser.id === clerkUser.id && prevUser.credits !== undefined) {
+            console.log('[AppContext] Preserving existing user data, credits:', prevUser.credits);
+            return prevUser;
+          }
+
+          // Only use fallback for brand new users (no existing data)
+          console.log('[AppContext] Creating temporary user (new user, webhook pending)');
+          return {
+            id: clerkUser.id,
+            email: clerkUser.primaryEmailAddress?.emailAddress || '',
+            username,
+            credits: 3,
+            totalReadings: 0,
+            totalQuestionsAsked: 0,
+            loginStreak: 1,
+            lastLoginDate: new Date().toISOString(),
+            welcomeCompleted: false,
+            referralCode: '',
+            isAdmin: adminUsernames.includes(username.toLowerCase()),
+            language: 'en',
+            achievements: [],
+            spreadsUsed: [],
+          };
         });
       }
     } finally {

@@ -57,15 +57,15 @@ const SPREAD_THEMES: Partial<Record<SpreadType, {
     taglineFr: 'Travail Intérieur Profond',
   },
   [SpreadType.HORSESHOE]: {
-    // Deep Blue/Sapphire - Fortune's Arc (new unique color)
+    // Deep Blue/Sapphire - Horseshoe spread
     gradient: 'from-blue-950 via-indigo-900 to-blue-950',
     accent: 'text-blue-300',
     icon: <Sparkles className="w-5 h-5" />,
     pattern: 'radial-gradient(ellipse at 50% 70%, rgba(96, 165, 250, 0.12) 0%, transparent 50%)',
     glowColor: 'rgba(96, 165, 250, 0.3)',
     borderAccent: 'hover:border-blue-400/50',
-    taglineEn: 'Fortune\'s Arc',
-    taglineFr: 'L\'Arc de la Fortune',
+    taglineEn: 'Horseshoe',
+    taglineFr: 'Fer à Cheval',
   },
   [SpreadType.CELTIC_CROSS]: {
     // Emerald/Teal - Ancient Wisdom
