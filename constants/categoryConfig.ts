@@ -61,6 +61,14 @@ export const BIRTH_CARD_DEPTHS: DepthOption[] = [
   { cards: 3, labelEn: 'Year Energy', labelFr: 'Energie de l\'Annee', cost: 3 },
 ];
 
+// Unified color theme - consistent purple/amber for all categories
+const UNIFIED_COLOR_THEME: ColorTheme = {
+  gradient: 'from-violet-600/25 via-purple-600/20 to-fuchsia-600/25',
+  accent: '#a78bfa',  // Purple-400
+  glow: '#8b5cf6',    // Purple-500
+  border: 'border-amber-500/40',
+};
+
 // Category configurations
 export const CATEGORIES: CategoryConfig[] = [
   {
@@ -70,12 +78,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Understand your heart\'s journey',
     taglineFr: 'Comprenez le voyage de votre coeur',
     icon: createElement(Heart, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#E8607A]/30 via-[#D94D68]/20 to-[#E8607A]/30',
-      accent: '#E8607A',
-      glow: '#E8607A',
-      border: 'border-[#E8607A]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'you_them_connection',
@@ -93,12 +96,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Navigate your professional path',
     taglineFr: 'Naviguez votre parcours professionnel',
     icon: createElement(Briefcase, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#D4A24C]/30 via-[#C4923C]/20 to-[#D4A24C]/30',
-      accent: '#D4A24C',
-      glow: '#D4A24C',
-      border: 'border-[#D4A24C]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'situation_action_outcome',
@@ -116,12 +114,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Unlock your financial flow',
     taglineFr: 'Debloquez votre flux financier',
     icon: createElement(Coins, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#50C878]/30 via-[#40B868]/20 to-[#50C878]/30',
-      accent: '#50C878',
-      glow: '#50C878',
-      border: 'border-[#50C878]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'situation_action_outcome',
@@ -139,12 +132,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Discover your true direction',
     taglineFr: 'Decouvrez votre vraie direction',
     icon: createElement(Compass, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#5BA8D9]/30 via-[#4B98C9]/20 to-[#5BA8D9]/30',
-      accent: '#5BA8D9',
-      glow: '#5BA8D9',
-      border: 'border-[#5BA8D9]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'past_present_future',
@@ -162,12 +150,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Strengthen your roots',
     taglineFr: 'Renforcez vos racines',
     icon: createElement(Users, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#45B5AA]/30 via-[#35A59A]/20 to-[#45B5AA]/30',
-      accent: '#45B5AA',
-      glow: '#45B5AA',
-      border: 'border-[#45B5AA]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
       3: 'you_them_connection',
@@ -185,12 +168,7 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineEn: 'Reveal your soul\'s blueprint',
     taglineFr: 'Revelez le plan de votre ame',
     icon: createElement(Sparkles, { className: 'w-6 h-6' }),
-    colorTheme: {
-      gradient: 'from-[#B88ED6]/30 via-[#A87EC6]/20 to-[#B88ED6]/30',
-      accent: '#B88ED6',
-      glow: '#B88ED6',
-      border: 'border-[#B88ED6]/40',
-    },
+    colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3] as BirthCardDepth[],
     // No default layouts for birth cards - they use a special calculation
   },

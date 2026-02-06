@@ -30,189 +30,38 @@ const categorySymbols: Record<ReadingCategory, string> = {
   birth_cards: '✧',
 };
 
-// Luminous color palette - vibrant, distinctive colors for each category
-const categoryColors: Record<ReadingCategory, {
-  accent: string;      // Main accent color
-  glow: string;        // Slightly darker/saturated for glow effects
-  ambient: string;     // Lighter for subtle ambient patterns
-}> = {
-  love: {
-    accent: '#E8607A',    // Coral pink
-    glow: '#D94D68',      // Darker coral
-    ambient: '#F08A9D',   // Light coral
-  },
-  career: {
-    accent: '#D4A24C',    // Gold amber
-    glow: '#C4923C',      // Darker gold
-    ambient: '#E4B86C',   // Light gold
-  },
-  money: {
-    accent: '#50C878',    // Emerald green
-    glow: '#40B868',      // Darker emerald
-    ambient: '#70D898',   // Light emerald
-  },
-  life_path: {
-    accent: '#5BA8D9',    // Sky blue
-    glow: '#4B98C9',      // Darker sky
-    ambient: '#7BC8F9',   // Light sky
-  },
-  family: {
-    accent: '#45B5AA',    // Teal
-    glow: '#35A59A',      // Darker teal
-    ambient: '#65D5CA',   // Light teal
-  },
-  birth_cards: {
-    accent: '#B88ED6',    // Lavender purple
-    glow: '#A87EC6',      // Darker lavender
-    ambient: '#D8AEF6',   // Light lavender
-  },
+// Unified color theme - consistent purple/amber for all categories
+const unifiedTheme = {
+  accent: '#a78bfa',      // Purple-400
+  glow: '#8b5cf6',        // Purple-500
+  ambient: '#c4b5fd',     // Purple-300
+  border: '#f59e0b',      // Amber-500
+  borderHover: '#fbbf24', // Amber-400
 };
 
-// Category-specific ambient patterns for expanded view - uses categoryColors for consistency
-const getCategoryAmbientPatterns = (categoryId: ReadingCategory): React.ReactNode => {
-  const colors = categoryColors[categoryId];
-
-  const patterns: Record<ReadingCategory, React.ReactNode> = {
-    love: (
-      <>
-        {/* Floating hearts */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-2xl pointer-events-none"
-            style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-              color: `${colors.ambient}30`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.15, 0.35, 0.15],
-              scale: [1, 1.2, 1],
-              rotate: [0, 10, -10, 0],
-            }}
-            transition={{ duration: 4 + i * 0.5, repeat: Infinity, delay: i * 0.7 }}
-          >
-            ♡
-          </motion.div>
-        ))}
-      </>
-    ),
-    career: (
-      <>
-        {/* Upward geometric lines */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-px pointer-events-none"
-            style={{
-              left: `${20 + i * 15}%`,
-              height: '60%',
-              bottom: '20%',
-              background: `linear-gradient(to top, transparent, ${colors.accent}50, transparent)`,
-            }}
-            animate={{
-              opacity: [0.1, 0.4, 0.1],
-              scaleY: [0.8, 1.2, 0.8],
-            }}
-            transition={{ duration: 3 + i * 0.3, repeat: Infinity, delay: i * 0.5 }}
-          />
-        ))}
-      </>
-    ),
-    money: (
-      <>
-        {/* Coin sparkles */}
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 rounded-full pointer-events-none"
-            style={{
-              left: `${10 + i * 11}%`,
-              top: `${15 + (i % 4) * 20}%`,
-              backgroundColor: `${colors.accent}60`,
-            }}
-            animate={{
-              scale: [0, 1.5, 0],
-              opacity: [0, 0.6, 0],
-            }}
-            transition={{ duration: 2 + i * 0.2, repeat: Infinity, delay: i * 0.4 }}
-          />
-        ))}
-      </>
-    ),
-    life_path: (
-      <>
-        {/* Moon phases / star trails */}
-        {[...Array(7)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute pointer-events-none"
-            style={{
-              left: `${12 + i * 13}%`,
-              top: `${25 + (i % 3) * 20}%`,
-              color: `${colors.ambient}35`,
-            }}
-            animate={{
-              opacity: [0.1, 0.4, 0.1],
-              scale: [0.8, 1.3, 0.8],
-              rotate: [0, 180, 360],
-            }}
-            transition={{ duration: 6 + i * 0.5, repeat: Infinity, delay: i * 0.6 }}
-          >
-            {i % 2 === 0 ? '☽' : '✦'}
-          </motion.div>
-        ))}
-      </>
-    ),
-    family: (
-      <>
-        {/* Interconnected circles */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-8 h-8 rounded-full pointer-events-none"
-            style={{
-              left: `${20 + i * 14}%`,
-              top: `${30 + (i % 2) * 25}%`,
-              border: `1px solid ${colors.accent}30`,
-            }}
-            animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.15, 0.35, 0.15],
-            }}
-            transition={{ duration: 4 + i * 0.4, repeat: Infinity, delay: i * 0.5 }}
-          />
-        ))}
-      </>
-    ),
-    birth_cards: (
-      <>
-        {/* Cosmic stars */}
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute pointer-events-none"
-            style={{
-              left: `${8 + i * 9}%`,
-              top: `${15 + (i % 4) * 18}%`,
-              color: `${colors.ambient}40`,
-            }}
-            animate={{
-              opacity: [0.1, 0.5, 0.1],
-              scale: [0.5, 1.2, 0.5],
-            }}
-            transition={{ duration: 3 + i * 0.3, repeat: Infinity, delay: i * 0.3 }}
-          >
-            ✧
-          </motion.div>
-        ))}
-      </>
-    ),
-  };
-
-  return patterns[categoryId];
-};
+// Unified ambient pattern for expanded view - subtle mystical stars
+const getUnifiedAmbientPattern = (): React.ReactNode => (
+  <>
+    {[...Array(8)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute pointer-events-none"
+        style={{
+          left: `${10 + i * 11}%`,
+          top: `${15 + (i % 4) * 20}%`,
+          color: `${unifiedTheme.ambient}30`,
+        }}
+        animate={{
+          opacity: [0.1, 0.4, 0.1],
+          scale: [0.8, 1.2, 0.8],
+        }}
+        transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.4 }}
+      >
+        ✧
+      </motion.div>
+    ))}
+  </>
+);
 
 // Decorative corner component
 const CornerDecoration: React.FC<{ position: 'tl' | 'tr' | 'bl' | 'br'; className?: string }> = ({ position, className = '' }) => {
@@ -255,6 +104,46 @@ const FloatingParticle: React.FC<{ delay: number; x: string; y: string }> = ({ d
     }}
   />
 );
+
+// Particle burst effect on expand
+const ParticleBurst: React.FC = () => {
+  const particles = [...Array(12)].map((_, i) => {
+    const angle = (i / 12) * Math.PI * 2;
+    const distance = 80 + Math.random() * 40;
+    return {
+      x: Math.cos(angle) * distance,
+      y: Math.sin(angle) * distance,
+      scale: 0.5 + Math.random() * 0.5,
+      delay: i * 0.02,
+    };
+  });
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((particle, i) => (
+        <motion.div
+          key={i}
+          className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full"
+          style={{
+            background: i % 2 === 0 ? unifiedTheme.accent : unifiedTheme.border,
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
+          animate={{
+            x: particle.x,
+            y: particle.y,
+            opacity: 0,
+            scale: particle.scale,
+          }}
+          transition={{
+            duration: 0.8,
+            delay: particle.delay,
+            ease: "easeOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) => {
   const { language, user, t } = useApp();
@@ -353,10 +242,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        className="relative text-center mb-8"
+        className="relative text-center pt-8 mb-10"
       >
         {/* Decorative top element */}
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex items-center justify-center gap-4 mb-8">
           <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-500/40 to-amber-500/60" />
           <motion.div
             animate={{ rotate: [0, 180, 360] }}
@@ -367,7 +256,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-2">
+        <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
           {language === 'fr'
             ? "Choisissez Votre Chemin"
             : 'Choose Your Path'}
@@ -375,13 +264,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
         <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
           {language === 'fr'
-            ? 'Chaque porte mène vers une sagesse différente. Laquelle vous appelle ?'
-            : 'Each doorway leads to different wisdom. Which one calls to you?'}
+            ? 'Six chemins. Une destinée. Les arcanes vous attendent.'
+            : 'Six paths. One destiny. The arcana await.'}
         </p>
       </motion.div>
 
       {/* Expanded Category View */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {expandedCategory && (() => {
           const category = CATEGORIES.find(c => c.id === expandedCategory);
           if (!category) return null;
@@ -390,18 +279,35 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           return (
             <motion.div
               key="expanded-category"
-              initial={{ opacity: 0, y: -30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, scale: 0.95 }}
-              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              initial={{ opacity: 0, scale: 0.8, y: 40 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                transition: {
+                  duration: 0.6,
+                  ease: [0.16, 1, 0.3, 1],
+                  opacity: { duration: 0.3 }
+                }
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.9,
+                y: 20,
+                transition: { duration: 0.3 }
+              }}
               className="relative mb-10"
             >
+              {/* Particle burst on open */}
+              <ParticleBurst />
+
               {/* Animated pulsing glow behind the container */}
               <motion.div
                 className="absolute inset-0 mx-4 md:mx-8 rounded-3xl pointer-events-none"
                 style={{
-                  background: `radial-gradient(ellipse at center, ${categoryColors[category.id].glow}30 0%, transparent 70%)`,
+                  background: `radial-gradient(ellipse at center, ${unifiedTheme.glow}30 0%, transparent 70%)`,
                 }}
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{
                   scale: [1, 1.05, 1],
                   opacity: [0.3, 0.5, 0.3],
@@ -414,14 +320,14 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               />
 
               <div
-                className="relative overflow-hidden rounded-3xl border backdrop-blur-xl bg-black/30 mx-4 md:mx-8 mb-8"
+                className="relative overflow-hidden rounded-3xl border-2 backdrop-blur-xl bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 mx-4 md:mx-8 mb-8"
                 style={{
-                  borderColor: 'rgba(255, 255, 255, 0.15)',
+                  borderColor: `${unifiedTheme.border}66`,
                   boxShadow: `
                     0 25px 60px rgba(0,0,0,0.4),
-                    0 0 20px ${categoryColors[category.id].glow}30,
-                    0 0 40px ${categoryColors[category.id].glow}20,
-                    0 0 80px ${categoryColors[category.id].glow}10
+                    0 0 20px ${unifiedTheme.glow}30,
+                    0 0 40px ${unifiedTheme.glow}20,
+                    0 0 80px ${unifiedTheme.glow}10
                   `,
                 }}
               >
@@ -433,14 +339,14 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   }}
                 />
 
-                {/* Category color tint */}
+                {/* Unified purple tint */}
                 <div
-                  className={`absolute inset-0 pointer-events-none opacity-35 bg-gradient-to-br ${category.colorTheme.gradient}`}
+                  className="absolute inset-0 pointer-events-none opacity-20 bg-gradient-to-br from-violet-500/30 via-purple-500/20 to-fuchsia-500/30"
                 />
 
-                {/* Category-specific ambient patterns */}
+                {/* Unified ambient patterns */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  {getCategoryAmbientPatterns(category.id)}
+                  {getUnifiedAmbientPattern()}
                 </div>
 
                 {/* Floating particles */}
@@ -544,14 +450,14 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                           whileHover={canAfford ? {
                             scale: 1.05,
                             y: -6,
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                            borderColor: `${unifiedTheme.border}`,
                             backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                            boxShadow: `0 15px 40px ${categoryColors[category.id].glow}50, 0 0 30px ${categoryColors[category.id].glow}40, 0 0 60px ${categoryColors[category.id].glow}20`,
+                            boxShadow: `0 15px 40px ${unifiedTheme.glow}50, 0 0 30px ${unifiedTheme.border}40, 0 0 60px ${unifiedTheme.glow}20`,
                             transition: { type: "tween", duration: 0.2, ease: "easeOut" }
                           } : {}}
                           whileTap={canAfford ? { scale: 0.95 } : {}}
                           style={{
-                            boxShadow: `0 4px 15px rgba(0,0,0,0.2), 0 0 10px ${categoryColors[category.id].glow}15`
+                            boxShadow: `0 4px 15px rgba(0,0,0,0.2), 0 0 10px ${unifiedTheme.glow}15`
                           }}
                         >
                           {/* Card visual */}
@@ -560,8 +466,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                               cards={depth.cards}
                               category={category.id}
                               colorTheme={{
-                                glow: category.colorTheme.glow,
-                                accent: category.colorTheme.accent,
+                                glow: unifiedTheme.glow,
+                                accent: unifiedTheme.accent,
                               }}
                             />
                           </div>
@@ -664,7 +570,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                               `}
                               style={{
                                 boxShadow: isActive
-                                  ? `0 15px 40px ${categoryColors[category.id].glow}50, 0 0 30px ${categoryColors[category.id].glow}40`
+                                  ? `0 15px 40px ${unifiedTheme.glow}50, 0 0 30px ${unifiedTheme.border}40`
                                   : `0 4px 15px rgba(0,0,0,0.2)`
                               }}
                             >
@@ -674,8 +580,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                   cards={depth.cards}
                                   category={category.id}
                                   colorTheme={{
-                                    glow: category.colorTheme.glow,
-                                    accent: category.colorTheme.accent,
+                                    glow: unifiedTheme.glow,
+                                    accent: unifiedTheme.accent,
                                   }}
                                 />
                               </div>
@@ -769,12 +675,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
       </AnimatePresence>
 
       {/* Category Grid */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {!expandedCategory && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20, filter: "blur(8px)" }}
+            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8 px-4 md:px-8"
           >
             {CATEGORIES.map((category, index) => (
@@ -790,58 +697,66 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               >
                 <motion.button
                   onClick={() => handleCategoryClick(category.id)}
-                  className="group w-full relative overflow-hidden rounded-2xl border-2 transition-all duration-300 backdrop-blur-md"
+                  className="group w-full relative overflow-hidden rounded-2xl border-2 transition-all duration-300 backdrop-blur-md bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25"
                   style={{
-                    borderColor: `${categoryColors[category.id].glow}50`,
+                    borderColor: `${unifiedTheme.border}66`,
                     boxShadow: `
                       0 8px 25px rgba(0,0,0,0.3),
-                      0 0 15px ${categoryColors[category.id].glow}25,
-                      0 0 30px ${categoryColors[category.id].glow}10
+                      0 0 15px ${unifiedTheme.glow}25,
+                      0 0 30px ${unifiedTheme.glow}10
                     `,
                   }}
                   whileHover={{
-                    scale: 1.04,
-                    y: -8,
+                    scale: 1.05,
+                    y: -12,
                   }}
                   whileTap={{ scale: 0.98 }}
                   onHoverStart={(e, info) => {
                     const el = e.target as HTMLElement | null;
                     if (el?.style) {
-                      el.style.borderColor = categoryColors[category.id].glow;
+                      el.style.borderColor = unifiedTheme.borderHover;
                       el.style.boxShadow = `
                         0 25px 50px rgba(0,0,0,0.5),
-                        0 0 20px ${categoryColors[category.id].glow}50,
-                        0 0 40px ${categoryColors[category.id].glow}35,
-                        0 0 80px ${categoryColors[category.id].glow}20,
-                        inset 0 0 30px ${categoryColors[category.id].glow}15
+                        0 0 20px ${unifiedTheme.glow}50,
+                        0 0 40px ${unifiedTheme.border}35,
+                        0 0 80px ${unifiedTheme.glow}20,
+                        inset 0 0 30px ${unifiedTheme.glow}15
                       `;
                     }
                   }}
                   onHoverEnd={(e, info) => {
                     const el = e.target as HTMLElement | null;
                     if (el?.style) {
-                      el.style.borderColor = `${categoryColors[category.id].glow}50`;
+                      el.style.borderColor = `${unifiedTheme.border}66`;
                       el.style.boxShadow = `
                         0 8px 25px rgba(0,0,0,0.3),
-                        0 0 15px ${categoryColors[category.id].glow}25,
-                        0 0 30px ${categoryColors[category.id].glow}10
+                        0 0 15px ${unifiedTheme.glow}25,
+                        0 0 30px ${unifiedTheme.glow}10
                       `;
                     }
                   }}
                 >
-                  {/* Base background */}
-                  <div className="absolute inset-0 bg-black/40" />
+                  {/* Subtle glow ring */}
+                  <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
 
-                  {/* Category color tint - more visible */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${category.colorTheme.gradient} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}
+                  {/* Border glow pulse on hover */}
+                  <motion.div
+                    className="absolute -inset-[2px] rounded-2xl opacity-0 group-hover:opacity-100 -z-10"
+                    style={{
+                      background: `linear-gradient(135deg, ${unifiedTheme.border}60, ${unifiedTheme.glow}40, ${unifiedTheme.border}60)`,
+                    }}
+                    initial={false}
+                    whileHover={{
+                      opacity: [0, 1, 0.6],
+                      transition: { duration: 0.4, ease: "easeOut" }
+                    }}
                   />
 
                   {/* Animated glow pulse on hover */}
                   <motion.div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl"
                     style={{
-                      background: `radial-gradient(circle at 50% 50%, ${categoryColors[category.id].glow}50 0%, transparent 60%)`,
+                      background: `radial-gradient(circle at 50% 50%, ${unifiedTheme.glow}50 0%, transparent 60%)`,
                     }}
                     initial={false}
                     whileHover={{
@@ -863,23 +778,18 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       {/* Icon/Symbol container */}
                       <div className="relative flex-shrink-0">
                         <div
-                          className="w-11 h-11 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-all duration-300"
-                          style={{
-                            boxShadow: `0 0 0 ${categoryColors[category.id].glow}00`,
-                          }}
+                          className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
                         >
                           {/* Mystical symbol */}
                           <span
-                            className="text-xl transition-all duration-300 group-hover:scale-110"
-                            style={{ color: categoryColors[category.id].accent }}
+                            className="text-xl transition-all duration-300 group-hover:scale-110 text-white"
                           >
                             {categorySymbols[category.id]}
                           </span>
                         </div>
                         {/* Glow behind icon on hover */}
                         <div
-                          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 blur-md -z-10"
-                          style={{ backgroundColor: categoryColors[category.id].glow }}
+                          className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300"
                         />
                       </div>
 
@@ -896,25 +806,19 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
                     {/* Bottom action hint */}
                     <div className="flex items-center justify-end mt-2 pt-2 border-t border-white/10">
-                      <motion.div
-                        className="flex items-center gap-1.5 text-white/50 transition-colors"
-                        initial={false}
-                        animate={{ x: [0, 4, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        <span
-                          className="text-xs font-medium transition-colors"
-                          style={{ color: 'inherit' }}
-                        >
+                      <div className="flex items-center gap-1.5 text-white/50 group-hover:text-amber-300 transition-colors">
+                        <span className="text-xs font-medium">
                           {language === 'fr' ? 'Explorer' : 'Explore'}
                         </span>
-                        <span
-                          className="text-sm transition-colors group-hover:translate-x-0.5"
-                          style={{ color: categoryColors[category.id].accent }}
+                        <motion.span
+                          className="text-sm text-amber-400"
+                          initial={{ x: 0 }}
+                          whileHover={{ x: 4 }}
+                          animate={{ x: 0 }}
                         >
-                          →
-                        </span>
-                      </motion.div>
+                          <span className="inline-block group-hover:translate-x-2 group-hover:scale-110 transition-transform duration-300">→</span>
+                        </motion.span>
+                      </div>
                     </div>
                   </div>
                 </motion.button>
