@@ -14,7 +14,6 @@ export const ROUTES = {
 
   // Horoscopes
   HOROSCOPES: '/horoscopes',
-  HOROSCOPE_SIGN: '/horoscopes/:sign',
 
   // Blog
   BLOG: '/blog',

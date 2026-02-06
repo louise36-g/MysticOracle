@@ -162,14 +162,10 @@ export const router = createBrowserRouter(
         element: <TarotArticleRedirect />,
       },
 
-      // Horoscope routes
+      // Horoscope route - unified experience
       {
         path: ROUTES.HOROSCOPES,
-        element: lazyLoad(() => import('../components/horoscopes/HoroscopesIndex')),
-      },
-      {
-        path: ROUTES.HOROSCOPE_SIGN,
-        element: lazyLoad(() => import('../components/horoscopes/HoroscopeSignPage')),
+        element: lazyLoad(() => import('../components/HoroscopeReading')),
       },
 
       // Legal routes

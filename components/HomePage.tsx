@@ -7,7 +7,6 @@ import Button from './Button';
 import { Star, Shield, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReadingModeSelector from './ReadingModeSelector';
-import HoroscopeReading from './HoroscopeReading';
 
 // Floating mystical star component
 const FloatingStar: React.FC<{
@@ -62,15 +61,13 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
   const { user, language, t } = useApp();
-  const [readingMode, setReadingMode] = React.useState<string | null>(null);
 
   const handleReadingModeSelect = (mode: string) => {
     if (mode === 'tarot') {
       navigate(ROUTES.READING);
-      return;
+    } else if (mode === 'horoscope') {
+      navigate(ROUTES.HOROSCOPES);
     }
-    setReadingMode(mode);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -101,9 +98,8 @@ const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Header - Only show on home (no readingMode selected) */}
-      {!readingMode && (
-        <motion.div
+      {/* Header */}
+      <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
@@ -204,26 +200,17 @@ const HomePage: React.FC = () => {
             </motion.div>
           </div>
         </motion.div>
-      )}
 
       {/* Main Content Area */}
       {user ? (
-        <>
-          {/* Reading Mode Selector (logged in, no mode selected) */}
-          {!readingMode && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-8"
-            >
-              <ReadingModeSelector onSelect={handleReadingModeSelect} />
-            </motion.div>
-          )}
-
-          {/* Horoscope Reading */}
-          {readingMode === 'horoscope' && <HoroscopeReading />}
-        </>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-8"
+        >
+          <ReadingModeSelector onSelect={handleReadingModeSelect} />
+        </motion.div>
       ) : (
         /* Non-authenticated view */
         <motion.div
