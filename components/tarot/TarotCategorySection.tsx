@@ -5,7 +5,6 @@ import { ChevronRight, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-
 import { useApp } from '../../context/AppContext';
 import { TarotOverviewCard } from '../../services/api';
 import TarotCardPreview from './TarotCardPreview';
-import { useTranslation } from '../../context/TranslationContext';
 import { buildRoute, ROUTES } from '../../routes/routes';
 
 export type CategoryType = 'majorArcana' | 'wands' | 'cups' | 'swords' | 'pentacles';
@@ -74,7 +73,6 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
   count,
 }) => {
   const { language } = useApp();
-  const { t } = useTranslation();
   const config = CATEGORY_CONFIG[category];
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -151,7 +149,7 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
           to={buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: config.slug })}
           className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
         >
-          {t('tarot.TarotCategorySection.view_all_count', 'View All {{count}}', { count })}
+          {language === 'fr' ? `Voir les ${count}` : `View All ${count}`}
           <ChevronRight className="w-4 h-4" />
         </Link>
       </div>

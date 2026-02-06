@@ -61,7 +61,9 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
           >
             <div className="text-center">
               <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
-              <span className="text-xs text-purple-300/50">No Image</span>
+              <span className="text-xs text-purple-300/50">
+                {language === 'fr' ? 'Pas d\'image' : 'No Image'}
+              </span>
             </div>
           </div>
         </div>
