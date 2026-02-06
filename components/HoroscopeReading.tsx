@@ -1,9 +1,11 @@
+// components/HoroscopeReading.tsx
+// Celestial horoscope experience with unified MysticOracle aesthetic
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Stars } from 'lucide-react';
+import { ArrowLeft, Sparkles, Stars, ChevronLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { fetchHoroscope } from '../services/api';
 import Button from './Button';
@@ -24,28 +26,13 @@ const zodiacData = [
   { en: 'Pisces', fr: 'Poissons', symbol: '♓', element: 'water', datesEn: 'Feb 19 - Mar 20', datesFr: '19 fév - 20 mars' },
 ];
 
-// Celestial color palette - vibrant element colors
-const elementStyles = {
-  fire: {
-    primary: '#ff8c00', // Bright orange
-    glow: 'rgba(255, 140, 0, 0.6)',
-    gradient: 'from-orange-500/40 via-amber-500/30 to-red-500/40',
-  },
-  earth: {
-    primary: '#22c55e', // Bright green
-    glow: 'rgba(34, 197, 94, 0.6)',
-    gradient: 'from-green-500/40 via-emerald-500/30 to-teal-500/40',
-  },
-  air: {
-    primary: '#38bdf8', // Bright sky blue
-    glow: 'rgba(56, 189, 248, 0.6)',
-    gradient: 'from-sky-400/40 via-cyan-500/30 to-blue-500/40',
-  },
-  water: {
-    primary: '#a78bfa', // Bright violet
-    glow: 'rgba(167, 139, 250, 0.6)',
-    gradient: 'from-violet-400/40 via-purple-500/30 to-indigo-500/40',
-  },
+// Unified color theme - matching CategorySelector
+const unifiedTheme = {
+  accent: '#a78bfa',      // Purple-400
+  glow: '#8b5cf6',        // Purple-500
+  ambient: '#c4b5fd',     // Purple-300
+  border: '#f59e0b',      // Amber-500
+  borderHover: '#fbbf24', // Amber-400
 };
 
 // For backwards compatibility
@@ -93,23 +80,68 @@ const FloatingStar: React.FC<{ delay: number; duration: number; left: string; to
   />
 );
 
-// Orbital ring decoration
-const OrbitalRing: React.FC<{ size: number; duration: number; opacity: number }> = ({ size, duration, opacity }) => (
-  <motion.div
-    className="absolute rounded-full border border-amber-500/20 pointer-events-none"
-    style={{
-      width: size,
-      height: size,
-      left: '50%',
-      top: '50%',
-      marginLeft: -size / 2,
-      marginTop: -size / 2,
-      opacity,
-    }}
-    animate={{ rotate: 360 }}
-    transition={{ duration, repeat: Infinity, ease: "linear" }}
-  />
-);
+// Particle burst effect on sign select
+const ParticleBurst: React.FC = () => {
+  const particles = [...Array(12)].map((_, i) => {
+    const angle = (i / 12) * Math.PI * 2;
+    const distance = 80 + Math.random() * 40;
+    return {
+      x: Math.cos(angle) * distance,
+      y: Math.sin(angle) * distance,
+      scale: 0.5 + Math.random() * 0.5,
+      delay: i * 0.02,
+    };
+  });
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+      {particles.map((particle, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            background: i % 2 === 0 ? unifiedTheme.accent : unifiedTheme.border,
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
+          animate={{
+            x: particle.x,
+            y: particle.y,
+            opacity: 0,
+            scale: particle.scale,
+          }}
+          transition={{
+            duration: 0.8,
+            delay: particle.delay,
+            ease: "easeOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Corner decoration component
+const CornerDecoration: React.FC<{ position: 'tl' | 'tr' | 'bl' | 'br'; className?: string }> = ({ position, className = '' }) => {
+  const rotations = { tl: '', tr: 'rotate-90', bl: '-rotate-90', br: 'rotate-180' };
+  return (
+    <svg
+      className={`absolute w-6 h-6 text-white/20 ${rotations[position]} ${className}`}
+      style={{
+        top: position.includes('t') ? '6px' : 'auto',
+        bottom: position.includes('b') ? '6px' : 'auto',
+        left: position.includes('l') ? '6px' : 'auto',
+        right: position.includes('r') ? '6px' : 'auto',
+      }}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+    >
+      <path d="M2 12 L2 2 L12 2" />
+      <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+    </svg>
+  );
+};
 
 const HoroscopeReading: React.FC = () => {
   const { language } = useApp();
@@ -120,6 +152,7 @@ const HoroscopeReading: React.FC = () => {
   const [horoscopeLanguage, setHoroscopeLanguage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [showBurst, setShowBurst] = useState(false);
 
   const currentLoadingPhrases = useMemo(() => loadingPhrases[language], [language]);
   const currentZodiacSigns = useMemo(() => zodiacSigns[language], [language]);
@@ -162,6 +195,9 @@ const HoroscopeReading: React.FC = () => {
   }, [isLoading, currentLoadingPhrases.length]);
 
   const handleSignSelect = useCallback(async (sign: string, index: number) => {
+    setShowBurst(true);
+    setTimeout(() => setShowBurst(false), 800);
+
     setSelectedSign(sign);
     setSelectedSignIndex(index);
     setIsLoading(true);
@@ -194,15 +230,36 @@ const HoroscopeReading: React.FC = () => {
   const displaySignName = selectedSignIndex !== null ? currentZodiacSigns[selectedSignIndex] : selectedSign;
   const selectedZodiac = selectedSignIndex !== null ? zodiacData[selectedSignIndex] : null;
 
-  // Loading state with celestial animation
+  // Loading state with unified theme
   if (isLoading) {
     return (
       <div className="relative min-h-[60vh] flex items-center justify-center">
-        {/* Animated orbital rings */}
+        {/* Background atmosphere */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] bg-amber-500/5 rounded-full blur-[80px]" />
+        </div>
+
+        {/* Animated orbital rings with unified colors */}
         <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-          <OrbitalRing size={200} duration={20} opacity={0.3} />
-          <OrbitalRing size={300} duration={30} opacity={0.2} />
-          <OrbitalRing size={400} duration={40} opacity={0.1} />
+          <motion.div
+            className="absolute w-[200px] h-[200px] rounded-full border pointer-events-none"
+            style={{ borderColor: `${unifiedTheme.glow}30` }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute w-[300px] h-[300px] rounded-full border pointer-events-none"
+            style={{ borderColor: `${unifiedTheme.border}20` }}
+            animate={{ rotate: -360 }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute w-[400px] h-[400px] rounded-full border pointer-events-none"
+            style={{ borderColor: `${unifiedTheme.glow}10` }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          />
         </div>
 
         <motion.div
@@ -213,17 +270,19 @@ const HoroscopeReading: React.FC = () => {
           {/* Pulsing zodiac symbol */}
           {selectedZodiac && (
             <motion.div
-              className="text-7xl mb-6 text-amber-400"
+              className="text-7xl mb-6"
+              style={{ color: unifiedTheme.border }}
               animate={{
                 scale: [1, 1.1, 1],
                 opacity: [0.7, 1, 0.7],
               }}
               transition={{ duration: 2, repeat: Infinity }}
-              style={{
-                textShadow: '0 0 40px rgba(251, 191, 36, 0.6), 0 0 80px rgba(251, 191, 36, 0.3)',
-              }}
             >
-              {selectedZodiac.symbol}
+              <span style={{
+                textShadow: `0 0 40px ${unifiedTheme.border}99, 0 0 80px ${unifiedTheme.border}66`,
+              }}>
+                {selectedZodiac.symbol}
+              </span>
             </motion.div>
           )}
 
@@ -232,17 +291,18 @@ const HoroscopeReading: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="text-xl text-amber-200/80 font-light tracking-wide"
+            className="text-xl text-purple-200/80 font-light tracking-wide"
           >
             {currentLoadingPhrases[loadingMessageIndex]}
           </motion.p>
 
-          {/* Subtle loading dots */}
+          {/* Loading dots with unified colors */}
           <div className="flex justify-center gap-2 mt-6">
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
-                className="w-2 h-2 rounded-full bg-amber-400/60"
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: `${unifiedTheme.border}99` }}
                 animate={{ opacity: [0.3, 1, 0.3] }}
                 transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }}
               />
@@ -255,12 +315,11 @@ const HoroscopeReading: React.FC = () => {
 
   // Horoscope result display
   if (horoscope && selectedSign && selectedZodiac) {
-    const style = elementStyles[selectedZodiac.element as keyof typeof elementStyles];
-
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="max-w-3xl mx-auto px-4"
       >
         {/* Back button */}
@@ -269,29 +328,76 @@ const HoroscopeReading: React.FC = () => {
           className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors mb-8 group"
           whileHover={{ x: -4 }}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ChevronLeft className="w-4 h-4" />
           <span className="text-sm">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
         </motion.button>
 
-        {/* Result card */}
-        <div className="relative rounded-3xl overflow-hidden">
-          {/* Gradient border effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/30 via-purple-500/20 to-indigo-500/30 rounded-3xl" />
+        {/* Result card with unified styling */}
+        <div
+          className="relative rounded-3xl overflow-hidden border-2 backdrop-blur-xl"
+          style={{
+            borderColor: `${unifiedTheme.border}66`,
+            boxShadow: `
+              0 25px 60px rgba(0,0,0,0.4),
+              0 0 20px ${unifiedTheme.glow}30,
+              0 0 40px ${unifiedTheme.glow}20
+            `,
+          }}
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25" />
+
+          {/* Noise texture */}
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+          />
+
+          {/* Floating stars */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                style={{
+                  left: `${15 + i * 14}%`,
+                  top: `${10 + (i % 3) * 30}%`,
+                  color: `${unifiedTheme.ambient}30`,
+                }}
+                animate={{
+                  opacity: [0.1, 0.4, 0.1],
+                  scale: [0.8, 1.2, 0.8],
+                }}
+                transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.4 }}
+              >
+                ✧
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Corner decorations */}
+          <CornerDecoration position="tl" />
+          <CornerDecoration position="tr" />
+          <CornerDecoration position="bl" />
+          <CornerDecoration position="br" />
 
           {/* Inner content */}
-          <div className="relative m-[1px] bg-gradient-to-br from-slate-900 via-slate-900/98 to-indigo-950/90 rounded-3xl p-8 md:p-12">
+          <div className="relative p-8 md:p-12">
             {/* Header with symbol */}
             <div className="text-center mb-10">
               <motion.div
                 className="inline-block text-6xl mb-4"
-                style={{
-                  color: style.primary,
-                  textShadow: `0 0 30px ${style.glow}, 0 0 60px ${style.glow}`,
-                }}
+                style={{ color: unifiedTheme.border }}
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
-                {selectedZodiac.symbol}
+                <span style={{
+                  textShadow: `0 0 30px ${unifiedTheme.border}99, 0 0 60px ${unifiedTheme.border}66`,
+                }}>
+                  {selectedZodiac.symbol}
+                </span>
               </motion.div>
 
               <h2 className="text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 mb-2">
@@ -306,6 +412,9 @@ const HoroscopeReading: React.FC = () => {
                 <Stars className="w-4 h-4 text-amber-500/60" />
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8" />
 
             {/* Horoscope content */}
             <div className="prose prose-invert prose-lg max-w-none">
@@ -338,154 +447,221 @@ const HoroscopeReading: React.FC = () => {
     );
   }
 
-  // Zodiac sign selector - the main event
+  // Zodiac sign selector - unified design
   return (
-    <div className="relative max-w-5xl mx-auto px-4 py-8">
-      {/* Background ambiance - floating stars */}
+    <div className="relative max-w-5xl mx-auto px-4">
+      {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[80px]" />
+
+        {/* Floating stars */}
+        {[...Array(15)].map((_, i) => (
           <FloatingStar
             key={i}
             delay={i * 0.3}
             duration={3 + (i % 3)}
-            left={`${5 + (i * 4.7) % 90}%`}
+            left={`${5 + (i * 6.5) % 90}%`}
             top={`${10 + (i * 7.3) % 80}%`}
             size={1 + (i % 3)}
           />
         ))}
       </div>
 
-      {/* Decorative orbital rings */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-30">
-        <div className="absolute w-[600px] h-[600px] rounded-full border border-amber-500/20" />
-        <div className="absolute w-[800px] h-[800px] rounded-full border border-purple-500/10" />
-      </div>
+      {/* Particle burst */}
+      {showBurst && <ParticleBurst />}
 
-      {/* Header */}
+      {/* Header - matching CategorySelector style */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative text-center mb-12"
+        transition={{ duration: 0.7 }}
+        className="relative text-center pt-8 mb-10"
       >
-        {/* Decorative line */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-500/50 to-amber-500/50" />
-          <Sparkles className="w-5 h-5 text-amber-400" />
-          <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/50 to-amber-500/50" />
+        {/* Decorative sparkle divider */}
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-500/40 to-amber-500/60" />
+          <motion.div
+            animate={{ rotate: [0, 180, 360] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            <Sparkles className="w-5 h-5 text-amber-400" />
+          </motion.div>
+          <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-amber-400/80 mb-4">
-          {language === 'fr' ? 'Les Étoiles Vous Attendent' : 'The Stars Await You'}
+        <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
+          {language === 'fr' ? 'Les Étoiles Vous Parlent' : 'The Stars Speak'}
         </h2>
 
-        <p className="text-slate-400 text-lg max-w-xl mx-auto">
+        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
           {language === 'fr'
-            ? 'Sélectionnez votre signe pour révéler votre horoscope du jour'
-            : 'Select your sign to reveal your daily horoscope'}
+            ? 'Douze signes. Un cosmos. Votre destinée vous attend.'
+            : 'Twelve signs. One cosmos. Your destiny awaits.'}
         </p>
       </motion.div>
 
-      {/* Zodiac grid - 4 per row, rectangular buttons */}
-      <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      {/* Zodiac grid - unified styling */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 pb-8"
+      >
         {zodiacData.map((zodiac, index) => {
-          const style = elementStyles[zodiac.element as keyof typeof elementStyles];
           const signName = language === 'fr' ? zodiac.fr : zodiac.en;
           const dates = language === 'fr' ? zodiac.datesFr : zodiac.datesEn;
 
           return (
             <motion.button
               key={zodiac.en}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: index * 0.04,
-                duration: 0.4,
+                delay: index * 0.05,
+                duration: 0.5,
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               onClick={() => handleSignSelect(signName, index)}
-              className="group relative py-4 px-4 rounded-xl cursor-pointer overflow-hidden"
-              whileHover={{ y: -4, scale: 1.02 }}
+              className="group relative py-4 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25"
+              style={{
+                borderWidth: 2,
+                borderStyle: 'solid',
+                borderColor: `${unifiedTheme.border}66`,
+                boxShadow: `
+                  0 8px 25px rgba(0,0,0,0.3),
+                  0 0 15px ${unifiedTheme.glow}25,
+                  0 0 30px ${unifiedTheme.glow}10
+                `,
+              }}
+              whileHover={{
+                scale: 1.05,
+                y: -12,
+              }}
               whileTap={{ scale: 0.98 }}
+              onHoverStart={(e) => {
+                const el = e.target as HTMLElement;
+                if (el?.style) {
+                  el.style.borderColor = unifiedTheme.borderHover;
+                  el.style.boxShadow = `
+                    0 25px 50px rgba(0,0,0,0.5),
+                    0 0 20px ${unifiedTheme.glow}50,
+                    0 0 40px ${unifiedTheme.border}35,
+                    0 0 80px ${unifiedTheme.glow}20,
+                    inset 0 0 30px ${unifiedTheme.glow}15
+                  `;
+                }
+              }}
+              onHoverEnd={(e) => {
+                const el = e.target as HTMLElement;
+                if (el?.style) {
+                  el.style.borderColor = `${unifiedTheme.border}66`;
+                  el.style.boxShadow = `
+                    0 8px 25px rgba(0,0,0,0.3),
+                    0 0 15px ${unifiedTheme.glow}25,
+                    0 0 30px ${unifiedTheme.glow}10
+                  `;
+                }
+              }}
             >
-              {/* Card background layers */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
-              <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient}`} />
+              {/* Subtle glow ring */}
+              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
 
-              {/* Animated border glow on hover */}
-              <div
-                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              {/* Border glow pulse on hover */}
+              <motion.div
+                className="absolute -inset-[2px] rounded-2xl opacity-0 group-hover:opacity-100 -z-10"
                 style={{
-                  boxShadow: `inset 0 0 0 2px ${style.primary}, 0 0 25px ${style.glow}, 0 0 50px ${style.glow}`,
+                  background: `linear-gradient(135deg, ${unifiedTheme.border}60, ${unifiedTheme.glow}40, ${unifiedTheme.border}60)`,
+                }}
+                initial={false}
+                whileHover={{
+                  opacity: [0, 1, 0.6],
+                  transition: { duration: 0.4, ease: "easeOut" }
                 }}
               />
 
-              {/* Default border */}
-              <div
-                className="absolute inset-0 rounded-xl border-2 group-hover:border-transparent transition-colors"
-                style={{ borderColor: `${style.primary}40` }}
-              />
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out rounded-2xl" />
 
-              {/* Inner shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent rounded-xl" />
+              {/* Corner decorations on hover */}
+              <CornerDecoration position="tl" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <CornerDecoration position="br" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-              {/* Content - horizontal layout with symbol on right */}
+              {/* Content */}
               <div className="relative flex items-center justify-between gap-3">
-                {/* Sign name and dates - left side */}
+                {/* Sign info */}
                 <div className="flex flex-col items-start min-w-0">
                   <h3 className="text-base font-heading font-semibold text-white group-hover:text-white transition-colors">
                     {signName}
                   </h3>
-                  <p className="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors">
+                  <p className="text-[11px] text-white/50 group-hover:text-white/70 transition-colors">
                     {dates}
                   </p>
                 </div>
 
-                {/* Zodiac symbol with glow - right side */}
+                {/* Zodiac symbol */}
                 <div className="relative flex-shrink-0">
-                  {/* Glow layer */}
                   <div
-                    className="absolute inset-0 text-3xl flex items-center justify-center blur-md opacity-60 group-hover:opacity-100 transition-opacity"
-                    style={{ color: style.primary }}
+                    className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
                   >
-                    {zodiac.symbol}
+                    <span className="text-xl text-white">
+                      {zodiac.symbol}
+                    </span>
                   </div>
-                  {/* Main symbol */}
-                  <span
-                    className="relative text-3xl block"
-                    style={{
-                      color: style.primary,
-                      textShadow: `0 0 12px ${style.glow}`,
-                    }}
-                  >
-                    {zodiac.symbol}
+                  {/* Glow behind symbol */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300" />
+                </div>
+              </div>
+
+              {/* Explore hint */}
+              <div className="flex items-center justify-end mt-3 pt-2 border-t border-white/10">
+                <div className="flex items-center gap-1.5 text-white/40 group-hover:text-amber-300 transition-colors">
+                  <span className="text-[10px] font-medium">
+                    {language === 'fr' ? 'Découvrir' : 'Discover'}
                   </span>
+                  <span className="text-xs text-amber-400 group-hover:translate-x-2 transition-transform duration-300">→</span>
                 </div>
               </div>
             </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
-      {/* Element legend */}
+      {/* Element legend - aligned under columns */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="relative flex flex-wrap justify-center gap-6 mt-10 text-sm text-slate-400"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="relative grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mt-2 mb-8"
       >
         {[
-          { element: 'fire', label: language === 'fr' ? 'Feu' : 'Fire', color: '#ff8c00' },
-          { element: 'earth', label: language === 'fr' ? 'Terre' : 'Earth', color: '#22c55e' },
-          { element: 'air', label: language === 'fr' ? 'Air' : 'Air', color: '#38bdf8' },
-          { element: 'water', label: language === 'fr' ? 'Eau' : 'Water', color: '#a78bfa' },
-        ].map(({ element, label, color }) => (
-          <div key={element} className="flex items-center gap-2">
+          { element: 'fire', label: language === 'fr' ? 'Feu' : 'Fire', signs: '♈ ♌ ♐', color: '#f97316' },
+          { element: 'earth', label: language === 'fr' ? 'Terre' : 'Earth', signs: '♉ ♍ ♑', color: '#84cc16' },
+          { element: 'air', label: language === 'fr' ? 'Air' : 'Air', signs: '♊ ♎ ♒', color: '#38bdf8' },
+          { element: 'water', label: language === 'fr' ? 'Eau' : 'Water', signs: '♋ ♏ ♓', color: '#a78bfa' },
+        ].map(({ element, label, signs, color }) => (
+          <motion.div
+            key={element}
+            whileHover={{ scale: 1.02 }}
+            className="flex flex-col items-center justify-center py-3 px-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm"
+            style={{
+              boxShadow: `0 0 25px ${color}20, inset 0 0 20px ${color}10`,
+              borderColor: `${color}30`,
+            }}
+          >
             <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}` }}
-            />
-            <span>{label}</span>
-          </div>
+              className="text-2xl md:text-3xl tracking-widest mb-1"
+              style={{ color }}
+            >
+              {signs}
+            </span>
+            <span
+              className="text-base md:text-lg font-semibold tracking-wide"
+              style={{ color }}
+            >
+              {label}
+            </span>
+          </motion.div>
         ))}
       </motion.div>
     </div>
@@ -493,4 +669,3 @@ const HoroscopeReading: React.FC = () => {
 };
 
 export default HoroscopeReading;
-// FORCE RELOAD 1770286332
