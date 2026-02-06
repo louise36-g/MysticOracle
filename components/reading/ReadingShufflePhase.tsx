@@ -120,18 +120,18 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   const CardBack = ({ style, className = '' }: { style?: React.CSSProperties; className?: string }) => (
     <div
       style={style}
-      className={`w-14 h-20 md:w-16 md:h-24 rounded-lg bg-gradient-to-br from-violet-600/30 via-purple-600/25 to-fuchsia-600/30 shadow-xl border-2 border-amber-500/40 ${className}`}
+      className={`w-14 h-20 md:w-16 md:h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 shadow-xl border-2 border-amber-500/50 ${className}`}
     >
       <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
         {/* Inner border */}
-        <div className="absolute inset-1 border border-amber-500/20 rounded-sm" />
+        <div className="absolute inset-1 border border-amber-500/30 rounded-sm" />
         {/* Decorative pattern */}
-        <div className="absolute inset-2 opacity-30">
-          <div className="w-full h-full border border-purple-300/30 rounded-sm" />
-          <div className="absolute inset-1 border border-purple-300/20 rounded-sm" />
+        <div className="absolute inset-2">
+          <div className="w-full h-full border border-purple-400/40 rounded-sm" />
+          <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
         </div>
         {/* Center symbol */}
-        <Moon className="w-5 h-5 md:w-6 md:h-6 text-purple-300 opacity-70" />
+        <Moon className="w-5 h-5 md:w-6 md:h-6 text-amber-400/80" />
       </div>
     </div>
   );
