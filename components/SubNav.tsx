@@ -267,7 +267,7 @@ const SubNav: React.FC = () => {
             onMouseLeave={handleMouseLeave}
           >
             <Link
-              to={ROUTES.HOME}
+              to={ROUTES.READING}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isTarotActive || openDropdown === 'tarot'
                   ? 'text-purple-300 bg-purple-500/10'

@@ -210,6 +210,12 @@ export const router = createBrowserRouter(
         element: lazyLoad(() => import('../components/PaymentResult')),
       },
 
+      // Reading - category selector (public, like horoscopes)
+      {
+        path: ROUTES.READING,
+        element: lazyLoad(() => import('../components/CategorySelector')),
+      },
+
       // =====================
       // Protected Routes (require authentication)
       // =====================
@@ -219,12 +225,6 @@ export const router = createBrowserRouter(
           {
             path: ROUTES.PROFILE,
             element: lazyLoad(() => import('../components/UserProfile')),
-          },
-
-          // Reading - category selector
-          {
-            path: ROUTES.READING,
-            element: lazyLoad(() => import('../components/CategorySelector')),
           },
           // Reading with category and depth
           {

@@ -1,40 +1,17 @@
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Layers, Sparkles, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Layers, Sparkles, ArrowRight, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getTodaysQuote } from '../constants/dailyQuotes';
+import { CATEGORIES } from '../constants/categoryConfig';
+import { ROUTES } from '../routes/routes';
+import type { ReadingCategory } from '../types';
 
 interface ReadingModeSelectorProps {
   onSelect: (mode: 'tarot' | 'horoscope') => void;
 }
-
-const readingModes = [
-  {
-    id: 'tarot',
-    titleEn: 'Tarot Reading',
-    titleFr: 'Lecture de Tarot',
-    descriptionEn: 'Classic card spreads for deep insights.',
-    descriptionFr: 'Tirages de cartes classiques pour des insights profonds.',
-    icon: Layers,
-    gradient: 'from-violet-600/25 via-purple-600/20 to-fuchsia-600/25',
-    borderGradient: 'from-violet-500/50 via-purple-500/50 to-fuchsia-500/50',
-    iconBg: 'from-violet-500 to-purple-600',
-    accentColor: 'purple',
-  },
-  {
-    id: 'horoscope',
-    titleEn: 'Daily Horoscope',
-    titleFr: 'Horoscope du Jour',
-    descriptionEn: 'What the stars have in store for you today.',
-    descriptionFr: 'Ce que les étoiles vous réservent aujourd\'hui.',
-    icon: Sparkles,
-    gradient: 'from-violet-600/25 via-purple-600/20 to-fuchsia-600/25',
-    borderGradient: 'from-violet-500/50 via-purple-500/50 to-fuchsia-500/50',
-    iconBg: 'from-violet-500 to-purple-600',
-    accentColor: 'purple',
-  }
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -60,7 +37,30 @@ const cardVariants = {
 
 const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) => {
   const { language } = useApp();
+  const navigate = useNavigate();
   const quote = getTodaysQuote();
+  const [showTarotDropdown, setShowTarotDropdown] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTarotMouseEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setShowTarotDropdown(true);
+  };
+
+  const handleTarotMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setShowTarotDropdown(false);
+    }, 150);
+  };
+
+  const handleCategorySelect = (categoryId: ReadingCategory, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowTarotDropdown(false);
+    navigate(ROUTES.READING, { state: { expandCategory: categoryId } });
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4">
@@ -82,20 +82,25 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         animate="visible"
         className="grid grid-cols-2 gap-8 max-w-md mx-auto"
       >
-        {readingModes.map((mode) => (
-          <motion.div
-            key={mode.id}
-            variants={cardVariants}
-            onClick={() => onSelect(mode.id as 'tarot' | 'horoscope')}
-            className={`group relative h-full bg-gradient-to-br ${mode.gradient} p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden`}
+        {/* Tarot Reading Card with Dropdown */}
+        <motion.div
+          variants={cardVariants}
+          className="relative"
+          onMouseEnter={handleTarotMouseEnter}
+          onMouseLeave={handleTarotMouseLeave}
+        >
+          <Link
+            to={ROUTES.READING}
+            onClick={() => setShowTarotDropdown(false)}
+            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
           >
             {/* Shimmer effect on hover */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
             {/* Animated border gradient on hover */}
-            <div className={`absolute inset-0 rounded-lg bg-gradient-to-br ${mode.borderGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`} />
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
 
-            {/* Subtle glow ring for all cards */}
+            {/* Subtle glow ring */}
             <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
 
             {/* Floating particles effect */}
@@ -105,27 +110,99 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </div>
 
             {/* Centered icon */}
-            <div className={`relative w-9 h-9 bg-gradient-to-br ${mode.iconBg} rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-              <mode.icon className="w-4 h-4 text-white" />
-              <div className={`absolute inset-0 rounded-md bg-gradient-to-br ${mode.iconBg} opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity`} />
+            <div className="relative w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Layers className="w-4 h-4 text-white" />
+              <div className="absolute inset-0 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
 
             <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
-              {language === 'en' ? mode.titleEn : mode.titleFr}
+              {language === 'en' ? 'Tarot Reading' : 'Lecture de Tarot'}
             </h3>
             <p className="text-slate-400 text-[11px] leading-tight group-hover:text-slate-300 transition-colors">
-              {language === 'en' ? mode.descriptionEn : mode.descriptionFr}
+              {language === 'en' ? 'Classic card spreads for deep insights.' : 'Tirages de cartes classiques pour des insights profonds.'}
             </p>
 
-            {/* CTA indicator */}
-            <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
-              <span className="text-[11px] font-medium">
-                {language === 'en' ? 'Start' : 'Commencer'}
-              </span>
-              <ArrowRight className="w-3 h-3" />
+            {/* Dropdown indicator */}
+            <div className="flex items-center justify-center gap-1 mt-2 text-amber-300/70">
+              <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${showTarotDropdown ? 'rotate-180' : ''}`} />
             </div>
-          </motion.div>
-        ))}
+          </Link>
+
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {showTarotDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl"
+              >
+                <div className="p-2">
+                  {CATEGORIES.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={(e) => handleCategorySelect(category.id, e)}
+                      className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-white/10 hover:scale-[1.02] cursor-pointer"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        {category.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-xs text-slate-200">
+                          {language === 'fr' ? category.labelFr : category.labelEn}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Horoscope Card */}
+        <motion.div
+          variants={cardVariants}
+          onClick={() => onSelect('horoscope')}
+          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
+        >
+          {/* Shimmer effect on hover */}
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
+          {/* Animated border gradient on hover */}
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+
+          {/* Subtle glow ring */}
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
+
+          {/* Floating particles effect */}
+          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+            <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
+            <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+          </div>
+
+          {/* Centered icon */}
+          <div className="relative w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <Sparkles className="w-4 h-4 text-white" />
+            <div className="absolute inset-0 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+          </div>
+
+          <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+            {language === 'en' ? 'Daily Horoscope' : 'Horoscope du Jour'}
+          </h3>
+          <p className="text-slate-400 text-[11px] leading-tight group-hover:text-slate-300 transition-colors">
+            {language === 'en' ? 'What the stars have in store for you today.' : 'Ce que les étoiles vous réservent aujourd\'hui.'}
+          </p>
+
+          {/* CTA indicator */}
+          <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
+            <span className="text-[11px] font-medium">
+              {language === 'en' ? 'Start' : 'Commencer'}
+            </span>
+            <ArrowRight className="w-3 h-3" />
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* The Whispered Oracle - Floating Quote Banner */}
