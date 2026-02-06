@@ -594,7 +594,7 @@ const HoroscopeReading: React.FC = () => {
                   <h3 className="text-base font-heading font-semibold text-white group-hover:text-white transition-colors">
                     {signName}
                   </h3>
-                  <p className="text-[11px] text-white/50 group-hover:text-white/70 transition-colors">
+                  <p className="text-xs text-white/50 group-hover:text-white/70 transition-colors">
                     {dates}
                   </p>
                 </div>
@@ -616,7 +616,7 @@ const HoroscopeReading: React.FC = () => {
               {/* Explore hint */}
               <div className="flex items-center justify-end mt-3 pt-2 border-t border-white/10">
                 <div className="flex items-center gap-1.5 text-white/40 group-hover:text-amber-300 transition-colors">
-                  <span className="text-[10px] font-medium">
+                  <span className="text-xs font-medium">
                     {language === 'fr' ? 'Découvrir' : 'Discover'}
                   </span>
                   <span className="text-xs text-amber-400 group-hover:translate-x-2 transition-transform duration-300">→</span>
