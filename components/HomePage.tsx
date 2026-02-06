@@ -101,13 +101,13 @@ const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Compact Header - Only show on home (no readingMode selected) */}
+      {/* Header - Only show on home (no readingMode selected) */}
       {!readingMode && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative pt-6 pb-4 px-4"
+          className="relative pt-10 pb-8 px-4"
         >
           {/* Tarot card silhouettes in background */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
@@ -134,7 +134,7 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="flex items-center justify-center gap-3 mb-2"
+              className="flex items-center justify-center gap-3 mb-5"
             >
               <Star className="w-3 h-3 text-amber-400/50" />
               <span className="text-xs uppercase tracking-[0.25em] text-amber-100/90 font-medium">
@@ -148,7 +148,7 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="relative text-center text-5xl md:text-6xl font-heading font-bold mb-2"
+              className="relative text-center text-5xl md:text-6xl font-heading font-bold mb-4"
             >
               {/* Breathing glow layer behind text */}
               <motion.span
@@ -188,7 +188,7 @@ const HomePage: React.FC = () => {
 
             {/* Simplified elegant divider - just a crescent moon */}
             <motion.div
-              className="flex items-center justify-center gap-4 mt-4"
+              className="flex items-center justify-center gap-4 mt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -215,7 +215,7 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-4"
+              className="mt-8"
             >
               <ReadingModeSelector onSelect={handleReadingModeSelect} />
             </motion.div>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Layers, Sparkles, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DailyQuoteCard from './DailyQuoteCard';
+import { getTodaysQuote } from '../constants/dailyQuotes';
 
 interface ReadingModeSelectorProps {
   onSelect: (mode: 'tarot' | 'horoscope') => void;
@@ -21,7 +21,6 @@ const readingModes = [
     borderGradient: 'from-violet-500/50 via-purple-500/50 to-fuchsia-500/50',
     iconBg: 'from-violet-500 to-purple-600',
     accentColor: 'purple',
-    isPrimary: true, // Featured/primary action
   },
   {
     id: 'horoscope',
@@ -30,11 +29,10 @@ const readingModes = [
     descriptionEn: 'What the stars have in store for you today.',
     descriptionFr: 'Ce que les étoiles vous réservent aujourd\'hui.',
     icon: Sparkles,
-    gradient: 'from-amber-600/20 via-orange-600/20 to-yellow-600/20',
-    borderGradient: 'from-amber-500/40 via-orange-500/40 to-yellow-500/40',
-    iconBg: 'from-amber-500 to-orange-500',
-    accentColor: 'amber',
-    isPrimary: false,
+    gradient: 'from-violet-600/25 via-purple-600/20 to-fuchsia-600/25',
+    borderGradient: 'from-violet-500/50 via-purple-500/50 to-fuchsia-500/50',
+    iconBg: 'from-violet-500 to-purple-600',
+    accentColor: 'purple',
   }
 ];
 
@@ -62,6 +60,7 @@ const cardVariants = {
 
 const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) => {
   const { language } = useApp();
+  const quote = getTodaysQuote();
 
   return (
     <div className="max-w-4xl mx-auto px-4">
@@ -76,45 +75,39 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         </h2>
       </motion.div>
 
+      {/* Two action cards - centered, compact */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid md:grid-cols-3 gap-6"
+        className="grid grid-cols-2 gap-8 max-w-md mx-auto"
       >
-        {/* Clickable reading mode cards - centered layout, compact */}
-        {readingModes.map((mode, index) => (
+        {readingModes.map((mode) => (
           <motion.div
             key={mode.id}
             variants={cardVariants}
             onClick={() => onSelect(mode.id as 'tarot' | 'horoscope')}
-            className={`group relative h-full bg-gradient-to-br ${mode.gradient} p-3 rounded-xl border text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl overflow-hidden ${
-              mode.isPrimary
-                ? 'border-purple-500/30 hover:border-purple-400/50 shadow-lg shadow-purple-500/10'
-                : 'border-white/10 hover:border-white/20'
-            }`}
+            className={`group relative h-full bg-gradient-to-br ${mode.gradient} p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden`}
           >
             {/* Shimmer effect on hover */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
             {/* Animated border gradient on hover */}
-            <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${mode.borderGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`} />
+            <div className={`absolute inset-0 rounded-lg bg-gradient-to-br ${mode.borderGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`} />
 
-            {/* Primary card subtle glow ring */}
-            {mode.isPrimary && (
-              <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-            )}
+            {/* Subtle glow ring for all cards */}
+            <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
 
             {/* Floating particles effect */}
-            <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-              <div className="absolute top-3 right-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
-              <div className="absolute bottom-4 right-6 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+              <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
+              <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
             </div>
 
-            {/* Small centered icon */}
-            <div className={`relative w-9 h-9 bg-gradient-to-br ${mode.iconBg} rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+            {/* Centered icon */}
+            <div className={`relative w-9 h-9 bg-gradient-to-br ${mode.iconBg} rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
               <mode.icon className="w-4 h-4 text-white" />
-              <div className={`absolute inset-0 rounded-lg bg-gradient-to-br ${mode.iconBg} opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity`} />
+              <div className={`absolute inset-0 rounded-md bg-gradient-to-br ${mode.iconBg} opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity`} />
             </div>
 
             <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
@@ -125,9 +118,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </p>
 
             {/* CTA indicator */}
-            <div className={`flex items-center justify-center gap-1.5 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 ${
-              mode.isPrimary ? 'text-amber-300' : 'text-purple-300'
-            }`}>
+            <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
               <span className="text-[11px] font-medium">
                 {language === 'en' ? 'Start' : 'Commencer'}
               </span>
@@ -135,11 +126,45 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </div>
           </motion.div>
         ))}
+      </motion.div>
 
-        {/* Daily Quote - static, not clickable, same height as other cards */}
-        <motion.div variants={cardVariants} className="h-full">
-          <DailyQuoteCard className="h-full" />
-        </motion.div>
+      {/* The Whispered Oracle - Floating Quote Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+        className="mt-10 text-center relative"
+      >
+        {/* Decorative divider */}
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-500/30" />
+          <motion.div
+            animate={{ rotate: [0, 5, 0, -5, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg className="w-4 h-4 text-amber-400/60" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
+            </svg>
+          </motion.div>
+          <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-500/30" />
+        </div>
+
+        {/* Quote text */}
+        <blockquote className="max-w-xl mx-auto">
+          <p className="text-slate-300/90 text-base md:text-lg italic leading-relaxed">
+            "{language === 'en' ? quote.textEn : quote.textFr}"
+          </p>
+          <footer className="mt-3">
+            <cite className="text-amber-400/70 text-sm not-italic font-medium">
+              — {quote.author}
+            </cite>
+          </footer>
+        </blockquote>
+
+        {/* Subtle label */}
+        <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-slate-500">
+          {language === 'en' ? 'Thought for Today' : 'Pensée du Jour'}
+        </p>
       </motion.div>
     </div>
   );
