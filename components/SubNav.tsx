@@ -1,10 +1,7 @@
 import React, { useState, useRef, useCallback, memo } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { useTranslation } from '../context/TranslationContext';
-import { ROUTES, buildRoute } from '../routes/routes';
-import { CATEGORIES } from '../constants/categoryConfig';
-import { ReadingCategory } from '../types';
+import { ROUTES } from '../routes/routes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
@@ -14,12 +11,7 @@ import {
   HelpCircle,
   CreditCard,
   Users,
-  Lock,
-  Coins,
   Layers,
-  Eye,
-  Clock,
-  TrendingUp,
   Home
 } from 'lucide-react';
 
@@ -31,17 +23,11 @@ interface DropdownItem {
   descriptionFr?: string;
   icon: React.ReactNode;
   iconBg: string;
-  cost?: number;
-  comingSoon?: boolean;
-  onClick: () => void;
-  href?: string; // Optional href for navigation items
+  href: string;
 }
 
 const SubNav: React.FC = () => {
-  const { language, user } = useApp();
-  const { t } = useTranslation();
-  // Reading context no longer needed for spread selection - using location state
-  const navigate = useNavigate();
+  const { language } = useApp();
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -60,45 +46,16 @@ const SubNav: React.FC = () => {
     }, 150);
   };
 
-  const handleItemClick = (onClick: () => void) => {
-    onClick();
+  const handleItemClick = () => {
     setOpenDropdown(null);
   };
-
-  // Handle category selection: navigate to category selector with pre-selected category
-  const handleCategorySelect = useCallback((categoryId: ReadingCategory) => {
-    setOpenDropdown(null);
-    // Pass the selected category in location state so CategorySelector can auto-expand it
-    navigate(ROUTES.READING, { state: { expandCategory: categoryId } });
-  }, [navigate]);
 
   // Helper to check if path is active
   const isActive = useCallback((path: string) => {
     return location.pathname.startsWith(path);
   }, [location.pathname]);
 
-  // Build Tarot category menu items with themed icons
-  // Note: No href for tarot items - they use onClick to pass state to CategorySelector
-  const tarotItems: DropdownItem[] = CATEGORIES.map(category => {
-    return {
-      id: category.id,
-      labelEn: category.labelEn,
-      labelFr: category.labelFr,
-      descriptionEn: category.taglineEn,
-      descriptionFr: category.taglineFr,
-      icon: category.icon,
-      iconBg: category.colorTheme.gradient.includes('rose') ? 'bg-rose-500/20' :
-              category.colorTheme.gradient.includes('amber') ? 'bg-amber-500/20' :
-              category.colorTheme.gradient.includes('emerald') ? 'bg-emerald-500/20' :
-              category.colorTheme.gradient.includes('cyan') ? 'bg-cyan-500/20' :
-              category.colorTheme.gradient.includes('sky') ? 'bg-sky-500/20' :
-              'bg-violet-500/20',
-      // No href - onClick handles navigation with state
-      onClick: () => handleCategorySelect(category.id)
-    };
-  });
-
-  // Learn items - About Us at top
+  // Learn items
   const learnItems: DropdownItem[] = [
     {
       id: 'about',
@@ -109,7 +66,6 @@ const SubNav: React.FC = () => {
       icon: <Users className="w-4 h-4 text-pink-400" />,
       iconBg: 'bg-pink-500/20',
       href: ROUTES.ABOUT,
-      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'tarot-cards',
@@ -120,7 +76,6 @@ const SubNav: React.FC = () => {
       icon: <Layers className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
       href: ROUTES.TAROT_CARDS,
-      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'blog',
@@ -131,7 +86,6 @@ const SubNav: React.FC = () => {
       icon: <BookOpen className="w-4 h-4 text-purple-400" />,
       iconBg: 'bg-purple-500/20',
       href: ROUTES.BLOG,
-      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'how-credits-work',
@@ -142,7 +96,6 @@ const SubNav: React.FC = () => {
       icon: <CreditCard className="w-4 h-4 text-amber-400" />,
       iconBg: 'bg-amber-500/20',
       href: ROUTES.HOW_CREDITS_WORK,
-      onClick: () => {} // Navigation handled by Link
     },
     {
       id: 'faq',
@@ -153,11 +106,10 @@ const SubNav: React.FC = () => {
       icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
       iconBg: 'bg-blue-500/20',
       href: ROUTES.FAQ,
-      onClick: () => {} // Navigation handled by Link
     }
   ];
 
-  const renderDropdown = (items: DropdownItem[], showCost = false) => (
+  const renderDropdown = (items: DropdownItem[]) => (
     <motion.div
       initial={{ opacity: 0, y: -10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -166,75 +118,28 @@ const SubNav: React.FC = () => {
       className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
     >
       <div className="p-2 max-h-[400px] overflow-y-auto">
-        {items.map(item => {
-          const hasEnoughCredits = !item.cost || !user || user.credits >= item.cost;
-          const isDisabled = item.comingSoon || !hasEnoughCredits;
-
-          const content = (
-            <>
-              <div className={`w-9 h-9 rounded-lg ${item.iconBg} flex items-center justify-center flex-shrink-0`}>
-                {item.comingSoon ? <Lock className="w-4 h-4 text-slate-400" /> : item.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className={`font-medium text-sm ${item.comingSoon ? 'text-slate-400' : 'text-slate-200'}`}>
-                    {language === 'fr' ? item.labelFr : item.labelEn}
-                  </span>
-                  {item.comingSoon && (
-                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-700 text-slate-400">
-                      {language === 'fr' ? 'Bientôt' : 'Soon'}
-                    </span>
-                  )}
-                </div>
-                {(item.descriptionEn || item.descriptionFr) && (
-                  <div className="text-xs text-slate-500 truncate">
-                    {language === 'fr' ? item.descriptionFr : item.descriptionEn}
-                  </div>
-                )}
-              </div>
-              {showCost && item.cost && (
-                <div className={`flex items-center gap-1 ${hasEnoughCredits ? 'text-amber-400' : 'text-red-400'}`}>
-                  <Coins className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">{item.cost}</span>
+        {items.map(item => (
+          <Link
+            key={item.id}
+            to={item.href}
+            onClick={handleItemClick}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all hover:bg-white/5 hover:scale-[1.02] cursor-pointer"
+          >
+            <div className={`w-9 h-9 rounded-lg ${item.iconBg} flex items-center justify-center flex-shrink-0`}>
+              {item.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm text-slate-200">
+                {language === 'fr' ? item.labelFr : item.labelEn}
+              </span>
+              {(item.descriptionEn || item.descriptionFr) && (
+                <div className="text-xs text-slate-500 truncate">
+                  {language === 'fr' ? item.descriptionFr : item.descriptionEn}
                 </div>
               )}
-            </>
-          );
-
-          const className = `flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all ${
-            item.comingSoon
-              ? 'opacity-50 cursor-not-allowed'
-              : !hasEnoughCredits
-                ? 'opacity-60 cursor-not-allowed'
-                : 'hover:bg-white/5 hover:scale-[1.02] cursor-pointer'
-          }`;
-
-          // If item has href and is not disabled, use Link
-          if (item.href && !isDisabled) {
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                onClick={() => handleItemClick(item.onClick)}
-                className={className}
-              >
-                {content}
-              </Link>
-            );
-          }
-
-          // Otherwise, use button
-          return (
-            <button
-              key={item.id}
-              onClick={() => !isDisabled && handleItemClick(item.onClick)}
-              disabled={isDisabled}
-              className={className}
-            >
-              {content}
-            </button>
-          );
-        })}
+            </div>
+          </Link>
+        ))}
       </div>
     </motion.div>
   );
@@ -260,28 +165,18 @@ const SubNav: React.FC = () => {
             <span>{language === 'fr' ? 'Accueil' : 'Home'}</span>
           </Link>
 
-          {/* Tarot Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('tarot')}
-            onMouseLeave={handleMouseLeave}
+          {/* Tarot Link - simple, no dropdown */}
+          <Link
+            to={ROUTES.READING}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              isTarotActive
+                ? 'text-purple-300 bg-purple-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
           >
-            <Link
-              to={ROUTES.READING}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                isTarotActive || openDropdown === 'tarot'
-                  ? 'text-purple-300 bg-purple-500/10'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'tarot' ? 'rotate-180' : ''}`} />
-            </Link>
-            <AnimatePresence>
-              {openDropdown === 'tarot' && renderDropdown(tarotItems, true)}
-            </AnimatePresence>
-          </div>
+            <Sparkles className="w-4 h-4" />
+            <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
+          </Link>
 
           {/* Horoscope Link */}
           <Link
