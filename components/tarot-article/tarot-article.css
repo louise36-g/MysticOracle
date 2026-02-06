@@ -344,7 +344,7 @@
 }
 
 .prose img:hover {
-  transform: scale(1.01);
+  transform: scale(1.5);
   box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
 }
 

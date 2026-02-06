@@ -25,7 +25,7 @@ export function FeaturedImage({ src, alt, onClick }: FeaturedImageProps) {
         alt={alt}
         width={896}
         height={504}
-        className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+        className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-150"
         loading="eager"
         fetchPriority="high"
         decoding="async"

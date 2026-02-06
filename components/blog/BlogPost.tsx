@@ -143,7 +143,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
             <img
               src={post.coverImage}
               alt={post.coverImageAlt || title}
-              className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-150"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />

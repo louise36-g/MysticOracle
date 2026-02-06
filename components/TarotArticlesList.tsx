@@ -217,7 +217,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
                     <img
                       src={article.featuredImage}
                       alt={article.featuredImageAlt || article.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                      className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-200"
                       loading="lazy"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;

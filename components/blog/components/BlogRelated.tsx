@@ -44,7 +44,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
                 <img
                   src={related.coverImage}
                   alt={language === 'en' ? related.titleEn : related.titleFr}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-500"
                 />
               </div>
             )}

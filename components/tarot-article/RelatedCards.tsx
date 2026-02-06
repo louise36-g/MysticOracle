@@ -141,7 +141,7 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                         alt={language === 'fr' && article.featuredImageAltFr ? article.featuredImageAltFr : (article.featuredImageAlt || article.title)}
                         width={200}
                         height={267}
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-300"
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
