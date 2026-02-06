@@ -229,7 +229,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
     language === 'fr' ? depth.labelFr : depth.labelEn;
 
   return (
-    <div className={`w-full relative ${className}`}>
+    <div className={`w-full relative flex-grow flex flex-col ${className}`}>
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Ambient glow */}
@@ -242,10 +242,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        className="relative text-center pt-8 mb-10"
+        className="relative text-center pt-12 mb-10"
       >
         {/* Decorative top element */}
-        <div className="flex items-center justify-center gap-4 mb-8">
+        <div className="flex items-center justify-center gap-4 mb-6">
           <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-500/40 to-amber-500/60" />
           <motion.div
             animate={{ rotate: [0, 180, 360] }}
@@ -256,17 +256,55 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
+        <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-3 tracking-wide">
           {language === 'fr'
             ? "Choisissez Votre Chemin"
             : 'Choose Your Path'}
         </h2>
 
-        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-8">
           {language === 'fr'
             ? 'Six chemins. Une destinée. Les arcanes vous attendent.'
             : 'Six paths. One destiny. The arcana await.'}
         </p>
+
+        {/* Decorative divider before buttons */}
+        <div className="flex items-center justify-center gap-3">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-500/40" />
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="text-purple-400/60 text-xs"
+          >
+            ✦
+          </motion.div>
+          <div className="h-px w-8 bg-purple-500/30" />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.6, 1, 0.6]
+            }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            className="text-amber-400/70 text-sm"
+          >
+            ◇
+          </motion.div>
+          <div className="h-px w-8 bg-purple-500/30" />
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="text-purple-400/60 text-xs"
+          >
+            ✦
+          </motion.div>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-500/40" />
+        </div>
       </motion.div>
 
       {/* Expanded Category View */}
@@ -296,7 +334,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                 y: 20,
                 transition: { duration: 0.3 }
               }}
-              className="relative mb-10"
+              className="relative mb-8"
             >
               {/* Particle burst on open */}
               <ParticleBurst />
@@ -682,7 +720,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, y: -20, filter: "blur(8px)" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-8 px-4 md:px-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-4 md:px-8"
           >
             {CATEGORIES.map((category, index) => (
               <motion.div
@@ -808,6 +846,34 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Bottom decorative section */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 0.6 }}
+        className="flex-grow flex flex-col items-center justify-center min-h-[120px] mt-8"
+      >
+        {/* Decorative divider */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="h-px w-20 bg-gradient-to-r from-transparent via-purple-500/30 to-purple-500/50" />
+          <motion.div
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="text-purple-400/40"
+          >
+            ✧
+          </motion.div>
+          <div className="h-px w-20 bg-gradient-to-l from-transparent via-purple-500/30 to-purple-500/50" />
+        </div>
+
+        {/* Mystical quote */}
+        <p className="text-purple-200/80 text-sm md:text-base text-center max-w-lg px-4 leading-relaxed">
+          {language === 'fr'
+            ? '"Les cartes ne mentent jamais, elles révèlent ce que nous savons déjà."'
+            : '"The cards never lie, they reveal what we already know."'}
+        </p>
+      </motion.div>
 
       {/* Credit Shop Modal */}
       <CreditShop
