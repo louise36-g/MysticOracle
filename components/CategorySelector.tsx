@@ -868,7 +868,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         </div>
 
         {/* Mystical quote */}
-        <p className="text-purple-200/80 text-sm md:text-base text-center max-w-lg px-4 leading-relaxed">
+        <p className="text-purple-200/80 text-sm md:text-base text-center px-4 leading-relaxed whitespace-nowrap">
           {language === 'fr'
             ? '"Les cartes ne mentent jamais, elles révèlent ce que nous savons déjà."'
             : '"The cards never lie, they reveal what we already know."'}
