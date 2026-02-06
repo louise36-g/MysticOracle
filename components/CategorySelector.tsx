@@ -773,52 +773,33 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
 
                   {/* Content */}
-                  <div className="relative p-4">
-                    <div className="flex items-start gap-3">
-                      {/* Icon/Symbol container */}
-                      <div className="relative flex-shrink-0">
-                        <div
-                          className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
+                  <div className="relative p-3 flex items-center gap-3">
+                    {/* Icon/Symbol container */}
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
+                      >
+                        {/* Mystical symbol */}
+                        <span
+                          className="text-lg transition-all duration-300 group-hover:scale-110 text-white"
                         >
-                          {/* Mystical symbol */}
-                          <span
-                            className="text-xl transition-all duration-300 group-hover:scale-110 text-white"
-                          >
-                            {categorySymbols[category.id]}
-                          </span>
-                        </div>
-                        {/* Glow behind icon on hover */}
-                        <div
-                          className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300"
-                        />
+                          {categorySymbols[category.id]}
+                        </span>
                       </div>
-
-                      {/* Text content */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-heading text-base text-white group-hover:text-white transition-colors mb-0.5">
-                          {getLabel(category)}
-                        </h3>
-                        <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2">
-                          {getTagline(category)}
-                        </p>
-                      </div>
+                      {/* Glow behind icon on hover */}
+                      <div
+                        className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300"
+                      />
                     </div>
 
-                    {/* Bottom action hint */}
-                    <div className="flex items-center justify-end mt-2 pt-2 border-t border-white/10">
-                      <div className="flex items-center gap-1.5 text-white/50 group-hover:text-amber-300 transition-colors">
-                        <span className="text-xs font-medium">
-                          {language === 'fr' ? 'Explorer' : 'Explore'}
-                        </span>
-                        <motion.span
-                          className="text-sm text-amber-400"
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 4 }}
-                          animate={{ x: 0 }}
-                        >
-                          <span className="inline-block group-hover:translate-x-2 group-hover:scale-110 transition-transform duration-300">→</span>
-                        </motion.span>
-                      </div>
+                    {/* Text content */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading text-base text-white group-hover:text-white transition-colors mb-0.5">
+                        {getLabel(category)}
+                      </h3>
+                      <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2">
+                        {getTagline(category)}
+                      </p>
                     </div>
                   </div>
                 </motion.button>
