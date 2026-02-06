@@ -87,13 +87,13 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
               {language === 'en' ? 'Tarot Reading' : 'Lecture de Tarot'}
             </h3>
-            <p className="text-slate-400 text-[11px] leading-tight group-hover:text-slate-300 transition-colors">
+            <p className="text-slate-400 text-xs leading-tight group-hover:text-slate-300 transition-colors">
               {language === 'en' ? 'Classic card spreads for deep insights.' : 'Tirages de cartes classiques pour des insights profonds.'}
             </p>
 
             {/* CTA indicator */}
             <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
-              <span className="text-[11px] font-medium">
+              <span className="text-xs font-medium">
                 {language === 'en' ? 'Start' : 'Commencer'}
               </span>
               <ArrowRight className="w-3 h-3" />
@@ -131,13 +131,13 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
             {language === 'en' ? 'Daily Horoscope' : 'Horoscope du Jour'}
           </h3>
-          <p className="text-slate-400 text-[11px] leading-tight group-hover:text-slate-300 transition-colors">
+          <p className="text-slate-400 text-xs leading-tight group-hover:text-slate-300 transition-colors">
             {language === 'en' ? 'What the stars have in store for you today.' : 'Ce que les étoiles vous réservent aujourd\'hui.'}
           </p>
 
           {/* CTA indicator */}
           <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
-            <span className="text-[11px] font-medium">
+            <span className="text-xs font-medium">
               {language === 'en' ? 'Start' : 'Commencer'}
             </span>
             <ArrowRight className="w-3 h-3" />

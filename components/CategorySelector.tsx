@@ -798,7 +798,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                         <h3 className="font-heading text-base text-white group-hover:text-white transition-colors mb-0.5">
                           {getLabel(category)}
                         </h3>
-                        <p className="text-xs text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2">
+                        <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2">
                           {getTagline(category)}
                         </p>
                       </div>
