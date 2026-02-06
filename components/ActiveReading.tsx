@@ -398,7 +398,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     if (drawnCards.length >= spread.positions) return;
 
     const newCard = deck[drawnCards.length];
-    const isReversed = Math.random() < 0.15;
+    const isReversed = Math.random() < 0.10;
 
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 
