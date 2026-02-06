@@ -773,7 +773,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
 
                   {/* Content */}
-                  <div className="relative p-3 flex items-center gap-3">
+                  <div className="relative px-3 py-4 flex items-center gap-3">
                     {/* Icon/Symbol container */}
                     <div className="relative flex-shrink-0">
                       <div
