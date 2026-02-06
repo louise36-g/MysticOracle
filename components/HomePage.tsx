@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative pt-10 pb-8 px-4"
+          className="relative pt-6 pb-4 px-4"
         >
           {/* Tarot card silhouettes in background */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
@@ -207,7 +207,7 @@ const HomePage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8"
+          className="mt-2"
         >
           <ReadingModeSelector onSelect={handleReadingModeSelect} />
         </motion.div>

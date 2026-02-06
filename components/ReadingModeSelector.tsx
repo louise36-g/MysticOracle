@@ -64,13 +64,13 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
 
   return (
     <div className="max-w-4xl mx-auto px-4">
-      {/* Section header - subtle and understated */}
+      {/* Section header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-6"
+        className="text-center mb-8"
       >
-        <h2 className="text-sm font-medium text-slate-400 tracking-widest uppercase">
+        <h2 className="text-base font-semibold text-purple-200/90 tracking-widest uppercase">
           {language === 'en' ? 'Choose your path' : 'Choisissez votre voie'}
         </h2>
       </motion.div>
@@ -133,7 +133,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
-        className="mt-10 text-center relative"
+        className="mt-12 text-center relative"
       >
         {/* Decorative divider */}
         <div className="flex items-center justify-center gap-4 mb-4">
@@ -149,6 +149,11 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-500/30" />
         </div>
 
+        {/* Section title */}
+        <h3 className="text-sm font-heading font-medium tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300/80 via-purple-300/80 to-amber-300/80 mb-4">
+          {language === 'en' ? 'Thought for Today' : 'Pensée du Jour'}
+        </h3>
+
         {/* Quote text */}
         <blockquote className="max-w-xl mx-auto">
           <p className="text-slate-300/90 text-base md:text-lg italic leading-relaxed">
@@ -160,11 +165,6 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </cite>
           </footer>
         </blockquote>
-
-        {/* Subtle label */}
-        <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-slate-500">
-          {language === 'en' ? 'Thought for Today' : 'Pensée du Jour'}
-        </p>
       </motion.div>
     </div>
   );
