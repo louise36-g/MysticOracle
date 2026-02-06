@@ -1,13 +1,11 @@
 
-import React, { useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Layers, Sparkles, ArrowRight, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Layers, Sparkles, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getTodaysQuote } from '../constants/dailyQuotes';
-import { CATEGORIES } from '../constants/categoryConfig';
 import { ROUTES } from '../routes/routes';
-import type { ReadingCategory } from '../types';
 
 interface ReadingModeSelectorProps {
   onSelect: (mode: 'tarot' | 'horoscope') => void;
@@ -37,30 +35,7 @@ const cardVariants = {
 
 const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) => {
   const { language } = useApp();
-  const navigate = useNavigate();
   const quote = getTodaysQuote();
-  const [showTarotDropdown, setShowTarotDropdown] = useState(false);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleTarotMouseEnter = () => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-    setShowTarotDropdown(true);
-  };
-
-  const handleTarotMouseLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => {
-      setShowTarotDropdown(false);
-    }, 150);
-  };
-
-  const handleCategorySelect = (categoryId: ReadingCategory, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowTarotDropdown(false);
-    navigate(ROUTES.READING, { state: { expandCategory: categoryId } });
-  };
 
   return (
     <div className="max-w-4xl mx-auto px-4">
@@ -82,16 +57,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         animate="visible"
         className="grid grid-cols-2 gap-8 max-w-md mx-auto"
       >
-        {/* Tarot Reading Card with Dropdown */}
-        <motion.div
-          variants={cardVariants}
-          className="relative"
-          onMouseEnter={handleTarotMouseEnter}
-          onMouseLeave={handleTarotMouseLeave}
-        >
+        {/* Tarot Reading Card */}
+        <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            onClick={() => setShowTarotDropdown(false)}
             className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
           >
             {/* Shimmer effect on hover */}
@@ -122,43 +91,14 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               {language === 'en' ? 'Classic card spreads for deep insights.' : 'Tirages de cartes classiques pour des insights profonds.'}
             </p>
 
-            {/* Dropdown indicator */}
-            <div className="flex items-center justify-center gap-1 mt-2 text-amber-300/70">
-              <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${showTarotDropdown ? 'rotate-180' : ''}`} />
+            {/* CTA indicator */}
+            <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
+              <span className="text-[11px] font-medium">
+                {language === 'en' ? 'Start' : 'Commencer'}
+              </span>
+              <ArrowRight className="w-3 h-3" />
             </div>
           </Link>
-
-          {/* Dropdown Menu */}
-          <AnimatePresence>
-            {showTarotDropdown && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl"
-              >
-                <div className="p-2">
-                  {CATEGORIES.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={(e) => handleCategorySelect(category.id, e)}
-                      className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-white/10 hover:scale-[1.02] cursor-pointer"
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                        {category.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="font-medium text-xs text-slate-200">
-                          {language === 'fr' ? category.labelFr : category.labelEn}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
         {/* Horoscope Card */}
