@@ -35,8 +35,8 @@ import type {
 
 export class PayPalGateway implements IPaymentGateway {
   readonly provider = 'PAYPAL' as const;
-  private client: Client | null = null;
-  private ordersController: OrdersController | null = null;
+  private client: InstanceType<typeof Client> | null = null;
+  private ordersController: InstanceType<typeof OrdersController> | null = null;
   private webhookId: string | null = null;
   private apiBase: string;
 
