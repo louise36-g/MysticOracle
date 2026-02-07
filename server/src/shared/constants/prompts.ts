@@ -398,43 +398,51 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
     description: 'Daily horoscope generation',
     category: 'horoscope',
     variables: ['language', 'sign', 'today', 'planetaryData'],
-    defaultValue: `You write daily horoscopes. Use the planetary data to inform your advice, but DO NOT mention planets by name in your output.
+    defaultValue: `You write reflective daily horoscopes that offer perspective rather than prediction. Use the planetary data to inform your themes, but DO NOT mention planets by name.
 
 {{planetaryData}}
 
-Write a DETAILED horoscope for {{sign}} on {{today}} in {{language}}.
+Write a horoscope for {{sign}} on {{today}}.
 
-Structure your response in 5 FULL paragraphs (each paragraph should be 4-6 sentences). CRITICAL: You MUST put TWO blank lines between each paragraph for proper formatting.
+CRITICAL LANGUAGE RULE: Write ENTIRELY in {{language}}. Do NOT include any text in other languages. If the language is French, write everything in French. If the language is English, write everything in English. Never mix languages or append translations.
 
-1. Overall Energy (4-6 sentences about today's vibe, emotional tone, and general atmosphere)
+TONE AND PHILOSOPHY:
+- This is reflective guidance, not fortune-telling
+- Offer awareness and insight, not predictions or promises
+- Use phrases like "you may notice", "there could be", "this is a day to consider", "pay attention to"
+- Avoid definitive statements like "you will", "this will happen", "expect"
+- Invite self-reflection rather than prescribing outcomes
+- Be warm and supportive without being mystical or flowery
+
+Structure your response in 5 FULL paragraphs (each paragraph should be 4-6 sentences). Put TWO blank lines between each paragraph.
+
+1. Today's Themes (4-6 sentences about the emotional tone and energies you might notice today)
 
 
-2. Love & Relationships (4-6 sentences with specific advice for singles AND couples)
+2. Connections & Relationships (4-6 sentences reflecting on relationship dynamics and how you might show up for others)
 
 
-3. Work & Money (4-6 sentences covering career opportunities, financial decisions, and professional relationships)
+3. Work & Purpose (4-6 sentences about professional energy, focus areas, and what deserves attention)
 
 
-4. Self-Care & Wellbeing (4-6 sentences about mental health, physical wellness, and personal growth)
+4. Inner Landscape (4-6 sentences about emotional wellbeing, self-care, and what your inner world may be processing)
 
 
-5. Today's Tip (2-3 sentences with a practical, actionable suggestion)
+5. A Thought to Carry (2-3 sentences offering a gentle reflection or question to hold throughout the day)
 
-IMPORTANT LENGTH REQUIREMENT:
+LENGTH REQUIREMENT:
 - Total response should be 350-450 words
 - Each of the first 4 paragraphs should be substantial (50-80 words each)
-- Write the SAME amount of detail in French as you would in English
-- Do not be more concise in French - provide equal depth and detail
+- Write with equal depth whether in French or English
 
 FORMATTING RULES:
-- Put TWO blank lines (\\n\\n) between each paragraph
+- Put TWO blank lines between each paragraph
 - No headers, no bullet points, no numbered lists - just flowing paragraphs
-- Each section should be its own paragraph with clear separation
 
-CRITICAL CONTENT RULES:
-- Write about feelings and actions, NOT about planets
+CONTENT RULES:
+- Write about feelings, themes, and awareness - NOT about planets or cosmic events
 - Never mention: Mercury, Venus, Mars, Saturn, Jupiter, Moon, Sun, Pluto, Neptune, Uranus, cosmos, celestial, trine, sextile, square, conjunction, aspect, transit, retrograde
-- Keep it practical and grounded, not flowery or mystical`,
+- Speak to the person's inner experience, not external predictions`,
   },
 
   {

@@ -10,20 +10,20 @@ import { useApp } from '../context/AppContext';
 import { fetchHoroscope } from '../services/api';
 import Button from './Button';
 
-// Enhanced zodiac data with symbols, elements, and dates
+// Enhanced zodiac data with symbols, elements, dates, and taglines
 const zodiacData = [
-  { en: 'Aries', fr: 'Bélier', symbol: '♈', element: 'fire', datesEn: 'Mar 21 - Apr 19', datesFr: '21 mars - 19 avril' },
-  { en: 'Taurus', fr: 'Taureau', symbol: '♉', element: 'earth', datesEn: 'Apr 20 - May 20', datesFr: '20 avril - 20 mai' },
-  { en: 'Gemini', fr: 'Gémeaux', symbol: '♊', element: 'air', datesEn: 'May 21 - Jun 20', datesFr: '21 mai - 20 juin' },
-  { en: 'Cancer', fr: 'Cancer', symbol: '♋', element: 'water', datesEn: 'Jun 21 - Jul 22', datesFr: '21 juin - 22 juillet' },
-  { en: 'Leo', fr: 'Lion', symbol: '♌', element: 'fire', datesEn: 'Jul 23 - Aug 22', datesFr: '23 juillet - 22 août' },
-  { en: 'Virgo', fr: 'Vierge', symbol: '♍', element: 'earth', datesEn: 'Aug 23 - Sep 22', datesFr: '23 août - 22 sept' },
-  { en: 'Libra', fr: 'Balance', symbol: '♎', element: 'air', datesEn: 'Sep 23 - Oct 22', datesFr: '23 sept - 22 oct' },
-  { en: 'Scorpio', fr: 'Scorpion', symbol: '♏', element: 'water', datesEn: 'Oct 23 - Nov 21', datesFr: '23 oct - 21 nov' },
-  { en: 'Sagittarius', fr: 'Sagittaire', symbol: '♐', element: 'fire', datesEn: 'Nov 22 - Dec 21', datesFr: '22 nov - 21 déc' },
-  { en: 'Capricorn', fr: 'Capricorne', symbol: '♑', element: 'earth', datesEn: 'Dec 22 - Jan 19', datesFr: '22 déc - 19 jan' },
-  { en: 'Aquarius', fr: 'Verseau', symbol: '♒', element: 'air', datesEn: 'Jan 20 - Feb 18', datesFr: '20 jan - 18 fév' },
-  { en: 'Pisces', fr: 'Poissons', symbol: '♓', element: 'water', datesEn: 'Feb 19 - Mar 20', datesFr: '19 fév - 20 mars' },
+  { en: 'Aries', fr: 'Bélier', symbol: '♈', element: 'fire', datesEn: 'Mar 21 - Apr 19', datesFr: '21 mars - 19 avril', taglineEn: 'Initiative · Momentum · Self-direction', taglineFr: 'Initiative · Élan · Autodirection' },
+  { en: 'Taurus', fr: 'Taureau', symbol: '♉', element: 'earth', datesEn: 'Apr 20 - May 20', datesFr: '20 avril - 20 mai', taglineEn: 'Stability · Values · Grounded growth', taglineFr: 'Stabilité · Valeurs · Croissance ancrée' },
+  { en: 'Gemini', fr: 'Gémeaux', symbol: '♊', element: 'air', datesEn: 'May 21 - Jun 20', datesFr: '21 mai - 20 juin', taglineEn: 'Communication · Curiosity · Adaptability', taglineFr: 'Communication · Curiosité · Adaptabilité' },
+  { en: 'Cancer', fr: 'Cancer', symbol: '♋', element: 'water', datesEn: 'Jun 21 - Jul 22', datesFr: '21 juin - 22 juillet', taglineEn: 'Emotion · Nurturing · Inner tides', taglineFr: 'Émotion · Bienveillance · Marées intérieures' },
+  { en: 'Leo', fr: 'Lion', symbol: '♌', element: 'fire', datesEn: 'Jul 23 - Aug 22', datesFr: '23 juillet - 22 août', taglineEn: 'Expression · Confidence · Creative fire', taglineFr: 'Expression · Confiance · Feu créatif' },
+  { en: 'Virgo', fr: 'Vierge', symbol: '♍', element: 'earth', datesEn: 'Aug 23 - Sep 22', datesFr: '23 août - 22 sept', taglineEn: 'Refinement · Clarity · Practical insight', taglineFr: 'Raffinement · Clarté · Vision pratique' },
+  { en: 'Libra', fr: 'Balance', symbol: '♎', element: 'air', datesEn: 'Sep 23 - Oct 22', datesFr: '23 sept - 22 oct', taglineEn: 'Balance · Relationships · Alignment', taglineFr: 'Équilibre · Relations · Alignement' },
+  { en: 'Scorpio', fr: 'Scorpion', symbol: '♏', element: 'water', datesEn: 'Oct 23 - Nov 21', datesFr: '23 oct - 21 nov', taglineEn: 'Depth · Transformation · Intensity', taglineFr: 'Profondeur · Transformation · Intensité' },
+  { en: 'Sagittarius', fr: 'Sagittaire', symbol: '♐', element: 'fire', datesEn: 'Nov 22 - Dec 21', datesFr: '22 nov - 21 déc', taglineEn: 'Expansion · Belief · Exploration', taglineFr: 'Expansion · Croyance · Exploration' },
+  { en: 'Capricorn', fr: 'Capricorne', symbol: '♑', element: 'earth', datesEn: 'Dec 22 - Jan 19', datesFr: '22 déc - 19 jan', taglineEn: 'Structure · Responsibility · Long-term vision', taglineFr: 'Structure · Responsabilité · Vision à long terme' },
+  { en: 'Aquarius', fr: 'Verseau', symbol: '♒', element: 'air', datesEn: 'Jan 20 - Feb 18', datesFr: '20 jan - 18 fév', taglineEn: 'Innovation · Perspective · Independence', taglineFr: 'Innovation · Perspective · Indépendance' },
+  { en: 'Pisces', fr: 'Poissons', symbol: '♓', element: 'water', datesEn: 'Feb 19 - Mar 20', datesFr: '19 fév - 20 mars', taglineEn: 'Sensitivity · Intuition · Imagination', taglineFr: 'Sensibilité · Intuition · Imagination' },
 ];
 
 // Unified color theme - matching CategorySelector
@@ -491,13 +491,19 @@ const HoroscopeReading: React.FC = () => {
         </div>
 
         <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
-          {language === 'fr' ? 'Les Étoiles Vous Parlent' : 'The Stars Speak'}
+          {language === 'fr' ? 'Lire les Étoiles' : 'Reading the Stars'}
         </h2>
 
-        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-6">
           {language === 'fr'
-            ? 'Douze signes. Un cosmos. Votre destinée vous attend.'
-            : 'Twelve signs. One cosmos. Your destiny awaits.'}
+            ? 'Douze signes. Un cosmos. Un aperçu des énergies qui façonnent votre journée.'
+            : 'Twelve signs. One cosmos. Insight into the energies shaping your day.'}
+        </p>
+
+        <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
+          {language === 'fr'
+            ? 'L\'astrologie offre un aperçu symbolique des thèmes qui peuvent être actifs autour de vous aujourd\'hui. Laissez votre horoscope du jour vous offrir une perspective plutôt qu\'une prédiction.'
+            : 'Astrology offers a symbolic snapshot of the themes that may be active around you today. Let your daily horoscope offer perspective rather than prediction.'}
         </p>
       </motion.div>
 
@@ -591,10 +597,10 @@ const HoroscopeReading: React.FC = () => {
               <div className="relative flex items-center justify-between gap-3">
                 {/* Sign info */}
                 <div className="flex flex-col items-start min-w-0">
-                  <h3 className="text-base font-heading font-semibold text-white group-hover:text-white transition-colors">
+                  <h3 className="text-lg md:text-xl font-heading font-semibold text-white group-hover:text-white transition-colors">
                     {signName}
                   </h3>
-                  <p className="text-xs text-white/50 group-hover:text-white/70 transition-colors">
+                  <p className="text-xs md:text-sm text-white/50 group-hover:text-white/70 transition-colors">
                     {dates}
                   </p>
                 </div>
@@ -602,9 +608,9 @@ const HoroscopeReading: React.FC = () => {
                 {/* Zodiac symbol */}
                 <div className="relative flex-shrink-0">
                   <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
                   >
-                    <span className="text-xl text-white">
+                    <span className="text-2xl text-white">
                       {zodiac.symbol}
                     </span>
                   </div>
@@ -613,14 +619,11 @@ const HoroscopeReading: React.FC = () => {
                 </div>
               </div>
 
-              {/* Explore hint */}
-              <div className="flex items-center justify-end mt-3 pt-2 border-t border-white/10">
-                <div className="flex items-center gap-1.5 text-white/40 group-hover:text-amber-300 transition-colors">
-                  <span className="text-xs font-medium">
-                    {language === 'fr' ? 'Découvrir' : 'Discover'}
-                  </span>
-                  <span className="text-xs text-amber-400 group-hover:translate-x-2 transition-transform duration-300">→</span>
-                </div>
+              {/* Tagline */}
+              <div className="mt-3 pt-2 border-t border-white/10">
+                <p className="text-xs text-white/50 group-hover:text-purple-200/80 transition-colors leading-relaxed">
+                  {language === 'fr' ? zodiac.taglineFr : zodiac.taglineEn}
+                </p>
               </div>
             </motion.button>
           );
