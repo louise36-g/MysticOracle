@@ -258,14 +258,14 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
         <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-3 tracking-wide">
           {language === 'fr'
-            ? "Choisissez Votre Chemin"
-            : 'Choose Your Path'}
+            ? "Par où souhaitez-vous commencer ?"
+            : 'Where would you like to begin?'}
         </h2>
 
         <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-8">
           {language === 'fr'
-            ? 'Six chemins. Une destinée. Les arcanes vous attendent.'
-            : 'Six paths. One destiny. The arcana await.'}
+            ? 'Six thèmes à explorer. La profondeur vous appartient.'
+            : 'Six themes to explore. Insight at the depth you choose.'}
         </p>
 
         {/* Decorative divider before buttons */}
@@ -835,7 +835,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       <h3 className="font-heading text-base text-white group-hover:text-white transition-colors mb-0.5">
                         {getLabel(category)}
                       </h3>
-                      <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2">
+                      <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">
                         {getTagline(category)}
                       </p>
                     </div>
@@ -870,8 +870,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         {/* Mystical quote */}
         <p className="text-purple-200/80 text-sm md:text-base text-center px-4 leading-relaxed whitespace-nowrap">
           {language === 'fr'
-            ? '"Les cartes ne mentent jamais, elles révèlent ce que nous savons déjà."'
-            : '"The cards never lie, they reveal what we already know."'}
+            ? '"Le tarot ne donne pas de réponses — il éveille la conscience."'
+            : '"Tarot is not about answers — it is about awareness."'}
         </p>
       </motion.div>
 

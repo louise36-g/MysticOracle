@@ -153,7 +153,7 @@ const HomePage: React.FC = () => {
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 aria-hidden="true"
               >
-                MysticOracle
+                CelestiArcana
               </motion.span>
               {/* Secondary amber glow for warmth */}
               <motion.span
@@ -162,11 +162,11 @@ const HomePage: React.FC = () => {
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                 aria-hidden="true"
               >
-                MysticOracle
+                CelestiArcana
               </motion.span>
               {/* Main text with gradient */}
               <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-purple-200 to-purple-400">
-                MysticOracle
+                CelestiArcana
               </span>
             </motion.h1>
 
@@ -175,11 +175,11 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-center text-sm text-slate-300 max-w-md mx-auto"
+              className="text-center text-base md:text-lg text-slate-300 max-w-lg mx-auto"
             >
               {language === 'en'
-                ? 'Where ancient knowledge meets modern innovation — wisdom for all'
-                : 'Où la sagesse ancienne rencontre l\'innovation moderne — pour tous'}
+                ? 'A reflective tarot space for insight, clarity, and conscious growth'
+                : 'Un espace de tarot réflexif pour l\'intuition, la clarté et la croissance consciente'}
             </motion.p>
 
             {/* Simplified elegant divider - just a crescent moon */}

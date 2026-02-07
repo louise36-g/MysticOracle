@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Layers, Sparkles, ArrowRight } from 'lucide-react';
+import { Layers, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getTodaysQuote } from '../constants/dailyQuotes';
 import { ROUTES } from '../routes/routes';
@@ -45,8 +45,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <h2 className="text-base font-semibold text-purple-200/90 tracking-widest uppercase">
-          {language === 'en' ? 'Choose your path' : 'Choisissez votre voie'}
+        <h2 className="text-lg md:text-xl font-semibold text-purple-200/90 tracking-widest uppercase">
+          {language === 'en' ? 'Enter the Arcana' : 'Entrez dans les Arcanes'}
         </h2>
       </motion.div>
 
@@ -55,13 +55,13 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 gap-8 max-w-md mx-auto"
+        className="grid grid-cols-2 gap-8 max-w-xl mx-auto"
       >
         {/* Tarot Reading Card */}
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
+            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-5 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
           >
             {/* Shimmer effect on hover */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
@@ -79,25 +79,17 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </div>
 
             {/* Centered icon */}
-            <div className="relative w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Layers className="w-4 h-4 text-white" />
-              <div className="absolute inset-0 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Layers className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
 
-            <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+            <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
               {language === 'en' ? 'Tarot Reading' : 'Lecture de Tarot'}
             </h3>
-            <p className="text-slate-400 text-xs leading-tight group-hover:text-slate-300 transition-colors">
+            <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
               {language === 'en' ? 'Classic card spreads for deep insights.' : 'Tirages de cartes classiques pour des insights profonds.'}
             </p>
-
-            {/* CTA indicator */}
-            <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
-              <span className="text-xs font-medium">
-                {language === 'en' ? 'Start' : 'Commencer'}
-              </span>
-              <ArrowRight className="w-3 h-3" />
-            </div>
           </Link>
         </motion.div>
 
@@ -105,7 +97,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div
           variants={cardVariants}
           onClick={() => onSelect('horoscope')}
-          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 p-3 rounded-lg border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
+          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-5 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
         >
           {/* Shimmer effect on hover */}
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
@@ -123,25 +115,17 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           </div>
 
           {/* Centered icon */}
-          <div className="relative w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-md flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <Sparkles className="w-4 h-4 text-white" />
-            <div className="absolute inset-0 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+          <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <Sparkles className="w-5 h-5 text-white" />
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
           </div>
 
-          <h3 className="text-sm font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+          <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
             {language === 'en' ? 'Daily Horoscope' : 'Horoscope du Jour'}
           </h3>
-          <p className="text-slate-400 text-xs leading-tight group-hover:text-slate-300 transition-colors">
+          <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
             {language === 'en' ? 'What the stars have in store for you today.' : 'Ce que les étoiles vous réservent aujourd\'hui.'}
           </p>
-
-          {/* CTA indicator */}
-          <div className="flex items-center justify-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 text-amber-300">
-            <span className="text-xs font-medium">
-              {language === 'en' ? 'Start' : 'Commencer'}
-            </span>
-            <ArrowRight className="w-3 h-3" />
-          </div>
         </motion.div>
       </motion.div>
 
