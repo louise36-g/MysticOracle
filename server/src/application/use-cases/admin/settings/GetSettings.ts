@@ -21,10 +21,10 @@ export interface GetSettingsResult {
 }
 
 export class GetSettingsUseCase {
-  constructor(private settingRepository: ISystemSettingRepository) {}
+  constructor(private systemSettingRepository: ISystemSettingRepository) {}
 
   async execute(): Promise<GetSettingsResult> {
-    const dbSettings = await this.settingRepository.findAll();
+    const dbSettings = await this.systemSettingRepository.findAll();
     const settingsMap = new Map(dbSettings.map(s => [s.key, s]));
 
     const settings = EDITABLE_SETTINGS.map(setting => {

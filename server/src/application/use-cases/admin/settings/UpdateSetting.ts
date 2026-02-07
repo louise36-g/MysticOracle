@@ -19,7 +19,7 @@ export interface UpdateSettingResult {
 }
 
 export class UpdateSettingUseCase {
-  constructor(private settingRepository: ISystemSettingRepository) {}
+  constructor(private systemSettingRepository: ISystemSettingRepository) {}
 
   async execute(input: UpdateSettingInput): Promise<UpdateSettingResult> {
     try {
@@ -41,7 +41,7 @@ export class UpdateSettingUseCase {
       }
 
       // Upsert the setting
-      const setting = await this.settingRepository.upsert(input.key, input.value.trim());
+      const setting = await this.systemSettingRepository.upsert(input.key, input.value.trim());
 
       return {
         success: true,
