@@ -1,4 +1,4 @@
-import AstronomyModule from 'astronomy-engine';
+import * as AstronomyModule from 'astronomy-engine';
 import type { AstroTime, Body as BodyType, Vector } from 'astronomy-engine';
 
 // Handle ESM/CJS interop - the module exports functions on .default in ESM context
