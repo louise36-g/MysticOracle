@@ -53,6 +53,7 @@ export const ROUTES = {
   ADMIN_SETTINGS: '/admin/settings',
   ADMIN_HEALTH: '/admin/health',
   ADMIN_ACCOUNTING: '/admin/accounting',
+  ADMIN_PROMPTS: '/admin/prompts',
 
   // Admin Blog
   ADMIN_BLOG: '/admin/blog',

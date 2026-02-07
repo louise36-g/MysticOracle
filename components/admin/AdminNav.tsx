@@ -13,6 +13,7 @@ import {
   Languages,
   FileText,
   Receipt,
+  MessageSquare,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -92,6 +93,12 @@ const AdminNav: React.FC = () => {
       labelKey: 'admin.AdminDashboard.tab_translations',
       labelDefault: 'Translations',
       icon: <Languages className="w-4 h-4" />,
+    },
+    {
+      to: ROUTES.ADMIN_PROMPTS,
+      labelKey: 'admin.AdminDashboard.tab_prompts',
+      labelDefault: 'AI Prompts',
+      icon: <MessageSquare className="w-4 h-4" />,
     },
     {
       to: ROUTES.ADMIN_SETTINGS,
