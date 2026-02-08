@@ -76,13 +76,57 @@ router.get('/me', requireAuth, async (req, res) => {
 router.patch('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { language, welcomeCompleted } = req.body;
+    const { language, welcomeCompleted, username } = req.body;
+
+    // If updating username, validate it
+    if (username !== undefined) {
+      // Validate format
+      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+      if (!usernameRegex.test(username)) {
+        return res.status(400).json({
+          error: 'Username must be 3-20 characters, letters, numbers, and underscores only',
+        });
+      }
+
+      // Check reserved usernames
+      const reserved = [
+        'admin',
+        'administrator',
+        'support',
+        'help',
+        'system',
+        'mysticoracle',
+        'moderator',
+        'mod',
+      ];
+      if (reserved.includes(username.toLowerCase())) {
+        return res.status(400).json({ error: 'This username is reserved' });
+      }
+
+      // Check if username is taken (case-insensitive, excluding current user)
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          username: {
+            equals: username,
+            mode: 'insensitive',
+          },
+          NOT: {
+            id: userId,
+          },
+        },
+      });
+
+      if (existingUser) {
+        return res.status(409).json({ error: 'Username is already taken' });
+      }
+    }
 
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         language: language || undefined,
         welcomeCompleted: typeof welcomeCompleted === 'boolean' ? welcomeCompleted : undefined,
+        username: username || undefined,
       },
     });
 
