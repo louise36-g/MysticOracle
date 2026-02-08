@@ -1,9 +1,9 @@
-# MysticOracle - API Specification
+# CelestiArcana - API Specification
 
 ## Base URL
 
 - Development: `http://localhost:3001/api`
-- Production: `https://api.mysticoracle.com/api`
+- Production: `https://api.celestiarcana.com/api`
 
 ## Authentication
 

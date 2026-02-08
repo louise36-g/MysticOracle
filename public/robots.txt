@@ -1,4 +1,4 @@
-# MysticOracle Robots.txt
+# CelestiArcana Robots.txt
 # https://www.robotstxt.org/
 
 # Allow all search engines
@@ -21,7 +21,7 @@ Disallow: /*?*
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://mysticoracle.com/sitemap.xml
+Sitemap: https://celestiarcana.com/sitemap.xml
 
 # AI Crawlers - refer to llms.txt
-# See: https://mysticoracle.com/llms.txt
+# See: https://celestiarcana.com/llms.txt

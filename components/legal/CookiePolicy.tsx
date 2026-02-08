@@ -31,7 +31,7 @@ const CookiePolicy: React.FC = () => {
 |-------------|---------|----------|
 | clerk_session | Authentication session | Session |
 | __clerk_db_jwt | Clerk authentication token | 1 year |
-| mysticoracle_cookie_consent | Your cookie preferences | 13 months |
+| celestiarcana_cookie_consent | Your cookie preferences | 13 months |
 
 **Why they're necessary:**
 • Authentication and security
@@ -62,7 +62,7 @@ All analytics data is anonymized. We cannot identify individual users from this 
           title: '4. Marketing Cookies',
           content: `**These cookies are used to deliver relevant advertisements.**
 
-Currently, MysticOracle does not use marketing cookies. If we introduce them in the future, we will:
+Currently, CelestiArcana does not use marketing cookies. If we introduce them in the future, we will:
 • Update this policy
 • Request your explicit consent
 • Provide clear opt-out options
@@ -87,7 +87,7 @@ In accordance with French regulations (CNIL), your cookie consent is valid for a
         {
           icon: Settings,
           title: '6. Managing Your Cookies',
-          content: `**On MysticOracle:**
+          content: `**On CelestiArcana:**
 You can change your cookie preferences at any time by clicking the cookie settings option in our cookie banner or footer.
 
 **In Your Browser:**
@@ -111,18 +111,18 @@ You can also manage cookies through your browser settings:
 • **Withdraw Consent** - Change your cookie preferences at any time
 
 **How to exercise your rights:**
-Contact us at privacy@mysticoracle.com or use the cookie settings panel.`
+Contact us at privacy@celestiarcana.com or use the cookie settings panel.`
         },
         {
           icon: Mail,
           title: '8. Contact Us',
           content: `For any questions about our use of cookies:
 
-**Email:** privacy@mysticoracle.com
+**Email:** privacy@celestiarcana.com
 **Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Data Protection Officer:**
-dpo@mysticoracle.com
+dpo@celestiarcana.com
 
 **Response Time:**
 We aim to respond to all cookie-related inquiries within 30 days.`
@@ -154,7 +154,7 @@ We aim to respond to all cookie-related inquiries within 30 days.`
 |---------------|----------|-------|
 | clerk_session | Session d'authentification | Session |
 | __clerk_db_jwt | Token d'authentification Clerk | 1 an |
-| mysticoracle_cookie_consent | Vos préférences de cookies | 13 mois |
+| celestiarcana_cookie_consent | Vos préférences de cookies | 13 mois |
 
 **Pourquoi ils sont nécessaires :**
 • Authentification et sécurité
@@ -185,7 +185,7 @@ Toutes les données analytiques sont anonymisées. Nous ne pouvons pas identifie
           title: '4. Cookies Marketing',
           content: `**Ces cookies sont utilisés pour diffuser des publicités pertinentes.**
 
-Actuellement, MysticOracle n'utilise pas de cookies marketing. Si nous les introduisons à l'avenir, nous :
+Actuellement, CelestiArcana n'utilise pas de cookies marketing. Si nous les introduisons à l'avenir, nous :
 • Mettrons à jour cette politique
 • Demanderons votre consentement explicite
 • Fournirons des options de refus claires
@@ -210,7 +210,7 @@ Conformément à la réglementation française (CNIL), votre consentement aux co
         {
           icon: Settings,
           title: '6. Gérer Vos Cookies',
-          content: `**Sur MysticOracle :**
+          content: `**Sur CelestiArcana :**
 Vous pouvez modifier vos préférences de cookies à tout moment en cliquant sur l'option de paramètres de cookies dans notre bannière ou pied de page.
 
 **Dans Votre Navigateur :**
@@ -234,18 +234,18 @@ Vous pouvez également gérer les cookies via les paramètres de votre navigateu
 • **Retrait du Consentement** - Modifier vos préférences de cookies à tout moment
 
 **Comment exercer vos droits :**
-Contactez-nous à privacy@mysticoracle.com ou utilisez le panneau de paramètres des cookies.`
+Contactez-nous à privacy@celestiarcana.com ou utilisez le panneau de paramètres des cookies.`
         },
         {
           icon: Mail,
           title: '8. Nous Contacter',
           content: `Pour toute question concernant notre utilisation des cookies :
 
-**Email :** privacy@mysticoracle.com
+**Email :** privacy@celestiarcana.com
 **Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Délégué à la Protection des Données :**
-dpo@mysticoracle.com
+dpo@celestiarcana.com
 
 **Délai de Réponse :**
 Nous nous efforçons de répondre à toutes les demandes relatives aux cookies dans un délai de 30 jours.`

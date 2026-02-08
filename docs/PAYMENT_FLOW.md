@@ -1,4 +1,4 @@
-# MysticOracle Payment Flow
+# CelestiArcana Payment Flow
 
 > Comprehensive documentation for the payment system including Stripe, PayPal, checkout flows, webhook handling, and credit delivery.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-MysticOracle uses a credit-based system where users purchase credits to access readings. Payments are processed via **Stripe** (primary) and **PayPal** (alternative).
+CelestiArcana uses a credit-based system where users purchase credits to access readings. Payments are processed via **Stripe** (primary) and **PayPal** (alternative).
 
 **Key Principles:**
 1. **Backend Authority**: All credit delivery happens server-side via webhooks
@@ -377,7 +377,7 @@ PAYPAL_CLIENT_SECRET=xxx
 PAYPAL_MODE=live                    # or sandbox
 
 # Frontend URL (for redirects)
-FRONTEND_URL=https://mysticoracle.com
+FRONTEND_URL=https://celestiarcana.com
 ```
 
 ---

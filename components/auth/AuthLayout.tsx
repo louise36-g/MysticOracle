@@ -24,7 +24,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
         {/* Logo */}
         <Link to={ROUTES.HOME} className="flex items-center justify-center gap-2 mb-8">
           <img
-            src="/logos/mysticoracle-comet-cream.svg"
+            src="/logos/celestiarcana-comet-cream.svg"
             alt="CelestiArcana"
             className="h-12 w-auto"
           />

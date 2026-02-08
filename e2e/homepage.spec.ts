@@ -12,7 +12,7 @@ test.describe('Homepage', () => {
 
   test('should display the homepage', async ({ page }) => {
     // Check that the page loads
-    await expect(page).toHaveTitle(/MysticOracle/i);
+    await expect(page).toHaveTitle(/CelestiArcana/i);
   });
 
   test('should display the main navigation', async ({ page }) => {

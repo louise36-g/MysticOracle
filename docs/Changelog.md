@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to MysticOracle.
+All notable changes to CelestiArcana.
 
 ## [Unreleased]
 

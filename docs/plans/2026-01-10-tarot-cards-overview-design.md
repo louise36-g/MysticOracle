@@ -153,7 +153,7 @@
 - **Z-A** - Reverse alphabetical
 
 ### SEO
-- Title: "All 78 Tarot Cards - Complete Deck Guide | MysticOracle"
+- Title: "All 78 Tarot Cards - Complete Deck Guide | CelestiArcana"
 - Meta: "Browse all 78 tarot cards with detailed meanings. Major Arcana, Wands, Cups, Swords, and Pentacles explained."
 
 ---
@@ -178,7 +178,7 @@
 - Breadcrumbs for navigation
 
 ### SEO (Example: Major Arcana)
-- Title: "Major Arcana Tarot Cards - All 22 Cards Explained | MysticOracle"
+- Title: "Major Arcana Tarot Cards - All 22 Cards Explained | CelestiArcana"
 - Meta: "Discover the 22 Major Arcana cards. From The Fool to The World, learn the deep symbolism and meanings."
 - Structured data: ItemList schema
 
@@ -208,9 +208,9 @@
 
 ### Overview Page Meta
 ```html
-<title>Tarot Card Meanings - Complete Guide to All 78 Cards | MysticOracle</title>
+<title>Tarot Card Meanings - Complete Guide to All 78 Cards | CelestiArcana</title>
 <meta name="description" content="Explore the complete tarot deck. Learn the meanings of all 78 cards including Major Arcana and Minor Arcana suits of Wands, Cups, Swords, and Pentacles." />
-<link rel="canonical" href="https://mysticoracle.com/tarot/cards" />
+<link rel="canonical" href="https://celestiarcana.com/tarot/cards" />
 ```
 
 ### Heading Structure

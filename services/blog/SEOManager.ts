@@ -19,7 +19,7 @@ export class SEOManager {
     const url = window.location.href;
 
     // Update document title
-    document.title = `${title} | MysticOracle`;
+    document.title = `${title} | CelestiArcana`;
 
     // Update or create meta tags
     this.updateOrCreateMeta('description', description);
@@ -31,7 +31,7 @@ export class SEOManager {
     this.updateOrCreateMeta('og:type', 'article', 'property');
     this.updateOrCreateMeta('og:url', url, 'property');
     if (image) this.updateOrCreateMeta('og:image', image, 'property');
-    this.updateOrCreateMeta('og:site_name', 'MysticOracle', 'property');
+    this.updateOrCreateMeta('og:site_name', 'CelestiArcana', 'property');
     this.updateOrCreateMeta('og:locale', language === 'en' ? 'en_US' : 'fr_FR', 'property');
 
     // Twitter Card tags
@@ -54,7 +54,7 @@ export class SEOManager {
    * Reset meta tags when unmounting
    */
   resetPageMeta(): void {
-    document.title = 'MysticOracle - AI Tarot Readings';
+    document.title = 'CelestiArcana - AI Tarot Readings';
 
     // Remove blog-specific meta tags
     const tagsToReset = [
@@ -108,7 +108,7 @@ export class SEOManager {
       },
       'publisher': {
         '@type': 'Organization',
-        'name': 'MysticOracle',
+        'name': 'CelestiArcana',
         'logo': {
           '@type': 'ImageObject',
           'url': `${window.location.origin}/logo.png`,

@@ -38,9 +38,9 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
-## MysticOracle Context
+## CelestiArcana Context
 
-For MysticOracle specifically, consider:
+For CelestiArcana specifically, consider:
 - **Mystical/Spiritual Aesthetic**: Deep purples, midnight blues, gold accents, celestial motifs
 - **Tarot Theme**: Card imagery, arcana symbols, cosmic patterns
 - **Premium Feel**: Luxury touches for a paying user experience

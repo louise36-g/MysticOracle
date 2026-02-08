@@ -1,4 +1,4 @@
-# MysticOracle - Implementation Plan
+# CelestiArcana - Implementation Plan
 
 ## Current State: Production-Ready (with issues)
 

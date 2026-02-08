@@ -79,7 +79,7 @@ export class PayPalGateway implements IPaymentGateway {
               currencyCode: 'EUR',
               value: params.creditPackage.priceEur.toFixed(2),
             },
-            description: `${params.creditPackage.credits} credits for MysticOracle`,
+            description: `${params.creditPackage.credits} credits for CelestiArcana`,
             customId: JSON.stringify({
               userId: params.userId,
               packageId: params.creditPackage.id,
@@ -88,7 +88,7 @@ export class PayPalGateway implements IPaymentGateway {
           },
         ],
         applicationContext: {
-          brandName: 'MysticOracle',
+          brandName: 'CelestiArcana',
           landingPage: OrderApplicationContextLandingPage.Login,
           userAction: OrderApplicationContextUserAction.PayNow,
           returnUrl: params.successUrl,

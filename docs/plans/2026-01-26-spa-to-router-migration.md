@@ -6,7 +6,7 @@
 
 ## Problem Statement
 
-The current MysticOracle frontend uses a custom SPA routing system with:
+The current CelestiArcana frontend uses a custom SPA routing system with:
 - `currentView` state in `App.tsx` determining which component renders
 - `SmartLink` component intercepting clicks for client-side navigation
 - `handleNavigation()` and `setCurrentView()` calls scattered across 24+ files

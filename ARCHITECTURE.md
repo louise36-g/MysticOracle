@@ -1,8 +1,8 @@
-# MysticOracle - Architecture Documentation
+# CelestiArcana - Architecture Documentation
 
 ## System Overview
 
-MysticOracle is a full-stack TypeScript application using a monorepo structure with separate frontend and backend codebases.
+CelestiArcana is a full-stack TypeScript application using a monorepo structure with separate frontend and backend codebases.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

@@ -84,10 +84,10 @@ export const EXAMPLE_ARTICLE_DATA: TarotArticleData = {
   slug: 'the-fool-meaning',
   excerpt:
     'Discover the profound meaning of The Fool tarot card, its symbolism, and how it guides you toward new beginnings.',
-  author: 'MysticOracle Team',
+  author: 'CelestiArcana Team',
   datePublished: new Date().toISOString(),
   dateModified: new Date().toISOString(),
-  featuredImage: 'https://mysticoracle.com/images/tarot/the-fool.jpg',
+  featuredImage: 'https://celestiarcana.com/images/tarot/the-fool.jpg',
   featuredImageAlt: 'The Fool tarot card illustration',
   cardType: 'Major Arcana',
   faq: [

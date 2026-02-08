@@ -14,7 +14,7 @@ const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
 /**
  * Language persistence key for localStorage
  */
-const LANGUAGE_STORAGE_KEY = 'mysticoracle-language';
+const LANGUAGE_STORAGE_KEY = 'celestiarcana-language';
 
 /**
  * Detect initial language preference

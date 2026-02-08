@@ -214,14 +214,14 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     );
   }
 
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://mysticoracle.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://celestiarcana.com';
   const canonicalUrl = `${siteUrl}/tarot/articles/${article.slug}`;
 
   return (
     <div className="relative min-h-screen">
       {/* ===== SEO HEAD ===== */}
       <Helmet>
-        <title>{localizedSeoTitle} | MysticOracle</title>
+        <title>{localizedSeoTitle} | CelestiArcana</title>
         <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <meta name="keywords" content={article.tags.join(', ')} />

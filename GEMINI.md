@@ -1,6 +1,6 @@
-# Gemini Integration in MysticOracle
+# Gemini Integration in CelestiArcana
 
-This document outlines the integration of the Gemini model within the MysticOracle project, based on the provided code snippets.
+This document outlines the integration of the Gemini model within the CelestiArcana project, based on the provided code snippets.
 
 ## Key Components:
 

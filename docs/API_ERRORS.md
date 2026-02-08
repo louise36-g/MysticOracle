@@ -1,4 +1,4 @@
-# MysticOracle API Errors
+# CelestiArcana API Errors
 
 > Comprehensive documentation for API error codes, handling patterns, and troubleshooting.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-MysticOracle uses a layered error handling architecture:
+CelestiArcana uses a layered error handling architecture:
 1. **Domain Layer**: Business rule violations (`DomainError`)
 2. **Application Layer**: HTTP-aware errors (`ApplicationError`)
 3. **Route Layer**: Result objects with `success` boolean

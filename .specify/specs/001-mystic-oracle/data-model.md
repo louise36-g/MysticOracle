@@ -1,4 +1,4 @@
-# MysticOracle - Data Model
+# CelestiArcana - Data Model
 
 ## Overview
 

@@ -4,13 +4,13 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'MysticOracle API',
+      title: 'CelestiArcana API',
       version: '1.0.0',
       description:
         'AI-powered tarot reading and horoscope API with user management, payments, and blog CMS',
       contact: {
-        name: 'MysticOracle Support',
-        email: 'support@mysticoracle.com',
+        name: 'CelestiArcana Support',
+        email: 'support@celestiarcana.com',
       },
     },
     servers: [
@@ -19,7 +19,7 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
       {
-        url: 'https://mysticoracle.com',
+        url: 'https://celestiarcana.com',
         description: 'Production server',
       },
     ],

@@ -1,4 +1,4 @@
-# MysticOracle Credit System
+# CelestiArcana Credit System
 
 > Comprehensive documentation for the credit system architecture, costs, bonuses, and best practices.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Credits are the primary currency in MysticOracle. Users spend credits to receive tarot readings, and can earn credits through daily bonuses, purchases, or achievements.
+Credits are the primary currency in CelestiArcana. Users spend credits to receive tarot readings, and can earn credits through daily bonuses, purchases, or achievements.
 
 **Key Principles:**
 1. **Backend Authority**: All credit costs are calculated server-side - never trust frontend values

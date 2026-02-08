@@ -15,13 +15,13 @@ const PrivacyPolicy: React.FC = () => {
         {
           icon: Shield,
           title: '1. Data Controller',
-          content: `MysticOracle is operated by La Petite Voie, an auto-entrepreneur registered in France.
+          content: `CelestiArcana is operated by La Petite Voie, an auto-entrepreneur registered in France.
 
 **Registered Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 **SIRET:** 92357809000014
 
 **Data Protection Officer (DPO):**
-Email: dpo@mysticoracle.com
+Email: dpo@celestiarcana.com
 Address: 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 For any questions regarding your personal data or to exercise your rights, contact our DPO at the email address above. We aim to respond within 30 days.`
@@ -144,7 +144,7 @@ Object to processing based on legitimate interests or for direct marketing.
 Withdraw consent at any time for consent-based processing.
 
 **To exercise these rights:**
-Email: privacy@mysticoracle.com
+Email: privacy@celestiarcana.com
 Response time: Within 30 days
 
 **Right to Lodge a Complaint:**
@@ -188,7 +188,7 @@ Tarot readings and horoscopes are provided for entertainment and self-reflection
           icon: Users,
           title: '9. Children & Minors',
           content: `**Age Requirement:**
-MysticOracle is intended for users aged 16 years and older in accordance with French law (Article 7-1 of Law No. 78-17).
+CelestiArcana is intended for users aged 16 years and older in accordance with French law (Article 7-1 of Law No. 78-17).
 
 **Parental Consent:**
 Users between 13 and 16 years old may use the service only with verifiable parental or guardian consent.
@@ -199,14 +199,14 @@ Users between 13 and 16 years old may use the service only with verifiable paren
 • Parents or guardians may contact us to request deletion of their child's data
 
 **Contact for Parental Requests:**
-Email: privacy@mysticoracle.com`
+Email: privacy@celestiarcana.com`
         },
         {
           icon: Mail,
           title: '10. Contact Us',
           content: `For any questions about this Privacy Policy or your personal data:
 
-**Email:** privacy@mysticoracle.com
+**Email:** privacy@celestiarcana.com
 **Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 We aim to respond to all inquiries within 30 days.`
@@ -222,13 +222,13 @@ We aim to respond to all inquiries within 30 days.`
         {
           icon: Shield,
           title: '1. Responsable du Traitement',
-          content: `MysticOracle est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
+          content: `CelestiArcana est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
 
 **Adresse du Siège:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 **SIRET:** 92357809000014
 
 **Délégué à la Protection des Données (DPO):**
-Email: dpo@mysticoracle.com
+Email: dpo@celestiarcana.com
 Adresse: 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 Pour toute question concernant vos données personnelles ou pour exercer vos droits, contactez notre DPO à l'adresse email ci-dessus. Nous nous engageons à répondre sous 30 jours.`
@@ -351,7 +351,7 @@ S'opposer au traitement basé sur l'intérêt légitime ou pour le marketing dir
 Retirer votre consentement à tout moment pour les traitements basés sur le consentement.
 
 **Pour exercer ces droits :**
-Email : privacy@mysticoracle.com
+Email : privacy@celestiarcana.com
 Délai de réponse : Sous 30 jours
 
 **Droit de Déposer une Plainte :**
@@ -395,7 +395,7 @@ Les lectures de tarot et horoscopes sont fournis à des fins de divertissement e
           icon: Users,
           title: '9. Enfants & Mineurs',
           content: `**Condition d'Âge :**
-MysticOracle est destiné aux utilisateurs âgés de 16 ans et plus conformément à la loi française (Article 7-1 de la Loi n° 78-17).
+CelestiArcana est destiné aux utilisateurs âgés de 16 ans et plus conformément à la loi française (Article 7-1 de la Loi n° 78-17).
 
 **Consentement Parental :**
 Les utilisateurs entre 13 et 16 ans ne peuvent utiliser le service qu'avec le consentement vérifiable d'un parent ou tuteur.
@@ -406,14 +406,14 @@ Les utilisateurs entre 13 et 16 ans ne peuvent utiliser le service qu'avec le co
 • Les parents ou tuteurs peuvent nous contacter pour demander la suppression des données de leur enfant
 
 **Contact pour les Demandes Parentales :**
-Email : privacy@mysticoracle.com`
+Email : privacy@celestiarcana.com`
         },
         {
           icon: Mail,
           title: '10. Nous Contacter',
           content: `Pour toute question concernant cette Politique de Confidentialité ou vos données personnelles :
 
-**Email :** privacy@mysticoracle.com
+**Email :** privacy@celestiarcana.com
 **Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 Nous nous efforçons de répondre à toutes les demandes sous 30 jours.`

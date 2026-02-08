@@ -1,4 +1,4 @@
-# MysticOracle Technical Debt
+# CelestiArcana Technical Debt
 
 > Known issues, inconsistencies, and areas needing improvement.
 

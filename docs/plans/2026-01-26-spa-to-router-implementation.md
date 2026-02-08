@@ -508,10 +508,10 @@ Find all `onClick={() => onNavigate('...')}` patterns and replace with `<Link to
 For the logo/home link:
 ```typescript
 // Before:
-<button onClick={() => onNavigate('home')}>MysticOracle</button>
+<button onClick={() => onNavigate('home')}>CelestiArcana</button>
 
 // After:
-<Link to={ROUTES.HOME}>MysticOracle</Link>
+<Link to={ROUTES.HOME}>CelestiArcana</Link>
 ```
 
 For profile link:

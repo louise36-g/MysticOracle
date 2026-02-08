@@ -1,5 +1,5 @@
 // components/HoroscopeReading.tsx
-// Celestial horoscope experience with unified MysticOracle aesthetic
+// Celestial horoscope experience with unified CelestiArcana aesthetic
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';

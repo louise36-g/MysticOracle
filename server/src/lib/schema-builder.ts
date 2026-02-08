@@ -94,16 +94,16 @@ interface CompleteSchema {
 // ============================================
 
 export const SITE_CONFIG: SiteConfig = {
-  name: process.env.SITE_NAME || 'MysticOracle',
-  url: process.env.SITE_URL || 'https://mysticoracle.com',
+  name: process.env.SITE_NAME || 'CelestiArcana',
+  url: process.env.SITE_URL || 'https://celestiarcana.com',
   logo:
     process.env.SITE_LOGO ||
-    `${process.env.SITE_URL || 'https://mysticoracle.com'}/images/logo.png`,
+    `${process.env.SITE_URL || 'https://celestiarcana.com'}/images/logo.png`,
   defaultAuthor: {
-    name: process.env.DEFAULT_AUTHOR_NAME || 'MysticOracle',
+    name: process.env.DEFAULT_AUTHOR_NAME || 'CelestiArcana',
     url:
       process.env.DEFAULT_AUTHOR_URL ||
-      `${process.env.SITE_URL || 'https://mysticoracle.com'}/about`,
+      `${process.env.SITE_URL || 'https://celestiarcana.com'}/about`,
   },
   categoryUrls: {
     'Major Arcana': '/tarot/major-arcana',

@@ -10,7 +10,7 @@
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/louisegriffin/Development/MysticOracle"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/louisegriffin/Development/CelestiArcana"]
     },
     "sequential-thinking": {
       "command": "npx",

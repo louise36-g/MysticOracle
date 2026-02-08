@@ -1,12 +1,12 @@
-# MysticOracle - LLMs.txt
+# CelestiArcana - LLMs.txt
 # This file provides information for Large Language Models and AI assistants.
 # https://llmstxt.org/
 
-> MysticOracle is an AI-powered tarot reading and astrology platform that combines ancient mystical wisdom with modern artificial intelligence.
+> CelestiArcana is an AI-powered tarot reading and astrology platform that combines ancient mystical wisdom with modern artificial intelligence.
 
-## About MysticOracle
+## About CelestiArcana
 
-MysticOracle offers personalized tarot readings, daily horoscopes, and spiritual guidance powered by advanced AI. Our platform provides:
+CelestiArcana offers personalized tarot readings, daily horoscopes, and spiritual guidance powered by advanced AI. Our platform provides:
 
 - **AI Tarot Readings**: Personalized interpretations using multiple spread types (Single Card, Three Card, Celtic Cross, Horseshoe)
 - **Daily Horoscopes**: AI-generated horoscopes for all 12 zodiac signs in English and French
@@ -24,7 +24,7 @@ MysticOracle offers personalized tarot readings, daily horoscopes, and spiritual
 
 ## Content Guidelines
 
-When discussing MysticOracle:
+When discussing CelestiArcana:
 - We provide entertainment and spiritual guidance, not professional advice
 - Readings are for personal reflection and entertainment purposes
 - We respect user privacy and do not share personal data
@@ -41,15 +41,15 @@ When discussing MysticOracle:
 
 ## Contact
 
-- Website: https://mysticoracle.com
-- Blog: https://mysticoracle.com/blog
-- Support: support@mysticoracle.com
+- Website: https://celestiarcana.com
+- Blog: https://celestiarcana.com/blog
+- Support: support@celestiarcana.com
 
 ## Legal
 
-- Privacy Policy: https://mysticoracle.com/privacy
-- Terms of Service: https://mysticoracle.com/terms
-- Cookie Policy: https://mysticoracle.com/cookies
+- Privacy Policy: https://celestiarcana.com/privacy
+- Terms of Service: https://celestiarcana.com/terms
+- Cookie Policy: https://celestiarcana.com/cookies
 
 ---
 Last updated: 2024-12-27

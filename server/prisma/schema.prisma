@@ -1,4 +1,4 @@
-// Prisma Schema for MysticOracle
+// Prisma Schema for CelestiArcana
 // Database: PostgreSQL on Render (Frankfurt EU)
 
 generator client {

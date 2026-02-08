@@ -1,7 +1,7 @@
 # Translation Coverage Report
 
 **Date:** 2026-01-13
-**Project:** MysticOracle Dynamic Translations Refactor
+**Project:** CelestiArcana Dynamic Translations Refactor
 
 ## Executive Summary
 

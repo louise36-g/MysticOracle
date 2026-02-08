@@ -23,7 +23,7 @@ async function main() {
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       headers: {
         'Authorization': `Bearer ${setting.value}`,
-        'HTTP-Referer': 'https://mysticoracle.com'
+        'HTTP-Referer': 'https://celestiarcana.com'
       }
     });
 

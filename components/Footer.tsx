@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           {/* Copyright */}
           <p className="text-slate-400">
-            © {currentYear} MysticOracle. {language === 'fr' ? 'Divertissement uniquement.' : 'Entertainment only.'}
+            © {currentYear} CelestiArcana. {language === 'fr' ? 'Divertissement uniquement.' : 'Entertainment only.'}
           </p>
 
           {/* Legal Links */}
@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
               FAQ
             </Link>
             <a
-              href="mailto:privacy@mysticoracle.com"
+              href="mailto:privacy@celestiarcana.com"
               className="text-slate-400 hover:text-purple-300 transition-colors"
             >
               Contact

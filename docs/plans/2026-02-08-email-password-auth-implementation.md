@@ -74,12 +74,12 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
         {/* Logo */}
         <Link to={ROUTES.HOME} className="flex items-center justify-center gap-2 mb-8">
           <img
-            src="/logos/mysticoracle-comet-cream.svg"
-            alt="MysticOracle"
+            src="/logos/celestiarcana-comet-cream.svg"
+            alt="CelestiArcana"
             className="h-12 w-auto"
           />
           <span className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
-            MysticOracle
+            CelestiArcana
           </span>
         </Link>
 
@@ -477,7 +477,7 @@ router.get('/check-username', async (req, res) => {
     }
 
     // Check reserved usernames
-    const reserved = ['admin', 'administrator', 'support', 'help', 'system', 'mysticoracle', 'moderator', 'mod'];
+    const reserved = ['admin', 'administrator', 'support', 'help', 'system', 'celestiarcana', 'moderator', 'mod'];
     if (reserved.includes(username.toLowerCase())) {
       return res.status(200).json({
         available: false,
@@ -547,7 +547,7 @@ router.patch('/me', requireAuth, async (req, res) => {
       }
 
       // Check reserved usernames
-      const reserved = ['admin', 'administrator', 'support', 'help', 'system', 'mysticoracle', 'moderator', 'mod'];
+      const reserved = ['admin', 'administrator', 'support', 'help', 'system', 'celestiarcana', 'moderator', 'mod'];
       if (reserved.includes(username.toLowerCase())) {
         return res.status(400).json({ error: 'This username is reserved' });
       }

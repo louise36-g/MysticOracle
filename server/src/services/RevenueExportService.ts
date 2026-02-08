@@ -59,7 +59,7 @@ export class RevenueExportService {
       year: 'numeric',
     });
     const csv = [
-      `MysticOracle Revenue Report - ${monthName}`,
+      `CelestiArcana Revenue Report - ${monthName}`,
       '',
       'Date,User,Email,Payment Provider,Amount (EUR),Credits,Transaction ID',
       ...transactions.map(t =>
@@ -79,7 +79,7 @@ export class RevenueExportService {
       `Total Credits Sold,${totals.credits}`,
     ].join('\n');
 
-    const filename = `mysticoracle-revenue-${year}-${String(month).padStart(2, '0')}.csv`;
+    const filename = `celestiarcana-revenue-${year}-${String(month).padStart(2, '0')}.csv`;
 
     return {
       csv,

@@ -1,12 +1,12 @@
-# MysticOracle Deployment Guide
+# CelestiArcana Deployment Guide
 
-> Complete guide for deploying MysticOracle to production on Render.
+> Complete guide for deploying CelestiArcana to production on Render.
 
 ---
 
 ## Overview
 
-MysticOracle is deployed on **Render** (Frankfurt, EU region) with:
+CelestiArcana is deployed on **Render** (Frankfurt, EU region) with:
 - **Frontend**: Static site (Vite build)
 - **Backend**: Node.js web service
 - **Database**: PostgreSQL managed database
@@ -62,7 +62,7 @@ Before deploying, ensure you have:
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db?sslmode=require` |
 | `CLERK_SECRET_KEY` | Clerk API secret key | `sk_live_xxxxx` |
-| `FRONTEND_URL` | Frontend URL for CORS | `https://mysticoracle.com` |
+| `FRONTEND_URL` | Frontend URL for CORS | `https://celestiarcana.com` |
 | `STRIPE_SECRET_KEY` | Stripe API secret key | `sk_live_xxxxx` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret | `whsec_xxxxx` |
 | `OPENROUTER_API_KEY` | OpenRouter API key | `sk-or-xxxxx` |
@@ -79,14 +79,14 @@ Before deploying, ensure you have:
 | `PAYPAL_CLIENT_SECRET` | PayPal secret | - |
 | `PAYPAL_MODE` | `sandbox` or `live` | `live` |
 | `ADMIN_BOOTSTRAP_KEY` | One-time admin setup key | - |
-| `SITE_URL` | Full site URL for SEO | `https://mysticoracle.com` |
+| `SITE_URL` | Full site URL for SEO | `https://celestiarcana.com` |
 
 ### Frontend (Required)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key | `pk_live_xxxxx` |
-| `VITE_API_URL` | Backend API URL | `https://api.mysticoracle.com` |
+| `VITE_API_URL` | Backend API URL | `https://api.celestiarcana.com` |
 
 ### Frontend (Optional)
 
@@ -102,7 +102,7 @@ Before deploying, ensure you have:
 
 1. Go to Render Dashboard → **New** → **PostgreSQL**
 2. Configure:
-   - **Name**: `mysticoracle-db`
+   - **Name**: `celestiarcana-db`
    - **Region**: Frankfurt (EU Central)
    - **Plan**: Starter ($7/month) or higher
 3. Wait for database to provision
@@ -113,7 +113,7 @@ Before deploying, ensure you have:
 1. Go to Render Dashboard → **New** → **Web Service**
 2. Connect your GitHub repository
 3. Configure:
-   - **Name**: `mysticoracle-api`
+   - **Name**: `celestiarcana-api`
    - **Region**: Frankfurt (EU Central)
    - **Root Directory**: `server`
    - **Runtime**: Node
@@ -127,7 +127,7 @@ Before deploying, ensure you have:
 1. Go to Render Dashboard → **New** → **Static Site**
 2. Connect your GitHub repository
 3. Configure:
-   - **Name**: `mysticoracle`
+   - **Name**: `celestiarcana`
    - **Root Directory**: `.` (root)
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `dist`
@@ -237,7 +237,7 @@ Configure health check in Render:
 1. Go to Stripe Dashboard → **Developers** → **Webhooks**
 2. Click **Add endpoint**
 3. Configure:
-   - **URL**: `https://api.mysticoracle.com/webhooks/stripe`
+   - **URL**: `https://api.celestiarcana.com/webhooks/stripe`
    - **Events**:
      - `checkout.session.completed`
      - `charge.refunded`
@@ -247,7 +247,7 @@ Configure health check in Render:
 
 1. Go to Clerk Dashboard → **Webhooks**
 2. Add endpoint:
-   - **URL**: `https://api.mysticoracle.com/webhooks/clerk`
+   - **URL**: `https://api.celestiarcana.com/webhooks/clerk`
    - **Events**:
      - `user.created`
      - `user.updated`
@@ -258,7 +258,7 @@ Configure health check in Render:
 
 1. Go to PayPal Developer Dashboard → **Webhooks**
 2. Add webhook:
-   - **URL**: `https://api.mysticoracle.com/webhooks/paypal`
+   - **URL**: `https://api.celestiarcana.com/webhooks/paypal`
    - **Events**: `PAYMENT.CAPTURE.COMPLETED`
 
 ---
@@ -486,7 +486,7 @@ For first-time setup, grant admin access to a user:
 3. Make POST request:
 
 ```bash
-curl -X POST https://api.mysticoracle.com/api/v1/health/bootstrap \
+curl -X POST https://api.celestiarcana.com/api/v1/health/bootstrap \
   -H "Authorization: Bearer <user_token>" \
   -H "Content-Type: application/json" \
   -d '{"key": "your-bootstrap-key"}'

@@ -1,13 +1,13 @@
-# MysticOracle Security Policy
+# CelestiArcana Security Policy
 # https://securitytxt.org/
 
-Contact: mailto:security@mysticoracle.com
+Contact: mailto:security@celestiarcana.com
 Expires: 2025-12-31T23:59:59.000Z
 Preferred-Languages: en, fr
-Canonical: https://mysticoracle.com/.well-known/security.txt
+Canonical: https://celestiarcana.com/.well-known/security.txt
 
 # Security Acknowledgments
 # We appreciate responsible disclosure of security vulnerabilities.
-# Please report any security issues to security@mysticoracle.com
+# Please report any security issues to security@celestiarcana.com
 
-Policy: https://mysticoracle.com/security-policy
+Policy: https://celestiarcana.com/security-policy

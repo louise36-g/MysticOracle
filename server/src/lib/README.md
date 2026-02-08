@@ -29,10 +29,10 @@ const { schema, schemaHtml } = processArticleSchema({
   title: 'The Fool: Meaning & Symbolism',
   slug: 'the-fool-meaning',
   excerpt: 'Discover the meaning of The Fool tarot card...',
-  author: 'MysticOracle Team',
+  author: 'CelestiArcana Team',
   datePublished: new Date(),
   dateModified: new Date(),
-  featuredImage: 'https://mysticoracle.com/images/the-fool.jpg',
+  featuredImage: 'https://celestiarcana.com/images/the-fool.jpg',
   cardType: 'Major Arcana',
   faq: [
     {
@@ -95,7 +95,7 @@ categoryUrls: {
 
 Articles are expected to be at: `{SITE_URL}/tarot/{slug}`
 
-Example: `https://mysticoracle.com/tarot/the-fool-meaning`
+Example: `https://celestiarcana.com/tarot/the-fool-meaning`
 
 If your URL structure is different, modify the `buildSchema()` function in `schema-builder.ts`.
 
@@ -105,11 +105,11 @@ Add these to your `server/.env` file:
 
 ```env
 # Site Configuration (for SEO & Schema.org)
-SITE_NAME=MysticOracle
-SITE_URL=https://mysticoracle.com
-SITE_LOGO=https://mysticoracle.com/images/logo.png
-DEFAULT_AUTHOR_NAME=MysticOracle Team
-DEFAULT_AUTHOR_URL=https://mysticoracle.com/about
+SITE_NAME=CelestiArcana
+SITE_URL=https://celestiarcana.com
+SITE_LOGO=https://celestiarcana.com/images/logo.png
+DEFAULT_AUTHOR_NAME=CelestiArcana Team
+DEFAULT_AUTHOR_URL=https://celestiarcana.com/about
 ```
 
 ## Example Output
@@ -124,25 +124,25 @@ The generated schema looks like this:
       "@type": "Article",
       "headline": "The Fool: Meaning & Symbolism",
       "description": "Discover the meaning...",
-      "image": "https://mysticoracle.com/images/the-fool.jpg",
+      "image": "https://celestiarcana.com/images/the-fool.jpg",
       "author": {
         "@type": "Person",
-        "name": "MysticOracle Team",
-        "url": "https://mysticoracle.com/about"
+        "name": "CelestiArcana Team",
+        "url": "https://celestiarcana.com/about"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "MysticOracle",
+        "name": "CelestiArcana",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://mysticoracle.com/images/logo.png"
+          "url": "https://celestiarcana.com/images/logo.png"
         }
       },
       "datePublished": "2026-01-09T12:00:00.000Z",
       "dateModified": "2026-01-09T12:00:00.000Z",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "https://mysticoracle.com/tarot/the-fool-meaning"
+        "@id": "https://celestiarcana.com/tarot/the-fool-meaning"
       }
     },
     {
@@ -165,19 +165,19 @@ The generated schema looks like this:
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://mysticoracle.com"
+          "item": "https://celestiarcana.com"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Major Arcana",
-          "item": "https://mysticoracle.com/tarot/major-arcana"
+          "item": "https://celestiarcana.com/tarot/major-arcana"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": "The Fool",
-          "item": "https://mysticoracle.com/tarot/the-fool-meaning"
+          "item": "https://celestiarcana.com/tarot/the-fool-meaning"
         }
       ]
     }

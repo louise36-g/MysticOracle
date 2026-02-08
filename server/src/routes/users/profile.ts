@@ -95,7 +95,7 @@ router.patch('/me', requireAuth, async (req, res) => {
         'support',
         'help',
         'system',
-        'mysticoracle',
+        'celestiarcana',
         'moderator',
         'mod',
       ];
@@ -167,7 +167,7 @@ router.get('/check-username', async (req, res) => {
       'support',
       'help',
       'system',
-      'mysticoracle',
+      'celestiarcana',
       'moderator',
       'mod',
     ];

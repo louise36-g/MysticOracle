@@ -19,11 +19,11 @@ export function exampleBasicValidation() {
     slug: 'the-fool-new-beginnings',
     excerpt: 'Discover the meaning of The Fool tarot card and how it represents new beginnings...',
     content: '<p>The Fool represents the beginning of a journey...</p>',
-    author: 'MysticOracle Team',
+    author: 'CelestiArcana Team',
     readTime: '12 min read',
     datePublished: '2026-01-09',
     dateModified: '2026-01-09',
-    featuredImage: 'https://mysticoracle.com/images/the-fool.jpg',
+    featuredImage: 'https://celestiarcana.com/images/the-fool.jpg',
     featuredImageAlt: 'The Fool tarot card showing a young person stepping off a cliff',
     cardType: 'Major Arcana',
     cardNumber: '0',
@@ -300,11 +300,11 @@ export const MINIMAL_VALID_ARTICLE: TarotArticleInput = {
     '<p>The Fool represents new beginnings, infinite potential, and the start of a journey...</p>'.repeat(
       100
     ), // ~5000+ chars
-  author: 'MysticOracle Team',
+  author: 'CelestiArcana Team',
   readTime: '12 min read',
   datePublished: '2026-01-09',
   dateModified: '2026-01-09',
-  featuredImage: 'https://mysticoracle.com/images/the-fool.jpg',
+  featuredImage: 'https://celestiarcana.com/images/the-fool.jpg',
   featuredImageAlt:
     'The Fool tarot card showing a young traveler with a bindle standing at the edge of a cliff',
   cardType: 'Major Arcana',

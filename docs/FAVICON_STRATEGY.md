@@ -1,7 +1,7 @@
-# MysticOracle Favicon Strategy
+# CelestiArcana Favicon Strategy
 
 ## Overview
-Professional SVG favicon designed to represent MysticOracle's brand identity across all platforms and devices.
+Professional SVG favicon designed to represent CelestiArcana's brand identity across all platforms and devices.
 
 ## Current Implementation
 

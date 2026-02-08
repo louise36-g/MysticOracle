@@ -226,7 +226,7 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'MysticOracle API Docs',
+    customSiteTitle: 'CelestiArcana API Docs',
   })
 );
 
@@ -307,7 +307,7 @@ function scheduleHoroscopeCleanup(): void {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🔮 MysticOracle API running on port ${PORT}`);
+  console.log(`🔮 CelestiArcana API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 
   // Schedule background jobs

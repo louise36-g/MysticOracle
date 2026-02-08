@@ -100,12 +100,12 @@ export const DEFAULT_PACKAGES: DefaultPackage[] = [
 export const DEFAULT_EMAIL_TEMPLATES: DefaultEmailTemplate[] = [
   {
     slug: 'welcome',
-    subjectEn: 'Welcome to MysticOracle - Your Journey Begins!',
-    subjectFr: 'Bienvenue sur MysticOracle - Votre Voyage Commence!',
+    subjectEn: 'Welcome to CelestiArcana - Your Journey Begins!',
+    subjectFr: 'Bienvenue sur CelestiArcana - Votre Voyage Commence!',
     bodyEn:
-      '<h2>Welcome, {{params.username}}!</h2><p>The stars have aligned to welcome you to MysticOracle. Your mystical journey begins now with <strong>10 free credits</strong> to explore the ancient wisdom of Tarot.</p>',
+      '<h2>Welcome, {{params.username}}!</h2><p>The stars have aligned to welcome you to CelestiArcana. Your mystical journey begins now with <strong>10 free credits</strong> to explore the ancient wisdom of Tarot.</p>',
     bodyFr:
-      '<h2>Bienvenue, {{params.username}}!</h2><p>Les étoiles se sont alignées pour vous accueillir sur MysticOracle. Votre voyage mystique commence maintenant avec <strong>10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.</p>',
+      '<h2>Bienvenue, {{params.username}}!</h2><p>Les étoiles se sont alignées pour vous accueillir sur CelestiArcana. Votre voyage mystique commence maintenant avec <strong>10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.</p>',
   },
   {
     slug: 'purchase_confirmation',
@@ -118,8 +118,8 @@ export const DEFAULT_EMAIL_TEMPLATES: DefaultEmailTemplate[] = [
   },
   {
     slug: 'low_credits_reminder',
-    subjectEn: 'Your MysticOracle Credits are Running Low',
-    subjectFr: 'Vos Crédits MysticOracle sont Presque Épuisés',
+    subjectEn: 'Your CelestiArcana Credits are Running Low',
+    subjectFr: 'Vos Crédits CelestiArcana sont Presque Épuisés',
     bodyEn:
       "<h2>Don't let your journey end, {{params.username}}</h2><p>You have only <strong>{{params.credits}} credits</strong> remaining. Top up now to continue receiving mystical guidance.</p>",
     bodyFr:

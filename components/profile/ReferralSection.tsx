@@ -34,14 +34,14 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
 
   const getWhatsAppText = () => {
     return language === 'en'
-      ? `Join me on MysticOracle and get 5 free credits! Use code: ${referralCode}`
-      : `Rejoignez-moi sur MysticOracle et obtenez 5 crédits gratuits ! Code: ${referralCode}`;
+      ? `Join me on CelestiArcana and get 5 free credits! Use code: ${referralCode}`
+      : `Rejoignez-moi sur CelestiArcana et obtenez 5 crédits gratuits ! Code: ${referralCode}`;
   };
 
   const getTwitterText = () => {
     return language === 'en'
-      ? `Join me on MysticOracle! Use code ${referralCode} for 5 free credits 🔮✨`
-      : `Rejoignez-moi sur MysticOracle ! Code ${referralCode} pour 5 crédits gratuits 🔮✨`;
+      ? `Join me on CelestiArcana! Use code ${referralCode} for 5 free credits 🔮✨`
+      : `Rejoignez-moi sur CelestiArcana ! Code ${referralCode} pour 5 crédits gratuits 🔮✨`;
   };
 
   return (

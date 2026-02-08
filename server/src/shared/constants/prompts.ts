@@ -1,4 +1,4 @@
-// Default AI Prompts for MysticOracle
+// Default AI Prompts for CelestiArcana
 // Extracted from openrouterService.ts and horoscopes.ts
 
 export interface PromptDefinition {

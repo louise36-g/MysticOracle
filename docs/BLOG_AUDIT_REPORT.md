@@ -1,4 +1,4 @@
-# MysticOracle Blog - Technical Debt & Design Audit
+# CelestiArcana Blog - Technical Debt & Design Audit
 **Date:** 2026-01-23
 **Auditor:** Claude Code (Tech Debt + Frontend Design Analysis)
 **Grade:** D+ (Technical) | 2/10 (Design)
@@ -994,7 +994,7 @@ code_review:
 ### Design System Documentation
 
 ```markdown
-# MysticOracle Design System
+# CelestiArcana Design System
 
 ## Blog Aesthetic: "Celestial Archive"
 - **Conceptual Direction:** Ancient astronomy meets modern divination

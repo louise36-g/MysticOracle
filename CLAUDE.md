@@ -1,8 +1,8 @@
-# MysticOracle - Project Guide
+# CelestiArcana - Project Guide
 
 ## Overview
 
-MysticOracle is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma. Features include tarot readings, daily horoscopes, a blog CMS, user credits system, and full admin dashboard.
+CelestiArcana is a mystical tarot reading web application with AI-powered interpretations, built with React + Express + Prisma. Features include tarot readings, daily horoscopes, a blog CMS, user credits system, and full admin dashboard.
 
 ## Spec-Kit Reference
 
@@ -32,7 +32,7 @@ Focus on:
 
 ## Cross-Platform Vision
 
-MysticOracle serves as:
+CelestiArcana serves as:
 1. **Standalone Product**: Monetized tarot readings and horoscopes
 2. **Mobile Funnel**: Gateway to AI Tarot Saga mobile game
 
@@ -63,7 +63,7 @@ The backend will be shared between web and mobile, with same Clerk authenticatio
 ## Project Structure
 
 ```
-MysticOracle/
+CelestiArcana/
 ├── App.tsx                    # Main React application (mounts RouterProvider)
 ├── index.tsx                  # React entry point
 ├── index.html                 # HTML template + blog typography CSS

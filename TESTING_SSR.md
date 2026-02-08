@@ -90,7 +90,7 @@ This should print the schema JSON.
 
 ✅ **Meta Tags** (in `<head>`):
 ```html
-<title>The Fool: Meaning & Interpretation | MysticOracle</title>
+<title>The Fool: Meaning & Interpretation | CelestiArcana</title>
 <meta name="description" content="..." />
 <meta property="og:title" content="..." />
 <meta property="og:image" content="..." />
@@ -136,7 +136,7 @@ Should validate without errors
 Once deployed to production (e.g., Render):
 
 ```bash
-curl https://mysticoracle.com/tarot/articles/the-fool | grep "application/ld+json"
+curl https://celestiarcana.com/tarot/articles/the-fool | grep "application/ld+json"
 ```
 
 Should return the schema in the initial HTML response.

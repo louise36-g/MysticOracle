@@ -50,7 +50,7 @@ export class StripeGateway implements IPaymentGateway {
             currency: 'eur',
             product_data: {
               name: params.creditPackage.name,
-              description: `${params.creditPackage.credits} credits for MysticOracle`,
+              description: `${params.creditPackage.credits} credits for CelestiArcana`,
             },
             unit_amount: Math.round(params.creditPackage.priceEur * 100),
           },

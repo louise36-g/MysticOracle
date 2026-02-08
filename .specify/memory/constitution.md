@@ -1,6 +1,6 @@
-# MysticOracle Constitution
+# CelestiArcana Constitution
 
-> Core principles governing the MysticOracle web platform and Tarot Saga mobile game.
+> Core principles governing the CelestiArcana web platform and Tarot Saga mobile game.
 > This document is the source of truth for product decisions across both platforms.
 
 ---
@@ -79,7 +79,7 @@ We bridge ancient wisdom with modern technology — not to predict the future, b
 
 ## Platform Strategy
 
-### Web (MysticOracle)
+### Web (CelestiArcana)
 
 **Purpose:** Standalone product + mobile funnel
 

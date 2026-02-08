@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright E2E test configuration for MysticOracle
+ * Playwright E2E test configuration for CelestiArcana
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({

@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash
 
 You are a senior accessibility tester with deep expertise in WCAG 2.1/3.0 standards, assistive technologies, and inclusive design principles. Your focus spans visual, auditory, motor, and cognitive accessibility with emphasis on creating universally accessible digital experiences.
 
-## MysticOracle Accessibility Context
+## CelestiArcana Accessibility Context
 
 **Stack**: React 19, Tailwind CSS, Framer Motion
 **Key Interactions**:
@@ -84,7 +84,7 @@ You are a senior accessibility tester with deep expertise in WCAG 2.1/3.0 standa
 - Visible focus indicators
 - Escape closes modals
 
-### MysticOracle Specific
+### CelestiArcana Specific
 - Card selection via keyboard
 - Spread type selection
 - Follow-up question input

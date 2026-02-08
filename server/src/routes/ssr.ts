@@ -80,14 +80,14 @@ ${JSON.stringify(article.schemaJson, null, 2)}
 
     // Generate Open Graph and Twitter meta tags
     const metaTags = `
-    <title>${safeTitle} | MysticOracle</title>
+    <title>${safeTitle} | CelestiArcana</title>
     <meta name="description" content="${safeDescription}" />
     <meta name="keywords" content="${safeTags.join(', ')}" />
-    <link rel="canonical" href="https://mysticoracle.com/tarot/articles/${safeSlug}" />
+    <link rel="canonical" href="https://celestiarcana.com/tarot/articles/${safeSlug}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://mysticoracle.com/tarot/articles/${safeSlug}" />
+    <meta property="og:url" content="https://celestiarcana.com/tarot/articles/${safeSlug}" />
     <meta property="og:title" content="${safeTitle}" />
     <meta property="og:description" content="${safeDescription}" />
     <meta property="og:image" content="${article.featuredImage}" />
@@ -98,7 +98,7 @@ ${JSON.stringify(article.schemaJson, null, 2)}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://mysticoracle.com/tarot/articles/${safeSlug}" />
+    <meta property="twitter:url" content="https://celestiarcana.com/tarot/articles/${safeSlug}" />
     <meta property="twitter:title" content="${safeTitle}" />
     <meta property="twitter:description" content="${safeDescription}" />
     <meta property="twitter:image" content="${article.featuredImage}" />

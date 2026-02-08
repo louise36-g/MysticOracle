@@ -302,7 +302,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                       <Sparkles className="w-8 h-8 text-white" />
                     </div>
                     <h2 className="text-2xl font-heading text-amber-100 mb-4">
-                      {t('welcome.step1.title', 'Welcome to MysticOracle')}
+                      {t('welcome.step1.title', 'Welcome to CelestiArcana')}
                     </h2>
                     <p className="text-slate-300 leading-relaxed">
                       {t('welcome.step1.description', 'Your personal guide to tarot wisdom. Each reading is crafted uniquely for you, blending ancient symbolism with modern insight.')}

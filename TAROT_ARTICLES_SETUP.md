@@ -151,7 +151,7 @@ Add to your `.env.local`:
 
 ```env
 # Site configuration (for canonical URLs)
-VITE_SITE_URL=https://mysticoracle.com
+VITE_SITE_URL=https://celestiarcana.com
 ```
 
 ## Backend Integration

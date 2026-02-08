@@ -150,7 +150,7 @@ router.post('/import', async (req, res) => {
             contentFr: '',
             coverImage,
             coverImageAlt,
-            authorName: article.author || 'MysticOracle',
+            authorName: article.author || 'CelestiArcana',
             authorId: req.auth.userId,
             status: 'DRAFT', // Import as draft for review
             readTimeMinutes,

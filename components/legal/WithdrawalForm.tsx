@@ -63,7 +63,7 @@ const WithdrawalForm: React.FC = () => {
 
       error: {
         title: 'Submission Failed',
-        tryAgain: 'Please try again or contact us directly at refunds@mysticoracle.com',
+        tryAgain: 'Please try again or contact us directly at refunds@celestiarcana.com',
       },
 
       timeline: {
@@ -75,7 +75,7 @@ const WithdrawalForm: React.FC = () => {
 • Refund will be made using the same payment method as your original purchase
 
 **Contact for Refunds:**
-Email: refunds@mysticoracle.com
+Email: refunds@celestiarcana.com
 Address: 7 rue Beauregard, 77171 Chalautre la Grande, France`
       },
 
@@ -120,7 +120,7 @@ Address: 7 rue Beauregard, 77171 Chalautre la Grande, France`
 
       error: {
         title: 'Échec de l\'Envoi',
-        tryAgain: 'Veuillez réessayer ou nous contacter directement à refunds@mysticoracle.com',
+        tryAgain: 'Veuillez réessayer ou nous contacter directement à refunds@celestiarcana.com',
       },
 
       timeline: {
@@ -132,7 +132,7 @@ Address: 7 rue Beauregard, 77171 Chalautre la Grande, France`
 • Le remboursement sera effectué par le même moyen de paiement que votre achat initial
 
 **Contact pour les Remboursements :**
-Email : refunds@mysticoracle.com
+Email : refunds@celestiarcana.com
 Adresse : 7 rue Beauregard, 77171 Chalautre la Grande, France`
       },
 

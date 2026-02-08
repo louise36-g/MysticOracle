@@ -39,7 +39,7 @@ When a request comes to `/tarot/articles/:slug`:
   ...
 
   <!-- Injected meta tags (SEO) -->
-  <title>The Fool: Meaning & Interpretation | MysticOracle</title>
+  <title>The Fool: Meaning & Interpretation | CelestiArcana</title>
   <meta name="description" content="..." />
   <meta property="og:title" content="..." />
   <meta property="og:image" content="..." />
@@ -118,7 +118,7 @@ Example `render.yaml`:
 ```yaml
 services:
   - type: web
-    name: mysticoracle
+    name: celestiarcana
     env: node
     buildCommand: npm install && npm run build && cd server && npm install && npm run build
     startCommand: cd server && npm start

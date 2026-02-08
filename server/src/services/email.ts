@@ -33,7 +33,7 @@ const emailWrapper = (content: string, language: 'en' | 'fr' = 'en') => `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MysticOracle</title>
+  <title>CelestiArcana</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #0f0c29; color: #e2e8f0;">
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f0c29;">
@@ -44,7 +44,7 @@ const emailWrapper = (content: string, language: 'en' | 'fr' = 'en') => `
           <tr>
             <td style="padding: 30px 40px; text-align: center; border-bottom: 1px solid rgba(139, 92, 246, 0.2);">
               <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #fbbf24; letter-spacing: 2px;">
-                ✨ MysticOracle ✨
+                ✨ CelestiArcana ✨
               </h1>
             </td>
           </tr>
@@ -58,10 +58,10 @@ const emailWrapper = (content: string, language: 'en' | 'fr' = 'en') => `
           <tr>
             <td style="padding: 20px 40px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(139, 92, 246, 0.2);">
               <p style="margin: 0 0 10px 0; font-size: 12px; color: #94a3b8; text-align: center;">
-                ${language === 'en' ? 'You received this email because you have an account with MysticOracle.' : 'Vous avez reçu cet email car vous avez un compte MysticOracle.'}
+                ${language === 'en' ? 'You received this email because you have an account with CelestiArcana.' : 'Vous avez reçu cet email car vous avez un compte CelestiArcana.'}
               </p>
               <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center;">
-                <a href="{{params.siteUrl}}" style="color: #a78bfa; text-decoration: none;">MysticOracle.com</a>
+                <a href="{{params.siteUrl}}" style="color: #a78bfa; text-decoration: none;">CelestiArcana.com</a>
                 ${language === 'en' ? ' | ' : ' | '}
                 <a href="{{params.unsubscribeUrl}}" style="color: #64748b; text-decoration: none;">${language === 'en' ? 'Unsubscribe' : 'Se désabonner'}</a>
               </p>
@@ -78,14 +78,14 @@ const emailWrapper = (content: string, language: 'en' | 'fr' = 'en') => `
 const TEMPLATES = {
   WELCOME: {
     en: {
-      subject: 'Welcome to MysticOracle - Your Journey Begins! 🔮',
+      subject: 'Welcome to CelestiArcana - Your Journey Begins! 🔮',
       htmlContent: emailWrapper(
         `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Welcome, {{params.username}}!
         </h2>
         <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0;">
-          The stars have aligned to welcome you to MysticOracle. Your mystical journey begins now with <strong style="color: #fbbf24;">10 free credits</strong> to explore the ancient wisdom of Tarot.
+          The stars have aligned to welcome you to CelestiArcana. Your mystical journey begins now with <strong style="color: #fbbf24;">10 free credits</strong> to explore the ancient wisdom of Tarot.
         </p>
         <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px; margin: 25px 0;">
           <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #a78bfa;">What awaits you:</h3>
@@ -106,14 +106,14 @@ const TEMPLATES = {
       ),
     },
     fr: {
-      subject: 'Bienvenue sur MysticOracle - Votre Voyage Commence! 🔮',
+      subject: 'Bienvenue sur CelestiArcana - Votre Voyage Commence! 🔮',
       htmlContent: emailWrapper(
         `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
           Bienvenue, {{params.username}}!
         </h2>
         <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0;">
-          Les étoiles se sont alignées pour vous accueillir sur MysticOracle. Votre voyage mystique commence maintenant avec <strong style="color: #fbbf24;">10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.
+          Les étoiles se sont alignées pour vous accueillir sur CelestiArcana. Votre voyage mystique commence maintenant avec <strong style="color: #fbbf24;">10 crédits gratuits</strong> pour explorer la sagesse ancienne du Tarot.
         </p>
         <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px; margin: 25px 0;">
           <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #a78bfa;">Ce qui vous attend:</h3>
@@ -220,7 +220,7 @@ const TEMPLATES = {
 
   LOW_CREDITS_REMINDER: {
     en: {
-      subject: 'Your MysticOracle Credits are Running Low 🔮',
+      subject: 'Your CelestiArcana Credits are Running Low 🔮',
       htmlContent: emailWrapper(
         `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
@@ -244,7 +244,7 @@ const TEMPLATES = {
       ),
     },
     fr: {
-      subject: 'Vos Crédits MysticOracle sont Presque Épuisés 🔮',
+      subject: 'Vos Crédits CelestiArcana sont Presque Épuisés 🔮',
       htmlContent: emailWrapper(
         `
         <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
@@ -290,7 +290,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
 
     sendSmtpEmail.sender = {
-      name: 'MysticOracle',
+      name: 'CelestiArcana',
       email: 'louise.charlotte.griffin@gmail.com', // Update with your verified domain
     };
 
@@ -334,7 +334,7 @@ export async function sendWelcomeEmail(
     htmlContent: template.htmlContent,
     params: {
       username,
-      siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com',
+      siteUrl: process.env.FRONTEND_URL || 'https://celestiarcana.com',
       unsubscribeUrl: `${process.env.FRONTEND_URL}/unsubscribe`,
     },
   });
@@ -363,7 +363,7 @@ export async function sendPurchaseConfirmation(
       credits: credits.toString(),
       amount: `€${amount.toFixed(2)}`,
       newBalance: newBalance.toString(),
-      siteUrl: process.env.FRONTEND_URL || 'https://mysticoracle.com',
+      siteUrl: process.env.FRONTEND_URL || 'https://celestiarcana.com',
     },
   });
 }

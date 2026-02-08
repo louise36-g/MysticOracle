@@ -34,8 +34,8 @@ async function main() {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': process.env.FRONTEND_URL || 'https://mysticoracle.com',
-      'X-Title': 'MysticOracle',
+      'HTTP-Referer': process.env.FRONTEND_URL || 'https://celestiarcana.com',
+      'X-Title': 'CelestiArcana',
     },
     body: JSON.stringify({
       model: model,

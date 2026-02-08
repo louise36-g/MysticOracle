@@ -23,11 +23,11 @@ Add these to your `server/.env` file:
 
 ```env
 # Site Configuration (for SEO & Schema.org)
-SITE_NAME=MysticOracle
-SITE_URL=https://mysticoracle.com
-SITE_LOGO=https://mysticoracle.com/images/logo.png
-DEFAULT_AUTHOR_NAME=MysticOracle Team
-DEFAULT_AUTHOR_URL=https://mysticoracle.com/about
+SITE_NAME=CelestiArcana
+SITE_URL=https://celestiarcana.com
+SITE_LOGO=https://celestiarcana.com/images/logo.png
+DEFAULT_AUTHOR_NAME=CelestiArcana Team
+DEFAULT_AUTHOR_URL=https://celestiarcana.com/about
 ```
 
 **Also updated:** `server/.env.example` with these variables _(server/.env.example:40)_
@@ -56,7 +56,7 @@ DEFAULT_AUTHOR_URL=https://mysticoracle.com/about
 
 Articles are expected at: `{SITE_URL}/tarot/{slug}`
 
-**Example:** `https://mysticoracle.com/tarot/the-fool-meaning`
+**Example:** `https://celestiarcana.com/tarot/the-fool-meaning`
 
 If your URL structure differs, update line 205 in `schema-builder.ts`:
 

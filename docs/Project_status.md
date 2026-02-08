@@ -1,4 +1,4 @@
-# MysticOracle - Project Status
+# CelestiArcana - Project Status
 
 **Last Updated:** January 2026
 **Current Phase:** 1 - Stabilization

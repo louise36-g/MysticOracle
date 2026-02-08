@@ -1,6 +1,6 @@
 /* TEAM */
-Creator: MysticOracle Team
-Site: https://mysticoracle.com
+Creator: CelestiArcana Team
+Site: https://celestiarcana.com
 Location: Europe
 
 /* THANKS */

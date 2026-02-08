@@ -76,16 +76,16 @@ const Header: React.FC<HeaderProps> = () => {
         <Link
           to={ROUTES.HOME}
           className="flex items-center gap-2 cursor-pointer"
-          aria-label="MysticOracle - Go to homepage"
+          aria-label="CelestiArcana - Go to homepage"
         >
           <img
-            src="/logos/mysticoracle-comet-cream.svg"
+            src="/logos/celestiarcana-comet-cream.svg"
             alt=""
             className="h-10 w-auto"
             aria-hidden="true"
           />
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
-            MysticOracle
+            CelestiArcana
           </span>
         </Link>
 

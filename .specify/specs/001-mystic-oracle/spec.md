@@ -1,8 +1,8 @@
-# MysticOracle - Feature Specification
+# CelestiArcana - Feature Specification
 
 ## Product Overview
 
-MysticOracle is a web-based tarot reading platform with AI-powered interpretations, daily horoscopes, and a content blog. It serves as both a standalone product and a funnel to the AI Tarot Saga mobile app.
+CelestiArcana is a web-based tarot reading platform with AI-powered interpretations, daily horoscopes, and a content blog. It serves as both a standalone product and a funnel to the AI Tarot Saga mobile app.
 
 ## User Personas
 

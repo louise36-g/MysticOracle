@@ -15,18 +15,18 @@ const TermsOfService: React.FC = () => {
         {
           icon: FileText,
           title: '1. Acceptance of Terms',
-          content: `By accessing or using MysticOracle ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.
+          content: `By accessing or using CelestiArcana ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.
 
 **Service Provider:**
-MysticOracle is operated by La Petite Voie, an auto-entrepreneur registered in France.
+CelestiArcana is operated by La Petite Voie, an auto-entrepreneur registered in France.
 **SIRET:** 92357809000014
-**Contact:** contact@mysticoracle.com`
+**Contact:** contact@celestiarcana.com`
         },
         {
           icon: AlertTriangle,
           title: '2. Nature of Service',
           content: `**Entertainment Purpose Only:**
-MysticOracle provides AI-powered tarot readings, horoscopes, and oracle consultations for entertainment and personal reflection purposes only.
+CelestiArcana provides AI-powered tarot readings, horoscopes, and oracle consultations for entertainment and personal reflection purposes only.
 
 **Important Disclaimers:**
 • Our readings are NOT professional advice (medical, legal, financial, or psychological)
@@ -52,7 +52,7 @@ You must be at least 16 years old to use this Service. Users between 13-16 may u
 **Refund Policy:**
 • Unused credits may be refunded within 14 days of purchase (EU withdrawal right)
 • Credits that have been used cannot be refunded
-• To request a refund, contact: refunds@mysticoracle.com
+• To request a refund, contact: refunds@celestiarcana.com
 
 **Credit Expiration:**
 • Purchased credits do not expire
@@ -77,7 +77,7 @@ We reserve the right to suspend or terminate accounts that violate these Terms w
           icon: FileText,
           title: '5. Intellectual Property',
           content: `**Our Content:**
-• All content on MysticOracle (text, graphics, logos, software) is owned by us or our licensors
+• All content on CelestiArcana (text, graphics, logos, software) is owned by us or our licensors
 • You may not reproduce, distribute, or create derivative works without permission
 
 **Your Content:**
@@ -132,7 +132,7 @@ Nothing in these Terms affects your statutory rights as a consumer under French 
           title: '9. Contact Us',
           content: `For any questions about these Terms:
 
-**Email:** contact@mysticoracle.com
+**Email:** contact@celestiarcana.com
 **Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Customer Support:**
@@ -149,18 +149,18 @@ Response time: Within 48 hours on business days`
         {
           icon: FileText,
           title: '1. Acceptation des Conditions',
-          content: `En accédant ou en utilisant MysticOracle ("le Service"), vous acceptez d'être lié par ces Conditions d'Utilisation ("Conditions"). Si vous n'acceptez pas ces Conditions, veuillez ne pas utiliser notre Service.
+          content: `En accédant ou en utilisant CelestiArcana ("le Service"), vous acceptez d'être lié par ces Conditions d'Utilisation ("Conditions"). Si vous n'acceptez pas ces Conditions, veuillez ne pas utiliser notre Service.
 
 **Fournisseur du Service :**
-MysticOracle est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
+CelestiArcana est exploité par La Petite Voie, auto-entrepreneur enregistré en France.
 **SIRET :** 92357809000014
-**Contact :** contact@mysticoracle.com`
+**Contact :** contact@celestiarcana.com`
         },
         {
           icon: AlertTriangle,
           title: '2. Nature du Service',
           content: `**À des Fins de Divertissement Uniquement :**
-MysticOracle fournit des lectures de tarot, horoscopes et consultations d'oracle alimentés par l'IA à des fins de divertissement et de réflexion personnelle uniquement.
+CelestiArcana fournit des lectures de tarot, horoscopes et consultations d'oracle alimentés par l'IA à des fins de divertissement et de réflexion personnelle uniquement.
 
 **Avertissements Importants :**
 • Nos lectures ne constituent PAS des conseils professionnels (médicaux, juridiques, financiers ou psychologiques)
@@ -186,7 +186,7 @@ Vous devez avoir au moins 16 ans pour utiliser ce Service. Les utilisateurs entr
 **Politique de Remboursement :**
 • Les crédits non utilisés peuvent être remboursés dans les 14 jours suivant l'achat (droit de rétractation UE)
 • Les crédits utilisés ne peuvent pas être remboursés
-• Pour demander un remboursement, contactez : refunds@mysticoracle.com
+• Pour demander un remboursement, contactez : refunds@celestiarcana.com
 
 **Expiration des Crédits :**
 • Les crédits achetés n'expirent pas
@@ -211,7 +211,7 @@ Nous nous réservons le droit de suspendre ou de résilier les comptes qui enfre
           icon: FileText,
           title: '5. Propriété Intellectuelle',
           content: `**Notre Contenu :**
-• Tout le contenu sur MysticOracle (texte, graphiques, logos, logiciels) nous appartient ou appartient à nos concédants
+• Tout le contenu sur CelestiArcana (texte, graphiques, logos, logiciels) nous appartient ou appartient à nos concédants
 • Vous ne pouvez pas reproduire, distribuer ou créer des œuvres dérivées sans autorisation
 
 **Votre Contenu :**
@@ -266,7 +266,7 @@ Rien dans ces Conditions n'affecte vos droits légaux en tant que consommateur e
           title: '9. Nous Contacter',
           content: `Pour toute question concernant ces Conditions :
 
-**Email :** contact@mysticoracle.com
+**Email :** contact@celestiarcana.com
 **Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Support Client :**

@@ -1,12 +1,12 @@
-# MysticOracle Roadmap
+# CelestiArcana Roadmap
 
-> High-level roadmap for the MysticOracle web platform.
+> High-level roadmap for the CelestiArcana web platform.
 
 ---
 
 ## Vision
 
-MysticOracle serves two purposes:
+CelestiArcana serves two purposes:
 1. **Standalone Product:** Monetized tarot readings and horoscopes
 2. **Mobile Funnel:** Gateway to Tarot Saga mobile game
 

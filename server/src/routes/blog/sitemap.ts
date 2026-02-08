@@ -9,7 +9,7 @@ const router = Router();
 
 router.get('/sitemap.xml', async (req, res) => {
   try {
-    const baseUrl = process.env.FRONTEND_URL || 'https://mysticoracle.com';
+    const baseUrl = process.env.FRONTEND_URL || 'https://celestiarcana.com';
 
     // Get all published posts
     const posts = await prisma.blogPost.findMany({

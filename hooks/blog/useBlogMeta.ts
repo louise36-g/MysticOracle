@@ -24,7 +24,7 @@ export function useBlogMeta({ post, language, isPreview }: UseBlogMetaParams): v
       seoManagerRef.current.updatePageMeta(post, language);
     } else {
       // Simple title for preview mode
-      document.title = `Preview: ${post.titleEn} | MysticOracle`;
+      document.title = `Preview: ${post.titleEn} | CelestiArcana`;
     }
 
     // Cleanup meta tags when unmounting

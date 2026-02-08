@@ -12,7 +12,7 @@ Add traditional email + password registration alongside existing Google/Facebook
 1. Allow users to register with email + password (not just verification codes)
 2. Maintain social login options (Google, Facebook) with equal prominence
 3. Collect username after sign-up via welcome modal
-4. Match MysticOracle's mystical visual theme throughout
+4. Match CelestiArcana's mystical visual theme throughout
 
 ## Design Decisions
 
@@ -51,7 +51,7 @@ Add traditional email + password registration alongside existing Google/Facebook
 
 - Full-screen layout with cosmic/mystical background
 - Clerk's `<SignUp />` component with custom appearance
-- Themed to match MysticOracle aesthetic
+- Themed to match CelestiArcana aesthetic
 - Link to `/sign-in` at bottom
 
 #### `/sign-in` - SignInPage.tsx
@@ -174,7 +174,7 @@ These should be public routes (no ProtectedRoute wrapper).
 
 ## Clerk Appearance Tokens
 
-To match MysticOracle theme:
+To match CelestiArcana theme:
 
 ```typescript
 appearance={{

@@ -115,7 +115,7 @@ All admin endpoints require:
   "slug": "the-fool-meaning",
   "excerpt": "Discover the meaning...",
   "content": "<p>Long HTML content...</p>",
-  "author": "MysticOracle Team",
+  "author": "CelestiArcana Team",
   "categories": ["tarot-meanings"],
   "tags": ["major-arcana", "beginnings"],
   "readTime": "12 min read",

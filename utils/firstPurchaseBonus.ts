@@ -3,7 +3,7 @@
  * Tracks whether users have completed their first purchase to award bonus credits
  */
 
-const FIRST_PURCHASE_KEY = 'mysticoracle_first_purchase';
+const FIRST_PURCHASE_KEY = 'celestiarcana_first_purchase';
 
 export const FIRST_PURCHASE_BONUS_PERCENT = 25;
 

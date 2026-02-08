@@ -49,7 +49,7 @@ router.get('/me/export', requireAuth, async (req, res) => {
     });
 
     // Set headers for file download
-    const filename = `mysticoracle-data-${new Date().toISOString().split('T')[0]}.json`;
+    const filename = `celestiarcana-data-${new Date().toISOString().split('T')[0]}.json`;
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
@@ -205,7 +205,7 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
     // Send notification email to refunds inbox
     try {
       await sendEmail({
-        to: 'refunds@mysticoracle.com',
+        to: 'refunds@celestiarcana.com',
         subject: `Withdrawal Request - ${orderReference}`,
         htmlContent: `
           <h2>New Withdrawal Request</h2>
@@ -230,16 +230,16 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
     try {
       await sendEmail({
         to: email,
-        subject: 'Withdrawal Request Received - MysticOracle',
+        subject: 'Withdrawal Request Received - CelestiArcana',
         htmlContent: `
           <h2>Withdrawal Request Confirmation</h2>
           <p>We have received your withdrawal request for order <strong>${orderReference}</strong>.</p>
           <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
           <p><strong>Request Date:</strong> ${new Date().toLocaleDateString()}</p>
           <p>Your request will be processed within 14 days as required by EU consumer protection law.</p>
-          <p>If you have any questions, please contact us at refunds@mysticoracle.com</p>
+          <p>If you have any questions, please contact us at refunds@celestiarcana.com</p>
           <hr>
-          <p style="color: #666; font-size: 12px;">MysticOracle - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
+          <p style="color: #666; font-size: 12px;">CelestiArcana - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
         `,
       });
     } catch (emailError) {

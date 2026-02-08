@@ -1,7 +1,7 @@
 # Translation System Testing Checklist
 
 **Date:** 2026-01-13
-**Project:** MysticOracle Dynamic Translations Refactor
+**Project:** CelestiArcana Dynamic Translations Refactor
 
 ## Overview
 

@@ -80,7 +80,7 @@ interface LimitStatus {
 
 const SpendingLimitsContext = createContext<SpendingLimitsContextType | null>(null);
 
-const STORAGE_KEY_PREFIX = 'mysticoracle_spending_';
+const STORAGE_KEY_PREFIX = 'celestiarcana_spending_';
 const COOLING_OFF_HOURS = 24;
 const CONSECUTIVE_PURCHASE_THRESHOLD = 3;
 const CONSECUTIVE_PURCHASE_WINDOW_MS = 30 * 60 * 1000; // 30 minutes

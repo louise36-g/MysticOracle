@@ -12,7 +12,7 @@ interface ConsentSettings {
   timestamp: number;
 }
 
-const CONSENT_KEY = 'mysticoracle_cookie_consent';
+const CONSENT_KEY = 'celestiarcana_cookie_consent';
 const CONSENT_VERSION = 1; // Increment when policy changes
 
 const CookieConsent: React.FC = () => {

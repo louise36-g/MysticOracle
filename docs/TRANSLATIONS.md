@@ -1,11 +1,11 @@
-# MysticOracle Translation System
+# CelestiArcana Translation System
 
 **Version:** 1.0
 **Last Updated:** 2026-01-13
 
 ## Overview
 
-MysticOracle uses a **dynamic, database-backed translation system** that allows all user-facing text to be edited from the admin panel without code changes. Translations are cached client-side for performance and version-tracked for automatic updates.
+CelestiArcana uses a **dynamic, database-backed translation system** that allows all user-facing text to be edited from the admin panel without code changes. Translations are cached client-side for performance and version-tracked for automatic updates.
 
 ## Architecture
 

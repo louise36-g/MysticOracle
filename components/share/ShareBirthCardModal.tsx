@@ -154,8 +154,8 @@ const ShareBirthCardModal: React.FC<ShareBirthCardModalProps> = ({
     lines.push('');
     lines.push('─'.repeat(30));
     lines.push(lang === 'en'
-      ? '🔮 For more tarot readings and birth charts, pop over to https://mysticoracle.com'
-      : '🔮 Pour plus de lectures de tarot et de thèmes astraux, rendez-vous sur https://mysticoracle.com'
+      ? '🔮 For more tarot readings and birth charts, pop over to https://celestiarcana.com'
+      : '🔮 Pour plus de lectures de tarot et de thèmes astraux, rendez-vous sur https://celestiarcana.com'
     );
 
     return lines.join('\n');

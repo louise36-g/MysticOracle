@@ -77,20 +77,20 @@ describe('SEOManager', () => {
     it('should update document title with post title', () => {
       manager.updatePageMeta(mockPost, 'en');
 
-      expect(document.title).toBe('SEO Title English | MysticOracle');
+      expect(document.title).toBe('SEO Title English | CelestiArcana');
     });
 
     it('should use French title when language is French', () => {
       manager.updatePageMeta(mockPost, 'fr');
 
-      expect(document.title).toBe('Titre SEO Français | MysticOracle');
+      expect(document.title).toBe('Titre SEO Français | CelestiArcana');
     });
 
     it('should fallback to titleEn if metaTitleEn is not set', () => {
       const postWithoutMetaTitle = { ...mockPost, metaTitleEn: undefined };
       manager.updatePageMeta(postWithoutMetaTitle, 'en');
 
-      expect(document.title).toBe('Test Blog Post | MysticOracle');
+      expect(document.title).toBe('Test Blog Post | CelestiArcana');
     });
 
     it('should create description meta tag', () => {
@@ -125,7 +125,7 @@ describe('SEOManager', () => {
       expect(ogType?.getAttribute('content')).toBe('article');
       expect(ogUrl?.getAttribute('content')).toBe('https://example.com/blog/test-post');
       expect(ogImage?.getAttribute('content')).toBe('https://example.com/og-image.jpg');
-      expect(ogSiteName?.getAttribute('content')).toBe('MysticOracle');
+      expect(ogSiteName?.getAttribute('content')).toBe('CelestiArcana');
       expect(ogLocale?.getAttribute('content')).toBe('en_US');
     });
 
@@ -180,7 +180,7 @@ describe('SEOManager', () => {
       expect(jsonLd.headline).toBe('Test Blog Post');
       expect(jsonLd.description).toBe('This is a test excerpt');
       expect(jsonLd.author.name).toBe('John Doe');
-      expect(jsonLd.publisher.name).toBe('MysticOracle');
+      expect(jsonLd.publisher.name).toBe('CelestiArcana');
       expect(jsonLd.datePublished).toBe('2024-01-01T00:00:00Z');
       expect(jsonLd.dateModified).toBe('2024-01-02T00:00:00Z');
       expect(jsonLd.keywords).toBe('Test');
@@ -212,7 +212,7 @@ describe('SEOManager', () => {
 
       manager.resetPageMeta();
 
-      expect(document.title).toBe('MysticOracle - AI Tarot Readings');
+      expect(document.title).toBe('CelestiArcana - AI Tarot Readings');
     });
 
     it('should remove article-specific meta tags', () => {

@@ -1011,7 +1011,7 @@ Create `docs/TRANSLATIONS.md`:
 
 ## Architecture Overview
 
-MysticOracle uses a database-backed translation system with intelligent client-side caching:
+CelestiArcana uses a database-backed translation system with intelligent client-side caching:
 
 ### Components
 
@@ -1200,10 +1200,10 @@ DELETE /api/translations/admin/translations/:id
 **Storage:** localStorage
 
 **Keys:**
-- `mystic_translations_en` - English translations object
-- `mystic_translations_fr` - French translations object
-- `mystic_translations_version_en` - English version number
-- `mystic_translations_version_fr` - French version number
+- `celesti_translations_en` - English translations object
+- `celesti_translations_fr` - French translations object
+- `celesti_translations_version_en` - English version number
+- `celesti_translations_version_fr` - French version number
 
 **TTL:** None (persists until invalidated)
 
@@ -1318,7 +1318,7 @@ describe('translate', () => {
 
 2. Check localStorage version:
    ```javascript
-   localStorage.getItem('mystic_translations_version_en')
+   localStorage.getItem('celesti_translations_version_en')
    ```
 
 3. If versions match but translation wrong:
@@ -1478,11 +1478,11 @@ Before marking this refactor complete, verify:
 2. Prisma migrations run automatically (no schema changes needed)
 3. Call seed endpoint:
    ```bash
-   curl -X POST https://api.mysticoracle.com/api/translations/admin/seed \
+   curl -X POST https://api.celestiarcana.com/api/translations/admin/seed \
      -H "Authorization: Bearer PRODUCTION_ADMIN_TOKEN"
    ```
 4. Verify seed succeeded: Check response for success + translation count
-5. Test API: `curl https://api.mysticoracle.com/api/translations/en`
+5. Test API: `curl https://api.celestiarcana.com/api/translations/en`
 
 ### Frontend Deployment
 

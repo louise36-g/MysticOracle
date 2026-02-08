@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-19
 **Status:** Approved
-**Goal:** Reduce reader drop-off on long-form tarot articles (2,000-3,000 words) through navigation aids and visual variety while staying on-brand with MysticOracle's mystical aesthetic.
+**Goal:** Reduce reader drop-off on long-form tarot articles (2,000-3,000 words) through navigation aids and visual variety while staying on-brand with CelestiArcana's mystical aesthetic.
 
 ---
 

@@ -1,7 +1,7 @@
-# MysticOracle SEO Optimization Guide
+# CelestiArcana SEO Optimization Guide
 
 ## Overview
-This document outlines the SEO optimizations implemented for MysticOracle homepage following technical SEO best practices for search visibility and user engagement.
+This document outlines the SEO optimizations implemented for CelestiArcana homepage following technical SEO best practices for search visibility and user engagement.
 
 ## Homepage Meta Tags Optimization
 
@@ -9,7 +9,7 @@ This document outlines the SEO optimizations implemented for MysticOracle homepa
 
 **Title Tag:**
 ```
-AI Tarot Readings & Daily Horoscopes - MysticOracle
+AI Tarot Readings & Daily Horoscopes - CelestiArcana
 ```
 - **Length:** 58 characters (optimal: 50-60)
 - **Primary keyword:** "AI tarot readings" (positioned within first 30 chars)
@@ -80,22 +80,22 @@ Created professional SVG favicon with:
 
 ```html
 <!-- SEO Meta Tags -->
-<title>AI Tarot Readings & Daily Horoscopes - MysticOracle</title>
-<meta name="title" content="AI Tarot Readings & Daily Horoscopes - MysticOracle" />
+<title>AI Tarot Readings & Daily Horoscopes - CelestiArcana</title>
+<meta name="title" content="AI Tarot Readings & Daily Horoscopes - CelestiArcana" />
 <meta name="description" content="Get instant AI-powered tarot readings with personalized guidance..." />
 <meta name="keywords" content="tarot, tarot reading, horoscope, AI tarot, fortune telling..." />
 <meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://mysticoracle.com" />
+<link rel="canonical" href="https://celestiarcana.com" />
 
 <!-- Open Graph (Social Sharing) -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="MysticOracle - AI-Powered Tarot Readings" />
+<meta property="og:title" content="CelestiArcana - AI-Powered Tarot Readings" />
 <meta property="og:description" content="Discover your destiny..." />
-<meta property="og:image" content="https://mysticoracle.com/og-image.jpg" />
+<meta property="og:image" content="https://celestiarcana.com/og-image.jpg" />
 
 <!-- Twitter Card -->
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="MysticOracle - AI-Powered Tarot Readings" />
+<meta property="twitter:title" content="CelestiArcana - AI-Powered Tarot Readings" />
 
 <!-- Favicon & PWA -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

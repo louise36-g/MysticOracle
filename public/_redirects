@@ -5,7 +5,7 @@
 /*    /index.html   200
 
 # Force HTTPS (Netlify handles this automatically, but just in case)
-# http://mysticoracle.com/*  https://mysticoracle.com/:splat  301!
+# http://celestiarcana.com/*  https://celestiarcana.com/:splat  301!
 
 # API proxy (if needed)
-# /api/*  https://api.mysticoracle.com/:splat  200
+# /api/*  https://api.celestiarcana.com/:splat  200

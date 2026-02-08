@@ -35,7 +35,7 @@ function BrandedLoadingScreen() {
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/background-mysticoracle.png")',
+        backgroundImage: 'url("/background-celestiarcana.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -49,7 +49,7 @@ function BrandedLoadingScreen() {
       {/* Logo/Brand */}
       <div className="relative z-10 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-10 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-          MysticOracle
+          CelestiArcana
         </h1>
 
         {/* Animated tarot cards - sequential bounce */}
@@ -154,7 +154,7 @@ export function RootLayout() {
       <div
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url("/background-mysticoracle.png")',
+          backgroundImage: 'url("/background-celestiarcana.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

@@ -1,4 +1,4 @@
-# MysticOracle UX Overhaul - Implementation Tracker
+# CelestiArcana UX Overhaul - Implementation Tracker
 
 ## Phase 1: Foundation (COMPLETED)
 

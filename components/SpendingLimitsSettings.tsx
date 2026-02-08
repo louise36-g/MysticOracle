@@ -85,7 +85,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mysticoracle-spending-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `celestiarcana-spending-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
     showFeedback('success', 'Spending history exported successfully');

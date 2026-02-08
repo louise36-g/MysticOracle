@@ -51,7 +51,7 @@ class InvoiceService {
     name: 'La Petite Voie',
     address: '7 rue Beauregard, 77171 Chalautre la Grande, France',
     siret: '92357809000014',
-    email: 'contact@mysticoracle.com',
+    email: 'contact@celestiarcana.com',
   };
 
   /**
@@ -320,7 +320,7 @@ class InvoiceService {
 </head>
 <body>
   <div class="header">
-    <div class="logo">🔮 MysticOracle</div>
+    <div class="logo">🔮 CelestiArcana</div>
     <div class="invoice-title">
       <h1>${labels.title}</h1>
       <p class="invoice-number">${labels.invoiceNumber} ${data.invoiceNumber}</p>
