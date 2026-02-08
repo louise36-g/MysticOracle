@@ -24,6 +24,8 @@ export {
   addFollowUpQuestion,
   updateReadingReflection,
   fetchUserTransactions,
+  checkUsernameAvailability,
+  updateUsername,
 } from './user';
 export type {
   UserProfile,

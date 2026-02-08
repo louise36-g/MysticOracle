@@ -2,9 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, BookOpen, Coins, ArrowRight, X } from 'lucide-react';
+import { Sparkles, BookOpen, Coins, ArrowRight, X, User, Check, AlertCircle } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
-import { markWelcomeCompleted } from '../services/api';
+import { markWelcomeCompleted, checkUsernameAvailability, updateUsername } from '../services/api';
 import { ROUTES } from '../routes/routes';
 import Button from './Button';
 
@@ -16,7 +16,7 @@ interface WelcomeModalProps {
   credits: number;
 }
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCreditShop, onRefreshUser, credits }) => {
   const { t } = useTranslation();
@@ -24,6 +24,35 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+  const [username, setUsername] = useState('');
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [needsUsername, setNeedsUsername] = useState(false);
+
+  // Check if user needs to set username (auto-generated or missing)
+  React.useEffect(() => {
+    const checkUsername = async () => {
+      const token = await getToken();
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/v1/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userData = await response.json();
+
+        if (!userData.username || userData.username.startsWith('user_')) {
+          setNeedsUsername(true);
+        }
+      } catch (error) {
+        console.error('Failed to check username:', error);
+      }
+    };
+
+    if (isOpen) {
+      checkUsername();
+    }
+  }, [isOpen, getToken]);
 
   const markComplete = useCallback(async () => {
     try {
@@ -37,6 +66,63 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
       console.error('Failed to mark welcome as completed:', error);
     }
   }, [getToken, onRefreshUser]);
+
+  const validateUsername = useCallback(async (value: string) => {
+    setUsername(value);
+    setUsernameError(null);
+
+    if (!value) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(value)) {
+      setUsernameStatus('invalid');
+      setUsernameError(
+        t('welcome.username.invalid_format', 'Must be 3-20 characters: letters, numbers, underscores')
+      );
+      return;
+    }
+
+    setUsernameStatus('checking');
+    try {
+      const result = await checkUsernameAvailability(value);
+      if (result.available) {
+        setUsernameStatus('available');
+      } else {
+        setUsernameStatus('taken');
+        setUsernameError(
+          result.reason === 'reserved'
+            ? t('welcome.username.reserved', 'This username is reserved')
+            : t('welcome.username.taken', 'This username is already taken')
+        );
+      }
+    } catch (error) {
+      setUsernameStatus('idle');
+      console.error('Failed to check username:', error);
+    }
+  }, [t]);
+
+  const handleSaveUsername = useCallback(async () => {
+    if (usernameStatus !== 'available') return;
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      await updateUsername(token, username);
+      await onRefreshUser();
+      setCurrentStep(1);
+    } catch (error) {
+      console.error('Failed to save username:', error);
+      setUsernameError(t('welcome.username.save_error', 'Failed to save username. Please try again.'));
+    }
+  }, [username, usernameStatus, getToken, onRefreshUser, t]);
+
+  const handleSkipUsername = useCallback(() => {
+    setCurrentStep(1);
+  }, []);
 
   const handleNext = useCallback(() => {
     if (currentStep < TOTAL_STEPS - 1) {
@@ -122,7 +208,86 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
 
             <div className="px-8 pb-8 pt-2 min-h-[320px] flex flex-col">
               <AnimatePresence mode="wait" custom={1}>
-                {currentStep === 0 && (
+                {currentStep === 0 && needsUsername && (
+                  <motion.div
+                    key="step-username"
+                    custom={1}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3 }}
+                    className="flex-1 flex flex-col items-center text-center"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6">
+                      <User className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-heading text-amber-100 mb-2">
+                      {t('welcome.username.title', 'Choose Your Mystical Name')}
+                    </h2>
+                    <p className="text-slate-400 mb-6">
+                      {t('welcome.username.subtitle', "This is how you'll be known in the realm of the cards")}
+                    </p>
+
+                    <div className="w-full max-w-xs">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={username}
+                          onChange={(e) => validateUsername(e.target.value)}
+                          placeholder={t('welcome.username.placeholder', 'Enter username...')}
+                          className={`w-full px-4 py-3 bg-slate-800 border rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors ${
+                            usernameStatus === 'available'
+                              ? 'border-green-500 focus:ring-green-500/50'
+                              : usernameStatus === 'taken' || usernameStatus === 'invalid'
+                              ? 'border-red-500 focus:ring-red-500/50'
+                              : 'border-slate-700 focus:ring-purple-500/50'
+                          }`}
+                          maxLength={20}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {usernameStatus === 'checking' && (
+                            <div className="w-5 h-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+                          )}
+                          {usernameStatus === 'available' && (
+                            <Check className="w-5 h-5 text-green-500" />
+                          )}
+                          {(usernameStatus === 'taken' || usernameStatus === 'invalid') && (
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                          )}
+                        </div>
+                      </div>
+
+                      {usernameError && (
+                        <p className="mt-2 text-sm text-red-400">{usernameError}</p>
+                      )}
+                      {usernameStatus === 'available' && (
+                        <p className="mt-2 text-sm text-green-400">
+                          {t('welcome.username.available', 'Username is available!')}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3 mt-8">
+                      <button
+                        onClick={handleSkipUsername}
+                        className="px-4 py-2 text-slate-400 hover:text-slate-300 transition-colors"
+                      >
+                        {t('welcome.username.skip', 'Skip for now')}
+                      </button>
+                      <Button
+                        onClick={handleSaveUsername}
+                        disabled={usernameStatus !== 'available'}
+                        className="flex items-center gap-2"
+                      >
+                        {t('welcome.username.continue', 'Continue')}
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {((currentStep === 0 && !needsUsername) || currentStep === 1) && (
                   <motion.div
                     key="step-0"
                     custom={1}
@@ -145,7 +310,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 1 && (
+                {currentStep === 2 && (
                   <motion.div
                     key="step-1"
                     custom={1}
@@ -179,7 +344,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 2 && (
+                {currentStep === 3 && (
                   <motion.div
                     key="step-2"
                     custom={1}
