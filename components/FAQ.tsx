@@ -10,7 +10,7 @@ import { ROUTES } from '../routes/routes';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
-const SUPPORT_EMAIL = 'support@celestiarcana.com';
+const SUPPORT_EMAIL = 'contact@celestiarcana.com';
 
 // All translations
 const content = {

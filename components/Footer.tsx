@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
               FAQ
             </Link>
             <a
-              href="mailto:privacy@celestiarcana.com"
+              href="mailto:contact@celestiarcana.com"
               className="text-slate-400 hover:text-purple-300 transition-colors"
             >
               Contact

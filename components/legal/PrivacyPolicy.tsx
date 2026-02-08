@@ -21,7 +21,7 @@ const PrivacyPolicy: React.FC = () => {
 **SIRET:** 92357809000014
 
 **Data Protection Officer (DPO):**
-Email: dpo@celestiarcana.com
+Email: contact@celestiarcana.com
 Address: 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 For any questions regarding your personal data or to exercise your rights, contact our DPO at the email address above. We aim to respond within 30 days.`
@@ -144,7 +144,7 @@ Object to processing based on legitimate interests or for direct marketing.
 Withdraw consent at any time for consent-based processing.
 
 **To exercise these rights:**
-Email: privacy@celestiarcana.com
+Email: contact@celestiarcana.com
 Response time: Within 30 days
 
 **Right to Lodge a Complaint:**
@@ -199,14 +199,14 @@ Users between 13 and 16 years old may use the service only with verifiable paren
 • Parents or guardians may contact us to request deletion of their child's data
 
 **Contact for Parental Requests:**
-Email: privacy@celestiarcana.com`
+Email: contact@celestiarcana.com`
         },
         {
           icon: Mail,
           title: '10. Contact Us',
           content: `For any questions about this Privacy Policy or your personal data:
 
-**Email:** privacy@celestiarcana.com
+**Email:** contact@celestiarcana.com
 **Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 We aim to respond to all inquiries within 30 days.`
@@ -228,7 +228,7 @@ We aim to respond to all inquiries within 30 days.`
 **SIRET:** 92357809000014
 
 **Délégué à la Protection des Données (DPO):**
-Email: dpo@celestiarcana.com
+Email: contact@celestiarcana.com
 Adresse: 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 Pour toute question concernant vos données personnelles ou pour exercer vos droits, contactez notre DPO à l'adresse email ci-dessus. Nous nous engageons à répondre sous 30 jours.`
@@ -351,7 +351,7 @@ S'opposer au traitement basé sur l'intérêt légitime ou pour le marketing dir
 Retirer votre consentement à tout moment pour les traitements basés sur le consentement.
 
 **Pour exercer ces droits :**
-Email : privacy@celestiarcana.com
+Email : contact@celestiarcana.com
 Délai de réponse : Sous 30 jours
 
 **Droit de Déposer une Plainte :**
@@ -406,14 +406,14 @@ Les utilisateurs entre 13 et 16 ans ne peuvent utiliser le service qu'avec le co
 • Les parents ou tuteurs peuvent nous contacter pour demander la suppression des données de leur enfant
 
 **Contact pour les Demandes Parentales :**
-Email : privacy@celestiarcana.com`
+Email : contact@celestiarcana.com`
         },
         {
           icon: Mail,
           title: '10. Nous Contacter',
           content: `Pour toute question concernant cette Politique de Confidentialité ou vos données personnelles :
 
-**Email :** privacy@celestiarcana.com
+**Email :** contact@celestiarcana.com
 **Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 Nous nous efforçons de répondre à toutes les demandes sous 30 jours.`

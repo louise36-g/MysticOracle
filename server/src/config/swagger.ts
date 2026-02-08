@@ -10,7 +10,7 @@ const options: swaggerJsdoc.Options = {
         'AI-powered tarot reading and horoscope API with user management, payments, and blog CMS',
       contact: {
         name: 'CelestiArcana Support',
-        email: 'support@celestiarcana.com',
+        email: 'contact@celestiarcana.com',
       },
     },
     servers: [

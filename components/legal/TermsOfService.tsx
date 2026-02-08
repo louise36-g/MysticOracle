@@ -52,7 +52,7 @@ You must be at least 16 years old to use this Service. Users between 13-16 may u
 **Refund Policy:**
 • Unused credits may be refunded within 14 days of purchase (EU withdrawal right)
 • Credits that have been used cannot be refunded
-• To request a refund, contact: refunds@celestiarcana.com
+• To request a refund, contact: contact@celestiarcana.com
 
 **Credit Expiration:**
 • Purchased credits do not expire
@@ -186,7 +186,7 @@ Vous devez avoir au moins 16 ans pour utiliser ce Service. Les utilisateurs entr
 **Politique de Remboursement :**
 • Les crédits non utilisés peuvent être remboursés dans les 14 jours suivant l'achat (droit de rétractation UE)
 • Les crédits utilisés ne peuvent pas être remboursés
-• Pour demander un remboursement, contactez : refunds@celestiarcana.com
+• Pour demander un remboursement, contactez : contact@celestiarcana.com
 
 **Expiration des Crédits :**
 • Les crédits achetés n'expirent pas

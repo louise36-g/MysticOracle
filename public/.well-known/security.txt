@@ -1,13 +1,13 @@
 # CelestiArcana Security Policy
 # https://securitytxt.org/
 
-Contact: mailto:security@celestiarcana.com
+Contact: mailto:contact@celestiarcana.com
 Expires: 2025-12-31T23:59:59.000Z
 Preferred-Languages: en, fr
 Canonical: https://celestiarcana.com/.well-known/security.txt
 
 # Security Acknowledgments
 # We appreciate responsible disclosure of security vulnerabilities.
-# Please report any security issues to security@celestiarcana.com
+# Please report any security issues to contact@celestiarcana.com
 
 Policy: https://celestiarcana.com/security-policy

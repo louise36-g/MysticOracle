@@ -205,7 +205,7 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
     // Send notification email to refunds inbox
     try {
       await sendEmail({
-        to: 'refunds@celestiarcana.com',
+        to: 'contact@celestiarcana.com',
         subject: `Withdrawal Request - ${orderReference}`,
         htmlContent: `
           <h2>New Withdrawal Request</h2>
@@ -237,7 +237,7 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
           <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
           <p><strong>Request Date:</strong> ${new Date().toLocaleDateString()}</p>
           <p>Your request will be processed within 14 days as required by EU consumer protection law.</p>
-          <p>If you have any questions, please contact us at refunds@celestiarcana.com</p>
+          <p>If you have any questions, please contact us at contact@celestiarcana.com</p>
           <hr>
           <p style="color: #666; font-size: 12px;">CelestiArcana - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
         `,

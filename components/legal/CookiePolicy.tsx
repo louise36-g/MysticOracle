@@ -111,18 +111,18 @@ You can also manage cookies through your browser settings:
 • **Withdraw Consent** - Change your cookie preferences at any time
 
 **How to exercise your rights:**
-Contact us at privacy@celestiarcana.com or use the cookie settings panel.`
+Contact us at contact@celestiarcana.com or use the cookie settings panel.`
         },
         {
           icon: Mail,
           title: '8. Contact Us',
           content: `For any questions about our use of cookies:
 
-**Email:** privacy@celestiarcana.com
+**Email:** contact@celestiarcana.com
 **Address:** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Data Protection Officer:**
-dpo@celestiarcana.com
+contact@celestiarcana.com
 
 **Response Time:**
 We aim to respond to all cookie-related inquiries within 30 days.`
@@ -234,18 +234,18 @@ Vous pouvez également gérer les cookies via les paramètres de votre navigateu
 • **Retrait du Consentement** - Modifier vos préférences de cookies à tout moment
 
 **Comment exercer vos droits :**
-Contactez-nous à privacy@celestiarcana.com ou utilisez le panneau de paramètres des cookies.`
+Contactez-nous à contact@celestiarcana.com ou utilisez le panneau de paramètres des cookies.`
         },
         {
           icon: Mail,
           title: '8. Nous Contacter',
           content: `Pour toute question concernant notre utilisation des cookies :
 
-**Email :** privacy@celestiarcana.com
+**Email :** contact@celestiarcana.com
 **Adresse :** 7 rue Beauregard, 77171 Chalautre la Grande, France
 
 **Délégué à la Protection des Données :**
-dpo@celestiarcana.com
+contact@celestiarcana.com
 
 **Délai de Réponse :**
 Nous nous efforçons de répondre à toutes les demandes relatives aux cookies dans un délai de 30 jours.`
