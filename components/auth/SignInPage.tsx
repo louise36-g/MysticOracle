@@ -58,16 +58,6 @@ const SignInPage: React.FC = () => {
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
-      {/* Don't have account - prominent placement */}
-      <div className="mb-2 p-3 text-center bg-purple-800/40 rounded-xl border border-purple-400/30">
-        <span className="text-purple-200">
-          {language === 'fr' ? 'Pas encore de compte ?' : "Don't have an account?"}
-        </span>{' '}
-        <Link to={ROUTES.SIGN_UP} className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
-          {language === 'fr' ? "S'inscrire" : 'Sign up'}
-        </Link>
-      </div>
-
       <SignIn
         appearance={clerkAppearance}
         routing="path"
@@ -75,6 +65,16 @@ const SignInPage: React.FC = () => {
         signUpUrl="/sign-up"
         forceRedirectUrl="/"
       />
+
+      {/* Don't have account - at bottom */}
+      <div className="mt-4 p-3 text-center bg-purple-800/40 rounded-xl border border-purple-400/30">
+        <span className="text-purple-200">
+          {language === 'fr' ? 'Pas encore de compte ?' : "Don't have an account?"}
+        </span>{' '}
+        <Link to={ROUTES.SIGN_UP} className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
+          {language === 'fr' ? "S'inscrire" : 'Sign up'}
+        </Link>
+      </div>
     </AuthLayout>
   );
 };
