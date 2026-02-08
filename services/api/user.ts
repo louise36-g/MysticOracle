@@ -300,3 +300,24 @@ export async function fetchUserTransactions(
 ): Promise<PaginatedResponse<Transaction>> {
   return apiRequest(`/api/v1/users/me/transactions?limit=${limit}&offset=${offset}`, { token });
 }
+
+// ============================================
+// USERNAME
+// ============================================
+
+export async function checkUsernameAvailability(
+  username: string
+): Promise<{ available: boolean; reason?: string; message?: string }> {
+  return apiRequest(`/api/v1/users/check-username?username=${encodeURIComponent(username)}`);
+}
+
+export async function updateUsername(
+  token: string,
+  username: string
+): Promise<UserProfile> {
+  return apiRequest<UserProfile>('/api/v1/users/me', {
+    method: 'PATCH',
+    body: { username },
+    token,
+  });
+}
