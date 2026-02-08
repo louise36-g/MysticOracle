@@ -58,6 +58,11 @@ const SignInPage: React.FC = () => {
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
+      {/* Sign in heading */}
+      <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">
+        {language === 'fr' ? 'Se connecter' : 'Sign in'}
+      </h2>
+
       <SignIn
         appearance={clerkAppearance}
         routing="path"

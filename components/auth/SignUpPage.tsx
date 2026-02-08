@@ -58,6 +58,11 @@ const SignUpPage: React.FC = () => {
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
+      {/* Sign up heading */}
+      <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">
+        {language === 'fr' ? 'Créer un compte' : 'Create account'}
+      </h2>
+
       <SignUp
         appearance={clerkAppearance}
         routing="path"
