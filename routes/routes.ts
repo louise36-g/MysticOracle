@@ -3,6 +3,8 @@ export const ROUTES = {
   HOME: '/',
 
   // Auth
+  SIGN_UP: '/sign-up',
+  SIGN_IN: '/sign-in',
   PROFILE: '/profile',
 
   // Reading flow (category-first)
