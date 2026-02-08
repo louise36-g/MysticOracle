@@ -223,8 +223,8 @@ const HomePage: React.FC = () => {
           <div className="text-center mb-8">
             <p className="text-base md:text-lg text-slate-300/90 max-w-xl mx-auto mb-6 leading-relaxed">
               {language === 'en'
-                ? 'Unveil the secrets of your destiny through Tarot, guided by artificial intelligence.'
-                : "Dévoilez les secrets de votre destin grâce au Tarot, guidé par l'intelligence artificielle."}
+                ? 'The ancient wisdom of the Tarot meets modern intuition. Let the cards illuminate your path and reveal the whispers of the cosmos.'
+                : "La sagesse ancestrale du Tarot rencontre l'intuition moderne. Laissez les cartes illuminer votre chemin et révéler les murmures du cosmos."}
             </p>
 
             <Link to={ROUTES.SIGN_IN}>
@@ -239,20 +239,20 @@ const HomePage: React.FC = () => {
             {[
               {
                 icon: Star,
-                title: t('app.App.ai_powered_insights', 'AI Insights'),
-                description: t('app.App.deep_contextaware_interpretations', 'Deep, context-aware interpretations'),
+                title: language === 'en' ? 'Intuitive Wisdom' : 'Sagesse Intuitive',
+                description: language === 'en' ? 'Readings that speak to your soul' : 'Des tirages qui parlent à votre âme',
                 gradient: 'from-violet-500 to-purple-600',
               },
               {
                 icon: Shield,
-                title: t('app.App.private_secure', 'Private & Secure'),
-                description: t('app.App.your_spiritual_journey_is_personal', 'Your spiritual journey stays personal'),
+                title: language === 'en' ? 'Sacred Space' : 'Espace Sacré',
+                description: language === 'en' ? 'Your journey remains yours alone' : 'Votre voyage vous appartient',
                 gradient: 'from-emerald-500 to-teal-600',
               },
               {
                 icon: Zap,
-                title: t('app.App.instant_clarity', 'Instant Clarity'),
-                description: t('app.App.get_answers_to_lifes_pressing_questions', "Answers in seconds"),
+                title: language === 'en' ? 'Celestial Guidance' : 'Guidance Céleste',
+                description: language === 'en' ? 'Clarity when you need it most' : 'La clarté quand vous en avez besoin',
                 gradient: 'from-amber-500 to-orange-600',
               }
             ].map((feature, index) => (
