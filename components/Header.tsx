@@ -1,6 +1,6 @@
 import React, { useState, useCallback, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
@@ -122,11 +122,11 @@ const Header: React.FC<HeaderProps> = () => {
           </button>
 
           <SignedOut>
-            <SignInButton mode="modal">
+            <Link to={ROUTES.SIGN_IN}>
               <Button variant="primary" size="sm">
                 {language === 'fr' ? 'Connexion' : 'Sign In'}
               </Button>
-            </SignInButton>
+            </Link>
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-3">
@@ -276,11 +276,11 @@ const Header: React.FC<HeaderProps> = () => {
 
               <SignedOut>
                 <div className="pt-2">
-                  <SignInButton mode="modal">
+                  <Link to={ROUTES.SIGN_IN} onClick={closeMobileMenu}>
                     <Button className="w-full" variant="primary">
                       {language === 'fr' ? 'Connexion' : 'Sign In'}
                     </Button>
-                  </SignInButton>
+                  </Link>
                 </div>
               </SignedOut>
               <SignedIn>
