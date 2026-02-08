@@ -293,7 +293,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
         return 'bg-gradient-to-r from-amber-500 to-orange-500';
       case 'value':
         return 'bg-gradient-to-r from-green-500 to-emerald-500';
-      case 'premium':
+      case 'enthusiast':
         return 'bg-gradient-to-r from-purple-500 to-pink-500';
       default:
         return 'bg-slate-600';
