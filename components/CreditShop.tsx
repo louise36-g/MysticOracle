@@ -81,6 +81,29 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const paymentSectionRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
 
+  // Unified selection for payment section
+  const currentSelection = useMemo(() => {
+    if (selectedQuickBuy) {
+      return {
+        type: 'quick' as const,
+        credits: selectedQuickBuy,
+        priceEur: selectedQuickBuy * QUICK_BUY_PRICE_PER_CREDIT,
+        packageId: `quick-${selectedQuickBuy}`,
+        name: `${selectedQuickBuy} Credit${selectedQuickBuy > 1 ? 's' : ''}`,
+      };
+    }
+    if (selectedPackage) {
+      return {
+        type: 'package' as const,
+        credits: selectedPackage.credits,
+        priceEur: selectedPackage.priceEur,
+        packageId: selectedPackage.id,
+        name: selectedPackage.nameEn,
+      };
+    }
+    return null;
+  }, [selectedQuickBuy, selectedPackage]);
+
   // Handle package selection with auto-scroll to payment inside modal
   const handleSelectPackage = useCallback((pkg: CreditPackage) => {
     setSelectedQuickBuy(null);
@@ -186,10 +209,10 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
 
   // Handle Stripe checkout
   const handleStripeCheckout = useCallback(async (useLink: boolean) => {
-    if (!selectedPackage) return;
+    if (!currentSelection) return;
 
     // Check spending limits first
-    if (!checkSpendingLimits(selectedPackage.priceEur)) {
+    if (!checkSpendingLimits(currentSelection.priceEur)) {
       return;
     }
 
@@ -201,10 +224,10 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       const token = await getToken();
       if (!token) throw new Error('Authentication required');
 
-      // Record the purchase attempt (will be finalized by webhook)
-      recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
+      // Record the purchase attempt
+      recordPurchase(currentSelection.priceEur, currentSelection.name);
 
-      const { url } = await createStripeCheckout(token, selectedPackage.id, useLink);
+      const { url } = await createStripeCheckout(token, currentSelection.packageId, useLink);
       if (url) {
         redirectToStripeCheckout(url);
       } else {
@@ -213,7 +236,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     } catch (err) {
       console.error('Stripe checkout error:', err);
       const message = err instanceof Error ? err.message : 'Payment failed';
-      // Provide more helpful error for network failures
       if (message === 'Failed to fetch') {
         setError(t('CreditShop.tsx.CreditShop.unable_to_connect', 'Unable to connect to payment server. Please check your connection and try again.'));
       } else {
@@ -223,14 +245,14 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
+  }, [currentSelection, getToken, checkSpendingLimits, recordPurchase, t]);
 
   // Handle PayPal checkout
   const handlePayPalCheckout = useCallback(async () => {
-    if (!selectedPackage) return;
+    if (!currentSelection) return;
 
     // Check spending limits first
-    if (!checkSpendingLimits(selectedPackage.priceEur)) {
+    if (!checkSpendingLimits(currentSelection.priceEur)) {
       return;
     }
 
@@ -243,9 +265,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       if (!token) throw new Error('Authentication required');
 
       // Record the purchase attempt
-      recordPurchase(selectedPackage.priceEur, selectedPackage.nameEn);
+      recordPurchase(currentSelection.priceEur, currentSelection.name);
 
-      const { approvalUrl } = await createPayPalOrder(token, selectedPackage.id);
+      const { approvalUrl } = await createPayPalOrder(token, currentSelection.packageId);
       if (approvalUrl) {
         window.location.href = approvalUrl;
       } else {
@@ -262,7 +284,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
       setLoading(false);
       setPaymentMethod(null);
     }
-  }, [selectedPackage, getToken, language, checkSpendingLimits, recordPurchase]);
+  }, [currentSelection, getToken, checkSpendingLimits, recordPurchase, t]);
 
   // Get badge color based on type
   const getBadgeStyles = (badge: string | null) => {
@@ -590,13 +612,13 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
 
             {/* Payment Methods Section */}
             <div ref={paymentSectionRef} className="mt-6 pt-6 border-t border-purple-500/20">
-              {selectedPackage ? (
+              {currentSelection ? (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-4"
                 >
-                  {/* Section header with selected package summary */}
+                  {/* Section header with selected summary */}
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-heading text-white flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-purple-400" />
@@ -604,7 +626,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                     </h3>
                     <div className="flex items-center gap-2 bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-500/30">
                       <Coins className="w-4 h-4 text-amber-400" />
-                      <span className="font-bold text-amber-300">{selectedPackage.credits}</span>
+                      <span className="font-bold text-amber-300">{currentSelection.credits}</span>
                       <span className="text-amber-200/70 text-sm">
                         {t('CreditShop.tsx.CreditShop.credits_3', 'credits')}
                       </span>
@@ -640,7 +662,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                         <Loader2 className="w-6 h-6 text-green-400 animate-spin" />
                       ) : (
                         <div className="text-right">
-                          <span className="text-2xl font-bold text-green-400">€{selectedPackage.priceEur.toFixed(2)}</span>
+                          <span className="text-2xl font-bold text-green-400">€{currentSelection.priceEur.toFixed(2)}</span>
                         </div>
                       )}
                     </motion.button>
@@ -669,7 +691,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       {loading && paymentMethod === 'stripe' ? (
                         <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
                       ) : (
-                        <span className="text-xl font-bold text-purple-300">€{selectedPackage.priceEur.toFixed(2)}</span>
+                        <span className="text-xl font-bold text-purple-300">€{currentSelection.priceEur.toFixed(2)}</span>
                       )}
                     </motion.button>
 
@@ -695,7 +717,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       {loading && paymentMethod === 'paypal' ? (
                         <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
                       ) : (
-                        <span className="text-xl font-bold text-blue-300">€{selectedPackage.priceEur.toFixed(2)}</span>
+                        <span className="text-xl font-bold text-blue-300">€{currentSelection.priceEur.toFixed(2)}</span>
                       )}
                     </motion.button>
                   </div>
