@@ -227,7 +227,7 @@ const HomePage: React.FC = () => {
                 : "Dévoilez les secrets de votre destin grâce au Tarot, guidé par l'intelligence artificielle."}
             </p>
 
-            <Link to={ROUTES.SIGN_UP}>
+            <Link to={ROUTES.SIGN_IN}>
               <Button size="lg" variant="mystical" glow>
                 {t('app.App.start_your_reading', 'Start Your Reading')}
               </Button>
