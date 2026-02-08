@@ -219,7 +219,7 @@ export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Pr
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-    year: 'numeric',
+    // Note: year omitted - AI models may refuse dates beyond their training cutoff
   });
 
   try {

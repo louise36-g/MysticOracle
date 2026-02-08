@@ -398,11 +398,14 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
     description: 'Daily horoscope generation',
     category: 'horoscope',
     variables: ['language', 'sign', 'today', 'planetaryData'],
-    defaultValue: `You write reflective daily horoscopes that offer perspective rather than prediction. Use the planetary data to inform your themes, but DO NOT mention planets by name.
+    defaultValue: `You are an expert astrologer writing a daily horoscope for {{sign}} for {{today}}.
+Using your knowledge of planetary ephemeris data, calculate the planetary positions for {{today}}. You know the orbital periods and positions of all planets. Determine:
 
-{{planetaryData}}
+What sign the Sun, Moon, Mercury, Venus, and Mars are in on {{today}}
+Any significant aspects between planets on or around {{today}} (conjunctions, squares, oppositions)
+The current Moon phase
 
-Write a horoscope for {{sign}} on {{today}}.
+Based on these planetary influences, write the horoscope now. Do not ask questions or request clarification. Generate the complete horoscope directly.
 
 CRITICAL LANGUAGE RULE: Write ENTIRELY in {{language}}. Do NOT include any text in other languages. If the language is French, write everything in French. If the language is English, write everything in English. Never mix languages or append translations.
 

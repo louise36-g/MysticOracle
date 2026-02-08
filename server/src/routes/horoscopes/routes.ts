@@ -198,7 +198,7 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
+      // Note: year omitted - AI models may refuse dates beyond their training cutoff
     });
 
     // Convert history to OpenRouter message format
