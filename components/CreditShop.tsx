@@ -44,6 +44,10 @@ const StripeLinkIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Quick-buy options: 1-5 credits at €0.50 each
+const QUICK_BUY_OPTIONS = [1, 2, 3, 4, 5] as const;
+const QUICK_BUY_PRICE_PER_CREDIT = 0.50;
+
 // Low balance threshold
 const LOW_BALANCE_THRESHOLD = 5;
 
@@ -73,11 +77,13 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const [showSpendingLimits, setShowSpendingLimits] = useState(false);
   const [showBreakReminder, setShowBreakReminder] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState<{ method: 'stripe' | 'stripe_link' | 'paypal' } | null>(null);
+  const [selectedQuickBuy, setSelectedQuickBuy] = useState<number | null>(null);
   const paymentSectionRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   // Handle package selection with auto-scroll to payment inside modal
   const handleSelectPackage = useCallback((pkg: CreditPackage) => {
+    setSelectedQuickBuy(null);
     setSelectedPackage(pkg);
     // Scroll to payment section within the modal after animation settles
     setTimeout(() => {
@@ -106,6 +112,20 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
         };
 
         requestAnimationFrame(animateScroll);
+      }
+    }, 300);
+  }, []);
+
+  const handleSelectQuickBuy = useCallback((credits: number) => {
+    setSelectedQuickBuy(credits);
+    setSelectedPackage(null);
+    // Scroll to payment section
+    setTimeout(() => {
+      if (paymentSectionRef.current && modalContentRef.current) {
+        const modal = modalContentRef.current;
+        const paymentSection = paymentSectionRef.current;
+        const paymentTop = paymentSection.offsetTop - 100;
+        modal.scrollTo({ top: paymentTop, behavior: 'smooth' });
       }
     }, 300);
   }, []);
@@ -381,6 +401,50 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                 </div>
               </motion.div>
             )}
+
+            {/* Quick Buy Section */}
+            <div className="mb-6 p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-medium text-slate-200">
+                  {t('CreditShop.tsx.CreditShop.quick_buy', 'Quick Buy')}
+                </h3>
+                <span className="text-xs text-slate-400">
+                  {t('CreditShop.tsx.CreditShop.price_per_credit', '€0.50 per credit')}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                {QUICK_BUY_OPTIONS.map((credits) => {
+                  const isSelected = selectedQuickBuy === credits;
+                  const price = (credits * QUICK_BUY_PRICE_PER_CREDIT).toFixed(2);
+                  return (
+                    <button
+                      key={credits}
+                      onClick={() => handleSelectQuickBuy(credits)}
+                      className={`flex-1 py-3 px-2 rounded-lg border-2 transition-all text-center ${
+                        isSelected
+                          ? 'border-amber-400 bg-amber-900/30 shadow-lg shadow-amber-500/20'
+                          : 'border-slate-600 bg-slate-800/50 hover:border-purple-500/50'
+                      }`}
+                    >
+                      <div className="text-xl font-bold text-white">{credits}</div>
+                      <div className={`text-xs ${isSelected ? 'text-amber-300' : 'text-slate-400'}`}>
+                        €{price}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Better Value Divider */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+              <span className="text-xs text-slate-400 uppercase tracking-wider">
+                {t('CreditShop.tsx.CreditShop.better_value', 'Better Value')}
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+            </div>
 
             {/* Package Selection - Custom Layout: 2 small on top, 3 larger below */}
             <div className="space-y-4 mb-6">
