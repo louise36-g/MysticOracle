@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser, SignInButton } from '@clerk/clerk-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
 import Button from './Button';
@@ -227,11 +227,11 @@ const HomePage: React.FC = () => {
                 : "Dévoilez les secrets de votre destin grâce au Tarot, guidé par l'intelligence artificielle."}
             </p>
 
-            <SignInButton mode="modal">
+            <Link to={ROUTES.SIGN_UP}>
               <Button size="lg" variant="mystical" glow>
                 {t('app.App.start_your_reading', 'Start Your Reading')}
               </Button>
-            </SignInButton>
+            </Link>
           </div>
 
           {/* Feature cards - horizontal compact layout */}

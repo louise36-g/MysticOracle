@@ -25,11 +25,11 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
         <Link to={ROUTES.HOME} className="flex items-center justify-center gap-2 mb-8">
           <img
             src="/logos/mysticoracle-comet-cream.svg"
-            alt="MysticOracle"
+            alt="CelestiArcana"
             className="h-12 w-auto"
           />
           <span className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
-            MysticOracle
+            CelestiArcana
           </span>
         </Link>
 
@@ -44,7 +44,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
         </div>
 
         {/* Clerk component container */}
-        <div className="bg-slate-900/80 backdrop-blur border border-purple-500/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10">
+        <div className="bg-violet-950/70 backdrop-blur-md border border-purple-400/40 rounded-2xl p-6 shadow-2xl shadow-purple-500/20">
           {children}
         </div>
       </div>

@@ -126,13 +126,13 @@ export const router = createBrowserRouter(
         element: lazyLoad(() => import('../components/HomePage')),
       },
 
-      // Auth routes
+      // Auth routes (with wildcards for Clerk's multi-step flows)
       {
-        path: ROUTES.SIGN_UP,
+        path: '/sign-up/*',
         element: <SignUpPage />,
       },
       {
-        path: ROUTES.SIGN_IN,
+        path: '/sign-in/*',
         element: <SignInPage />,
       },
 
