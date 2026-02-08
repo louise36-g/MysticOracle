@@ -94,6 +94,67 @@ router.patch('/me', requireAuth, async (req, res) => {
 });
 
 // ============================================
+// USERNAME AVAILABILITY CHECK
+// ============================================
+
+// Check if username is available
+router.get('/check-username', async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    // Validate format
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({
+        available: false,
+        reason: 'invalid_format',
+        message: 'Username must be 3-20 characters, letters, numbers, and underscores only',
+      });
+    }
+
+    // Check reserved usernames
+    const reserved = [
+      'admin',
+      'administrator',
+      'support',
+      'help',
+      'system',
+      'mysticoracle',
+      'moderator',
+      'mod',
+    ];
+    if (reserved.includes(username.toLowerCase())) {
+      return res.status(200).json({
+        available: false,
+        reason: 'reserved',
+      });
+    }
+
+    // Check if username exists (case-insensitive)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: username,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    res.json({
+      available: !existingUser,
+      reason: existingUser ? 'already_taken' : undefined,
+    });
+  } catch (error) {
+    console.error('Error checking username:', error);
+    res.status(500).json({ error: 'Failed to check username' });
+  }
+});
+
+// ============================================
 // CREDITS
 // ============================================
 
