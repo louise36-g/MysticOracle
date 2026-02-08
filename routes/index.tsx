@@ -5,6 +5,7 @@ import { RootLayout } from '../components/layout/RootLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
 import { AdminRoute } from '../components/routing/AdminRoute';
 import AdminLayout from '../components/admin/AdminLayout';
+import { SignUpPage, SignInPage } from '../components/auth';
 
 // Loading fallback for lazy components
 const PageLoader = () => (
@@ -123,6 +124,16 @@ export const router = createBrowserRouter(
       {
         path: ROUTES.HOME,
         element: lazyLoad(() => import('../components/HomePage')),
+      },
+
+      // Auth routes
+      {
+        path: ROUTES.SIGN_UP,
+        element: <SignUpPage />,
+      },
+      {
+        path: ROUTES.SIGN_IN,
+        element: <SignInPage />,
       },
 
       // Blog routes
