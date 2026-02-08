@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
-import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles } from 'lucide-react';
+import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles, Plus } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -92,14 +92,23 @@ const Header: React.FC<HeaderProps> = () => {
         {/* Desktop Nav - Simplified */}
         <nav className="hidden md:flex items-center gap-3" role="navigation" aria-label="Main navigation">
           {isSignedIn && (
-            <button
-              onClick={() => setShowCreditShop(true)}
-              data-credit-counter
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
-            >
-              <Coins className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-bold text-purple-100">{userCredits}</span>
-            </button>
+            <>
+              <button
+                onClick={() => setShowCreditShop(true)}
+                data-credit-counter
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
+              >
+                <Coins className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-bold text-purple-100">{userCredits}</span>
+              </button>
+              <button
+                onClick={() => setShowCreditShop(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/50 hover:border-purple-400 hover:bg-purple-900/30 transition-colors text-purple-200 hover:text-white text-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{language === 'fr' ? 'Acheter' : 'Buy Credits'}</span>
+              </button>
+            </>
           )}
 
           {isAdmin && (
