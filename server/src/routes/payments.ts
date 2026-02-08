@@ -14,12 +14,26 @@ const router = Router();
 
 // Validation schemas
 const stripeCheckoutSchema = z.object({
-  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium']),
+  packageId: z
+    .string()
+    .refine(
+      val =>
+        ['starter', 'basic', 'popular', 'value', 'premium'].includes(val) ||
+        /^quick-[1-5]$/.test(val),
+      { message: 'Invalid package ID' }
+    ),
   useStripeLink: z.boolean().optional().default(false),
 });
 
 const paypalOrderSchema = z.object({
-  packageId: z.enum(['starter', 'basic', 'popular', 'value', 'premium']),
+  packageId: z
+    .string()
+    .refine(
+      val =>
+        ['starter', 'basic', 'popular', 'value', 'premium'].includes(val) ||
+        /^quick-[1-5]$/.test(val),
+      { message: 'Invalid package ID' }
+    ),
 });
 
 const paypalCaptureSchema = z.object({

@@ -88,6 +88,33 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
   },
 ];
 
+// Quick-buy price per credit
+const QUICK_BUY_PRICE_PER_CREDIT = 0.5;
+
+// Helper to get package by ID (supports both predefined and quick-buy)
+function getPackageForId(packageId: string): CreditPackage | null {
+  // Check if it's a quick-buy package
+  const quickBuyMatch = packageId.match(/^quick-([1-5])$/);
+  if (quickBuyMatch) {
+    const credits = parseInt(quickBuyMatch[1], 10);
+    return {
+      id: packageId,
+      credits,
+      priceEur: credits * QUICK_BUY_PRICE_PER_CREDIT,
+      name: `Quick Buy ${credits}`,
+      nameEn: `${credits} Credit${credits > 1 ? 's' : ''}`,
+      nameFr: `${credits} Crédit${credits > 1 ? 's' : ''}`,
+      labelEn: 'Quick Buy',
+      labelFr: 'Achat Rapide',
+      discount: 0,
+      badge: null,
+    };
+  }
+
+  // Otherwise look up in predefined packages
+  return CREDIT_PACKAGES.find(p => p.id === packageId) || null;
+}
+
 export class CreateCheckoutUseCase {
   private gateways: Map<string, IPaymentGateway> = new Map();
 
@@ -115,7 +142,7 @@ export class CreateCheckoutUseCase {
       }
 
       // 2. Find the credit package
-      const creditPackage = CREDIT_PACKAGES.find(p => p.id === input.packageId);
+      const creditPackage = getPackageForId(input.packageId);
       if (!creditPackage) {
         return {
           success: false,
