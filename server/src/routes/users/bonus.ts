@@ -102,7 +102,13 @@ router.post('/me/daily-bonus', requireAuth, async (req, res, next) => {
       description: `Daily login bonus (${newStreak} day streak)`,
     });
 
-    // Update streak and last login date
+    // Verify credits were actually added before updating user state
+    if (!result.success) {
+      console.error('[Daily Bonus] Credit addition failed:', result.error);
+      throw new Error(result.error || 'Failed to add bonus credits');
+    }
+
+    // Update streak and last login date (only after credits confirmed)
     await prisma.user.update({
       where: { id: userId },
       data: {
