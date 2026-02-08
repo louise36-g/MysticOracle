@@ -1,4 +1,3 @@
-// TEST: Auto-deploy webhook test - will be removed
 import React, { useState, useCallback, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
