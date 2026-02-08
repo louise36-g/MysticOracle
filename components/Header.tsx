@@ -187,14 +187,21 @@ const Header: React.FC<HeaderProps> = () => {
                   <Link to={ROUTES.PROFILE} onClick={closeMobileMenu} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {displayName}
                   </Link>
-                  <button
-                    onClick={() => { setShowCreditShop(true); setIsMobileMenuOpen(false); }}
-                    className="flex items-center gap-2 font-bold text-amber-400 hover:text-amber-300 transition-colors"
-                  >
+                  <div className="flex items-center gap-2 text-amber-400">
                     <Coins className="w-4 h-4" />
-                    {userCredits} {language === 'fr' ? 'Crédits' : 'Credits'}
-                  </button>
+                    <span className="font-bold">{userCredits}</span>
+                  </div>
                 </div>
+              )}
+
+              {isSignedIn && (
+                <button
+                  onClick={() => { setShowCreditShop(true); setIsMobileMenuOpen(false); }}
+                  className="flex items-center gap-3 w-full text-left p-3 rounded-lg bg-purple-900/40 border border-purple-500/30 hover:bg-purple-800/40 transition-colors text-purple-200 hover:text-white mb-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  {language === 'fr' ? 'Acheter des crédits' : 'Buy Credits'}
+                </button>
               )}
 
               <Link
