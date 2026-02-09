@@ -87,6 +87,12 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     injectionMode: InjectionMode.CLASSIC,
   });
 
+  // Debug: Log env vars at container creation time
+  console.log('[DI Container] Creating container, checking env vars:');
+  console.log(
+    `[DI Container] STRIPE_SECRET_KEY at creation: ${process.env.STRIPE_SECRET_KEY ? 'SET (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : 'NOT SET'}`
+  );
+
   // Register configuration values
   container.register({
     // Environment config
