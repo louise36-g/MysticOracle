@@ -140,32 +140,30 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
   });
 
   // Register payment gateways (singletons)
+  // Read env vars directly in factories to avoid DI resolution issues
   container.register({
-    stripeGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
-      console.log(
-        '[DI] Creating stripeGateway, stripeSecretKey:',
-        stripeSecretKey ? 'SET' : 'NOT SET'
-      );
-      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, false);
+    stripeGateway: asFunction(() => {
+      const key = process.env.STRIPE_SECRET_KEY;
+      const webhook = process.env.STRIPE_WEBHOOK_SECRET;
+      console.log('[DI] Creating stripeGateway, key from env:', key ? 'SET' : 'NOT SET');
+      return new StripeGateway(key, webhook, false);
     }).singleton(),
 
-    stripeLinkGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
-      console.log(
-        '[DI] Creating stripeLinkGateway, stripeSecretKey:',
-        stripeSecretKey ? 'SET' : 'NOT SET'
-      );
-      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, true);
+    stripeLinkGateway: asFunction(() => {
+      const key = process.env.STRIPE_SECRET_KEY;
+      const webhook = process.env.STRIPE_WEBHOOK_SECRET;
+      console.log('[DI] Creating stripeLinkGateway, key from env:', key ? 'SET' : 'NOT SET');
+      return new StripeGateway(key, webhook, true);
     }).singleton(),
 
-    paypalGateway: asFunction(
-      ({ paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive }) => {
-        console.log(
-          '[DI] Creating paypalGateway, paypalClientId:',
-          paypalClientId ? 'SET' : 'NOT SET'
-        );
-        return new PayPalGateway(paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive);
-      }
-    ).singleton(),
+    paypalGateway: asFunction(() => {
+      const clientId = process.env.PAYPAL_CLIENT_ID;
+      const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+      const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+      const isLive = process.env.PAYPAL_MODE === 'live';
+      console.log('[DI] Creating paypalGateway, clientId from env:', clientId ? 'SET' : 'NOT SET');
+      return new PayPalGateway(clientId, clientSecret, webhookId, isLive);
+    }).singleton(),
 
     // Array of all payment gateways for use cases
     paymentGateways: asFunction(({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
