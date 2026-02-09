@@ -27,7 +27,14 @@ export class StripeGateway implements IPaymentGateway {
     this.webhookSecret = webhookSecret || null;
 
     if (secretKey) {
-      this.stripe = new Stripe(secretKey, { apiVersion: '2026-01-28.clover' });
+      try {
+        this.stripe = new Stripe(secretKey, {
+          apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
+        });
+      } catch (err) {
+        console.error('Failed to initialize Stripe:', err);
+        this.stripe = null;
+      }
     }
   }
 

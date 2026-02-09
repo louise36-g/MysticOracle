@@ -30,6 +30,25 @@ const container = createAppContainer();
 // Log container initialization
 console.log('🔧 DI Container initialized');
 
+// Debug: Check payment gateway status
+try {
+  const stripeGateway = container.resolve('stripeGateway');
+  const stripeLinkGateway = container.resolve('stripeLinkGateway');
+  const paypalGateway = container.resolve('paypalGateway');
+  console.log('💳 Payment gateways status:');
+  console.log(
+    `   - Stripe: ${stripeGateway ? (stripeGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
+  );
+  console.log(
+    `   - Stripe Link: ${stripeLinkGateway ? (stripeLinkGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
+  );
+  console.log(
+    `   - PayPal: ${paypalGateway ? (paypalGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
+  );
+} catch (err) {
+  console.error('❌ Error resolving payment gateways:', err);
+}
+
 // Rate limiting configurations
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
