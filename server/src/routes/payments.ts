@@ -89,16 +89,19 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
 // Verify Stripe payment
 router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
   try {
+    console.log('[Stripe Verify] Verifying session:', req.params.sessionId);
     const stripeGateway = req.container.resolve('stripeGateway');
 
     if (!stripeGateway.isConfigured()) {
+      console.log('[Stripe Verify] Gateway not configured');
       return res.status(503).json({ error: 'Stripe payments not configured' });
     }
 
     const verification = await stripeGateway.verifyPayment(req.params.sessionId);
+    console.log('[Stripe Verify] Result:', verification);
     res.json(verification);
   } catch (error) {
-    console.error('Error verifying payment:', error);
+    console.error('[Stripe Verify] Error:', error);
     res.status(500).json({ error: 'Failed to verify payment' });
   }
 });

@@ -98,7 +98,10 @@ export class StripeGateway implements IPaymentGateway {
       throw new Error('Stripe is not configured');
     }
 
+    console.log('[StripeGateway] Retrieving session:', sessionId);
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    console.log('[StripeGateway] Session payment_status:', session.payment_status);
+    console.log('[StripeGateway] Session metadata:', session.metadata);
 
     if (session.payment_status === 'paid') {
       return {
