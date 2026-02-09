@@ -79,11 +79,11 @@ export class PayPalGateway implements IPaymentGateway {
               currencyCode: 'EUR',
               value: params.creditPackage.priceEur.toFixed(2),
             },
-            description: `${params.creditPackage.credits} credits for CelestiArcana`,
+            description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
             customId: JSON.stringify({
               userId: params.userId,
               packageId: params.creditPackage.id,
-              credits: params.creditPackage.credits,
+              credits: params.creditPackage.credits + (params.creditPackage.bonusCredits || 0),
             }),
           },
         ],

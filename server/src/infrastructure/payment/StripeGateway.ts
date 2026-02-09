@@ -50,7 +50,7 @@ export class StripeGateway implements IPaymentGateway {
             currency: 'eur',
             product_data: {
               name: params.creditPackage.name,
-              description: `${params.creditPackage.credits} credits for CelestiArcana`,
+              description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
             },
             unit_amount: Math.round(params.creditPackage.priceEur * 100),
           },
@@ -60,7 +60,9 @@ export class StripeGateway implements IPaymentGateway {
       metadata: {
         userId: params.userId,
         packageId: params.creditPackage.id,
-        credits: params.creditPackage.credits.toString(),
+        credits: (
+          params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)
+        ).toString(),
       },
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,

@@ -12,6 +12,7 @@ import type { Transaction } from './user';
 export interface CreditPackage {
   id: string;
   credits: number;
+  bonusCredits?: number; // Free bonus credits (e.g., "10 + 2 FREE")
   priceEur: number;
   name: string;
   nameEn: string;

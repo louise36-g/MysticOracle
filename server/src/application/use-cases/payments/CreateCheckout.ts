@@ -29,24 +29,26 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
   {
     id: 'starter',
     credits: 10,
+    bonusCredits: 2,
     priceEur: 5.0,
     name: 'Starter',
     nameEn: 'Starter',
     nameFr: 'Démarrage',
-    labelEn: 'Try It Out',
-    labelFr: 'Essayez',
+    labelEn: '+2 FREE',
+    labelFr: '+2 GRATUITS',
     discount: 0,
     badge: null,
   },
   {
     id: 'basic',
     credits: 25,
+    bonusCredits: 6,
     priceEur: 10.0,
     name: 'Basic',
     nameEn: 'Basic',
     nameFr: 'Basique',
-    labelEn: 'Popular',
-    labelFr: 'Populaire',
+    labelEn: '+6 FREE',
+    labelFr: '+6 GRATUITS',
     discount: 20,
     badge: null,
   },
@@ -171,12 +173,17 @@ export class CreateCheckoutUseCase {
         cancelUrl: `${input.frontendUrl}/payment/cancelled`,
       });
 
-      // 5. Create pending transaction
+      // 5. Create pending transaction (include bonus credits in total)
+      const totalCredits = creditPackage.credits + (creditPackage.bonusCredits || 0);
+      const description = creditPackage.bonusCredits
+        ? `Purchase: ${creditPackage.name} (${creditPackage.credits} + ${creditPackage.bonusCredits} bonus)`
+        : `Purchase: ${creditPackage.name}`;
+
       await this.transactionRepository.create({
         userId: input.userId,
         type: 'PURCHASE',
-        amount: creditPackage.credits,
-        description: `Purchase: ${creditPackage.name}`,
+        amount: totalCredits,
+        description,
         paymentProvider: session.provider,
         paymentId: session.sessionId,
         paymentAmount: creditPackage.priceEur,

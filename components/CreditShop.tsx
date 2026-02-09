@@ -521,6 +521,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                         <div className="flex items-center gap-1.5">
                           <Coins className={`w-5 h-5 ${isSelected ? 'text-amber-400' : 'text-purple-400'}`} />
                           <span className="text-2xl font-bold text-white">{pkg.credits}</span>
+                          {pkg.bonusCredits && pkg.bonusCredits > 0 && (
+                            <span className="text-lg font-bold text-green-400">+{pkg.bonusCredits}</span>
+                          )}
                           <span className="text-xs text-slate-400">{t('CreditShop.tsx.CreditShop.credits', 'credits')}</span>
                         </div>
                         <p className={`text-xl font-bold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
@@ -587,6 +590,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       <div className="flex items-center gap-2 mb-1">
                         <Coins className={`w-6 h-6 ${isSelected ? 'text-amber-400' : isBestValue ? 'text-green-400' : 'text-purple-400'}`} />
                         <span className="text-3xl font-bold text-white">{pkg.credits}</span>
+                        {pkg.bonusCredits && pkg.bonusCredits > 0 && (
+                          <span className="text-xl font-bold text-green-400">+{pkg.bonusCredits}</span>
+                        )}
                         <span className="text-sm text-slate-400">{t('CreditShop.tsx.CreditShop.credits_2', 'credits')}</span>
                       </div>
 
