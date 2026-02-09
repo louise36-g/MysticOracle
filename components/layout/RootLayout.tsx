@@ -35,7 +35,7 @@ function BrandedLoadingScreen() {
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/background-celestiarcana.png?v=2")',
+        backgroundImage: 'url("/background-celestiarcana.png?v=3")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -154,7 +154,7 @@ export function RootLayout() {
       <div
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url("/background-celestiarcana.png?v=2")',
+          backgroundImage: 'url("/background-celestiarcana.png?v=3")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
