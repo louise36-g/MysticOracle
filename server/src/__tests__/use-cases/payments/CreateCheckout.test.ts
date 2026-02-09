@@ -241,11 +241,16 @@ describe('CreateCheckoutUseCase', () => {
       await useCase.execute(validInput);
 
       const basicPackage = CREDIT_PACKAGES.find(p => p.id === 'basic')!;
+      const totalCredits = basicPackage.credits + (basicPackage.bonusCredits || 0);
+      const description = basicPackage.bonusCredits
+        ? `Purchase: ${basicPackage.name} (${basicPackage.credits} + ${basicPackage.bonusCredits} bonus)`
+        : `Purchase: ${basicPackage.name}`;
+
       expect(mockTransactionRepo.create).toHaveBeenCalledWith({
         userId: 'user-123',
         type: 'PURCHASE',
-        amount: basicPackage.credits,
-        description: `Purchase: ${basicPackage.name}`,
+        amount: totalCredits,
+        description,
         paymentProvider: 'STRIPE',
         paymentId: 'cs_test_123',
         paymentAmount: basicPackage.priceEur,

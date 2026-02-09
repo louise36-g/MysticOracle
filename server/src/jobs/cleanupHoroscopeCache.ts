@@ -15,7 +15,9 @@ export async function cleanupOldHoroscopes(): Promise<number> {
       },
     });
 
-    console.log(`[Horoscope Cleanup] Deleted ${result.count} horoscope cache entries from before today`);
+    console.log(
+      `[Horoscope Cleanup] Deleted ${result.count} horoscope cache entries from before today`
+    );
     return result.count;
   } catch (error) {
     console.error('[Horoscope Cleanup] Error:', error);

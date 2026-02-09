@@ -23,10 +23,7 @@ export function parseCardNumber(cardNumber: string | null | undefined): number {
  * @param b - Second item with cardNumber property
  * @returns Negative if a < b, positive if a > b, zero if equal
  */
-export function compareByCardNumber<T extends { cardNumber: string | null }>(
-  a: T,
-  b: T
-): number {
+export function compareByCardNumber<T extends { cardNumber: string | null }>(a: T, b: T): number {
   return parseCardNumber(a.cardNumber) - parseCardNumber(b.cardNumber);
 }
 
@@ -35,9 +32,7 @@ export function compareByCardNumber<T extends { cardNumber: string | null }>(
  * @param items - Array of items with cardNumber property
  * @returns New sorted array (does not mutate original)
  */
-export function sortByCardNumber<T extends { cardNumber: string | null }>(
-  items: T[]
-): T[] {
+export function sortByCardNumber<T extends { cardNumber: string | null }>(items: T[]): T[] {
   return [...items].sort(compareByCardNumber);
 }
 
@@ -47,8 +42,6 @@ export function sortByCardNumber<T extends { cardNumber: string | null }>(
  * @param items - Array of items to sort
  * @returns The same array, now sorted
  */
-export function sortByCardNumberInPlace<T extends { cardNumber: string | null }>(
-  items: T[]
-): T[] {
+export function sortByCardNumberInPlace<T extends { cardNumber: string | null }>(items: T[]): T[] {
   return items.sort(compareByCardNumber);
 }

@@ -143,7 +143,4 @@ export type {
 };
 
 // Re-export conversion functions (routes should use these after validation)
-export {
-  convertToPrismaFormat,
-  convertToPrismaFormatLenient,
-} from '../validation.js';
+export { convertToPrismaFormat, convertToPrismaFormatLenient } from '../validation.js';

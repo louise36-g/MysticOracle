@@ -149,7 +149,7 @@ router.delete('/trash/empty', async (req, res) => {
       select: { id: true },
     });
 
-    const articleIds = trashedArticles.map((a) => a.id);
+    const articleIds = trashedArticles.map(a => a.id);
 
     // Delete junction table entries first
     await prisma.tarotArticleCategory.deleteMany({
