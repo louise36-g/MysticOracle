@@ -151,6 +151,37 @@ export class StripeGateway implements IPaymentGateway {
         };
       }
 
+      // Handle invoice.paid for cases where Stripe creates invoices
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log('[Stripe Webhook] invoice.paid received:', {
+          invoiceId: invoice.id,
+          customerId: invoice.customer,
+          amount: invoice.amount_paid,
+          metadata: invoice.metadata,
+        });
+
+        // Try to get metadata from invoice or subscription
+        const userId = invoice.metadata?.userId;
+        const credits = parseInt(invoice.metadata?.credits || '0');
+
+        if (userId && credits > 0) {
+          return {
+            type: 'payment.completed',
+            paymentId: invoice.id,
+            userId,
+            credits,
+            amount: (invoice.amount_paid || 0) / 100,
+            currency: invoice.currency || 'eur',
+            rawEvent: event,
+          };
+        }
+
+        // If no metadata, log for debugging
+        console.log('[Stripe Webhook] invoice.paid has no userId/credits metadata - skipping');
+        return null;
+      }
+
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
         return {
