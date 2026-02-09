@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
@@ -9,11 +9,10 @@ import { verifyStripePayment, capturePayPalOrder } from '../services/paymentServ
 import { hasCompletedFirstPurchase, markFirstPurchaseComplete } from '../utils/firstPurchaseBonus';
 import { ROUTES } from '../routes/routes';
 
-interface PaymentResultProps {
-  type: 'success' | 'cancelled';
-}
-
-const PaymentResult: React.FC<PaymentResultProps> = ({ type }) => {
+const PaymentResult: React.FC = () => {
+  const location = useLocation();
+  // Determine type from URL path
+  const type: 'success' | 'cancelled' = location.pathname.includes('success') ? 'success' : 'cancelled';
   const navigate = useNavigate();
   const { language, t } = useApp();
   const { getToken } = useAuth();
