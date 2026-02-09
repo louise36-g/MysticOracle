@@ -134,19 +134,34 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
 
   // Register payment gateways (singletons)
   container.register({
-    stripeGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
-      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, false);
+    stripeGateway: asFunction(cradle => {
+      console.log(
+        '[DI] Creating stripeGateway, cradle.stripeSecretKey:',
+        cradle.stripeSecretKey ? 'SET' : 'NOT SET'
+      );
+      return new StripeGateway(cradle.stripeSecretKey, cradle.stripeWebhookSecret, false);
     }).singleton(),
 
-    stripeLinkGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
-      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, true);
+    stripeLinkGateway: asFunction(cradle => {
+      console.log(
+        '[DI] Creating stripeLinkGateway, cradle.stripeSecretKey:',
+        cradle.stripeSecretKey ? 'SET' : 'NOT SET'
+      );
+      return new StripeGateway(cradle.stripeSecretKey, cradle.stripeWebhookSecret, true);
     }).singleton(),
 
-    paypalGateway: asFunction(
-      ({ paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive }) => {
-        return new PayPalGateway(paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive);
-      }
-    ).singleton(),
+    paypalGateway: asFunction(cradle => {
+      console.log(
+        '[DI] Creating paypalGateway, cradle.paypalClientId:',
+        cradle.paypalClientId ? 'SET' : 'NOT SET'
+      );
+      return new PayPalGateway(
+        cradle.paypalClientId,
+        cradle.paypalClientSecret,
+        cradle.paypalWebhookId,
+        cradle.paypalIsLive
+      );
+    }).singleton(),
 
     // Array of all payment gateways for use cases
     paymentGateways: asFunction(({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
