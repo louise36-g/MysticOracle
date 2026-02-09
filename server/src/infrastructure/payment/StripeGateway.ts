@@ -58,6 +58,10 @@ export class StripeGateway implements IPaymentGateway {
       payment_method_types: this.useStripeLink ? ['card', 'link'] : ['card'],
       mode: 'payment',
       customer_email: params.userEmail,
+      // Disable invoice creation - we just want receipts
+      invoice_creation: {
+        enabled: false,
+      },
       line_items: [
         {
           price_data: {
