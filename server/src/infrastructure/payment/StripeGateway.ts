@@ -26,15 +26,22 @@ export class StripeGateway implements IPaymentGateway {
     this.provider = useStripeLink ? 'STRIPE_LINK' : 'STRIPE';
     this.webhookSecret = webhookSecret || null;
 
+    console.log(
+      `[StripeGateway] Initializing ${this.provider}, secretKey provided: ${!!secretKey}, length: ${secretKey?.length || 0}`
+    );
+
     if (secretKey) {
       try {
         this.stripe = new Stripe(secretKey, {
           apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
         });
+        console.log(`[StripeGateway] ${this.provider} initialized successfully`);
       } catch (err) {
-        console.error('Failed to initialize Stripe:', err);
+        console.error(`[StripeGateway] Failed to initialize ${this.provider}:`, err);
         this.stripe = null;
       }
+    } else {
+      console.log(`[StripeGateway] ${this.provider} - No secret key provided`);
     }
   }
 
