@@ -89,20 +89,27 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
 
   // Debug: Log env vars at container creation time
   console.log('[DI Container] Creating container, checking env vars:');
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  const stripeWebhook = process.env.STRIPE_WEBHOOK_SECRET;
+  const ppClientId = process.env.PAYPAL_CLIENT_ID;
+  const ppClientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  const ppWebhookId = process.env.PAYPAL_WEBHOOK_ID;
+  const ppIsLive = process.env.PAYPAL_MODE === 'live';
   console.log(
-    `[DI Container] STRIPE_SECRET_KEY at creation: ${process.env.STRIPE_SECRET_KEY ? 'SET (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : 'NOT SET'}`
+    `[DI Container] STRIPE_SECRET_KEY: ${stripeKey ? 'SET (' + stripeKey.substring(0, 10) + '...)' : 'NOT SET'}`
   );
+  console.log(`[DI Container] PAYPAL_CLIENT_ID: ${ppClientId ? 'SET' : 'NOT SET'}`);
 
-  // Register configuration values
+  // Register configuration values - capture values in local vars first
   container.register({
     // Environment config
     frontendUrl: asValue(process.env.FRONTEND_URL || 'http://localhost:5173'),
-    stripeSecretKey: asValue(process.env.STRIPE_SECRET_KEY),
-    stripeWebhookSecret: asValue(process.env.STRIPE_WEBHOOK_SECRET),
-    paypalClientId: asValue(process.env.PAYPAL_CLIENT_ID),
-    paypalClientSecret: asValue(process.env.PAYPAL_CLIENT_SECRET),
-    paypalWebhookId: asValue(process.env.PAYPAL_WEBHOOK_ID),
-    paypalIsLive: asValue(process.env.PAYPAL_MODE === 'live'),
+    stripeSecretKey: asValue(stripeKey),
+    stripeWebhookSecret: asValue(stripeWebhook),
+    paypalClientId: asValue(ppClientId),
+    paypalClientSecret: asValue(ppClientSecret),
+    paypalWebhookId: asValue(ppWebhookId),
+    paypalIsLive: asValue(ppIsLive),
   });
 
   // Register database client
