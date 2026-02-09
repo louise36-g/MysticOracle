@@ -30,7 +30,15 @@ const container = createAppContainer();
 // Log container initialization
 console.log('🔧 DI Container initialized');
 
-// Debug: Check payment gateway status
+// Debug: Check environment variables and payment gateway status
+console.log('🔍 Environment variables check:');
+console.log(
+  `   - STRIPE_SECRET_KEY: ${process.env.STRIPE_SECRET_KEY ? 'SET (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : 'NOT SET'}`
+);
+console.log(`   - STRIPE_WEBHOOK_SECRET: ${process.env.STRIPE_WEBHOOK_SECRET ? 'SET' : 'NOT SET'}`);
+console.log(`   - PAYPAL_CLIENT_ID: ${process.env.PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET'}`);
+console.log(`   - PAYPAL_CLIENT_SECRET: ${process.env.PAYPAL_CLIENT_SECRET ? 'SET' : 'NOT SET'}`);
+
 try {
   const stripeGateway = container.resolve('stripeGateway');
   const stripeLinkGateway = container.resolve('stripeLinkGateway');
