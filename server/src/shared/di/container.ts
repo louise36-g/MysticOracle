@@ -134,34 +134,31 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
 
   // Register payment gateways (singletons)
   container.register({
-    stripeGateway: asFunction(cradle => {
+    stripeGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
       console.log(
-        '[DI] Creating stripeGateway, cradle.stripeSecretKey:',
-        cradle.stripeSecretKey ? 'SET' : 'NOT SET'
+        '[DI] Creating stripeGateway, stripeSecretKey:',
+        stripeSecretKey ? 'SET' : 'NOT SET'
       );
-      return new StripeGateway(cradle.stripeSecretKey, cradle.stripeWebhookSecret, false);
+      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, false);
     }).singleton(),
 
-    stripeLinkGateway: asFunction(cradle => {
+    stripeLinkGateway: asFunction(({ stripeSecretKey, stripeWebhookSecret }) => {
       console.log(
-        '[DI] Creating stripeLinkGateway, cradle.stripeSecretKey:',
-        cradle.stripeSecretKey ? 'SET' : 'NOT SET'
+        '[DI] Creating stripeLinkGateway, stripeSecretKey:',
+        stripeSecretKey ? 'SET' : 'NOT SET'
       );
-      return new StripeGateway(cradle.stripeSecretKey, cradle.stripeWebhookSecret, true);
+      return new StripeGateway(stripeSecretKey, stripeWebhookSecret, true);
     }).singleton(),
 
-    paypalGateway: asFunction(cradle => {
-      console.log(
-        '[DI] Creating paypalGateway, cradle.paypalClientId:',
-        cradle.paypalClientId ? 'SET' : 'NOT SET'
-      );
-      return new PayPalGateway(
-        cradle.paypalClientId,
-        cradle.paypalClientSecret,
-        cradle.paypalWebhookId,
-        cradle.paypalIsLive
-      );
-    }).singleton(),
+    paypalGateway: asFunction(
+      ({ paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive }) => {
+        console.log(
+          '[DI] Creating paypalGateway, paypalClientId:',
+          paypalClientId ? 'SET' : 'NOT SET'
+        );
+        return new PayPalGateway(paypalClientId, paypalClientSecret, paypalWebhookId, paypalIsLive);
+      }
+    ).singleton(),
 
     // Array of all payment gateways for use cases
     paymentGateways: asFunction(({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
