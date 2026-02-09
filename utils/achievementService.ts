@@ -1,6 +1,6 @@
 import { ACHIEVEMENTS, SpreadType } from '../types';
 import { SPREADS } from '../constants';
-import { ReadingData } from '../services/api';
+import { UnifiedReadingData } from '../services/api';
 
 // Achievement progress calculator types
 export interface AchievementProgress {
@@ -12,7 +12,7 @@ export interface UserAchievementData {
     totalReadings: number;
     loginStreak: number;
     unlockedAchievements: string[];
-    readings: ReadingData[];
+    readings: UnifiedReadingData[];
 }
 
 /**
@@ -30,7 +30,7 @@ function getWeekNumber(date: Date): string {
 /**
  * Calculate unique weeks with readings
  */
-export function calculateWeeksWithReadings(readings: ReadingData[]): number {
+export function calculateWeeksWithReadings(readings: UnifiedReadingData[]): number {
     const uniqueWeeks = new Set<string>();
     readings.forEach(reading => {
         if (reading.createdAt) {
@@ -44,7 +44,7 @@ export function calculateWeeksWithReadings(readings: ReadingData[]): number {
  * Calculate unique spread types used by the user
  * Pure function - no side effects
  */
-export function calculateSpreadsUsed(readings: ReadingData[]): SpreadType[] {
+export function calculateSpreadsUsed(readings: UnifiedReadingData[]): SpreadType[] {
     const uniqueSpreads = new Set<string>();
 
     readings.forEach(reading => {
@@ -78,7 +78,7 @@ export function getTotalSpreadTypes(): number {
  * Check if user has completed a specific spread type
  */
 export function hasCompletedSpreadType(
-    readings: ReadingData[],
+    readings: UnifiedReadingData[],
     spreadType: SpreadType
 ): boolean {
     return readings.some(r =>

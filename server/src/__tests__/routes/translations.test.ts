@@ -41,8 +41,8 @@ const app = express();
 app.use(express.json());
 app.use('/translations', translationsRouter);
 
-// Type the mocked prisma
-const mockedPrisma = prisma as {
+// Type the mocked prisma (cast via unknown to satisfy TypeScript)
+const mockedPrisma = prisma as unknown as {
   language: {
     findMany: Mock;
     findUnique: Mock;
@@ -52,7 +52,7 @@ const mockedPrisma = prisma as {
   };
 };
 
-const mockedCacheService = cacheService as {
+const mockedCacheService = cacheService as unknown as {
   get: Mock;
   set: Mock;
 };
