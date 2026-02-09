@@ -166,7 +166,29 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     }).singleton(),
 
     // Array of all payment gateways for use cases
-    paymentGateways: asFunction(({ stripeGateway, stripeLinkGateway, paypalGateway }) => {
+    // Create gateways directly since we bypassed DI for env vars
+    paymentGateways: asFunction(() => {
+      const stripeGateway = new StripeGateway(
+        process.env.STRIPE_SECRET_KEY,
+        process.env.STRIPE_WEBHOOK_SECRET,
+        false
+      );
+      const stripeLinkGateway = new StripeGateway(
+        process.env.STRIPE_SECRET_KEY,
+        process.env.STRIPE_WEBHOOK_SECRET,
+        true
+      );
+      const paypalGateway = new PayPalGateway(
+        process.env.PAYPAL_CLIENT_ID,
+        process.env.PAYPAL_CLIENT_SECRET,
+        process.env.PAYPAL_WEBHOOK_ID,
+        process.env.PAYPAL_MODE === 'live'
+      );
+      console.log('[DI] Creating paymentGateways array:', {
+        stripe: stripeGateway.isConfigured(),
+        stripeLink: stripeLinkGateway.isConfigured(),
+        paypal: paypalGateway.isConfigured(),
+      });
       return [stripeGateway, stripeLinkGateway, paypalGateway];
     }).singleton(),
   });
