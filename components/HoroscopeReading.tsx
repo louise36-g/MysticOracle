@@ -325,11 +325,11 @@ const HoroscopeReading: React.FC = () => {
         {/* Back button */}
         <motion.button
           onClick={handleBack}
-          className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors mb-8 group"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mb-8 group"
           whileHover={{ x: -4 }}
         >
-          <ChevronLeft className="w-4 h-4" />
-          <span className="text-sm">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
+          <ChevronLeft className="w-5 h-5" />
+          <span className="text-base font-medium">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
         </motion.button>
 
         {/* Result card with unified styling */}
