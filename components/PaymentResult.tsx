@@ -13,7 +13,7 @@ const PaymentResult: React.FC = () => {
   // Determine type from URL path
   const type: 'success' | 'cancelled' = location.pathname.includes('success') ? 'success' : 'cancelled';
   const navigate = useNavigate();
-  const { language, t } = useApp();
+  const { language, t, refreshUser } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
   const [loading, setLoading] = useState(type === 'success');
@@ -58,6 +58,13 @@ const PaymentResult: React.FC = () => {
         }
 
         setResult(paymentResult);
+
+        // Refresh user data to update credit balance in header
+        if (paymentResult.success) {
+          console.log('[PaymentResult] Payment successful, refreshing user data...');
+          await refreshUser();
+          console.log('[PaymentResult] User data refreshed');
+        }
       } catch (error) {
         console.error('[PaymentResult] Payment verification error:', error);
         // Provide helpful error message - payment might have succeeded even if verification failed
