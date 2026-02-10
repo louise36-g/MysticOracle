@@ -164,12 +164,18 @@ export class CreateCheckoutUseCase {
       }
 
       // 4. Create checkout session
+      // Note: Stripe uses {CHECKOUT_SESSION_ID} placeholder, PayPal appends token automatically
+      const isPayPal = input.provider === 'paypal';
+      const successUrl = isPayPal
+        ? `${input.frontendUrl}/payment/success?provider=paypal`
+        : `${input.frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&provider=${input.provider}`;
+
       const session = await gateway.createCheckoutSession({
         userId: input.userId,
         userEmail: user.email,
         packageId: input.packageId,
         creditPackage,
-        successUrl: `${input.frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&provider=${input.provider}`,
+        successUrl,
         cancelUrl: `${input.frontendUrl}/payment/cancelled`,
       });
 
