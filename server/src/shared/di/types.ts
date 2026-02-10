@@ -41,6 +41,7 @@ import type { UpdateReflectionUseCase } from '../../application/use-cases/readin
 import type { CreateCheckoutUseCase } from '../../application/use-cases/payments/CreateCheckout.js';
 import type { CapturePaymentUseCase } from '../../application/use-cases/payments/CapturePayment.js';
 import type { ProcessPaymentWebhookUseCase } from '../../application/use-cases/payments/ProcessPaymentWebhook.js';
+import type { VerifyStripePaymentUseCase } from '../../application/use-cases/payments/VerifyStripePayment.js';
 
 // Use Cases - Admin
 import type {
@@ -120,6 +121,7 @@ export interface ContainerDependencies {
   createCheckoutUseCase: CreateCheckoutUseCase;
   capturePaymentUseCase: CapturePaymentUseCase;
   processPaymentWebhookUseCase: ProcessPaymentWebhookUseCase;
+  verifyStripePaymentUseCase: VerifyStripePaymentUseCase;
 
   // Admin Use Cases - Users
   listUsersUseCase: ListUsersUseCase;
@@ -167,6 +169,7 @@ export interface ReadingRouteDependencies {
 export interface PaymentRouteDependencies {
   createCheckoutUseCase: CreateCheckoutUseCase;
   capturePaymentUseCase: CapturePaymentUseCase;
+  verifyStripePaymentUseCase: VerifyStripePaymentUseCase;
   stripeGateway: StripeGateway;
   transactionRepository: ITransactionRepository;
   frontendUrl: string;

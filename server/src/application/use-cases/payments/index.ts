@@ -11,3 +11,6 @@ export type { ProcessWebhookInput, ProcessWebhookResult } from './ProcessPayment
 
 export { CapturePaymentUseCase } from './CapturePayment.js';
 export type { CapturePaymentInput, CapturePaymentResult } from './CapturePayment.js';
+
+export { VerifyStripePaymentUseCase } from './VerifyStripePayment.js';
+export type { VerifyStripePaymentInput, VerifyStripePaymentResult } from './VerifyStripePayment.js';

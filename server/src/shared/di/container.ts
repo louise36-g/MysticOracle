@@ -50,6 +50,7 @@ import { UpdateReflectionUseCase } from '../../application/use-cases/readings/Up
 import { CreateCheckoutUseCase } from '../../application/use-cases/payments/CreateCheckout.js';
 import { CapturePaymentUseCase } from '../../application/use-cases/payments/CapturePayment.js';
 import { ProcessPaymentWebhookUseCase } from '../../application/use-cases/payments/ProcessPaymentWebhook.js';
+import { VerifyStripePaymentUseCase } from '../../application/use-cases/payments/VerifyStripePayment.js';
 
 // Use Cases - Admin
 import {
@@ -207,6 +208,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     createCheckoutUseCase: asClass(CreateCheckoutUseCase).scoped(),
     capturePaymentUseCase: asClass(CapturePaymentUseCase).scoped(),
     processPaymentWebhookUseCase: asClass(ProcessPaymentWebhookUseCase).scoped(),
+    verifyStripePaymentUseCase: asClass(VerifyStripePaymentUseCase).scoped(),
   });
 
   // Register admin use cases (scoped)

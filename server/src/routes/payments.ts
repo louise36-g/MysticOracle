@@ -86,20 +86,19 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
   }
 });
 
-// Verify Stripe payment
+// Verify Stripe payment AND add credits (backup to webhook)
 router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
   try {
     console.log('[Stripe Verify] Verifying session:', req.params.sessionId);
-    const stripeGateway = req.container.resolve('stripeGateway');
+    const verifyUseCase = req.container.resolve('verifyStripePaymentUseCase');
 
-    if (!stripeGateway.isConfigured()) {
-      console.log('[Stripe Verify] Gateway not configured');
-      return res.status(503).json({ error: 'Stripe payments not configured' });
-    }
+    const result = await verifyUseCase.execute({
+      userId: req.auth.userId,
+      sessionId: req.params.sessionId,
+    });
 
-    const verification = await stripeGateway.verifyPayment(req.params.sessionId);
-    console.log('[Stripe Verify] Result:', verification);
-    res.json(verification);
+    console.log('[Stripe Verify] Result:', result);
+    res.json(result);
   } catch (error) {
     console.error('[Stripe Verify] Error:', error);
     res.status(500).json({ error: 'Failed to verify payment' });
