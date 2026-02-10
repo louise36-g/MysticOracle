@@ -236,13 +236,13 @@ export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Pr
     });
 
     // Use unified service with retry logic and proper error handling
-    const rawHoroscope = await openRouterService.generateHoroscope(prompt, {
+    const horoscope = await openRouterService.generateHoroscope(prompt, {
       temperature: 0.8,
       maxTokens: 2000,
     });
 
-    // Post-process to remove excessive astrological jargon
-    return cleanHoroscopeText(rawHoroscope);
+    // Return horoscope as-is - the prompt now handles tone and formatting
+    return horoscope;
   } catch (error) {
     // If planetary calculations fail, throw explicit error
     // Don't silently fallback to generating without data
