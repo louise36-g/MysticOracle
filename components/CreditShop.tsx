@@ -36,14 +36,6 @@ const PayPalIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Stripe Link icon
-const StripeLinkIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-);
-
 // Quick-buy options: 1-5 credits at €0.50 each
 const QUICK_BUY_OPTIONS = [1, 2, 3, 4, 5] as const;
 const QUICK_BUY_PRICE_PER_CREDIT = 0.50;
@@ -640,39 +632,6 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className="grid gap-3">
-                    {/* Stripe Link (fastest) - Highlighted */}
-                    <motion.button
-                      onClick={() => handleStripeCheckout(true)}
-                      disabled={loading}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      className="flex items-center justify-between p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-2 border-green-500/50 rounded-xl hover:border-green-400 transition-all disabled:opacity-50 shadow-lg shadow-green-500/10"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-green-500/30 rounded-xl flex items-center justify-center">
-                          <Zap className="w-6 h-6 text-green-400" />
-                        </div>
-                        <div className="text-left">
-                          <p className="font-bold text-white flex items-center gap-2">
-                            Stripe Link
-                            <span className="px-2 py-0.5 bg-green-500/30 rounded-full text-xs text-green-300 font-medium">
-                              {t('CreditShop.tsx.CreditShop.recommended', 'Recommended')}
-                            </span>
-                          </p>
-                          <p className="text-sm text-slate-300">
-                            {t('CreditShop.tsx.CreditShop.oneclick_checkout', 'One-click checkout')}
-                          </p>
-                        </div>
-                      </div>
-                      {loading && paymentMethod === 'stripe_link' ? (
-                        <Loader2 className="w-6 h-6 text-green-400 animate-spin" />
-                      ) : (
-                        <div className="text-right">
-                          <span className="text-2xl font-bold text-green-400">€{currentSelection.priceEur.toFixed(2)}</span>
-                        </div>
-                      )}
-                    </motion.button>
-
                     {/* Credit Card */}
                     <motion.button
                       onClick={() => handleStripeCheckout(false)}

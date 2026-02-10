@@ -371,14 +371,21 @@ router.get(
       const userId = req.auth.userId;
       const params = parsePaginationParams(req.query, 50, 100);
 
+      // Filter: show all non-purchase transactions, but only COMPLETED purchases
+      // This excludes pending/cancelled purchases from the history
+      const whereClause = {
+        userId,
+        OR: [{ type: { not: 'PURCHASE' } }, { type: 'PURCHASE', paymentStatus: 'COMPLETED' }],
+      };
+
       const [transactions, total] = await Promise.all([
         prisma.transaction.findMany({
-          where: { userId },
+          where: whereClause,
           orderBy: { createdAt: 'desc' },
           take: params.take,
           skip: params.skip,
         }),
-        prisma.transaction.count({ where: { userId } }),
+        prisma.transaction.count({ where: whereClause }),
       ]);
 
       res.json(createPaginatedResponse(transactions, params, total));
