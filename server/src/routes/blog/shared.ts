@@ -159,6 +159,18 @@ export const upload = multer({
   },
 });
 
+// Memory-based storage for cloud uploads (Cloudinary, etc.)
+const memoryStorage = multer.memoryStorage();
+
+export const memoryUpload = multer({
+  storage: memoryStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
+
 // Create post schema - use nullish() for optional fields to handle null from frontend
 // Note: Only titleEn and authorName are required - all other language fields are optional
 export const createPostSchema = z.object({

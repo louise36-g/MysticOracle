@@ -735,6 +735,10 @@ model MediaUpload {
   size        Int      // bytes
   url         String   // Public URL
 
+  // Cloud storage
+  publicId    String?  // Cloudinary public ID for deletion
+  provider    String   @default("local")  // 'cloudinary' or 'local'
+
   // Metadata
   altText     String?
   caption     String?
@@ -746,6 +750,7 @@ model MediaUpload {
   updatedAt   DateTime @updatedAt
 
   @@index([folder])
+  @@index([publicId])
 }
 
 // ============================================
