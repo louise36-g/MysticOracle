@@ -294,10 +294,11 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
             {onChangeCategory && (
               <button
                 onClick={onChangeCategory}
-                className="ml-1 p-1 rounded-full hover:bg-white/10 transition-colors"
+                className="ml-2 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all flex items-center gap-1"
                 title={language === 'en' ? 'Change category' : 'Changer de catégorie'}
               >
-                <Pencil className="w-3 h-3 text-white/40 hover:text-white/70" />
+                <Pencil className="w-3.5 h-3.5 text-white/70" />
+                <span className="text-xs text-white/70">{language === 'en' ? 'Change' : 'Modifier'}</span>
               </button>
             )}
           </div>
@@ -339,9 +340,12 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                         <span className="text-white text-sm font-medium">
                           {language === 'en' ? selectedLayoutDetails.labelEn : selectedLayoutDetails.labelFr}
                         </span>
-                        {/* Show pencil icon when multiple layouts available */}
+                        {/* Show change indicator when multiple layouts available */}
                         {availableLayouts.length > 1 && !layoutPickerOpen && (
-                          <Pencil className="w-3 h-3 text-white/40" />
+                          <span className="ml-1 px-1.5 py-0.5 rounded bg-white/10 border border-white/20 flex items-center gap-1">
+                            <Pencil className="w-3 h-3 text-white/60" />
+                            <span className="text-xs text-white/60">{language === 'en' ? 'Change' : 'Modifier'}</span>
+                          </span>
                         )}
                       </>
                     ) : (

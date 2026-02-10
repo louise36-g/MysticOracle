@@ -91,7 +91,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'career',
-    labelEn: 'Career & Purpose',
+    labelEn: 'Career & Calling',
     labelFr: 'Carrière & Vocation',
     taglineEn: 'Clarify your next professional step',
     taglineFr: 'Clarifiez votre prochaine étape professionnelle',
@@ -109,8 +109,8 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'money',
-    labelEn: 'Money & Abundance',
-    labelFr: 'Argent & Abondance',
+    labelEn: 'Wealth & Alignment',
+    labelFr: 'Richesse & Alignement',
     taglineEn: 'Understand your relationship with resources',
     taglineFr: 'Comprenez votre relation avec les ressources',
     icon: createElement(Coins, { className: 'w-6 h-6' }),
@@ -145,8 +145,8 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'family',
-    labelEn: 'Family & Home',
-    labelFr: 'Famille & Foyer',
+    labelEn: 'Hearth & Home',
+    labelFr: 'Foyer & Cocon',
     taglineEn: 'Strengthen the foundations that support you',
     taglineFr: 'Renforcez les fondations qui vous soutiennent',
     icon: createElement(Users, { className: 'w-6 h-6' }),
