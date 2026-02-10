@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Coins, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { AlertCircle, Coins, ChevronDown, Check, Sparkles, Pencil } from 'lucide-react';
 import {
   SpreadConfig,
   InterpretationStyle,
@@ -90,6 +90,7 @@ interface CategoryIntroPhaseProps {
   totalCost: number;
   credits: number;
   onStartShuffle: () => void;
+  onChangeCategory?: () => void;
 }
 
 const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
@@ -109,6 +110,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
   totalCost,
   credits,
   onStartShuffle,
+  onChangeCategory,
 }) => {
   const [layoutPickerOpen, setLayoutPickerOpen] = useState(false);
   const [shakeQuestion, setShakeQuestion] = useState(false);
@@ -279,7 +281,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
       >
         {/* Header */}
         <div className="text-center mb-6">
-          {/* Category Badge */}
+          {/* Category Badge with Change Button */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/20 border border-white/10 mb-3">
             <span className={`text-${categoryTheme?.accent}`}>{categoryConfig?.icon}</span>
             <span className="text-xs font-medium text-white/60 uppercase tracking-wider">
@@ -289,6 +291,15 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
             <span className="text-xs text-white/50">
               {language === 'en' ? depthOption?.labelEn : depthOption?.labelFr}
             </span>
+            {onChangeCategory && (
+              <button
+                onClick={onChangeCategory}
+                className="ml-1 p-1 rounded-full hover:bg-white/10 transition-colors"
+                title={language === 'en' ? 'Change category' : 'Changer de catégorie'}
+              >
+                <Pencil className="w-3 h-3 text-white/40 hover:text-white/70" />
+              </button>
+            )}
           </div>
 
           {/* Title */}
@@ -328,6 +339,10 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                         <span className="text-white text-sm font-medium">
                           {language === 'en' ? selectedLayoutDetails.labelEn : selectedLayoutDetails.labelFr}
                         </span>
+                        {/* Show pencil icon when multiple layouts available */}
+                        {availableLayouts.length > 1 && !layoutPickerOpen && (
+                          <Pencil className="w-3 h-3 text-white/40" />
+                        )}
                       </>
                     ) : (
                       <span className="text-slate-400 text-sm">

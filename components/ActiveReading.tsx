@@ -576,6 +576,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           totalCost={displayCost}
           credits={user?.credits || 0}
           onStartShuffle={startShuffleAnimation}
+          onChangeCategory={() => navigate(ROUTES.READING)}
         />
       );
     }
