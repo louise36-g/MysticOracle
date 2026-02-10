@@ -275,24 +275,24 @@ export const FIVE_CARD_CATEGORIES: FiveCardCategoryConfig[] = [
 // Questions for most categories (3 per category)
 export const FIVE_CARD_QUESTIONS: Record<FiveCardCategory, FiveCardQuestion[]> = {
   self_awareness: [
-    { id: '5sa1', textEn: 'What recurring patterns in my life are inviting my attention right now?', textFr: 'Quels schémas récurrents dans ma vie réclament mon attention en ce moment?' },
-    { id: '5sa2', textEn: "What truth about myself am I ready to acknowledge, even if I haven't fully seen it before?", textFr: "Quelle vérité sur moi-même suis-je prêt(e) à reconnaître, même si je ne l'ai pas vue clairement avant?" },
-    { id: '5sa3', textEn: 'How can I deepen my relationship with myself through greater honesty and self-reflection?', textFr: "Comment puis-je approfondir ma relation avec moi-même par plus d'honnêteté et d'introspection?" },
+    { id: '5sa1', textEn: 'Why do I keep making the same mistakes?', textFr: 'Pourquoi est-ce que je répète toujours les mêmes erreurs ?' },
+    { id: '5sa2', textEn: 'What am I in denial about?', textFr: 'Qu\'est-ce que je refuse de voir ?' },
+    { id: '5sa3', textEn: 'What\'s the real reason I\'m unhappy?', textFr: 'Quelle est la vraie raison de mon mal-être ?' },
   ],
   gentle_healing: [
-    { id: '5gh1', textEn: 'Which part of me is quietly asking for tenderness, patience, and care?', textFr: 'Quelle partie de moi demande silencieusement tendresse, patience et soin?' },
-    { id: '5gh2', textEn: 'What does my heart truly need in order to feel safe enough to heal?', textFr: 'De quoi mon coeur a-t-il vraiment besoin pour se sentir assez en sécurité pour guérir?' },
-    { id: '5gh3', textEn: 'How can I offer myself the same compassion, understanding, and warmth I give to those I love?', textFr: "Comment puis-je m'offrir la même compassion, compréhension et chaleur que je donne à ceux que j'aime?" },
+    { id: '5gh1', textEn: 'How do I stop feeling so broken?', textFr: 'Comment puis-je arrêter de me sentir si brisé(e) ?' },
+    { id: '5gh2', textEn: 'Why is it so hard for me to trust people?', textFr: 'Pourquoi m\'est-il si difficile de faire confiance aux gens ?' },
+    { id: '5gh3', textEn: 'How do I move past what happened to me?', textFr: 'Comment puis-je dépasser ce qui m\'est arrivé ?' },
   ],
   know_yourself: [
-    { id: '5ky1', textEn: 'Where in my life am I being called to align my actions more closely with my core values?', textFr: 'Où dans ma vie suis-je appelé(e) à aligner mes actions plus étroitement avec mes valeurs fondamentales?' },
-    { id: '5ky2', textEn: 'What aspect of my truest self is asking to be seen, accepted, or expressed?', textFr: 'Quel aspect de mon moi le plus authentique demande à être vu, accepté ou exprimé?' },
-    { id: '5ky3', textEn: 'How can I honour my authentic self more fully in my everyday choices and routines?', textFr: 'Comment puis-je honorer mon moi authentique plus pleinement dans mes choix et routines quotidiennes?' },
+    { id: '5ky1', textEn: 'Who am I when I\'m not trying to please everyone?', textFr: 'Qui suis-je quand je n\'essaie pas de plaire à tout le monde ?' },
+    { id: '5ky2', textEn: 'What do I really want out of life?', textFr: 'Qu\'est-ce que je veux vraiment dans la vie ?' },
+    { id: '5ky3', textEn: 'Why do I feel like I\'m living someone else\'s life?', textFr: 'Pourquoi ai-je l\'impression de vivre la vie de quelqu\'un d\'autre ?' },
   ],
   personal_growth: [
-    { id: '5pg1', textEn: 'What subtle transformation is already unfolding within me or around me?', textFr: 'Quelle transformation subtile se déploie déjà en moi ou autour de moi?' },
-    { id: '5pg2', textEn: 'How can I surrender more trust to the process of change I am moving through?', textFr: 'Comment puis-je faire davantage confiance au processus de changement que je traverse?' },
-    { id: '5pg3', textEn: 'What is ready to shift or evolve within me?', textFr: "Qu'est-ce qui est prêt à changer ou à évoluer en moi?" },
+    { id: '5pg1', textEn: 'What needs to change for me to be happy?', textFr: 'Que doit changer pour que je sois heureux/heureuse ?' },
+    { id: '5pg2', textEn: 'How do I become the person I want to be?', textFr: 'Comment devenir la personne que je veux être ?' },
+    { id: '5pg3', textEn: 'What\'s holding me back from reaching my potential?', textFr: 'Qu\'est-ce qui m\'empêche d\'atteindre mon potentiel ?' },
   ],
   relationships_career: [], // Layout-specific questions below
 };
@@ -300,14 +300,14 @@ export const FIVE_CARD_QUESTIONS: Record<FiveCardCategory, FiveCardQuestion[]> =
 // Layout-specific questions for relationships_career category
 export const FIVE_CARD_LAYOUT_QUESTIONS: Record<'love_relationships' | 'career_purpose', FiveCardQuestion[]> = {
   love_relationships: [
-    { id: '5lr1', textEn: 'What is this relationship revealing to me about my needs, patterns, and expectations?', textFr: 'Que me révèle cette relation sur mes besoins, schémas et attentes?' },
-    { id: '5lr2', textEn: 'Where am I being invited to communicate more honestly, openly, or courageously with others?', textFr: 'Où suis-je invité(e) à communiquer plus honnêtement, ouvertement ou courageusement avec les autres?' },
-    { id: '5lr3', textEn: 'How can I show up in my relationships in a way that feels authentic, respectful, and emotionally aligned?', textFr: 'Comment puis-je me présenter dans mes relations de manière authentique, respectueuse et émotionnellement alignée?' },
+    { id: '5lr1', textEn: 'Is this relationship worth fighting for?', textFr: 'Cette relation vaut-elle la peine de se battre ?' },
+    { id: '5lr2', textEn: 'What does my partner really think of me?', textFr: 'Que pense vraiment mon partenaire de moi ?' },
+    { id: '5lr3', textEn: 'Are we meant to be together?', textFr: 'Sommes-nous faits pour être ensemble ?' },
   ],
   career_purpose: [
-    { id: '5cp1', textEn: 'What is my work revealing about my deeper needs and aspirations?', textFr: 'Que révèle mon travail sur mes besoins et aspirations profondes?' },
-    { id: '5cp2', textEn: 'Where am I being called to bring more authenticity to my professional life?', textFr: 'Où suis-je appelé(e) à apporter plus d\'authenticité dans ma vie professionnelle?' },
-    { id: '5cp3', textEn: 'What do I need to understand about myself to take my next step with confidence?', textFr: 'Que dois-je comprendre sur moi-même pour faire mon prochain pas avec confiance?' },
+    { id: '5cp1', textEn: 'Am I wasting my time in this job?', textFr: 'Est-ce que je perds mon temps dans ce travail ?' },
+    { id: '5cp2', textEn: 'What career would actually make me happy?', textFr: 'Quelle carrière me rendrait vraiment heureux/heureuse ?' },
+    { id: '5cp3', textEn: 'Is it too late to change direction?', textFr: 'Est-il trop tard pour changer de direction ?' },
   ],
 };
 

@@ -138,29 +138,29 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
 ];
 
-// Category-based questions (4 per category, introspective CNV-friendly phrasing)
+// Category-based questions (4 per category)
 export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQuestion[]> = {
   // Love & Relationships
   love: [
     {
       id: 'cc_love_1',
-      textEn: 'What patterns in how I connect with others are asking for my attention?',
-      textFr: 'Quels schémas dans ma façon de me connecter aux autres demandent mon attention?',
+      textEn: 'What\'s the full story of my love life right now?',
+      textFr: 'Quelle est l\'histoire complète de ma vie amoureuse en ce moment?',
     },
     {
       id: 'cc_love_2',
-      textEn: 'What do I need to understand about how I give and receive love?',
-      textFr: 'Que dois-je comprendre sur ma façon de donner et recevoir l\'amour?',
+      textEn: 'Why do my relationships keep ending the same way?',
+      textFr: 'Pourquoi mes relations finissent-elles toujours de la même façon?',
     },
     {
       id: 'cc_love_3',
-      textEn: 'What is my heart truly longing for in my relationships?',
-      textFr: 'Qu\'est-ce que mon cœur désire vraiment dans mes relations?',
+      textEn: 'Is this relationship my forever or just for now?',
+      textFr: 'Est-ce que cette relation est pour toujours ou juste pour maintenant?',
     },
     {
       id: 'cc_love_4',
-      textEn: 'How can I create deeper intimacy while honouring my own needs?',
-      textFr: 'Comment puis-je créer plus d\'intimité tout en honorant mes propres besoins?',
+      textEn: 'What\'s really going on between me and this person?',
+      textFr: 'Que se passe-t-il vraiment entre moi et cette personne?',
     },
   ],
 
@@ -168,23 +168,23 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
   career: [
     {
       id: 'cc_career_1',
-      textEn: 'What is my professional path revealing about my deeper purpose?',
-      textFr: 'Que révèle mon parcours professionnel sur ma vocation plus profonde?',
+      textEn: 'What does my career path look like from here?',
+      textFr: 'À quoi ressemble mon parcours professionnel à partir d\'ici?',
     },
     {
       id: 'cc_career_2',
-      textEn: 'What aspects of my work feel aligned with who I truly am?',
-      textFr: 'Quels aspects de mon travail sont alignés avec qui je suis vraiment?',
+      textEn: 'Why can\'t I seem to get ahead at work?',
+      textFr: 'Pourquoi n\'arrive-je pas à progresser au travail?',
     },
     {
       id: 'cc_career_3',
-      textEn: 'What gifts and talents am I not yet fully expressing in my career?',
-      textFr: 'Quels dons et talents n\'ai-je pas encore pleinement exprimés dans ma carrière?',
+      textEn: 'Should I make a major career change?',
+      textFr: 'Devrais-je faire un changement de carrière majeur?',
     },
     {
       id: 'cc_career_4',
-      textEn: 'How can I find more meaning and fulfilment in my professional life?',
-      textFr: 'Comment puis-je trouver plus de sens et d\'épanouissement dans ma vie professionnelle?',
+      textEn: 'What\'s blocking my professional success?',
+      textFr: 'Qu\'est-ce qui bloque ma réussite professionnelle?',
     },
   ],
 
@@ -192,23 +192,23 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
   money: [
     {
       id: 'cc_money_1',
-      textEn: 'What beliefs about money and abundance am I ready to examine?',
-      textFr: 'Quelles croyances sur l\'argent et l\'abondance suis-je prêt(e) à examiner?',
+      textEn: 'What\'s the full picture of my financial situation?',
+      textFr: 'Quelle est l\'image complète de ma situation financière?',
     },
     {
       id: 'cc_money_2',
-      textEn: 'What is my relationship with money trying to teach me?',
-      textFr: 'Que ma relation avec l\'argent essaie-t-elle de m\'apprendre?',
+      textEn: 'Why do I always struggle with money?',
+      textFr: 'Pourquoi est-ce que j\'ai toujours du mal avec l\'argent?',
     },
     {
       id: 'cc_money_3',
-      textEn: 'Where in my life am I blocking the flow of prosperity?',
-      textFr: 'Où dans ma vie est-ce que je bloque le flux de prospérité?',
+      textEn: 'Will my financial situation improve?',
+      textFr: 'Est-ce que ma situation financière va s\'améliorer?',
     },
     {
       id: 'cc_money_4',
-      textEn: 'How can I cultivate a healthier sense of security and abundance?',
-      textFr: 'Comment puis-je cultiver un sentiment plus sain de sécurité et d\'abondance?',
+      textEn: 'What do I need to do to become financially stable?',
+      textFr: 'Que dois-je faire pour devenir financièrement stable?',
     },
   ],
 
@@ -216,23 +216,23 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
   life_path: [
     {
       id: 'cc_path_1',
-      textEn: 'What crossroads am I facing and what do I need to understand before choosing?',
-      textFr: 'Quel carrefour est-ce que j\'affronte et que dois-je comprendre avant de choisir?',
+      textEn: 'Where is my life heading?',
+      textFr: 'Où va ma vie?',
     },
     {
       id: 'cc_path_2',
-      textEn: 'What major transition is unfolding in my life and how can I navigate it with grace?',
-      textFr: 'Quelle transition majeure se déroule dans ma vie et comment puis-je la traverser avec grâce?',
+      textEn: 'Am I making the right choices with my life?',
+      textFr: 'Est-ce que je fais les bons choix dans ma vie?',
     },
     {
       id: 'cc_path_3',
-      textEn: 'What is my soul calling me toward at this stage of my journey?',
-      textFr: 'Vers quoi mon âme m\'appelle-t-elle à cette étape de mon voyage?',
+      textEn: 'What\'s my purpose and how do I find it?',
+      textFr: 'Quel est mon but et comment le trouver?',
     },
     {
       id: 'cc_path_4',
-      textEn: 'How can I trust my inner guidance more fully as I move forward?',
-      textFr: 'Comment puis-je faire plus confiance à ma guidance intérieure alors que j\'avance?',
+      textEn: 'What do the next few years have in store for me?',
+      textFr: 'Que me réservent les prochaines années?',
     },
   ],
 
@@ -240,23 +240,23 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
   family: [
     {
       id: 'cc_family_1',
-      textEn: 'What dynamics within my family are asking for my understanding?',
-      textFr: 'Quelles dynamiques au sein de ma famille demandent ma compréhension?',
+      textEn: 'Will my family situation ever get better?',
+      textFr: 'Est-ce que ma situation familiale va s\'améliorer un jour?',
     },
     {
       id: 'cc_family_2',
-      textEn: 'What role have I played in my family that may no longer serve me?',
-      textFr: 'Quel rôle ai-je joué dans ma famille qui ne me sert peut-être plus?',
+      textEn: 'What\'s really causing the tension in my family?',
+      textFr: 'Qu\'est-ce qui cause vraiment la tension dans ma famille?',
     },
     {
       id: 'cc_family_3',
-      textEn: 'Where do I find my sense of belonging and how can I nurture it?',
-      textFr: 'Où est-ce que je trouve mon sentiment d\'appartenance et comment puis-je le nourrir?',
+      textEn: 'How do I heal old wounds with my family?',
+      textFr: 'Comment guérir les vieilles blessures avec ma famille?',
     },
     {
       id: 'cc_family_4',
-      textEn: 'How can I honour my roots while becoming more fully myself?',
-      textFr: 'Comment puis-je honorer mes racines tout en devenant plus pleinement moi-même?',
+      textEn: 'Am I repeating my parents\' mistakes?',
+      textFr: 'Est-ce que je répète les erreurs de mes parents?',
     },
   ],
 };

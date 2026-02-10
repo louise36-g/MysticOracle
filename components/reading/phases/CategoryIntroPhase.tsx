@@ -209,18 +209,18 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
     return [
       {
         id: 'default_1',
-        textEn: 'What do I need to be aware of at this moment?',
-        textFr: 'De quoi dois-je prendre conscience en ce moment ?',
+        textEn: 'What do I need to know right now?',
+        textFr: 'Que dois-je savoir en ce moment ?',
       },
       {
         id: 'default_2',
-        textEn: 'What insight is the tarot offering me at this time?',
-        textFr: 'Quel éclairage le tarot m\'apporte-t-il en ce moment ?',
+        textEn: 'What am I missing that could change everything?',
+        textFr: 'Qu\'est-ce qui m\'échappe et qui pourrait tout changer ?',
       },
       {
         id: 'default_3',
-        textEn: 'How can I find clarity and purpose?',
-        textFr: 'Comment puis-je retrouver clarté et intention ?',
+        textEn: 'What should I do next?',
+        textFr: 'Que devrais-je faire ensuite ?',
       },
     ];
   };
