@@ -129,7 +129,7 @@ export const SINGLE_CARD_CATEGORIES: SingleCardCategoryConfig[] = [
   },
   {
     id: 'career',
-    labelEn: 'Career & Purpose',
+    labelEn: 'Career & Calling',
     labelFr: 'Carrière & Vocation',
     taglineEn: 'Your professional path',
     taglineFr: 'Votre chemin professionnel',
@@ -165,29 +165,29 @@ export const SINGLE_CARD_CATEGORIES: SingleCardCategoryConfig[] = [
 // Questions per category
 export const SINGLE_CARD_QUESTIONS: Record<SingleCardCategory, SingleCardQuestion[]> = {
   daily_guidance: [
-    { id: '1dg1', textEn: 'What should I focus on today?', textFr: 'Sur quoi devrais-je me concentrer aujourd\'hui ?' },
-    { id: '1dg2', textEn: 'What do I need to know before starting my day?', textFr: 'Que dois-je savoir avant de commencer ma journée ?' },
-    { id: '1dg3', textEn: 'What energy is surrounding me today?', textFr: 'Quelle énergie m\'entoure aujourd\'hui ?' },
+    { id: '1dg1', textEn: 'What message does my soul most need to hear today?', textFr: 'Quel message mon âme a-t-elle le plus besoin d\'entendre aujourd\'hui ?' },
+    { id: '1dg2', textEn: 'What quiet truth is asking for my attention right now?', textFr: 'Quelle vérité silencieuse demande mon attention en ce moment ?' },
+    { id: '1dg3', textEn: 'What energy is shaping this moment of my journey?', textFr: 'Quelle énergie façonne cet instant de mon parcours ?' },
   ],
   love: [
-    { id: '1lv1', textEn: 'What do I need to know about my love life right now?', textFr: 'Que dois-je savoir sur ma vie amoureuse en ce moment ?' },
-    { id: '1lv2', textEn: 'Why do I keep attracting the same type of person?', textFr: 'Pourquoi est-ce que j\'attire toujours le même type de personne ?' },
-    { id: '1lv3', textEn: 'What\'s blocking me from finding love?', textFr: 'Qu\'est-ce qui m\'empêche de trouver l\'amour ?' },
+    { id: '1lv1', textEn: 'What gentle truth is waiting for me today?', textFr: 'Quelle douce vérité m\'attend aujourd\'hui ?' },
+    { id: '1lv2', textEn: 'What does my heart most need to hear right now?', textFr: 'Qu\'est-ce que mon cœur a le plus besoin d\'entendre en ce moment ?' },
+    { id: '1lv3', textEn: 'Where is love quietly trying to reach me?', textFr: 'Où l\'amour essaie-t-il doucement de me rejoindre ?' },
   ],
   career: [
-    { id: '1cr1', textEn: 'Am I on the right career path?', textFr: 'Suis-je sur la bonne voie professionnelle ?' },
-    { id: '1cr2', textEn: 'What\'s holding me back at work?', textFr: 'Qu\'est-ce qui me retient au travail ?' },
-    { id: '1cr3', textEn: 'Should I take this new opportunity?', textFr: 'Devrais-je saisir cette nouvelle opportunité ?' },
+    { id: '1cr1', textEn: 'What energy is guiding my work life right now?', textFr: 'Quelle énergie guide ma vie professionnelle en ce moment ?' },
+    { id: '1cr2', textEn: 'What does my professional path need me to notice today?', textFr: 'Qu\'est-ce que mon chemin professionnel a besoin que je remarque aujourd\'hui ?' },
+    { id: '1cr3', textEn: 'What quiet shift is happening in my sense of purpose?', textFr: 'Quel changement silencieux s\'opère dans mon sens du but ?' },
   ],
   decision: [
-    { id: '1dc1', textEn: 'What should I consider before making this choice?', textFr: 'Que devrais-je considérer avant de faire ce choix ?' },
-    { id: '1dc2', textEn: 'What am I not seeing clearly about this situation?', textFr: 'Qu\'est-ce que je ne vois pas clairement dans cette situation ?' },
-    { id: '1dc3', textEn: 'What would happen if I took the leap?', textFr: 'Que se passerait-il si je me lançais ?' },
+    { id: '1dc1', textEn: 'What message does my soul most need to hear today?', textFr: 'Quel message mon âme a-t-elle le plus besoin d\'entendre aujourd\'hui ?' },
+    { id: '1dc2', textEn: 'What quiet truth is asking for my attention right now?', textFr: 'Quelle vérité silencieuse demande mon attention en ce moment ?' },
+    { id: '1dc3', textEn: 'What energy is shaping this moment of my journey?', textFr: 'Quelle énergie façonne cet instant de mon parcours ?' },
   ],
   self_reflection: [
-    { id: '1sr1', textEn: 'What do I need to work on right now?', textFr: 'Sur quoi dois-je travailler en ce moment ?' },
-    { id: '1sr2', textEn: 'Why do I feel stuck?', textFr: 'Pourquoi est-ce que je me sens bloqué(e) ?' },
-    { id: '1sr3', textEn: 'What am I afraid to admit to myself?', textFr: 'Qu\'est-ce que j\'ai peur de m\'avouer ?' },
+    { id: '1sr1', textEn: 'What message does my soul most need to hear today?', textFr: 'Quel message mon âme a-t-elle le plus besoin d\'entendre aujourd\'hui ?' },
+    { id: '1sr2', textEn: 'What quiet truth is asking for my attention right now?', textFr: 'Quelle vérité silencieuse demande mon attention en ce moment ?' },
+    { id: '1sr3', textEn: 'What energy is shaping this moment of my journey?', textFr: 'Quelle énergie façonne cet instant de mon parcours ?' },
   ],
 };
 

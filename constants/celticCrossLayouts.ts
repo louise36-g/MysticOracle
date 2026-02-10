@@ -94,8 +94,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
   {
     id: 'career',
-    labelEn: 'Career & Work',
-    labelFr: 'Carrière & Travail',
+    labelEn: 'Career & Calling',
+    labelFr: 'Carrière & Vocation',
     taglineEn: 'Clarity on your professional path',
     taglineFr: 'Clarté sur votre parcours professionnel',
     iconName: 'Briefcase',
@@ -105,8 +105,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
   {
     id: 'money',
-    labelEn: 'Money & Finances',
-    labelFr: 'Argent & Finances',
+    labelEn: 'Wealth & Alignment',
+    labelFr: 'Richesse & Alignement',
     taglineEn: 'Understanding your relationship with prosperity',
     taglineFr: 'Comprendre votre relation avec la prospérité',
     iconName: 'Coins',
@@ -116,8 +116,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
   {
     id: 'life_path',
-    labelEn: 'Life Path & Direction',
-    labelFr: 'Chemin de Vie & Direction',
+    labelEn: 'Life Path',
+    labelFr: 'Chemin de Vie',
     taglineEn: 'Navigate major crossroads and transitions',
     taglineFr: 'Naviguer les carrefours majeurs et les transitions',
     iconName: 'Compass',
@@ -127,8 +127,8 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
   {
     id: 'family',
-    labelEn: 'Family & Belonging',
-    labelFr: 'Famille & Appartenance',
+    labelEn: 'Hearth & Home',
+    labelFr: 'Foyer & Cocon',
     taglineEn: 'Insight into bonds and belonging',
     taglineFr: 'Aperçu des liens et de l\'appartenance',
     iconName: 'Users',
@@ -138,125 +138,100 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   },
 ];
 
-// Category-based questions (4 per category)
+// Category-based questions (3 per category)
 export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQuestion[]> = {
   // Love & Relationships
   love: [
     {
       id: 'cc_love_1',
-      textEn: 'What\'s the full story of my love life right now?',
-      textFr: 'Quelle est l\'histoire complète de ma vie amoureuse en ce moment?',
+      textEn: 'What deeper story is unfolding in my love life right now?',
+      textFr: 'Quelle histoire plus profonde se tisse dans ma vie amoureuse en ce moment ?',
     },
     {
       id: 'cc_love_2',
-      textEn: 'Why do my relationships keep ending the same way?',
-      textFr: 'Pourquoi mes relations finissent-elles toujours de la même façon?',
+      textEn: 'What tender part of me is asking to be seen in my relationships?',
+      textFr: 'Quelle part tendre de moi demande à être vue dans mes relations ?',
     },
     {
       id: 'cc_love_3',
-      textEn: 'Is this relationship my forever or just for now?',
-      textFr: 'Est-ce que cette relation est pour toujours ou juste pour maintenant?',
-    },
-    {
-      id: 'cc_love_4',
-      textEn: 'What\'s really going on between me and this person?',
-      textFr: 'Que se passe-t-il vraiment entre moi et cette personne?',
+      textEn: 'How can I honor both my needs and my partner\'s in a way that feels true?',
+      textFr: 'Comment puis-je honorer mes besoins et ceux de l\'autre avec authenticité ?',
     },
   ],
 
-  // Career & Work
+  // Career & Calling
   career: [
     {
       id: 'cc_career_1',
-      textEn: 'What does my career path look like from here?',
-      textFr: 'À quoi ressemble mon parcours professionnel à partir d\'ici?',
+      textEn: 'What is the full picture of my relationship with my work right now?',
+      textFr: 'Quel est le tableau complet de ma relation avec mon travail en ce moment ?',
     },
     {
       id: 'cc_career_2',
-      textEn: 'Why can\'t I seem to get ahead at work?',
-      textFr: 'Pourquoi n\'arrive-je pas à progresser au travail?',
+      textEn: 'What deeper purpose is weaving itself through my career choices?',
+      textFr: 'Quel dessein plus profond se tisse à travers mes choix de carrière ?',
     },
     {
       id: 'cc_career_3',
-      textEn: 'Should I make a major career change?',
-      textFr: 'Devrais-je faire un changement de carrière majeur?',
-    },
-    {
-      id: 'cc_career_4',
-      textEn: 'What\'s blocking my professional success?',
-      textFr: 'Qu\'est-ce qui bloque ma réussite professionnelle?',
+      textEn: 'How can I honor both my ambitions and my need for meaning?',
+      textFr: 'Comment puis-je honorer à la fois mes ambitions et mon besoin de sens ?',
     },
   ],
 
-  // Money & Finances
+  // Wealth & Alignment
   money: [
     {
       id: 'cc_money_1',
-      textEn: 'What\'s the full picture of my financial situation?',
-      textFr: 'Quelle est l\'image complète de ma situation financière?',
+      textEn: 'What is the full landscape of my relationship with abundance?',
+      textFr: 'Quel est le paysage complet de ma relation avec l\'abondance ?',
     },
     {
       id: 'cc_money_2',
-      textEn: 'Why do I always struggle with money?',
-      textFr: 'Pourquoi est-ce que j\'ai toujours du mal avec l\'argent?',
+      textEn: 'What deep roots are feeding — or blocking — my sense of prosperity?',
+      textFr: 'Quelles racines profondes nourrissent — ou bloquent — mon sentiment de prospérité ?',
     },
     {
       id: 'cc_money_3',
-      textEn: 'Will my financial situation improve?',
-      textFr: 'Est-ce que ma situation financière va s\'améliorer?',
-    },
-    {
-      id: 'cc_money_4',
-      textEn: 'What do I need to do to become financially stable?',
-      textFr: 'Que dois-je faire pour devenir financièrement stable?',
+      textEn: 'How can I align my values with the way wealth flows through my life?',
+      textFr: 'Comment puis-je aligner mes valeurs avec la façon dont la richesse circule dans ma vie ?',
     },
   ],
 
-  // Life Path & Direction
+  // Life Path
   life_path: [
     {
       id: 'cc_path_1',
-      textEn: 'Where is my life heading?',
-      textFr: 'Où va ma vie?',
+      textEn: 'What is the full story of this chapter of my life?',
+      textFr: 'Quelle est l\'histoire complète de ce chapitre de ma vie ?',
     },
     {
       id: 'cc_path_2',
-      textEn: 'Am I making the right choices with my life?',
-      textFr: 'Est-ce que je fais les bons choix dans ma vie?',
+      textEn: 'What sacred pattern is woven through the choices I\'ve been making?',
+      textFr: 'Quel motif sacré se tisse à travers les choix que j\'ai faits ?',
     },
     {
       id: 'cc_path_3',
-      textEn: 'What\'s my purpose and how do I find it?',
-      textFr: 'Quel est mon but et comment le trouver?',
-    },
-    {
-      id: 'cc_path_4',
-      textEn: 'What do the next few years have in store for me?',
-      textFr: 'Que me réservent les prochaines années?',
+      textEn: 'How can I walk my path with both courage and tenderness?',
+      textFr: 'Comment puis-je marcher sur mon chemin avec à la fois du courage et de la douceur ?',
     },
   ],
 
-  // Family & Belonging
+  // Hearth & Home
   family: [
     {
       id: 'cc_family_1',
-      textEn: 'Will my family situation ever get better?',
-      textFr: 'Est-ce que ma situation familiale va s\'améliorer un jour?',
+      textEn: 'What is the full picture of the energy within my home and family?',
+      textFr: 'Quel est le tableau complet de l\'énergie au sein de mon foyer et de ma famille ?',
     },
     {
       id: 'cc_family_2',
-      textEn: 'What\'s really causing the tension in my family?',
-      textFr: 'Qu\'est-ce qui cause vraiment la tension dans ma famille?',
+      textEn: 'What generational gift — or wound — is asking for my attention?',
+      textFr: 'Quel cadeau — ou quelle blessure — générationnel(le) demande mon attention ?',
     },
     {
       id: 'cc_family_3',
-      textEn: 'How do I heal old wounds with my family?',
-      textFr: 'Comment guérir les vieilles blessures avec ma famille?',
-    },
-    {
-      id: 'cc_family_4',
-      textEn: 'Am I repeating my parents\' mistakes?',
-      textFr: 'Est-ce que je répète les erreurs de mes parents?',
+      textEn: 'How can I honor where I come from while building where I\'m going?',
+      textFr: 'Comment puis-je honorer d\'où je viens tout en construisant là où je vais ?',
     },
   ],
 };

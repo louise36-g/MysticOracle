@@ -303,8 +303,8 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
   },
   {
     id: 'career',
-    labelEn: 'Career & Work',
-    labelFr: 'Carrière & Travail',
+    labelEn: 'Career & Calling',
+    labelFr: 'Carrière & Vocation',
     taglineEn: 'Navigating professional paths',
     taglineFr: 'Naviguer les chemins professionnels',
     iconName: 'Briefcase',
@@ -314,8 +314,8 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
   },
   {
     id: 'money',
-    labelEn: 'Money & Finances',
-    labelFr: 'Argent & Finances',
+    labelEn: 'Wealth & Alignment',
+    labelFr: 'Richesse & Alignement',
     taglineEn: 'Understanding abundance and security',
     taglineFr: 'Comprendre l\'abondance et la sécurité',
     iconName: 'Coins',
@@ -325,8 +325,8 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
   },
   {
     id: 'life_path',
-    labelEn: 'Life Path & Major Decisions',
-    labelFr: 'Chemin de Vie & Décisions',
+    labelEn: 'Life Path',
+    labelFr: 'Chemin de Vie',
     taglineEn: 'Finding direction and clarity',
     taglineFr: 'Trouver direction et clarté',
     iconName: 'Compass',
@@ -336,8 +336,8 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
   },
   {
     id: 'family',
-    labelEn: 'Family & Personal',
-    labelFr: 'Famille & Personnel',
+    labelEn: 'Hearth & Home',
+    labelFr: 'Foyer & Cocon',
     taglineEn: 'Nurturing important bonds',
     taglineFr: 'Nourrir les liens importants',
     iconName: 'Users',
@@ -351,115 +351,112 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
 export const HORSESHOE_LAYOUT_QUESTIONS: Record<HorseshoeLayoutId, HorseshoeQuestion[]> = {
   // Love & Relationships
   new_connection: [
-    { id: 'hs_nc1', textEn: 'Is this person genuinely interested in me?', textFr: 'Cette personne est-elle vraiment intéressée par moi?' },
-    { id: 'hs_nc2', textEn: 'Are we actually compatible or am I just hopeful?', textFr: 'Sommes-nous vraiment compatibles ou est-ce que je me fais des illusions?' },
-    { id: 'hs_nc3', textEn: 'What should I know before getting more involved?', textFr: 'Que devrais-je savoir avant de m\'impliquer davantage?' },
-    { id: 'hs_nc4', textEn: 'Is this the right time for me to start something new?', textFr: 'Est-ce le bon moment pour moi de commencer quelque chose de nouveau?' },
+    { id: 'hs_nc1', textEn: 'What is my soul really searching for in this connection?', textFr: 'Que cherche vraiment mon âme dans cette connexion ?' },
+    { id: 'hs_nc2', textEn: 'What unspoken feelings are shaping the energy between us?', textFr: 'Quels sentiments non-dits façonnent l\'énergie entre nous ?' },
+    { id: 'hs_nc3', textEn: 'What does this relationship want to teach me about myself?', textFr: 'Qu\'est-ce que cette relation veut m\'apprendre sur moi-même ?' },
   ],
   relationship_checkin: [
-    { id: 'hs_rc1', textEn: 'Are we still growing together or growing apart?', textFr: 'Continuons-nous à grandir ensemble ou nous éloignons-nous?' },
-    { id: 'hs_rc2', textEn: 'What does my partner really need from me right now?', textFr: 'De quoi mon partenaire a-t-il vraiment besoin de moi en ce moment?' },
-    { id: 'hs_rc3', textEn: 'Is there something we\'re both avoiding talking about?', textFr: 'Y a-t-il quelque chose que nous évitons tous les deux d\'aborder?' },
+    { id: 'hs_rc1', textEn: 'What is my soul really searching for in this connection?', textFr: 'Que cherche vraiment mon âme dans cette connexion ?' },
+    { id: 'hs_rc2', textEn: 'What unspoken feelings are shaping the energy between us?', textFr: 'Quels sentiments non-dits façonnent l\'énergie entre nous ?' },
+    { id: 'hs_rc3', textEn: 'What does this relationship want to teach me about myself?', textFr: 'Qu\'est-ce que cette relation veut m\'apprendre sur moi-même ?' },
   ],
   relationship_troubles: [
-    { id: 'hs_rt1', textEn: 'Can this relationship be saved or is it over?', textFr: 'Cette relation peut-elle être sauvée ou est-ce fini?' },
-    { id: 'hs_rt2', textEn: 'What\'s really causing all these fights?', textFr: 'Qu\'est-ce qui cause vraiment toutes ces disputes?' },
-    { id: 'hs_rt3', textEn: 'Am I the problem or are they?', textFr: 'Est-ce moi le problème ou est-ce eux?' },
+    { id: 'hs_rt1', textEn: 'What is my soul really searching for in this connection?', textFr: 'Que cherche vraiment mon âme dans cette connexion ?' },
+    { id: 'hs_rt2', textEn: 'What unspoken feelings are shaping the energy between us?', textFr: 'Quels sentiments non-dits façonnent l\'énergie entre nous ?' },
+    { id: 'hs_rt3', textEn: 'What does this relationship want to teach me about myself?', textFr: 'Qu\'est-ce que cette relation veut m\'apprendre sur moi-même ?' },
   ],
   breakup_moving_on: [
-    { id: 'hs_bm1', textEn: 'Why can\'t I stop thinking about my ex?', textFr: 'Pourquoi est-ce que je n\'arrête pas de penser à mon ex?' },
-    { id: 'hs_bm2', textEn: 'Will I ever find someone better?', textFr: 'Est-ce que je trouverai un jour quelqu\'un de mieux?' },
-    { id: 'hs_bm3', textEn: 'Should I try to get them back or move on?', textFr: 'Devrais-je essayer de les récupérer ou tourner la page?' },
+    { id: 'hs_bm1', textEn: 'What is my soul really searching for in this connection?', textFr: 'Que cherche vraiment mon âme dans cette connexion ?' },
+    { id: 'hs_bm2', textEn: 'What unspoken feelings are shaping the energy between us?', textFr: 'Quels sentiments non-dits façonnent l\'énergie entre nous ?' },
+    { id: 'hs_bm3', textEn: 'What does this relationship want to teach me about myself?', textFr: 'Qu\'est-ce que cette relation veut m\'apprendre sur moi-même ?' },
   ],
 
-  // Career & Work
+  // Career & Calling
   career_crossroads: [
-    { id: 'hs_cc1', textEn: 'Should I stay in my current job or start looking?', textFr: 'Devrais-je rester dans mon emploi actuel ou commencer à chercher?' },
-    { id: 'hs_cc2', textEn: 'Am I wasting my potential where I am?', textFr: 'Est-ce que je gaspille mon potentiel là où je suis?' },
-    { id: 'hs_cc3', textEn: 'Why do I feel so stuck in my career?', textFr: 'Pourquoi est-ce que je me sens si coincé(e) dans ma carrière?' },
-    { id: 'hs_cc4', textEn: 'What\'s holding me back from getting promoted?', textFr: 'Qu\'est-ce qui m\'empêche d\'être promu(e)?' },
+    { id: 'hs_cc1', textEn: 'What forces are shaping the next chapter of my professional journey?', textFr: 'Quelles forces façonnent le prochain chapitre de mon parcours professionnel ?' },
+    { id: 'hs_cc2', textEn: 'What bridge is forming between where I am and where I\'m meant to be?', textFr: 'Quel pont se forme entre là où je suis et là où je suis destiné(e) à être ?' },
+    { id: 'hs_cc3', textEn: 'What do I need to release to step fully into my calling?', textFr: 'De quoi ai-je besoin de me libérer pour embrasser pleinement ma vocation ?' },
   ],
   career_purpose: [
-    { id: 'hs_cp1', textEn: 'Is this really what I\'m meant to be doing with my life?', textFr: 'Est-ce vraiment ce que je suis censé(e) faire de ma vie?' },
-    { id: 'hs_cp2', textEn: 'What career would actually make me happy?', textFr: 'Quelle carrière me rendrait vraiment heureux/heureuse?' },
-    { id: 'hs_cp3', textEn: 'Am I too old to change careers?', textFr: 'Suis-je trop âgé(e) pour changer de carrière?' },
+    { id: 'hs_cp1', textEn: 'What forces are shaping the next chapter of my professional journey?', textFr: 'Quelles forces façonnent le prochain chapitre de mon parcours professionnel ?' },
+    { id: 'hs_cp2', textEn: 'What bridge is forming between where I am and where I\'m meant to be?', textFr: 'Quel pont se forme entre là où je suis et là où je suis destiné(e) à être ?' },
+    { id: 'hs_cp3', textEn: 'What do I need to release to step fully into my calling?', textFr: 'De quoi ai-je besoin de me libérer pour embrasser pleinement ma vocation ?' },
   ],
   workplace_conflicts: [
-    { id: 'hs_wc1', textEn: 'How do I deal with a toxic coworker or boss?', textFr: 'Comment gérer un collègue ou patron toxique?' },
-    { id: 'hs_wc2', textEn: 'Should I say something or just keep my head down?', textFr: 'Devrais-je dire quelque chose ou garder profil bas?' },
-    { id: 'hs_wc3', textEn: 'Is this job worth the stress it\'s causing me?', textFr: 'Ce travail vaut-il le stress qu\'il me cause?' },
+    { id: 'hs_wc1', textEn: 'What forces are shaping the next chapter of my professional journey?', textFr: 'Quelles forces façonnent le prochain chapitre de mon parcours professionnel ?' },
+    { id: 'hs_wc2', textEn: 'What bridge is forming between where I am and where I\'m meant to be?', textFr: 'Quel pont se forme entre là où je suis et là où je suis destiné(e) à être ?' },
+    { id: 'hs_wc3', textEn: 'What do I need to release to step fully into my calling?', textFr: 'De quoi ai-je besoin de me libérer pour embrasser pleinement ma vocation ?' },
   ],
   starting_business: [
-    { id: 'hs_sb1', textEn: 'Do I have what it takes to run my own business?', textFr: 'Ai-je ce qu\'il faut pour diriger ma propre entreprise?' },
-    { id: 'hs_sb2', textEn: 'Is now the right time to take the leap?', textFr: 'Est-ce le bon moment pour me lancer?' },
-    { id: 'hs_sb3', textEn: 'What could make or break this venture?', textFr: 'Qu\'est-ce qui pourrait faire réussir ou échouer cette aventure?' },
+    { id: 'hs_sb1', textEn: 'What forces are shaping the next chapter of my professional journey?', textFr: 'Quelles forces façonnent le prochain chapitre de mon parcours professionnel ?' },
+    { id: 'hs_sb2', textEn: 'What bridge is forming between where I am and where I\'m meant to be?', textFr: 'Quel pont se forme entre là où je suis et là où je suis destiné(e) à être ?' },
+    { id: 'hs_sb3', textEn: 'What do I need to release to step fully into my calling?', textFr: 'De quoi ai-je besoin de me libérer pour embrasser pleinement ma vocation ?' },
   ],
 
-  // Money & Finances
+  // Wealth & Alignment
   financial_stability: [
-    { id: 'hs_fs1', textEn: 'Will I ever feel financially secure?', textFr: 'Est-ce que je me sentirai un jour en sécurité financièrement?' },
-    { id: 'hs_fs2', textEn: 'What\'s stopping me from saving more money?', textFr: 'Qu\'est-ce qui m\'empêche d\'économiser plus d\'argent?' },
-    { id: 'hs_fs3', textEn: 'How can I build a better financial future?', textFr: 'Comment puis-je construire un meilleur avenir financier?' },
+    { id: 'hs_fs1', textEn: 'What invisible patterns are influencing my financial path?', textFr: 'Quels schémas invisibles influencent mon chemin financier ?' },
+    { id: 'hs_fs2', textEn: 'What is the universe trying to show me about giving and receiving?', textFr: 'Qu\'est-ce que l\'univers essaie de me montrer sur le fait de donner et de recevoir ?' },
+    { id: 'hs_fs3', textEn: 'What old fear around money is ready to be gently released?', textFr: 'Quelle ancienne peur liée à l\'argent est prête à être doucement libérée ?' },
   ],
   abundance_blocks: [
-    { id: 'hs_ab1', textEn: 'Why does money always seem to slip through my fingers?', textFr: 'Pourquoi l\'argent semble-t-il toujours me filer entre les doigts?' },
-    { id: 'hs_ab2', textEn: 'Am I sabotaging my own success with money?', textFr: 'Est-ce que je sabote ma propre réussite financière?' },
-    { id: 'hs_ab3', textEn: 'What\'s my relationship with money and how can I improve it?', textFr: 'Quelle est ma relation avec l\'argent et comment puis-je l\'améliorer?' },
+    { id: 'hs_ab1', textEn: 'What invisible patterns are influencing my financial path?', textFr: 'Quels schémas invisibles influencent mon chemin financier ?' },
+    { id: 'hs_ab2', textEn: 'What is the universe trying to show me about giving and receiving?', textFr: 'Qu\'est-ce que l\'univers essaie de me montrer sur le fait de donner et de recevoir ?' },
+    { id: 'hs_ab3', textEn: 'What old fear around money is ready to be gently released?', textFr: 'Quelle ancienne peur liée à l\'argent est prête à être doucement libérée ?' },
   ],
   money_decisions: [
-    { id: 'hs_md1', textEn: 'Is this purchase or investment worth it?', textFr: 'Cet achat ou investissement en vaut-il la peine?' },
-    { id: 'hs_md2', textEn: 'What will I regret more - spending this or not spending it?', textFr: 'Qu\'est-ce que je regretterai le plus - dépenser ceci ou ne pas le dépenser?' },
-    { id: 'hs_md3', textEn: 'Am I making this decision out of fear or wisdom?', textFr: 'Est-ce que je prends cette décision par peur ou par sagesse?' },
+    { id: 'hs_md1', textEn: 'What invisible patterns are influencing my financial path?', textFr: 'Quels schémas invisibles influencent mon chemin financier ?' },
+    { id: 'hs_md2', textEn: 'What is the universe trying to show me about giving and receiving?', textFr: 'Qu\'est-ce que l\'univers essaie de me montrer sur le fait de donner et de recevoir ?' },
+    { id: 'hs_md3', textEn: 'What old fear around money is ready to be gently released?', textFr: 'Quelle ancienne peur liée à l\'argent est prête à être doucement libérée ?' },
   ],
   financial_recovery: [
-    { id: 'hs_fr1', textEn: 'How do I dig myself out of this financial hole?', textFr: 'Comment puis-je sortir de ce trou financier?' },
-    { id: 'hs_fr2', textEn: 'Will I ever get out of debt?', textFr: 'Est-ce que je sortirai un jour de mes dettes?' },
-    { id: 'hs_fr3', textEn: 'What\'s the first step I should take right now?', textFr: 'Quelle est la première étape que je devrais franchir maintenant?' },
+    { id: 'hs_fr1', textEn: 'What invisible patterns are influencing my financial path?', textFr: 'Quels schémas invisibles influencent mon chemin financier ?' },
+    { id: 'hs_fr2', textEn: 'What is the universe trying to show me about giving and receiving?', textFr: 'Qu\'est-ce que l\'univers essaie de me montrer sur le fait de donner et de recevoir ?' },
+    { id: 'hs_fr3', textEn: 'What old fear around money is ready to be gently released?', textFr: 'Quelle ancienne peur liée à l\'argent est prête à être doucement libérée ?' },
   ],
 
-  // Life Path & Major Decisions
+  // Life Path
   right_path: [
-    { id: 'hs_rp1', textEn: 'Am I wasting my life doing the wrong things?', textFr: 'Est-ce que je gaspille ma vie à faire les mauvaises choses?' },
-    { id: 'hs_rp2', textEn: 'How do I find my purpose?', textFr: 'Comment puis-je trouver ma raison d\'être?' },
-    { id: 'hs_rp3', textEn: 'What would my life look like if I was on the right track?', textFr: 'À quoi ressemblerait ma vie si j\'étais sur la bonne voie?' },
+    { id: 'hs_rp1', textEn: 'What turning point is quietly taking shape in my life?', textFr: 'Quel tournant prend forme silencieusement dans ma vie ?' },
+    { id: 'hs_rp2', textEn: 'What do I need to understand about the journey I\'m on?', textFr: 'Que dois-je comprendre sur le voyage que je suis en train de vivre ?' },
+    { id: 'hs_rp3', textEn: 'What is life asking me to trust, even without seeing the full picture?', textFr: 'Qu\'est-ce que la vie me demande de croire, même sans voir le chemin entier ?' },
   ],
   life_transitions: [
-    { id: 'hs_lt1', textEn: 'How do I cope with everything that\'s changing?', textFr: 'Comment puis-je faire face à tout ce qui change?' },
-    { id: 'hs_lt2', textEn: 'Will things get better after this transition?', textFr: 'Est-ce que les choses iront mieux après cette transition?' },
-    { id: 'hs_lt3', textEn: 'What do I need to let go of to move forward?', textFr: 'De quoi dois-je me libérer pour avancer?' },
+    { id: 'hs_lt1', textEn: 'What turning point is quietly taking shape in my life?', textFr: 'Quel tournant prend forme silencieusement dans ma vie ?' },
+    { id: 'hs_lt2', textEn: 'What do I need to understand about the journey I\'m on?', textFr: 'Que dois-je comprendre sur le voyage que je suis en train de vivre ?' },
+    { id: 'hs_lt3', textEn: 'What is life asking me to trust, even without seeing the full picture?', textFr: 'Qu\'est-ce que la vie me demande de croire, même sans voir le chemin entier ?' },
   ],
   major_decisions: [
-    { id: 'hs_mj1', textEn: 'Should I stay or should I go?', textFr: 'Devrais-je rester ou partir?' },
-    { id: 'hs_mj2', textEn: 'What will happen if I make the wrong choice?', textFr: 'Que se passera-t-il si je fais le mauvais choix?' },
-    { id: 'hs_mj3', textEn: 'What am I not seeing that could change everything?', textFr: 'Qu\'est-ce que je ne vois pas qui pourrait tout changer?' },
-    { id: 'hs_mj4', textEn: 'Which path leads to the life I really want?', textFr: 'Quel chemin mène à la vie que je veux vraiment?' },
+    { id: 'hs_mj1', textEn: 'What turning point is quietly taking shape in my life?', textFr: 'Quel tournant prend forme silencieusement dans ma vie ?' },
+    { id: 'hs_mj2', textEn: 'What do I need to understand about the journey I\'m on?', textFr: 'Que dois-je comprendre sur le voyage que je suis en train de vivre ?' },
+    { id: 'hs_mj3', textEn: 'What is life asking me to trust, even without seeing the full picture?', textFr: 'Qu\'est-ce que la vie me demande de croire, même sans voir le chemin entier ?' },
   ],
   whats_ahead: [
-    { id: 'hs_wa1', textEn: 'What does my next year look like?', textFr: 'À quoi ressemble ma prochaine année?' },
-    { id: 'hs_wa2', textEn: 'What should I be preparing for?', textFr: 'À quoi devrais-je me préparer?' },
-    { id: 'hs_wa3', textEn: 'Are good things coming or should I brace myself?', textFr: 'Est-ce que de bonnes choses arrivent ou devrais-je me préparer au pire?' },
+    { id: 'hs_wa1', textEn: 'What turning point is quietly taking shape in my life?', textFr: 'Quel tournant prend forme silencieusement dans ma vie ?' },
+    { id: 'hs_wa2', textEn: 'What do I need to understand about the journey I\'m on?', textFr: 'Que dois-je comprendre sur le voyage que je suis en train de vivre ?' },
+    { id: 'hs_wa3', textEn: 'What is life asking me to trust, even without seeing the full picture?', textFr: 'Qu\'est-ce que la vie me demande de croire, même sans voir le chemin entier ?' },
   ],
 
-  // Family & Personal Relationships
+  // Hearth & Home
   family_dynamics: [
-    { id: 'hs_fd1', textEn: 'Why is my family so complicated?', textFr: 'Pourquoi ma famille est-elle si compliquée?' },
-    { id: 'hs_fd2', textEn: 'How do I break free from unhealthy family patterns?', textFr: 'Comment puis-je me libérer des schémas familiaux malsains?' },
-    { id: 'hs_fd3', textEn: 'Can things ever improve with my family?', textFr: 'Est-ce que les choses peuvent s\'améliorer avec ma famille?' },
+    { id: 'hs_fd1', textEn: 'What invisible thread is shaping the bonds within my family?', textFr: 'Quel fil invisible façonne les liens au sein de ma famille ?' },
+    { id: 'hs_fd2', textEn: 'What do my roots need from me right now?', textFr: 'De quoi mes racines ont-elles besoin de ma part en ce moment ?' },
+    { id: 'hs_fd3', textEn: 'What old family pattern is ready to be transformed with love?', textFr: 'Quel ancien schéma familial est prêt à être transformé avec amour ?' },
   ],
   parenting: [
-    { id: 'hs_pa1', textEn: 'Am I doing a good job as a parent?', textFr: 'Est-ce que je suis un(e) bon(ne) parent?' },
-    { id: 'hs_pa2', textEn: 'What does my child really need from me right now?', textFr: 'De quoi mon enfant a-t-il vraiment besoin de moi en ce moment?' },
-    { id: 'hs_pa3', textEn: 'How can I connect better with my teenager?', textFr: 'Comment puis-je mieux me connecter avec mon adolescent?' },
+    { id: 'hs_pa1', textEn: 'What invisible thread is shaping the bonds within my family?', textFr: 'Quel fil invisible façonne les liens au sein de ma famille ?' },
+    { id: 'hs_pa2', textEn: 'What do my roots need from me right now?', textFr: 'De quoi mes racines ont-elles besoin de ma part en ce moment ?' },
+    { id: 'hs_pa3', textEn: 'What old family pattern is ready to be transformed with love?', textFr: 'Quel ancien schéma familial est prêt à être transformé avec amour ?' },
   ],
   friendships: [
-    { id: 'hs_fn1', textEn: 'Is this friendship one-sided?', textFr: 'Est-ce que cette amitié est à sens unique?' },
-    { id: 'hs_fn2', textEn: 'Should I let this friendship go or fight for it?', textFr: 'Devrais-je laisser tomber cette amitié ou me battre pour elle?' },
-    { id: 'hs_fn3', textEn: 'Why do I keep losing friends?', textFr: 'Pourquoi est-ce que je perds toujours mes amis?' },
+    { id: 'hs_fn1', textEn: 'What invisible thread is shaping the bonds within my family?', textFr: 'Quel fil invisible façonne les liens au sein de ma famille ?' },
+    { id: 'hs_fn2', textEn: 'What do my roots need from me right now?', textFr: 'De quoi mes racines ont-elles besoin de ma part en ce moment ?' },
+    { id: 'hs_fn3', textEn: 'What old family pattern is ready to be transformed with love?', textFr: 'Quel ancien schéma familial est prêt à être transformé avec amour ?' },
   ],
   difficult_relatives: [
-    { id: 'hs_dr1', textEn: 'How do I deal with a family member who drives me crazy?', textFr: 'Comment gérer un membre de la famille qui me rend fou/folle?' },
-    { id: 'hs_dr2', textEn: 'Should I cut them off or keep trying?', textFr: 'Devrais-je les couper ou continuer à essayer?' },
-    { id: 'hs_dr3', textEn: 'How do I protect myself without starting a family war?', textFr: 'Comment puis-je me protéger sans déclencher une guerre familiale?' },
+    { id: 'hs_dr1', textEn: 'What invisible thread is shaping the bonds within my family?', textFr: 'Quel fil invisible façonne les liens au sein de ma famille ?' },
+    { id: 'hs_dr2', textEn: 'What do my roots need from me right now?', textFr: 'De quoi mes racines ont-elles besoin de ma part en ce moment ?' },
+    { id: 'hs_dr3', textEn: 'What old family pattern is ready to be transformed with love?', textFr: 'Quel ancien schéma familial est prêt à être transformé avec amour ?' },
   ],
 };
 

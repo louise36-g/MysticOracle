@@ -209,18 +209,18 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
     return [
       {
         id: 'default_1',
-        textEn: 'What do I need to know right now?',
-        textFr: 'Que dois-je savoir en ce moment ?',
+        textEn: 'What gentle truth is waiting for me today?',
+        textFr: 'Quelle douce vérité m\'attend aujourd\'hui ?',
       },
       {
         id: 'default_2',
-        textEn: 'What am I missing that could change everything?',
-        textFr: 'Qu\'est-ce qui m\'échappe et qui pourrait tout changer ?',
+        textEn: 'What does my heart most need to hear right now?',
+        textFr: 'Qu\'est-ce que mon cœur a le plus besoin d\'entendre en ce moment ?',
       },
       {
         id: 'default_3',
-        textEn: 'What should I do next?',
-        textFr: 'Que devrais-je faire ensuite ?',
+        textEn: 'Where is love quietly trying to reach me?',
+        textFr: 'Où l\'amour essaie-t-il doucement de me rejoindre ?',
       },
     ];
   };

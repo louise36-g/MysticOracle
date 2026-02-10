@@ -198,7 +198,7 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
   },
   career_purpose: {
     id: 'career_purpose',
-    labelEn: 'Career & Purpose',
+    labelEn: 'Career & Calling',
     labelFr: 'Carrière & Vocation',
     taglineEn: 'Get strategic clarity on your professional path. This layout shows where you stand, what\'s blocking progress, hidden factors at play, and the best action to take.',
     taglineFr: 'Obtenez une clarté stratégique sur votre parcours professionnel. Ce tirage montre où vous en êtes, ce qui bloque, les facteurs cachés en jeu, et la meilleure action à entreprendre.',
@@ -275,24 +275,24 @@ export const FIVE_CARD_CATEGORIES: FiveCardCategoryConfig[] = [
 // Questions for most categories (3 per category)
 export const FIVE_CARD_QUESTIONS: Record<FiveCardCategory, FiveCardQuestion[]> = {
   self_awareness: [
-    { id: '5sa1', textEn: 'Why do I keep making the same mistakes?', textFr: 'Pourquoi est-ce que je répète toujours les mêmes erreurs ?' },
-    { id: '5sa2', textEn: 'What am I in denial about?', textFr: 'Qu\'est-ce que je refuse de voir ?' },
-    { id: '5sa3', textEn: 'What\'s the real reason I\'m unhappy?', textFr: 'Quelle est la vraie raison de mon mal-être ?' },
+    { id: '5sa1', textEn: 'What deeper current is carrying me toward my next chapter?', textFr: 'Quel courant profond me porte vers mon prochain chapitre ?' },
+    { id: '5sa2', textEn: 'What would my life look like if I followed my truest instincts?', textFr: 'À quoi ressemblerait ma vie si je suivais mes instincts les plus vrais ?' },
+    { id: '5sa3', textEn: 'What is the thread that connects where I\'ve been to where I\'m going?', textFr: 'Quel est le fil qui relie là d\'où je viens à là où je vais ?' },
   ],
   gentle_healing: [
-    { id: '5gh1', textEn: 'How do I stop feeling so broken?', textFr: 'Comment puis-je arrêter de me sentir si brisé(e) ?' },
-    { id: '5gh2', textEn: 'Why is it so hard for me to trust people?', textFr: 'Pourquoi m\'est-il si difficile de faire confiance aux gens ?' },
-    { id: '5gh3', textEn: 'How do I move past what happened to me?', textFr: 'Comment puis-je dépasser ce qui m\'est arrivé ?' },
+    { id: '5gh1', textEn: 'What deeper journey is love inviting me to take?', textFr: 'Quel voyage plus profond l\'amour m\'invite-t-il à entreprendre ?' },
+    { id: '5gh2', textEn: 'What part of me is ready to bloom in my relationships?', textFr: 'Quelle part de moi est prête à s\'épanouir dans mes relations ?' },
+    { id: '5gh3', textEn: 'How can I honor what my heart truly longs for?', textFr: 'Comment puis-je honorer ce que mon cœur désire vraiment ?' },
   ],
   know_yourself: [
-    { id: '5ky1', textEn: 'Who am I when I\'m not trying to please everyone?', textFr: 'Qui suis-je quand je n\'essaie pas de plaire à tout le monde ?' },
-    { id: '5ky2', textEn: 'What do I really want out of life?', textFr: 'Qu\'est-ce que je veux vraiment dans la vie ?' },
-    { id: '5ky3', textEn: 'Why do I feel like I\'m living someone else\'s life?', textFr: 'Pourquoi ai-je l\'impression de vivre la vie de quelqu\'un d\'autre ?' },
+    { id: '5ky1', textEn: 'What deeper current is carrying me toward my next chapter?', textFr: 'Quel courant profond me porte vers mon prochain chapitre ?' },
+    { id: '5ky2', textEn: 'What would my life look like if I followed my truest instincts?', textFr: 'À quoi ressemblerait ma vie si je suivais mes instincts les plus vrais ?' },
+    { id: '5ky3', textEn: 'What is the thread that connects where I\'ve been to where I\'m going?', textFr: 'Quel est le fil qui relie là d\'où je viens à là où je vais ?' },
   ],
   personal_growth: [
-    { id: '5pg1', textEn: 'What needs to change for me to be happy?', textFr: 'Que doit changer pour que je sois heureux/heureuse ?' },
-    { id: '5pg2', textEn: 'How do I become the person I want to be?', textFr: 'Comment devenir la personne que je veux être ?' },
-    { id: '5pg3', textEn: 'What\'s holding me back from reaching my potential?', textFr: 'Qu\'est-ce qui m\'empêche d\'atteindre mon potentiel ?' },
+    { id: '5pg1', textEn: 'What deeper current is carrying me toward my next chapter?', textFr: 'Quel courant profond me porte vers mon prochain chapitre ?' },
+    { id: '5pg2', textEn: 'What would my life look like if I followed my truest instincts?', textFr: 'À quoi ressemblerait ma vie si je suivais mes instincts les plus vrais ?' },
+    { id: '5pg3', textEn: 'What is the thread that connects where I\'ve been to where I\'m going?', textFr: 'Quel est le fil qui relie là d\'où je viens à là où je vais ?' },
   ],
   relationships_career: [], // Layout-specific questions below
 };
@@ -300,14 +300,14 @@ export const FIVE_CARD_QUESTIONS: Record<FiveCardCategory, FiveCardQuestion[]> =
 // Layout-specific questions for relationships_career category
 export const FIVE_CARD_LAYOUT_QUESTIONS: Record<'love_relationships' | 'career_purpose', FiveCardQuestion[]> = {
   love_relationships: [
-    { id: '5lr1', textEn: 'Is this relationship worth fighting for?', textFr: 'Cette relation vaut-elle la peine de se battre ?' },
-    { id: '5lr2', textEn: 'What does my partner really think of me?', textFr: 'Que pense vraiment mon partenaire de moi ?' },
-    { id: '5lr3', textEn: 'Are we meant to be together?', textFr: 'Sommes-nous faits pour être ensemble ?' },
+    { id: '5lr1', textEn: 'What deeper journey is love inviting me to take?', textFr: 'Quel voyage plus profond l\'amour m\'invite-t-il à entreprendre ?' },
+    { id: '5lr2', textEn: 'What part of me is ready to bloom in my relationships?', textFr: 'Quelle part de moi est prête à s\'épanouir dans mes relations ?' },
+    { id: '5lr3', textEn: 'How can I honor what my heart truly longs for?', textFr: 'Comment puis-je honorer ce que mon cœur désire vraiment ?' },
   ],
   career_purpose: [
-    { id: '5cp1', textEn: 'Am I wasting my time in this job?', textFr: 'Est-ce que je perds mon temps dans ce travail ?' },
-    { id: '5cp2', textEn: 'What career would actually make me happy?', textFr: 'Quelle carrière me rendrait vraiment heureux/heureuse ?' },
-    { id: '5cp3', textEn: 'Is it too late to change direction?', textFr: 'Est-il trop tard pour changer de direction ?' },
+    { id: '5cp1', textEn: 'What deeper transformation is unfolding in my professional life?', textFr: 'Quelle transformation plus profonde se déploie dans ma vie professionnelle ?' },
+    { id: '5cp2', textEn: 'How can I align my daily work with what truly fulfills me?', textFr: 'Comment puis-je aligner mon travail quotidien avec ce qui me nourrit vraiment ?' },
+    { id: '5cp3', textEn: 'What would my career look like if I trusted my deepest instincts?', textFr: 'À quoi ressemblerait ma carrière si je faisais confiance à mes instincts les plus profonds ?' },
   ],
 };
 
