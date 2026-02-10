@@ -169,25 +169,43 @@ export class PayPalGateway implements IPaymentGateway {
 
       const captureData: Order = typeof body === 'string' ? JSON.parse(body) : body;
 
+      // Log full capture response for debugging
+      console.log('[PayPal] Capture response:', JSON.stringify(captureData, null, 2));
+
       if (captureData.status === 'COMPLETED') {
         // Parse custom data to get credits
-        // PayPal SDK types don't include nested payments structure after capture
-        const purchaseUnit = captureData.purchaseUnits?.[0] as
-          | (Record<string, unknown> & { customId?: string })
-          | undefined;
+        // PayPal returns custom_id in different locations depending on SDK version
+        const purchaseUnit = captureData.purchaseUnits?.[0] as Record<string, unknown> | undefined;
+
+        // Log purchase unit structure
+        console.log('[PayPal] Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
+
+        // Try multiple locations where custom_id might be
         const payments = purchaseUnit?.payments as
-          | { captures?: { customId?: string }[] }
+          | { captures?: Array<Record<string, unknown>> }
           | undefined;
-        const customId = payments?.captures?.[0]?.customId || purchaseUnit?.customId;
+        const capture = payments?.captures?.[0];
+
+        // PayPal uses snake_case (custom_id) not camelCase (customId)
+        const customId =
+          (capture?.custom_id as string) ||
+          (capture?.customId as string) ||
+          (purchaseUnit?.custom_id as string) ||
+          (purchaseUnit?.customId as string);
+
+        console.log('[PayPal] Found customId:', customId);
 
         let credits = 0;
         if (customId) {
           try {
             const customData = JSON.parse(customId);
             credits = customData.credits || 0;
-          } catch {
-            console.error('Failed to parse PayPal customId');
+            console.log('[PayPal] Parsed credits:', credits);
+          } catch (e) {
+            console.error('[PayPal] Failed to parse customId:', e);
           }
+        } else {
+          console.warn('[PayPal] No customId found in capture response');
         }
 
         return {
