@@ -37,3 +37,6 @@ server/public/
 
 # Git worktrees
 .worktrees/
+
+# Cloudinary migration logs
+server/scripts/cloudinary-migration-*.json
