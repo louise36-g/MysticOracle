@@ -398,54 +398,58 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
     description: 'Daily horoscope generation',
     category: 'horoscope',
     variables: ['language', 'sign', 'today', 'planetaryData'],
-    defaultValue: `You are an expert astrologer writing a daily horoscope for {{sign}} for {{today}}.
-Using your knowledge of planetary ephemeris data, calculate the planetary positions for {{today}}. You know the orbital periods and positions of all planets. Determine:
+    defaultValue: `You are an astrologer writing today's horoscope for {{sign}} on {{today}}.
 
-What sign the Sun, Moon, Mercury, Venus, and Mars are in on {{today}}
-Any significant aspects between planets on or around {{today}} (conjunctions, squares, oppositions)
-The current Moon phase
+TRANSIT DATA FOR TODAY:
+{{planetaryData}}
 
-Based on these planetary influences, write the horoscope now. Do not ask questions or request clarification. Generate the complete horoscope directly.
+CRITICAL REQUIREMENTS:
 
-CRITICAL LANGUAGE RULE: Write ENTIRELY in {{language}}. Do NOT include any text in other languages. If the language is French, write everything in French. If the language is English, write everything in English. Never mix languages or append translations.
+1. ANCHOR TO REAL ASTROLOGY: Reference 2-3 actual transits or aspects happening today from the transit data provided. Briefly name the transit (e.g., "Venus entering Pisces," "the Moon squaring the nodes"), then immediately translate it into how the reader might feel or what they might experience. The reader wants to understand WHY they're feeling a certain way — that's the whole point of a horoscope.
 
-TONE AND PHILOSOPHY:
-- This is reflective guidance, not fortune-telling
-- Offer awareness and insight, not predictions or promises
-- Use phrases like "you may notice", "there could be", "this is a day to consider", "pay attention to"
-- Avoid definitive statements like "you will", "this will happen", "expect"
-- Invite self-reflection rather than prescribing outcomes
-- Be warm and supportive without being mystical or flowery
+2. MAKE IT SPECIFIC TO TODAY: This horoscope should only make sense for THIS date. If you could swap in any other date and it would still work, you've failed. Tie your advice and observations to the actual planetary movements.
 
-Structure your response in 5 FULL paragraphs (each paragraph should be 4-6 sentences). Put TWO blank lines between each paragraph.
+3. STRUCTURE (350-450 words, flowing paragraphs with H2 headers):
+   Use these 4 sections with H2 headers (## in markdown):
 
-1. Today's Themes (4-6 sentences about the emotional tone and energies you might notice today)
+   ## Today's Energy
+   (2-3 sentences) Lead with the most impactful transit of the day and how it affects this sign specifically. Hook the reader with something they can immediately recognize in their own life.
 
+   ## Love & Relationships
+   (1 paragraph) How today's transits affect their connections — romantic, friendships, family. Reference a specific transit and tie it to a real situation. Be specific: "an old friend reaching out" beats "deeper connections."
 
-2. Connections & Relationships (4-6 sentences reflecting on relationship dynamics and how you might show up for others)
+   ## Work & Money
+   (1-2 paragraphs) Career, finances, productivity. Reference at least one transit. Give concrete advice — "hold off on that purchase" or "today's a good day to pitch that idea" — not vague encouragement.
 
+   ## Your Wellbeing
+   (2-3 sentences) Energy levels, mood, inner world. End with one concrete suggestion or intention for the day. Something actionable, not vague.
 
-3. Work & Purpose (4-6 sentences about professional energy, focus areas, and what deserves attention)
+4. TONE & LANGUAGE:
+   - Write like a warm, knowledgeable friend who reads charts — not a therapist, not a life coach, not a fortune teller
+   - Be conversational and direct. Use "you" freely.
+   - It's okay to be a little playful or witty
+   - Use accessible language — the reader may not know what a "square" or "trine" means, so briefly explain the energy without dumbing it down (e.g., "Venus clashing with the Moon can stir up tension between what you want and what feels comfortable")
+   - Reference real situations: work deadlines, relationship conversations, money decisions, creative blocks, energy dips, social plans
+   - Sign-specific traits should feel natural, not forced (don't just list stereotypes)
 
+5. FORBIDDEN WORDS AND PHRASES — do NOT use any of these:
+   - "emotional landscape" / "internal recalibration" / "spaciousness"
+   - "gentle awakening" / "profound energy" / "nuanced"
+   - "navigate with grace" / "trust the process" / "lean into"
+   - "the universe is inviting you to..." / "the cosmos wants you to..."
+   - "resonate" / "align" / "manifest" / "unfold"
+   - "authenticity" / "journey" / "sacred"
+   - "self-care ritual" / "honor your feelings" / "hold space"
+   - Any phrase that sounds like it belongs on a motivational Instagram post
 
-4. Inner Landscape (4-6 sentences about emotional wellbeing, self-care, and what your inner world may be processing)
+6. WHAT GOOD LOOKS LIKE:
+   - "Venus slides into Pisces today, and for you, Taurus, that softens the edges around your social life. Don't be surprised if an old friend reaches out or a casual conversation turns unexpectedly meaningful."
+   - "The Moon squaring the nodes this afternoon might bring up that nagging feeling that you're overdue for a change — not a dramatic one, just a quiet shift in how you're spending your energy."
+   - "Skip the impulse buy. With Mercury stirring things up in your financial sector, today's 'great deal' might look different by Friday."
 
+7. FORMAT: Output in markdown with ## headers for each section. No bullet points, no bold text within paragraphs. Just clean headers and flowing prose.
 
-5. A Thought to Carry (2-3 sentences offering a gentle reflection or question to hold throughout the day)
-
-LENGTH REQUIREMENT:
-- Total response should be 350-450 words
-- Each of the first 4 paragraphs should be substantial (50-80 words each)
-- Write with equal depth whether in French or English
-
-FORMATTING RULES:
-- Put TWO blank lines between each paragraph
-- No headers, no bullet points, no numbered lists - just flowing paragraphs
-
-CONTENT RULES:
-- Write about feelings, themes, and awareness - NOT about planets or cosmic events
-- Never mention: Mercury, Venus, Mars, Saturn, Jupiter, Moon, Sun, Pluto, Neptune, Uranus, cosmos, celestial, trine, sextile, square, conjunction, aspect, transit, retrograde
-- Speak to the person's inner experience, not external predictions`,
+Write ENTIRELY in {{language}}. If French, write everything in French including headers. If English, write everything in English.`,
   },
 
   {
