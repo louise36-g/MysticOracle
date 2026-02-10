@@ -174,8 +174,11 @@ export class PayPalGateway implements IPaymentGateway {
 
       if (captureData.status === 'COMPLETED') {
         // Parse custom data to get credits
-        // PayPal returns custom_id in different locations depending on SDK version
-        const purchaseUnit = captureData.purchaseUnits?.[0] as Record<string, unknown> | undefined;
+        // PayPal API uses snake_case (purchase_units), SDK may or may not convert to camelCase
+        const captureDataAny = captureData as Record<string, unknown>;
+        const purchaseUnitsArray = (captureDataAny.purchase_units ||
+          captureDataAny.purchaseUnits) as Array<Record<string, unknown>> | undefined;
+        const purchaseUnit = purchaseUnitsArray?.[0];
 
         // Log purchase unit structure
         console.log('[PayPal] Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
