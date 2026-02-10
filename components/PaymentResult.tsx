@@ -42,16 +42,21 @@ const PaymentResult: React.FC = () => {
         const provider = urlParams.get('provider');
         const paypalOrderId = urlParams.get('token'); // PayPal uses 'token' for order ID
 
-        let paymentResult: { success: boolean; credits?: number; error?: string };
+        let paymentResult: { success: boolean; credits?: number; newBalance?: number; error?: string };
 
         if (provider === 'paypal' && paypalOrderId) {
           // Capture PayPal order
+          console.log('[PaymentResult] Capturing PayPal order:', paypalOrderId);
           paymentResult = await capturePayPalOrder(token, paypalOrderId);
+          console.log('[PaymentResult] PayPal result:', paymentResult);
         } else if (sessionId) {
-          // Verify Stripe payment
+          // Verify Stripe payment (also adds credits as backup to webhook)
+          console.log('[PaymentResult] Verifying Stripe session:', sessionId);
           paymentResult = await verifyStripePayment(token, sessionId);
+          console.log('[PaymentResult] Stripe result:', paymentResult);
         } else {
           // No payment to verify - redirect home
+          console.log('[PaymentResult] No session_id or token found in URL');
           setResult({ success: false, error: 'no_payment' });
           setLoading(false);
           return;
@@ -65,8 +70,13 @@ const PaymentResult: React.FC = () => {
 
         setResult(paymentResult);
       } catch (error) {
-        console.error('Payment verification error:', error);
-        setResult({ success: false, error: error instanceof Error ? error.message : 'Verification failed' });
+        console.error('[PaymentResult] Payment verification error:', error);
+        // Provide helpful error message - payment might have succeeded even if verification failed
+        const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+        setResult({
+          success: false,
+          error: `${errorMessage}. If you were charged, please check your profile - credits may have been added.`
+        });
       } finally {
         setLoading(false);
       }
