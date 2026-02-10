@@ -17,6 +17,7 @@ import {
   paginationQuerySchema,
   debug,
 } from './shared.js';
+import { TransactionType, PaymentStatus } from '@prisma/client';
 
 const router = Router();
 
@@ -375,7 +376,10 @@ router.get(
       // This excludes pending/cancelled purchases from the history
       const whereClause = {
         userId,
-        OR: [{ type: { not: 'PURCHASE' } }, { type: 'PURCHASE', paymentStatus: 'COMPLETED' }],
+        OR: [
+          { type: { not: TransactionType.PURCHASE } },
+          { type: TransactionType.PURCHASE, paymentStatus: PaymentStatus.COMPLETED },
+        ],
       };
 
       const [transactions, total] = await Promise.all([
