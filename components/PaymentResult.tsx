@@ -6,6 +6,15 @@ import { useApp } from '../context/AppContext';
 import Button from './Button';
 import { CheckCircle, XCircle, Loader2, Coins, Sparkles } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
+
+// Extended result type to include newBalance
+interface PaymentResultData {
+  success: boolean;
+  credits?: number;
+  newBalance?: number;
+  error?: string;
+  debug?: Record<string, unknown>;
+}
 import { ROUTES } from '../routes/routes';
 
 const PaymentResult: React.FC = () => {
@@ -13,11 +22,11 @@ const PaymentResult: React.FC = () => {
   // Determine type from URL path
   const type: 'success' | 'cancelled' = location.pathname.includes('success') ? 'success' : 'cancelled';
   const navigate = useNavigate();
-  const { language, t, refreshUser } = useApp();
+  const { language, t, refreshUser, addCredits } = useApp();
   const { getToken } = useAuth();
   const { user: clerkUser } = useUser();
   const [loading, setLoading] = useState(type === 'success');
-  const [result, setResult] = useState<{ success: boolean; credits?: number; error?: string } | null>(null);
+  const [result, setResult] = useState<PaymentResultData | null>(null);
 
   useEffect(() => {
     if (type !== 'success') return;
@@ -59,15 +68,16 @@ const PaymentResult: React.FC = () => {
 
         setResult(paymentResult);
 
-        // Refresh user data to update credit balance in header
-        if (paymentResult.success) {
-          console.log('[PaymentResult] Payment successful, refreshing user data...');
-          // Use newBalance from capture response if available (more reliable)
-          if (paymentResult.newBalance !== undefined) {
-            console.log('[PaymentResult] Using newBalance from capture:', paymentResult.newBalance);
-          }
-          await refreshUser();
-          console.log('[PaymentResult] User data refreshed');
+        // Update credit balance
+        if (paymentResult.success && paymentResult.credits) {
+          console.log('[PaymentResult] Payment successful!');
+          console.log('[PaymentResult] Credits purchased:', paymentResult.credits);
+          console.log('[PaymentResult] New balance from server:', paymentResult.newBalance);
+
+          // IMPORTANT: Use addCredits to update local state directly
+          // Don't call refreshUser because the API seems to return stale data
+          addCredits(paymentResult.credits);
+          console.log('[PaymentResult] Updated local state with +', paymentResult.credits, 'credits');
         }
       } catch (error) {
         console.error('[PaymentResult] Payment verification error:', error);
