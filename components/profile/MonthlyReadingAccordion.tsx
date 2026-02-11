@@ -9,12 +9,10 @@ import { ReadingFilterType } from './ReadingTypeFilter';
 // Labels for each filter type
 const FILTER_LABELS: Record<ReadingFilterType, { en: string; fr: string }> = {
   all: { en: 'All Readings', fr: 'Toutes les lectures' },
-  single: { en: 'Single Card', fr: 'Carte unique' },
-  three_card: { en: '3-Card', fr: '3 cartes' },
-  five_card: { en: '5-Card', fr: '5 cartes' },
-  horseshoe: { en: 'Horseshoe', fr: 'Fer à cheval' },
-  celtic_cross: { en: 'Celtic Cross', fr: 'Croix celtique' },
-  birth_cards: { en: 'Birth Cards', fr: 'Cartes de naissance' },
+  this_week: { en: 'This Week', fr: 'Cette semaine' },
+  last_week: { en: 'Last Week', fr: 'Semaine dernière' },
+  this_month: { en: 'This Month', fr: 'Ce mois-ci' },
+  last_month: { en: 'Last Month', fr: 'Mois dernier' },
 };
 
 interface MonthlyReadingAccordionProps {

@@ -12,7 +12,7 @@ import {
   Transaction,
 } from '../services/api';
 
-export type ReadingFilterType = 'all' | 'single' | 'three_card' | 'five_card' | 'horseshoe' | 'celtic_cross' | 'birth_cards';
+export type ReadingFilterType = 'all' | 'this_week' | 'last_week' | 'this_month' | 'last_month';
 export type TransactionTypeFilter = 'all' | 'purchases' | 'bonuses' | 'readings';
 
 interface UseProfileDataParams {
@@ -61,7 +61,7 @@ export function useProfileData({
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
   // Filter state
-  const [readingTypeFilter, setReadingTypeFilter] = useState<ReadingFilterType>('single');
+  const [readingTypeFilter, setReadingTypeFilter] = useState<ReadingFilterType>('all');
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionTypeFilter>('all');
 
   // Fetch data function
@@ -99,7 +99,46 @@ export function useProfileData({
     fetchData();
   }, [fetchData]);
 
-  // Filter readings by type
+  // Helper to get date range boundaries
+  const getDateRange = (filter: ReadingFilterType): { start: Date; end: Date } | null => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Adjust to make Monday the start of the week
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+    switch (filter) {
+      case 'this_week': {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() + mondayOffset);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 7);
+        return { start: startOfWeek, end: endOfWeek };
+      }
+      case 'last_week': {
+        const startOfLastWeek = new Date(today);
+        startOfLastWeek.setDate(today.getDate() + mondayOffset - 7);
+        const endOfLastWeek = new Date(startOfLastWeek);
+        endOfLastWeek.setDate(startOfLastWeek.getDate() + 7);
+        return { start: startOfLastWeek, end: endOfLastWeek };
+      }
+      case 'this_month': {
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        return { start: startOfMonth, end: endOfMonth };
+      }
+      case 'last_month': {
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return { start: startOfLastMonth, end: endOfLastMonth };
+      }
+      default:
+        return null;
+    }
+  };
+
+  // Filter readings by date range
   const filteredReadings = useMemo(() => {
     if (!readings || readings.length === 0) return [];
 
@@ -107,19 +146,13 @@ export function useProfileData({
       return readings;
     }
 
-    if (readingTypeFilter === 'birth_cards') {
-      return readings.filter(r =>
-        r.readingType === 'birth_synthesis' ||
-        r.readingType === 'personal_year' ||
-        r.readingType === 'threshold'
-      );
-    }
+    const range = getDateRange(readingTypeFilter);
+    if (!range) return readings;
 
-    // Filter to specific tarot spread type
-    return readings.filter(r =>
-      r.readingType === 'tarot' &&
-      r.spreadType?.toLowerCase() === readingTypeFilter
-    );
+    return readings.filter(r => {
+      const readingDate = new Date(r.createdAt);
+      return readingDate >= range.start && readingDate < range.end;
+    });
   }, [readings, readingTypeFilter]);
 
   // Filter transactions by type

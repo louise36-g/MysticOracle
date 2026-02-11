@@ -3,12 +3,10 @@ import { useApp } from '../../context/AppContext';
 
 export type ReadingFilterType =
   | 'all'
-  | 'single'
-  | 'three_card'
-  | 'five_card'
-  | 'horseshoe'
-  | 'celtic_cross'
-  | 'birth_cards';
+  | 'this_week'
+  | 'last_week'
+  | 'this_month'
+  | 'last_month';
 
 interface ReadingTypeFilterProps {
   value: ReadingFilterType;
@@ -19,13 +17,11 @@ const ReadingTypeFilter: React.FC<ReadingTypeFilterProps> = ({ value, onChange }
   const { language } = useApp();
 
   const options: { value: ReadingFilterType; labelEn: string; labelFr: string }[] = [
-    { value: 'single', labelEn: 'Single Card', labelFr: 'Carte unique' },
-    { value: 'three_card', labelEn: '3-Card', labelFr: '3 cartes' },
-    { value: 'five_card', labelEn: '5-Card', labelFr: '5 cartes' },
-    { value: 'horseshoe', labelEn: 'Horseshoe', labelFr: 'Fer à cheval' },
-    { value: 'celtic_cross', labelEn: 'Celtic Cross', labelFr: 'Croix celtique' },
-    { value: 'birth_cards', labelEn: 'Birth Cards', labelFr: 'Cartes de naissance' },
-    { value: 'all', labelEn: 'All Readings', labelFr: 'Toutes les lectures' },
+    { value: 'all', labelEn: 'All Readings', labelFr: 'Toutes' },
+    { value: 'this_week', labelEn: 'This Week', labelFr: 'Cette semaine' },
+    { value: 'last_week', labelEn: 'Last Week', labelFr: 'Semaine dernière' },
+    { value: 'this_month', labelEn: 'This Month', labelFr: 'Ce mois' },
+    { value: 'last_month', labelEn: 'Last Month', labelFr: 'Mois dernier' },
   ];
 
   return (
