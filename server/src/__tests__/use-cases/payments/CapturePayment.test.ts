@@ -38,6 +38,7 @@ const createMockCreditService = (): CreditService =>
     checkSufficientCredits: vi.fn(),
     deductCredits: vi.fn(),
     addCredits: vi.fn(),
+    addCreditsToUser: vi.fn(),
     refundCredits: vi.fn(),
     getBalance: vi.fn(),
     adjustCredits: vi.fn(),
@@ -80,6 +81,14 @@ describe('CapturePaymentUseCase', () => {
     success: true,
     credits: 25,
     captureId: 'CAPTURE-789',
+  };
+
+  const mockPendingTransaction = {
+    id: 'tx-123',
+    userId: 'user-123',
+    amount: 25,
+    paymentId: 'ORDER-456',
+    paymentStatus: 'PENDING',
   };
 
   beforeEach(() => {
@@ -135,14 +144,17 @@ describe('CapturePaymentUseCase', () => {
   });
 
   describe('Payment Capture', () => {
+    beforeEach(() => {
+      // Default: COMPLETED not found, PENDING found
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null) // First call: check for COMPLETED
+        .mockResolvedValueOnce(mockPendingTransaction); // Second call: check for PENDING
+      (mockCreditService.addCreditsToUser as Mock).mockResolvedValue(75);
+      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue(true);
+    });
+
     it('should capture payment successfully', async () => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
-      (mockCreditService.addCredits as Mock).mockResolvedValue({
-        success: true,
-        newBalance: 75,
-        transactionId: 'tx-123',
-      });
-      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
 
       const result = await useCase.execute(validInput);
 
@@ -180,66 +192,45 @@ describe('CapturePaymentUseCase', () => {
     });
   });
 
+  describe('Idempotency', () => {
+    it('should return success without adding credits if already completed', async () => {
+      (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
+      // COMPLETED transaction exists
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock).mockResolvedValueOnce({
+        ...mockPendingTransaction,
+        paymentStatus: 'COMPLETED',
+      });
+
+      const result = await useCase.execute(validInput);
+
+      expect(result.success).toBe(true);
+      expect(result.credits).toBe(25);
+      expect(mockCreditService.addCreditsToUser).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Credit Addition', () => {
     beforeEach(() => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
     });
 
-    it('should add credits via CreditService', async () => {
-      (mockCreditService.addCredits as Mock).mockResolvedValue({
-        success: true,
-        newBalance: 75,
-        transactionId: 'tx-123',
-      });
-      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
+    it('should add credits via addCreditsToUser (not addCredits)', async () => {
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null) // COMPLETED not found
+        .mockResolvedValueOnce(mockPendingTransaction); // PENDING found
+      (mockCreditService.addCreditsToUser as Mock).mockResolvedValue(75);
+      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue(true);
 
       await useCase.execute(validInput);
 
-      expect(mockCreditService.addCredits).toHaveBeenCalledWith({
-        userId: 'user-123',
-        amount: 25,
-        type: 'PURCHASE',
-        description: 'Credit purchase via PayPal',
-        metadata: {
-          paymentProvider: 'PAYPAL',
-          paymentId: 'ORDER-456',
-        },
-      });
-    });
-
-    it('should fallback to pending transaction when credits is zero', async () => {
-      (mockPayPalGateway.capturePayment as Mock).mockResolvedValue({
-        success: true,
-        credits: undefined,
-        captureId: 'CAPTURE-789',
-      });
-      // First call for PENDING (returns transaction), second call for COMPLETED (returns null)
-      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
-        .mockResolvedValueOnce({ id: 'tx-123', amount: 30, userId: 'user-123' })
-        .mockResolvedValueOnce(null);
-      (mockCreditService.addCredits as Mock).mockResolvedValue({
-        success: true,
-        newBalance: 80,
-        transactionId: 'tx-456',
-      });
-      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
-
-      const result = await useCase.execute(validInput);
-
-      expect(mockCreditService.addCredits).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 30 })
-      );
-      expect(result.success).toBe(true);
-      expect(result.credits).toBe(30);
+      expect(mockCreditService.addCreditsToUser).toHaveBeenCalledWith('user-123', 25);
+      expect(mockCreditService.addCredits).not.toHaveBeenCalled();
     });
 
     it('should return error when no pending transaction found', async () => {
-      (mockPayPalGateway.capturePayment as Mock).mockResolvedValue({
-        success: true,
-        credits: undefined,
-        captureId: 'CAPTURE-789',
-      });
-      (mockTransactionRepo.findByPaymentIdAndStatus as Mock).mockResolvedValue(null);
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null) // COMPLETED not found
+        .mockResolvedValueOnce(null); // PENDING not found
 
       const result = await useCase.execute(validInput);
 
@@ -248,30 +239,43 @@ describe('CapturePaymentUseCase', () => {
       expect(result.error).toBe('No pending transaction found - please contact support');
     });
 
-    it('should return new balance from credit service', async () => {
-      (mockCreditService.addCredits as Mock).mockResolvedValue({
-        success: true,
-        newBalance: 100,
-      });
-      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
+    it('should return new balance from addCreditsToUser', async () => {
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockPendingTransaction);
+      (mockCreditService.addCreditsToUser as Mock).mockResolvedValue(100);
+      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue(true);
 
       const result = await useCase.execute(validInput);
 
       expect(result.newBalance).toBe(100);
+    });
+
+    it('should return error when addCreditsToUser fails', async () => {
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockPendingTransaction);
+      (mockCreditService.addCreditsToUser as Mock).mockResolvedValue(null);
+
+      const result = await useCase.execute(validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.errorCode).toBe('INTERNAL_ERROR');
+      expect(result.error).toBe('Failed to add credits');
     });
   });
 
   describe('Transaction Status Update', () => {
     beforeEach(() => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
-      (mockCreditService.addCredits as Mock).mockResolvedValue({
-        success: true,
-        newBalance: 75,
-      });
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockPendingTransaction);
+      (mockCreditService.addCreditsToUser as Mock).mockResolvedValue(75);
     });
 
     it('should update transaction status to COMPLETED', async () => {
-      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
+      (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue(true);
 
       await useCase.execute(validInput);
 
@@ -295,7 +299,12 @@ describe('CapturePaymentUseCase', () => {
 
     it('should handle credit service errors', async () => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue(mockCaptureResult);
-      (mockCreditService.addCredits as Mock).mockRejectedValue(new Error('Credit service error'));
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockPendingTransaction);
+      (mockCreditService.addCreditsToUser as Mock).mockRejectedValue(
+        new Error('Credit service error')
+      );
 
       const result = await useCase.execute(validInput);
 

@@ -404,6 +404,38 @@ class CreditService {
   }
 
   /**
+   * Add credits to user WITHOUT creating a transaction
+   * Use this when updating an existing pending transaction to completed
+   * Returns the new balance or null on failure
+   */
+  async addCreditsToUser(userId: string, amount: number): Promise<number | null> {
+    try {
+      if (amount <= 0) {
+        console.error('[CreditService] addCreditsToUser: amount must be positive');
+        return null;
+      }
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          credits: { increment: amount },
+          totalCreditsEarned: { increment: amount },
+        },
+      });
+
+      console.log(
+        `[CreditService] Added ${amount} credits to user ${userId} (no new transaction). ` +
+          `New balance: ${updatedUser.credits}`
+      );
+
+      return updatedUser.credits;
+    } catch (error) {
+      console.error('[CreditService] Error adding credits to user:', error);
+      return null;
+    }
+  }
+
+  /**
    * Update existing transaction status (for payment completion)
    * Uses repository if available, falls back to Prisma
    */

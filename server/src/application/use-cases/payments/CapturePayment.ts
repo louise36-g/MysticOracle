@@ -72,32 +72,7 @@ export class CapturePaymentUseCase {
         };
       }
 
-      // 4. Get credits from capture result, or fall back to pending transaction
-      let credits = captureResult.credits || 0;
-
-      // If PayPal didn't return credits, look up the pending transaction
-      if (credits === 0) {
-        console.log(
-          '[CapturePayment] No credits from PayPal response, checking pending transaction'
-        );
-        const pendingTx = await this.transactionRepository.findByPaymentIdAndStatus(
-          input.orderId,
-          'PENDING'
-        );
-        if (pendingTx) {
-          credits = pendingTx.amount;
-          console.log(`[CapturePayment] Found pending transaction with ${credits} credits`);
-        } else {
-          console.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
-          return {
-            success: false,
-            error: 'No pending transaction found - please contact support',
-            errorCode: 'INTERNAL_ERROR',
-          };
-        }
-      }
-
-      // 5. Check if credits already added (idempotency)
+      // 4. Check if already processed (idempotency) - look for COMPLETED transaction first
       const existingCompleted = await this.transactionRepository.findByPaymentIdAndStatus(
         input.orderId,
         'COMPLETED'
@@ -107,39 +82,53 @@ export class CapturePaymentUseCase {
         console.log(`[CapturePayment] Credits already added for order ${input.orderId}`);
         return {
           success: true,
-          credits,
+          credits: existingCompleted.amount,
           captureId: captureResult.captureId,
         };
       }
 
-      // 6. Add credits via CreditService
-      const creditResult = await this.creditService.addCredits({
-        userId: input.userId,
-        amount: credits,
-        type: 'PURCHASE',
-        description: 'Credit purchase via PayPal',
-        metadata: {
-          paymentProvider: 'PAYPAL',
-          paymentId: input.orderId,
-        },
-      });
+      // 5. Look up the pending transaction (created at checkout)
+      const pendingTx = await this.transactionRepository.findByPaymentIdAndStatus(
+        input.orderId,
+        'PENDING'
+      );
 
-      if (!creditResult.success) {
-        console.error(`[CapturePayment] Failed to add credits: ${creditResult.error}`);
+      if (!pendingTx) {
+        console.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
         return {
           success: false,
-          error: creditResult.error || 'Failed to add credits',
+          error: 'No pending transaction found - please contact support',
+          errorCode: 'INTERNAL_ERROR',
+        };
+      }
+
+      const credits = pendingTx.amount;
+      console.log(
+        `[CapturePayment] Found pending transaction with ${credits} credits for user ${pendingTx.userId}`
+      );
+
+      // 6. Add credits to user (without creating new transaction - we'll update the existing one)
+      const newBalance = await this.creditService.addCreditsToUser(pendingTx.userId, credits);
+
+      if (newBalance === null) {
+        console.error(`[CapturePayment] Failed to add credits to user ${pendingTx.userId}`);
+        return {
+          success: false,
+          error: 'Failed to add credits',
           errorCode: 'INTERNAL_ERROR',
         };
       }
 
       // 7. Update pending transaction to COMPLETED
       await this.creditService.updateTransactionStatus(input.orderId, 'COMPLETED');
+      console.log(
+        `[CapturePayment] Successfully added ${credits} credits. New balance: ${newBalance}`
+      );
 
       return {
         success: true,
         credits,
-        newBalance: creditResult.newBalance,
+        newBalance,
         captureId: captureResult.captureId,
       };
     } catch (error) {
