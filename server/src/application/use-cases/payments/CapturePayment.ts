@@ -22,6 +22,15 @@ export interface CapturePaymentResult {
   captureId?: string;
   error?: string;
   errorCode?: 'PROVIDER_NOT_CONFIGURED' | 'CAPTURE_FAILED' | 'INTERNAL_ERROR';
+  // Debug info (temporary)
+  debug?: {
+    orderId?: string;
+    pendingTxFound?: boolean;
+    pendingTxUserId?: string;
+    pendingTxAmount?: number;
+    completedTxFound?: boolean;
+    addCreditsResult?: number | null;
+  };
 }
 
 export class CapturePaymentUseCase {
@@ -72,11 +81,18 @@ export class CapturePaymentUseCase {
         };
       }
 
+      // Debug info
+      const debug: CapturePaymentResult['debug'] = {
+        orderId: input.orderId,
+      };
+
       // 4. Check if already processed (idempotency) - look for COMPLETED transaction first
       const existingCompleted = await this.transactionRepository.findByPaymentIdAndStatus(
         input.orderId,
         'COMPLETED'
       );
+
+      debug.completedTxFound = !!existingCompleted;
 
       if (existingCompleted) {
         console.log(`[CapturePayment] Credits already added for order ${input.orderId}`);
@@ -84,6 +100,7 @@ export class CapturePaymentUseCase {
           success: true,
           credits: existingCompleted.amount,
           captureId: captureResult.captureId,
+          debug,
         };
       }
 
@@ -93,12 +110,17 @@ export class CapturePaymentUseCase {
         'PENDING'
       );
 
+      debug.pendingTxFound = !!pendingTx;
+      debug.pendingTxUserId = pendingTx?.userId;
+      debug.pendingTxAmount = pendingTx?.amount;
+
       if (!pendingTx) {
         console.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
         return {
           success: false,
           error: 'No pending transaction found - please contact support',
           errorCode: 'INTERNAL_ERROR',
+          debug,
         };
       }
 
@@ -110,12 +132,15 @@ export class CapturePaymentUseCase {
       // 6. Add credits to user (without creating new transaction - we'll update the existing one)
       const newBalance = await this.creditService.addCreditsToUser(pendingTx.userId, credits);
 
+      debug.addCreditsResult = newBalance;
+
       if (newBalance === null) {
         console.error(`[CapturePayment] Failed to add credits to user ${pendingTx.userId}`);
         return {
           success: false,
           error: 'Failed to add credits',
           errorCode: 'INTERNAL_ERROR',
+          debug,
         };
       }
 
@@ -130,6 +155,7 @@ export class CapturePaymentUseCase {
         credits,
         newBalance,
         captureId: captureResult.captureId,
+        debug,
       };
     } catch (error) {
       console.error('[CapturePayment] Error:', error);

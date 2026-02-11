@@ -43,7 +43,7 @@ const PaymentResult: React.FC = () => {
           // Capture PayPal order
           console.log('[PaymentResult] Capturing PayPal order:', paypalOrderId);
           paymentResult = await capturePayPalOrder(token, paypalOrderId);
-          console.log('[PaymentResult] PayPal result:', paymentResult);
+          console.log('[PaymentResult] PayPal result:', JSON.stringify(paymentResult, null, 2));
         } else if (sessionId) {
           // Verify Stripe payment (also adds credits as backup to webhook)
           console.log('[PaymentResult] Verifying Stripe session:', sessionId);
