@@ -25,11 +25,13 @@ export interface CapturePaymentResult {
   // Debug info (temporary)
   debug?: {
     orderId?: string;
+    requestUserId?: string;
     pendingTxFound?: boolean;
     pendingTxUserId?: string;
     pendingTxAmount?: number;
     completedTxFound?: boolean;
     addCreditsResult?: number | null;
+    verifiedBalance?: number | null;
   };
 }
 
@@ -84,6 +86,7 @@ export class CapturePaymentUseCase {
       // Debug info
       const debug: CapturePaymentResult['debug'] = {
         orderId: input.orderId,
+        requestUserId: input.userId, // The user making the request
       };
 
       // 4. Check if already processed (idempotency) - look for COMPLETED transaction first
@@ -146,8 +149,13 @@ export class CapturePaymentUseCase {
 
       // 7. Update pending transaction to COMPLETED
       await this.creditService.updateTransactionStatus(input.orderId, 'COMPLETED');
+
+      // 8. Verify the balance was actually updated (debug)
+      const verifiedBalance = await this.creditService.getBalance(pendingTx.userId);
+      debug.verifiedBalance = verifiedBalance;
+
       console.log(
-        `[CapturePayment] Successfully added ${credits} credits. New balance: ${newBalance}`
+        `[CapturePayment] Successfully added ${credits} credits. New balance: ${newBalance}, Verified: ${verifiedBalance}`
       );
 
       return {
