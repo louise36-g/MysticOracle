@@ -28,3 +28,4 @@ jobs:
           curl --request GET \
             --url "$WEBHOOK_URL" \
             --header "Authorization: Bearer $TOKEN"
+# Auto-deploy enabled
