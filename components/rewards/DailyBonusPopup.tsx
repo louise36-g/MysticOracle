@@ -19,7 +19,12 @@ const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) =>
   const [flyingCoins, setFlyingCoins] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const streakBonus = (user?.loginStreak || 0) >= 6;
+  // Calculate if claiming today will trigger the 7-day streak bonus
+  // Backend logic: newStreak = isConsecutive ? currentStreak + 1 : 1
+  // Bonus triggers when newStreak % 7 === 0 (day 7, 14, 21, etc.)
+  const currentStreak = user?.loginStreak || 0;
+  const nextStreak = currentStreak + 1; // Assuming consecutive login
+  const streakBonus = nextStreak >= 7 && nextStreak % 7 === 0;
   const baseCredits = 2;
   const streakCredits = streakBonus ? 5 : 0;
   const totalCredits = baseCredits + streakCredits;

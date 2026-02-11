@@ -35,7 +35,9 @@ export function useDailyBonus({
   const [timeUntilBonus, setTimeUntilBonus] = useState('');
 
   // Calculate bonus amount based on streak
-  const bonusAmount = loginStreak >= 6 ? 7 : 2;
+  // Backend logic: bonus triggers when (loginStreak + 1) % 7 === 0
+  const nextStreak = loginStreak + 1;
+  const bonusAmount = (nextStreak >= 7 && nextStreak % 7 === 0) ? 7 : 2;
 
   // Timer effect
   useEffect(() => {
