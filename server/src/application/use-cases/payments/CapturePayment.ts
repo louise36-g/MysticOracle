@@ -72,8 +72,47 @@ export class CapturePaymentUseCase {
         };
       }
 
-      // 4. Add credits via CreditService
-      const credits = captureResult.credits || 0;
+      // 4. Get credits from capture result, or fall back to pending transaction
+      let credits = captureResult.credits || 0;
+
+      // If PayPal didn't return credits, look up the pending transaction
+      if (credits === 0) {
+        console.log(
+          '[CapturePayment] No credits from PayPal response, checking pending transaction'
+        );
+        const pendingTx = await this.transactionRepository.findByPaymentIdAndStatus(
+          input.orderId,
+          'PENDING'
+        );
+        if (pendingTx) {
+          credits = pendingTx.amount;
+          console.log(`[CapturePayment] Found pending transaction with ${credits} credits`);
+        } else {
+          console.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
+          return {
+            success: false,
+            error: 'No pending transaction found - please contact support',
+            errorCode: 'INTERNAL_ERROR',
+          };
+        }
+      }
+
+      // 5. Check if credits already added (idempotency)
+      const existingCompleted = await this.transactionRepository.findByPaymentIdAndStatus(
+        input.orderId,
+        'COMPLETED'
+      );
+
+      if (existingCompleted) {
+        console.log(`[CapturePayment] Credits already added for order ${input.orderId}`);
+        return {
+          success: true,
+          credits,
+          captureId: captureResult.captureId,
+        };
+      }
+
+      // 6. Add credits via CreditService
       const creditResult = await this.creditService.addCredits({
         userId: input.userId,
         amount: credits,
@@ -85,7 +124,16 @@ export class CapturePaymentUseCase {
         },
       });
 
-      // 5. Update pending transaction to COMPLETED
+      if (!creditResult.success) {
+        console.error(`[CapturePayment] Failed to add credits: ${creditResult.error}`);
+        return {
+          success: false,
+          error: creditResult.error || 'Failed to add credits',
+          errorCode: 'INTERNAL_ERROR',
+        };
+      }
+
+      // 7. Update pending transaction to COMPLETED
       await this.creditService.updateTransactionStatus(input.orderId, 'COMPLETED');
 
       return {

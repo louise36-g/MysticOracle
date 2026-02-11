@@ -207,24 +207,45 @@ describe('CapturePaymentUseCase', () => {
       });
     });
 
-    it('should handle zero credits from capture', async () => {
+    it('should fallback to pending transaction when credits is zero', async () => {
       (mockPayPalGateway.capturePayment as Mock).mockResolvedValue({
         success: true,
         credits: undefined,
         captureId: 'CAPTURE-789',
       });
+      // First call for PENDING (returns transaction), second call for COMPLETED (returns null)
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock)
+        .mockResolvedValueOnce({ id: 'tx-123', amount: 30, userId: 'user-123' })
+        .mockResolvedValueOnce(null);
       (mockCreditService.addCredits as Mock).mockResolvedValue({
         success: true,
-        newBalance: 50,
+        newBalance: 80,
+        transactionId: 'tx-456',
       });
       (mockCreditService.updateTransactionStatus as Mock).mockResolvedValue({});
 
       const result = await useCase.execute(validInput);
 
       expect(mockCreditService.addCredits).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 0 })
+        expect.objectContaining({ amount: 30 })
       );
-      expect(result.credits).toBe(0);
+      expect(result.success).toBe(true);
+      expect(result.credits).toBe(30);
+    });
+
+    it('should return error when no pending transaction found', async () => {
+      (mockPayPalGateway.capturePayment as Mock).mockResolvedValue({
+        success: true,
+        credits: undefined,
+        captureId: 'CAPTURE-789',
+      });
+      (mockTransactionRepo.findByPaymentIdAndStatus as Mock).mockResolvedValue(null);
+
+      const result = await useCase.execute(validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.errorCode).toBe('INTERNAL_ERROR');
+      expect(result.error).toBe('No pending transaction found - please contact support');
     });
 
     it('should return new balance from credit service', async () => {
