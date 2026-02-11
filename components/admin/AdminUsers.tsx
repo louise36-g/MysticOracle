@@ -220,10 +220,12 @@ const AdminUsers: React.FC = () => {
                             <span className="text-purple-300 font-medium">{user.credits}</span>
                             <button
                               onClick={() => setCreditModal({ userId: user.id, username: user.username })}
-                              className="p-1 text-slate-400 hover:text-purple-300 hover:bg-purple-500/20 rounded"
+                              className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-400 bg-emerald-500/10
+                                         hover:bg-emerald-500/20 border border-emerald-500/30 rounded-md transition-colors"
                               title={t('admin.AdminUsers.adjust_credits', 'Adjust credits')}
                             >
                               <Plus className="w-3 h-3" />
+                              <span>{t('admin.AdminUsers.add', 'Add')}</span>
                             </button>
                           </div>
                         </td>
