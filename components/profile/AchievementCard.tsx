@@ -151,7 +151,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
 
     return (
         <motion.div
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, zIndex: 50 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
@@ -160,6 +160,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                     ? 'bg-gradient-to-b from-slate-800/80 to-slate-900/60 border-slate-600/50 hover:border-slate-500/60'
                     : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-600/50'
             }`}
+            style={{ zIndex: showTooltip ? 50 : 'auto' }}
         >
             {/* Tooltip - positioned below to avoid container clipping */}
             <AnimatePresence>
