@@ -289,7 +289,7 @@ const UserProfile: React.FC = () => {
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="overflow-visible"
+                                className="overflow-hidden"
                             >
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-4 border-t border-slate-700/40 mt-3">
                                     {achievementsWithProgress.map((achievement) => {
