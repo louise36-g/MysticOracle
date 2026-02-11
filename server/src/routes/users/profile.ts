@@ -40,9 +40,7 @@ const router = Router();
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const userId = req.auth.userId;
-    console.log('[Users /me] Fetching user with ID:', userId);
 
-    // Force fresh read by using a raw query to bypass any caching
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -57,22 +55,7 @@ router.get('/me', requireAuth, async (req, res) => {
     });
 
     if (!user) {
-      console.log('[Users /me] User not found for ID:', userId);
       throw new NotFoundError('User', userId);
-    }
-
-    // Also do a direct query to compare
-    const directQuery = await prisma.$queryRaw<{ credits: number }[]>`
-      SELECT credits FROM "User" WHERE id = ${userId}
-    `;
-    const rawCredits = directQuery[0]?.credits;
-
-    console.log('[Users /me] Found user, credits:', user.credits, 'Raw query credits:', rawCredits);
-
-    // If there's a mismatch, use the raw query value
-    if (rawCredits !== undefined && rawCredits !== user.credits) {
-      console.warn('[Users /me] MISMATCH! Prisma:', user.credits, 'Raw:', rawCredits);
-      user.credits = rawCredits;
     }
 
     res.json(user);

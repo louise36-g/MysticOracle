@@ -415,40 +415,15 @@ class CreditService {
         return null;
       }
 
-      // Use raw SQL to ensure we bypass any caching
-      // First get current balance
-      const beforeResult = await this.prisma.$queryRaw<{ credits: number }[]>`
-        SELECT credits FROM "User" WHERE id = ${userId}
-      `;
-      const beforeCredits = beforeResult[0]?.credits ?? 0;
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          credits: { increment: amount },
+          totalCreditsEarned: { increment: amount },
+        },
+      });
 
-      // Update using raw SQL
-      await this.prisma.$executeRaw`
-        UPDATE "User"
-        SET credits = credits + ${amount},
-            "totalCreditsEarned" = "totalCreditsEarned" + ${amount}
-        WHERE id = ${userId}
-      `;
-
-      // Verify with raw SQL
-      const afterResult = await this.prisma.$queryRaw<{ credits: number }[]>`
-        SELECT credits FROM "User" WHERE id = ${userId}
-      `;
-      const afterCredits = afterResult[0]?.credits ?? 0;
-
-      console.log(
-        `[CreditService] RAW SQL: Added ${amount} credits to user ${userId}. ` +
-          `Before: ${beforeCredits}, After: ${afterCredits}, Expected: ${beforeCredits + amount}`
-      );
-
-      // Verify the update worked correctly
-      if (afterCredits !== beforeCredits + amount) {
-        console.error(
-          `[CreditService] CREDIT MISMATCH! Expected ${beforeCredits + amount} but got ${afterCredits}`
-        );
-      }
-
-      return afterCredits;
+      return updatedUser.credits;
     } catch (error) {
       console.error('[CreditService] Error adding credits to user:', error);
       return null;

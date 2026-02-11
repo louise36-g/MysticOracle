@@ -180,7 +180,6 @@ router.post('/paypal/capture', requireAuth, idempotent, async (req, res) => {
       credits: result.credits,
       captureId: result.captureId,
       newBalance: result.newBalance,
-      debug: result.debug, // Temporary debug info
     });
   } catch (error) {
     console.error('Error capturing PayPal order:', error);
