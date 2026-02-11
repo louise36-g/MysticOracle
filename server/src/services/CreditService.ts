@@ -415,6 +415,13 @@ class CreditService {
         return null;
       }
 
+      // Get current balance first for logging
+      const beforeUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { credits: true },
+      });
+      const beforeCredits = beforeUser?.credits ?? 0;
+
       const updatedUser = await this.prisma.user.update({
         where: { id: userId },
         data: {
@@ -424,9 +431,16 @@ class CreditService {
       });
 
       console.log(
-        `[CreditService] Added ${amount} credits to user ${userId} (no new transaction). ` +
-          `New balance: ${updatedUser.credits}`
+        `[CreditService] Added ${amount} credits to user ${userId}. ` +
+          `Before: ${beforeCredits}, After: ${updatedUser.credits}, Expected: ${beforeCredits + amount}`
       );
+
+      // Verify the update worked correctly
+      if (updatedUser.credits !== beforeCredits + amount) {
+        console.error(
+          `[CreditService] CREDIT MISMATCH! Expected ${beforeCredits + amount} but got ${updatedUser.credits}`
+        );
+      }
 
       return updatedUser.credits;
     } catch (error) {

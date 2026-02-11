@@ -62,6 +62,10 @@ const PaymentResult: React.FC = () => {
         // Refresh user data to update credit balance in header
         if (paymentResult.success) {
           console.log('[PaymentResult] Payment successful, refreshing user data...');
+          // Use newBalance from capture response if available (more reliable)
+          if (paymentResult.newBalance !== undefined) {
+            console.log('[PaymentResult] Using newBalance from capture:', paymentResult.newBalance);
+          }
           await refreshUser();
           console.log('[PaymentResult] User data refreshed');
         }
