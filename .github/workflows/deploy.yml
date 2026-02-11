@@ -1,0 +1,30 @@
+name: Deploy to Coolify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Trigger Coolify Deployment
+
+    steps:
+      - name: Deploy Frontend
+        env:
+          WEBHOOK_URL: ${{ secrets.COOLIFY_WEBHOOK_FRONTEND }}
+          TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          curl --request GET \
+            --url "$WEBHOOK_URL" \
+            --header "Authorization: Bearer $TOKEN"
+
+      - name: Deploy Backend
+        env:
+          WEBHOOK_URL: ${{ secrets.COOLIFY_WEBHOOK_BACKEND }}
+          TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          curl --request GET \
+            --url "$WEBHOOK_URL" \
+            --header "Authorization: Bearer $TOKEN"
