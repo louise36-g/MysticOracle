@@ -155,79 +155,80 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            className={`relative p-3 rounded-lg border text-center transition-colors duration-200 ${
+            className={`relative p-2 rounded-lg border text-center transition-colors duration-200 ${
                 isUnlocked
                     ? 'bg-gradient-to-b from-slate-800/80 to-slate-900/60 border-slate-600/50 hover:border-slate-500/60'
                     : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-600/50'
             }`}
         >
-            {/* Tooltip */}
+            {/* Tooltip - positioned below to avoid container clipping */}
             <AnimatePresence>
                 {showTooltip && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
+                        exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 w-52
-                                   bg-slate-800 border border-slate-600 rounded-lg p-2.5 shadow-xl
+                        className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-48
+                                   bg-slate-800 border border-slate-600 rounded-lg p-2 shadow-xl
                                    pointer-events-none"
                     >
+                        {/* Arrow pointing up */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-1px]">
+                            <div className="border-[6px] border-transparent border-b-slate-600"></div>
+                            <div className="absolute top-[1px] left-1/2 -translate-x-1/2 border-[5px] border-transparent border-b-slate-800"></div>
+                        </div>
                         <div className="text-left">
-                            <p className="text-xs font-medium text-white mb-1">{name}</p>
-                            <p className="text-[11px] text-slate-400 mb-1.5">{description}</p>
+                            <p className="text-[11px] font-medium text-white mb-0.5">{name}</p>
+                            <p className="text-[10px] text-slate-400 mb-1">{description}</p>
                             {isUnlocked && formattedUnlockDate && (
-                                <p className="text-[11px] text-emerald-400">
+                                <p className="text-[10px] text-emerald-400">
                                     {t('profile.AchievementCard.unlocked', 'Unlocked: ')}
                                     {formattedUnlockDate}
                                 </p>
                             )}
                             {!isUnlocked && (
-                                <p className="text-[11px] text-amber-400">
+                                <p className="text-[10px] text-amber-400">
                                     {t('profile.AchievementCard.progress', 'Progress: ')}
                                     {progress.current}/{progress.target}
                                 </p>
                             )}
                         </div>
-                        {/* Arrow */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px]">
-                            <div className="border-6 border-transparent border-t-slate-800"></div>
-                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* "New!" Badge */}
+            {/* "New!" Badge - compact */}
             {isNew && (
                 <motion.div
                     initial={{ scale: 0, rotate: -12 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.2 }}
-                    className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-amber-500 to-orange-500
-                               text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg
+                    className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-orange-500
+                               text-white text-[8px] font-bold px-1 py-0.5 rounded-full shadow-lg
                                border border-white/20"
                 >
                     {t('profile.AchievementCard.new', 'NEW!')}
                 </motion.div>
             )}
 
-            {/* Icon */}
-            <div className={`relative mx-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center
+            {/* Icon - smaller */}
+            <div className={`relative mx-auto mb-1.5 w-8 h-8 rounded-full flex items-center justify-center
                            ${isUnlocked
                                ? `bg-gradient-to-br ${iconConfig.bgColor}`
                                : 'bg-slate-700/50'
                            }`}>
                 {isUnlocked ? (
-                    <span className={iconConfig.unlockedColor}>
+                    <span className={`${iconConfig.unlockedColor} [&>svg]:w-4 [&>svg]:h-4`}>
                         {iconConfig.icon}
                     </span>
                 ) : (
-                    <Lock className="w-4 h-4 text-slate-500" />
+                    <Lock className="w-3.5 h-3.5 text-slate-500" />
                 )}
             </div>
 
-            {/* Name */}
-            <h4 className={`text-xs font-medium mb-1.5 line-clamp-1 ${
+            {/* Name - smaller */}
+            <h4 className={`text-[10px] font-medium mb-1 line-clamp-1 ${
                 isUnlocked ? 'text-white' : 'text-slate-300'
             }`}>
                 {name}
@@ -235,8 +236,8 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
 
             {/* Progress Bar (locked only) */}
             {!isUnlocked && (
-                <div className="mb-1.5">
-                    <div className="w-full bg-slate-700/50 rounded-full h-1 overflow-hidden">
+                <div className="mb-1">
+                    <div className="w-full bg-slate-700/50 rounded-full h-0.5 overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progressPercent}%` }}
@@ -244,21 +245,21 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                             className="h-full bg-gradient-to-r from-purple-500 to-amber-500 rounded-full"
                         />
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className="text-[9px] text-slate-500 mt-0.5">
                         {progress.current}/{progress.target}
                     </p>
                 </div>
             )}
 
-            {/* Status / Reward */}
+            {/* Status / Reward - smaller */}
             <div>
                 {isUnlocked ? (
-                    <span className="text-[10px] text-amber-400/80">
-                        +{achievement.reward} {t('profile.AchievementCard.credits', 'credits')}
+                    <span className="text-[9px] text-amber-400/80">
+                        +{achievement.reward}
                     </span>
                 ) : (
-                    <span className="text-[10px] text-amber-400/60">
-                        +{achievement.reward} {t('profile.AchievementCard.credits_2', 'credits')}
+                    <span className="text-[9px] text-amber-400/60">
+                        +{achievement.reward}
                     </span>
                 )}
             </div>
