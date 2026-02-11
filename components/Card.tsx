@@ -40,10 +40,12 @@ const Card: React.FC<CardProps> = ({
   const placeholderIcon = isPlaceholder ? card?.image.split(':')[1] : '';
 
   return (
-    <div 
+    <motion.div
       className={`relative cursor-pointer group ${className}`}
       style={{ width, height, perspective: '1000px' }}
       onClick={onClick}
+      whileHover={isRevealed ? { scale: 1.5, zIndex: 50 } : undefined}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <motion.div
         className="w-full h-full relative"
@@ -104,7 +106,7 @@ const Card: React.FC<CardProps> = ({
                     <img
                       src={imageUrl}
                       alt={language === 'en' ? card.nameEn : card.nameFr}
-                      className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover opacity-90"
                       onError={(e) => {
                         // Fallback to original image if custom fails
                         const target = e.target as HTMLImageElement;
@@ -117,17 +119,17 @@ const Card: React.FC<CardProps> = ({
                     <img
                       src={card.image}
                       alt={language === 'en' ? card.nameEn : card.nameFr}
-                      className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover opacity-90"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 relative overflow-hidden group-hover:bg-slate-750 transition-colors">
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 relative overflow-hidden">
                         {/* Decorative Background */}
                         <div className="absolute inset-0 opacity-10 flex items-center justify-center text-9xl">
                             {placeholderIcon}
                         </div>
                         
                         {/* Center Icon */}
-                        <div className="z-10 text-6xl md:text-7xl mb-4 drop-shadow-lg filter group-hover:scale-110 transition-transform duration-500">
+                        <div className="z-10 text-6xl md:text-7xl mb-4 drop-shadow-lg filter">
                             {placeholderIcon}
                         </div>
                         
@@ -168,7 +170,7 @@ const Card: React.FC<CardProps> = ({
           )}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

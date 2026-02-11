@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Moon } from 'lucide-react';
 import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
@@ -111,32 +111,37 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
             whileTap={{ scale: 0.97 }}
             onClick={onCardDraw}
           >
-            {/* Deck stack effect */}
+            {/* Deck stack effect - matching shuffle phase card backs */}
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={`deck-stack-${i}`}
-                className={`absolute w-[90px] h-[140px] md:w-[110px] md:h-[170px] rounded-lg bg-slate-900/90 ${theme.cardBorder}`}
+                className="absolute w-[90px] h-[140px] md:w-[110px] md:h-[170px] rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/50"
                 style={{ top: -i * 2, left: -i * 2, zIndex: 5 - i }}
               />
             ))}
-            {/* Top card */}
+            {/* Top card - matching shuffle phase card back design */}
             <div
-              className={`relative z-10 w-[90px] h-[140px] md:w-[110px] md:h-[170px] rounded-lg bg-gradient-to-br ${theme.bgGradient} border-2 flex flex-col items-center justify-center gap-2 transition-all duration-300`}
+              className="relative z-10 w-[90px] h-[140px] md:w-[110px] md:h-[170px] rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 shadow-xl border-2 border-amber-500/50 transition-all duration-300 group-hover:border-amber-400/70"
               style={{
-                borderColor: theme.primary,
-                boxShadow: `0 0 25px ${theme.glow}`,
+                boxShadow: `0 8px 32px rgba(0, 0, 0, 0.4), 0 0 25px rgba(139, 92, 246, 0.3)`,
               }}
             >
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className={theme.textAccent}
-              >
-                <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
-              </motion.div>
-              <span className={`${theme.textAccent} font-heading text-[10px] md:text-xs font-bold tracking-wider text-center leading-tight`}>
-                {language === 'en' ? 'Draw a card' : 'Tirer une carte'}
-              </span>
+              <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
+                {/* Inner border */}
+                <div className="absolute inset-1.5 md:inset-2 border border-amber-500/30 rounded-sm" />
+                {/* Decorative pattern */}
+                <div className="absolute inset-3 md:inset-4">
+                  <div className="w-full h-full border border-purple-400/40 rounded-sm" />
+                  <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
+                </div>
+                {/* Center symbol - Moon with pulse animation */}
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Moon className="w-6 h-6 md:w-8 md:h-8 text-amber-400/80" />
+                </motion.div>
+              </div>
             </div>
           </motion.div>
         </div>
