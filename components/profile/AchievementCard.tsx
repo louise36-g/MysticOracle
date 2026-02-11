@@ -162,23 +162,18 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
             }`}
             style={{ zIndex: showTooltip ? 50 : 'auto' }}
         >
-            {/* Tooltip - positioned below to avoid container clipping */}
+            {/* Tooltip - positioned above */}
             <AnimatePresence>
                 {showTooltip && (
                     <motion.div
-                        initial={{ opacity: 0, y: -5 }}
+                        initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
+                        exit={{ opacity: 0, y: 5 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-48
-                                   bg-slate-800 border border-slate-600 rounded-lg p-2 shadow-xl
+                        className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-[100] w-48
+                                   bg-slate-900 border border-slate-600 rounded-lg p-2 shadow-2xl
                                    pointer-events-none"
                     >
-                        {/* Arrow pointing up */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-1px]">
-                            <div className="border-[6px] border-transparent border-b-slate-600"></div>
-                            <div className="absolute top-[1px] left-1/2 -translate-x-1/2 border-[5px] border-transparent border-b-slate-800"></div>
-                        </div>
                         <div className="text-left">
                             <p className="text-[11px] font-medium text-white mb-0.5">{name}</p>
                             <p className="text-[10px] text-slate-400 mb-1">{description}</p>
@@ -194,6 +189,11 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                                     {progress.current}/{progress.target}
                                 </p>
                             )}
+                        </div>
+                        {/* Arrow pointing down */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px]">
+                            <div className="border-[6px] border-transparent border-t-slate-600"></div>
+                            <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-slate-900"></div>
                         </div>
                     </motion.div>
                 )}
