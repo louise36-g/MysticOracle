@@ -12,7 +12,7 @@ import { DailyBonusPopup } from '../rewards';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import Button from '../Button';
 import { useApp } from '../../context/AppContext';
-import { Coins, AlertTriangle, X } from 'lucide-react';
+import { Coins, AlertTriangle, X, Moon } from 'lucide-react';
 
 // Low credits threshold
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
@@ -52,17 +52,29 @@ function BrandedLoadingScreen() {
           CelestiArcana
         </h1>
 
-        {/* Animated tarot cards - sequential bounce */}
+        {/* Animated tarot cards - matching shuffle phase design */}
         <div className="flex justify-center gap-3 mb-8">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-[46px] h-20 rounded-lg bg-gradient-to-br from-purple-900 to-purple-800 border border-amber-500/40 shadow-lg shadow-purple-950/50"
+              className="w-14 h-20 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 shadow-xl border-2 border-amber-500/50"
               style={{
                 animation: 'bounce 1s ease-in-out infinite',
                 animationDelay: `${i * 0.15}s`,
               }}
-            />
+            >
+              <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
+                {/* Inner border */}
+                <div className="absolute inset-1 border border-amber-500/30 rounded-sm" />
+                {/* Decorative pattern */}
+                <div className="absolute inset-2">
+                  <div className="w-full h-full border border-purple-400/40 rounded-sm" />
+                  <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
+                </div>
+                {/* Center symbol */}
+                <Moon className="w-5 h-5 text-amber-400/80" />
+              </div>
+            </div>
           ))}
         </div>
       </div>

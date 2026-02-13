@@ -143,6 +143,14 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
                 </motion.div>
               </div>
             </div>
+            {/* Draw instruction */}
+            <motion.p
+              className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs md:text-sm text-amber-400/70 whitespace-nowrap font-medium"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              {language === 'en' ? 'Draw a card' : 'Tirez une carte'}
+            </motion.p>
           </motion.div>
         </div>
 

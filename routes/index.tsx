@@ -1,5 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, useRouteError, isRouteErrorResponse, Navigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Moon } from 'lucide-react';
 import { ROUTES } from './routes';
 import { RootLayout } from '../components/layout/RootLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
@@ -7,12 +9,52 @@ import { AdminRoute } from '../components/routing/AdminRoute';
 import AdminLayout from '../components/admin/AdminLayout';
 import { SignUpPage, SignInPage } from '../components/auth';
 
-// Loading fallback for lazy components
+// Card back component matching the shuffle phase design
+const LoaderCardBack = ({ delay }: { delay: number }) => (
+  <motion.div
+    className="w-14 h-20 md:w-16 md:h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 shadow-xl border-2 border-amber-500/50"
+    initial={{ y: 0, rotateY: 0 }}
+    animate={{
+      y: [0, -8, 0],
+      rotateY: [0, 10, 0, -10, 0],
+    }}
+    transition={{
+      duration: 2,
+      delay,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }}
+  >
+    <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
+      {/* Inner border */}
+      <div className="absolute inset-1 border border-amber-500/30 rounded-sm" />
+      {/* Decorative pattern */}
+      <div className="absolute inset-2">
+        <div className="w-full h-full border border-purple-400/40 rounded-sm" />
+        <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
+      </div>
+      {/* Center symbol */}
+      <Moon className="w-5 h-5 md:w-6 md:h-6 text-amber-400/80" />
+    </div>
+  </motion.div>
+);
+
+// Loading fallback for lazy components - three animated cards
 const PageLoader = () => (
   <div className="min-h-[400px] flex items-center justify-center">
     <div className="text-center">
-      <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-purple-300/70 text-sm">Loading...</p>
+      <div className="flex gap-2 md:gap-3 justify-center mb-4">
+        <LoaderCardBack delay={0} />
+        <LoaderCardBack delay={0.2} />
+        <LoaderCardBack delay={0.4} />
+      </div>
+      <motion.p
+        className="text-purple-300/70 text-sm"
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        Loading...
+      </motion.p>
     </div>
   </div>
 );
