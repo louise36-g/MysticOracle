@@ -9,7 +9,12 @@ export type ThreeCardLayoutId =
   | 'option_a_b_guidance'
   | 'situation_obstacle_path'
   | 'mind_body_spirit'
-  | 'challenge_support_growth';
+  | 'challenge_support_growth'
+  | 'inner_child_love'
+  | 'inner_child_career'
+  | 'inner_child_money'
+  | 'inner_child_life_path'
+  | 'the_circle';
 
 export interface ThreeCardLayout {
   id: ThreeCardLayoutId;
@@ -148,6 +153,82 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     shortPositions: {
       en: ['Challenge', 'Support', 'Growth'],
       fr: ['Défi', 'Soutien', 'Croissance'],
+    },
+  },
+  // Inner Child layouts (category-specific)
+  inner_child_love: {
+    id: 'inner_child_love',
+    labelEn: 'Inner Child',
+    labelFr: 'Enfant Intérieur',
+    taglineEn: 'Explore how your inner child shapes your capacity to give and receive love, and what you build together in relationships.',
+    taglineFr: 'Explorez comment votre enfant intérieur façonne votre capacité à donner et recevoir l\'amour, et ce que vous construisez ensemble.',
+    positions: {
+      en: ['What I Give', 'What I Receive', 'What We Build'],
+      fr: ['Ce que je donne', 'Ce que je reçois', 'Ce que nous construisons'],
+    },
+    shortPositions: {
+      en: ['Give', 'Receive', 'Build'],
+      fr: ['Donner', 'Recevoir', 'Construire'],
+    },
+  },
+  inner_child_career: {
+    id: 'inner_child_career',
+    labelEn: 'Inner Child',
+    labelFr: 'Enfant Intérieur',
+    taglineEn: 'Discover how childhood wounds influence your work life and find the breakthrough waiting on the other side.',
+    taglineFr: 'Découvrez comment les blessures d\'enfance influencent votre vie professionnelle et trouvez la percée qui vous attend.',
+    positions: {
+      en: ['The Wound', 'How It Shapes Work', 'The Breakthrough'],
+      fr: ['La blessure', 'Comment elle façonne le travail', 'La percée'],
+    },
+    shortPositions: {
+      en: ['Wound', 'Impact', 'Breakthrough'],
+      fr: ['Blessure', 'Impact', 'Percée'],
+    },
+  },
+  inner_child_money: {
+    id: 'inner_child_money',
+    labelEn: 'Inner Child / Lack',
+    labelFr: 'Enfant Intérieur / Manque',
+    taglineEn: 'Uncover the childhood beliefs that shape your relationship with abundance and transform limiting patterns.',
+    taglineFr: 'Découvrez les croyances d\'enfance qui façonnent votre relation à l\'abondance et transformez les schémas limitants.',
+    positions: {
+      en: ['Your Belief', 'The Block', 'The New Belief'],
+      fr: ['Votre croyance', 'Le blocage', 'La nouvelle croyance'],
+    },
+    shortPositions: {
+      en: ['Belief', 'Block', 'New Belief'],
+      fr: ['Croyance', 'Blocage', 'Nouvelle'],
+    },
+  },
+  inner_child_life_path: {
+    id: 'inner_child_life_path',
+    labelEn: 'Inner Child / Expectations',
+    labelFr: 'Enfant Intérieur / Attentes',
+    taglineEn: 'Bridge the gap between who you were expected to be and who you\'re becoming. Honor your authentic path.',
+    taglineFr: 'Comblez l\'écart entre qui on attendait que vous soyez et qui vous devenez. Honorez votre chemin authentique.',
+    positions: {
+      en: ['Who They Wanted You to Be', 'Who You Are', 'Who You\'re Becoming'],
+      fr: ['Qui ils voulaient que vous soyez', 'Qui vous êtes', 'Qui vous devenez'],
+    },
+    shortPositions: {
+      en: ['Expected', 'Are', 'Becoming'],
+      fr: ['Attendu', 'Êtes', 'Devenez'],
+    },
+  },
+  the_circle: {
+    id: 'the_circle',
+    labelEn: 'The Circle',
+    labelFr: 'Le Cercle',
+    taglineEn: 'Understand the dynamics within your family or home. See your role, their role, and how to find harmony together.',
+    taglineFr: 'Comprenez les dynamiques au sein de votre famille ou foyer. Voyez votre rôle, leur rôle, et comment trouver l\'harmonie ensemble.',
+    positions: {
+      en: ['My Role', 'Their Role', 'The Balance'],
+      fr: ['Mon rôle', 'Leur rôle', 'L\'équilibre'],
+    },
+    shortPositions: {
+      en: ['My Role', 'Their Role', 'Balance'],
+      fr: ['Mon rôle', 'Leur rôle', 'Équilibre'],
     },
   },
 };

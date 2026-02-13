@@ -17,7 +17,11 @@ export type FiveCardLayoutId =
   | 'alchemy'
   | 'seasons'
   | 'love_relationships'
-  | 'career_purpose';
+  | 'career_purpose'
+  | 'inner_child_career'
+  | 'inner_child_money'
+  | 'inner_child_life_path'
+  | 'self_discovery';
 
 export interface FiveCardLayout {
   id: FiveCardLayoutId;
@@ -209,6 +213,67 @@ export const FIVE_CARD_LAYOUTS: Record<FiveCardLayoutId, FiveCardLayout> = {
     shortPositions: {
       en: ['Now', 'Blocks', 'Hidden', 'Action', 'Result'],
       fr: ['Actuel', 'Blocages', 'Caché', 'Action', 'Résultat'],
+    },
+  },
+  // Category-specific Inner Child layouts
+  inner_child_career: {
+    id: 'inner_child_career',
+    labelEn: 'Inner Child',
+    labelFr: 'Enfant Intérieur',
+    taglineEn: 'Uncover how childhood messages shape your work identity. Transform limiting beliefs into a new empowering story.',
+    taglineFr: 'Découvrez comment les messages d\'enfance façonnent votre identité professionnelle. Transformez les croyances limitantes en une nouvelle histoire.',
+    positions: {
+      en: ['What They Said', 'What You Believed', 'How It Shows Up', 'The Truth', 'The New Story'],
+      fr: ['Ce qu\'ils ont dit', 'Ce que vous avez cru', 'Comment ça se manifeste', 'La vérité', 'La nouvelle histoire'],
+    },
+    shortPositions: {
+      en: ['Said', 'Believed', 'Shows Up', 'Truth', 'New Story'],
+      fr: ['Dit', 'Cru', 'Manifeste', 'Vérité', 'Nouvelle'],
+    },
+  },
+  inner_child_money: {
+    id: 'inner_child_money',
+    labelEn: 'Inner Child',
+    labelFr: 'Enfant Intérieur',
+    taglineEn: 'Trace your abundance blocks to their origin and discover your true worth. Open to receive what pours in.',
+    taglineFr: 'Retracez vos blocages d\'abondance jusqu\'à leur origine et découvrez votre vraie valeur. Ouvrez-vous à ce qui afflue.',
+    positions: {
+      en: ['The Block', 'Its Origin', 'Your Worth', 'How to Open', 'What Pours In'],
+      fr: ['Le blocage', 'Son origine', 'Votre valeur', 'Comment s\'ouvrir', 'Ce qui afflue'],
+    },
+    shortPositions: {
+      en: ['Block', 'Origin', 'Worth', 'Open', 'Receive'],
+      fr: ['Blocage', 'Origine', 'Valeur', 'Ouvrir', 'Recevoir'],
+    },
+  },
+  inner_child_life_path: {
+    id: 'inner_child_life_path',
+    labelEn: 'Inner Child',
+    labelFr: 'Enfant Intérieur',
+    taglineEn: 'Journey from what you were told to what you choose. Reclaim your authentic path and rewrite your story.',
+    taglineFr: 'Voyagez de ce qu\'on vous a dit à ce que vous choisissez. Réclamez votre chemin authentique et réécrivez votre histoire.',
+    positions: {
+      en: ['You Were Told', 'You Lived', 'You Believed', 'The Truth', 'You Choose'],
+      fr: ['On vous a dit', 'Vous avez vécu', 'Vous avez cru', 'La vérité', 'Vous choisissez'],
+    },
+    shortPositions: {
+      en: ['Told', 'Lived', 'Believed', 'Truth', 'Choose'],
+      fr: ['Dit', 'Vécu', 'Cru', 'Vérité', 'Choix'],
+    },
+  },
+  self_discovery: {
+    id: 'self_discovery',
+    labelEn: 'Self-Discovery',
+    labelFr: 'Découverte de Soi',
+    taglineEn: 'Explore the many facets of who you are within your family. See yourself clearly, understand what you hide, and embrace your unique gifts.',
+    taglineFr: 'Explorez les multiples facettes de qui vous êtes au sein de votre famille. Voyez-vous clairement, comprenez ce que vous cachez, et embrassez vos dons uniques.',
+    positions: {
+      en: ['Who You Are', 'Who Others See', 'What You Hide', 'Your Gift', 'Your Lesson'],
+      fr: ['Qui vous êtes', 'Ce que les autres voient', 'Ce que vous cachez', 'Votre don', 'Votre leçon'],
+    },
+    shortPositions: {
+      en: ['You', 'Others See', 'Hidden', 'Gift', 'Lesson'],
+      fr: ['Vous', 'Ils voient', 'Caché', 'Don', 'Leçon'],
     },
   },
 };

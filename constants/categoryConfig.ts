@@ -85,7 +85,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'love_relationships',
     },
     availableLayouts: {
-      3: ['you_them_connection', 'mind_body_spirit'],
+      3: ['you_them_connection', 'mind_body_spirit', 'inner_child_love'],
       5: ['love_relationships', 'inner_child'],
     },
   },
@@ -103,8 +103,8 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'career_purpose',
     },
     availableLayouts: {
-      3: ['situation_action_outcome', 'situation_obstacle_path'],
-      5: ['career_purpose', 'values'],
+      3: ['situation_action_outcome', 'situation_obstacle_path', 'inner_child_career'],
+      5: ['career_purpose', 'values', 'inner_child_career'],
     },
   },
   {
@@ -121,8 +121,8 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'alchemy',
     },
     availableLayouts: {
-      3: ['situation_action_outcome', 'option_a_b_guidance'],
-      5: ['alchemy', 'values'],
+      3: ['situation_action_outcome', 'option_a_b_guidance', 'inner_child_money'],
+      5: ['alchemy', 'values', 'inner_child_money'],
     },
   },
   {
@@ -139,8 +139,8 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'authentic_self',
     },
     availableLayouts: {
-      3: ['past_present_future', 'challenge_support_growth'],
-      5: ['authentic_self', 'alchemy'],
+      3: ['past_present_future', 'challenge_support_growth', 'inner_child_life_path'],
+      5: ['authentic_self', 'alchemy', 'inner_child_life_path'],
     },
   },
   {
@@ -157,8 +157,8 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'inner_child',
     },
     availableLayouts: {
-      3: ['you_them_connection', 'mind_body_spirit'],
-      5: ['inner_child', 'safe_space'],
+      3: ['you_them_connection', 'mind_body_spirit', 'the_circle'],
+      5: ['inner_child', 'safe_space', 'self_discovery'],
     },
   },
   {
