@@ -135,22 +135,19 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
                   <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
                 </div>
                 {/* Center symbol - Moon with pulse animation */}
+                {/* Draw instruction - overlaid on deck */}
                 <motion.div
-                  animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 rounded-lg"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Moon className="w-6 h-6 md:w-8 md:h-8 text-amber-400/80" />
+                  <Moon className="w-6 h-6 md:w-8 md:h-8 text-amber-400 mb-1" />
+                  <span className="text-xs md:text-sm text-amber-300 font-medium whitespace-nowrap">
+                    {language === 'en' ? 'Draw a card' : 'Tirez une carte'}
+                  </span>
                 </motion.div>
               </div>
             </div>
-            {/* Draw instruction */}
-            <motion.p
-              className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs md:text-sm text-amber-400/70 whitespace-nowrap font-medium"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {language === 'en' ? 'Draw a card' : 'Tirez une carte'}
-            </motion.p>
           </motion.div>
         </div>
 
