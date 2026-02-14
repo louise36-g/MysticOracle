@@ -23,18 +23,19 @@ export function initializeAnalytics(): void {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
   document.head.appendChild(script);
 
-  // Initialize gtag
+  // Initialize gtag - must match Google's expected format exactly
   window.dataLayer = window.dataLayer || [];
-  function gtag(...args: unknown[]) {
-    window.dataLayer.push(args);
-  }
-  gtag('js', new Date());
-  gtag('config', GA_MEASUREMENT_ID, {
-    anonymize_ip: true, // GDPR: Anonymize IP addresses
-  });
 
-  // Make gtag available globally
-  (window as unknown as { gtag: typeof gtag }).gtag = gtag;
+  // Standard gtag implementation that pushes arguments directly
+  window.gtag = function(...args: unknown[]) {
+    window.dataLayer.push(arguments);
+  };
+
+  window.gtag('js', new Date());
+  window.gtag('config', GA_MEASUREMENT_ID, {
+    anonymize_ip: true, // GDPR: Anonymize IP addresses
+    send_page_view: true, // Explicitly send initial page view
+  });
 
   gaInitialized = true;
   console.log('[Analytics] Google Analytics initialized with consent');
