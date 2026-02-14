@@ -1,0 +1,13 @@
+{
+    auto_https off
+}
+
+:80 {
+    root * /app/dist
+    encode gzip
+
+    # Serve pre-rendered files first, then fall back to SPA
+    try_files {path} {path}/index.html /index.html
+
+    file_server
+}
