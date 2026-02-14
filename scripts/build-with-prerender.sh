@@ -21,19 +21,16 @@ if [ $? -ne 0 ]; then
 fi
 echo "  ✓ Vite build complete"
 
-# Step 3: Pre-render (with graceful failure)
+# Step 3: Pre-render (required for SEO)
 echo ""
 echo "[3/4] Pre-rendering static pages..."
-node scripts/prerender.js || PRERENDER_EXIT=$?
-PRERENDER_EXIT=${PRERENDER_EXIT:-0}
-
-if [ $PRERENDER_EXIT -ne 0 ]; then
-    echo "  ⚠ Pre-render had errors (exit code: $PRERENDER_EXIT)"
-    echo "  → SPA will still work, but some pages won't have static HTML"
-    # Don't exit - SPA is still functional
-else
-    echo "  ✓ Pre-render complete"
+if ! node scripts/prerender.js; then
+    echo "  ✗ Pre-render FAILED!"
+    echo "  → Deployment blocked to protect SEO"
+    echo "  → Previous deployment remains live"
+    exit 1
 fi
+echo "  ✓ Pre-render complete"
 
 # Step 4: Verify build output
 echo ""
@@ -44,9 +41,17 @@ if [ ! -f "dist/index.html" ]; then
 fi
 echo "  ✓ index.html present"
 
-# Count pre-rendered files
+# Count and verify pre-rendered files
 STATIC_COUNT=$(find dist -name "*.html" ! -name "index.html" | wc -l | tr -d ' ')
 echo "  ✓ ${STATIC_COUNT} static HTML pages generated"
+
+# Minimum threshold - we expect at least 80 pages (7 static + 78 tarot articles)
+MIN_PAGES=80
+if [ "$STATIC_COUNT" -lt "$MIN_PAGES" ]; then
+    echo "  ✗ Too few pages generated (expected at least $MIN_PAGES)"
+    echo "  → Deployment blocked to protect SEO"
+    exit 1
+fi
 
 echo ""
 echo "=========================================="
