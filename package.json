@@ -9,6 +9,7 @@
     "build:vite": "vite build",
     "build": "bash scripts/build-with-prerender.sh",
     "build:spa-only": "rm -rf dist && vite build",
+    "build:seo": "bash scripts/build-with-prerender.sh",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
