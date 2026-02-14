@@ -21,6 +21,10 @@ const API_TIMEOUT = 30000; // 30 seconds
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const SITE_URL = 'https://celestiarcana.com';
 
+// Detect staging environment
+const COOLIFY_FQDN = process.env.COOLIFY_FQDN || '';
+const IS_STAGING = COOLIFY_FQDN.includes('staging');
+
 // Track results
 const results = [];
 
@@ -462,6 +466,22 @@ async function generateSitemaps() {
   results.push({ success: true, path: '/sitemap-pages.xml' });
   results.push({ success: true, path: '/sitemap-cards.xml' });
   results.push({ success: true, path: '/sitemap-blog.xml' });
+
+  // For staging: overwrite robots.txt to block all crawlers
+  if (IS_STAGING) {
+    process.stdout.write('  Generating staging robots.txt (blocking crawlers)... ');
+    const stagingRobots = `# STAGING ENVIRONMENT - DO NOT INDEX
+# This is a staging/preview site. Do not index.
+
+User-agent: *
+Disallow: /
+
+# No sitemap for staging - this is not the production site
+`;
+    fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), stagingRobots);
+    console.log('✓');
+    results.push({ success: true, path: '/robots.txt (staging)' });
+  }
 }
 
 function generateSitemapXml(urls) {
