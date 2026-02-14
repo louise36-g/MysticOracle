@@ -19,9 +19,17 @@ const __dirname = path.dirname(__filename);
 const API_BASE = process.env.VITE_API_URL || process.env.API_URL || 'https://api.celestiarcana.com';
 const API_TIMEOUT = 30000; // 30 seconds
 const DIST_DIR = path.resolve(__dirname, '../dist');
+const SITE_URL = 'https://celestiarcana.com';
 
 // Track results
 const results = [];
+
+// Track sitemap data
+const sitemapData = {
+  pages: [],
+  cards: [],
+  blog: [],
+};
 
 // Static pages that don't need API data
 const STATIC_PAGES = [
@@ -69,11 +77,34 @@ async function main() {
   console.log('[Phase 3] Blog posts...');
   await prerenderBlogPosts(template);
 
+  // Phase 4: Generate sitemaps
+  console.log('');
+  console.log('[Phase 4] Generating sitemaps...');
+  await generateSitemaps();
+
   // Summary
   printSummary();
 }
 
 async function prerenderStaticPages(template) {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Add homepage to sitemap (highest priority)
+  sitemapData.pages.push({
+    loc: SITE_URL + '/',
+    lastmod: today,
+    changefreq: 'daily',
+    priority: '1.0',
+  });
+
+  // Add horoscope page
+  sitemapData.pages.push({
+    loc: SITE_URL + '/horoscope',
+    lastmod: today,
+    changefreq: 'daily',
+    priority: '0.9',
+  });
+
   for (const page of STATIC_PAGES) {
     try {
       process.stdout.write(`  Generating ${page.path}... `);
@@ -88,6 +119,23 @@ async function prerenderStaticPages(template) {
       const outputPath = getOutputPath(page.path);
       ensureDirectoryExists(path.dirname(outputPath));
       fs.writeFileSync(outputPath, html);
+
+      // Add to sitemap data
+      const priority = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
+        ? '0.3'
+        : page.path === '/tarot' || page.path === '/blog'
+          ? '0.9'
+          : '0.7';
+      const changefreq = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
+        ? 'monthly'
+        : 'weekly';
+
+      sitemapData.pages.push({
+        loc: SITE_URL + page.path,
+        lastmod: today,
+        changefreq,
+        priority,
+      });
 
       results.push({ success: true, path: page.path });
       console.log('✓');
@@ -128,6 +176,17 @@ async function prerenderTarotArticles(template) {
         const outputPath = getOutputPath(`/tarot/${article.slug}`);
         ensureDirectoryExists(path.dirname(outputPath));
         fs.writeFileSync(outputPath, html);
+
+        // Add to sitemap data
+        const lastmod = article.updatedAt
+          ? new Date(article.updatedAt).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0];
+        sitemapData.cards.push({
+          loc: `${SITE_URL}/tarot/${article.slug}`,
+          lastmod,
+          changefreq: 'weekly',
+          priority: '0.8',
+        });
 
         results.push({ success: true, path: `/tarot/${article.slug}` });
         console.log('✓');
@@ -192,6 +251,19 @@ async function prerenderBlogPosts(template) {
         const outputPath = getOutputPath(`/blog/${post.slug}`);
         ensureDirectoryExists(path.dirname(outputPath));
         fs.writeFileSync(outputPath, html);
+
+        // Add to sitemap data
+        const lastmod = post.updatedAt
+          ? new Date(post.updatedAt).toISOString().split('T')[0]
+          : post.publishedAt
+            ? new Date(post.publishedAt).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0];
+        sitemapData.blog.push({
+          loc: `${SITE_URL}/blog/${post.slug}`,
+          lastmod,
+          changefreq: 'weekly',
+          priority: '0.7',
+        });
 
         results.push({ success: true, path: `/blog/${post.slug}` });
         console.log('✓');
@@ -342,6 +414,73 @@ async function fetchWithTimeout(url) {
     clearTimeout(timeout);
     throw error;
   }
+}
+
+async function generateSitemaps() {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Generate sitemap-pages.xml
+  process.stdout.write('  Generating sitemap-pages.xml... ');
+  const pagesXml = generateSitemapXml(sitemapData.pages);
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap-pages.xml'), pagesXml);
+  console.log(`✓ (${sitemapData.pages.length} URLs)`);
+
+  // Generate sitemap-cards.xml
+  process.stdout.write('  Generating sitemap-cards.xml... ');
+  const cardsXml = generateSitemapXml(sitemapData.cards);
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap-cards.xml'), cardsXml);
+  console.log(`✓ (${sitemapData.cards.length} URLs)`);
+
+  // Generate sitemap-blog.xml
+  process.stdout.write('  Generating sitemap-blog.xml... ');
+  const blogXml = generateSitemapXml(sitemapData.blog);
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap-blog.xml'), blogXml);
+  console.log(`✓ (${sitemapData.blog.length} URLs)`);
+
+  // Generate sitemap.xml (sitemap index)
+  process.stdout.write('  Generating sitemap.xml (index)... ');
+  const indexXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-pages.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-cards.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-blog.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), indexXml);
+  console.log('✓');
+
+  // Track sitemap generation in results
+  results.push({ success: true, path: '/sitemap.xml' });
+  results.push({ success: true, path: '/sitemap-pages.xml' });
+  results.push({ success: true, path: '/sitemap-cards.xml' });
+  results.push({ success: true, path: '/sitemap-blog.xml' });
+}
+
+function generateSitemapXml(urls) {
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+
+  for (const url of urls) {
+    xml += `  <url>
+    <loc>${url.loc}</loc>
+    <lastmod>${url.lastmod}</lastmod>
+    <changefreq>${url.changefreq}</changefreq>
+    <priority>${url.priority}</priority>
+  </url>
+`;
+  }
+
+  xml += `</urlset>`;
+  return xml;
 }
 
 function printSummary() {
