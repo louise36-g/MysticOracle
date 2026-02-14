@@ -467,9 +467,9 @@ async function generateSitemaps() {
   results.push({ success: true, path: '/sitemap-cards.xml' });
   results.push({ success: true, path: '/sitemap-blog.xml' });
 
-  // For staging: overwrite robots.txt to block all crawlers
+  // Generate robots.txt (different for staging vs production)
   if (IS_STAGING) {
-    process.stdout.write('  Generating staging robots.txt (blocking crawlers)... ');
+    process.stdout.write('  Generating robots.txt (staging - blocking crawlers)... ');
     const stagingRobots = `# STAGING ENVIRONMENT - DO NOT INDEX
 # This is a staging/preview site. Do not index.
 
@@ -480,8 +480,35 @@ Disallow: /
 `;
     fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), stagingRobots);
     console.log('✓');
-    results.push({ success: true, path: '/robots.txt (staging)' });
+  } else {
+    process.stdout.write('  Generating robots.txt (production)... ');
+    const productionRobots = `# CelestiArcana Robots.txt
+# https://www.robotstxt.org/
+
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /payment/
+Disallow: /profile
+
+# Disallow query parameters that duplicate content
+Disallow: /*?*
+
+# Crawl-delay for polite crawling (seconds)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://celestiarcana.com/sitemap.xml
+`;
+    fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), productionRobots);
+    console.log('✓');
   }
+  results.push({ success: true, path: '/robots.txt' });
 }
 
 function generateSitemapXml(urls) {
