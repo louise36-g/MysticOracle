@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { Cookie, X, Settings, Check } from 'lucide-react';
 import Button from './Button';
 import { ROUTES } from '../routes/routes';
+import { updateAnalyticsConsent } from '../utils/analytics';
 
 interface ConsentSettings {
   necessary: boolean; // Always true - required for site function
@@ -36,6 +37,8 @@ const CookieConsent: React.FC = () => {
         const thirteenMonthsMs = 13 * 30 * 24 * 60 * 60 * 1000;
         if (parsed.timestamp && Date.now() - parsed.timestamp < thirteenMonthsMs) {
           setSettings(parsed);
+          // Initialize analytics if user has previously consented
+          updateAnalyticsConsent(parsed.analytics);
           return;
         }
       } catch {
@@ -57,6 +60,9 @@ const CookieConsent: React.FC = () => {
     setSettings(newSettings);
     setShowBanner(false);
     setShowSettings(false);
+
+    // Update analytics based on consent
+    updateAnalyticsConsent(newSettings.analytics);
   };
 
   const handleAcceptAll = () => {
