@@ -175,12 +175,17 @@ async function prerenderBlogPosts(template) {
       try {
         process.stdout.write(`  Generating /blog/${post.slug}... `);
 
+        // Blog API uses titleEn/excerptEn fields (multi-language support)
+        const title = post.titleEn || post.title || 'Blog Post';
+        const description = post.metaDescriptionEn || post.excerptEn || post.excerpt || title;
+        const image = post.coverImage || post.featuredImage;
+
         const html = generateStaticHtml(template, {
-          title: `${post.title} | CelestiArcana Blog`,
-          description: post.metaDescription || post.excerpt || post.title,
+          title: `${title} | CelestiArcana Blog`,
+          description: description,
           url: `https://celestiarcana.com/blog/${post.slug}`,
           path: `/blog/${post.slug}`,
-          image: post.featuredImage,
+          image: image,
           type: 'article',
         });
 
