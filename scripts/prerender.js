@@ -147,13 +147,28 @@ async function prerenderBlogPosts(template) {
   try {
     process.stdout.write('  Fetching blog list from API... ');
 
-    const response = await fetchWithTimeout(`${API_BASE}/api/blog/posts?limit=100`);
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
+    // Blog API uses pagination, fetch all pages
+    let allPosts = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await fetchWithTimeout(`${API_BASE}/api/blog/posts?page=${page}`);
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      const posts = data.posts || [];
+      allPosts = allPosts.concat(posts);
+
+      // Check if there are more pages
+      const pagination = data.pagination || {};
+      hasMore = page < (pagination.totalPages || 1);
+      page++;
     }
 
-    const data = await response.json();
-    const posts = data.posts || data.data || [];
+    const posts = allPosts;
     console.log(`fetched ${posts.length} posts`);
 
     for (const post of posts) {

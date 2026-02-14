@@ -45,8 +45,8 @@ echo "  ✓ index.html present"
 STATIC_COUNT=$(find dist -name "*.html" ! -name "index.html" | wc -l | tr -d ' ')
 echo "  ✓ ${STATIC_COUNT} static HTML pages generated"
 
-# Minimum threshold - we expect at least 80 pages (7 static + 78 tarot articles)
-MIN_PAGES=80
+# Minimum threshold - we expect at least 100 pages (7 static + 78 tarot + ~25 blog)
+MIN_PAGES=100
 if [ "$STATIC_COUNT" -lt "$MIN_PAGES" ]; then
     echo "  ✗ Too few pages generated (expected at least $MIN_PAGES)"
     echo "  → Deployment blocked to protect SEO"
