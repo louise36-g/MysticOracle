@@ -41,8 +41,8 @@ if [ ! -f "dist/index.html" ]; then
 fi
 echo "  ✓ index.html present"
 
-# Count and verify pre-rendered files
-STATIC_COUNT=$(find dist -name "*.html" ! -name "index.html" | wc -l | tr -d ' ')
+# Count pre-rendered files (all index.html files in subdirectories, not the root one)
+STATIC_COUNT=$(find dist -path "dist/*/index.html" | wc -l | tr -d ' ')
 echo "  ✓ ${STATIC_COUNT} static HTML pages generated"
 
 # Minimum threshold - we expect at least 100 pages (7 static + 78 tarot + ~25 blog)
