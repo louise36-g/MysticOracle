@@ -115,27 +115,18 @@ export function RootLayout() {
 
   // Check for daily bonus eligibility
   useEffect(() => {
-    console.log('[DailyBonus] Effect running:', { user: !!user, hasCheckedDailyBonus, showWelcomeModal });
-
-    if (!user || hasCheckedDailyBonus || showWelcomeModal) {
-      console.log('[DailyBonus] Early return - user:', !!user, 'hasChecked:', hasCheckedDailyBonus, 'welcome:', showWelcomeModal);
-      return;
-    }
+    if (!user || hasCheckedDailyBonus || showWelcomeModal) return;
 
     // Check sessionStorage to prevent showing multiple times in the same session
     const sessionClaimCheck = sessionStorage.getItem('daily_bonus_checked_today');
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-    console.log('[DailyBonus] Checking sessionStorage:', { sessionClaimCheck, today, match: sessionClaimCheck === today });
-
     if (sessionClaimCheck === today) {
-      console.log('[DailyBonus] Already checked today, skipping');
       setHasCheckedDailyBonus(true);
       return;
     }
 
     // Mark as checked immediately to prevent re-runs during this session
-    console.log('[DailyBonus] Setting sessionStorage and checking eligibility');
     setHasCheckedDailyBonus(true);
     sessionStorage.setItem('daily_bonus_checked_today', today);
 
