@@ -26,8 +26,10 @@ export function initializeAnalytics(): void {
   // Initialize gtag - must match Google's expected format exactly
   window.dataLayer = window.dataLayer || [];
 
-  // Standard gtag implementation that pushes arguments directly
-  window.gtag = function(...args: unknown[]) {
+  // Standard gtag implementation without TypeScript rest params
+  // @ts-ignore - using arguments object directly as Google expects
+  window.gtag = function() {
+    // eslint-disable-next-line prefer-rest-params
     window.dataLayer.push(arguments);
   };
 
