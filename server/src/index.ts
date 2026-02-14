@@ -126,6 +126,11 @@ import { swaggerSpec } from './config/swagger.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Parse FRONTEND_URL (supports comma-separated values for multiple origins)
+const frontendUrls = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : [];
+
 // Security middleware - configure helmet with CSP and HSTS for compliance
 app.use(
   helmet({
@@ -142,12 +147,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
-        connectSrc: [
-          "'self'",
-          'https://api.stripe.com',
-          'https://openrouter.ai',
-          process.env.FRONTEND_URL,
-        ].filter(Boolean) as string[],
+        connectSrc: ["'self'", 'https://api.stripe.com', 'https://openrouter.ai', ...frontendUrls],
         frameSrc: ["'self'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
         objectSrc: ["'none'"],
       },
@@ -172,7 +172,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // CORS configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  ...frontendUrls,
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
@@ -180,7 +180,7 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3002',
-].filter(Boolean) as string[];
+];
 
 app.use(
   cors({
