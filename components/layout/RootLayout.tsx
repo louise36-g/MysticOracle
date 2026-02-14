@@ -126,6 +126,10 @@ export function RootLayout() {
       return;
     }
 
+    // Mark as checked immediately to prevent re-runs during this session
+    setHasCheckedDailyBonus(true);
+    sessionStorage.setItem('daily_bonus_checked_today', today);
+
     // Check if user can claim daily bonus (different calendar day, matching backend logic)
     const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
     const now = new Date();
@@ -133,8 +137,6 @@ export function RootLayout() {
     if (!lastLogin) {
       // Never claimed before
       setShowDailyBonusPopup(true);
-      setHasCheckedDailyBonus(true);
-      sessionStorage.setItem('daily_bonus_checked_today', today);
     } else {
       // Check if it's a different calendar day (matching backend logic)
       const todayDate = new Date(now);
@@ -144,9 +146,7 @@ export function RootLayout() {
 
       if (todayDate.getTime() !== lastLoginDay.getTime()) {
         setShowDailyBonusPopup(true);
-        sessionStorage.setItem('daily_bonus_checked_today', today);
       }
-      setHasCheckedDailyBonus(true);
     }
   }, [user, hasCheckedDailyBonus, showWelcomeModal]);
 
