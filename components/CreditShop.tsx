@@ -28,6 +28,7 @@ import {
   redirectToStripeCheckout,
   createPayPalOrder,
 } from '../services/paymentService';
+import { trackCreditShopOpen } from '../utils/analytics';
 
 // PayPal icon component
 const PayPalIcon = ({ className }: { className?: string }) => (
@@ -72,6 +73,13 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   const [selectedQuickBuy, setSelectedQuickBuy] = useState<number | null>(null);
   const paymentSectionRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
+
+  // Track when credit shop opens
+  useEffect(() => {
+    if (isOpen) {
+      trackCreditShopOpen('modal');
+    }
+  }, [isOpen]);
 
   // Unified selection for payment section
   const currentSelection = useMemo(() => {

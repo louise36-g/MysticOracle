@@ -1,4 +1,4 @@
-import { Outlet, ScrollRestoration } from 'react-router-dom';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Suspense, useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ import { DailyBonusPopup } from '../rewards';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import Button from '../Button';
 import { useApp } from '../../context/AppContext';
+import { trackPageView } from '../../utils/analytics';
 import { Coins, AlertTriangle, X, Moon } from 'lucide-react';
 
 // Low credits threshold
@@ -85,6 +86,12 @@ function BrandedLoadingScreen() {
 export function RootLayout() {
   const { user, isLoading, refreshUser, t } = useApp();
   const { isLoaded: clerkLoaded } = useUser();
+  const location = useLocation();
+
+  // Track page views on route changes (only if user consented to analytics)
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location]);
 
   // Modal states
   const [showCreditShop, setShowCreditShop] = useState(false);

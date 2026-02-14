@@ -7,6 +7,7 @@ import Button from './Button';
 import { CheckCircle, XCircle, Loader2, Coins, Sparkles } from 'lucide-react';
 import { verifyStripePayment, capturePayPalOrder } from '../services/paymentService';
 import { ROUTES } from '../routes/routes';
+import { trackPurchase } from '../utils/analytics';
 
 const PaymentResult: React.FC = () => {
   const location = useLocation();
@@ -57,9 +58,18 @@ const PaymentResult: React.FC = () => {
 
         setResult(paymentResult);
 
-        // Update credit balance in local state
+        // Update credit balance in local state and track purchase
         if (paymentResult.success && paymentResult.credits) {
           addCredits(paymentResult.credits);
+          // Track successful purchase for analytics
+          const paymentProvider = provider === 'paypal' ? 'paypal' : 'stripe';
+          trackPurchase(
+            `${paymentResult.credits} Credits`,
+            paymentResult.credits,
+            paymentResult.credits * 0.50, // Approximate value
+            'EUR',
+            paymentProvider
+          );
         }
       } catch (error) {
         console.error('[PaymentResult] Payment verification error:', error);
