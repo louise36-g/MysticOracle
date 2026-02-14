@@ -24,8 +24,8 @@ echo "  ✓ Vite build complete"
 # Step 3: Pre-render (with graceful failure)
 echo ""
 echo "[3/4] Pre-rendering static pages..."
-node scripts/prerender.js
-PRERENDER_EXIT=$?
+node scripts/prerender.js || PRERENDER_EXIT=$?
+PRERENDER_EXIT=${PRERENDER_EXIT:-0}
 
 if [ $PRERENDER_EXIT -ne 0 ]; then
     echo "  ⚠ Pre-render had errors (exit code: $PRERENDER_EXIT)"
