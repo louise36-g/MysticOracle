@@ -15,6 +15,7 @@ import {
   LinkRegistry,
 } from '../../services/api';
 import { ROUTES } from '../../routes/routes';
+import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
 
 // Sub-components
 import { ArticleSkeleton } from './ArticleSkeleton';
@@ -103,6 +104,47 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   useEffect(() => {
     fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, []);
+
+  // Track article view (not for preview mode)
+  const scrollMilestonesRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (article && slug && !previewId) {
+      trackTarotCardView(slug, article.title);
+      // Reset scroll milestones for new article
+      scrollMilestonesRef.current = new Set();
+    }
+  }, [article, slug, previewId]);
+
+  // Track scroll depth
+  useEffect(() => {
+    if (!article || previewId) return;
+
+    const handleScroll = () => {
+      const content = contentRef.current;
+      if (!content) return;
+
+      const rect = content.getBoundingClientRect();
+      const contentTop = rect.top + window.scrollY;
+      const contentHeight = rect.height;
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const scrolledIntoContent = scrollPosition - contentTop;
+      const percentScrolled = Math.min(100, Math.max(0, (scrolledIntoContent / contentHeight) * 100));
+
+      const milestones = [25, 50, 75, 100];
+      for (const milestone of milestones) {
+        if (percentScrolled >= milestone && !scrollMilestonesRef.current.has(milestone)) {
+          scrollMilestonesRef.current.add(milestone);
+          trackScrollDepth(milestone, 'tarot_article', slug || '');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [article, slug, previewId]);
 
   // Get localized content - use French if available, fallback to English
   const localizedContent = useMemo(() => {

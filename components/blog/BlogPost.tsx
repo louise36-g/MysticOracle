@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/api';
@@ -8,6 +8,7 @@ import { useTranslation } from '../../context/TranslationContext';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, BlogLightbox } from './components';
 import { ROUTES } from '../../routes/routes';
+import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 
 interface BlogPostProps {
   previewId?: string;
@@ -35,6 +36,50 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const { post, relatedPosts, linkRegistry, loading, error } = useBlogPost({ slug, previewId });
   const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs, contentRef } = useBlogContent({ post, linkRegistry, language });
   useBlogMeta({ post, language, isPreview });
+
+  // Scroll depth tracking
+  const scrollMilestonesRef = useRef<Set<number>>(new Set());
+  const articleContainerRef = useRef<HTMLElement>(null);
+
+  // Track article view when post loads
+  useEffect(() => {
+    if (post && slug && !isPreview) {
+      trackArticleView(slug, post.categories?.[0]?.nameEn || 'uncategorized');
+      // Reset scroll milestones for new article
+      scrollMilestonesRef.current = new Set();
+    }
+  }, [post, slug, isPreview]);
+
+  // Track scroll depth
+  useEffect(() => {
+    if (!post || isPreview) return;
+
+    const handleScroll = () => {
+      const article = articleContainerRef.current;
+      if (!article) return;
+
+      const rect = article.getBoundingClientRect();
+      const articleTop = rect.top + window.scrollY;
+      const articleHeight = rect.height;
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const scrolledIntoArticle = scrollPosition - articleTop;
+      const percentScrolled = Math.min(100, Math.max(0, (scrolledIntoArticle / articleHeight) * 100));
+
+      const milestones = [25, 50, 75, 100];
+      for (const milestone of milestones) {
+        if (percentScrolled >= milestone && !scrollMilestonesRef.current.has(milestone)) {
+          scrollMilestonesRef.current.add(milestone);
+          trackScrollDepth(milestone, 'blog', slug || '');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Check initial scroll position
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [post, slug, isPreview]);
 
   // Utility functions
   const formatDate = (dateString: string) => {
@@ -97,7 +142,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const title = language === 'en' ? post.titleEn : post.titleFr;
 
   return (
-    <article className="max-w-4xl mx-auto px-4 py-12">
+    <article ref={articleContainerRef} className="max-w-4xl mx-auto px-4 py-12">
       {/* Preview Banner */}
       {isPreview && (
         <div className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 rounded-xl flex items-center gap-3">

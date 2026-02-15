@@ -18,6 +18,7 @@ import {
   createReading,
   updateReadingReflection,
 } from '../services/api';
+import { trackStartReading, trackCompleteReading } from '../utils/analytics';
 import { shuffleDeck } from '../utils/shuffle';
 import { useReadingGeneration, useOracleChat, useQuestionInput, useReadingFlow } from '../hooks';
 import {
@@ -385,6 +386,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     setDeck(shuffleDeck(FULL_DECK));
     setDrawnCards([]);
 
+    // Track reading start
+    trackStartReading(spread.id, category || 'general');
+
     setPhase('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
   }, [validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhase]);
@@ -491,6 +495,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         });
         console.log('[Reading] Saved successfully! Reading:', savedReading);
         setBackendReadingId(savedReading.id);
+        // Track reading completion
+        trackCompleteReading(spread.id, category || 'general');
         // Refresh user to get updated credit balance from backend
         await refreshUser();
         console.log('[Reading] User refreshed after credit deduction');
