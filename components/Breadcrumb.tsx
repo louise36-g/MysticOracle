@@ -111,8 +111,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
       case 'about':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.about_us', 'About Us'),
-          icon: <Users className="w-3.5 h-3.5" />,
+          label: t('Breadcrumb.tsx.Breadcrumb.about_me', 'About Me'),
+          icon: <User className="w-3.5 h-3.5" />,
         });
         break;
 

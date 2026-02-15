@@ -11,6 +11,7 @@ import {
   HelpCircle,
   CreditCard,
   Users,
+  User,
   Layers,
   Home
 } from 'lucide-react';
@@ -59,11 +60,11 @@ const SubNav: React.FC = () => {
   const learnItems: DropdownItem[] = [
     {
       id: 'about',
-      labelEn: 'About Us',
-      labelFr: 'À Propos',
-      descriptionEn: 'Our story',
-      descriptionFr: 'Notre histoire',
-      icon: <Users className="w-4 h-4 text-pink-400" />,
+      labelEn: 'About Me',
+      labelFr: 'À Propos de Moi',
+      descriptionEn: 'My story',
+      descriptionFr: 'Mon histoire',
+      icon: <User className="w-4 h-4 text-pink-400" />,
       iconBg: 'bg-pink-500/20',
       href: ROUTES.ABOUT,
     },
