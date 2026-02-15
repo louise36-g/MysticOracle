@@ -20,6 +20,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "seed:year-energy": "tsx scripts/seedYearEnergy.ts",
+    "fix:schemas": "tsx scripts/regenerate-schemas.ts",
     "prepare": "husky"
   },
   "dependencies": {

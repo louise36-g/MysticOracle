@@ -10,13 +10,23 @@ const AboutUs: React.FC = () => {
 
   const content = {
     en: {
-      title: 'About Us',
+      title: 'About Me',
       intro: 'For many decades, my life has been guided by a deep passion for personal development, introspection, and healing the wounded inner child. I have always been drawn to understanding what lies beneath the surface — our emotions, our patterns, and the stories we tell ourselves — and to finding compassionate ways to reconnect with our inner truth.',
       discoveringTarot: 'Discovering Tarot',
       discoveringTarotP1: 'When I discovered the Tarot, I did not experience it as a tool of divination or prediction. That aspect of Tarot has never truly resonated with me. I do not believe that our lives are fixed or written in advance. I believe we create our own destinies through the choices we make and the actions we take.',
       discoveringTarotP2: 'For me, the Tarot is something entirely different.',
       discoveringTarotHighlight: 'The Tarot is, in my experience, the introspection tool par excellence.',
       discoveringTarotP3: 'It helps us explore the energy surrounding a situation or feeling and gently guides us inward — back to ourselves. The cards do not tell us what will happen; they help us understand what is happening within us right now.',
+      // New personal journey section
+      myJourneyTitle: 'My Journey With Tarot',
+      myJourneyP1: 'I began working seriously with Tarot in 2017, after my mother passed away. It was a very dark time for me. I felt lost in a way I hadn\'t experienced before; unsure of who I was without her, unsure of where I was going.',
+      myJourneyP2: 'During that period, Tarot became something steady. I would sit with the cards quietly, sometimes not even asking a clear question. I just needed something that helped me make sense of what I was feeling. And slowly, the images began to speak, not in dramatic predictions, but in gentle reflections.',
+      myJourneyP3: 'I didn\'t experience Tarot as something that told me the future. Instead, it helped me understand the present. It showed me where I was holding grief in my body. It revealed patterns I had inherited. It helped me see where I was being hard on myself, and where I needed compassion instead.',
+      myJourneyP4: 'Over time, this became a daily practice. I studied the symbolism of the Rider–Waite–Smith deck more deeply, not in an academic way, but through lived experience. I began to notice how consistently the archetypes mirrored real emotional processes; loss, resilience, fear, renewal. The cards became less mysterious and more like old friends pointing gently toward truth.',
+      myJourneyP5: 'As I began to heal, I felt a quiet calling to share this approach with others. Alongside my work in energy healing and personal development, I started supporting people one-to-one, using Tarot as a reflective tool rather than a predictive one. Again and again, I saw how powerful it was when someone recognised themselves in a card, when they realised the answer wasn\'t outside them after all.',
+      myJourneyP6: 'For me, Tarot is a mirror. It doesn\'t dictate destiny. It doesn\'t remove responsibility. It simply highlights what is already present and invites us to look a little more honestly, and a little more kindly, at ourselves.',
+      myJourneyP7: 'It helped me find my way back to myself.',
+      myJourneyP8: 'And that is why I share it.',
       whatTarotAllows: 'What Tarot Allows Us To Do',
       whatTarotAllowsIntro: 'Through this process, the Tarot allows us to:',
       tarotBenefit1: 'uncover hidden emotions and unconscious patterns',
@@ -29,14 +39,14 @@ const AboutUs: React.FC = () => {
       backgroundP1: 'Alongside Tarot, I have worked for many years in energy healing and self-help coaching, supporting people one-to-one on their journey of growth and healing. While this work was deeply meaningful, the Covid period brought both frustration and clarity.',
       backgroundP2: 'I realised how limiting the traditional model could be: booking appointments, travelling, sitting for a session, then returning to daily life — often with the best intentions, yet gradually placing the insights on the back burner as life\'s demands took over.',
       backgroundP3: 'Covid became the catalyst for something new. I wanted to create a way for people to access guidance from the comfort of their own home, at any time of the day or night — without pressure, without appointments, and without needing to "know" Tarot.',
-      aiTitle: 'How AI Supports This Experience',
-      aiP1: 'This website uses artificial intelligence — not to interpret or reinvent the Tarot, but to support clarity, reflection, and connection.',
-      aiP2: 'The meanings of the Tarot cards themselves are not altered. They remain consistent, rooted in traditional understanding. The role of AI here is to:',
-      aiBenefit1: 'explain each card from the perspective of the position in which it was drawn',
-      aiBenefit2: 'explore how the cards interact with one another as a whole',
-      aiBenefit3: 'weave their messages back into the question you asked',
-      aiP3: 'In this way, the AI acts as a thoughtful guide — helping to articulate connections, highlight themes, and offer reflective insight — while always pointing you back to your own inner knowing.',
-      aiQuote: 'The wisdom does not come from the technology. It comes from the conversation between the cards, the question, and you.',
+      aiTitle: 'How Technology Supports This Space',
+      aiP1: 'This website uses artificial intelligence as a support tool — not to redefine or reinterpret the Tarot, but to help organise and express the meanings of the cards in a clear and accessible way.',
+      aiP2: 'The foundations remain rooted in traditional Tarot symbolism, particularly the Rider–Waite–Smith system that I have studied and worked with in my own practice. The meanings themselves are not altered or reinvented. Instead, the technology helps to:',
+      aiBenefit1: 'clarify how a card\'s meaning shifts depending on the position in which it appears',
+      aiBenefit2: 'explore the relationships between cards within a spread',
+      aiBenefit3: 'reflect their combined themes back into the question being asked',
+      aiP3: 'In this way, the system acts more like an assistant — helping to articulate patterns and connections — while the heart of the interpretation remains grounded in established Tarot wisdom and reflective practice.',
+      aiQuote: 'The insight does not come from the technology itself. It emerges from the dialogue between the symbolism of the cards, the intention behind the question, and your own inner awareness. The role of technology here is simply to help that dialogue flow more smoothly.',
       notFortune: 'This is not a fortune-telling site.',
       notPredicting: 'This is not about predicting the future.',
       notMysticMeg: 'And it is certainly not a modern version of Mystic Meg.',
@@ -55,13 +65,23 @@ const AboutUs: React.FC = () => {
       startReading: 'Start Your Reading',
     },
     fr: {
-      title: 'À propos',
+      title: 'À propos de moi',
       intro: 'Depuis plusieurs décennies, ma vie est guidée par une passion profonde pour le développement personnel, l\'introspection et la guérison de l\'enfant intérieur blessé. J\'ai toujours été attirée par ce qui se cache sous la surface — nos émotions, nos schémas, les histoires que nous nous racontons — et par la recherche de voies empreintes de compassion pour nous reconnecter à notre vérité intérieure.',
       discoveringTarot: 'Découvrir le Tarot',
       discoveringTarotP1: 'Lorsque j\'ai découvert le Tarot, je ne l\'ai pas perçu comme un outil de divination ou de prédiction. Cet aspect du Tarot ne m\'a jamais vraiment parlé. Je ne crois pas que nos vies soient figées ou écrites à l\'avance. Je crois que nous créons notre propre destinée à travers les choix que nous faisons et les actions que nous entreprenons.',
       discoveringTarotP2: 'Pour moi, le Tarot est tout autre chose.',
       discoveringTarotHighlight: 'Le Tarot est, selon mon expérience, l\'outil d\'introspection par excellence.',
       discoveringTarotP3: 'Il nous aide à explorer l\'énergie qui entoure une situation ou un ressenti, et nous guide doucement vers l\'intérieur — vers nous-mêmes. Les cartes ne nous disent pas ce qui va arriver ; elles nous aident à comprendre ce qui se passe en nous, ici et maintenant.',
+      // New personal journey section
+      myJourneyTitle: 'Mon Parcours Avec le Tarot',
+      myJourneyP1: 'J\'ai commencé à travailler sérieusement avec le Tarot en 2017, après le décès de ma mère. C\'était une période très sombre pour moi. Je me sentais perdue d\'une façon que je n\'avais jamais connue auparavant ; incertaine de qui j\'étais sans elle, incertaine de ma direction.',
+      myJourneyP2: 'Pendant cette période, le Tarot est devenu quelque chose de stable. Je m\'asseyais tranquillement avec les cartes, parfois sans même poser de question claire. J\'avais simplement besoin de quelque chose qui m\'aide à donner un sens à ce que je ressentais. Et lentement, les images ont commencé à parler, non pas en prédictions dramatiques, mais en réflexions douces.',
+      myJourneyP3: 'Je n\'ai pas vécu le Tarot comme quelque chose qui me disait l\'avenir. Au contraire, il m\'a aidée à comprendre le présent. Il m\'a montré où je retenais le chagrin dans mon corps. Il a révélé des schémas dont j\'avais hérité. Il m\'a aidée à voir où j\'étais dure envers moi-même, et où j\'avais besoin de compassion à la place.',
+      myJourneyP4: 'Avec le temps, c\'est devenu une pratique quotidienne. J\'ai étudié le symbolisme du Tarot Rider–Waite–Smith plus profondément, non pas de manière académique, mais à travers l\'expérience vécue. J\'ai commencé à remarquer à quel point les archétypes reflétaient constamment de vrais processus émotionnels ; la perte, la résilience, la peur, le renouveau. Les cartes sont devenues moins mystérieuses et plus comme de vieux amis pointant doucement vers la vérité.',
+      myJourneyP5: 'En commençant à guérir, j\'ai ressenti un appel discret à partager cette approche avec les autres. Parallèlement à mon travail en soins énergétiques et développement personnel, j\'ai commencé à accompagner des personnes individuellement, utilisant le Tarot comme outil de réflexion plutôt que de prédiction. Encore et encore, j\'ai vu à quel point c\'était puissant quand quelqu\'un se reconnaissait dans une carte, quand il réalisait que la réponse n\'était pas à l\'extérieur après tout.',
+      myJourneyP6: 'Pour moi, le Tarot est un miroir. Il ne dicte pas le destin. Il ne supprime pas la responsabilité. Il met simplement en lumière ce qui est déjà présent et nous invite à regarder un peu plus honnêtement, et un peu plus gentiment, vers nous-mêmes.',
+      myJourneyP7: 'Il m\'a aidée à retrouver mon chemin vers moi-même.',
+      myJourneyP8: 'Et c\'est pourquoi je le partage.',
       whatTarotAllows: 'Ce que le Tarot nous permet',
       whatTarotAllowsIntro: 'À travers ce processus, le Tarot nous permet de :',
       tarotBenefit1: 'mettre au jour des émotions enfouies et des schémas inconscients',
@@ -74,14 +94,14 @@ const AboutUs: React.FC = () => {
       backgroundP1: 'Parallèlement au Tarot, je pratique depuis de nombreuses années les soins énergétiques et l\'accompagnement en développement personnel, soutenant des personnes dans leur cheminement de croissance et de guérison. Bien que ce travail ait été profondément porteur de sens, la période du Covid a apporté à la fois frustration et clarté.',
       backgroundP2: 'J\'ai pris conscience des limites du modèle traditionnel : prendre rendez-vous, se déplacer, s\'installer pour une séance, puis retourner à sa vie quotidienne — souvent avec les meilleures intentions, mais en laissant progressivement les prises de conscience de côté, rattrapée par les exigences du quotidien.',
       backgroundP3: 'Le Covid est devenu le catalyseur d\'un renouveau. Je voulais créer un moyen pour chacun d\'accéder à une guidance depuis le confort de son foyer, à toute heure du jour ou de la nuit — sans pression, sans rendez-vous, et sans avoir besoin de « connaître » le Tarot.',
-      aiTitle: 'Comment l\'IA accompagne cette expérience',
-      aiP1: 'Ce site utilise l\'intelligence artificielle — non pas pour interpréter ou réinventer le Tarot, mais pour favoriser la clarté, la réflexion et la connexion.',
-      aiP2: 'Les significations des cartes du Tarot ne sont pas modifiées. Elles restent fidèles à la compréhension traditionnelle. Le rôle de l\'IA est de :',
-      aiBenefit1: 'expliquer chaque carte selon la position dans laquelle elle a été tirée',
-      aiBenefit2: 'explorer comment les cartes interagissent entre elles dans leur ensemble',
-      aiBenefit3: 'tisser leurs messages en lien avec la question que vous avez posée',
-      aiP3: 'Ainsi, l\'IA agit comme un guide attentionné — aidant à articuler les connexions, à mettre en lumière les thèmes et à offrir des pistes de réflexion — tout en vous ramenant toujours à votre propre sagesse intérieure.',
-      aiQuote: 'La sagesse ne vient pas de la technologie. Elle naît de la conversation entre les cartes, la question et vous.',
+      aiTitle: 'Comment la technologie soutient cet espace',
+      aiP1: 'Ce site utilise l\'intelligence artificielle comme outil de soutien — non pas pour redéfinir ou réinterpréter le Tarot, mais pour aider à organiser et exprimer les significations des cartes de manière claire et accessible.',
+      aiP2: 'Les fondements restent ancrés dans le symbolisme traditionnel du Tarot, particulièrement le système Rider–Waite–Smith que j\'ai étudié et avec lequel j\'ai travaillé dans ma propre pratique. Les significations elles-mêmes ne sont ni altérées ni réinventées. La technologie aide plutôt à :',
+      aiBenefit1: 'clarifier comment la signification d\'une carte change selon la position dans laquelle elle apparaît',
+      aiBenefit2: 'explorer les relations entre les cartes au sein d\'un tirage',
+      aiBenefit3: 'refléter leurs thèmes combinés en lien avec la question posée',
+      aiP3: 'De cette façon, le système agit davantage comme un assistant — aidant à articuler les schémas et les connexions — tandis que le cœur de l\'interprétation reste ancré dans la sagesse établie du Tarot et la pratique réflexive.',
+      aiQuote: 'L\'insight ne vient pas de la technologie elle-même. Il émerge du dialogue entre le symbolisme des cartes, l\'intention derrière la question et votre propre conscience intérieure. Le rôle de la technologie ici est simplement d\'aider ce dialogue à se dérouler plus harmonieusement.',
       notFortune: 'Ceci n\'est pas un site de voyance.',
       notPredicting: 'Il ne s\'agit pas de prédire l\'avenir.',
       notMysticMeg: 'Et ce n\'est certainement pas une version moderne de Madame Irma.',
@@ -154,6 +174,33 @@ const AboutUs: React.FC = () => {
             <p>
               {t.discoveringTarotP2} <strong className="text-purple-200">{t.discoveringTarotHighlight}</strong> {t.discoveringTarotP3}
             </p>
+          </div>
+        </motion.section>
+
+        {/* My Journey With Tarot - NEW Personal Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.17 }}
+          className="bg-gradient-to-br from-rose-900/20 to-slate-900/40 border border-rose-500/20 rounded-2xl p-8 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-rose-400" />
+            </div>
+            <h2 className="text-xl font-heading text-rose-200">
+              {t.myJourneyTitle}
+            </h2>
+          </div>
+          <div className="space-y-4 text-slate-300 leading-relaxed">
+            <p>{t.myJourneyP1}</p>
+            <p>{t.myJourneyP2}</p>
+            <p>{t.myJourneyP3}</p>
+            <p>{t.myJourneyP4}</p>
+            <p>{t.myJourneyP5}</p>
+            <p className="text-rose-200/90 italic">{t.myJourneyP6}</p>
+            <p className="text-rose-200 font-medium">{t.myJourneyP7}</p>
+            <p className="text-rose-200 font-medium">{t.myJourneyP8}</p>
           </div>
         </motion.section>
 
