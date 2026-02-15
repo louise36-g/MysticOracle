@@ -9,6 +9,7 @@ import {
   updateStatusSchema,
   adjustCreditsSchema,
 } from './shared.js';
+import { createClerkClient } from '@clerk/backend';
 
 const router = Router();
 
@@ -139,6 +140,16 @@ router.delete('/:userId', async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Delete from Clerk first
+    try {
+      const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+      await clerkClient.users.deleteUser(userId);
+      console.log(`[Admin] User ${userId} deleted from Clerk`);
+    } catch (clerkError) {
+      // Log but continue - user might already be deleted from Clerk
+      console.warn(`[Admin] Could not delete user ${userId} from Clerk:`, clerkError);
     }
 
     // Delete user from database (cascades to related records)
