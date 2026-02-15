@@ -237,6 +237,7 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Note: userId removed - horoscopes are public content cached by sign/language/date
     const cached = await prisma.horoscopeCache.upsert({
       where: {
         sign_language_date: {
@@ -249,7 +250,6 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
         horoscope,
       },
       create: {
-        userId,
         sign,
         language,
         date: today,
