@@ -262,6 +262,16 @@ export async function toggleUserAdmin(
   });
 }
 
+export async function deleteUser(
+  token: string,
+  userId: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/api/admin/users/${userId}`, {
+    method: 'DELETE',
+    token,
+  });
+}
+
 // ============================================
 // TRANSACTIONS
 // ============================================
