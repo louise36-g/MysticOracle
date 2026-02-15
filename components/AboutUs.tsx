@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Moon, Sparkles, Heart, Brain, Compass, Palette } from 'lucide-react';
+import { Sparkles, Heart, Brain, Compass, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../routes/routes';
+import { AuthorAvatar } from './shared/AuthorAvatar';
 
 const AboutUs: React.FC = () => {
   const { language } = useApp();
@@ -132,8 +133,8 @@ const AboutUs: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 to-purple-600 mb-6">
-            <Moon className="w-10 h-10 text-white fill-current" />
+          <div className="flex justify-center mb-6">
+            <AuthorAvatar size="xl" showName={false} />
           </div>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-purple-200 mb-4">
             {t.title}

@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Calendar, Clock, User, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Sparkles } from 'lucide-react';
 import { useTranslation } from '../../context/TranslationContext';
 import { QuickNavChips } from './QuickNavChips';
 import { ArticleHeaderProps } from './types';
+import { AuthorAvatar } from '../shared/AuthorAvatar';
 
 /**
  * Article header with title, meta info, badges, and quick navigation
@@ -41,10 +42,7 @@ export function ArticleHeader({
 
       {/* Meta information */}
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-400 mb-6">
-        <span className="flex items-center gap-1.5">
-          <User className="w-4 h-4 text-purple-400/70" />
-          {author}
-        </span>
+        <AuthorAvatar size="sm" />
         <span className="hidden sm:inline text-slate-600">|</span>
         <span className="flex items-center gap-1.5">
           <Clock className="w-4 h-4 text-purple-400/70" />

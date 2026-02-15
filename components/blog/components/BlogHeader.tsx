@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Eye, User, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
+import { Calendar, Clock, Eye, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
 import { BlogPost as BlogPostType } from '../../../services/api';
 import { ROUTES } from '../../../routes/routes';
+import { AuthorAvatar } from '../../shared/AuthorAvatar';
 
 interface BlogHeaderProps {
   post: BlogPostType;
@@ -51,10 +52,7 @@ export const BlogHeader: React.FC<BlogHeaderProps> = ({
 
       {/* Meta */}
       <div className="flex flex-wrap justify-center items-center gap-4 text-slate-400 text-sm mb-6">
-        <span className="flex items-center gap-1">
-          <User className="w-4 h-4" />
-          {post.authorName}
-        </span>
+        <AuthorAvatar size="sm" />
         <span className="flex items-center gap-1">
           <Calendar className="w-4 h-4" />
           {formatDate(post.publishedAt || post.createdAt)}
