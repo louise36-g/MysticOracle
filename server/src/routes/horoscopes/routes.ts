@@ -99,6 +99,7 @@ router.get('/:sign', optionalAuth, async (req, res) => {
     const createdAt = new Date();
 
     // Save to database (upsert to handle race conditions)
+    // Note: userId removed - horoscopes are public content cached by sign/language/date
     await prisma.horoscopeCache.upsert({
       where: {
         sign_language_date: {
@@ -112,11 +113,9 @@ router.get('/:sign', optionalAuth, async (req, res) => {
         language,
         date: today,
         horoscope,
-        userId: req.auth?.userId || null,
       },
       update: {
         horoscope,
-        userId: req.auth?.userId || null,
       },
     });
 
