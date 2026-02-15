@@ -6,10 +6,11 @@ import {
   updateUserStatus,
   adjustUserCredits,
   toggleUserAdmin,
+  deleteUser,
   AdminUser,
   AdminUserList
 } from '../../services/api';
-import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminUsers: React.FC = () => {
@@ -34,6 +35,10 @@ const AdminUsers: React.FC = () => {
 
   // User detail modal
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+
+  // Delete confirmation modal
+  const [deleteModal, setDeleteModal] = useState<{ userId: string; username: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -105,6 +110,24 @@ const AdminUsers: React.FC = () => {
       loadUsers();
     } catch (err) {
       alert('Failed to adjust credits');
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteModal) return;
+
+    try {
+      setDeleting(true);
+      const token = await getToken();
+      if (!token) return;
+
+      await deleteUser(token, deleteModal.userId);
+      setDeleteModal(null);
+      loadUsers();
+    } catch (err) {
+      alert('Failed to delete user');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -271,6 +294,13 @@ const AdminUsers: React.FC = () => {
                             >
                               <Crown className="w-4 h-4" />
                             </button>
+                            <button
+                              onClick={() => setDeleteModal({ userId: user.id, username: user.username })}
+                              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
+                              title={t('admin.AdminUsers.delete_user', 'Delete user')}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </td>
                       </motion.tr>
@@ -414,6 +444,53 @@ const AdminUsers: React.FC = () => {
                 <span className="text-slate-400">{t('admin.AdminUsers.achievements', 'Achievements')}</span>
                 <span className="text-slate-200">{selectedUser._count.achievements}</span>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-900 border border-red-500/30 rounded-xl p-6 max-w-md w-full"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-400" />
+              </div>
+              <h3 className="text-lg font-heading text-red-200">
+                {t('admin.AdminUsers.delete_user_title', 'Delete User')}
+              </h3>
+            </div>
+            <p className="text-slate-300 mb-6">
+              {t('admin.AdminUsers.delete_confirm', `Are you sure you want to permanently delete`)} <strong className="text-white">{deleteModal.username}</strong>?
+              {' '}{t('admin.AdminUsers.delete_warning', 'This action cannot be undone.')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModal(null)}
+                disabled={deleting}
+                className="flex-1 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 disabled:opacity-50"
+              >
+                {t('admin.AdminUsers.cancel', 'Cancel')}
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={deleting}
+                className="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    {t('admin.AdminUsers.delete', 'Delete')}
+                  </>
+                )}
+              </button>
             </div>
           </motion.div>
         </div>

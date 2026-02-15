@@ -124,4 +124,32 @@ router.patch('/:userId/admin', async (req, res) => {
   }
 });
 
+// Delete user permanently
+router.delete('/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const adminUserId = req.auth.userId;
+
+    // Can't delete yourself
+    if (userId === adminUserId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Delete user from database (cascades to related records)
+    await prisma.user.delete({ where: { id: userId } });
+
+    console.log(`[Admin] User ${userId} deleted by admin ${adminUserId}`);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
 export default router;
