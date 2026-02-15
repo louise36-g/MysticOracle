@@ -94,8 +94,8 @@ function buildArticleSchema(article: any, articleUrl: string): ArticleSchema {
     description: article.seoMetaDescription || article.excerpt || '',
     image: article.featuredImage || `${SITE_URL}/images/tarot-default.jpg`,
     author: {
-      '@type': 'Organization',
-      name: SITE_NAME,
+      '@type': 'Person',
+      name: 'Louise Griffin',
       url: `${SITE_URL}/about`,
     },
     publisher: {
@@ -238,11 +238,12 @@ async function main() {
         const currentSchema = article.schemaJson as any;
         const currentUrl = currentSchema?.['@graph']?.[0]?.mainEntityOfPage?.['@id'] || '';
 
-        if (currentUrl.startsWith(SITE_URL)) {
-          console.log(`✓ ${article.slug} - Already correct`);
-          skipped++;
-          continue;
-        }
+        // Force regenerate all schemas to update author
+        // if (currentUrl.startsWith(SITE_URL)) {
+        //   console.log(`✓ ${article.slug} - Already correct`);
+        //   skipped++;
+        //   continue;
+        // }
 
         // Generate new schema
         const newSchema = buildCompleteSchema(article);
