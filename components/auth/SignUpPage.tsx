@@ -71,6 +71,13 @@ const SignUpPage: React.FC = () => {
         forceRedirectUrl="/"
       />
 
+      {/* Spam folder note */}
+      <p className="text-sm text-purple-300/80 text-center mt-3 px-2">
+        {language === 'fr'
+          ? "Si vous ne recevez pas l'e-mail de vérification, veuillez vérifier votre dossier spam."
+          : "If you don't receive the verification email, please check your spam folder."}
+      </p>
+
       {/* Already have account - at bottom */}
       <div className="mt-4 p-3 text-center bg-purple-800/40 rounded-xl border border-purple-400/30">
         <span className="text-purple-200">

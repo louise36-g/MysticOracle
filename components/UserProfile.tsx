@@ -126,7 +126,26 @@ const UserProfile: React.FC = () => {
         showToast(language === 'en' ? 'Referral code copied!' : 'Code copié !', 'copy');
     };
 
-    const handleSignOut = () => { signOut(); logout(); };
+    const handleSignOut = async () => {
+        // Clear app-specific localStorage
+        localStorage.removeItem('celestiarcana_user');
+        localStorage.removeItem('celestiarcana_credits');
+        localStorage.removeItem('reading_draft');
+
+        // Clear any cached data
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('clerk') || key.startsWith('__clerk')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        // Clear session storage
+        sessionStorage.clear();
+
+        // Sign out from Clerk and clear app state
+        await signOut();
+        logout();
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950">
