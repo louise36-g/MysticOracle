@@ -3,9 +3,7 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
-import { ROUTES, buildRoute } from '../../../routes/routes';
 import { TarotArticle } from '../../../services/api';
 import {
   Search,
@@ -120,12 +118,12 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
 
       {/* Title */}
       <td className="px-4 py-3">
-        <Link
-          to={buildRoute(ROUTES.ADMIN_TAROT_EDIT, { id: article.id })}
-          className="font-medium text-white hover:text-purple-400 transition-colors block"
+        <button
+          onClick={() => onEdit(article.id)}
+          className="font-medium text-white hover:text-purple-400 transition-colors block text-left"
         >
           {article.title}
-        </Link>
+        </button>
         <div className="text-sm text-slate-400 mt-1">{article.slug}</div>
       </td>
 
