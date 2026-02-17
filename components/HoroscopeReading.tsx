@@ -325,36 +325,25 @@ const HoroscopeReading: React.FC = () => {
         {/* Back button */}
         <motion.button
           onClick={handleBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mb-8 group"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mb-4 group"
           whileHover={{ x: -4 }}
         >
-          <ChevronLeft className="w-5 h-5" />
-          <span className="text-base font-medium">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
+          <ChevronLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
         </motion.button>
 
-        {/* Result card with unified styling */}
+        {/* Result card with gold frame */}
         <div
-          className="relative rounded-3xl overflow-hidden border-2 backdrop-blur-xl"
+          className="relative rounded-2xl overflow-hidden backdrop-blur-sm"
           style={{
-            borderColor: `${unifiedTheme.border}66`,
+            border: '1px solid rgba(212, 175, 55, 0.4)',
+            background: 'rgba(30, 10, 60, 0.03)',
             boxShadow: `
-              0 25px 60px rgba(0,0,0,0.4),
-              0 0 20px ${unifiedTheme.glow}30,
-              0 0 40px ${unifiedTheme.glow}20
+              0 0 20px rgba(212, 175, 55, 0.08),
+              inset 0 0 30px rgba(212, 175, 55, 0.03)
             `,
           }}
         >
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25" />
-
-          {/* Noise texture */}
-          <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            }}
-          />
-
           {/* Floating stars */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(6)].map((_, i) => (
@@ -364,10 +353,10 @@ const HoroscopeReading: React.FC = () => {
                 style={{
                   left: `${15 + i * 14}%`,
                   top: `${10 + (i % 3) * 30}%`,
-                  color: `${unifiedTheme.ambient}30`,
+                  color: `${unifiedTheme.ambient}15`,
                 }}
                 animate={{
-                  opacity: [0.1, 0.4, 0.1],
+                  opacity: [0.1, 0.25, 0.1],
                   scale: [0.8, 1.2, 0.8],
                 }}
                 transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.4 }}
@@ -384,11 +373,11 @@ const HoroscopeReading: React.FC = () => {
           <CornerDecoration position="br" />
 
           {/* Inner content */}
-          <div className="relative p-8 md:p-12">
+          <div className="relative px-6 sm:px-8 md:px-10 pt-8 pb-5">
             {/* Header with symbol */}
-            <div className="text-center mb-10">
+            <div className="text-center mb-1">
               <motion.div
-                className="inline-block text-6xl mb-4"
+                className="inline-block text-5xl mb-1"
                 style={{ color: unifiedTheme.border }}
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
@@ -400,35 +389,35 @@ const HoroscopeReading: React.FC = () => {
                 </span>
               </motion.div>
 
-              <h2 className="text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 mb-0.5">
                 {displaySignName}
               </h2>
 
-              <div className="flex items-center justify-center gap-3 text-slate-400">
-                <Stars className="w-4 h-4 text-amber-500/60" />
-                <span className="text-sm uppercase tracking-[0.2em]">
+              <div className="flex items-center justify-center gap-2 text-slate-400">
+                <Stars className="w-3 h-3 text-amber-500/60" />
+                <span className="text-xs uppercase tracking-[0.15em]">
                   {language === 'fr' ? 'Horoscope du Jour' : 'Daily Horoscope'}
                 </span>
-                <Stars className="w-4 h-4 text-amber-500/60" />
+                <Stars className="w-3 h-3 text-amber-500/60" />
               </div>
             </div>
 
             {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8" />
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent mb-3" />
 
             {/* Horoscope content */}
-            <div className="prose prose-invert prose-lg max-w-none">
+            <div className="prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({ children }) => <h1 className="text-2xl font-heading font-bold text-amber-300 mt-8 mb-4 first:mt-0">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-xl font-heading font-bold text-amber-200/90 mt-8 mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-amber-400/60" />{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-lg font-semibold text-amber-100/80 mt-6 mb-2">{children}</h3>,
-                  p: ({ children }) => <p className="mb-5 text-slate-300 leading-relaxed">{children}</p>,
+                  h1: ({ children }) => <h1 className="text-lg font-heading font-bold text-amber-300 mt-5 mb-2 first:mt-0">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-5 mb-1.5 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-3 mb-1">{children}</h3>,
+                  p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
                   strong: ({ children }) => <strong className="text-amber-200 font-semibold">{children}</strong>,
                   em: ({ children }) => <em className="text-purple-200 italic">{children}</em>,
-                  ul: ({ children }) => <ul className="mb-5 space-y-2 text-slate-300">{children}</ul>,
-                  ol: ({ children }) => <ol className="mb-5 space-y-2 text-slate-300 list-decimal list-inside">{children}</ol>,
-                  li: ({ children }) => <li className="text-slate-300 flex items-start gap-2"><span className="text-amber-400 mt-1.5">•</span><span>{children}</span></li>,
+                  ul: ({ children }) => <ul className="mb-2.5 space-y-1 text-slate-300/90">{children}</ul>,
+                  ol: ({ children }) => <ol className="mb-2.5 space-y-1 text-slate-300/90 list-decimal list-inside">{children}</ol>,
+                  li: ({ children }) => <li className="text-slate-300/90 text-sm flex items-start gap-2"><span className="text-amber-400 mt-1">•</span><span>{children}</span></li>,
                 }}
               >
                 {horoscope}
@@ -436,7 +425,7 @@ const HoroscopeReading: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="mt-12 pt-8 border-t border-white/10 text-center">
+            <div className="mt-5 pt-4 border-t border-white/10 text-center">
               <Button onClick={handleBack} variant="outline">
                 {language === 'fr' ? 'Choisir un autre signe' : 'Choose another sign'}
               </Button>
