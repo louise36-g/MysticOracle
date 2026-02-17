@@ -75,7 +75,7 @@
   font-family: 'Cinzel', serif;
   font-size: 1.375rem;
   font-weight: 600;
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 2rem;
   margin-bottom: 0.875rem;
   text-align: center;
@@ -474,7 +474,7 @@
 }
 
 .prose .section-upright h3 {
-  color: #6ee7b7;
+  color: #c4b5fd;
 }
 
 /* ============================================
@@ -544,7 +544,7 @@
 
 .prose .key-takeaways h3,
 .prose .key-takeaways-container h3 {
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1.25rem;
   font-family: 'Cinzel', serif;
@@ -597,7 +597,7 @@
 }
 
 .prose .symbols-section h3 {
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1.25rem;
   font-family: 'Cinzel', serif;
@@ -635,7 +635,7 @@
 }
 
 .prose .quick-reference h3 {
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1rem;
   font-family: 'Cinzel', serif;
@@ -836,7 +836,7 @@
 .prose h3.life-area-career,
 .prose h3.life-area-spiritual,
 .prose h3.life-area-decisions {
-  color: #86efac;
+  color: #c4b5fd;
   position: relative;
 }
 

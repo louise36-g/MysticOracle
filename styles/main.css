@@ -828,7 +828,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: 'Cinzel', serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   text-align: center;
@@ -1168,7 +1168,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   border-radius: 0.75rem;
 }
 .prose .key-takeaways h3 {
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1rem;
   font-family: 'Cinzel', serif;
@@ -1189,7 +1189,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   border-radius: 0.75rem;
 }
 .prose .quick-reference h3 {
-  color: #86efac;
+  color: #c4b5fd;
   margin-top: 0;
   margin-bottom: 1rem;
   font-family: 'Cinzel', serif;
@@ -1214,7 +1214,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .prose h3.life-area-career,
 .prose h3.life-area-spiritual,
 .prose h3.life-area-decisions {
-  color: #86efac;
+  color: #c4b5fd;
 }
 
 /* Scrollbar hide for nav chips */
