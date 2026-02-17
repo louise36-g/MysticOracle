@@ -162,7 +162,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'common.today': { en: 'Today', fr: "Aujourd'hui" },
   'common.yesterday': { en: 'Yesterday', fr: 'Hier' },
   'common.days_ago': { en: 'days ago', fr: 'il y a' },
-  'common.back': { en: 'Back to All Signs', fr: 'Retour à tous les signes' },
+  'common.back': { en: 'Back', fr: 'Retour' },
 
   // Footer
   'footer.tagline': {
