@@ -24,6 +24,8 @@ const UserProfile: React.FC = () => {
     const [isShopOpen, setIsShopOpen] = useState(false);
     const [expandedReading, setExpandedReading] = useState<string | null>(null);
     const [achievementsExpanded, setAchievementsExpanded] = useState(false);
+    const [readingsExpanded, setReadingsExpanded] = useState(false);
+    const [creditsExpanded, setCreditsExpanded] = useState(false);
 
     // Toast State
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'bonus' | 'copy' | 'error'; visible: boolean }>({
@@ -338,41 +340,67 @@ const UserProfile: React.FC = () => {
                     transition={{ duration: 0.4, delay: STAGGER_DELAY * 3 }}
                     className={SECTION_CLASSES}
                 >
-                    {/* Header with inline filter */}
-                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                    <button
+                        onClick={() => setReadingsExpanded(!readingsExpanded)}
+                        className="w-full flex items-center justify-between py-1"
+                    >
                         <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
                             <History className="w-4 h-4 text-purple-400" />
                             {t('UserProfile.tsx.UserProfile.reading_history', 'Reading History')}
+                            <span className="text-xs text-slate-500 font-normal">
+                                ({backendReadings.length})
+                            </span>
                         </h2>
-                        <ReadingTypeFilter
-                            value={readingTypeFilter}
-                            onChange={setReadingTypeFilter}
-                        />
-                    </div>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                            readingsExpanded ? 'rotate-180' : ''
+                        }`} />
+                    </button>
 
-                    {/* Reading List */}
-                    {isLoadingReadings ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading', 'Loading...')}</span>
-                        </div>
-                    ) : readingsError ? (
-                        <p className="text-red-400 text-center py-12">{readingsError}</p>
-                    ) : filteredReadings.length === 0 ? (
-                        <EmptyState
-                            type={backendReadings.length === 0 ? 'readings' : 'filtered'}
-                            onAction={backendReadings.length === 0 ? undefined : () => setReadingTypeFilter('all')}
-                        />
-                    ) : (
-                        <div className="max-h-[700px] overflow-y-auto pr-1">
-                            <MonthlyReadingAccordion
-                                readings={filteredReadings}
-                                expandedReading={expandedReading}
-                                onToggleReading={(id) => setExpandedReading(expandedReading === id ? null : id)}
-                                filterType={readingTypeFilter}
-                            />
-                        </div>
-                    )}
+                    <AnimatePresence>
+                        {readingsExpanded && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="pt-4 border-t border-slate-700/40 mt-3">
+                                    {/* Filter */}
+                                    <div className="flex items-center justify-end mb-4">
+                                        <ReadingTypeFilter
+                                            value={readingTypeFilter}
+                                            onChange={setReadingTypeFilter}
+                                        />
+                                    </div>
+
+                                    {/* Reading List */}
+                                    {isLoadingReadings ? (
+                                        <div className="flex items-center justify-center py-12">
+                                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading', 'Loading...')}</span>
+                                        </div>
+                                    ) : readingsError ? (
+                                        <p className="text-red-400 text-center py-12">{readingsError}</p>
+                                    ) : filteredReadings.length === 0 ? (
+                                        <EmptyState
+                                            type={backendReadings.length === 0 ? 'readings' : 'filtered'}
+                                            onAction={backendReadings.length === 0 ? undefined : () => setReadingTypeFilter('all')}
+                                        />
+                                    ) : (
+                                        <div className="max-h-[700px] overflow-y-auto pr-1">
+                                            <MonthlyReadingAccordion
+                                                readings={filteredReadings}
+                                                expandedReading={expandedReading}
+                                                onToggleReading={(id) => setExpandedReading(expandedReading === id ? null : id)}
+                                                filterType={readingTypeFilter}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.section>
 
                 {/* Transaction History */}
@@ -382,80 +410,108 @@ const UserProfile: React.FC = () => {
                     transition={{ duration: 0.4, delay: STAGGER_DELAY * 4 }}
                     className={SECTION_CLASSES}
                 >
-                    {/* Header with inline filter */}
-                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                    <button
+                        onClick={() => setCreditsExpanded(!creditsExpanded)}
+                        className="w-full flex items-center justify-between py-1"
+                    >
                         <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-green-400" />
                             {t('UserProfile.tsx.UserProfile.credit_history', 'Credit History')}
+                            {transactions && transactions.length > 0 && (
+                                <span className="text-xs text-slate-500 font-normal">
+                                    ({transactions.length})
+                                </span>
+                            )}
                         </h2>
-                        {transactions && transactions.length > 0 && (
-                            <TransactionFilters
-                                typeFilter={transactionTypeFilter}
-                                onTypeFilterChange={setTransactionTypeFilter}
-                            />
-                        )}
-                    </div>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                            creditsExpanded ? 'rotate-180' : ''
+                        }`} />
+                    </button>
 
-                    {/* Low Credits Warning */}
-                    {displayUser.credits < 3 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mb-5 p-3 rounded-lg bg-gradient-to-r from-amber-900/30 to-orange-900/30
-                                       border border-amber-500/30 flex items-center justify-between gap-3"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Coins className="w-4 h-4 text-amber-400" />
-                                <p className="text-sm text-amber-200">
-                                    {t('UserProfile.tsx.UserProfile.low_on_credits', 'Low on Credits')}
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => setIsShopOpen(true)}
-                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
-                                           transition-colors duration-200 text-xs font-medium whitespace-nowrap"
+                    <AnimatePresence>
+                        {creditsExpanded && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
                             >
-                                {t('UserProfile.tsx.UserProfile.get_credits', 'Get Credits')}
-                            </button>
-                        </motion.div>
-                    )}
+                                <div className="pt-4 border-t border-slate-700/40 mt-3">
+                                    {/* Filter */}
+                                    {transactions && transactions.length > 0 && (
+                                        <div className="flex items-center justify-end mb-4">
+                                            <TransactionFilters
+                                                typeFilter={transactionTypeFilter}
+                                                onTypeFilterChange={setTransactionTypeFilter}
+                                            />
+                                        </div>
+                                    )}
 
-                    {/* Summary */}
-                    {transactions && transactions.length > 0 && (
-                        <div className="grid grid-cols-3 gap-3 mb-5">
-                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.purchased', 'Purchased')}</p>
-                                <p className="text-xl font-bold text-green-400">+{purchasedCredits}</p>
-                            </div>
-                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.earned', 'Earned')}</p>
-                                <p className="text-xl font-bold text-amber-400">+{earnedCredits}</p>
-                            </div>
-                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
-                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.spent', 'Spent')}</p>
-                                <p className="text-xl font-bold text-red-400">{spentCredits}</p>
-                            </div>
-                        </div>
-                    )}
+                                    {/* Low Credits Warning */}
+                                    {displayUser.credits < 3 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="mb-5 p-3 rounded-lg bg-gradient-to-r from-amber-900/30 to-orange-900/30
+                                                       border border-amber-500/30 flex items-center justify-between gap-3"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Coins className="w-4 h-4 text-amber-400" />
+                                                <p className="text-sm text-amber-200">
+                                                    {t('UserProfile.tsx.UserProfile.low_on_credits', 'Low on Credits')}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIsShopOpen(true)}
+                                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+                                                           transition-colors duration-200 text-xs font-medium whitespace-nowrap"
+                                            >
+                                                {t('UserProfile.tsx.UserProfile.get_credits', 'Get Credits')}
+                                            </button>
+                                        </motion.div>
+                                    )}
 
-                    {/* Transaction List */}
-                    {isLoadingTransactions ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading_2', 'Loading...')}</span>
-                        </div>
-                    ) : !transactions || transactions.length === 0 ? (
-                        <EmptyState type="transactions" />
-                    ) : filteredTransactions.length === 0 ? (
-                        <EmptyState
-                            type="filtered"
-                            onAction={() => setTransactionTypeFilter('all')}
-                        />
-                    ) : (
-                        <div className="max-h-[500px] overflow-y-auto pr-1">
-                            <MonthlyTransactionAccordion transactions={filteredTransactions} />
-                        </div>
-                    )}
+                                    {/* Summary */}
+                                    {transactions && transactions.length > 0 && (
+                                        <div className="grid grid-cols-3 gap-3 mb-5">
+                                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.purchased', 'Purchased')}</p>
+                                                <p className="text-xl font-bold text-green-400">+{purchasedCredits}</p>
+                                            </div>
+                                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.earned', 'Earned')}</p>
+                                                <p className="text-xl font-bold text-amber-400">+{earnedCredits}</p>
+                                            </div>
+                                            <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                                                <p className="text-sm text-slate-500 mb-1">{t('UserProfile.tsx.UserProfile.spent', 'Spent')}</p>
+                                                <p className="text-xl font-bold text-red-400">{spentCredits}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Transaction List */}
+                                    {isLoadingTransactions ? (
+                                        <div className="flex items-center justify-center py-12">
+                                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading_2', 'Loading...')}</span>
+                                        </div>
+                                    ) : !transactions || transactions.length === 0 ? (
+                                        <EmptyState type="transactions" />
+                                    ) : filteredTransactions.length === 0 ? (
+                                        <EmptyState
+                                            type="filtered"
+                                            onAction={() => setTransactionTypeFilter('all')}
+                                        />
+                                    ) : (
+                                        <div className="max-h-[500px] overflow-y-auto pr-1">
+                                            <MonthlyTransactionAccordion transactions={filteredTransactions} />
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.section>
 
                 {/* Logout */}

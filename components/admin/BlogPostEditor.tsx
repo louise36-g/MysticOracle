@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { ROUTES } from '../../routes/routes';
 import {
   fetchAdminBlogCategories,
   fetchAdminBlogTags,
@@ -9,6 +11,7 @@ import {
   deleteBlogMedia,
   createBlogPost,
   updateBlogPost,
+  fetchAdminBlogPost,
   fetchLinkRegistry,
   BlogPost,
   BlogCategory,
@@ -57,22 +60,29 @@ import {
 } from './editor';
 
 interface BlogPostEditorProps {
-  post: BlogPost;
-  isNew: boolean;
-  onSave: () => void;
-  onCancel: () => void;
+  post?: BlogPost;
+  isNew?: boolean;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   post: initialPost,
-  isNew,
+  isNew = false,
   onSave,
   onCancel,
 }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const params = useParams();
+  const navigate = useNavigate();
 
-  const [post, setPost] = useState<BlogPost>(initialPost);
+  // Support both prop-based (parent component) and route-based (direct URL) usage
+  const handleBack = onCancel || (() => navigate(ROUTES.ADMIN_BLOG));
+  const handleSaved = onSave || (() => navigate(ROUTES.ADMIN_BLOG));
+
+  const [post, setPost] = useState<BlogPost | null>(initialPost || null);
+  const [loadingPost, setLoadingPost] = useState(!initialPost && !!params.id);
   const [editLanguage, setEditLanguage] = useState<string>('en');
   const [editorMode, setEditorMode] = useState<'visual' | 'markdown'>('visual');
   const [saving, setSaving] = useState(false);
@@ -96,6 +106,26 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkSuggestions, setLinkSuggestions] = useState<LinkSuggestion[]>([]);
   const [scanningLinks, setScanningLinks] = useState(false);
+
+  // Fetch post from API when accessed via URL (no prop passed)
+  useEffect(() => {
+    if (!initialPost && params.id) {
+      const loadPost = async () => {
+        try {
+          setLoadingPost(true);
+          const token = await getToken();
+          if (!token) return;
+          const data = await fetchAdminBlogPost(token, params.id!);
+          setPost(data.post);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load post');
+        } finally {
+          setLoadingPost(false);
+        }
+      };
+      loadPost();
+    }
+  }, [params.id]);
 
   useEffect(() => {
     loadSidebarData();
@@ -132,6 +162,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   };
 
   const handleSave = async (publish: boolean = false) => {
+    if (!post) return;
     if (!post.slug || !post.titleEn || !post.authorName) {
       setError('Please fill in required fields: Slug, Title (EN), and Author Name');
       return;
@@ -174,7 +205,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         await updateBlogPost(token, post.id, postData);
       }
 
-      onSave();
+      handleSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save post');
     } finally {
@@ -262,13 +293,34 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
   const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
 
+  if (loadingPost) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error || 'Post not found'}</p>
+          <button onClick={handleBack} className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600">
+            {language === 'en' ? 'Back to Blog' : 'Retour au Blog'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const topBar = (
     <EditorTopBar
       title={isNew
         ? (language === 'en' ? 'New Post' : 'Nouvel article')
         : (language === 'en' ? 'Edit Post' : 'Modifier article')}
       isNew={isNew}
-      onBack={onCancel}
+      onBack={handleBack}
       onSave={() => handleSave(false)}
       saving={saving}
       language={language}

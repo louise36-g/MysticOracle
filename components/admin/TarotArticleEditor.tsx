@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { ROUTES } from '../../routes/routes';
 import {
   fetchAdminTarotArticle,
   updateTarotArticle,
@@ -42,18 +44,25 @@ import {
 import { useArticleForm } from './tarot-articles/hooks/useArticleForm';
 
 interface TarotArticleEditorProps {
-  articleId: string;
-  onSave: () => void;
-  onCancel: () => void;
+  articleId?: string;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
-  articleId,
+  articleId: propArticleId,
   onSave,
   onCancel,
 }) => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const params = useParams();
+  const navigate = useNavigate();
+
+  // Support both prop-based (parent component) and route-based (direct URL) usage
+  const articleId = propArticleId || params.id || '';
+  const handleBack = onCancel || (() => navigate(ROUTES.ADMIN_TAROT));
+  const handleSaved = onSave || (() => navigate(ROUTES.ADMIN_TAROT));
 
   const [article, setArticle] = useState<TarotArticle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -187,7 +196,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       console.log('[TarotArticleEditor] Save successful');
       clearErrors();
       setArticle(prev => prev ? { ...prev, status } : prev);
-      onSave();
+      handleSaved();
     } catch (err) {
       console.error('[TarotArticleEditor] Save failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -280,7 +289,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const topBar = (
     <EditorTopBar
       title={editLanguage === 'en' ? article.title : (article.titleFr || article.title)}
-      onBack={onCancel}
+      onBack={handleBack}
       onSave={() => handleSave(false)}
       saving={saving}
       language={language}

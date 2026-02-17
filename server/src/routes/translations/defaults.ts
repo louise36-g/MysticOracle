@@ -638,8 +638,8 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   },
 
   // SubNav - Learn Items
-  'subnav.learn.about.label': { en: 'About Us', fr: 'À Propos' },
-  'subnav.learn.about.desc': { en: 'Our story', fr: 'Notre histoire' },
+  'subnav.learn.about.label': { en: 'About Me', fr: 'À Propos' },
+  'subnav.learn.about.desc': { en: 'My Story', fr: 'Mon histoire' },
   'subnav.learn.tarotCards.label': { en: 'The Arcanas', fr: 'Les Arcanes' },
   'subnav.learn.tarotCards.desc': { en: 'Explore all 78 cards', fr: 'Explorez les 78 cartes' },
   'subnav.learn.blog.label': { en: 'Blog', fr: 'Blog' },
@@ -652,7 +652,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'subnav.learn.faq.label': { en: 'Help & FAQ', fr: 'Aide & FAQ' },
   'subnav.learn.faq.desc': { en: 'Get answers', fr: 'Trouvez des réponses' },
 
-  // About Us Page
+  // About Me Page
   'about.title': { en: 'About CelestiArcana', fr: 'À Propos de CelestiArcana' },
   'about.subtitle': {
     en: 'Where ancient wisdom meets modern technology to illuminate your path.',
@@ -865,7 +865,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'How Credits Work',
     fr: 'Comment fonctionnent les crédits',
   }, // components/Breadcrumb.tsx:132
-  'Breadcrumb.tsx.Breadcrumb.about_us': { en: 'About Us', fr: 'À Propos' }, // components/Breadcrumb.tsx:139
+  'Breadcrumb.tsx.Breadcrumb.about_me': { en: 'About Me', fr: 'À Propos' }, // components/Breadcrumb.tsx:139
   'Breadcrumb.tsx.Breadcrumb.tarot_cards': { en: 'Tarot Cards', fr: 'Cartes de Tarot' }, // components/Breadcrumb.tsx:146
   'Breadcrumb.tsx.Breadcrumb.all_cards': { en: 'All Cards', fr: 'Toutes les Cartes' }, // components/Breadcrumb.tsx:152
   'Breadcrumb.tsx.Breadcrumb.card_details': { en: 'Card Details', fr: 'Détails' }, // components/Breadcrumb.tsx:158
