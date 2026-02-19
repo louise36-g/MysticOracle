@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const API_BASE = process.env.VITE_API_URL || process.env.API_URL || 'https://api.celestiarcana.com';
+const API_BASE = process.env.API_URL || process.env.VITE_API_URL || 'https://api.celestiarcana.com';
 const API_TIMEOUT = 30000; // 30 seconds
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const SITE_URL = 'https://celestiarcana.com';

@@ -120,6 +120,7 @@ jobs:
         env:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_placeholder' }}
           VITE_API_URL: http://localhost:3001
+          API_URL: https://api.celestiarcana.com
 
       - name: Build server
         run: npm run build
