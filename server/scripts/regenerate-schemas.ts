@@ -5,7 +5,7 @@
  * Or: npx tsx scripts/regenerate-schemas.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -253,7 +253,7 @@ async function main() {
         await prisma.tarotArticle.update({
           where: { id: article.id },
           data: {
-            schemaJson: newSchema,
+            schemaJson: newSchema as unknown as Prisma.InputJsonValue,
             schemaHtml: newSchemaHtml,
           },
         });
