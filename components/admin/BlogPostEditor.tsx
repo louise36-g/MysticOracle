@@ -250,7 +250,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   };
 
   const previewUrl = !isNew
-    ? (post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/blog/preview/${post.id}`)
+    ? (post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/admin/blog/preview/${post.id}`)
     : undefined;
 
   // Internal links handlers

@@ -160,6 +160,19 @@ const TarotArticlePreview = () => {
   );
 };
 
+// Lazy-loaded BlogPost (preserves previewId prop)
+const LazyBlogPost = lazy(() => import('../components/blog/BlogPost'));
+
+// Wrapper to pass URL :id param as previewId prop to BlogPost
+const BlogPostPreview = () => {
+  const { id } = useParams<{ id: string }>();
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <LazyBlogPost previewId={id} />
+    </Suspense>
+  );
+};
+
 // Redirect component for legacy /tarot/articles/:slug URLs to /tarot/:slug
 const TarotArticleRedirect = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -427,10 +440,14 @@ export const router = createBrowserRouter(
               },
             ],
           },
-          // Preview route - outside AdminLayout for full-width article display
+          // Preview routes - outside AdminLayout for full-width display
           {
             path: ROUTES.ADMIN_TAROT_PREVIEW,
             element: <TarotArticlePreview />,
+          },
+          {
+            path: ROUTES.ADMIN_BLOG_PREVIEW,
+            element: <BlogPostPreview />,
           },
         ],
       },

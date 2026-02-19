@@ -405,7 +405,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
               href={
                 post.status === 'PUBLISHED'
                   ? `/blog/${post.slug}`
-                  : `/blog/preview/${post.id}`
+                  : `/admin/blog/preview/${post.id}`
               }
               target="_blank"
               rel="noopener noreferrer"

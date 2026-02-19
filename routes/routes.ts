@@ -74,6 +74,7 @@ export const ROUTES = {
   ADMIN_TAROT_TAGS: '/admin/tarot-articles/tags',
   ADMIN_TAROT_TRASH: '/admin/tarot-articles/trash',
   ADMIN_TAROT_PREVIEW: '/admin/tarot-articles/preview/:id',
+  ADMIN_BLOG_PREVIEW: '/admin/blog/preview/:id',
 } as const;
 
 // Helper to build dynamic routes
