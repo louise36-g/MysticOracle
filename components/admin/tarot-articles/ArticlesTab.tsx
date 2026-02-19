@@ -149,7 +149,9 @@ const SortableArticleRow: React.FC<SortableArticleRowProps> = ({
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <a
-            href={`/tarot/${article.slug}`}
+            href={article.status === 'PUBLISHED'
+              ? `/tarot/${article.slug}`
+              : `/admin/tarot-articles/preview/${article.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"

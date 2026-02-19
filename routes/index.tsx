@@ -147,6 +147,19 @@ const ReadingLayout = () => (
   </Suspense>
 );
 
+// Lazy-loaded TarotArticlePage (preserves previewId prop)
+const LazyTarotArticlePage = lazy(() => import('../components/TarotArticlePage'));
+
+// Wrapper to pass URL :id param as previewId prop to TarotArticlePage
+const TarotArticlePreview = () => {
+  const { id } = useParams<{ id: string }>();
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <LazyTarotArticlePage previewId={id} />
+    </Suspense>
+  );
+};
+
 // Redirect component for legacy /tarot/articles/:slug URLs to /tarot/:slug
 const TarotArticleRedirect = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -413,6 +426,11 @@ export const router = createBrowserRouter(
                 element: lazyLoad(() => import('../components/admin/AdminTarotArticles')),
               },
             ],
+          },
+          // Preview route - outside AdminLayout for full-width article display
+          {
+            path: ROUTES.ADMIN_TAROT_PREVIEW,
+            element: <TarotArticlePreview />,
           },
         ],
       },

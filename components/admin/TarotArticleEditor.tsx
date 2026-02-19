@@ -282,7 +282,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
 
   const previewUrl = article.status === 'PUBLISHED'
     ? `/tarot/${article.slug}`
-    : `/admin/tarot/preview/${article.id}`;
+    : `/admin/tarot-articles/preview/${article.id}`;
 
   const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
 
