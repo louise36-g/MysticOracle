@@ -93,7 +93,7 @@ export type CreateBlogPostData = {
   categoryIds: string[];
   tagIds: string[];
   faq?: FAQItem[];
-  cta?: CTAItem;
+  cta?: CTAItem | null;
 };
 
 export type UpdateBlogPostData = Partial<CreateBlogPostData>;

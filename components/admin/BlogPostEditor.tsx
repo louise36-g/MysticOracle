@@ -196,7 +196,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         categoryIds: post.categoryIds || [],
         tagIds: post.tagIds || [],
         faq: post.faq,
-        cta: post.cta,
+        cta: post.cta ?? null,
       };
 
       if (isNew) {
