@@ -135,8 +135,9 @@ router.post('/import', async (req, res) => {
         // Use FAQ from JSON if provided
         const faq = article.faq && article.faq.length > 0 ? article.faq : undefined;
 
-        // Use CTA from JSON if provided, otherwise use default
-        const cta = article.cta || DEFAULT_BLOG_CTA;
+        // Use CTA from JSON if provided, otherwise use default (skip for Part 1 articles)
+        const isPartOne = /part\s*1/i.test(article.title);
+        const cta = article.cta || (isPartOne ? undefined : DEFAULT_BLOG_CTA);
 
         // Create the post
         await prisma.blogPost.create({
