@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
-  fetchAdminBlogCategories,
-  fetchAdminBlogTags,
+  fetchUnifiedCategories,
+  fetchUnifiedTags,
   fetchAdminBlogMedia,
   fetchAdminBlogPosts,
 } from '../../services/api';
@@ -40,12 +40,12 @@ const AdminBlog: React.FC = () => {
   // Reload functions for cross-tab updates
   const loadCategories = useCallback(async () => {
     const token = await getToken();
-    if (token) await fetchAdminBlogCategories(token);
+    if (token) await fetchUnifiedCategories(token);
   }, [getToken]);
 
   const loadTags = useCallback(async () => {
     const token = await getToken();
-    if (token) await fetchAdminBlogTags(token);
+    if (token) await fetchUnifiedTags(token);
   }, [getToken]);
 
   const loadMedia = useCallback(async () => {

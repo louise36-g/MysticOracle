@@ -45,12 +45,14 @@ router.post('/categories', async (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1).max(100),
+      nameFr: z.string().min(1).max(100).optional(),
       slug: z
         .string()
         .min(1)
         .max(100)
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
       description: z.string().max(500).optional(),
+      descriptionFr: z.string().max(500).optional(),
       color: z.string().max(20).optional(),
       icon: z.string().max(50).optional(),
     });
@@ -84,6 +86,7 @@ router.patch('/categories/:id', async (req, res) => {
 
     const schema = z.object({
       name: z.string().min(1).max(100).optional(),
+      nameFr: z.string().min(1).max(100).optional(),
       slug: z
         .string()
         .min(1)
@@ -91,6 +94,7 @@ router.patch('/categories/:id', async (req, res) => {
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
         .optional(),
       description: z.string().max(500).optional(),
+      descriptionFr: z.string().max(500).optional(),
       color: z.string().max(20).optional(),
       icon: z.string().max(50).optional(),
     });
@@ -170,6 +174,7 @@ router.post('/tags', async (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1).max(100),
+      nameFr: z.string().min(1).max(100).optional(),
       slug: z
         .string()
         .min(1)
@@ -206,6 +211,7 @@ router.patch('/tags/:id', async (req, res) => {
 
     const schema = z.object({
       name: z.string().min(1).max(100).optional(),
+      nameFr: z.string().min(1).max(100).optional(),
       slug: z
         .string()
         .min(1)

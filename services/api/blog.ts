@@ -235,60 +235,6 @@ export async function reorderBlogPost(
 }
 
 // ============================================
-// ADMIN CATEGORIES
-// ============================================
-
-export async function fetchAdminBlogCategories(token: string): Promise<{ categories: BlogCategory[] }> {
-  return apiRequest('/api/blog/admin/categories', { token });
-}
-
-export async function createBlogCategory(
-  token: string,
-  data: Omit<BlogCategory, 'id' | 'postCount' | '_count'>
-): Promise<{ success: boolean; category: BlogCategory }> {
-  return apiRequest('/api/blog/admin/categories', { method: 'POST', body: data, token });
-}
-
-export async function updateBlogCategory(
-  token: string,
-  id: string,
-  data: Partial<Omit<BlogCategory, 'id' | 'postCount' | '_count'>>
-): Promise<{ success: boolean; category: BlogCategory }> {
-  return apiRequest(`/api/blog/admin/categories/${id}`, { method: 'PATCH', body: data, token });
-}
-
-export async function deleteBlogCategory(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/blog/admin/categories/${id}`, { method: 'DELETE', token });
-}
-
-// ============================================
-// ADMIN TAGS
-// ============================================
-
-export async function fetchAdminBlogTags(token: string): Promise<{ tags: BlogTag[] }> {
-  return apiRequest('/api/blog/admin/tags', { token });
-}
-
-export async function createBlogTag(
-  token: string,
-  data: Omit<BlogTag, 'id' | 'postCount' | '_count'>
-): Promise<{ success: boolean; tag: BlogTag }> {
-  return apiRequest('/api/blog/admin/tags', { method: 'POST', body: data, token });
-}
-
-export async function updateBlogTag(
-  token: string,
-  id: string,
-  data: Partial<Omit<BlogTag, 'id' | 'postCount' | '_count'>>
-): Promise<{ success: boolean; tag: BlogTag }> {
-  return apiRequest(`/api/blog/admin/tags/${id}`, { method: 'PATCH', body: data, token });
-}
-
-export async function deleteBlogTag(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/blog/admin/tags/${id}`, { method: 'DELETE', token });
-}
-
-// ============================================
 // ADMIN MEDIA
 // ============================================
 

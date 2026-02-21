@@ -259,43 +259,6 @@ export const createPostSchema = z.object({
     .transform(v => v || undefined),
 });
 
-// Category schema
-export const categorySchema = z.object({
-  slug: z
-    .string()
-    .min(1)
-    .regex(/^[a-z0-9-]+$/),
-  nameEn: z.string().min(1),
-  nameFr: z.string().min(1),
-  descEn: z
-    .string()
-    .nullish()
-    .transform(v => v || undefined),
-  descFr: z
-    .string()
-    .nullish()
-    .transform(v => v || undefined),
-  color: z
-    .string()
-    .nullish()
-    .transform(v => v || undefined),
-  icon: z
-    .string()
-    .nullish()
-    .transform(v => v || undefined),
-  sortOrder: z.number().int().default(0),
-});
-
-// Tag schema
-export const tagSchema = z.object({
-  slug: z
-    .string()
-    .min(1)
-    .regex(/^[a-z0-9-]+$/),
-  nameEn: z.string().min(1),
-  nameFr: z.string().min(1),
-});
-
 // Schema for imported article
 export const importArticleSchema = z.object({
   title: z.string().min(1),

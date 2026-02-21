@@ -1,6 +1,10 @@
 /**
  * Default Translations
  * This file contains all default translation strings for EN and FR
+ *
+ * Key naming convention: category.Component.semantic_key
+ *   Examples: nav.home, profile.achievements.unlocked, reading.spread.celtic_cross
+ *   Avoid auto-generated patterns like "FileName.tsx.ComponentName.key"
  */
 
 export interface TranslationValue {
@@ -1191,22 +1195,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'SubNav.tsx.SubNav.tarot_readings': { en: 'Tarot Readings', fr: 'Tirages Tarot' }, // components/SubNav.tsx:338
   'SubNav.tsx.SubNav.coming_soon': { en: 'Coming Soon', fr: 'Bientôt' }, // components/SubNav.tsx:374
   'SubNav.tsx.SubNav.learn': { en: 'Learn', fr: 'Découvrir' }, // components/SubNav.tsx:399
-  'TarotArticlePage.tsx.TarotArticlePage.article_not_found': {
-    en: 'Article Not Found',
-    fr: 'Article Non Trouvé',
-  }, // components/TarotArticlePage.tsx:139
-  'TarotArticlePage.tsx.TarotArticlePage.back': { en: 'Back', fr: 'Retour' }, // components/TarotArticlePage.tsx:147
-  'TarotArticlePage.tsx.TarotArticlePage.back_2': { en: 'Back', fr: 'Retour' }, // components/TarotArticlePage.tsx:221
-  'TarotArticlePage.tsx.TarotArticlePage.enus': { en: 'en-US', fr: 'fr-FR' }, // components/TarotArticlePage.tsx:260
-  'TarotArticlePage.tsx.TarotArticlePage.court_card': { en: 'Court Card', fr: 'Carte de Cour' }, // components/TarotArticlePage.tsx:284
-  'TarotArticlePage.tsx.TarotArticlePage.related_topics': {
-    en: 'Related Topics',
-    fr: 'Sujets Connexes',
-  }, // components/TarotArticlePage.tsx:338
-  'TarotArticlePage.tsx.TarotArticlePage.related_cards': {
-    en: 'Related Cards',
-    fr: 'Cartes Liées',
-  }, // components/TarotArticlePage.tsx:362
   'TarotArticlesList.tsx.TarotArticlesList.loading_articles': {
     en: 'Loading articles...',
     fr: 'Chargement des articles...',

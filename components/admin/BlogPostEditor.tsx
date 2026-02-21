@@ -4,8 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { ROUTES } from '../../routes/routes';
 import {
-  fetchAdminBlogCategories,
-  fetchAdminBlogTags,
+  fetchUnifiedCategories,
+  fetchUnifiedTags,
   fetchAdminBlogMedia,
   uploadBlogMedia,
   deleteBlogMedia,
@@ -14,12 +14,11 @@ import {
   fetchAdminBlogPost,
   fetchLinkRegistry,
   BlogPost,
-  BlogCategory,
-  BlogTag,
   BlogMedia,
   CreateBlogPostData,
   LinkRegistry,
 } from '../../services/api';
+import type { UnifiedCategory, UnifiedTag } from '../../services/api/taxonomy';
 import {
   Settings,
   FileText,
@@ -89,8 +88,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Sidebar data
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
-  const [tags, setTags] = useState<BlogTag[]>([]);
+  const [categories, setCategories] = useState<UnifiedCategory[]>([]);
+  const [tags, setTags] = useState<UnifiedTag[]>([]);
   const [media, setMedia] = useState<BlogMedia[]>([]);
 
   // Collapsible sections
@@ -137,8 +136,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       if (!token) return;
 
       const [catResult, tagResult, mediaResult] = await Promise.all([
-        fetchAdminBlogCategories(token),
-        fetchAdminBlogTags(token),
+        fetchUnifiedCategories(token),
+        fetchUnifiedTags(token),
         fetchAdminBlogMedia(token),
       ]);
 
@@ -526,7 +525,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         onToggle={() => setShowCategories(!showCategories)}
       >
         <TaxonomySelector
-          items={categories.map(c => ({ id: c.id, nameEn: c.nameEn, nameFr: c.nameFr }))}
+          items={categories.map(c => ({ id: c.id, nameEn: c.name, nameFr: c.nameFr }))}
           selectedIds={post.categoryIds || []}
           onChange={(ids) => setPost({ ...post, categoryIds: ids })}
           language={language}
@@ -568,7 +567,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         onToggle={() => setShowTags(!showTags)}
       >
         <TaxonomySelector
-          items={tags.map(t => ({ id: t.id, nameEn: t.nameEn, nameFr: t.nameFr }))}
+          items={tags.map(t => ({ id: t.id, nameEn: t.name, nameFr: t.nameFr }))}
           selectedIds={post.tagIds || []}
           onChange={(ids) => setPost({ ...post, tagIds: ids })}
           language={language}

@@ -15,6 +15,7 @@ export interface Category {
   nameFr: string;
   slug: string;
   description?: string | null;
+  descriptionFr?: string | null;
   color?: string | null;
   icon?: string | null;
   sortOrder: number;
@@ -33,14 +34,17 @@ export interface Tag {
 
 export interface CreateCategoryInput {
   name: string;
+  nameFr?: string;
   slug: string;
   description?: string;
+  descriptionFr?: string;
   color?: string;
   icon?: string;
 }
 
 export interface CreateTagInput {
   name: string;
+  nameFr?: string;
   slug: string;
 }
 
@@ -81,6 +85,7 @@ class TaxonomyService {
       nameFr: cat.nameFr,
       slug: cat.slug,
       description: cat.descEn,
+      descriptionFr: cat.descFr,
       color: cat.color,
       icon: cat.icon,
       sortOrder: cat.sortOrder,
@@ -117,6 +122,7 @@ class TaxonomyService {
       nameFr: category.nameFr,
       slug: category.slug,
       description: category.descEn,
+      descriptionFr: category.descFr,
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
@@ -132,9 +138,10 @@ class TaxonomyService {
     const category = await prisma.blogCategory.create({
       data: {
         nameEn: input.name,
-        nameFr: input.name, // Default to same as English
+        nameFr: input.nameFr ?? input.name,
         slug: input.slug,
         descEn: input.description,
+        descFr: input.descriptionFr,
         color: input.color,
         icon: input.icon,
       },
@@ -156,6 +163,7 @@ class TaxonomyService {
       nameFr: category.nameFr,
       slug: category.slug,
       description: category.descEn,
+      descriptionFr: category.descFr,
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
@@ -170,12 +178,11 @@ class TaxonomyService {
   async updateCategory(id: string, input: Partial<CreateCategoryInput>): Promise<Category> {
     const updateData: Record<string, unknown> = {};
 
-    if (input.name !== undefined) {
-      updateData.nameEn = input.name;
-      updateData.nameFr = input.name;
-    }
+    if (input.name !== undefined) updateData.nameEn = input.name;
+    if (input.nameFr !== undefined) updateData.nameFr = input.nameFr;
     if (input.slug !== undefined) updateData.slug = input.slug;
     if (input.description !== undefined) updateData.descEn = input.description;
+    if (input.descriptionFr !== undefined) updateData.descFr = input.descriptionFr;
     if (input.color !== undefined) updateData.color = input.color;
     if (input.icon !== undefined) updateData.icon = input.icon;
 
@@ -200,6 +207,7 @@ class TaxonomyService {
       nameFr: category.nameFr,
       slug: category.slug,
       description: category.descEn,
+      descriptionFr: category.descFr,
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
@@ -310,7 +318,7 @@ class TaxonomyService {
     const tag = await prisma.blogTag.create({
       data: {
         nameEn: input.name,
-        nameFr: input.name, // Default to same as English
+        nameFr: input.nameFr ?? input.name,
         slug: input.slug,
       },
       include: {
@@ -341,10 +349,8 @@ class TaxonomyService {
   async updateTag(id: string, input: Partial<CreateTagInput>): Promise<Tag> {
     const updateData: Record<string, unknown> = {};
 
-    if (input.name !== undefined) {
-      updateData.nameEn = input.name;
-      updateData.nameFr = input.name;
-    }
+    if (input.name !== undefined) updateData.nameEn = input.name;
+    if (input.nameFr !== undefined) updateData.nameFr = input.nameFr;
     if (input.slug !== undefined) updateData.slug = input.slug;
 
     const tag = await prisma.blogTag.update({

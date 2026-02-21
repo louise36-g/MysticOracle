@@ -4,14 +4,14 @@ import { useApp } from '../../../context/AppContext';
 import {
   fetchAdminBlogPosts,
   fetchAdminBlogPost,
-  fetchAdminBlogCategories,
+  fetchUnifiedCategories,
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
   reorderBlogPost,
   CreateBlogPostData,
-  BlogCategory,
 } from '../../../services/api';
+import type { UnifiedCategory } from '../../../services/api/taxonomy';
 import {
   Search,
   Plus,
@@ -72,7 +72,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const { getToken } = useAuth();
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categories, setCategories] = useState<UnifiedCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -99,7 +99,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     try {
       const token = await getToken();
       if (!token) return;
-      const result = await fetchAdminBlogCategories(token);
+      const result = await fetchUnifiedCategories(token);
       setCategories(result.categories);
     } catch (err) {
       console.error('Failed to load categories:', err);
@@ -494,7 +494,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           <option value="">{language === 'en' ? 'All Categories' : 'Toutes les catégories'}</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.slug}>
-              {language === 'en' ? cat.nameEn : cat.nameFr}
+              {language === 'en' ? cat.name : cat.nameFr}
             </option>
           ))}
         </select>

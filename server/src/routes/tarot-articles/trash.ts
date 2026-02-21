@@ -7,8 +7,44 @@
 
 import { Router } from 'express';
 import { prisma, cacheService } from './shared.js';
+import {
+  softDeleteItem,
+  restoreItem,
+  permanentDeleteItem,
+  emptyTrash,
+  TrashConfig,
+} from '../../services/content/TrashUtils.js';
 
 const router = Router();
+
+const tarotTrashConfig: TrashConfig = {
+  entityName: 'Article',
+  findUnique: id => prisma.tarotArticle.findUnique({ where: { id } }),
+  updateItem: (id, data) => prisma.tarotArticle.update({ where: { id }, data }),
+  deleteItem: id => prisma.tarotArticle.delete({ where: { id } }),
+  findSlugConflict: (slug, excludeId) =>
+    prisma.tarotArticle.findFirst({ where: { slug, id: { not: excludeId } } }),
+  deleteAllTrashed: () => prisma.tarotArticle.deleteMany({ where: { deletedAt: { not: null } } }),
+  onAfterSoftDelete: async item => {
+    await cacheService.invalidateTarotArticle(item.slug);
+  },
+  onAfterRestore: async () => {
+    await cacheService.invalidateTarot();
+  },
+  onBeforePermanentDelete: async id => {
+    await prisma.tarotArticleCategory.deleteMany({ where: { articleId: id } });
+    await prisma.tarotArticleTag.deleteMany({ where: { articleId: id } });
+  },
+  onBeforeEmptyTrash: async () => {
+    const trashedArticles = await prisma.tarotArticle.findMany({
+      where: { deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const articleIds = trashedArticles.map(a => a.id);
+    await prisma.tarotArticleCategory.deleteMany({ where: { articleId: { in: articleIds } } });
+    await prisma.tarotArticleTag.deleteMany({ where: { articleId: { in: articleIds } } });
+  },
+};
 
 /**
  * DELETE /:id
@@ -16,30 +52,8 @@ const router = Router();
  */
 router.delete('/:id', async (req, res) => {
   try {
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    // Save original slug and modify current slug to avoid conflicts
-    const timestamp = Date.now();
-    const trashedSlug = `_deleted_${timestamp}_${article.slug}`;
-
-    await prisma.tarotArticle.update({
-      where: { id: req.params.id },
-      data: {
-        deletedAt: new Date(),
-        originalSlug: article.slug,
-        slug: trashedSlug,
-      },
-    });
-
-    await cacheService.invalidateTarotArticle(article.slug);
-
-    res.json({ success: true, message: 'Article moved to trash' });
+    const result = await softDeleteItem(tarotTrashConfig, req.params.id);
+    res.status(result.status).json(result.body);
   } catch (error) {
     console.error('Error deleting tarot article:', error);
     res.status(500).json({ error: 'Failed to delete article' });
@@ -52,46 +66,8 @@ router.delete('/:id', async (req, res) => {
  */
 router.post('/:id/restore', async (req, res) => {
   try {
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    if (!article.deletedAt) {
-      return res.status(400).json({ error: 'Article is not in trash' });
-    }
-
-    // Check if original slug is available
-    const originalSlug = article.originalSlug || article.slug.replace(/^_deleted_\d+_/, '');
-    const existingWithSlug = await prisma.tarotArticle.findFirst({
-      where: {
-        slug: originalSlug,
-        id: { not: article.id },
-      },
-    });
-
-    // Use original slug if available, otherwise generate new one
-    const restoredSlug = existingWithSlug ? `${originalSlug}-restored-${Date.now()}` : originalSlug;
-
-    await prisma.tarotArticle.update({
-      where: { id: req.params.id },
-      data: {
-        deletedAt: null,
-        slug: restoredSlug,
-        originalSlug: null,
-      },
-    });
-
-    await cacheService.invalidateTarot();
-
-    res.json({
-      success: true,
-      message: 'Article restored',
-      newSlug: restoredSlug !== originalSlug ? restoredSlug : undefined,
-    });
+    const result = await restoreItem(tarotTrashConfig, req.params.id);
+    res.status(result.status).json(result.body);
   } catch (error) {
     console.error('Error restoring tarot article:', error);
     res.status(500).json({ error: 'Failed to restore article' });
@@ -104,33 +80,8 @@ router.post('/:id/restore', async (req, res) => {
  */
 router.delete('/:id/permanent', async (req, res) => {
   try {
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    if (!article.deletedAt) {
-      return res.status(400).json({
-        error: 'Article must be in trash before permanent deletion. Move to trash first.',
-      });
-    }
-
-    // Also delete related junction table entries
-    await prisma.tarotArticleCategory.deleteMany({
-      where: { articleId: req.params.id },
-    });
-    await prisma.tarotArticleTag.deleteMany({
-      where: { articleId: req.params.id },
-    });
-
-    await prisma.tarotArticle.delete({
-      where: { id: req.params.id },
-    });
-
-    res.json({ success: true, message: 'Article permanently deleted' });
+    const result = await permanentDeleteItem(tarotTrashConfig, req.params.id);
+    res.status(result.status).json(result.body);
   } catch (error) {
     console.error('Error permanently deleting tarot article:', error);
     res.status(500).json({ error: 'Failed to permanently delete article' });
@@ -143,32 +94,8 @@ router.delete('/:id/permanent', async (req, res) => {
  */
 router.delete('/trash/empty', async (req, res) => {
   try {
-    // Get all trashed article IDs
-    const trashedArticles = await prisma.tarotArticle.findMany({
-      where: { deletedAt: { not: null } },
-      select: { id: true },
-    });
-
-    const articleIds = trashedArticles.map(a => a.id);
-
-    // Delete junction table entries first
-    await prisma.tarotArticleCategory.deleteMany({
-      where: { articleId: { in: articleIds } },
-    });
-    await prisma.tarotArticleTag.deleteMany({
-      where: { articleId: { in: articleIds } },
-    });
-
-    // Then delete articles
-    const result = await prisma.tarotArticle.deleteMany({
-      where: { deletedAt: { not: null } },
-    });
-
-    res.json({
-      success: true,
-      deleted: result.count,
-      message: `${result.count} articles permanently deleted`,
-    });
+    const result = await emptyTrash(tarotTrashConfig);
+    res.status(result.status).json(result.body);
   } catch (error) {
     console.error('Error emptying trash:', error);
     res.status(500).json({ error: 'Failed to empty trash' });

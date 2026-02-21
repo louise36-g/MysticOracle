@@ -17,6 +17,7 @@ export interface UnifiedCategory {
   nameFr: string;
   slug: string;
   description?: string | null;
+  descriptionFr?: string | null;
   color?: string | null;
   icon?: string | null;
   sortOrder: number;
@@ -38,14 +39,17 @@ export interface UnifiedTag {
 
 export interface CategoryInput {
   name: string;
+  nameFr?: string;
   slug: string;
   description?: string;
+  descriptionFr?: string;
   color?: string;
   icon?: string;
 }
 
 export interface TagInput {
   name: string;
+  nameFr?: string;
   slug: string;
 }
 

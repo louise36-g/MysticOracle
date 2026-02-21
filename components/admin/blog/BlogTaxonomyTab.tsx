@@ -2,18 +2,65 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
 import {
-  fetchAdminBlogCategories,
-  createBlogCategory,
-  updateBlogCategory,
-  deleteBlogCategory,
-  fetchAdminBlogTags,
-  createBlogTag,
-  updateBlogTag,
-  deleteBlogTag,
+  fetchUnifiedCategories,
+  createUnifiedCategory,
+  updateUnifiedCategory,
+  deleteUnifiedCategory,
+  fetchUnifiedTags,
+  createUnifiedTag,
+  updateUnifiedTag,
+  deleteUnifiedTag,
 } from '../../../services/api';
+import type { UnifiedCategory, UnifiedTag } from '../../../services/api/taxonomy';
 import { Plus, Folder, Tag, Edit2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { BlogCategory, BlogTag } from './types';
+
+// Local editing types — map unified API fields to form fields
+interface CategoryFormData {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameFr: string;
+  descEn?: string;
+  descFr?: string;
+  color?: string;
+  icon?: string;
+  sortOrder: number;
+  blogPostCount?: number;
+}
+
+interface TagFormData {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameFr: string;
+  blogPostCount?: number;
+}
+
+function categoryFromUnified(c: UnifiedCategory): CategoryFormData {
+  return {
+    id: c.id,
+    slug: c.slug,
+    nameEn: c.name,
+    nameFr: c.nameFr,
+    descEn: c.description ?? undefined,
+    descFr: c.descriptionFr ?? undefined,
+    color: c.color ?? undefined,
+    icon: c.icon ?? undefined,
+    sortOrder: c.sortOrder,
+    blogPostCount: c.blogPostCount,
+  };
+}
+
+function tagFromUnified(t: UnifiedTag): TagFormData {
+  return {
+    id: t.id,
+    slug: t.slug,
+    nameEn: t.name,
+    nameFr: t.nameFr,
+    blogPostCount: t.blogPostCount,
+  };
+}
 
 interface BlogTaxonomyTabProps {
   type: 'categories' | 'tags';
@@ -31,15 +78,15 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
   const { getToken } = useAuth();
 
   // Categories state
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categories, setCategories] = useState<CategoryFormData[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
+  const [editingCategory, setEditingCategory] = useState<CategoryFormData | null>(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
 
   // Tags state
-  const [tags, setTags] = useState<BlogTag[]>([]);
+  const [tags, setTags] = useState<TagFormData[]>([]);
   const [tagsLoading, setTagsLoading] = useState(true);
-  const [editingTag, setEditingTag] = useState<BlogTag | null>(null);
+  const [editingTag, setEditingTag] = useState<TagFormData | null>(null);
   const [isNewTag, setIsNewTag] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -60,8 +107,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
       const token = await getToken();
       if (!token) return;
 
-      const result = await fetchAdminBlogCategories(token);
-      setCategories(result.categories);
+      const result = await fetchUnifiedCategories(token);
+      setCategories(result.categories.map(categoryFromUnified));
     } catch (err) {
       console.error('Failed to load categories:', err);
     } finally {
@@ -76,8 +123,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
       const token = await getToken();
       if (!token) return;
 
-      const result = await fetchAdminBlogTags(token);
-      setTags(result.tags);
+      const result = await fetchUnifiedTags(token);
+      setTags(result.tags.map(tagFromUnified));
     } catch (err) {
       console.error('Failed to load tags:', err);
     } finally {
@@ -119,19 +166,18 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
 
       const catData = {
         slug: editingCategory.slug,
-        nameEn: editingCategory.nameEn,
+        name: editingCategory.nameEn,
         nameFr: editingCategory.nameFr,
-        descEn: editingCategory.descEn,
-        descFr: editingCategory.descFr,
+        description: editingCategory.descEn,
+        descriptionFr: editingCategory.descFr,
         color: editingCategory.color,
         icon: editingCategory.icon,
-        sortOrder: editingCategory.sortOrder,
       };
 
       if (isNewCategory) {
-        await createBlogCategory(token, catData);
+        await createUnifiedCategory(token, catData);
       } else {
-        await updateBlogCategory(token, editingCategory.id, catData);
+        await updateUnifiedCategory(token, editingCategory.id, catData);
       }
 
       setEditingCategory(null);
@@ -157,7 +203,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         try {
           const token = await getToken();
           if (!token) return;
-          await deleteBlogCategory(token, id);
+          await deleteUnifiedCategory(token, id);
           loadCategories();
         } catch {
           onError(language === 'en' ? 'Failed to delete category' : 'Échec de la suppression');
@@ -187,14 +233,14 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
 
       const tagData = {
         slug: editingTag.slug,
-        nameEn: editingTag.nameEn,
+        name: editingTag.nameEn,
         nameFr: editingTag.nameFr,
       };
 
       if (isNewTag) {
-        await createBlogTag(token, tagData);
+        await createUnifiedTag(token, tagData);
       } else {
-        await updateBlogTag(token, editingTag.id, tagData);
+        await updateUnifiedTag(token, editingTag.id, tagData);
       }
 
       setEditingTag(null);
@@ -220,7 +266,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         try {
           const token = await getToken();
           if (!token) return;
-          await deleteBlogTag(token, id);
+          await deleteUnifiedTag(token, id);
           loadTags();
         } catch {
           onError(language === 'en' ? 'Failed to delete tag' : 'Échec de la suppression');
@@ -268,7 +314,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                     <p className="text-slate-500 text-sm">{cat.slug}</p>
                   </div>
                   <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
-                    {cat._count?.posts || 0} posts
+                    {cat.blogPostCount || 0} posts
                   </span>
                 </div>
                 <p className="text-slate-400 text-sm mb-4 line-clamp-2">
@@ -451,7 +497,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
             >
               <Tag className="w-4 h-4 text-purple-400" />
               <span className="text-slate-200">{language === 'en' ? tag.nameEn : tag.nameFr}</span>
-              <span className="text-slate-500 text-sm">({tag._count?.posts || 0})</span>
+              <span className="text-slate-500 text-sm">({tag.blogPostCount || 0})</span>
               <div className="hidden group-hover:flex gap-1 ml-2">
                 <button
                   onClick={() => {
