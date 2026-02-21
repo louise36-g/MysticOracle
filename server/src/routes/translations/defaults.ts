@@ -1288,65 +1288,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminBlog.trash': { en: 'Trash', fr: 'Corbeille' }, // components/admin/AdminBlog.tsx:90
   'admin.AdminBlog.cancel': { en: 'Cancel', fr: 'Annuler' }, // components/admin/AdminBlog.tsx:204
   'admin.AdminBlog.confirm': { en: 'Confirm', fr: 'Confirmer' }, // components/admin/AdminBlog.tsx:217
-  'admin.AdminCache.purge_all_cache': { en: 'Purge all cache?', fr: 'Vider tout le cache?' }, // components/admin/AdminCache.tsx:43
-  'admin.AdminCache.cache_purged_successfully': {
-    en: 'Cache purged successfully',
-    fr: 'Cache vide avec succes',
-  }, // components/admin/AdminCache.tsx:54
-  'admin.AdminCache.failed_to_purge': {
-    en: 'Failed to purge cache',
-    fr: 'Echec du vidage du cache',
-  }, // components/admin/AdminCache.tsx:57
-  'admin.AdminCache.failed_to_purge_2': {
-    en: 'Failed to purge cache',
-    fr: 'Echec du vidage du cache',
-  }, // components/admin/AdminCache.tsx:60
-  'admin.AdminCache.never': { en: 'Never', fr: 'Jamais' }, // components/admin/AdminCache.tsx:72
-  'admin.AdminCache.just_now': { en: 'Just now', fr: "A l'instant" }, // components/admin/AdminCache.tsx:80
-  'admin.AdminCache.diffmins_min_ago': {
-    en: '${diffMins} min ago',
-    fr: 'Il y a ${diffMins} min',
-  }, // components/admin/AdminCache.tsx:81
-  'admin.AdminCache.diffhours_hours_ago': {
-    en: '${diffHours} hours ago',
-    fr: 'Il y a ${diffHours} heures',
-  }, // components/admin/AdminCache.tsx:82
-  'admin.AdminCache.diffdays_days_ago': {
-    en: '${diffDays} days ago',
-    fr: 'Il y a ${diffDays} jours',
-  }, // components/admin/AdminCache.tsx:83
-  'admin.AdminCache.cache_management': { en: 'Cache Management', fr: 'Gestion du Cache' }, // components/admin/AdminCache.tsx:100
-  'admin.AdminCache.refresh': { en: 'Refresh', fr: 'Actualiser' }, // components/admin/AdminCache.tsx:105
-  'admin.AdminCache.cached_items': { en: 'Cached Items', fr: 'Elements en cache' }, // components/admin/AdminCache.tsx:122
-  'admin.AdminCache.hit_rate': { en: 'Hit Rate', fr: 'Taux de succes' }, // components/admin/AdminCache.tsx:126
-  'admin.AdminCache.memory_usage': { en: 'Memory Usage', fr: 'Utilisation memoire' }, // components/admin/AdminCache.tsx:130
-  'admin.AdminCache.cache_breakdown': { en: 'Cache Breakdown', fr: 'Repartition du cache' }, // components/admin/AdminCache.tsx:138
-  'admin.AdminCache.items': { en: 'items', fr: 'elements' }, // components/admin/AdminCache.tsx:144
-  'admin.AdminCache.purge_all_cache_2': { en: 'Purge All Cache', fr: 'Vider tout le cache' }, // components/admin/AdminCache.tsx:163
-  'admin.AdminCache.last_purged': { en: 'Last purged:', fr: 'Dernier vidage:' }, // components/admin/AdminCache.tsx:166
-  'admin.AdminDashboard.admin_dashboard': {
-    en: 'Admin Dashboard',
-    fr: 'Tableau de Bord Admin',
-  }, // components/admin/AdminDashboard.tsx:66
-  'admin.AdminDebug.debug_tools': { en: 'Debug Tools', fr: 'Outils de Débogage' }, // components/admin/AdminDebug.tsx:89
-  'admin.AdminDebug.credit_management': { en: 'Credit Management', fr: 'Gestion des Crédits' }, // components/admin/AdminDebug.tsx:122
-  'admin.AdminDebug.current_balance': { en: 'Current Balance', fr: 'Solde Actuel' }, // components/admin/AdminDebug.tsx:128
-  'admin.AdminDebug.ai_debug_mode': { en: 'AI Debug Mode', fr: 'Mode Debug IA' }, // components/admin/AdminDebug.tsx:168
-  'admin.AdminDebug.status': { en: 'Status', fr: 'Statut' }, // components/admin/AdminDebug.tsx:182
-  'admin.AdminDebug.mock_mode_active': { en: 'Mock Mode Active', fr: 'Mode Fictif Actif' }, // components/admin/AdminDebug.tsx:186
-  'admin.AdminDebug.using_openrouter': {
-    en: 'Using OpenRouter',
-    fr: "Utilisation d'OpenRouter",
-  }, // components/admin/AdminDebug.tsx:187
-  'admin.AdminDebug.disable_debug_mode': {
-    en: 'Disable Debug Mode',
-    fr: 'Désactiver le Mode Debug',
-  }, // components/admin/AdminDebug.tsx:204
-  'admin.AdminDebug.enable_debug_mode': {
-    en: 'Enable Debug Mode',
-    fr: 'Activer le Mode Debug',
-  }, // components/admin/AdminDebug.tsx:205
-  'admin.AdminDebug.environment_info': { en: 'Environment Info', fr: 'Info Environnement' }, // components/admin/AdminDebug.tsx:227
   'admin.AdminEmailTemplates.delete_this_template': {
     en: 'Delete this template?',
     fr: 'Supprimer ce modele?',

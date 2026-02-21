@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-10T07:16:19.545Z",
+  "isDryRun": true,
+  "records": [],
+  "errors": [],
+  "stats": {
+    "mediaUploadsProcessed": 0,
+    "blogPostsUpdated": 0,
+    "tarotArticlesUpdated": 0,
+    "filesUploaded": 0,
+    "bytesUploaded": 0
+  }
+}

@@ -179,7 +179,7 @@ async function migrateTaxonomy() {
 
   if (errors.length > 0) {
     console.log(`\nErrors: ${errors.length}`);
-    errors.forEach((e) => console.log(`  - ${e}`));
+    errors.forEach(e => console.log(`  - ${e}`));
   }
 
   console.log('\nMigration complete!');
@@ -204,15 +204,13 @@ async function verifyMigration() {
   console.log('\nSample of migrated articles:');
   for (const article of articlesWithRelations) {
     console.log(`\n${article.title}:`);
+    console.log(`  Categories (JSON): ${article.categories?.join(', ') || 'none'}`);
     console.log(
-      `  Categories (JSON): ${article.categories?.join(', ') || 'none'}`
-    );
-    console.log(
-      `  Categories (Relations): ${article.articleCategories.map((c) => c.category.nameEn).join(', ') || 'none'}`
+      `  Categories (Relations): ${article.articleCategories.map(c => c.category.nameEn).join(', ') || 'none'}`
     );
     console.log(`  Tags (JSON): ${article.tags?.join(', ') || 'none'}`);
     console.log(
-      `  Tags (Relations): ${article.articleTags.map((t) => t.tag.nameEn).join(', ') || 'none'}`
+      `  Tags (Relations): ${article.articleTags.map(t => t.tag.nameEn).join(', ') || 'none'}`
     );
   }
 

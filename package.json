@@ -24,7 +24,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@dr.pogodin/react-helmet": "^3.0.6",
-    "@google/genai": "^1.34.0",
     "@sentry/react": "^10.38.0",
     "@stripe/stripe-js": "^8.6.0",
     "@tailwindcss/typography": "^0.5.19",

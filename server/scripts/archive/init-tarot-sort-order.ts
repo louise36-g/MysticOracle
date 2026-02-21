@@ -51,7 +51,7 @@ async function main() {
 }
 
 main()
-  .catch((error) => {
+  .catch(error => {
     console.error('Error initializing sort orders:', error);
     process.exit(1);
   })

@@ -1,0 +1,1218 @@
+{
+  "timestamp": "2026-02-10T07:17:09.235Z",
+  "isDryRun": true,
+  "records": [
+    {
+      "type": "BlogPost",
+      "id": "cmkfacezr0000lqv6r7jglh8p",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-emporer.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-emporer.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk54vec900o0f9ij76glvdmm",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/f985dff7-bb58-4be2-b7c5-6acf27ed7ad5.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/f985dff7-bb58-4be2-b7c5-6acf27ed7ad5.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk2aetc90064f9ij65rcoo5r",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/850c0a3f-ce13-4eeb-a948-e122baf78732.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/850c0a3f-ce13-4eeb-a948-e122baf78732.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfbdbpl001nx5jfit27defx",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/07-the-chariot-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/07-the-chariot-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk45krsn00h7f9ijq16t8fcl",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/b09c1224-6689-4345-baa1-b982f6cbb5a5.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/b09c1224-6689-4345-baa1-b982f6cbb5a5.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk43ez1300ekf9iju1kbe7ac",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/138cd21e-eb17-4088-8170-e2de1a7344fa.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/138cd21e-eb17-4088-8170-e2de1a7344fa.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk1dchnb003cf9ijz4c8wzih",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/bc72c5f1-aa85-4fd5-b754-b64b85dc3352.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/bc72c5f1-aa85-4fd5-b754-b64b85dc3352.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk4140ju00ckf9ijvn24xmjt",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/8b60d94c-ec67-4769-890b-bb05bf25ae2d.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/8b60d94c-ec67-4769-890b-bb05bf25ae2d.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk3vzw2w008qf9ijzpt1jct1",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/a4c5def7-e049-4d32-b755-9035ebbff443.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/a4c5def7-e049-4d32-b755-9035ebbff443.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk1e1aq40049f9ij7k4ekzol",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/564f5369-432e-4edb-9208-50344e47fc53.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/564f5369-432e-4edb-9208-50344e47fc53.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk442aty00frf9ij8t3ffy37",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/5f6afa52-8fd3-45f4-8c03-771dee52eefb.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/5f6afa52-8fd3-45f4-8c03-771dee52eefb.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk49dj2n00jqf9ij8jddwuy3",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/8de2979d-5bc4-492f-af8a-b0426915422a.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/8de2979d-5bc4-492f-af8a-b0426915422a.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk0zq5dz0004f9ijvjpa3uwn",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/f79e3fd3-7b56-4be4-a8d7-8c7c5790da42.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/f79e3fd3-7b56-4be4-a8d7-8c7c5790da42.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke5ttgz00cz136unvxa94uv",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-7s-ok-resized.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-7s-ok-resized.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf58a8o00pd136ugichonj4",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/imag-cover-blog-healing-star.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/imag-cover-blog-healing-star.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke2h9t3005b136uar69aqn3",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-3-v2-copie.jpg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-3-v2-copie.jpg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk5nrk8x00x9f9ijsf9g2szk",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/0ddaf0af-47fd-4720-83f1-b4bf13d3a8cf.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/0ddaf0af-47fd-4720-83f1-b4bf13d3a8cf.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmw7vis000wibs78e6q3rld",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/image-blog-cover-the-fools-journey.png",
+      "newUrl": "https://cloudinary.example.com/blog/image-blog-cover-the-fools-journey.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfawl9v000mx5jfdxm1erma",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/04-the-emperor-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/04-the-emperor-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk58td3900rdf9ij945y2j2s",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/b1f05dfc-4c9b-4dbf-8cde-7227b920a44e.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/b1f05dfc-4c9b-4dbf-8cde-7227b920a44e.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk5l845k00vuf9ij4rhedzdr",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/7f9d2fad-6d84-454d-ac8b-6c92ed0cbe83.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/7f9d2fad-6d84-454d-ac8b-6c92ed0cbe83.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk5jyglj00szf9ijqxr55ku8",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/897e0a77-8182-4bea-9422-83dd3cd2b388.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/897e0a77-8182-4bea-9422-83dd3cd2b388.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk5ka42g00uof9ijyeygosgk",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/0d822039-86e5-4db9-9b83-b67c81dbde05.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/0d822039-86e5-4db9-9b83-b67c81dbde05.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk588fjf00qof9ijuxaky0qd",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/e5879450-5992-4de0-b7e6-f18f5c08df99.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/e5879450-5992-4de0-b7e6-f18f5c08df99.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmx50q7001tibs7xueubfrq",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/image-blog-minor-arcana.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/image-blog-minor-arcana.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk6owtju00045pv0bg3con5p",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/feb7fdbf-bfcd-4b09-b099-db1a24315949.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/feb7fdbf-bfcd-4b09-b099-db1a24315949.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfbh7oj001yx5jfx22yv26c",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/008-strength-cover.png",
+      "newUrl": "https://cloudinary.example.com/blog/008-strength-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf50d7000na136u45jc0n6o",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-queens.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-queens.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9pu0b0002jzjgr87c9u88",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-cards-the-moon.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-cards-the-moon.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9rwr10001rosp8mwqusrn",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-cards-the-star.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-cards-the-star.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmwz20y001cibs7du9dxry2",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/image-blog-article-4-suits-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/image-blog-article-4-suits-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfaoiyq0000x5jf04brn9tv",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/02-the-high-priestess-cover.png",
+      "newUrl": "https://cloudinary.example.com/blog/02-the-high-priestess-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfa1x9z0012rospqetiknzi",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-heirophant.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-heirophant.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfak2e90011lqv6z3u7dslj",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-magicien-wheel-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-magicien-wheel-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9m9w700008pnkqseoxw0g",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-charts-magiciensun.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-charts-magiciensun.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke52xbv00c6136u06oov6xo",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-6s.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-6s.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk48zqgb00j3f9ijbxn89olk",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/2033595d-4fb0-476a-9063-bcc20d574185.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/2033595d-4fb0-476a-9063-bcc20d574185.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk41ftqv00d9f9ijfz6xu581",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/7fe5d132-de1e-4863-8838-69f598351bd4.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/7fe5d132-de1e-4863-8838-69f598351bd4.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk0tr4o5000bowapavgclcm3",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cb06eacd-2e2b-41a2-9afc-0fde2e68c8db.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cb06eacd-2e2b-41a2-9afc-0fde2e68c8db.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkehc2mx00ip136ufhhj65r3",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-8s.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-8s.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk3uqitq007tf9ijhyoouwt8",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/e59366fc-4c83-4ae8-8433-0bba11f91cd5.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/e59366fc-4c83-4ae8-8433-0bba11f91cd5.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfilbje0058124wso4nrrch",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-charts-magiciensun-1.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-charts-magiciensun-1.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmk5osso100yxf9ijjzl9jpwl",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/3ac057d5-02a9-446f-a4a7-a3d5a072bc32.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/3ac057d5-02a9-446f-a4a7-a3d5a072bc32.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfb0abp000xx5jfkmhn7auy",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/05-the-hierophant-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/05-the-hierophant-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke3x0b600bh136u9cgaokez",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-5s-copie.jpg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-5s-copie.jpg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke3jizg009l136uxjbhe73u",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-4s-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-4s-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkeht5l100l6136uikoiqksr",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-pages.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-pages.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkehvtjz00lw136u1lu3u8q0",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-knights.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-knights.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfb2stz0018x5jfgr0w6c72",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/06-the-lovers-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/06-the-lovers-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmz9ehs000hzupm7pbmuowy",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/image-blog-cover-wands.png",
+      "newUrl": "https://cloudinary.example.com/blog/image-blog-cover-wands.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9v2s7000erospspyyqr80",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-tower.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-tower.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9yf9e000qrosp88u5xfyv",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-cards-devil-lovers.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-cards-devil-lovers.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfaei67000clqv6ayjp8cew",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-cards-hanged-man.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-cards-hanged-man.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfah1jk000olqv6pijjfawx",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-hi-priestess.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-hi-priestess.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfamdc3000367xr37l25uyo",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/01-the-magician-cover.png",
+      "newUrl": "https://cloudinary.example.com/blog/01-the-magician-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfasduj000bx5jffxygf5z2",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/03-the-empress-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/03-the-empress-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9jh1l00006guvkl0zdtya",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-cards-judgement.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-cards-judgement.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke2rux9006c136ui7p04fz8",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-2s-ok-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-2s-ok-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmke36vdv007c136uk841aivp",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/4-aces-tarot-blog.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/4-aces-tarot-blog.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9c8d6000fjj1aeby3r7qa",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-fool.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-fool.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf9fyo5000rjj1aaztgkfsz",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-birth-card-empress.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-birth-card-empress.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkfbvdza0000zsj7pizbx7iu",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/09-the-hermit-cover.png",
+      "newUrl": "https://cloudinary.example.com/blog/09-the-hermit-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf4phem00mo136uw9d7qpqu",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/healing-bloh-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/healing-bloh-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmyujec0003zupmu006685t",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/blog-cover-suits-cups.png",
+      "newUrl": "https://cloudinary.example.com/blog/blog-cover-suits-cups.png",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkf5394000oa136uc4j2ga1d",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-kings.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-kings.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkehl4dr00k5136upolh6lvm",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-10s.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-10s.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkehh9ok00jp136uftqe82le",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-9s.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-9s.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkq0nfnu000q9pxjtqm0vatd",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-image-question-misty.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-image-question-misty.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkmzw62c0014zupmv2zc4qv3",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/cover-blog-suits-pentacles.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/cover-blog-suits-pentacles.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "BlogPost",
+      "id": "cmkn0lu54002jzupmf6j3lha5",
+      "field": "coverImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/image-blog-swords-cover-copie-1.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/image-blog-swords-cover-copie-1.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmklizt270000oztr1ow8vw4v",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/cover-blog-king-of-swords.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/cover-blog-king-of-swords.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmpbiqz0016pm2fogsn3xe2",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/07-7-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/07-7-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8dtteg000bfnutew1d6yvz",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/03-the-empress-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/03-the-empress-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmklj3tho0001oztr5hekn7d1",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/cover-blog-king-of-swords.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/cover-blog-king-of-swords.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9shc3k0010vcbkjbf9sp2v",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/09-the-hermit-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/09-the-hermit-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfpugwq0001ysjo6rs99iin",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/07-7-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/07-7-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9odj6n000vvcbkw4ob72p5",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/01-ace-of-cups.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/01-ace-of-cups.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmnm0vv000epm2ftijz3z7y",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/09-9-of-wands-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/09-9-of-wands-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9n94d0000jvcbk6le84cxr",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/02-2-of-pentacles.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/02-2-of-pentacles.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfpz5fy0002ysjome4kwvg8",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/08-8-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/08-8-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb2oh3m000lxh5kpafuq079",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/04-4-of-swords-cover-to-resize.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/04-4-of-swords-cover-to-resize.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfqrviv0008ysjovx193fpe",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/13-king-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/13-king-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfqmvoa0007ysjoct1tu4hb",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-queen-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-queen-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb182bs000ci2bxftmq2d49",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/05-5-of-cups-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/05-5-of-cups-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmk92sl0006pm2f5srdstic",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/07-7-of-wands-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/07-7-of-wands-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmpmgek001apm2f4dbw02ro",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/08-8of-cups-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/08-8of-cups-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb1ybt30002xh5kb0j58tof",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/02-2-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/02-2-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb1f2gp000gi2bx1ey6audt",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/01-ace-of-swords-cover-1.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/01-ace-of-swords-cover-1.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9ikklf0008vcbk3j3elin0",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/ace-of-pentacles-cover-to-resize.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/ace-of-pentacles-cover-to-resize.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8kcv3r0002zplmxpsyc2oq",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/05-the-hierophant-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/05-the-hierophant-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmq0ji2001ipm2fw0r3aylt",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/010-10-of-cups-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/010-10-of-cups-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9nqgv1000nvcbkyat2cuq4",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/03-3-of-pentacles-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/03-3-of-pentacles-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkien40w000v37qk4i714n6h",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/09-9-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/09-9-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmqblt5001opm2fb90nrmub",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-queen-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-queen-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9nzk3z000rvcbkytjs37gg",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/04-4-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/04-4-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfqhfta0006ysjouvr2xc0w",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-knight-of-pentacles.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-knight-of-pentacles.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmq89ku001kpm2ftwruknrb",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-knight-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-knight-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfq8ayr0004ysjo4fm51t0h",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/10-10-of-pentacles-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/10-10-of-pentacles-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka2mk020005qku3zpaoef7q",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/17-the-star-cover-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/17-the-star-cover-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmo1jyf000fpm2fjjy5uczk",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/010-page-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/010-page-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmo4brf000gpm2fpsr759kz",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/010-10-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/010-10-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8lasbf0006zplmexu9j9se",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/6-the-lovers-cover-1.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/6-the-lovers-cover-1.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkd0sife000p136uiehefmz4",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/cover-5-of-pentacles-ok-copie.png",
+      "newUrl": "https://cloudinary.example.com/tarot/cover-5-of-pentacles-ok-copie.png",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmohufp000qpm2f3yy1j3dw",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/011-knight-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/011-knight-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb0y7n80008i2bxzhlfublq",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/04-4-of-coins-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/04-4-of-coins-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkcuca3o0000136uccl2rzpx",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/01-ace-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/01-ace-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9u1esf0018vcbk3e4oe6j2",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-the-hanged-man-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-the-hanged-man-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkif8w23001037qka4s9iups",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/cover-blog-king-of-swords.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/cover-blog-king-of-swords.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka45vmp000dqku3kymna33i",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/18-the-moon-cover.png",
+      "newUrl": "https://cloudinary.example.com/tarot/18-the-moon-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkif4egs000z37qk94cd37j0",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/cover-blog-queen-of-swords.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/cover-blog-queen-of-swords.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8jvlto0000zplmczrrm42r",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/04-the-emperor-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/04-the-emperor-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfpp0pd0000ysjobi4vxrel",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/06-6-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/06-6-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb0pea80004i2bxevhoe6lq",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/3-of-cups-cover-to-resize.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/3-of-cups-cover-to-resize.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkif0699000y37qkiojzr130",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-knight-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-knight-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkd0mi8m000l136ueo01x3e9",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/05-5-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/05-5-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9vqgh8001hvcbktz0qykqf",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/015-th-devil-cover-resized.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/015-th-devil-cover-resized.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkievd3a000x37qk76rrrfhb",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/011-page-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/011-page-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkieri51000w37qkp3khums5",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/010-10-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/010-10-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka4kc3m000hqku300s1eqdh",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/019-the-sun-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/019-the-sun-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkie57k4000s37qkpmswplo6",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/06-6-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/06-6-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkiei233000u37qkhgpodqw4",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/08-8-of-swords-cover-1.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/08-8-of-swords-cover-1.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk77cajl0000w38f185pyplp",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/00-the-fool-cover-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/00-the-fool-cover-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9uo4en001dvcbkvepecgls",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/014-temperance-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/014-temperance-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka59wtg000rqku3ookcvod9",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/021-the-world-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/021-the-world-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkcznqty0009136u3gvd5y7h",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/03-3-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/03-3-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkie9elo000t37qkk49c07op",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/07-7-of-swords-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/07-7-of-swords-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8mr4xj000azplmjjuqblst",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/the-chariot-cover-to-resize.png",
+      "newUrl": "https://cloudinary.example.com/tarot/the-chariot-cover-to-resize.png",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmos0um000ypm2fmyje5xqn",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/013-king-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/013-king-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb254ay0006xh5k3muzscmf",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/03-3-of-swords-cover.png",
+      "newUrl": "https://cloudinary.example.com/tarot/03-3-of-swords-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmon2wj000rpm2fyll9f3kh",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/012-queen-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/012-queen-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmqdjlb001spm2ftvk0oueg",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/013-king-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/013-king-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk81gkla000112m5i4onihdf",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/blog/d84f2ff1-a065-4785-aa2e-cd184a1cffaa.jpeg",
+      "newUrl": "https://cloudinary.example.com/blog/d84f2ff1-a065-4785-aa2e-cd184a1cffaa.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9eeg7b0000vcbkolkduxj2",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/008-strength-cover.png",
+      "newUrl": "https://cloudinary.example.com/tarot/008-strength-cover.png",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk8cvgth0005fnutwc5avymv",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/02-the-high-priestess-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/02-the-high-priestess-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9lw6j9000dvcbk8dxawwjx",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/013-death-cover-copie.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/013-death-cover-copie.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka23y6p0000qku3n0ilhxmr",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/016-the-tower-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/016-the-tower-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9t9k360014vcbkv1dtiyam",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/011-justice-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/011-justice-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmk9hw8p80004vcbkjdfyp8fg",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/010-the-wheel-of-fortune-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/010-the-wheel-of-fortune-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmka4yir2000lqku34g26pako",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/20-judgment-ok-copie.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/20-judgment-ok-copie.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmkc1ll000apm2f2fse9pss",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/08-8-of-wands-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/08-8-of-wands-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmjfuue0002pm2f0wuyjw61",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/06-6-of-wands-cover.jpg",
+      "newUrl": "https://cloudinary.example.com/tarot/06-6-of-wands-cover.jpg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkd0h2ea000h136uq45fyq9b",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/05-5-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/05-5-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkczx8gt000d136uw5chi3ai",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/04-4-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/04-4-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkcv0wy90004136uw50yvqcf",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/02-2-of-wands-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/02-2-of-wands-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfq33i10003ysjo4jf9lsok",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/09-9-of-pentacles-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/09-9-of-pentacles-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkfqc09j0005ysjo7qzh8gki",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/011-page-of-pentacles.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/011-page-of-pentacles.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmq4lah001jpm2f2wc9k728",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/011-page-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/011-page-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmpvk9q001epm2fo3v59vnp",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/09-9-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/09-9-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkmp5fci0012pm2f9n6hqbih",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/06-6-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/06-6-of-cups-cover.jpeg",
+      "publicId": null
+    },
+    {
+      "type": "TarotArticle",
+      "id": "cmkb0a1b30000i2bxwufnyhw5",
+      "field": "featuredImage",
+      "oldUrl": "http://localhost:3001/uploads/tarot/02-2-of-cups-cover.jpeg",
+      "newUrl": "https://cloudinary.example.com/tarot/02-2-of-cups-cover.jpeg",
+      "publicId": null
+    }
+  ],
+  "errors": [
+    "File not found: http://localhost:3001/uploads/tarot/02-the-high-priestess-cover-1.jpeg (/Users/louisegriffin/Development/MysticOracle/server/public/uploads/tarot/02-the-high-priestess-cover-1.jpeg)",
+    "File not found: http://localhost:3001/uploads/tarot/01-the-magician-cover.jpeg (/Users/louisegriffin/Development/MysticOracle/server/public/uploads/tarot/01-the-magician-cover.jpeg)",
+    "File not found: http://localhost:3001/uploads/tarot/02-the-high-priestess-cover-2.jpeg (/Users/louisegriffin/Development/MysticOracle/server/public/uploads/tarot/02-the-high-priestess-cover-2.jpeg)"
+  ],
+  "stats": {
+    "mediaUploadsProcessed": 638,
+    "blogPostsUpdated": 70,
+    "tarotArticlesUpdated": 80,
+    "filesUploaded": 0,
+    "bytesUploaded": 0
+  }
+}
