@@ -25,6 +25,7 @@ import {
   Eye,
   Folder,
   GripVertical,
+  ImageOff,
 } from 'lucide-react';
 import {
   DndContext,
@@ -316,14 +317,16 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   };
 
   const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      DRAFT: 'bg-slate-500/20 text-slate-300',
-      PUBLISHED: 'bg-green-500/20 text-green-400',
-      ARCHIVED: 'bg-amber-500/20 text-amber-400',
+    const config: Record<string, { bg: string; text: string; label: string }> = {
+      DRAFT: { bg: 'bg-slate-500/20', text: 'text-slate-300', label: language === 'en' ? 'Draft' : 'Brouillon' },
+      PUBLISHED: { bg: 'bg-green-500/20', text: 'text-green-400', label: language === 'en' ? 'Published' : 'Publié' },
+      ARCHIVED: { bg: 'bg-amber-500/20', text: 'text-amber-400', label: language === 'en' ? 'Archived' : 'Archivé' },
     };
+    const s = config[status] || config.DRAFT;
     return (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.DRAFT}`}>
-        {status}
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${s.bg} ${s.text}`}>
+        {status === 'PUBLISHED' && <span className="w-1.5 h-1.5 rounded-full bg-green-400" />}
+        {s.label}
       </span>
     );
   };
@@ -354,52 +357,80 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       <tr
         ref={setNodeRef}
         style={style}
-        className="border-b border-purple-500/10 hover:bg-slate-800/30"
+        className={`border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors ${
+          isDragging ? 'z-50 shadow-2xl' : ''
+        }`}
       >
-        {showDragHandle && (
-          <td className="p-4">
-            <button
+        {/* Drag Handle */}
+        <td className="px-4 py-3">
+          {showDragHandle ? (
+            <div
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-purple-400"
+              className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 transition-colors"
             >
               <GripVertical className="w-5 h-5" />
-            </button>
-          </td>
-        )}
-        <td className="p-4">
-          <div className="flex items-center gap-2">
-            {post.featured && <Star className="w-4 h-4 text-amber-400" />}
-            <div>
-              <button
-                onClick={() => handleEditPost(post)}
-                className="text-slate-200 font-medium hover:text-purple-400 transition-colors text-left block"
-              >
-                {language === 'en' ? post.titleEn : post.titleFr}
-              </button>
-              <p className="text-slate-500 text-sm">{post.slug}</p>
             </div>
+          ) : (
+            <div className="w-5 h-5" />
+          )}
+        </td>
+
+        {/* Image */}
+        <td className="px-4 py-3">
+          <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
+            {post.coverImage ? (
+              <img
+                src={post.coverImage}
+                alt={post.coverImageAlt || (language === 'en' ? post.titleEn : post.titleFr)}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <ImageOff className="w-6 h-6 text-slate-600" />
+            )}
           </div>
         </td>
-        <td className="p-4">{getStatusBadge(post.status)}</td>
-        <td className="p-4">
+
+        {/* Title */}
+        <td className="px-4 py-3">
+          <button
+            onClick={() => handleEditPost(post)}
+            className="font-medium text-white hover:text-purple-400 transition-colors block text-left"
+          >
+            {post.featured && <Star className="w-3.5 h-3.5 text-amber-400 inline mr-1.5" />}
+            {language === 'en' ? post.titleEn : post.titleFr}
+          </button>
+          <div className="text-sm text-slate-400 mt-1">{post.slug}</div>
+        </td>
+
+        {/* Categories */}
+        <td className="px-4 py-3">
           <div className="flex flex-wrap gap-1">
             {post.categories.slice(0, 2).map(cat => (
               <span
                 key={cat.id}
-                className="px-2 py-0.5 rounded-full text-xs"
-                style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
+                className="px-2 py-1 rounded-full text-xs"
+                style={{ backgroundColor: `${cat.color || '#8b5cf6'}20`, color: cat.color || '#8b5cf6' }}
               >
                 {language === 'en' ? cat.nameEn : cat.nameFr}
               </span>
             ))}
           </div>
         </td>
-        <td className="p-4 text-slate-400">{post.viewCount}</td>
-        <td className="p-4 text-slate-400 text-sm">
+
+        {/* Status */}
+        <td className="px-4 py-3">{getStatusBadge(post.status)}</td>
+
+        {/* Views */}
+        <td className="px-4 py-3 text-slate-300 font-mono">{post.viewCount}</td>
+
+        {/* Updated */}
+        <td className="px-4 py-3 text-sm text-slate-400">
           {new Date(post.updatedAt).toLocaleDateString()}
         </td>
-        <td className="p-4">
+
+        {/* Actions */}
+        <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             <a
               href={
@@ -409,19 +440,11 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
               }
               target="_blank"
               rel="noopener noreferrer"
-              className={`p-2 rounded-lg ${
-                post.status === 'PUBLISHED'
-                  ? 'text-slate-400 hover:text-green-400 hover:bg-green-500/20'
-                  : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/20'
-              }`}
+              className="p-2 text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
               title={
                 post.status === 'PUBLISHED'
-                  ? language === 'en'
-                    ? 'View'
-                    : 'Voir'
-                  : language === 'en'
-                  ? 'Preview'
-                  : 'Apercu'
+                  ? language === 'en' ? 'View' : 'Voir'
+                  : language === 'en' ? 'Preview' : 'Aperçu'
               }
             >
               {post.status === 'PUBLISHED' ? (
@@ -432,14 +455,14 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
             </a>
             <button
               onClick={() => handleEditPost(post)}
-              className="p-2 text-slate-400 hover:text-purple-400 hover:bg-purple-500/20 rounded-lg"
+              className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
               title={language === 'en' ? 'Edit' : 'Modifier'}
             >
               <Edit2 className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleDeletePost(post.id)}
-              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg"
+              className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
               title={language === 'en' ? 'Delete' : 'Supprimer'}
             >
               <Trash2 className="w-4 h-4" />
@@ -539,28 +562,27 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
             >
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-purple-500/20 bg-slate-800/50">
-                    {categoryFilter && (
-                      <th className="text-left p-4 text-slate-300 font-medium w-12">
-                        {/* Drag handle column */}
-                      </th>
-                    )}
-                    <th className="text-left p-4 text-slate-300 font-medium">
+                  <tr className="border-b border-slate-700">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-12" />
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      {language === 'en' ? 'Image' : 'Image'}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {language === 'en' ? 'Title' : 'Titre'}
                     </th>
-                    <th className="text-left p-4 text-slate-300 font-medium">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      {language === 'en' ? 'Categories' : 'Catégories'}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {language === 'en' ? 'Status' : 'Statut'}
                     </th>
-                    <th className="text-left p-4 text-slate-300 font-medium">
-                      {language === 'en' ? 'Categories' : 'Categories'}
-                    </th>
-                    <th className="text-left p-4 text-slate-300 font-medium">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {language === 'en' ? 'Views' : 'Vues'}
                     </th>
-                    <th className="text-left p-4 text-slate-300 font-medium">
-                      {language === 'en' ? 'Updated' : 'Mis a jour'}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      {language === 'en' ? 'Updated' : 'Modifié'}
                     </th>
-                    <th className="text-left p-4 text-slate-300 font-medium">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {language === 'en' ? 'Actions' : 'Actions'}
                     </th>
                   </tr>
@@ -568,7 +590,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
                 <tbody>
                   {posts.length === 0 ? (
                     <tr>
-                      <td colSpan={categoryFilter ? 7 : 6} className="p-8 text-center text-slate-400">
+                      <td colSpan={8} className="p-8 text-center text-slate-400">
                         {language === 'en'
                           ? 'No posts yet. Create your first post!'
                           : 'Aucun article. Creez votre premier article!'}
