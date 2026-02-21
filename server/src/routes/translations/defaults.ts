@@ -44,6 +44,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'tarot.cost': { en: 'Cost', fr: 'Coût' },
   'tarot.credit': { en: 'credit', fr: 'crédit' },
   'tarot.credits': { en: 'credits', fr: 'crédits' },
+  'tarot.TarotArticlePage.back': { en: 'Back', fr: 'Retour' },
 
   // Horoscope signs
   'horoscope.title': { en: 'Daily Horoscope', fr: 'Horoscope Quotidien' },

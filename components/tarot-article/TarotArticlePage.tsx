@@ -249,7 +249,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl hover:from-purple-500 hover:to-fuchsia-500 transition-all inline-flex items-center gap-2 shadow-lg shadow-purple-500/20 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
-            {t('common.back', 'Back')}
+            {t('tarot.TarotArticlePage.back', 'Back')}
           </Link>
         </motion.div>
       </div>
@@ -329,7 +329,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
               className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2 group text-sm"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              {t('common.back', 'Back')}
+              {t('tarot.TarotArticlePage.back', 'Back')}
             </Link>
           </motion.div>
 
