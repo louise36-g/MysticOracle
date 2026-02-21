@@ -14,6 +14,7 @@ export type ThreeCardLayoutId =
   | 'inner_child_career'
   | 'inner_child_money'
   | 'inner_child_life_path'
+  | 'inner_child_growth'
   | 'the_circle';
 
 export interface ThreeCardLayout {
@@ -214,6 +215,21 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     shortPositions: {
       en: ['Expected', 'Are', 'Becoming'],
       fr: ['Attendu', 'Êtes', 'Devenez'],
+    },
+  },
+  inner_child_growth: {
+    id: 'inner_child_growth',
+    labelEn: 'Inner Child / Growth',
+    labelFr: 'Enfant Intérieur / Croissance',
+    taglineEn: 'Explore how childhood patterns shape your current growth edge and the transformation that awaits.',
+    taglineFr: 'Explorez comment les schémas d\'enfance façonnent votre croissance actuelle et la transformation qui vous attend.',
+    positions: {
+      en: ['The Pattern', 'The Growth Edge', 'The Transformation'],
+      fr: ['Le Schéma', 'Le Défi de Croissance', 'La Transformation'],
+    },
+    shortPositions: {
+      en: ['Pattern', 'Edge', 'Transform'],
+      fr: ['Schéma', 'Défi', 'Transformation'],
     },
   },
   the_circle: {

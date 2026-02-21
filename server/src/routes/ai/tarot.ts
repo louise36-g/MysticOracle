@@ -9,14 +9,17 @@
 
 import {
   Router,
+  z,
   requireAuth,
   creditService,
   CREDIT_COSTS,
   openRouterService,
+  prisma,
   debug,
   getTarotReadingPrompt,
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
+  getClarificationCardPrompt,
   summarizeQuestionSchema,
   generateTarotSchema,
   tarotFollowUpSchema,
@@ -270,7 +273,7 @@ ${synthesisInstructions}`;
         layoutExists: layoutId ? !!layoutPositions[layoutId] : false,
       });
       if (
-        (spreadType === 'three_card' || spreadType === 'five_card') &&
+        (spreadType === 'two_card' || spreadType === 'three_card' || spreadType === 'five_card') &&
         layoutId &&
         layoutPositions[layoutId]
       ) {
@@ -303,6 +306,7 @@ ${synthesisInstructions}`;
       const baseTokens =
         {
           1: 600,
+          2: 1000,
           3: 1500, // Increased from 1200 for better coverage
           5: 2000,
           7: 2200,
@@ -398,6 +402,138 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[Tarot Follow-up] Error:', error);
     const message = error instanceof Error ? error.message : 'Failed to generate follow-up';
+    res.status(500).json({ error: message });
+  }
+});
+
+// ============================================
+// CLARIFICATION CARD
+// ============================================
+
+// Validation schema for clarification card
+const clarificationSchema = z.object({
+  readingId: z.string().min(1),
+  card: z.object({
+    id: z.number(),
+    nameEn: z.string(),
+    nameFr: z.string(),
+  }),
+  isReversed: z.boolean(),
+  language: z.enum(['en', 'fr']),
+});
+
+/**
+ * POST /api/v1/ai/tarot/clarification
+ * Generate a clarification card interpretation for an existing reading
+ */
+router.post('/tarot/clarification', requireAuth, async (req, res) => {
+  try {
+    const validation = clarificationSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid request data',
+        details: validation.error.errors,
+      });
+    }
+
+    const { readingId, card, isReversed, language } = validation.data;
+    const userId = req.auth.userId;
+
+    debug.log('[Clarification] Request:', { userId, readingId, card: card.nameEn, isReversed });
+
+    // Fetch reading and verify ownership
+    const reading = await prisma.reading.findUnique({
+      where: { id: readingId },
+    });
+
+    if (!reading) {
+      return res.status(404).json({ error: 'Reading not found' });
+    }
+
+    if (reading.userId !== userId) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    // Check if clarification already used
+    if (reading.hasClarification) {
+      return res.status(400).json({ error: 'Clarification card already drawn for this reading' });
+    }
+
+    // Check credits
+    const creditCost = CREDIT_COSTS.CLARIFICATION;
+    const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
+    if (!balanceCheck.sufficient) {
+      return res.status(400).json({ error: 'Insufficient credits' });
+    }
+
+    // Build prompt
+    const cardName = language === 'en' ? card.nameEn : card.nameFr;
+    const orientation = isReversed
+      ? language === 'en'
+        ? 'Reversed'
+        : 'Renversée'
+      : language === 'en'
+        ? 'Upright'
+        : 'Droite';
+
+    // Truncate original reading for prompt context (first 500 chars)
+    const readingSummary =
+      reading.interpretation.length > 500
+        ? reading.interpretation.substring(0, 500) + '...'
+        : reading.interpretation;
+
+    const prompt = await getClarificationCardPrompt({
+      originalQuestion: reading.question || '',
+      originalReading: readingSummary,
+      clarificationCard: cardName,
+      orientation,
+      language,
+    });
+
+    // Generate interpretation
+    const interpretation = await openRouterService.generateTarotReading(prompt, {
+      temperature: 0.7,
+      maxTokens: 600,
+    });
+
+    debug.log('[Clarification] Generated:', interpretation.length, 'chars');
+
+    // Deduct credits
+    await creditService.deductCredits({
+      userId,
+      amount: creditCost,
+      type: 'READING',
+      description: 'Clarification card',
+    });
+
+    // Save to reading
+    await prisma.reading.update({
+      where: { id: readingId },
+      data: {
+        hasClarification: true,
+        clarificationCard: {
+          cardId: card.id,
+          isReversed,
+          cardNameEn: card.nameEn,
+          cardNameFr: card.nameFr,
+          interpretation,
+        },
+      },
+    });
+
+    res.json({
+      interpretation,
+      card: {
+        id: card.id,
+        nameEn: card.nameEn,
+        nameFr: card.nameFr,
+      },
+      isReversed,
+      creditsUsed: creditCost,
+    });
+  } catch (error) {
+    console.error('[Clarification] Error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to generate clarification';
     res.status(500).json({ error: message });
   }
 });

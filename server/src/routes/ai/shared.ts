@@ -15,6 +15,7 @@ import {
   getTarotReadingPrompt,
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
+  getClarificationCardPrompt,
   getYearEnergyReadingPrompt,
   getBirthCardSynthesisPrompt,
 } from '../../services/promptService.js';
@@ -32,6 +33,7 @@ export {
   getTarotReadingPrompt,
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
+  getClarificationCardPrompt,
   getYearEnergyReadingPrompt,
   getBirthCardSynthesisPrompt,
 };
@@ -200,8 +202,29 @@ export const birthCardSynthesisSchema = z.object({
 // LAYOUT POSITION MAPPINGS
 // ============================================
 
-// Layout-specific position meanings for THREE_CARD and FIVE_CARD
+// Layout-specific position meanings for TWO_CARD, THREE_CARD, and FIVE_CARD
 export const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
+  // Two-card layouts
+  situation_guidance: {
+    en: ['The Situation', 'The Guidance'],
+    fr: ['La Situation', 'La Guidance'],
+  },
+  challenge_strength: {
+    en: ['The Challenge', 'Your Strength'],
+    fr: ['Le Défi', 'Votre Force'],
+  },
+  light_shadow: {
+    en: ['The Light', 'The Shadow'],
+    fr: ['La Lumière', "L'Ombre"],
+  },
+  question_answer: {
+    en: ['Your Question', 'The Answer'],
+    fr: ['Votre Question', 'La Réponse'],
+  },
+  inner_outer: {
+    en: ['Your Inner World', 'Your Outer Reality'],
+    fr: ['Votre Monde Intérieur', 'Votre Réalité Extérieure'],
+  },
   // Three-card layouts
   past_present_future: {
     en: ['Past', 'Present', 'Future'],
@@ -364,6 +387,11 @@ export const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
   career_purpose: {
     en: ['Current Position', 'Obstacles', 'Hidden Factors', 'Action to Take', 'Outcome'],
     fr: ['Position Actuelle', 'Obstacles', 'Facteurs Cachés', 'Action à Prendre', 'Résultat'],
+  },
+  // Growth-specific three-card layout
+  inner_child_growth: {
+    en: ['The Pattern', 'The Growth Edge', 'The Transformation'],
+    fr: ['Le Schéma', 'Le Défi de Croissance', 'La Transformation'],
   },
 };
 

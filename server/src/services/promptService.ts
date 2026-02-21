@@ -120,6 +120,15 @@ Conseils et orientations pratiques tirés de la lecture complète. Tissez nature
   }
 }
 
+// Mapping from 2-card layoutId to prompt key
+const TWO_CARD_LAYOUT_GUIDANCE_MAP: Record<string, string> = {
+  situation_guidance: 'SPREAD_GUIDANCE_TWO_CARD_SITUATION_GUIDANCE',
+  challenge_strength: 'SPREAD_GUIDANCE_TWO_CARD_CHALLENGE_STRENGTH',
+  light_shadow: 'SPREAD_GUIDANCE_TWO_CARD_LIGHT_SHADOW',
+  question_answer: 'SPREAD_GUIDANCE_TWO_CARD_QUESTION_ANSWER',
+  inner_outer: 'SPREAD_GUIDANCE_TWO_CARD_INNER_OUTER',
+};
+
 // Mapping from 5-card layoutId to prompt key
 const FIVE_CARD_LAYOUT_GUIDANCE_MAP: Record<string, string> = {
   iceberg: 'SPREAD_GUIDANCE_FIVE_CARD_ICEBERG',
@@ -151,6 +160,14 @@ export async function getTarotReadingPrompt(params: {
 
     // Determine which guidance key to use
     let spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
+
+    // For TWO_CARD with layout, use layout-specific guidance
+    if (params.spreadType.toUpperCase() === 'TWO_CARD' && params.layoutId) {
+      const guidanceKey = TWO_CARD_LAYOUT_GUIDANCE_MAP[params.layoutId];
+      if (guidanceKey) {
+        spreadGuidanceKey = guidanceKey;
+      }
+    }
 
     // For THREE_CARD with layout, use layout-specific guidance
     if (params.spreadType.toUpperCase() === 'THREE_CARD' && params.layoutId) {
@@ -412,6 +429,36 @@ export async function getBirthCardSynthesisPrompt(params: {
 }
 
 /**
+ * Get clarification card prompt
+ */
+export async function getClarificationCardPrompt(params: {
+  originalQuestion: string;
+  originalReading: string;
+  clarificationCard: string;
+  orientation: string;
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const template = await getPrompt('PROMPT_TAROT_CLARIFICATION');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const variables = {
+      language: languageName,
+      originalQuestion: params.originalQuestion,
+      originalReading: params.originalReading,
+      clarificationCard: params.clarificationCard,
+      orientation: params.orientation,
+    };
+
+    return interpolatePrompt(template, variables);
+  } catch (error) {
+    console.error('[PromptService] Error assembling clarification card prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Clear the prompt cache (call after prompt updates)
  */
 export function clearCache(): void {
@@ -473,6 +520,7 @@ export function getPromptService() {
     getTarotReadingPrompt,
     getSingleCardReadingPrompt,
     getTarotFollowUpPrompt,
+    getClarificationCardPrompt,
     getHoroscopePrompt,
     getHoroscopeFollowUpPrompt,
     getYearEnergyReadingPrompt,
@@ -489,6 +537,7 @@ export default {
   getTarotReadingPrompt,
   getSingleCardReadingPrompt,
   getTarotFollowUpPrompt,
+  getClarificationCardPrompt,
   getHoroscopePrompt,
   getHoroscopeFollowUpPrompt,
   getYearEnergyReadingPrompt,

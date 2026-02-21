@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Quote, ChevronDown, ChevronUp } from 'lucide-react';
+import { Quote, ChevronDown, ChevronUp, Coins, Sparkles, Loader2 } from 'lucide-react';
 import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
@@ -38,6 +38,14 @@ interface InterpretationPhaseProps {
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
   category?: ReadingCategory;
+  clarificationCard?: {
+    card: TarotCard;
+    isReversed: boolean;
+    interpretation: string;
+  } | null;
+  isClarificationLoading?: boolean;
+  canDrawClarification?: boolean;
+  onDrawClarification?: () => void;
   onContextToggle: () => void;
   onFinish: () => void;
   onCelebrationComplete: () => void;
@@ -66,6 +74,10 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   threeCardLayout,
   fiveCardLayout,
   category,
+  clarificationCard,
+  isClarificationLoading,
+  canDrawClarification,
+  onDrawClarification,
   onContextToggle,
   onFinish,
   onCelebrationComplete,
@@ -314,6 +326,101 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                 </div>
               </div>
             </motion.div>
+
+            {/* Clarification Card Section */}
+            {(canDrawClarification || clarificationCard || isClarificationLoading) && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6"
+              >
+                {/* Draw button - shown when no clarification yet */}
+                {canDrawClarification && !clarificationCard && !isClarificationLoading && (
+                  <button
+                    onClick={onDrawClarification}
+                    className="w-full bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-black/40 hover:border-white/20 transition-all group"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <Sparkles className={`w-5 h-5 ${theme.textAccent} group-hover:scale-110 transition-transform`} />
+                      <span className="text-white/80 font-medium">
+                        {language === 'en' ? 'Draw a Clarification Card' : 'Tirer une Carte de Clarification'}
+                      </span>
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20">
+                        <Coins className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-xs text-amber-300 font-medium">1</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1.5 text-center">
+                      {language === 'en'
+                        ? 'Draw one extra card for deeper insight into your reading'
+                        : 'Tirez une carte supplémentaire pour approfondir votre lecture'}
+                    </p>
+                  </button>
+                )}
+
+                {/* Loading state */}
+                {isClarificationLoading && (
+                  <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center">
+                    <Loader2 className={`w-6 h-6 ${theme.textAccent} animate-spin mx-auto mb-2`} />
+                    <p className="text-sm text-slate-400">
+                      {language === 'en' ? 'Drawing your clarification card...' : 'Tirage de votre carte de clarification...'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Clarification result */}
+                {clarificationCard && (
+                  <div
+                    className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6"
+                    style={{ boxShadow: `0 0 30px ${theme.glow}` }}
+                  >
+                    {/* Header */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
+                      <span className={`text-sm font-bold ${theme.textAccent} uppercase tracking-wider`}>
+                        {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
+                      </span>
+                    </div>
+
+                    {/* Card display */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                      <Card
+                        card={clarificationCard.card}
+                        isRevealed={true}
+                        isReversed={clarificationCard.isReversed}
+                        width={100}
+                        height={155}
+                        className="shadow-lg flex-shrink-0"
+                        hideOverlay={true}
+                      />
+                      <div className="flex-1 text-center sm:text-left">
+                        <p className="text-white font-medium text-lg">
+                          {language === 'en' ? clarificationCard.card.nameEn : clarificationCard.card.nameFr}
+                        </p>
+                        {clarificationCard.isReversed && (
+                          <span className="text-xs text-slate-400">
+                            ({language === 'en' ? 'Reversed' : 'Renversée'})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Interpretation */}
+                    <div className="border-t border-white/10 pt-4">
+                      {clarificationCard.interpretation.split('\n').map((line, i) => {
+                        if (!line.trim()) return null;
+                        return (
+                          <p key={`clar-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
+                            {line.replace(/\*\*/g, '')}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
 
             {/* Reflection prompt */}
             <ReflectionPrompt

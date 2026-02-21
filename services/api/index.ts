@@ -58,6 +58,7 @@ export {
   summarizeQuestion,
   generateTarotReading,
   generateTarotFollowUp,
+  generateClarificationCard,
   generateYearEnergyReading,
   getCachedBirthCardSynthesis,
   generateBirthCardSynthesis,

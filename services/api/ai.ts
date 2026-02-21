@@ -62,6 +62,39 @@ export async function generateTarotReading(
   });
 }
 
+// ============================================
+// CLARIFICATION CARD
+// ============================================
+
+export async function generateClarificationCard(
+  token: string,
+  params: {
+    readingId: string;
+    card: {
+      id: number;
+      nameEn: string;
+      nameFr: string;
+    };
+    isReversed: boolean;
+    language: 'en' | 'fr';
+  }
+): Promise<{
+  interpretation: string;
+  card: { id: number; nameEn: string; nameFr: string };
+  isReversed: boolean;
+  creditsUsed: number;
+}> {
+  return apiRequest('/api/v1/ai/tarot/clarification', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+// ============================================
+// TAROT FOLLOW-UP
+// ============================================
+
 export async function generateTarotFollowUp(
   token: string,
   params: {

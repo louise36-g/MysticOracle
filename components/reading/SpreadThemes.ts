@@ -36,6 +36,19 @@ export const SPREAD_THEMES: Record<SpreadType, SpreadTheme> = {
     textAccent: 'text-cyan-300',
     atmosphereClass: 'single-card-atmosphere',
   },
+  [SpreadType.TWO_CARD]: {
+    name: "The Mirror Pair",
+    taglineEn: "Two cards. A dialogue of insight.",
+    taglineFr: "Deux cartes. Un dialogue d'intuition.",
+    icon: React.createElement(Layers, { className: "w-5 h-5" }),
+    primary: 'rgb(129, 140, 248)',      // indigo-400
+    secondary: 'rgb(99, 102, 241)',     // indigo-500
+    glow: 'rgba(129, 140, 248, 0.3)',
+    bgGradient: 'from-indigo-950 via-violet-900 to-indigo-950',
+    cardBorder: 'border-indigo-500/50',
+    textAccent: 'text-indigo-300',
+    atmosphereClass: 'two-card-atmosphere',
+  },
   [SpreadType.THREE_CARD]: {
     name: "River of Time",
     taglineEn: "Past flows into future.",

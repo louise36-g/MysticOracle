@@ -22,11 +22,11 @@ interface LocationState {
 
 // Mystical symbols for each category - adds unique character
 const categorySymbols: Record<ReadingCategory, string> = {
+  general: '✦',
   love: '♡',
   career: '⚔',
-  money: '◈',
-  life_path: '☽',
-  family: '⌂',
+  life_path: '☼',
+  growth: '❋',
   birth_cards: '✧',
 };
 

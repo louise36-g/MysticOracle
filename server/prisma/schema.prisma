@@ -86,6 +86,10 @@ model Reading {
   // AI Response
   interpretation  String   @db.Text
 
+  // Clarification card (max 1 per reading)
+  clarificationCard   Json?     // { cardId, isReversed, cardNameEn, cardNameFr, interpretation }
+  hasClarification    Boolean   @default(false)
+
   // Post-reading enrichment
   summary         String?  @db.Text    // Short summary for personalization (generated later)
   userReflection  String?  @db.Text    // User's optional reflection after reading
@@ -137,6 +141,7 @@ model ReadingCard {
 
 enum SpreadType {
   SINGLE
+  TWO_CARD
   THREE_CARD
   FIVE_CARD
   LOVE

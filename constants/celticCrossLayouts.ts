@@ -1,11 +1,11 @@
 // constants/celticCrossLayouts.ts
 
 export type CelticCrossCategory =
+  | 'general'
   | 'love'
   | 'career'
-  | 'money'
   | 'life_path'
-  | 'family';
+  | 'growth';
 
 export type CelticCrossLayoutId = 'celtic_cross';
 
@@ -104,34 +104,34 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
     defaultLayout: 'celtic_cross',
   },
   {
-    id: 'money',
-    labelEn: 'Wealth & Alignment',
-    labelFr: 'Richesse & Alignement',
-    taglineEn: 'Understanding your relationship with prosperity',
-    taglineFr: 'Comprendre votre relation avec la prospérité',
-    iconName: 'Coins',
-    colorClass: 'emerald',
+    id: 'general',
+    labelEn: 'General Guidance',
+    labelFr: 'Guidance Générale',
+    taglineEn: 'Deep insight on any topic',
+    taglineFr: 'Éclairage profond sur tout sujet',
+    iconName: 'MessageCircle',
+    colorClass: 'purple',
     layouts: ['celtic_cross'],
     defaultLayout: 'celtic_cross',
   },
   {
     id: 'life_path',
-    labelEn: 'Life Path',
-    labelFr: 'Chemin de Vie',
-    taglineEn: 'Navigate major crossroads and transitions',
-    taglineFr: 'Naviguer les carrefours majeurs et les transitions',
-    iconName: 'Compass',
+    labelEn: 'Spiritual / Wellbeing',
+    labelFr: 'Spirituel / Bien-être',
+    taglineEn: 'Inner peace and soul purpose',
+    taglineFr: 'Paix intérieure et mission de vie',
+    iconName: 'Sun',
     colorClass: 'indigo',
     layouts: ['celtic_cross'],
     defaultLayout: 'celtic_cross',
   },
   {
-    id: 'family',
-    labelEn: 'Hearth & Home',
-    labelFr: 'Foyer & Cocon',
-    taglineEn: 'Insight into bonds and belonging',
-    taglineFr: 'Aperçu des liens et de l\'appartenance',
-    iconName: 'Users',
+    id: 'growth',
+    labelEn: 'Personal Growth',
+    labelFr: 'Développement Personnel',
+    taglineEn: 'Deep exploration of your personal evolution',
+    taglineFr: 'Exploration profonde de votre évolution personnelle',
+    iconName: 'Sprout',
     colorClass: 'teal',
     layouts: ['celtic_cross'],
     defaultLayout: 'celtic_cross',
@@ -178,22 +178,22 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
     },
   ],
 
-  // Wealth & Alignment
-  money: [
+  // General Guidance
+  general: [
     {
-      id: 'cc_money_1',
-      textEn: 'What is the full landscape of my relationship with abundance?',
-      textFr: 'Quel est le paysage complet de ma relation avec l\'abondance ?',
+      id: 'cc_general_1',
+      textEn: 'What is the full picture of my current situation?',
+      textFr: 'Quel est le tableau complet de ma situation actuelle ?',
     },
     {
-      id: 'cc_money_2',
-      textEn: 'What deep roots are feeding — or blocking — my sense of prosperity?',
-      textFr: 'Quelles racines profondes nourrissent — ou bloquent — mon sentiment de prospérité ?',
+      id: 'cc_general_2',
+      textEn: 'What hidden forces are shaping my life right now?',
+      textFr: 'Quelles forces cachées façonnent ma vie en ce moment ?',
     },
     {
-      id: 'cc_money_3',
-      textEn: 'How can I align my values with the way wealth flows through my life?',
-      textFr: 'Comment puis-je aligner mes valeurs avec la façon dont la richesse circule dans ma vie ?',
+      id: 'cc_general_3',
+      textEn: 'What do I most need to understand about where I am and where I\'m heading?',
+      textFr: 'Que dois-je comprendre sur là où j\'en suis et là où je me dirige ?',
     },
   ],
 
@@ -216,22 +216,22 @@ export const CELTIC_CROSS_QUESTIONS: Record<CelticCrossCategory, CelticCrossQues
     },
   ],
 
-  // Hearth & Home
-  family: [
+  // Personal Growth
+  growth: [
     {
-      id: 'cc_family_1',
-      textEn: 'What is the full picture of the energy within my home and family?',
-      textFr: 'Quel est le tableau complet de l\'énergie au sein de mon foyer et de ma famille ?',
+      id: 'cc_growth_1',
+      textEn: 'What is the full picture of my personal evolution right now?',
+      textFr: 'Quel est le tableau complet de mon évolution personnelle en ce moment ?',
     },
     {
-      id: 'cc_family_2',
-      textEn: 'What generational gift — or wound — is asking for my attention?',
-      textFr: 'Quel cadeau — ou quelle blessure — générationnel(le) demande mon attention ?',
+      id: 'cc_growth_2',
+      textEn: 'What deep pattern is ready to be transformed within me?',
+      textFr: 'Quel schéma profond est prêt à être transformé en moi ?',
     },
     {
-      id: 'cc_family_3',
-      textEn: 'How can I honor where I come from while building where I\'m going?',
-      textFr: 'Comment puis-je honorer d\'où je viens tout en construisant là où je vais ?',
+      id: 'cc_growth_3',
+      textEn: 'How can I honor both my vulnerabilities and my strengths as I grow?',
+      textFr: 'Comment puis-je honorer à la fois mes vulnérabilités et mes forces dans ma croissance ?',
     },
   ],
 };

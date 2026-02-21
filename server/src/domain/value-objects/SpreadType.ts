@@ -23,6 +23,12 @@ const SPREAD_CONFIGS: Record<PrismaSpreadType, SpreadConfig> = {
     cost: 1,
     description: 'A quick answer to a specific question',
   },
+  TWO_CARD: {
+    name: 'Two Card',
+    cardCount: 2,
+    cost: 2,
+    description: 'A quick pair for focused insight',
+  },
   THREE_CARD: {
     name: 'Three Card',
     cardCount: 3,

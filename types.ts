@@ -12,6 +12,7 @@ export interface TarotCard {
 
 export enum SpreadType {
   SINGLE = 'single',
+  TWO_CARD = 'two_card',
   THREE_CARD = 'three_card',
   FIVE_CARD = 'five_card',
   LOVE = 'love',
@@ -21,15 +22,16 @@ export enum SpreadType {
 }
 
 // Reading categories (category-first UX)
-export type ReadingCategory = 'love' | 'career' | 'money' | 'life_path' | 'family' | 'birth_cards';
+export type ReadingCategory = 'general' | 'love' | 'career' | 'life_path' | 'growth' | 'birth_cards';
 
 // Depth options (maps to card counts)
-export type ReadingDepth = 1 | 3 | 5 | 7 | 10;
+export type ReadingDepth = 1 | 2 | 3 | 5 | 7 | 10;
 export type BirthCardDepth = 1 | 2 | 3;
 
 // Map depth to SpreadType
 export const DEPTH_TO_SPREAD: Record<ReadingDepth, SpreadType> = {
   1: SpreadType.SINGLE,
+  2: SpreadType.TWO_CARD,
   3: SpreadType.THREE_CARD,
   5: SpreadType.FIVE_CARD,
   7: SpreadType.HORSESHOE,

@@ -11,6 +11,7 @@ import {
   ReadingDepth,
 } from '../../../types';
 import { getCategory, getDepthOption } from '../../../constants/categoryConfig';
+import { TWO_CARD_LAYOUTS, TwoCardLayoutId, TwoCardLayout } from '../../../constants/twoCardLayouts';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId, ThreeCardLayout } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId, FiveCardLayout } from '../../../constants/fiveCardLayouts';
 import { HORSESHOE_LAYOUT_QUESTIONS } from '../../../constants/horseshoeLayouts';
@@ -78,8 +79,8 @@ interface CategoryIntroPhaseProps {
   language: 'en' | 'fr';
   category: ReadingCategory;
   depth: ReadingDepth;
-  selectedLayout: ThreeCardLayoutId | FiveCardLayoutId | null;
-  onLayoutSelect: (layoutId: ThreeCardLayoutId | FiveCardLayoutId) => void;
+  selectedLayout: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | null;
+  onLayoutSelect: (layoutId: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => void;
   customQuestion: string;
   onCustomQuestionChange: (text: string) => void;
   isAdvanced: boolean;
@@ -138,39 +139,56 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   // Get layouts filtered by category's available layouts
   const getLayoutsForDepth = (): DisplayLayout[] => {
-    const availableIds = depth === 3
-      ? categoryConfig?.availableLayouts?.[3]
-      : depth === 5
-        ? categoryConfig?.availableLayouts?.[5]
-        : null;
-
-    if (depth === 3 && availableIds) {
-      return availableIds
-        .map((id) => THREE_CARD_LAYOUTS[id as ThreeCardLayoutId])
-        .filter(Boolean)
-        .map((l: ThreeCardLayout) => ({
-          id: l.id,
-          labelEn: l.labelEn,
-          labelFr: l.labelFr,
-          taglineEn: l.taglineEn,
-          taglineFr: l.taglineFr,
-          positions: l.positions,
-          shortPositions: l.shortPositions,
-        }));
+    if (depth === 2) {
+      const availableIds = categoryConfig?.availableLayouts?.[2];
+      if (availableIds) {
+        return availableIds
+          .map((id) => TWO_CARD_LAYOUTS[id as TwoCardLayoutId])
+          .filter(Boolean)
+          .map((l: TwoCardLayout) => ({
+            id: l.id,
+            labelEn: l.labelEn,
+            labelFr: l.labelFr,
+            taglineEn: l.taglineEn,
+            taglineFr: l.taglineFr,
+            positions: l.positions,
+            shortPositions: l.shortPositions,
+          }));
+      }
     }
-    if (depth === 5 && availableIds) {
-      return availableIds
-        .map((id) => FIVE_CARD_LAYOUTS[id as FiveCardLayoutId])
-        .filter(Boolean)
-        .map((l: FiveCardLayout) => ({
-          id: l.id,
-          labelEn: l.labelEn,
-          labelFr: l.labelFr,
-          taglineEn: l.taglineEn,
-          taglineFr: l.taglineFr,
-          positions: l.positions,
-          shortPositions: l.shortPositions,
-        }));
+    if (depth === 3) {
+      const availableIds = categoryConfig?.availableLayouts?.[3];
+      if (availableIds) {
+        return availableIds
+          .map((id) => THREE_CARD_LAYOUTS[id as ThreeCardLayoutId])
+          .filter(Boolean)
+          .map((l: ThreeCardLayout) => ({
+            id: l.id,
+            labelEn: l.labelEn,
+            labelFr: l.labelFr,
+            taglineEn: l.taglineEn,
+            taglineFr: l.taglineFr,
+            positions: l.positions,
+            shortPositions: l.shortPositions,
+          }));
+      }
+    }
+    if (depth === 5) {
+      const availableIds = categoryConfig?.availableLayouts?.[5];
+      if (availableIds) {
+        return availableIds
+          .map((id) => FIVE_CARD_LAYOUTS[id as FiveCardLayoutId])
+          .filter(Boolean)
+          .map((l: FiveCardLayout) => ({
+            id: l.id,
+            labelEn: l.labelEn,
+            labelFr: l.labelFr,
+            taglineEn: l.taglineEn,
+            taglineFr: l.taglineFr,
+            positions: l.positions,
+            shortPositions: l.shortPositions,
+          }));
+      }
     }
     return [];
   };
@@ -187,11 +205,11 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
     // For depth 7 (horseshoe), get questions from the first layout of the category
     if (depth === 7 && category !== 'birth_cards') {
       const categoryLayoutMap: Record<string, string> = {
+        general: 'whats_ahead',
         love: 'new_connection',
         career: 'career_crossroads',
-        money: 'financial_stability',
         life_path: 'right_path',
-        family: 'family_dynamics',
+        growth: 'personal_patterns',
       };
       const layoutId = categoryLayoutMap[category];
       if (layoutId && HORSESHOE_LAYOUT_QUESTIONS[layoutId as keyof typeof HORSESHOE_LAYOUT_QUESTIONS]) {
@@ -234,7 +252,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   // Determine if we can proceed
   const hasValidQuestion = isBirthCards || customQuestion.trim().length > 0;
-  const needsLayout = depth === 3 || depth === 5;
+  const needsLayout = depth === 2 || depth === 3 || depth === 5;
   const hasValidLayout = !needsLayout || selectedLayout !== null;
   const canProceed = hasValidQuestion && hasValidLayout && credits >= totalCost;
 
@@ -244,7 +262,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
   };
 
   // Handle layout selection
-  const handleLayoutSelect = (layoutId: ThreeCardLayoutId | FiveCardLayoutId) => {
+  const handleLayoutSelect = (layoutId: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => {
     onLayoutSelect(layoutId);
     setLayoutPickerOpen(false);
   };
@@ -379,7 +397,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                           return (
                             <button
                               key={layout.id}
-                              onClick={() => handleLayoutSelect(layout.id as ThreeCardLayoutId | FiveCardLayoutId)}
+                              onClick={() => handleLayoutSelect(layout.id as TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId)}
                               className={`w-full text-left p-4 rounded-xl border-2 backdrop-blur-sm transition-all ${
                                 isSelected
                                   ? `bg-white/15 ${categoryTheme?.border}`

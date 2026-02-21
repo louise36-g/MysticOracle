@@ -82,6 +82,15 @@ export const SPREADS: Partial<Record<SpreadType, SpreadConfig>> = {
     positionMeaningsEn: ["Guidance"],
     positionMeaningsFr: ["Guidance"]
   },
+  [SpreadType.TWO_CARD]: {
+    id: SpreadType.TWO_CARD,
+    nameEn: "2 Card Spreads",
+    nameFr: "Tirages à 2 Cartes",
+    cost: 2,
+    positions: 2,
+    positionMeaningsEn: ["Situation", "Guidance"],
+    positionMeaningsFr: ["Situation", "Guidance"]
+  },
   [SpreadType.THREE_CARD]: {
     id: SpreadType.THREE_CARD,
     nameEn: "3 Card Spreads",

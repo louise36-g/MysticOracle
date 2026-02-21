@@ -50,6 +50,8 @@ describe('CreateReadingUseCase', () => {
     summary: null,
     userReflection: null,
     themes: [],
+    clarificationCard: null,
+    hasClarification: false,
   };
 
   beforeEach(() => {

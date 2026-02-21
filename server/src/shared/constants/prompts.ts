@@ -97,6 +97,64 @@ IMPORTANT FORMATTING RULES:
       'This single card arrives as a messenger, carrying the precise wisdom you need in this moment. Like a beam of light cutting through fog, it illuminates the heart of your question with focused clarity. There are no surrounding cards to soften or complicate its message; this card speaks directly, intimately, to the core of what you seek to understand. Let its energy resonate fully, for it has chosen to appear for a reason.',
   },
 
+  // ==================== TWO-CARD SPREAD GUIDANCE ====================
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD',
+    description: 'Default two-card spread layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This two-card spread creates a dialogue between two energies. The first card reveals one side of the story, the second responds with its counterpart. Together they form a complete picture — two voices in conversation, each illuminating what the other cannot say alone.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD_SITUATION_GUIDANCE',
+    description: 'Situation & Guidance two-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Situation & Guidance pair offers a clear snapshot followed by a way forward. The first card illuminates where you truly stand — the reality of your current moment, without illusion. The second card offers the guidance that flows from that truth: the step, the shift, or the approach that will best serve you now.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD_CHALLENGE_STRENGTH',
+    description: 'Challenge & Strength two-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Challenge & Strength pair reveals what tests you and what empowers you in equal measure. The first card names the challenge: the difficulty, the resistance, the growth edge you are meeting. The second card reveals the strength you already carry — the inner resource, quality, or wisdom that is ready to rise to this moment.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD_LIGHT_SHADOW',
+    description: 'Light & Shadow two-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Light & Shadow pair explores what is visible and what is hidden. The first card shows what is in the light: what you can see clearly, what is acknowledged, what you present to the world. The second card peers into the shadow: what remains unseen, unacknowledged, or not yet integrated. Together they offer wholeness.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD_QUESTION_ANSWER',
+    description: 'Question & Answer two-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      "This Question & Answer pair creates a direct dialogue between your inquiry and the universe's response. The first card reflects the deeper nature of your question — what you are truly asking beneath the surface. The second card offers the answer: the insight, the truth, or the message that the cards wish to deliver.",
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_TWO_CARD_INNER_OUTER',
+    description: 'Inner & Outer two-card layout guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Inner & Outer pair bridges your internal world and your external reality. The first card reveals your inner landscape: your feelings, fears, hopes, and the emotional truth you carry. The second card shows your outer reality: how circumstances appear, how others perceive the situation, and what is manifesting around you. See where they align and where they diverge.',
+  },
+
+  // ==================== THREE-CARD SPREAD GUIDANCE ====================
+
   {
     key: 'SPREAD_GUIDANCE_THREE_CARD',
     description: 'Past-Present-Future spread layout guidance',
@@ -424,6 +482,49 @@ IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes
 - Do NOT address the reader with titles like "Beloved seeker", "Gentle one", "Dear one" etc.
 - Do NOT use pseudo-therapeutic phrases like "you are not broken" or "honor your journey"
 - Jump directly into answering their question`,
+  },
+
+  // ==================== CLARIFICATION CARD PROMPT ====================
+
+  {
+    key: 'PROMPT_TAROT_CLARIFICATION',
+    description: 'Clarification card interpretation connecting to original reading',
+    category: 'tarot',
+    variables: [
+      'language',
+      'originalQuestion',
+      'originalReading',
+      'clarificationCard',
+      'orientation',
+    ],
+    defaultValue: `You are a warm, insightful Tarot Reader providing a clarification card interpretation.
+
+Language: {{language}}
+
+The seeker has already received a full reading and has drawn one additional card for deeper clarity.
+
+Original Question: "{{originalQuestion}}"
+
+Original Reading (summary):
+{{originalReading}}
+
+Clarification Card: {{clarificationCard}} ({{orientation}})
+
+Task: Interpret this clarification card in the context of the original reading. Show how this card adds a new layer of understanding, nuance, or direction to what was already revealed.
+
+Guidelines:
+- Write 150-200 words maximum
+- Connect the clarification card directly to themes from the original reading
+- If the card is reversed, interpret its reversed meaning
+- Show what new insight or nuance this card adds
+- End with one clear, actionable takeaway
+
+VOICE AND TONE:
+- Warm and grounded, not theatrical
+- NEVER use terms of address like "beloved seeker," "gentle one," "dear soul" etc.
+- NEVER use em dashes
+- Speak directly using "you" and "your"
+- Jump straight into the interpretation`,
   },
 
   // ==================== HOROSCOPE PROMPTS ====================

@@ -2,8 +2,9 @@
 // Category-first UX configuration for tarot readings
 
 import React, { createElement } from 'react';
-import { Heart, Briefcase, Coins, Compass, Users, Sparkles } from 'lucide-react';
+import { Heart, Briefcase, MessageCircle, Sun, Sprout, Sparkles } from 'lucide-react';
 import type { ReadingCategory, ReadingDepth, BirthCardDepth } from '../types';
+import type { TwoCardLayoutId } from './twoCardLayouts';
 import type { ThreeCardLayoutId, THREE_CARD_LAYOUTS } from './threeCardLayouts';
 import type { FiveCardLayoutId, FIVE_CARD_LAYOUTS } from './fiveCardLayouts';
 
@@ -27,11 +28,13 @@ export interface CategoryConfig {
   depths: ReadingDepth[] | BirthCardDepth[];
   /** Default layout to pre-select */
   defaultLayouts?: {
+    2?: TwoCardLayoutId;
     3?: ThreeCardLayoutId;
     5?: FiveCardLayoutId;
   };
-  /** Available layouts for this category (2 options per depth) */
+  /** Available layouts for this category (2-3 options per depth) */
   availableLayouts?: {
+    2?: TwoCardLayoutId[];
     3?: ThreeCardLayoutId[];
     5?: FiveCardLayoutId[];
   };
@@ -47,8 +50,9 @@ export interface DepthOption {
 
 // Regular depth options (for most categories) - cost = number of cards
 export const REGULAR_DEPTHS: DepthOption[] = [
-  { cards: 1, labelEn: 'Quick Insight', labelFr: 'Apercu Rapide', cost: 1 },
-  { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passe Present Futur', cost: 3 },
+  { cards: 1, labelEn: 'Quick Insight', labelFr: 'Aperçu Rapide', cost: 1 },
+  { cards: 2, labelEn: 'Quick Pair', labelFr: 'Paire Rapide', cost: 2 },
+  { cards: 3, labelEn: 'Past Present Future', labelFr: 'Passé Présent Futur', cost: 3 },
   { cards: 5, labelEn: 'Deep Dive', labelFr: 'Exploration Profonde', cost: 5 },
   { cards: 7, labelEn: 'Horseshoe', labelFr: 'Fer à Cheval', cost: 7 },
   { cards: 10, labelEn: 'Celtic Cross', labelFr: 'Croix Celtique', cost: 10 },
@@ -72,6 +76,26 @@ const UNIFIED_COLOR_THEME: ColorTheme = {
 // Category configurations
 export const CATEGORIES: CategoryConfig[] = [
   {
+    id: 'general',
+    labelEn: 'General Guidance',
+    labelFr: 'Guidance Générale',
+    taglineEn: 'Ask about anything on your mind',
+    taglineFr: 'Posez toute question qui vous tient à cœur',
+    icon: createElement(MessageCircle, { className: 'w-6 h-6' }),
+    colorTheme: UNIFIED_COLOR_THEME,
+    depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
+    defaultLayouts: {
+      2: 'situation_guidance',
+      3: 'past_present_future',
+      5: 'iceberg',
+    },
+    availableLayouts: {
+      2: ['situation_guidance', 'question_answer', 'light_shadow'],
+      3: ['past_present_future', 'situation_action_outcome', 'mind_body_spirit'],
+      5: ['iceberg', 'alchemy', 'seasons'],
+    },
+  },
+  {
     id: 'love',
     labelEn: 'Love & Relationships',
     labelFr: 'Amour & Relations',
@@ -79,12 +103,14 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Explorez les schémas qui façonnent vos liens',
     icon: createElement(Heart, { className: 'w-6 h-6' }),
     colorTheme: UNIFIED_COLOR_THEME,
-    depths: [1, 3, 5, 7, 10] as ReadingDepth[],
+    depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      2: 'inner_outer',
       3: 'you_them_connection',
       5: 'love_relationships',
     },
     availableLayouts: {
+      2: ['inner_outer', 'light_shadow', 'challenge_strength'],
       3: ['you_them_connection', 'mind_body_spirit', 'inner_child_love'],
       5: ['love_relationships', 'inner_child'],
     },
@@ -97,68 +123,56 @@ export const CATEGORIES: CategoryConfig[] = [
     taglineFr: 'Clarifiez votre prochaine étape professionnelle',
     icon: createElement(Briefcase, { className: 'w-6 h-6' }),
     colorTheme: UNIFIED_COLOR_THEME,
-    depths: [1, 3, 5, 7, 10] as ReadingDepth[],
+    depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      2: 'challenge_strength',
       3: 'situation_action_outcome',
       5: 'career_purpose',
     },
     availableLayouts: {
+      2: ['challenge_strength', 'situation_guidance', 'question_answer'],
       3: ['situation_action_outcome', 'situation_obstacle_path', 'inner_child_career'],
       5: ['career_purpose', 'values', 'inner_child_career'],
     },
   },
   {
-    id: 'money',
-    labelEn: 'Wealth & Alignment',
-    labelFr: 'Richesse & Alignement',
-    taglineEn: 'Understand your relationship with resources',
-    taglineFr: 'Comprenez votre relation avec les ressources',
-    icon: createElement(Coins, { className: 'w-6 h-6' }),
-    colorTheme: UNIFIED_COLOR_THEME,
-    depths: [1, 3, 5, 7, 10] as ReadingDepth[],
-    defaultLayouts: {
-      3: 'situation_action_outcome',
-      5: 'alchemy',
-    },
-    availableLayouts: {
-      3: ['situation_action_outcome', 'option_a_b_guidance', 'inner_child_money'],
-      5: ['alchemy', 'values', 'inner_child_money'],
-    },
-  },
-  {
     id: 'life_path',
-    labelEn: 'Life Path & Calling',
-    labelFr: 'Chemin de Vie & Appel',
-    taglineEn: 'Reflect on what feels aligned now',
-    taglineFr: 'Réfléchissez à ce qui vous semble aligné maintenant',
-    icon: createElement(Compass, { className: 'w-6 h-6' }),
+    labelEn: 'Spiritual / Wellbeing',
+    labelFr: 'Spirituel / Bien-être',
+    taglineEn: 'Inner peace, soul purpose, and spiritual growth',
+    taglineFr: 'Paix intérieure, mission de vie et croissance spirituelle',
+    icon: createElement(Sun, { className: 'w-6 h-6' }),
     colorTheme: UNIFIED_COLOR_THEME,
-    depths: [1, 3, 5, 7, 10] as ReadingDepth[],
+    depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      2: 'light_shadow',
       3: 'past_present_future',
       5: 'authentic_self',
     },
     availableLayouts: {
+      2: ['light_shadow', 'inner_outer', 'question_answer'],
       3: ['past_present_future', 'challenge_support_growth', 'inner_child_life_path'],
       5: ['authentic_self', 'alchemy', 'inner_child_life_path'],
     },
   },
   {
-    id: 'family',
-    labelEn: 'Hearth & Home',
-    labelFr: 'Foyer & Cocon',
-    taglineEn: 'Strengthen the foundations that support you',
-    taglineFr: 'Renforcez les fondations qui vous soutiennent',
-    icon: createElement(Users, { className: 'w-6 h-6' }),
+    id: 'growth',
+    labelEn: 'Personal Growth',
+    labelFr: 'Développement Personnel',
+    taglineEn: 'Self-development, habits, and transformation',
+    taglineFr: 'Développement de soi, habitudes et transformation',
+    icon: createElement(Sprout, { className: 'w-6 h-6' }),
     colorTheme: UNIFIED_COLOR_THEME,
-    depths: [1, 3, 5, 7, 10] as ReadingDepth[],
+    depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
-      3: 'you_them_connection',
-      5: 'inner_child',
+      2: 'challenge_strength',
+      3: 'challenge_support_growth',
+      5: 'authentic_self',
     },
     availableLayouts: {
-      3: ['you_them_connection', 'mind_body_spirit', 'the_circle'],
-      5: ['inner_child', 'safe_space', 'self_discovery'],
+      2: ['challenge_strength', 'light_shadow', 'inner_outer'],
+      3: ['challenge_support_growth', 'mind_body_spirit', 'inner_child_growth'],
+      5: ['authentic_self', 'alchemy', 'values'],
     },
   },
   {

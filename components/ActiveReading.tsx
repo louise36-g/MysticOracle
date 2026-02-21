@@ -17,6 +17,7 @@ import { getCategory } from '../constants/categoryConfig';
 import {
   createReading,
   updateReadingReflection,
+  generateClarificationCard,
 } from '../services/api';
 import { trackStartReading, trackCompleteReading } from '../utils/analytics';
 import { shuffleDeck } from '../utils/shuffle';
@@ -28,6 +29,7 @@ import {
   InterpretationPhase,
 } from './reading';
 import CategoryIntroPhase from './reading/phases/CategoryIntroPhase';
+import { TwoCardLayoutId } from '../constants/twoCardLayouts';
 import { ThreeCardLayoutId } from '../constants/threeCardLayouts';
 import { FiveCardLayoutId } from '../constants/fiveCardLayouts';
 import { HorseshoeLayoutId } from '../constants/horseshoeLayouts';
@@ -73,11 +75,15 @@ const LOADING_MESSAGES = {
  */
 function getLayoutId(
   spreadType: SpreadType,
+  twoCardLayout: TwoCardLayoutId | null,
   threeCardLayout: ThreeCardLayoutId | null,
   fiveCardLayout: FiveCardLayoutId | null,
   horseshoeLayout: HorseshoeLayoutId | null,
   celticCrossLayout: CelticCrossLayoutId | null
 ): string | undefined {
+  if (spreadType === SpreadType.TWO_CARD && twoCardLayout) {
+    return twoCardLayout;
+  }
   if (spreadType === SpreadType.THREE_CARD && threeCardLayout) {
     return threeCardLayout;
   }
@@ -94,7 +100,7 @@ function getLayoutId(
 }
 
 // Valid reading categories for URL validation
-const VALID_CATEGORIES: ReadingCategory[] = ['love', 'career', 'money', 'life_path', 'family'];
+const VALID_CATEGORIES: ReadingCategory[] = ['general', 'love', 'career', 'life_path', 'growth'];
 
 const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFinish }) => {
   // Category-first URL params: /reading/:category/:depth
@@ -129,7 +135,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   useEffect(() => {
     // Check for valid category (not birth_cards - that's handled by BirthCardEntry)
     const isValidCategory = VALID_CATEGORIES.includes(category);
-    const isValidDepth = [1, 3, 5, 7, 10].includes(depth);
+    const isValidDepth = [1, 2, 3, 5, 7, 10].includes(depth);
 
     if (!spread || !isValidCategory || !isValidDepth) {
       navigate(ROUTES.READING, { replace: true });
@@ -221,7 +227,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Guard against multiple save attempts
   const [isSavingReading, setIsSavingReading] = useState(false);
 
-  // Layout state (used for 3-card and 5-card spreads)
+  // Layout state (used for 2-card, 3-card, and 5-card spreads)
+  const [twoCardLayout, setTwoCardLayout] = useState<TwoCardLayoutId | null>(null);
   const [threeCardLayout, setThreeCardLayout] = useState<ThreeCardLayoutId | null>(null);
   const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
 
@@ -245,6 +252,14 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Reading context panel state (expanded by default to show question and cards)
   const [isContextExpanded, setIsContextExpanded] = useState(true);
+
+  // Clarification card state
+  const [clarificationCard, setClarificationCard] = useState<{
+    card: TarotCard;
+    isReversed: boolean;
+    interpretation: string;
+  } | null>(null);
+  const [isClarificationLoading, setIsClarificationLoading] = useState(false);
 
   // Oracle chat hook for follow-up questions
   const {
@@ -271,6 +286,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Set default layouts based on category config on mount
   useEffect(() => {
     if (categoryConfig) {
+      // Set default 2-card layout if not already set
+      if (!twoCardLayout && depth === 2 && categoryConfig.defaultLayouts?.[2]) {
+        setTwoCardLayout(categoryConfig.defaultLayouts[2] as TwoCardLayoutId);
+      }
       // Set default 3-card layout if not already set
       if (!threeCardLayout && depth === 3 && categoryConfig.defaultLayouts?.[3]) {
         setThreeCardLayout(categoryConfig.defaultLayouts[3] as ThreeCardLayoutId);
@@ -280,7 +299,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         setFiveCardLayout(categoryConfig.defaultLayouts[5] as FiveCardLayoutId);
       }
     }
-  }, [category, depth, categoryConfig, threeCardLayout, fiveCardLayout]);
+  }, [category, depth, categoryConfig, twoCardLayout, threeCardLayout, fiveCardLayout]);
 
   // Scroll to top when phase changes
   useEffect(() => {
@@ -295,7 +314,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [language]);
 
   const regenerateReading = useCallback(async () => {
-    const layoutId = getLayoutId(spread.id, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
+    const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -322,7 +341,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -423,7 +442,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
     setPhase('reading');
 
-    const layoutId = getLayoutId(spread.id, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
+    const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -517,7 +536,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -535,6 +554,48 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
     await updateReadingReflection(token, backendReadingId, reflection);
   }, [backendReadingId, getToken]);
+
+  // Handle drawing a clarification card
+  const handleDrawClarification = useCallback(async () => {
+    if (!backendReadingId || isClarificationLoading || clarificationCard) return;
+
+    setIsClarificationLoading(true);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+
+      // Draw a card from the remaining deck (exclude already-drawn cards)
+      const drawnCardIds = new Set(drawnCards.map(dc => dc.card.id));
+      const remainingDeck = FULL_DECK.filter(c => !drawnCardIds.has(c.id));
+      const randomIndex = Math.floor(Math.random() * remainingDeck.length);
+      const selectedCard = remainingDeck[randomIndex];
+      const isReversed = Math.random() < 0.10;
+
+      const result = await generateClarificationCard(token, {
+        readingId: backendReadingId,
+        card: {
+          id: selectedCard.id,
+          nameEn: selectedCard.nameEn,
+          nameFr: selectedCard.nameFr,
+        },
+        isReversed,
+        language,
+      });
+
+      setClarificationCard({
+        card: selectedCard,
+        isReversed,
+        interpretation: result.interpretation,
+      });
+
+      // Refresh user to get updated credit balance
+      await refreshUser();
+    } catch (error) {
+      console.error('[Clarification] Failed:', error);
+    } finally {
+      setIsClarificationLoading(false);
+    }
+  }, [backendReadingId, isClarificationLoading, clarificationCard, drawnCards, language, getToken, refreshUser]);
 
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -561,10 +622,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           language={language}
           category={category}
           depth={depth}
-          selectedLayout={threeCardLayout || fiveCardLayout}
+          selectedLayout={twoCardLayout || threeCardLayout || fiveCardLayout}
           onLayoutSelect={(layoutId) => {
             // Set appropriate layout state based on depth
-            if (depth === 3) {
+            if (depth === 2) {
+              setTwoCardLayout(layoutId as TwoCardLayoutId);
+            } else if (depth === 3) {
               setThreeCardLayout(layoutId as ThreeCardLayoutId);
             } else if (depth === 5) {
               setFiveCardLayout(layoutId as FiveCardLayoutId);
@@ -637,6 +700,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         threeCardLayout={threeCardLayout}
         fiveCardLayout={fiveCardLayout}
         category={category}
+        clarificationCard={clarificationCard}
+        isClarificationLoading={isClarificationLoading}
+        canDrawClarification={!!backendReadingId && !clarificationCard && !isClarificationLoading}
+        onDrawClarification={handleDrawClarification}
         onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
         onFinish={handleFinish}
         onCelebrationComplete={handleCelebrationComplete}

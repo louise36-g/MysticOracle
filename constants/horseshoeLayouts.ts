@@ -1,11 +1,11 @@
 // constants/horseshoeLayouts.ts
 
 export type HorseshoeCategory =
+  | 'general'
   | 'love'
   | 'career'
-  | 'money'
   | 'life_path'
-  | 'family';
+  | 'growth';
 
 export type HorseshoeLayoutId =
   | 'new_connection'
@@ -27,7 +27,11 @@ export type HorseshoeLayoutId =
   | 'family_dynamics'
   | 'parenting'
   | 'friendships'
-  | 'difficult_relatives';
+  | 'difficult_relatives'
+  | 'personal_patterns'
+  | 'habit_transformation'
+  | 'self_discovery_deep'
+  | 'growth_catalyst';
 
 export interface HorseshoeLayout {
   id: HorseshoeLayoutId;
@@ -286,6 +290,51 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
       fr: ['Histoire de cette relation', 'La tension actuelle', 'Ce qui motive leur comportement', 'Déclencheurs présents dans cette dynamique', 'Limites qui peuvent être nécessaires', 'Comment protéger la paix intérieure', 'À quoi l\'acceptation pourrait ressembler'],
     },
   },
+  // Category: Personal Growth
+  personal_patterns: {
+    id: 'personal_patterns',
+    labelEn: 'Personal Patterns',
+    labelFr: 'Schémas Personnels',
+    taglineEn: 'Uncover the repeating patterns in your life and understand what they\'re teaching you.',
+    taglineFr: 'Découvrez les schémas répétitifs de votre vie et comprenez ce qu\'ils vous enseignent.',
+    positions: {
+      en: ['The pattern\'s origin', 'How it shows up now', 'What it\'s trying to protect', 'What it costs you', 'The lesson within it', 'How to begin shifting', 'Who you become without it'],
+      fr: ['L\'origine du schéma', 'Comment il se manifeste maintenant', 'Ce qu\'il essaie de protéger', 'Ce qu\'il vous coûte', 'La leçon qu\'il contient', 'Comment commencer à changer', 'Qui vous devenez sans lui'],
+    },
+  },
+  habit_transformation: {
+    id: 'habit_transformation',
+    labelEn: 'Habit Transformation',
+    labelFr: 'Transformation des Habitudes',
+    taglineEn: 'Ready to break old habits or build new ones? Understand the forces at play and find your path to lasting change.',
+    taglineFr: 'Prêt à briser de vieilles habitudes ou en créer de nouvelles ? Comprenez les forces en jeu et trouvez votre chemin vers un changement durable.',
+    positions: {
+      en: ['The habit\'s roots', 'Its current hold on you', 'What triggers it', 'What you really need instead', 'Hidden strengths to draw on', 'The first step forward', 'The person you\'re becoming'],
+      fr: ['Les racines de l\'habitude', 'Son emprise actuelle', 'Ce qui la déclenche', 'Ce dont vous avez vraiment besoin', 'Forces cachées à mobiliser', 'Le premier pas en avant', 'La personne que vous devenez'],
+    },
+  },
+  self_discovery_deep: {
+    id: 'self_discovery_deep',
+    labelEn: 'Deep Self-Discovery',
+    labelFr: 'Découverte de Soi Profonde',
+    taglineEn: 'Journey inward to understand who you truly are beneath the roles you play.',
+    taglineFr: 'Voyagez en vous-même pour comprendre qui vous êtes vraiment sous les rôles que vous jouez.',
+    positions: {
+      en: ['The mask you wear', 'What lies beneath', 'Your deepest strength', 'Your growing edge', 'What you\'ve been avoiding', 'What wants to emerge', 'Your authentic self'],
+      fr: ['Le masque que vous portez', 'Ce qui se cache dessous', 'Votre force la plus profonde', 'Votre zone de croissance', 'Ce que vous avez évité', 'Ce qui veut émerger', 'Votre moi authentique'],
+    },
+  },
+  growth_catalyst: {
+    id: 'growth_catalyst',
+    labelEn: 'Growth Catalyst',
+    labelFr: 'Catalyseur de Croissance',
+    taglineEn: 'Something is pushing you to evolve. Discover what\'s catalyzing your growth and how to work with it.',
+    taglineFr: 'Quelque chose vous pousse à évoluer. Découvrez ce qui catalyse votre croissance et comment travailler avec.',
+    positions: {
+      en: ['Where you\'ve been', 'Where you are now', 'The catalyst for change', 'What resists the growth', 'Unexpected resources', 'The courage needed', 'Where this growth leads'],
+      fr: ['Où vous avez été', 'Où vous êtes maintenant', 'Le catalyseur du changement', 'Ce qui résiste à la croissance', 'Ressources inattendues', 'Le courage nécessaire', 'Où cette croissance mène'],
+    },
+  },
 };
 
 // Category configurations
@@ -313,37 +362,37 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
     defaultLayout: 'career_crossroads',
   },
   {
-    id: 'money',
-    labelEn: 'Wealth & Alignment',
-    labelFr: 'Richesse & Alignement',
-    taglineEn: 'Understanding abundance and security',
-    taglineFr: 'Comprendre l\'abondance et la sécurité',
-    iconName: 'Coins',
-    colorClass: 'amber',
-    layouts: ['financial_stability', 'abundance_blocks', 'money_decisions', 'financial_recovery'],
-    defaultLayout: 'financial_stability',
+    id: 'general',
+    labelEn: 'General Guidance',
+    labelFr: 'Guidance Générale',
+    taglineEn: 'Insight on any topic',
+    taglineFr: 'Éclairage sur tout sujet',
+    iconName: 'MessageCircle',
+    colorClass: 'purple',
+    layouts: ['right_path', 'life_transitions', 'major_decisions', 'whats_ahead'],
+    defaultLayout: 'whats_ahead',
   },
   {
     id: 'life_path',
-    labelEn: 'Life Path',
-    labelFr: 'Chemin de Vie',
-    taglineEn: 'Finding direction and clarity',
-    taglineFr: 'Trouver direction et clarté',
-    iconName: 'Compass',
+    labelEn: 'Spiritual / Wellbeing',
+    labelFr: 'Spirituel / Bien-être',
+    taglineEn: 'Inner peace and soul purpose',
+    taglineFr: 'Paix intérieure et mission de vie',
+    iconName: 'Sun',
     colorClass: 'purple',
     layouts: ['right_path', 'life_transitions', 'major_decisions', 'whats_ahead'],
     defaultLayout: 'right_path',
   },
   {
-    id: 'family',
-    labelEn: 'Hearth & Home',
-    labelFr: 'Foyer & Cocon',
-    taglineEn: 'Nurturing important bonds',
-    taglineFr: 'Nourrir les liens importants',
-    iconName: 'Users',
+    id: 'growth',
+    labelEn: 'Personal Growth',
+    labelFr: 'Développement Personnel',
+    taglineEn: 'Self-development and transformation',
+    taglineFr: 'Développement de soi et transformation',
+    iconName: 'Sprout',
     colorClass: 'teal',
-    layouts: ['family_dynamics', 'parenting', 'friendships', 'difficult_relatives'],
-    defaultLayout: 'family_dynamics',
+    layouts: ['personal_patterns', 'habit_transformation', 'self_discovery_deep', 'growth_catalyst'],
+    defaultLayout: 'personal_patterns',
   },
 ];
 
@@ -457,6 +506,28 @@ export const HORSESHOE_LAYOUT_QUESTIONS: Record<HorseshoeLayoutId, HorseshoeQues
     { id: 'hs_dr1', textEn: 'What invisible thread is shaping the bonds within my family?', textFr: 'Quel fil invisible façonne les liens au sein de ma famille ?' },
     { id: 'hs_dr2', textEn: 'What do my roots need from me right now?', textFr: 'De quoi mes racines ont-elles besoin de ma part en ce moment ?' },
     { id: 'hs_dr3', textEn: 'What old family pattern is ready to be transformed with love?', textFr: 'Quel ancien schéma familial est prêt à être transformé avec amour ?' },
+  ],
+
+  // Personal Growth
+  personal_patterns: [
+    { id: 'hs_pp1', textEn: 'What repeating pattern in my life is ready to be understood?', textFr: 'Quel schéma répétitif dans ma vie est prêt à être compris ?' },
+    { id: 'hs_pp2', textEn: 'What is my strongest unconscious habit teaching me?', textFr: 'Que m\'enseigne mon habitude inconsciente la plus forte ?' },
+    { id: 'hs_pp3', textEn: 'What part of myself am I ready to outgrow?', textFr: 'Quelle part de moi-même suis-je prêt(e) à dépasser ?' },
+  ],
+  habit_transformation: [
+    { id: 'hs_ht1', textEn: 'What habit no longer serves who I am becoming?', textFr: 'Quelle habitude ne sert plus la personne que je deviens ?' },
+    { id: 'hs_ht2', textEn: 'What hidden need is my most stubborn habit trying to meet?', textFr: 'Quel besoin caché mon habitude la plus tenace essaie-t-elle de satisfaire ?' },
+    { id: 'hs_ht3', textEn: 'What new practice would support my growth right now?', textFr: 'Quelle nouvelle pratique soutiendrait ma croissance en ce moment ?' },
+  ],
+  self_discovery_deep: [
+    { id: 'hs_sd1', textEn: 'What truth about myself am I only just beginning to see?', textFr: 'Quelle vérité sur moi-même suis-je en train de commencer à voir ?' },
+    { id: 'hs_sd2', textEn: 'What strength do I possess that I haven\'t fully claimed?', textFr: 'Quelle force est-ce que je possède sans l\'avoir pleinement revendiquée ?' },
+    { id: 'hs_sd3', textEn: 'What would change if I truly accepted who I am?', textFr: 'Qu\'est-ce qui changerait si j\'acceptais vraiment qui je suis ?' },
+  ],
+  growth_catalyst: [
+    { id: 'hs_gc1', textEn: 'What is the universe catalyzing in my personal evolution?', textFr: 'Que catalyse l\'univers dans mon évolution personnelle ?' },
+    { id: 'hs_gc2', textEn: 'What resistance in me is actually pointing toward my next breakthrough?', textFr: 'Quelle résistance en moi pointe en réalité vers ma prochaine percée ?' },
+    { id: 'hs_gc3', textEn: 'What would I dare to become if fear wasn\'t a factor?', textFr: 'Que deviendrais-je si la peur n\'était pas un facteur ?' },
   ],
 };
 

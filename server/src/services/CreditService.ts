@@ -43,6 +43,7 @@ export interface BalanceCheck {
 export const CREDIT_COSTS = {
   SPREAD: {
     SINGLE: 1,
+    TWO_CARD: 2,
     THREE_CARD: 3,
     FIVE_CARD: 5,
     LOVE: 5,
@@ -50,6 +51,7 @@ export const CREDIT_COSTS = {
     HORSESHOE: 7,
     CELTIC_CROSS: 10,
   },
+  CLARIFICATION: 1,
   FOLLOW_UP: 1,
   SUMMARIZE_QUESTION: 1,
   WELCOME_BONUS: 3,
