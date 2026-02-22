@@ -59,27 +59,27 @@ router.get('/overview', async (req, res) => {
       prisma.tarotArticle.findMany({
         where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
     ]);
 
@@ -183,7 +183,7 @@ router.get('/', async (req, res) => {
       prisma.tarotArticle.findMany({
         where,
         select: articleListFields,
-        orderBy: { sortOrder: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

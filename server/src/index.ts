@@ -337,10 +337,41 @@ app.listen(PORT, async () => {
   console.log(`🔮 CelestiArcana API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 
-  // Flush tarot cache on startup to pick up sort order fix
-  const { cacheService } = await import('./services/cache.js');
-  await cacheService.invalidateTarot();
-  console.log('[Cache] Tarot cache cleared on startup');
+  // One-time fix: assign sequential sortOrder to articles that all have sortOrder=0
+  try {
+    const { prisma: prismaClient } = await import('./db/prisma.js');
+    const { cacheService } = await import('./services/cache.js');
+    const cardTypes = [
+      'MAJOR_ARCANA',
+      'SUIT_OF_WANDS',
+      'SUIT_OF_CUPS',
+      'SUIT_OF_SWORDS',
+      'SUIT_OF_PENTACLES',
+    ] as const;
+    for (const cardType of cardTypes) {
+      const articles = await prismaClient.tarotArticle.findMany({
+        where: { cardType, deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, sortOrder: true },
+      });
+      const allZero = articles.every(a => a.sortOrder === 0);
+      if (allZero && articles.length > 1) {
+        await prismaClient.$transaction(
+          articles.map((article, index) =>
+            prismaClient.tarotArticle.update({
+              where: { id: article.id },
+              data: { sortOrder: index },
+            })
+          )
+        );
+        console.log(`[SortOrder] Initialized ${articles.length} ${cardType} articles`);
+      }
+    }
+    await cacheService.invalidateTarot();
+    console.log('[Cache] Tarot cache cleared on startup');
+  } catch (err) {
+    console.error('[SortOrder] Failed to initialize sort order:', err);
+  }
 
   // Schedule background jobs
   scheduleHoroscopeCleanup();
