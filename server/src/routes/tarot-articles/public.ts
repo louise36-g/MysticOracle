@@ -12,7 +12,6 @@ import {
   cacheService,
   CacheService,
   z,
-  sortByCardNumber,
   articleListFields,
   articleFullFields,
   transformArticleResponse,
@@ -60,44 +59,42 @@ router.get('/overview', async (req, res) => {
       prisma.tarotArticle.findMany({
         where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
+        orderBy: { sortOrder: 'asc' },
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
+        orderBy: { sortOrder: 'asc' },
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
+        orderBy: { sortOrder: 'asc' },
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
+        orderBy: { sortOrder: 'asc' },
       }),
       prisma.tarotArticle.findMany({
         where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
         select: selectFields,
+        orderBy: { sortOrder: 'asc' },
       }),
     ]);
 
-    // Sort all arrays numerically by cardNumber
-    const sortedMajorArcana = sortByCardNumber(majorArcana);
-    const sortedWands = sortByCardNumber(wands);
-    const sortedCups = sortByCardNumber(cups);
-    const sortedSwords = sortByCardNumber(swords);
-    const sortedPentacles = sortByCardNumber(pentacles);
-
     const result = {
-      majorArcana: sortedMajorArcana,
-      wands: sortedWands,
-      cups: sortedCups,
-      swords: sortedSwords,
-      pentacles: sortedPentacles,
+      majorArcana,
+      wands,
+      cups,
+      swords,
+      pentacles,
       counts: {
-        majorArcana: sortedMajorArcana.length,
-        wands: sortedWands.length,
-        cups: sortedCups.length,
-        swords: sortedSwords.length,
-        pentacles: sortedPentacles.length,
+        majorArcana: majorArcana.length,
+        wands: wands.length,
+        cups: cups.length,
+        swords: swords.length,
+        pentacles: pentacles.length,
       },
     };
 
@@ -170,7 +167,7 @@ const listArticlesSchema = z.object({
 router.get('/', async (req, res) => {
   try {
     const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status, sortBy } = params;
+    const { page, limit, cardType, status } = params;
 
     const where: Prisma.TarotArticleWhereInput = {
       status: status || 'PUBLISHED',
@@ -181,36 +178,12 @@ router.get('/', async (req, res) => {
       where.cardType = cardType;
     }
 
-    // For cardNumber sorting, fetch all and sort in JS
-    if (sortBy === 'cardNumber') {
-      const [allArticles, total] = await Promise.all([
-        prisma.tarotArticle.findMany({
-          where,
-          select: articleListFields,
-        }),
-        prisma.tarotArticle.count({ where }),
-      ]);
-
-      const sorted = sortByCardNumber(allArticles);
-      const paginated = sorted.slice((page - 1) * limit, page * limit);
-
-      return res.json({
-        articles: paginated,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-        },
-      });
-    }
-
-    // Default date-based sorting
+    // Sort by admin-configured sortOrder (respects drag-drop reordering)
     const [articles, total] = await Promise.all([
       prisma.tarotArticle.findMany({
         where,
         select: articleListFields,
-        orderBy: { datePublished: 'desc' },
+        orderBy: { sortOrder: 'asc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
