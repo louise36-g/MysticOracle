@@ -1,7 +1,7 @@
 {
-  "name": "CelestiArcana - Tarot Readings & Horoscopes",
+  "name": "CelestiArcana - Tarot Readings",
   "short_name": "CelestiArcana",
-  "description": "Personalized tarot readings rooted in classical card interpretation. Choose your spread, draw your cards, and receive guidance woven from ancient tarot wisdom.",
+  "description": "Classical card interpretations to help you reflect, realign and reconnect with your inner truth.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0c29",
