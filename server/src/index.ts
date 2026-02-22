@@ -333,9 +333,14 @@ function scheduleHoroscopeCleanup(): void {
 }
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🔮 CelestiArcana API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Flush tarot cache on startup to pick up sort order fix
+  const { cacheService } = await import('./services/cache.js');
+  await cacheService.invalidateTarot();
+  console.log('[Cache] Tarot cache cleared on startup');
 
   // Schedule background jobs
   scheduleHoroscopeCleanup();
