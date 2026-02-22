@@ -303,6 +303,7 @@ const FAQ: React.FC = () => {
 
   // Get actual costs from constants (with safe access for spreads that may not exist)
   const singleCardCost = SPREADS[SpreadType.SINGLE]?.cost ?? 1;
+  const twoCardCost = SPREADS[SpreadType.TWO_CARD]?.cost ?? 2;
   const threeCardCost = SPREADS[SpreadType.THREE_CARD]?.cost ?? 3;
   const fiveCardCost = SPREADS[SpreadType.FIVE_CARD]?.cost ?? 5;
   const horseshoeCost = SPREADS[SpreadType.HORSESHOE]?.cost ?? 7;
@@ -437,8 +438,8 @@ const FAQ: React.FC = () => {
               answer={
                 <span>
                   {language === 'en'
-                    ? `A Single Card reading costs ${singleCardCost} credit. Three Card spreads cost ${threeCardCost} credits. Five Card spreads (Love & Career) cost ${fiveCardCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
-                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages à Cinq Cartes (Amour & Carrière) coûtent ${fiveCardCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
+                    ? `A Single Card reading costs ${singleCardCost} credit. Two Card spreads cost ${twoCardCost} credits. Three Card spreads cost ${threeCardCost} credits. Five Card spreads (Love & Career) cost ${fiveCardCost} credits. Horseshoe spreads cost ${horseshoeCost} credits. The comprehensive Celtic Cross costs ${celticCrossCost} credits. Follow-up questions: 2 questions for ${FOLLOW_UP_CREDIT_COST} credit.`
+                    : `Une lecture Carte Unique coûte ${singleCardCost} crédit. Les tirages à Deux Cartes coûtent ${twoCardCost} crédits. Les tirages à Trois Cartes coûtent ${threeCardCost} crédits. Les tirages à Cinq Cartes (Amour & Carrière) coûtent ${fiveCardCost} crédits. Les tirages Fer à Cheval coûtent ${horseshoeCost} crédits. La Croix Celtique complète coûte ${celticCrossCost} crédits. Questions de suivi : 2 questions pour ${FOLLOW_UP_CREDIT_COST} crédit.`
                   }{' '}
                   <StyledLink to={ROUTES.HOW_CREDITS_WORK}>{t.credits.seeFullPricing}</StyledLink>
                 </span>
