@@ -141,16 +141,6 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
         : `Retour à ${previousNavigableStep.shortLabelFr}`)
     : (language === 'en' ? 'Exit reading' : 'Quitter la lecture');
 
-  // Particle positions for constellation effect (static, no animation)
-  const particles = useMemo(() =>
-    Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 1,
-    })), []
-  );
-
   return (
     <div className="relative">
       {/* Back button - goes to previous step or exits */}
@@ -164,24 +154,8 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
       </motion.button>
 
-      {/* Main stepper container */}
-      <div className="relative ml-10 px-4 py-3 rounded-2xl bg-gradient-to-r from-black/40 via-black/30 to-black/40 border border-white/[0.08] backdrop-blur-sm overflow-hidden">
-        {/* Static particles (constellation stars) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {particles.map(p => (
-            <div
-              key={p.id}
-              className="absolute rounded-full bg-white/20"
-              style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
-                width: p.size,
-                height: p.size,
-              }}
-            />
-          ))}
-        </div>
-
+      {/* Main stepper container - transparent, sits on page background */}
+      <div className="relative ml-10 px-2 py-1.5 overflow-hidden">
         {/* Steps */}
         <div className="relative flex items-center justify-between gap-1 md:gap-2">
           {STEPS.map((step, index) => {
@@ -284,7 +258,7 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
           key={currentPhase}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:hidden text-center mt-2 pt-2 border-t border-white/5"
+          className="lg:hidden text-center mt-1.5"
         >
           <span className="text-xs text-slate-400">
             {language === 'en'
