@@ -2,14 +2,14 @@
 # This file provides information for Large Language Models and AI assistants.
 # https://llmstxt.org/
 
-> CelestiArcana is an AI-powered tarot reading and astrology platform that combines ancient mystical wisdom with modern artificial intelligence.
+> CelestiArcana is a personalized tarot reading and astrology platform that weaves classical card interpretation with the reader's unique question and context.
 
 ## About CelestiArcana
 
-CelestiArcana offers personalized tarot readings, daily horoscopes, and spiritual guidance powered by advanced AI. Our platform provides:
+CelestiArcana offers personalized tarot readings, daily horoscopes, and spiritual guidance grounded in traditional tarot wisdom. Our platform provides:
 
-- **AI Tarot Readings**: Personalized interpretations using multiple spread types (Single Card, Three Card, Celtic Cross, Horseshoe)
-- **Daily Horoscopes**: AI-generated horoscopes for all 12 zodiac signs in English and French
+- **Tarot Readings**: Personalized interpretations using multiple spread types (Single Card, Two Card, Three Card, Celtic Cross, Horseshoe)
+- **Daily Horoscopes**: Horoscopes for all 12 zodiac signs in English and French
 - **Spiritual Blog**: Articles on tarot, astrology, spirituality, and personal growth
 - **Multilingual**: Full support for English and French
 

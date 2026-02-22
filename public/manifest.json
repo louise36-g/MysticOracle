@@ -1,7 +1,7 @@
 {
-  "name": "CelestiArcana - AI Tarot Readings",
+  "name": "CelestiArcana - Tarot Readings & Horoscopes",
   "short_name": "CelestiArcana",
-  "description": "AI-powered tarot readings and daily horoscopes. Discover your destiny through ancient wisdom and modern technology.",
+  "description": "Personalized tarot readings rooted in classical card interpretation. Choose your spread, draw your cards, and receive guidance woven from ancient tarot wisdom.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0c29",
