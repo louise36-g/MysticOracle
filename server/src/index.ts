@@ -368,7 +368,8 @@ app.listen(PORT, async () => {
       }
     }
     await cacheService.invalidateTarot();
-    console.log('[Cache] Tarot cache cleared on startup');
+    await cacheService.invalidateBlog();
+    console.log('[Cache] Tarot + blog cache cleared on startup');
   } catch (err) {
     console.error('[SortOrder] Failed to initialize sort order:', err);
   }

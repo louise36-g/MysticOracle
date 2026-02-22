@@ -78,7 +78,9 @@ router.get('/posts', async (req, res) => {
             include: { tag: { select: { slug: true, nameEn: true, nameFr: true } } },
           },
         },
-        orderBy: [{ featured: 'desc' }, { publishedAt: 'desc' }],
+        orderBy: params.category
+          ? [{ sortOrder: 'asc' }, { publishedAt: 'desc' }]
+          : [{ featured: 'desc' }, { publishedAt: 'desc' }],
         skip: (params.page - 1) * params.limit,
         take: params.limit,
       }),
