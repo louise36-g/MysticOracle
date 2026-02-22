@@ -53,18 +53,18 @@ const CATEGORY_QUESTIONS: Partial<Record<ReadingCategory, QuestionsByDepth>> = {
     3: [
       {
         id: 'gen_3_1',
-        textEn: 'What has brought me to this moment, where am I now, and where am I heading?',
-        textFr: "Qu'est-ce qui m'a mené(e) à ce moment, où en suis-je, et où vais-je ?",
+        textEn: 'What is the story of where I am right now?',
+        textFr: "Quelle est l'histoire de là où j'en suis en ce moment ?",
       },
       {
         id: 'gen_3_2',
-        textEn: 'What is visible on the surface, what lies beneath, and what needs to change?',
-        textFr: "Qu'est-ce qui est visible en surface, qu'est-ce qui se cache en dessous, et que faut-il changer ?",
+        textEn: 'What is this moment in my life truly asking of me?',
+        textFr: "Que me demande véritablement ce moment de ma vie ?",
       },
       {
         id: 'gen_3_3',
-        textEn: 'What do I need to release, what do I need to embrace, and what will guide me forward?',
-        textFr: "De quoi dois-je me libérer, que dois-je accueillir, et qu'est-ce qui me guidera ?",
+        textEn: 'What is ready to shift in my life right now?',
+        textFr: "Qu'est-ce qui est prêt à changer dans ma vie en ce moment ?",
       },
     ],
     5: [

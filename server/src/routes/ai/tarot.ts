@@ -454,9 +454,11 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    // Check if clarification already used
-    if (reading.hasClarification) {
-      return res.status(400).json({ error: 'Clarification card already drawn for this reading' });
+    // Check if max clarification cards reached (2 max)
+    if (reading.clarificationCard && reading.clarificationCard2) {
+      return res
+        .status(400)
+        .json({ error: 'Maximum clarification cards already drawn for this reading' });
     }
 
     // Check credits
@@ -506,18 +508,21 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
       description: 'Clarification card',
     });
 
-    // Save to reading
+    // Save to reading - use first or second slot
+    const isSecondCard = !!reading.clarificationCard;
+    const cardData = {
+      cardId: card.id,
+      isReversed,
+      cardNameEn: card.nameEn,
+      cardNameFr: card.nameFr,
+      interpretation,
+    };
+
     await prisma.reading.update({
       where: { id: readingId },
       data: {
         hasClarification: true,
-        clarificationCard: {
-          cardId: card.id,
-          isReversed,
-          cardNameEn: card.nameEn,
-          cardNameFr: card.nameFr,
-          interpretation,
-        },
+        ...(isSecondCard ? { clarificationCard2: cardData } : { clarificationCard: cardData }),
       },
     });
 

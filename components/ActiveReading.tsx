@@ -253,12 +253,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Reading context panel state (expanded by default to show question and cards)
   const [isContextExpanded, setIsContextExpanded] = useState(true);
 
-  // Clarification card state
-  const [clarificationCard, setClarificationCard] = useState<{
+  // Clarification cards state (max 2)
+  const [clarificationCards, setClarificationCards] = useState<Array<{
     card: TarotCard;
     isReversed: boolean;
     interpretation: string;
-  } | null>(null);
+  }>>([]);
   const [isClarificationLoading, setIsClarificationLoading] = useState(false);
 
   // Oracle chat hook for follow-up questions
@@ -555,17 +555,20 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     await updateReadingReflection(token, backendReadingId, reflection);
   }, [backendReadingId, getToken]);
 
-  // Handle drawing a clarification card
+  // Handle drawing a clarification card (max 2)
   const handleDrawClarification = useCallback(async () => {
-    if (!backendReadingId || isClarificationLoading || clarificationCard) return;
+    if (!backendReadingId || isClarificationLoading || clarificationCards.length >= 2) return;
 
     setIsClarificationLoading(true);
     try {
       const token = await getToken();
       if (!token) throw new Error('Not authenticated');
 
-      // Draw a card from the remaining deck (exclude already-drawn cards)
-      const drawnCardIds = new Set(drawnCards.map(dc => dc.card.id));
+      // Draw a card from the remaining deck (exclude already-drawn cards + previous clarification cards)
+      const drawnCardIds = new Set([
+        ...drawnCards.map(dc => dc.card.id),
+        ...clarificationCards.map(cc => cc.card.id),
+      ]);
       const remainingDeck = FULL_DECK.filter(c => !drawnCardIds.has(c.id));
       const randomIndex = Math.floor(Math.random() * remainingDeck.length);
       const selectedCard = remainingDeck[randomIndex];
@@ -582,11 +585,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         language,
       });
 
-      setClarificationCard({
+      setClarificationCards(prev => [...prev, {
         card: selectedCard,
         isReversed,
         interpretation: result.interpretation,
-      });
+      }]);
 
       // Refresh user to get updated credit balance
       await refreshUser();
@@ -595,7 +598,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsClarificationLoading(false);
     }
-  }, [backendReadingId, isClarificationLoading, clarificationCard, drawnCards, language, getToken, refreshUser]);
+  }, [backendReadingId, isClarificationLoading, clarificationCards, drawnCards, language, getToken, refreshUser]);
 
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -700,9 +703,9 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         threeCardLayout={threeCardLayout}
         fiveCardLayout={fiveCardLayout}
         category={category}
-        clarificationCard={clarificationCard}
+        clarificationCards={clarificationCards}
         isClarificationLoading={isClarificationLoading}
-        canDrawClarification={!!backendReadingId && !clarificationCard && !isClarificationLoading}
+        canDrawClarification={!!backendReadingId && clarificationCards.length < 2 && !isClarificationLoading}
         onDrawClarification={handleDrawClarification}
         onContextToggle={() => setIsContextExpanded(!isContextExpanded)}
         onFinish={handleFinish}

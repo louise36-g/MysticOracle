@@ -51,6 +51,7 @@ describe('CreateReadingUseCase', () => {
     userReflection: null,
     themes: [],
     clarificationCard: null,
+    clarificationCard2: null,
     hasClarification: false,
   };
 

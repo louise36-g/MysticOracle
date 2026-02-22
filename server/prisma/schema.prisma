@@ -86,8 +86,9 @@ model Reading {
   // AI Response
   interpretation  String   @db.Text
 
-  // Clarification card (max 1 per reading)
+  // Clarification cards (max 2 per reading)
   clarificationCard   Json?     // { cardId, isReversed, cardNameEn, cardNameFr, interpretation }
+  clarificationCard2  Json?     // Second clarification card (same format)
   hasClarification    Boolean   @default(false)
 
   // Post-reading enrichment

@@ -38,11 +38,11 @@ interface InterpretationPhaseProps {
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
   category?: ReadingCategory;
-  clarificationCard?: {
+  clarificationCards?: Array<{
     card: TarotCard;
     isReversed: boolean;
     interpretation: string;
-  } | null;
+  }>;
   isClarificationLoading?: boolean;
   canDrawClarification?: boolean;
   onDrawClarification?: () => void;
@@ -74,7 +74,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   threeCardLayout,
   fiveCardLayout,
   category,
-  clarificationCard,
+  clarificationCards = [],
   isClarificationLoading,
   canDrawClarification,
   onDrawClarification,
@@ -103,6 +103,17 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
 
   // Clarification card draw state
   const [hasStartedDraw, setHasStartedDraw] = React.useState(false);
+  const prevCardsLength = React.useRef(clarificationCards?.length ?? 0);
+
+  // Reset draw animation when a new card arrives
+  React.useEffect(() => {
+    const len = clarificationCards?.length ?? 0;
+    if (len > prevCardsLength.current && hasStartedDraw) {
+      setHasStartedDraw(false);
+    }
+    prevCardsLength.current = len;
+  }, [clarificationCards?.length, hasStartedDraw]);
+
   const handleDeckTap = () => {
     setHasStartedDraw(true);
     onDrawClarification?.();
@@ -326,21 +337,86 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                 </div>
 
                 {/* Clarification Card Section - inside reading box, above actions */}
-                {(canDrawClarification || clarificationCard || isClarificationLoading || hasStartedDraw) && (
+                {(canDrawClarification || clarificationCards.length > 0 || isClarificationLoading || hasStartedDraw) && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                     className="mt-8 pt-6 border-t border-white/10"
                   >
-                    {/* Mini deck - tap to draw */}
-                    {canDrawClarification && !hasStartedDraw && !clarificationCard && (
-                      <div className="flex flex-col items-center py-2">
+                    {/* Rendered clarification card results */}
+                    {clarificationCards.map((cCard, idx) => (
+                      <motion.div
+                        key={`clar-result-${idx}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={idx > 0 ? 'mt-6 pt-6 border-t border-white/10' : ''}
+                      >
+                        {/* Header */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
+                          <span className={`text-sm font-bold ${theme.textAccent} uppercase tracking-wider`}>
+                            {language === 'en'
+                              ? `Clarification Card${clarificationCards.length > 1 ? ` ${idx + 1}` : ''}`
+                              : `Carte de Clarification${clarificationCards.length > 1 ? ` ${idx + 1}` : ''}`}
+                          </span>
+                        </div>
+
+                        {/* Card display */}
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                          <motion.div
+                            initial={{ rotateY: 180, scale: 0.8 }}
+                            animate={{ rotateY: 0, scale: 1 }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            style={{ perspective: 800 }}
+                          >
+                            <Card
+                              card={cCard.card}
+                              isRevealed={true}
+                              isReversed={cCard.isReversed}
+                              width={100}
+                              height={155}
+                              className="shadow-lg"
+                              hideOverlay={true}
+                            />
+                          </motion.div>
+                          <div className="flex-1 text-center sm:text-left">
+                            <p className="text-white font-medium text-lg">
+                              {language === 'en' ? cCard.card.nameEn : cCard.card.nameFr}
+                            </p>
+                            {cCard.isReversed && (
+                              <span className="text-xs text-slate-400">
+                                ({language === 'en' ? 'Reversed' : 'Renversée'})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Interpretation */}
+                        <div className="border-t border-white/10 pt-4">
+                          {cCard.interpretation.split('\n').map((line, i) => {
+                            if (!line.trim()) return null;
+                            return (
+                              <p key={`clar-${idx}-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
+                                {line.replace(/\*\*/g, '')}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    ))}
+
+                    {/* Mini deck - tap to draw (shown after existing cards or as first prompt) */}
+                    {canDrawClarification && !hasStartedDraw && (
+                      <div className={`flex flex-col items-center py-2 ${clarificationCards.length > 0 ? 'mt-6 pt-6 border-t border-white/10' : ''}`}>
                         {/* Label + cost */}
                         <div className="flex items-center gap-2 mb-5">
                           <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
                           <span className={`text-xs font-bold ${theme.textAccent} uppercase tracking-wider`}>
-                            {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
+                            {clarificationCards.length > 0
+                              ? (language === 'en' ? 'Draw Another Card' : 'Tirer une Autre Carte')
+                              : (language === 'en' ? 'Clarification Card' : 'Carte de Clarification')}
                           </span>
                           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20">
                             <Coins className="w-3 h-3 text-amber-400" />
@@ -390,8 +466,8 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                     )}
 
                     {/* Card drawing animation + loading */}
-                    {hasStartedDraw && !clarificationCard && (
-                      <div className="flex flex-col items-center py-4">
+                    {hasStartedDraw && (
+                      <div className={`flex flex-col items-center py-4 ${clarificationCards.length > 0 ? 'mt-6 pt-6 border-t border-white/10' : ''}`}>
                         <div className="flex items-center gap-2 mb-5">
                           <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
                           <span className={`text-xs font-bold ${theme.textAccent} uppercase tracking-wider`}>
@@ -440,65 +516,6 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                           {language === 'en' ? 'Revealing your card...' : 'Révélation de votre carte...'}
                         </p>
                       </div>
-                    )}
-
-                    {/* Clarification result */}
-                    {clarificationCard && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {/* Header */}
-                        <div className="flex items-center gap-2 mb-4">
-                          <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
-                          <span className={`text-sm font-bold ${theme.textAccent} uppercase tracking-wider`}>
-                            {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
-                          </span>
-                        </div>
-
-                        {/* Card display */}
-                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-                          <motion.div
-                            initial={{ rotateY: 180, scale: 0.8 }}
-                            animate={{ rotateY: 0, scale: 1 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            style={{ perspective: 800 }}
-                          >
-                            <Card
-                              card={clarificationCard.card}
-                              isRevealed={true}
-                              isReversed={clarificationCard.isReversed}
-                              width={100}
-                              height={155}
-                              className="shadow-lg"
-                              hideOverlay={true}
-                            />
-                          </motion.div>
-                          <div className="flex-1 text-center sm:text-left">
-                            <p className="text-white font-medium text-lg">
-                              {language === 'en' ? clarificationCard.card.nameEn : clarificationCard.card.nameFr}
-                            </p>
-                            {clarificationCard.isReversed && (
-                              <span className="text-xs text-slate-400">
-                                ({language === 'en' ? 'Reversed' : 'Renversée'})
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Interpretation */}
-                        <div className="border-t border-white/10 pt-4">
-                          {clarificationCard.interpretation.split('\n').map((line, i) => {
-                            if (!line.trim()) return null;
-                            return (
-                              <p key={`clar-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
-                                {line.replace(/\*\*/g, '')}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
                     )}
                   </motion.div>
                 )}
