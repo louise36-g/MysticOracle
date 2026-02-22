@@ -101,6 +101,13 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
     secondary: spreadTheme.secondary,
   };
 
+  // Clarification card draw state
+  const [hasStartedDraw, setHasStartedDraw] = React.useState(false);
+  const handleDeckTap = () => {
+    setHasStartedDraw(true);
+    onDrawClarification?.();
+  };
+
   return (
     <div className="relative min-h-screen">
       {/* Themed Background - uses category colors when available */}
@@ -318,109 +325,192 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                   })}
                 </div>
 
+                {/* Clarification Card Section - inside reading box, above actions */}
+                {(canDrawClarification || clarificationCard || isClarificationLoading || hasStartedDraw) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-8 pt-6 border-t border-white/10"
+                  >
+                    {/* Mini deck - tap to draw */}
+                    {canDrawClarification && !hasStartedDraw && !clarificationCard && (
+                      <div className="flex flex-col items-center py-2">
+                        {/* Label + cost */}
+                        <div className="flex items-center gap-2 mb-5">
+                          <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
+                          <span className={`text-xs font-bold ${theme.textAccent} uppercase tracking-wider`}>
+                            {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
+                          </span>
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20">
+                            <Coins className="w-3 h-3 text-amber-400" />
+                            <span className="text-[10px] text-amber-300 font-medium">1</span>
+                          </div>
+                        </div>
+
+                        {/* Deck stack */}
+                        <motion.button
+                          onClick={handleDeckTap}
+                          className="relative w-24 h-36 focus:outline-none"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {/* Ambient glow behind deck */}
+                          <motion.div
+                            className="absolute inset-0 rounded-xl"
+                            style={{ background: `radial-gradient(ellipse, ${theme.glow} 0%, transparent 70%)` }}
+                            animate={{ opacity: [0.2, 0.5, 0.2], scale: [0.9, 1.1, 0.9] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                          />
+                          {/* Bottom card */}
+                          <div
+                            className="absolute bottom-0 left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/30 shadow-lg"
+                            style={{ transform: 'translateX(-50%) rotate(-5deg)' }}
+                          />
+                          {/* Middle card */}
+                          <div
+                            className="absolute bottom-1 left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/40 shadow-lg"
+                            style={{ transform: 'translateX(-50%) rotate(-1deg)' }}
+                          />
+                          {/* Top card - gently bobbing */}
+                          <motion.div
+                            className="absolute bottom-2 left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/60 shadow-xl flex items-center justify-center"
+                            style={{ x: '-50%', rotate: 2 }}
+                            animate={{ y: [0, -4, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          >
+                            <span className="text-amber-400/70 text-xl">☽</span>
+                          </motion.div>
+                        </motion.button>
+
+                        <p className="text-xs text-slate-500 mt-3">
+                          {language === 'en' ? 'Tap the deck to draw a card' : 'Touchez le paquet pour tirer une carte'}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Card drawing animation + loading */}
+                    {hasStartedDraw && !clarificationCard && (
+                      <div className="flex flex-col items-center py-4">
+                        <div className="flex items-center gap-2 mb-5">
+                          <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
+                          <span className={`text-xs font-bold ${theme.textAccent} uppercase tracking-wider`}>
+                            {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
+                          </span>
+                        </div>
+
+                        {/* Card lifting from deck */}
+                        <div className="relative w-24 h-40">
+                          {/* Remaining deck cards */}
+                          <div
+                            className="absolute bottom-0 left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/30 shadow-lg"
+                            style={{ transform: 'translateX(-50%) rotate(-3deg)' }}
+                          />
+                          <div
+                            className="absolute bottom-1 left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/40 shadow-lg"
+                            style={{ transform: 'translateX(-50%)' }}
+                          />
+                          {/* Drawn card - lifts and floats */}
+                          <motion.div
+                            className="absolute left-1/2 w-16 h-24 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-2 border-amber-500/60 shadow-xl flex items-center justify-center"
+                            initial={{ bottom: 8, x: '-50%', rotate: 2 }}
+                            animate={{
+                              bottom: 60,
+                              rotate: 0,
+                              scale: [1, 1.05, 1],
+                            }}
+                            transition={{
+                              bottom: { duration: 0.6, ease: 'easeOut' },
+                              rotate: { duration: 0.4 },
+                              scale: { duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 },
+                            }}
+                          >
+                            <motion.span
+                              className="text-amber-400/70 text-xl"
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            >
+                              ☽
+                            </motion.span>
+                          </motion.div>
+                        </div>
+
+                        <Loader2 className={`w-5 h-5 ${theme.textAccent} animate-spin mt-4`} />
+                        <p className="text-sm text-slate-400 mt-2">
+                          {language === 'en' ? 'Revealing your card...' : 'Révélation de votre carte...'}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Clarification result */}
+                    {clarificationCard && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {/* Header */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
+                          <span className={`text-sm font-bold ${theme.textAccent} uppercase tracking-wider`}>
+                            {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
+                          </span>
+                        </div>
+
+                        {/* Card display */}
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                          <motion.div
+                            initial={{ rotateY: 180, scale: 0.8 }}
+                            animate={{ rotateY: 0, scale: 1 }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            style={{ perspective: 800 }}
+                          >
+                            <Card
+                              card={clarificationCard.card}
+                              isRevealed={true}
+                              isReversed={clarificationCard.isReversed}
+                              width={100}
+                              height={155}
+                              className="shadow-lg"
+                              hideOverlay={true}
+                            />
+                          </motion.div>
+                          <div className="flex-1 text-center sm:text-left">
+                            <p className="text-white font-medium text-lg">
+                              {language === 'en' ? clarificationCard.card.nameEn : clarificationCard.card.nameFr}
+                            </p>
+                            {clarificationCard.isReversed && (
+                              <span className="text-xs text-slate-400">
+                                ({language === 'en' ? 'Reversed' : 'Renversée'})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Interpretation */}
+                        <div className="border-t border-white/10 pt-4">
+                          {clarificationCard.interpretation.split('\n').map((line, i) => {
+                            if (!line.trim()) return null;
+                            return (
+                              <p key={`clar-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
+                                {line.replace(/\*\*/g, '')}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
                 {/* Actions */}
-                <div className="mt-10 pt-6 border-t border-white/10 flex justify-center">
+                <div className="mt-8 pt-6 border-t border-white/10 flex justify-center">
                   <Button onClick={onFinish} variant="secondary">
                     {language === 'en' ? 'Start New Reading' : 'Nouvelle Lecture'}
                   </Button>
                 </div>
               </div>
             </motion.div>
-
-            {/* Clarification Card Section */}
-            {(canDrawClarification || clarificationCard || isClarificationLoading) && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mt-6"
-              >
-                {/* Draw button - shown when no clarification yet */}
-                {canDrawClarification && !clarificationCard && !isClarificationLoading && (
-                  <button
-                    onClick={onDrawClarification}
-                    className="w-full bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-black/40 hover:border-white/20 transition-all group"
-                  >
-                    <div className="flex items-center justify-center gap-3">
-                      <Sparkles className={`w-5 h-5 ${theme.textAccent} group-hover:scale-110 transition-transform`} />
-                      <span className="text-white/80 font-medium">
-                        {language === 'en' ? 'Draw a Clarification Card' : 'Tirer une Carte de Clarification'}
-                      </span>
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20">
-                        <Coins className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-xs text-amber-300 font-medium">1</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1.5 text-center">
-                      {language === 'en'
-                        ? 'Draw one extra card for deeper insight into your reading'
-                        : 'Tirez une carte supplémentaire pour approfondir votre lecture'}
-                    </p>
-                  </button>
-                )}
-
-                {/* Loading state */}
-                {isClarificationLoading && (
-                  <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center">
-                    <Loader2 className={`w-6 h-6 ${theme.textAccent} animate-spin mx-auto mb-2`} />
-                    <p className="text-sm text-slate-400">
-                      {language === 'en' ? 'Drawing your clarification card...' : 'Tirage de votre carte de clarification...'}
-                    </p>
-                  </div>
-                )}
-
-                {/* Clarification result */}
-                {clarificationCard && (
-                  <div
-                    className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6"
-                    style={{ boxShadow: `0 0 30px ${theme.glow}` }}
-                  >
-                    {/* Header */}
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className={`w-4 h-4 ${theme.textAccent}`} />
-                      <span className={`text-sm font-bold ${theme.textAccent} uppercase tracking-wider`}>
-                        {language === 'en' ? 'Clarification Card' : 'Carte de Clarification'}
-                      </span>
-                    </div>
-
-                    {/* Card display */}
-                    <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-                      <Card
-                        card={clarificationCard.card}
-                        isRevealed={true}
-                        isReversed={clarificationCard.isReversed}
-                        width={100}
-                        height={155}
-                        className="shadow-lg flex-shrink-0"
-                        hideOverlay={true}
-                      />
-                      <div className="flex-1 text-center sm:text-left">
-                        <p className="text-white font-medium text-lg">
-                          {language === 'en' ? clarificationCard.card.nameEn : clarificationCard.card.nameFr}
-                        </p>
-                        {clarificationCard.isReversed && (
-                          <span className="text-xs text-slate-400">
-                            ({language === 'en' ? 'Reversed' : 'Renversée'})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Interpretation */}
-                    <div className="border-t border-white/10 pt-4">
-                      {clarificationCard.interpretation.split('\n').map((line, i) => {
-                        if (!line.trim()) return null;
-                        return (
-                          <p key={`clar-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
-                            {line.replace(/\*\*/g, '')}
-                          </p>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
 
             {/* Reflection prompt */}
             <ReflectionPrompt

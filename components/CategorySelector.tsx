@@ -4,7 +4,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, PanInfo } from 'framer-motion';
 import { ChevronLeft, Coins, Sparkles, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES, getDepthsForCategory, type CategoryConfig, type DepthOption } from '../constants/categoryConfig';
@@ -455,10 +455,12 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   </p>
 
                   {/* Depth Options - Desktop Grid */}
-                  <div className={`hidden md:grid gap-3 ${
+                  <div className={`hidden md:grid gap-2 ${
                     depths.length <= 3
                       ? 'grid-cols-3 max-w-lg mx-auto'
-                      : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
+                      : depths.length <= 4
+                        ? 'grid-cols-4 max-w-2xl mx-auto'
+                        : 'grid-cols-6'
                   }`}>
                     {depths.map((depth, index) => {
                       const isHovered = hoveredDepth === depth.cards;
@@ -481,7 +483,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                           onMouseLeave={() => setHoveredDepth(null)}
                           disabled={!canAfford}
                           className={`
-                            group relative p-4 rounded-xl border backdrop-blur-md
+                            group relative p-3 rounded-xl border backdrop-blur-md
                             border-white/10 bg-white/5
                             ${!canAfford ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                           `}
@@ -560,60 +562,45 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       <ChevronRight className="w-3 h-3" />
                     </motion.p>
 
-                    {/* Carousel container */}
+                    {/* Carousel container - shows multiple cards */}
                     <div className="overflow-hidden" ref={depthContainerRef}>
                       <motion.div
-                        className="flex gap-4 px-4"
+                        className="flex gap-2.5 px-3"
                         drag="x"
-                        dragConstraints={{ left: -((depths.length - 1) * 200), right: 0 }}
-                        dragElastic={0.1}
+                        dragConstraints={{ left: -((depths.length - 2) * 140), right: 0 }}
+                        dragElastic={0.15}
                         onDragEnd={(e, info) => handleDragEnd(e, info, depths)}
-                        animate={{ x: -currentDepthIndex * 200 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        style={{ x: swipeX }}
                       >
                         {depths.map((depth, index) => {
                           const userCredits = user?.credits ?? 0;
                           const canAfford = userCredits >= depth.cost;
-                          const isActive = currentDepthIndex === index;
 
                           return (
                             <motion.button
                               key={depth.cards}
                               initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{
-                                opacity: 1,
-                                scale: isActive ? 1 : 0.9,
-                              }}
+                              animate={{ opacity: 1, scale: 1 }}
                               transition={{
-                                delay: index * 0.1,
+                                delay: index * 0.08,
                                 type: "spring",
                                 stiffness: 300,
                                 damping: 20
                               }}
-                              onClick={() => {
-                                if (isActive) {
-                                  handleDepthSelect(category, depth);
-                                } else {
-                                  setCurrentDepthIndex(index);
-                                }
-                              }}
-                              disabled={!canAfford && isActive}
+                              onClick={() => handleDepthSelect(category, depth)}
+                              disabled={!canAfford}
                               className={`
-                                relative flex-shrink-0 w-[180px] p-4 rounded-xl border transition-all duration-300 backdrop-blur-md
-                                ${isActive
-                                  ? 'border-white/50 bg-white/15'
-                                  : 'border-white/10 bg-white/5'
-                                }
+                                relative flex-shrink-0 w-[130px] p-3 rounded-xl border transition-all duration-200 backdrop-blur-md
+                                border-white/15 bg-white/5 active:bg-white/15 active:border-white/40
                                 ${!canAfford ? 'opacity-40' : ''}
                               `}
                               style={{
-                                boxShadow: isActive
-                                  ? `0 15px 40px ${unifiedTheme.glow}50, 0 0 30px ${unifiedTheme.border}40`
-                                  : `0 4px 15px rgba(0,0,0,0.2)`
+                                boxShadow: `0 4px 15px rgba(0,0,0,0.2), 0 0 8px ${unifiedTheme.glow}15`
                               }}
+                              whileTap={canAfford ? { scale: 0.95 } : {}}
                             >
                               {/* Card visual */}
-                              <div className="mb-3">
+                              <div className="mb-2">
                                 <DepthVisual
                                   cards={depth.cards}
                                   category={category.id}
@@ -625,13 +612,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                               </div>
 
                               {/* Label */}
-                              <p className="text-white font-medium text-center mb-2 text-sm leading-tight">
+                              <p className="text-white font-medium text-center mb-1.5 text-xs leading-tight min-h-[2rem] flex items-center justify-center">
                                 {getDepthLabel(depth)}
                               </p>
 
                               {/* Cost badge */}
                               <div className={`
-                                flex items-center justify-center gap-1.5 text-xs px-3 py-1.5 rounded-full
+                                flex items-center justify-center gap-1 text-xs px-2 py-1 rounded-full
                                 ${canAfford
                                   ? 'text-amber-300 bg-amber-500/20 border border-amber-400/40'
                                   : 'text-red-300 bg-red-500/20 border border-red-400/40'
@@ -641,17 +628,6 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 <span className="font-bold">{depth.cost}</span>
                               </div>
 
-                              {/* Tap to select indicator for active card */}
-                              {isActive && canAfford && (
-                                <motion.p
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  className="text-amber-300 text-xs mt-2 text-center"
-                                >
-                                  {language === 'fr' ? 'Appuyez pour sélectionner' : 'Tap to select'}
-                                </motion.p>
-                              )}
-
                               {/* Locked overlay with buy credits button */}
                               {!canAfford && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl backdrop-blur-sm">
@@ -660,9 +636,9 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                       e.stopPropagation();
                                       setShowCreditShop(true);
                                     }}
-                                    className="text-xs font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30 hover:from-amber-300 hover:to-yellow-400 hover:scale-105 transition-all duration-200"
+                                    className="text-[10px] font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30"
                                   >
-                                    {language === 'fr' ? 'Acheter des crédits' : 'Get More Credits'}
+                                    {language === 'fr' ? 'Crédits' : 'Credits'}
                                   </button>
                                 </div>
                               )}
@@ -670,21 +646,6 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                           );
                         })}
                       </motion.div>
-                    </div>
-
-                    {/* Pagination dots */}
-                    <div className="flex justify-center gap-2 mt-4">
-                      {depths.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentDepthIndex(index)}
-                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                            currentDepthIndex === index
-                              ? 'w-6 bg-white'
-                              : 'bg-white/30 hover:bg-white/50'
-                          }`}
-                        />
-                      ))}
                     </div>
                   </div>
 

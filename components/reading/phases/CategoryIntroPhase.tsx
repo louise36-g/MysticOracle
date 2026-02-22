@@ -11,11 +11,12 @@ import {
   ReadingDepth,
 } from '../../../types';
 import { getCategory, getDepthOption } from '../../../constants/categoryConfig';
-import { TWO_CARD_LAYOUTS, TwoCardLayoutId, TwoCardLayout } from '../../../constants/twoCardLayouts';
+import { TWO_CARD_LAYOUTS, TwoCardLayoutId, TwoCardLayout, TWO_CARD_LAYOUT_QUESTIONS } from '../../../constants/twoCardLayouts';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId, ThreeCardLayout } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId, FiveCardLayout } from '../../../constants/fiveCardLayouts';
 import { HORSESHOE_LAYOUT_QUESTIONS } from '../../../constants/horseshoeLayouts';
 import { CELTIC_CROSS_QUESTIONS } from '../../../constants/celticCrossLayouts';
+import { getCategoryQuestions } from '../../../constants/categoryQuestions';
 import ThemedBackground from '../ThemedBackground';
 import Button from '../../Button';
 
@@ -202,6 +203,17 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   // Get suggested questions based on category and depth
   const getSuggestedQuestions = (): Array<{ id: string; textEn: string; textFr: string }> => {
+    // Category-specific questions take priority (general, life_path, growth)
+    const categorySpecific = getCategoryQuestions(category, depth);
+    if (categorySpecific) return categorySpecific;
+
+    // For depth 2, get questions from the selected two-card layout
+    if (depth === 2) {
+      const layoutId = (selectedLayout as TwoCardLayoutId) || 'situation_guidance';
+      const layoutQuestions = TWO_CARD_LAYOUT_QUESTIONS[layoutId];
+      if (layoutQuestions) return layoutQuestions;
+    }
+
     // For depth 7 (horseshoe), get questions from the first layout of the category
     if (depth === 7 && category !== 'birth_cards') {
       const categoryLayoutMap: Record<string, string> = {
@@ -229,18 +241,18 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
     return [
       {
         id: 'default_1',
-        textEn: 'What gentle truth is waiting for me today?',
-        textFr: 'Quelle douce vérité m\'attend aujourd\'hui ?',
+        textEn: 'What do I most need to understand right now?',
+        textFr: 'Que dois-je comprendre en ce moment ?',
       },
       {
         id: 'default_2',
-        textEn: 'What does my heart most need to hear right now?',
-        textFr: 'Qu\'est-ce que mon cœur a le plus besoin d\'entendre en ce moment ?',
+        textEn: 'What energy is surrounding me at this time?',
+        textFr: 'Quelle énergie m\'entoure en ce moment ?',
       },
       {
         id: 'default_3',
-        textEn: 'Where is love quietly trying to reach me?',
-        textFr: 'Où l\'amour essaie-t-il doucement de me rejoindre ?',
+        textEn: 'What message do the cards have for me today?',
+        textFr: 'Quel message les cartes ont-elles pour moi aujourd\'hui ?',
       },
     ];
   };
