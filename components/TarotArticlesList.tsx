@@ -58,7 +58,6 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
       const data = await fetchTarotArticles({
         status: 'PUBLISHED',
         limit: 100,
-        sortBy: 'cardNumber',
       });
       setArticles(data.articles || []);
     } catch (err) {
@@ -76,23 +75,6 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
         article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCardType = !selectedCardType || article.cardType === selectedCardType;
       return matchesSearch && matchesCardType;
-    })
-    .sort((a, b) => {
-      // Sort by card type first (Major Arcana first, then suits)
-      const typeOrder: Record<string, number> = {
-        'MAJOR_ARCANA': 0,
-        'SUIT_OF_WANDS': 1,
-        'SUIT_OF_CUPS': 2,
-        'SUIT_OF_SWORDS': 3,
-        'SUIT_OF_PENTACLES': 4,
-      };
-      const typeA = typeOrder[a.cardType] ?? 5;
-      const typeB = typeOrder[b.cardType] ?? 5;
-      if (typeA !== typeB) return typeA - typeB;
-      // Then sort by card number within each type (parse as int since it's stored as string)
-      const numA = typeof a.cardNumber === 'string' ? parseInt(a.cardNumber, 10) : (a.cardNumber ?? 0);
-      const numB = typeof b.cardNumber === 'string' ? parseInt(b.cardNumber, 10) : (b.cardNumber ?? 0);
-      return numA - numB;
     });
 
   const cardTypes = ['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'];
