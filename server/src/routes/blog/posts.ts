@@ -113,8 +113,8 @@ router.get('/posts', async (req, res) => {
     // When filtering by category, order by sortOrder for drag-and-drop
     // Otherwise, order by updatedAt
     const orderBy = params.category
-      ? { sortOrder: 'asc' as const }
-      : { updatedAt: 'desc' as const };
+      ? [{ sortOrder: 'asc' as const }, { createdAt: 'asc' as const }]
+      : [{ updatedAt: 'desc' as const }];
 
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
@@ -306,7 +306,7 @@ router.patch('/posts/reorder', async (req, res) => {
     // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
     const allPosts = await prisma.blogPost.findMany({
       where: whereClause,
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       select: { id: true, sortOrder: true },
     });
 
