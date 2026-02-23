@@ -113,8 +113,8 @@ router.get('/posts', async (req, res) => {
     // When filtering by category, order by sortOrder for drag-and-drop
     // Otherwise, order by updatedAt
     const orderBy = params.category
-      ? [{ sortOrder: 'asc' as const }, { createdAt: 'asc' as const }]
-      : [{ updatedAt: 'desc' as const }];
+      ? { sortOrder: 'asc' as const }
+      : { updatedAt: 'desc' as const };
 
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
@@ -246,13 +246,12 @@ router.post('/posts', async (req, res) => {
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
 router.patch('/posts/reorder', async (req, res) => {
   try {
-    const { postId, categorySlug, newPosition, status } = req.body;
+    const { postId, categorySlug, newPosition } = req.body;
 
     debug.log('=== REORDER REQUEST ===');
     debug.log('postId:', postId, 'type:', typeof postId);
     debug.log('categorySlug:', categorySlug);
     debug.log('newPosition:', newPosition);
-    debug.log('status:', status);
 
     // Validate input
     if (!postId || typeof newPosition !== 'number') {
@@ -288,7 +287,7 @@ router.patch('/posts/reorder', async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Build where clause to match exactly what the admin list shows
+    // Build where clause based on whether we're filtering by category
     const whereClause: Prisma.BlogPostWhereInput = {
       deletedAt: null,
     };
@@ -299,14 +298,10 @@ router.patch('/posts/reorder', async (req, res) => {
       };
     }
 
-    if (status) {
-      whereClause.status = status;
-    }
-
     // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
     const allPosts = await prisma.blogPost.findMany({
       where: whereClause,
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      orderBy: { sortOrder: 'asc' },
       select: { id: true, sortOrder: true },
     });
 

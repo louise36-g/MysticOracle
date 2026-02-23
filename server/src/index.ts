@@ -367,33 +367,6 @@ app.listen(PORT, async () => {
         console.log(`[SortOrder] Initialized ${articles.length} ${cardType} articles`);
       }
     }
-    // Also fix blog posts: assign sequential sortOrder per category for posts that all have sortOrder=0
-    const blogCategories = await prismaClient.blogCategory.findMany({
-      select: { id: true, slug: true },
-    });
-    for (const cat of blogCategories) {
-      const posts = await prismaClient.blogPost.findMany({
-        where: {
-          deletedAt: null,
-          categories: { some: { categoryId: cat.id } },
-        },
-        orderBy: { createdAt: 'asc' },
-        select: { id: true, sortOrder: true },
-      });
-      const allZero = posts.every(p => p.sortOrder === 0);
-      if (allZero && posts.length > 1) {
-        await prismaClient.$transaction(
-          posts.map((post, index) =>
-            prismaClient.blogPost.update({
-              where: { id: post.id },
-              data: { sortOrder: index },
-            })
-          )
-        );
-        console.log(`[SortOrder] Initialized ${posts.length} blog posts in "${cat.slug}"`);
-      }
-    }
-
     await cacheService.invalidateTarot();
     await cacheService.invalidateBlog();
     console.log('[Cache] Tarot + blog cache cleared on startup');
