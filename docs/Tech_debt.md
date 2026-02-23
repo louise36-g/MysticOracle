@@ -4,7 +4,7 @@
 
 ---
 
-## Last Updated: February 5, 2026
+## Last Updated: February 23, 2026
 
 ---
 
@@ -217,9 +217,21 @@ Main categories:
 
 ---
 
+### 8. Dual Content Systems (Blog + Tarot Articles)
+
+**Issue:** Two separate content systems exist side-by-side with overlapping functionality. Blog system has richer features (rich text editor, media management, taxonomy, featured posts, view counts, sitemap). Tarot articles system adds card-specific fields (cardType, cardNumber, schemaJson). Both have independent sortOrder, caching, and admin interfaces, which led to the category sort order bug (Feb 2026).
+
+**Recommendation:** Consolidate into one system by extending the blog system with optional tarot-specific fields. Migrate existing tarot articles into blog posts.
+
+**Estimated Effort:** 4-6 hours
+
+**When to do it:** Not urgent — both systems work. Best triggered when a pain point surfaces (e.g., wanting view counts on tarot articles, needing the rich text editor for card meanings, or another ordering/caching discrepancy).
+
+---
+
 ## Low Priority
 
-### 8. Missing Error Boundaries
+### 9. Missing Error Boundaries (React)
 
 **Issue:** React components don't have error boundaries. Uncaught errors crash entire app.
 
@@ -227,7 +239,7 @@ Main categories:
 
 ---
 
-### 9. Console Warnings in Development
+### 10. Console Warnings in Development
 
 **Issue:** Various React warnings about keys, dependencies, etc.
 
@@ -235,7 +247,7 @@ Main categories:
 
 ---
 
-### 10. Hardcoded Strings
+### 11. Hardcoded Strings
 
 **Issue:** Some UI strings are hardcoded instead of using translation system.
 
@@ -272,4 +284,5 @@ Main categories:
 | ESLint warnings | Medium | Open | 81 issues to fix |
 | Error boundaries | Low | Open | - |
 | Console warnings | Low | Open | - |
+| Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Open | - |
