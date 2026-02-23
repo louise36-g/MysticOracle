@@ -193,7 +193,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       }
 
       console.log('Calling reorderBlogPost API with postId:', actualPostId);
-      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, finalNewIndex);
+      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, finalNewIndex, statusFilter || undefined);
       console.log('Reorder API response:', result);
 
       // Reload posts to get updated sortOrder from server

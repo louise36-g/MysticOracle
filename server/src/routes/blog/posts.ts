@@ -246,12 +246,13 @@ router.post('/posts', async (req, res) => {
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
 router.patch('/posts/reorder', async (req, res) => {
   try {
-    const { postId, categorySlug, newPosition } = req.body;
+    const { postId, categorySlug, newPosition, status } = req.body;
 
     debug.log('=== REORDER REQUEST ===');
     debug.log('postId:', postId, 'type:', typeof postId);
     debug.log('categorySlug:', categorySlug);
     debug.log('newPosition:', newPosition);
+    debug.log('status:', status);
 
     // Validate input
     if (!postId || typeof newPosition !== 'number') {
@@ -287,7 +288,7 @@ router.patch('/posts/reorder', async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Build where clause based on whether we're filtering by category
+    // Build where clause to match exactly what the admin list shows
     const whereClause: Prisma.BlogPostWhereInput = {
       deletedAt: null,
     };
@@ -296,6 +297,10 @@ router.patch('/posts/reorder', async (req, res) => {
       whereClause.categories = {
         some: { category: { slug: categorySlug } },
       };
+    }
+
+    if (status) {
+      whereClause.status = status;
     }
 
     // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
