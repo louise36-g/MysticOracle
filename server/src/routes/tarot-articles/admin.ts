@@ -271,7 +271,7 @@ router.get('/list', async (req, res) => {
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.tarotArticle.count({ where }),
     ]);
