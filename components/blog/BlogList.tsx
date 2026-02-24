@@ -112,7 +112,7 @@ const BlogList: React.FC = () => {
       const isTarotCategory = selectedCategory && selectedCategory in categoryToCardType;
       const blogResult = await fetchBlogPosts({
         page: isTarotCategory ? 1 : page,
-        limit: isTarotCategory ? 100 : 9,
+        limit: isTarotCategory ? 50 : 9,
         category: selectedCategory || undefined,
       });
 
