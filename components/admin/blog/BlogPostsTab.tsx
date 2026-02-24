@@ -193,7 +193,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       }
 
       console.log('Calling reorderBlogPost API with postId:', actualPostId);
-      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, finalNewIndex);
+      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, statusFilter || null, finalNewIndex);
       console.log('Reorder API response:', result);
 
       // Reload posts to get updated sortOrder from server
@@ -599,7 +599,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
                   ) : (
                     <SortableContext items={posts.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {posts.map(post => (
-                        <SortableRow key={post.id} post={post} showDragHandle={!!categoryFilter} />
+                        <SortableRow key={post.id} post={post} showDragHandle={!!categoryFilter && !search} />
                       ))}
                     </SortableContext>
                   )}

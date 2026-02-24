@@ -225,11 +225,12 @@ export async function reorderBlogPost(
   token: string,
   postId: string,
   categorySlug: string | null,
+  status: string | null,
   newPosition: number
 ): Promise<{ success: boolean; message: string }> {
   return apiRequest('/api/blog/admin/posts/reorder', {
     method: 'PATCH',
-    body: { postId, categorySlug, newPosition },
+    body: { postId, categorySlug, status, newPosition },
     token,
   });
 }

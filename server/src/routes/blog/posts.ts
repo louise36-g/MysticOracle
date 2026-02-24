@@ -111,9 +111,10 @@ router.get('/posts', async (req, res) => {
     }
 
     // When filtering by category, order by sortOrder for drag-and-drop
+    // createdAt tiebreaker ensures deterministic order when sortOrder values match
     // Otherwise, order by updatedAt
     const orderBy = params.category
-      ? { sortOrder: 'asc' as const }
+      ? [{ sortOrder: 'asc' as const }, { createdAt: 'asc' as const }]
       : { updatedAt: 'desc' as const };
 
     const [posts, total] = await Promise.all([
@@ -246,11 +247,12 @@ router.post('/posts', async (req, res) => {
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
 router.patch('/posts/reorder', async (req, res) => {
   try {
-    const { postId, categorySlug, newPosition } = req.body;
+    const { postId, categorySlug, status, newPosition } = req.body;
 
     debug.log('=== REORDER REQUEST ===');
     debug.log('postId:', postId, 'type:', typeof postId);
     debug.log('categorySlug:', categorySlug);
+    debug.log('status:', status);
     debug.log('newPosition:', newPosition);
 
     // Validate input
@@ -287,7 +289,7 @@ router.patch('/posts/reorder', async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Build where clause based on whether we're filtering by category
+    // Build where clause matching the same filters the admin list uses
     const whereClause: Prisma.BlogPostWhereInput = {
       deletedAt: null,
     };
@@ -298,10 +300,16 @@ router.patch('/posts/reorder', async (req, res) => {
       };
     }
 
-    // Get all posts in the same context (all posts or posts in category), ordered by current sortOrder
+    // Apply status filter so backend operates on the same set the frontend shows
+    if (status && ['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
+      whereClause.status = status;
+    }
+
+    // Get all posts in the same context, with deterministic ordering
+    // createdAt tiebreaker must match the admin list endpoint
     const allPosts = await prisma.blogPost.findMany({
       where: whereClause,
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       select: { id: true, sortOrder: true },
     });
 
