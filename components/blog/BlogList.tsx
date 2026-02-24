@@ -111,6 +111,10 @@ const BlogList: React.FC = () => {
         'cups': 'SUIT_OF_CUPS',
         'swords': 'SUIT_OF_SWORDS',
         'pentacles': 'SUIT_OF_PENTACLES',
+        'suit-of-wands': 'SUIT_OF_WANDS',
+        'suit-of-cups': 'SUIT_OF_CUPS',
+        'suit-of-swords': 'SUIT_OF_SWORDS',
+        'suit-of-pentacles': 'SUIT_OF_PENTACLES',
         'tarot-meanings': null, // null = fetch all types
       };
 
@@ -164,6 +168,10 @@ const BlogList: React.FC = () => {
         'cups': 'SUIT_OF_CUPS',
         'swords': 'SUIT_OF_SWORDS',
         'pentacles': 'SUIT_OF_PENTACLES',
+        'suit-of-wands': 'SUIT_OF_WANDS',
+        'suit-of-cups': 'SUIT_OF_CUPS',
+        'suit-of-swords': 'SUIT_OF_SWORDS',
+        'suit-of-pentacles': 'SUIT_OF_PENTACLES',
         'tarot-meanings': null, // null = all types
       };
 
