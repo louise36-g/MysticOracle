@@ -104,8 +104,17 @@ const BlogList: React.FC = () => {
       combinedTotal = blogResult.pagination.total;
       combinedTotalPages = blogResult.pagination.totalPages;
 
-      // If Major Arcana or Tarot Meanings category is selected, also fetch tarot articles
-      if (selectedCategory === 'major-arcana' || selectedCategory === 'tarot-meanings') {
+      // Map category slugs to tarot article card types
+      const categoryToCardType: Record<string, string | null> = {
+        'major-arcana': 'MAJOR_ARCANA',
+        'wands': 'SUIT_OF_WANDS',
+        'cups': 'SUIT_OF_CUPS',
+        'swords': 'SUIT_OF_SWORDS',
+        'pentacles': 'SUIT_OF_PENTACLES',
+        'tarot-meanings': null, // null = fetch all types
+      };
+
+      if (selectedCategory && selectedCategory in categoryToCardType) {
         try {
           const tarotParams: any = {
             page,
@@ -113,17 +122,16 @@ const BlogList: React.FC = () => {
             status: 'PUBLISHED',
           };
 
-          // For Major Arcana, filter by card type
-          if (selectedCategory === 'major-arcana') {
-            tarotParams.cardType = 'MAJOR_ARCANA';
+          const cardType = categoryToCardType[selectedCategory];
+          if (cardType) {
+            tarotParams.cardType = cardType;
           }
-          // For Tarot Meanings, fetch all types
 
           const tarotResult = await fetchTarotArticles(tarotParams);
           const tarotArticles = tarotResult.articles.map(tarotArticleToArticle);
 
-          // Merge tarot articles with blog posts
-          allArticles = [...tarotArticles, ...allArticles];
+          // Append tarot articles after blog posts
+          allArticles = [...allArticles, ...tarotArticles];
           combinedTotal += tarotResult.total;
 
           // Recalculate total pages based on combined total
@@ -149,33 +157,31 @@ const BlogList: React.FC = () => {
       const result = await fetchBlogCategories();
       setCategories(result.categories);
 
-      // Calculate accurate counts including tarot articles for specific categories
+      // Map category slugs to tarot card types for accurate counts
+      const countCardTypes: Record<string, string | null> = {
+        'major-arcana': 'MAJOR_ARCANA',
+        'wands': 'SUIT_OF_WANDS',
+        'cups': 'SUIT_OF_CUPS',
+        'swords': 'SUIT_OF_SWORDS',
+        'pentacles': 'SUIT_OF_PENTACLES',
+        'tarot-meanings': null, // null = all types
+      };
+
+      // Calculate accurate counts including tarot articles for tarot categories
       const counts: Record<string, number> = {};
 
       for (const cat of result.categories) {
         let count = cat.postCount || 0; // Start with blog post count
 
-        // For Major Arcana and Tarot Meanings, add tarot article counts
-        if (cat.slug === 'major-arcana') {
+        if (cat.slug in countCardTypes) {
           try {
-            const tarotResult = await fetchTarotArticles({
-              cardType: 'MAJOR_ARCANA',
-              status: 'PUBLISHED',
-              limit: 1,
-            });
+            const params: any = { status: 'PUBLISHED', limit: 1 };
+            const cardType = countCardTypes[cat.slug];
+            if (cardType) params.cardType = cardType;
+            const tarotResult = await fetchTarotArticles(params);
             count += tarotResult.total;
           } catch (err) {
-            console.error('Failed to load Major Arcana count:', err);
-          }
-        } else if (cat.slug === 'tarot-meanings') {
-          try {
-            const tarotResult = await fetchTarotArticles({
-              status: 'PUBLISHED',
-              limit: 1,
-            });
-            count += tarotResult.total;
-          } catch (err) {
-            console.error('Failed to load Tarot Meanings count:', err);
+            console.error(`Failed to load tarot count for ${cat.slug}:`, err);
           }
         }
 
