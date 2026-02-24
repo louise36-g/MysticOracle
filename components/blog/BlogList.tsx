@@ -93,17 +93,6 @@ const BlogList: React.FC = () => {
       let combinedTotal = 0;
       let combinedTotalPages = 1;
 
-      // Fetch blog posts
-      const blogResult = await fetchBlogPosts({
-        page,
-        limit: 9,
-        category: selectedCategory || undefined,
-      });
-
-      allArticles = blogResult.posts.map(blogPostToArticle);
-      combinedTotal = blogResult.pagination.total;
-      combinedTotalPages = blogResult.pagination.totalPages;
-
       // Map category slugs to tarot article card types
       const categoryToCardType: Record<string, string | null> = {
         'major-arcana': 'MAJOR_ARCANA',
@@ -118,11 +107,24 @@ const BlogList: React.FC = () => {
         'tarot-meanings': null, // null = fetch all types
       };
 
+      // When viewing a tarot category, fetch all blog posts (no pagination split)
+      // so they combine cleanly with tarot articles on one page
+      const isTarotCategory = selectedCategory && selectedCategory in categoryToCardType;
+      const blogResult = await fetchBlogPosts({
+        page: isTarotCategory ? 1 : page,
+        limit: isTarotCategory ? 100 : 9,
+        category: selectedCategory || undefined,
+      });
+
+      allArticles = blogResult.posts.map(blogPostToArticle);
+      combinedTotal = blogResult.pagination.total;
+      combinedTotalPages = blogResult.pagination.totalPages;
+
       if (selectedCategory && selectedCategory in categoryToCardType) {
         try {
           const tarotParams: any = {
-            page,
-            limit: 9,
+            page: 1,
+            limit: 100, // Fetch all tarot articles at once (max 22 for major arcana, 14 for suits)
             status: 'PUBLISHED',
           };
 
@@ -136,10 +138,8 @@ const BlogList: React.FC = () => {
 
           // Append tarot articles after blog posts
           allArticles = [...allArticles, ...tarotArticles];
-          combinedTotal += tarotResult.total;
-
-          // Recalculate total pages based on combined total
-          combinedTotalPages = Math.ceil(combinedTotal / 9);
+          combinedTotal = allArticles.length;
+          combinedTotalPages = 1; // All items fit on one page
         } catch (tarotErr) {
           console.error('Failed to load tarot articles:', tarotErr);
           // Continue with just blog posts if tarot fetch fails
