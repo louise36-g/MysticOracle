@@ -15,6 +15,7 @@ import profileRoutes from './profile.js';
 import historyRoutes from './history.js';
 import bonusRoutes from './bonus.js';
 import gdprRoutes from './gdpr.js';
+import referralRoutes from './referral.js';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/', profileRoutes);
 router.use('/', historyRoutes);
 router.use('/', bonusRoutes);
 router.use('/', gdprRoutes);
+router.use('/', referralRoutes);
 
 export default router;

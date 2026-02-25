@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
+import { redeemReferralCode } from '../services/api/user';
 import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
 import { cleanupDeprecatedStorage } from '../services/storageService';
 
@@ -56,6 +57,7 @@ interface User {
   lastLoginDate: string;
   welcomeCompleted: boolean;
   referralCode: string;
+  referredById: string | null;
   isAdmin: boolean;
   language: Language;
   achievements: string[];
@@ -195,6 +197,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         lastLoginDate: profile.lastLoginDate,
         welcomeCompleted: profile.welcomeCompleted,
         referralCode: profile.referralCode,
+        referredById: profile.referredById || null,
         isAdmin: profile.isAdmin,
         language: profile.language as Language,
         achievements: (profile.achievements || []).map((a: any) => a.achievementId),
@@ -260,6 +263,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
             lastLoginDate: new Date().toISOString(),
             welcomeCompleted: false,
             referralCode: '',
+            referredById: null,
             isAdmin: adminUsernames.includes(username.toLowerCase()),
             language: 'en',
             achievements: [],
@@ -285,6 +289,40 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     await fetchUserFromBackend(true);
     console.log('[AppContext] refreshUser completed');
   }, [fetchUserFromBackend]);
+
+  // Auto-redeem stored referral code after login
+  useEffect(() => {
+    if (!user || user.referredById) return;
+
+    const storedCode = localStorage.getItem('celestiarcana-referral-code');
+    if (!storedCode) return;
+
+    // Don't redeem your own code
+    if (storedCode === user.referralCode) {
+      localStorage.removeItem('celestiarcana-referral-code');
+      return;
+    }
+
+    const autoRedeem = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+
+        const result = await redeemReferralCode(token, storedCode);
+        if (result.success) {
+          console.log('[AppContext] Auto-redeemed referral code:', storedCode);
+          // Refresh user to update credits and referredById
+          await fetchUserFromBackend(true);
+        }
+      } catch (error) {
+        console.warn('[AppContext] Failed to auto-redeem referral code:', error);
+      } finally {
+        localStorage.removeItem('celestiarcana-referral-code');
+      }
+    };
+
+    autoRedeem();
+  }, [user?.id, user?.referredById, user?.referralCode, getToken, fetchUserFromBackend]);
 
   const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);

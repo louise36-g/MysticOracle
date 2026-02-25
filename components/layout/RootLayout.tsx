@@ -93,6 +93,20 @@ export function RootLayout() {
     trackPageView(location.pathname + location.search);
   }, [location]);
 
+  // Capture ?ref= referral code from URL and store in localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const refCode = params.get('ref');
+    if (refCode) {
+      localStorage.setItem('celestiarcana-referral-code', refCode.toUpperCase());
+      // Clean the URL by removing the ref param
+      params.delete('ref');
+      const newSearch = params.toString();
+      const newUrl = location.pathname + (newSearch ? `?${newSearch}` : '');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location.search]);
+
   // Modal states
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);

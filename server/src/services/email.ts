@@ -268,6 +268,63 @@ const TEMPLATES = {
       ),
     },
   },
+
+  REFERRAL_INVITE: {
+    en: {
+      subject: "Your friend {{params.senderName}} thinks you'd love CelestiArcana! 🔮",
+      htmlContent: emailWrapper(
+        `
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd; text-align: center;">
+          You've Been Invited!
+        </h2>
+        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0;">
+          Your friend <strong style="color: #fbbf24;">{{params.senderName}}</strong> thought you'd enjoy CelestiArcana — an AI-powered tarot reading experience that blends ancient wisdom with modern insight.
+        </p>
+        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+          <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Your personal invitation code</p>
+          <p style="margin: 0; font-size: 28px; font-weight: 700; color: #fbbf24; letter-spacing: 4px;">{{params.referralCode}}</p>
+          <p style="margin: 10px 0 0 0; font-size: 14px; color: #a78bfa;">Sign up and enter this code to get <strong>5 free credits</strong></p>
+        </div>
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #94a3b8; text-align: center;">
+          Use your credits for personalized tarot readings, daily horoscopes, and more.
+        </p>
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="{{params.signupUrl}}" style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); color: #1e1b4b; font-weight: 600; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px;">
+            Join CelestiArcana →
+          </a>
+        </div>
+      `,
+        'en'
+      ),
+    },
+    fr: {
+      subject: 'Votre ami(e) {{params.senderName}} pense que CelestiArcana vous plaira ! 🔮',
+      htmlContent: emailWrapper(
+        `
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd; text-align: center;">
+          Vous Êtes Invité(e) !
+        </h2>
+        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0;">
+          Votre ami(e) <strong style="color: #fbbf24;">{{params.senderName}}</strong> pense que CelestiArcana vous plaira — une expérience de lecture de tarot alimentée par l'IA qui mêle sagesse ancienne et vision moderne.
+        </p>
+        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+          <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Votre code d'invitation personnel</p>
+          <p style="margin: 0; font-size: 28px; font-weight: 700; color: #fbbf24; letter-spacing: 4px;">{{params.referralCode}}</p>
+          <p style="margin: 10px 0 0 0; font-size: 14px; color: #a78bfa;">Inscrivez-vous et entrez ce code pour obtenir <strong>5 crédits gratuits</strong></p>
+        </div>
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #94a3b8; text-align: center;">
+          Utilisez vos crédits pour des lectures de tarot personnalisées, des horoscopes quotidiens et plus encore.
+        </p>
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="{{params.signupUrl}}" style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); color: #1e1b4b; font-weight: 600; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px;">
+            Rejoindre CelestiArcana →
+          </a>
+        </div>
+      `,
+        'fr'
+      ),
+    },
+  },
 };
 
 // ============================================
@@ -368,6 +425,35 @@ export async function sendPurchaseConfirmation(
   });
 }
 
+/**
+ * Send referral invitation email
+ */
+export async function sendReferralInviteEmail(
+  recipientEmail: string,
+  friendName: string,
+  senderName: string,
+  referralCode: string,
+  language: 'en' | 'fr' = 'en'
+): Promise<boolean> {
+  const template = TEMPLATES.REFERRAL_INVITE[language];
+  const siteUrl = process.env.FRONTEND_URL || 'https://celestiarcana.com';
+  const signupUrl = `${siteUrl}/sign-up?ref=${referralCode}`;
+
+  return sendEmail({
+    to: recipientEmail,
+    toName: friendName || recipientEmail,
+    subject: template.subject.replace('{{params.senderName}}', senderName),
+    htmlContent: template.htmlContent,
+    params: {
+      senderName,
+      referralCode,
+      signupUrl,
+      siteUrl,
+      unsubscribeUrl: `${siteUrl}/unsubscribe`,
+    },
+  });
+}
+
 // ============================================
 // CONTACT MANAGEMENT (Newsletter)
 // ============================================
@@ -437,6 +523,7 @@ export default {
   sendEmail,
   sendWelcomeEmail,
   sendPurchaseConfirmation,
+  sendReferralInviteEmail,
   upsertContact,
   subscribeToNewsletter,
   unsubscribeContact,

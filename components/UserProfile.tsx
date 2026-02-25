@@ -7,7 +7,7 @@ import Toast from './ui/Toast';
 import { Calendar, Coins, Copy, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame, Gift, Clock, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS } from '../types';
-import { ReadingTypeFilter, AchievementCard, TransactionFilters, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState } from './profile';
+import { ReadingTypeFilter, AchievementCard, TransactionFilters, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState, ReferralSection } from './profile';
 import { getAchievementsWithProgress } from '../utils/achievementService';
 import { useProfileData, useDailyBonus } from '../hooks';
 
@@ -280,11 +280,26 @@ const UserProfile: React.FC = () => {
                     </div>
                 </motion.div>
 
+                {/* Referral & Invite Section */}
+                <ReferralSection
+                    referralCode={displayUser.referralCode}
+                    referredById={user?.referredById || null}
+                    language={language as 'en' | 'fr'}
+                    animationDelay={STAGGER_DELAY * 2}
+                    t={t}
+                    onCreditsAwarded={(amount) => {
+                        showToast(
+                            language === 'en' ? `+${amount} referral credits!` : `+${amount} crédits de parrainage !`,
+                            'bonus'
+                        );
+                    }}
+                />
+
                 {/* Collapsible Achievements */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 2 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 3 }}
                     className={SECTION_CLASSES}
                 >
                     <button
@@ -337,7 +352,7 @@ const UserProfile: React.FC = () => {
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 3 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 4 }}
                     className={SECTION_CLASSES}
                 >
                     <button
@@ -407,7 +422,7 @@ const UserProfile: React.FC = () => {
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 4 }}
+                    transition={{ duration: 0.4, delay: STAGGER_DELAY * 5 }}
                     className={SECTION_CLASSES}
                 >
                     <button

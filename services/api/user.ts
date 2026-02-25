@@ -22,6 +22,7 @@ export interface UserProfile {
   lastLoginDate: string;
   welcomeCompleted: boolean;
   referralCode: string;
+  referredById: string | null;
   isAdmin: boolean;
   accountStatus: string;
   createdAt: string;
@@ -318,6 +319,37 @@ export async function updateUsername(
   return apiRequest<UserProfile>('/api/v1/users/me', {
     method: 'PATCH',
     body: { username },
+    token,
+  });
+}
+
+// ============================================
+// REFERRAL SYSTEM
+// ============================================
+
+export async function redeemReferralCode(
+  token: string,
+  code: string
+): Promise<{
+  success: boolean;
+  message: string;
+  creditsAwarded: number;
+  newBalance: number;
+}> {
+  return apiRequest('/api/v1/users/me/redeem-referral', {
+    method: 'POST',
+    body: { code },
+    token,
+  });
+}
+
+export async function sendReferralInvite(
+  token: string,
+  email: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest('/api/v1/users/me/referral-invite', {
+    method: 'POST',
+    body: { email },
     token,
   });
 }
