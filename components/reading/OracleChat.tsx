@@ -120,8 +120,8 @@ const OracleChat: React.FC<OracleChatProps> = ({
       <div className="bg-slate-950/80 py-2 text-center border-t border-slate-800">
         <span className="text-xs text-slate-500">
           {language === 'en'
-            ? 'First question is free • Every 5th question is free'
-            : 'Première question gratuite • Chaque 5ème question est gratuite'}
+            ? '1 credit per question • Every 2nd question is free'
+            : '1 crédit par question • Une question sur deux est gratuite'}
         </span>
       </div>
     </div>
