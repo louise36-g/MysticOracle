@@ -520,12 +520,12 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                 onClick={onAdvancedToggle}
                 className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-300 transition-colors"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-amber-400 font-medium">
                   {language === 'en' ? 'Upgrade Style (+1 credit)' : 'Style Avance (+1 credit)'}
                 </span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${isAdvanced ? 'rotate-180' : ''}`}
+                  className={`w-3.5 h-3.5 text-amber-400 transition-transform ${isAdvanced ? 'rotate-180' : ''}`}
                 />
               </button>
 
