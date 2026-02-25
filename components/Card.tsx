@@ -20,8 +20,8 @@ const Card: React.FC<CardProps> = ({
   isRevealed,
   isReversed = false,
   onClick,
-  width = 180,
-  height = 300,
+  width,
+  height,
   className = '',
   hideOverlay = false
 }) => {
@@ -41,8 +41,8 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <motion.div
-      className={`relative cursor-pointer group ${className}`}
-      style={{ width, height, perspective: '1000px' }}
+      className={`relative cursor-pointer group ${width ? '' : 'w-[180px] h-[300px]'} ${className}`}
+      style={{ ...(width ? { width } : {}), ...(height ? { height } : {}), perspective: '1000px' }}
       onClick={onClick}
       whileHover={isRevealed ? { scale: 1.5, zIndex: 50 } : undefined}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
