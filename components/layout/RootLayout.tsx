@@ -30,11 +30,14 @@ function PageLoader() {
   );
 }
 
+// Max seconds to wait for Clerk/API before showing the page anyway
+const LOADING_TIMEOUT_MS = 12000;
+
 // Branded loading screen for initial load
-function BrandedLoadingScreen() {
+function BrandedLoadingScreen({ timedOut }: { timedOut?: boolean }) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#0f0c29]"
       style={{
         backgroundImage: 'url("/background-celestiarcana.png?v=3")',
         backgroundSize: 'cover',
@@ -78,6 +81,25 @@ function BrandedLoadingScreen() {
             </div>
           ))}
         </div>
+
+        {/* Timeout recovery message */}
+        {timedOut && (
+          <div className="mt-4 space-y-3">
+            <p className="text-slate-400 text-sm">
+              Taking longer than expected...
+            </p>
+            <button
+              onClick={() => {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.reload();
+              }}
+              className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors"
+            >
+              Clear Cache &amp; Reload
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -87,6 +109,21 @@ export function RootLayout() {
   const { user, isLoading, refreshUser, t } = useApp();
   const { isLoaded: clerkLoaded } = useUser();
   const location = useLocation();
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+
+  // Safety timeout: if loading takes too long, show recovery UI
+  useEffect(() => {
+    if (clerkLoaded && !isLoading) return; // Already loaded, no timer needed
+
+    const timer = setTimeout(() => {
+      if (!clerkLoaded || isLoading) {
+        console.warn('[RootLayout] Loading timed out after', LOADING_TIMEOUT_MS, 'ms. clerkLoaded:', clerkLoaded, 'isLoading:', isLoading);
+        setLoadingTimedOut(true);
+      }
+    }, LOADING_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  }, [clerkLoaded, isLoading]);
 
   // Track page views on route changes (only if user consented to analytics)
   useEffect(() => {
@@ -178,7 +215,7 @@ export function RootLayout() {
 
   // Show branded loading screen while Clerk initializes
   if (!clerkLoaded || isLoading) {
-    return <BrandedLoadingScreen />;
+    return <BrandedLoadingScreen timedOut={loadingTimedOut} />;
   }
 
   return (
