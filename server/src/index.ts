@@ -116,6 +116,7 @@ import devRoutes from './routes/dev.js';
 import promptRoutes from './routes/prompts.js';
 import internalLinksRoutes from './routes/internal-links.js';
 import yearEnergyRoutes from './routes/yearEnergy/index.js';
+import contactRoutes from './routes/contact.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
 import { Router } from 'express';
@@ -279,6 +280,7 @@ v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
 v1Router.use('/year-energy', generalLimiter, yearEnergyRoutes);
 v1Router.use('/internal-links', generalLimiter, internalLinksRoutes);
+v1Router.use('/contact', strictLimiter, contactRoutes);
 
 // Mount v1 at /api/v1
 app.use('/api/v1', v1Router);

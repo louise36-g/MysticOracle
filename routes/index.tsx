@@ -278,6 +278,10 @@ export const router = createBrowserRouter(
         path: ROUTES.HOW_CREDITS_WORK,
         element: lazyLoad(() => import('../components/HowCreditsWork')),
       },
+      {
+        path: ROUTES.CONTACT,
+        element: lazyLoad(() => import('../components/Contact')),
+      },
 
       // Payment result routes
       {

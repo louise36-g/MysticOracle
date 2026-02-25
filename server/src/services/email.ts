@@ -337,6 +337,7 @@ interface SendEmailOptions {
   subject: string;
   htmlContent: string;
   params?: Record<string, string>;
+  replyTo?: { email: string; name?: string };
 }
 
 /**
@@ -363,6 +364,13 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 
     if (options.params) {
       sendSmtpEmail.params = options.params;
+    }
+
+    if (options.replyTo) {
+      sendSmtpEmail.replyTo = {
+        email: options.replyTo.email,
+        name: options.replyTo.name || options.replyTo.email,
+      };
     }
 
     await transactionalApi.sendTransacEmail(sendSmtpEmail);
@@ -454,6 +462,79 @@ export async function sendReferralInviteEmail(
   });
 }
 
+/**
+ * Send contact form submission to admin
+ */
+export async function sendContactFormEmail(
+  senderEmail: string,
+  senderName: string,
+  subject: string,
+  message: string,
+  phone?: string,
+  language: 'en' | 'fr' = 'en'
+): Promise<boolean> {
+  const timestamp = new Date().toLocaleString(language === 'fr' ? 'fr-FR' : 'en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+  });
+
+  const htmlContent = emailWrapper(
+    `
+    <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd;">
+      New Contact Form Message
+    </h2>
+    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px; margin: 0 0 20px 0;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; width: 80px; vertical-align: top;">Name</td>
+          <td style="padding: 6px 0; color: #e2e8f0; font-size: 14px;">${senderName}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; vertical-align: top;">Email</td>
+          <td style="padding: 6px 0; color: #e2e8f0; font-size: 14px;"><a href="mailto:${senderEmail}" style="color: #a78bfa; text-decoration: none;">${senderEmail}</a></td>
+        </tr>
+        ${
+          phone
+            ? `<tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; vertical-align: top;">Phone</td>
+          <td style="padding: 6px 0; color: #e2e8f0; font-size: 14px;">${phone}</td>
+        </tr>`
+            : ''
+        }
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; vertical-align: top;">Subject</td>
+          <td style="padding: 6px 0; color: #e2e8f0; font-size: 14px;">${subject}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; vertical-align: top;">Sent</td>
+          <td style="padding: 6px 0; color: #e2e8f0; font-size: 14px;">${timestamp}</td>
+        </tr>
+      </table>
+    </div>
+    <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px; margin: 0 0 20px 0;">
+      <p style="margin: 0 0 8px 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Message</p>
+      <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #e2e8f0; white-space: pre-wrap;">${message}</p>
+    </div>
+    <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center;">
+      Reply directly to this email to respond to the sender.
+    </p>
+    `,
+    'en'
+  );
+
+  return sendEmail({
+    to: 'contact@celestiarcana.com',
+    toName: 'CelestiArcana',
+    subject: `[CelestiArcana Contact] ${subject} - from ${senderName}`,
+    htmlContent,
+    replyTo: { email: senderEmail, name: senderName },
+    params: {
+      siteUrl: process.env.FRONTEND_URL || 'https://celestiarcana.com',
+      unsubscribeUrl: `${process.env.FRONTEND_URL}/unsubscribe`,
+    },
+  });
+}
+
 // ============================================
 // CONTACT MANAGEMENT (Newsletter)
 // ============================================
@@ -524,6 +605,7 @@ export default {
   sendWelcomeEmail,
   sendPurchaseConfirmation,
   sendReferralInviteEmail,
+  sendContactFormEmail,
   upsertContact,
   subscribeToNewsletter,
   unsubscribeContact,

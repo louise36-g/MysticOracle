@@ -39,6 +39,7 @@ export const ROUTES = {
   FAQ: '/faq',
   ABOUT: '/about',
   HOW_CREDITS_WORK: '/how-credits-work',
+  CONTACT: '/contact',
 
   // Payment
   PAYMENT_SUCCESS: '/payment/success',
