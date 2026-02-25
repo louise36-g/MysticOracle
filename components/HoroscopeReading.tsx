@@ -409,9 +409,9 @@ const HoroscopeReading: React.FC = () => {
             <div className="prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({ children }) => <h1 className="text-lg font-heading font-bold text-amber-300 mt-5 mb-2 first:mt-0">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-5 mb-1.5 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-3 mb-1">{children}</h3>,
+                  h1: ({ children }) => <h1 className="text-lg font-heading font-bold text-amber-300 mt-3 mb-1.5 first:mt-0">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-2 mb-0.5">{children}</h3>,
                   p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
                   strong: ({ children }) => <strong className="text-amber-200 font-semibold">{children}</strong>,
                   em: ({ children }) => <em className="text-purple-200 italic">{children}</em>,
