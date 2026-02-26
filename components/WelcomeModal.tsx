@@ -30,8 +30,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [needsUsername, setNeedsUsername] = useState(false);
 
-  // Referral code state
-  const [referralCode, setReferralCode] = useState('');
+  // Referral code state — pre-populate from localStorage if user arrived via ?ref= link
+  const [referralCode, setReferralCode] = useState(() => {
+    const stored = localStorage.getItem('celestiarcana-referral-code');
+    if (stored) {
+      localStorage.removeItem('celestiarcana-referral-code');
+      return stored;
+    }
+    return '';
+  });
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [referralRedeemed, setReferralRedeemed] = useState(false);
   const [referralError, setReferralError] = useState<string | null>(null);

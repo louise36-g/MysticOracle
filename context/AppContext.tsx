@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
-import { redeemReferralCode } from '../services/api/user';
 import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
 import { cleanupDeprecatedStorage } from '../services/storageService';
 
@@ -290,39 +289,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     console.log('[AppContext] refreshUser completed');
   }, [fetchUserFromBackend]);
 
-  // Auto-redeem stored referral code after login
-  useEffect(() => {
-    if (!user || user.referredById) return;
-
-    const storedCode = localStorage.getItem('celestiarcana-referral-code');
-    if (!storedCode) return;
-
-    // Don't redeem your own code
-    if (storedCode === user.referralCode) {
-      localStorage.removeItem('celestiarcana-referral-code');
-      return;
-    }
-
-    const autoRedeem = async () => {
-      try {
-        const token = await getToken();
-        if (!token) return;
-
-        const result = await redeemReferralCode(token, storedCode);
-        if (result.success) {
-          console.log('[AppContext] Auto-redeemed referral code:', storedCode);
-          // Refresh user to update credits and referredById
-          await fetchUserFromBackend(true);
-        }
-      } catch (error) {
-        console.warn('[AppContext] Failed to auto-redeem referral code:', error);
-      } finally {
-        localStorage.removeItem('celestiarcana-referral-code');
-      }
-    };
-
-    autoRedeem();
-  }, [user?.id, user?.referredById, user?.referralCode, getToken, fetchUserFromBackend]);
+  // Note: Referral code auto-redeem removed — handled by WelcomeModal (first step).
+  // Stored codes from ?ref= URLs are picked up and pre-populated by WelcomeModal.
 
   const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);
