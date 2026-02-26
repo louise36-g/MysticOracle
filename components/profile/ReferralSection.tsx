@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Copy, CheckCircle, Mail, Send, Gift, Loader2, ChevronDown } from 'lucide-react';
+import { Share2, Copy, CheckCircle, Mail, Send, Gift, Loader2 } from 'lucide-react';
 import { useAuth } from '@clerk/clerk-react';
 import { createShareUrl } from '../../utils/socialShare';
 import { redeemReferralCode, sendReferralInvite } from '../../services/api/user';
@@ -31,7 +31,6 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
   onCreditsAwarded,
 }) => {
   const { getToken } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   // Email invite state
@@ -131,30 +130,12 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
       transition={{ duration: 0.4, delay: animationDelay }}
       className={SECTION_CLASSES}
     >
-      {/* Collapsible Header */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between py-1"
-      >
-        <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
-          <Share2 className="w-4 h-4 text-purple-400" />
-          {t('referral.title', 'Referral & Invite')}
-        </h2>
-        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
-          isExpanded ? 'rotate-180' : ''
-        }`} />
-      </button>
+      <h2 className="text-base font-heading text-purple-100 flex items-center gap-2 mb-4">
+        <Share2 className="w-4 h-4 text-purple-400" />
+        {t('referral.title', 'Referral & Invite')}
+      </h2>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="pt-4 border-t border-slate-700/40 mt-3 space-y-4">
+      <div className="space-y-4">
 
               {/* Your Referral Code */}
               <div>
@@ -305,10 +286,7 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
                   </p>
                 </div>
               )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </motion.section>
   );
 };
