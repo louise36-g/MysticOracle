@@ -162,14 +162,17 @@ export function RootLayout() {
     }
   }, [user?.credits, hasShownLowCreditsWarning]);
 
-  // Show welcome modal for new users (once per session)
+  // Show welcome modal for new users (once per session, not on auth pages)
   useEffect(() => {
+    const isAuthPage = location.pathname.startsWith('/sign-up') || location.pathname.startsWith('/sign-in');
+    if (isAuthPage) return;
+
     const hasShownWelcomeThisSession = sessionStorage.getItem('welcome_modal_shown');
     if (user && !user.welcomeCompleted && user.totalReadings === 0 && !hasShownWelcomeThisSession) {
       setShowWelcomeModal(true);
       sessionStorage.setItem('welcome_modal_shown', 'true');
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   // Check for daily bonus eligibility
   useEffect(() => {

@@ -7,7 +7,7 @@
 import { Router, raw, json } from 'express';
 import { Webhook } from 'svix';
 import prisma from '../db/prisma.js';
-import { sendWelcomeEmail } from '../services/email.js';
+
 import { CREDIT_COSTS } from '../services/CreditService.js';
 import { debug, logger } from '../lib/logger.js';
 
@@ -120,13 +120,6 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
         });
 
         logger.info(`✅ User created: ${data.id}`);
-
-        // Send welcome email
-        if (email) {
-          sendWelcomeEmail(email, username, 'en').catch(err =>
-            console.error('Failed to send welcome email:', err)
-          );
-        }
       } catch (error) {
         console.error('Error creating user:', error);
       }
