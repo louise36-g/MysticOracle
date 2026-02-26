@@ -17,8 +17,6 @@ interface WelcomeModalProps {
   credits: number;
 }
 
-const TOTAL_STEPS = 5;
-
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCreditShop, onRefreshUser, credits }) => {
   const { t } = useTranslation();
   const { getToken } = useAuth();
@@ -29,6 +27,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [needsUsername, setNeedsUsername] = useState(false);
+
+  // Compute step numbers based on whether username step is needed
+  // With username:    0=Username, 1=Referral, 2=Welcome, 3=HowItWorks, 4=Credits
+  // Without username: 0=Referral, 1=Welcome, 2=HowItWorks, 3=Credits
+  const referralStep = needsUsername ? 1 : 0;
+  const welcomeStep = needsUsername ? 2 : 1;
+  const howItWorksStep = needsUsername ? 3 : 2;
+  const creditsStep = needsUsername ? 4 : 3;
+  const totalSteps = needsUsername ? 5 : 4;
 
   // Referral code state — pre-populate from localStorage if user arrived via ?ref= link
   const [referralCode, setReferralCode] = useState(() => {
@@ -128,16 +135,16 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
 
       await updateUsername(token, username);
       await onRefreshUser();
-      setCurrentStep(1);
+      setCurrentStep(referralStep);
     } catch (error) {
       console.error('Failed to save username:', error);
       setUsernameError(t('welcome.username.save_error', 'Failed to save username. Please try again.'));
     }
-  }, [username, usernameStatus, getToken, onRefreshUser, t]);
+  }, [username, usernameStatus, getToken, onRefreshUser, t, referralStep]);
 
   const handleSkipUsername = useCallback(() => {
-    setCurrentStep(1);
-  }, []);
+    setCurrentStep(referralStep);
+  }, [referralStep]);
 
   const handleRedeemReferral = useCallback(async () => {
     if (!referralCode.trim() || isRedeeming) return;
@@ -171,10 +178,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentStep < TOTAL_STEPS - 1) {
+    if (currentStep < totalSteps - 1) {
       setCurrentStep(prev => prev + 1);
     }
-  }, [currentStep]);
+  }, [currentStep, totalSteps]);
 
   const handleSkip = useCallback(async () => {
     setIsClosing(true);
@@ -333,7 +340,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {((currentStep === 0 && !needsUsername) || currentStep === 1) && (
+                {currentStep === referralStep && (
                   <motion.div
                     key="step-referral"
                     custom={1}
@@ -443,7 +450,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 2 && (
+                {currentStep === welcomeStep && (
                   <motion.div
                     key="step-welcome"
                     custom={1}
@@ -466,9 +473,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 3 && (
+                {currentStep === howItWorksStep && (
                   <motion.div
-                    key="step-1"
+                    key="step-howitworks"
                     custom={1}
                     variants={slideVariants}
                     initial="enter"
@@ -500,9 +507,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 4 && (
+                {currentStep === creditsStep && (
                   <motion.div
-                    key="step-2"
+                    key="step-credits"
                     custom={1}
                     variants={slideVariants}
                     initial="enter"
@@ -545,7 +552,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
               </AnimatePresence>
 
               <div className="flex justify-center gap-2 mt-8 mb-6">
-                {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+                {Array.from({ length: totalSteps }).map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentStep(i)}
@@ -560,7 +567,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
               </div>
 
               {/* Hide bottom nav on referral step (it has its own buttons) unless already redeemed */}
-              {(((currentStep === 0 && !needsUsername) || currentStep === 1) ? referralRedeemed : true) && (
+              {(currentStep === referralStep ? referralRedeemed : true) && (
                 <div className="flex items-center justify-between">
                   <button
                     onClick={handleSkip}
@@ -569,7 +576,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                     {t('welcome.skip', 'Skip')}
                   </button>
 
-                  {currentStep < TOTAL_STEPS - 1 ? (
+                  {currentStep < totalSteps - 1 ? (
                     <Button onClick={handleNext} className="flex items-center gap-2">
                       {t('welcome.next', 'Next')}
                       <ArrowRight className="w-4 h-4" />
