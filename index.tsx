@@ -65,7 +65,17 @@ const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(
     <HelmetProvider>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ClerkProvider
+        publishableKey={PUBLISHABLE_KEY}
+        afterSignOutUrl="/"
+        localization={{
+          unstable__errors: {
+            form_identifier_not_found: 'This email address was not found. Please check and try again.',
+            form_password_incorrect: 'Incorrect password. Please try again.',
+            not_allowed_access: 'This is not a valid email address. Please check and try again.',
+          },
+        }}
+      >
         <TranslationProvider>
           <AppProvider>
             <SpendingLimitsProvider>
