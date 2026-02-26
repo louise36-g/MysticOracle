@@ -133,8 +133,8 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
       </h2>
 
       <div className="space-y-3">
-        {/* Compact share row: code + copy + WhatsApp + X + Email */}
-        <div className="flex items-center gap-1.5">
+        {/* Share row + Redeem — aligned horizontally */}
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* Referral code display */}
           <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-purple-200 tracking-wider text-sm">
             {referralCode}
@@ -186,7 +186,59 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
           >
             <Mail className="w-3.5 h-3.5" />
           </button>
+
+          {/* Redeem inline — divider + input + button on same row */}
+          {!hasRedeemed && (
+            <>
+              <div className="w-px h-5 bg-slate-700/60 mx-0.5" />
+              <Gift className="w-4 h-4 text-amber-400 shrink-0" />
+              <form onSubmit={handleRedeem} className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={redeemCode}
+                  onChange={(e) => {
+                    setRedeemCode(e.target.value.toUpperCase());
+                    setRedeemStatus('idle');
+                  }}
+                  placeholder={language === 'en' ? 'Enter code...' : 'Entrez le code...'}
+                  maxLength={20}
+                  className="w-28 sm:w-32 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-white font-mono
+                             tracking-wider placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 uppercase"
+                />
+                <button
+                  type="submit"
+                  disabled={isRedeeming || !redeemCode.trim()}
+                  className="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 disabled:text-slate-500
+                             text-white px-3 py-1.5 rounded-lg transition-colors duration-200 flex items-center gap-1 text-sm font-medium"
+                >
+                  {isRedeeming ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    t('referral.redeem', 'Redeem')
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* Already redeemed indicator — inline */}
+          {hasRedeemed && redeemStatus === 'idle' && (
+            <>
+              <div className="w-px h-5 bg-slate-700/60 mx-0.5" />
+              <p className="text-xs text-slate-500 flex items-center gap-1">
+                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                {t('referral.already_redeemed', 'Redeemed')}
+              </p>
+            </>
+          )}
         </div>
+
+        {/* Redeem status message */}
+        {redeemStatus !== 'idle' && (
+          <p className={`text-sm ${redeemStatus === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+            {redeemMessage}
+          </p>
+        )}
 
         {/* Email Invite Form */}
         <AnimatePresence>
@@ -230,59 +282,6 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Redeem a Referral Code */}
-        {!hasRedeemed && (
-          <div className="border-t border-slate-700/40 pt-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Gift className="w-4 h-4 text-amber-400" />
-              <p className="text-sm font-medium text-amber-200">
-                {t('referral.have_code', 'Have a referral code?')}
-              </p>
-            </div>
-            <form onSubmit={handleRedeem} className="flex gap-2">
-              <input
-                type="text"
-                value={redeemCode}
-                onChange={(e) => {
-                  setRedeemCode(e.target.value.toUpperCase());
-                  setRedeemStatus('idle');
-                }}
-                placeholder={language === 'en' ? 'Enter code...' : 'Entrez le code...'}
-                maxLength={20}
-                className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono
-                           tracking-wider placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 uppercase"
-              />
-              <button
-                type="submit"
-                disabled={isRedeeming || !redeemCode.trim()}
-                className="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 disabled:text-slate-500
-                           text-white px-4 rounded-lg transition-colors duration-200 flex items-center gap-1.5 text-sm font-medium"
-              >
-                {isRedeeming ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  t('referral.redeem', 'Redeem')
-                )}
-              </button>
-            </form>
-            {redeemStatus !== 'idle' && (
-              <p className={`mt-2 text-sm ${redeemStatus === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                {redeemMessage}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Already redeemed message */}
-        {hasRedeemed && redeemStatus === 'idle' && (
-          <div className="border-t border-slate-700/40 pt-3">
-            <p className="text-xs text-slate-500 flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-              {t('referral.already_redeemed', 'Referral code already redeemed')}
-            </p>
-          </div>
-        )}
       </div>
     </motion.section>
   );

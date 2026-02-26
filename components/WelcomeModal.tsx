@@ -2,9 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, BookOpen, Coins, ArrowRight, X, User, Check, AlertCircle } from 'lucide-react';
+import { Sparkles, BookOpen, Coins, ArrowRight, X, User, Check, AlertCircle, Gift, Loader2 } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
 import { markWelcomeCompleted, checkUsernameAvailability, updateUsername } from '../services/api';
+import { redeemReferralCode } from '../services/api/user';
 import { ROUTES } from '../routes/routes';
 import Button from './Button';
 
@@ -16,7 +17,7 @@ interface WelcomeModalProps {
   credits: number;
 }
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCreditShop, onRefreshUser, credits }) => {
   const { t } = useTranslation();
@@ -28,6 +29,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [needsUsername, setNeedsUsername] = useState(false);
+
+  // Referral code state
+  const [referralCode, setReferralCode] = useState('');
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [referralRedeemed, setReferralRedeemed] = useState(false);
+  const [referralError, setReferralError] = useState<string | null>(null);
+  const [referralCredits, setReferralCredits] = useState(0);
 
   // Check if user needs to set username (auto-generated or missing)
   React.useEffect(() => {
@@ -122,6 +130,37 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
 
   const handleSkipUsername = useCallback(() => {
     setCurrentStep(1);
+  }, []);
+
+  const handleRedeemReferral = useCallback(async () => {
+    if (!referralCode.trim() || isRedeeming) return;
+
+    setIsRedeeming(true);
+    setReferralError(null);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+
+      const result = await redeemReferralCode(token, referralCode.trim());
+      setReferralRedeemed(true);
+      setReferralCredits(result.creditsAwarded);
+      await onRefreshUser();
+
+      // Auto-advance after showing success
+      setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+      }, 3000);
+    } catch (error: any) {
+      setReferralError(
+        error?.message || t('welcome.referral.invalid', 'Invalid referral code. Please check and try again.')
+      );
+    } finally {
+      setIsRedeeming(false);
+    }
+  }, [referralCode, isRedeeming, getToken, onRefreshUser, t]);
+
+  const handleSkipReferral = useCallback(() => {
+    setCurrentStep(prev => prev + 1);
   }, []);
 
   const handleNext = useCallback(() => {
@@ -312,6 +351,116 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
 
                 {currentStep === 2 && (
                   <motion.div
+                    key="step-referral"
+                    custom={1}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3 }}
+                    className="flex-1 flex flex-col items-center text-center"
+                  >
+                    {referralRedeemed ? (
+                      <>
+                        {/* Success state */}
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', delay: 0.1 }}
+                          className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6"
+                        >
+                          <Check className="w-10 h-10 text-white" />
+                        </motion.div>
+                        <h2 className="text-2xl font-heading text-amber-100 mb-2">
+                          {t('welcome.referral.success_title', 'Welcome to CelestiArcana!')}
+                        </h2>
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.3 }}
+                          className="my-4"
+                        >
+                          <div className="text-5xl font-bold text-amber-400 flex items-center justify-center gap-2">
+                            <Coins className="w-10 h-10" />
+                            +{referralCredits}
+                          </div>
+                          <p className="text-slate-400 mt-1">
+                            {t('welcome.referral.credits_earned', 'credits earned')}
+                          </p>
+                        </motion.div>
+                        <motion.p
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 }}
+                          className="text-green-400 font-medium"
+                        >
+                          {t('welcome.referral.added_to_account', 'Credits added to your account!')}
+                        </motion.p>
+                      </>
+                    ) : (
+                      <>
+                        {/* Input state */}
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-pink-500 flex items-center justify-center mb-6">
+                          <Gift className="w-8 h-8 text-white" />
+                        </div>
+                        <h2 className="text-2xl font-heading text-amber-100 mb-2">
+                          {t('welcome.referral.title', 'Do you have a referral code?')}
+                        </h2>
+                        <p className="text-slate-400 mb-6">
+                          {t('welcome.referral.subtitle', 'Enter a code from a friend and you both get 5 free credits!')}
+                        </p>
+
+                        <div className="w-full max-w-xs">
+                          <input
+                            type="text"
+                            value={referralCode}
+                            onChange={(e) => {
+                              setReferralCode(e.target.value.toUpperCase());
+                              setReferralError(null);
+                            }}
+                            placeholder={t('welcome.referral.placeholder', 'Paste your code here...')}
+                            maxLength={20}
+                            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono tracking-wider
+                                       placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 uppercase text-center"
+                          />
+
+                          {referralError && (
+                            <p className="mt-2 text-sm text-red-400">{referralError}</p>
+                          )}
+                        </div>
+
+                        <div className="flex gap-3 mt-8">
+                          <button
+                            onClick={handleSkipReferral}
+                            className="px-4 py-2 text-slate-400 hover:text-slate-300 transition-colors"
+                          >
+                            {t('welcome.referral.skip', "I don't have one")}
+                          </button>
+                          <Button
+                            onClick={handleRedeemReferral}
+                            disabled={!referralCode.trim() || isRedeeming}
+                            className="flex items-center gap-2"
+                          >
+                            {isRedeeming ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                {t('welcome.referral.redeeming', 'Redeeming...')}
+                              </>
+                            ) : (
+                              <>
+                                <Gift className="w-4 h-4" />
+                                {t('welcome.referral.redeem', 'Redeem')}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+
+                {currentStep === 3 && (
+                  <motion.div
                     key="step-1"
                     custom={1}
                     variants={slideVariants}
@@ -344,7 +493,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
-                {currentStep === 3 && (
+                {currentStep === 4 && (
                   <motion.div
                     key="step-2"
                     custom={1}
@@ -400,26 +549,29 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                 ))}
               </div>
 
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={handleSkip}
-                  className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {t('welcome.skip', 'Skip')}
-                </button>
+              {/* Hide bottom nav on referral step (it has its own buttons) unless already redeemed */}
+              {(currentStep !== 2 || referralRedeemed) && (
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={handleSkip}
+                    className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {t('welcome.skip', 'Skip')}
+                  </button>
 
-                {currentStep < TOTAL_STEPS - 1 ? (
-                  <Button onClick={handleNext} className="flex items-center gap-2">
-                    {t('welcome.next', 'Next')}
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                ) : (
-                  <Button onClick={handleStartReading} className="flex items-center gap-2">
-                    {t('welcome.startReading', 'Start Your First Reading')}
-                    <Sparkles className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+                  {currentStep < TOTAL_STEPS - 1 ? (
+                    <Button onClick={handleNext} className="flex items-center gap-2">
+                      {t('welcome.next', 'Next')}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button onClick={handleStartReading} className="flex items-center gap-2">
+                      {t('welcome.startReading', 'Start Your First Reading')}
+                      <Sparkles className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

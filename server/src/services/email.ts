@@ -325,6 +325,72 @@ const TEMPLATES = {
       ),
     },
   },
+  REFERRAL_REDEEMED: {
+    en: {
+      subject: 'Great news — your referral code was just used! 🎉',
+      htmlContent: emailWrapper(
+        `
+        <div style="text-align: center; margin-bottom: 25px;">
+          <div style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); border-radius: 50%; padding: 15px;">
+            <span style="font-size: 32px;">🎁</span>
+          </div>
+        </div>
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd; text-align: center;">
+          Your Referral Code Was Redeemed!
+        </h2>
+        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0; text-align: center;">
+          Hey {{params.referrerName}}, your friend <strong style="color: #fbbf24;">{{params.redeemerName}}</strong> just used your referral code to join CelestiArcana!
+        </p>
+        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+          <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">You've earned</p>
+          <p style="margin: 0; font-size: 42px; font-weight: 700; color: #fbbf24;">+{{params.credits}}</p>
+          <p style="margin: 5px 0 0 0; font-size: 16px; color: #22c55e; font-weight: 600;">bonus credits</p>
+        </div>
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #94a3b8; text-align: center;">
+          Keep sharing your code to earn more free credits with every friend who joins.
+        </p>
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); color: #1e1b4b; font-weight: 600; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px;">
+            Visit CelestiArcana →
+          </a>
+        </div>
+      `,
+        'en'
+      ),
+    },
+    fr: {
+      subject: "Bonne nouvelle — votre code de parrainage vient d'être utilisé ! 🎉",
+      htmlContent: emailWrapper(
+        `
+        <div style="text-align: center; margin-bottom: 25px;">
+          <div style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); border-radius: 50%; padding: 15px;">
+            <span style="font-size: 32px;">🎁</span>
+          </div>
+        </div>
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #c4b5fd; text-align: center;">
+          Votre Code de Parrainage a Été Utilisé !
+        </h2>
+        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #e2e8f0; text-align: center;">
+          Hey {{params.referrerName}}, votre ami(e) <strong style="color: #fbbf24;">{{params.redeemerName}}</strong> vient d'utiliser votre code de parrainage pour rejoindre CelestiArcana !
+        </p>
+        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+          <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Vous avez gagné</p>
+          <p style="margin: 0; font-size: 42px; font-weight: 700; color: #fbbf24;">+{{params.credits}}</p>
+          <p style="margin: 5px 0 0 0; font-size: 16px; color: #22c55e; font-weight: 600;">crédits bonus</p>
+        </div>
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #94a3b8; text-align: center;">
+          Continuez à partager votre code pour gagner plus de crédits gratuits avec chaque ami qui s'inscrit.
+        </p>
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="{{params.siteUrl}}" style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #a855f7 100%); color: #1e1b4b; font-weight: 600; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px;">
+            Visiter CelestiArcana →
+          </a>
+        </div>
+      `,
+        'fr'
+      ),
+    },
+  },
 };
 
 // ============================================
@@ -456,6 +522,34 @@ export async function sendReferralInviteEmail(
       senderName,
       referralCode,
       signupUrl,
+      siteUrl,
+      unsubscribeUrl: `${siteUrl}/unsubscribe`,
+    },
+  });
+}
+
+/**
+ * Notify the referrer that their code was redeemed
+ */
+export async function sendReferralRedeemedEmail(
+  referrerEmail: string,
+  referrerName: string,
+  redeemerName: string,
+  creditsAwarded: number,
+  language: 'en' | 'fr' = 'en'
+): Promise<boolean> {
+  const template = TEMPLATES.REFERRAL_REDEEMED[language];
+  const siteUrl = process.env.FRONTEND_URL || 'https://celestiarcana.com';
+
+  return sendEmail({
+    to: referrerEmail,
+    toName: referrerName,
+    subject: template.subject,
+    htmlContent: template.htmlContent,
+    params: {
+      referrerName,
+      redeemerName,
+      credits: creditsAwarded.toString(),
       siteUrl,
       unsubscribeUrl: `${siteUrl}/unsubscribe`,
     },
@@ -605,6 +699,7 @@ export default {
   sendWelcomeEmail,
   sendPurchaseConfirmation,
   sendReferralInviteEmail,
+  sendReferralRedeemedEmail,
   sendContactFormEmail,
   upsertContact,
   subscribeToNewsletter,

@@ -17,7 +17,7 @@ import {
   ConflictError,
   logger,
 } from './shared.js';
-import { sendReferralInviteEmail } from '../../services/email.js';
+import { sendReferralInviteEmail, sendReferralRedeemedEmail } from '../../services/email.js';
 
 const router = Router();
 
@@ -37,7 +37,7 @@ router.post('/me/redeem-referral', requireAuth, async (req, res, next) => {
     // 1. Find the current user
     const currentUser = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, referralCode: true, referredById: true },
+      select: { id: true, username: true, referralCode: true, referredById: true },
     });
 
     if (!currentUser) {
@@ -59,7 +59,7 @@ router.post('/me/redeem-referral', requireAuth, async (req, res, next) => {
     // 4. Find the referrer by code
     const referrer = await prisma.user.findUnique({
       where: { referralCode: code },
-      select: { id: true, username: true },
+      select: { id: true, username: true, email: true, language: true },
     });
 
     if (!referrer) {
@@ -102,6 +102,20 @@ router.post('/me/redeem-referral', requireAuth, async (req, res, next) => {
     });
 
     logger.info(`Referral redeemed: ${userId} used code ${code} from ${referrer.id}`);
+
+    // 7. Notify the referrer by email (fire-and-forget, don't block the response)
+    if (referrer.email) {
+      const referrerLang = (referrer.language === 'fr' ? 'fr' : 'en') as 'en' | 'fr';
+      sendReferralRedeemedEmail(
+        referrer.email,
+        referrer.username,
+        currentUser.username,
+        bonusAmount,
+        referrerLang
+      ).catch(err => {
+        logger.warn(`Failed to send referral redeemed email to ${referrer.id}: ${err}`);
+      });
+    }
 
     res.json({
       success: true,
