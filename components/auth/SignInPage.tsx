@@ -3,7 +3,17 @@ import { SignIn } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
 import AuthLayout from './AuthLayout';
-import { useApp } from '../../context/AppContext';
+
+// Read language directly from localStorage to avoid context subscriptions
+// that cause re-renders and duplicate Clerk verification emails
+const getLanguage = () => {
+  try {
+    const lang = localStorage.getItem('celestiarcana-language');
+    return lang === 'fr' ? 'fr' : 'en';
+  } catch {
+    return 'en';
+  }
+};
 
 const clerkAppearance = {
   variables: {
@@ -49,7 +59,7 @@ const clerkAppearance = {
 };
 
 const SignInPage: React.FC = () => {
-  const { language } = useApp();
+  const language = getLanguage();
 
   const title = language === 'fr' ? 'Bon retour' : 'Welcome Back';
   const subtitle = language === 'fr'

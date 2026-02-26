@@ -181,6 +181,17 @@ const TarotArticleRedirect = () => {
 
 export const router = createBrowserRouter(
   [
+    // Auth routes - OUTSIDE RootLayout to avoid loading gate and re-renders
+    // that cause Clerk's SignUp/SignIn to send duplicate verification emails
+    {
+      path: '/sign-up/*',
+      element: <SignUpPage />,
+    },
+    {
+      path: '/sign-in/*',
+      element: <SignInPage />,
+    },
+
     {
     // Root layout wraps all public routes
     element: <RootLayout />,
@@ -192,16 +203,6 @@ export const router = createBrowserRouter(
       {
         path: ROUTES.HOME,
         element: lazyLoad(() => import('../components/HomePage')),
-      },
-
-      // Auth routes (with wildcards for Clerk's multi-step flows)
-      {
-        path: '/sign-up/*',
-        element: <SignUpPage />,
-      },
-      {
-        path: '/sign-in/*',
-        element: <SignInPage />,
       },
 
       // Blog routes
