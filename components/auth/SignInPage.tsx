@@ -1,6 +1,6 @@
-import React from 'react';
-import { SignIn } from '@clerk/clerk-react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { SignIn, useUser } from '@clerk/clerk-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
 import AuthLayout from './AuthLayout';
 import { useApp } from '../../context/AppContext';
@@ -50,6 +50,15 @@ const clerkAppearance = {
 
 const SignInPage: React.FC = () => {
   const { language } = useApp();
+  const { isSignedIn, isLoaded } = useUser();
+  const navigate = useNavigate();
+
+  // If user is already signed in, redirect to home
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      navigate('/', { replace: true });
+    }
+  }, [isLoaded, isSignedIn, navigate]);
 
   const title = language === 'fr' ? 'Bon retour' : 'Welcome Back';
   const subtitle = language === 'fr'
