@@ -152,15 +152,17 @@ export function RootLayout() {
   const [hasShownLowCreditsWarning, setHasShownLowCreditsWarning] = useState(false);
   const [hasCheckedDailyBonus, setHasCheckedDailyBonus] = useState(false);
 
-  // Check for low credits and show warning (once per session)
+  // Check for low credits and show warning (once per session, not for brand new users)
   useEffect(() => {
+    if (user && !user.welcomeCompleted) return;
+
     const hasShownLowCreditsThisSession = sessionStorage.getItem('low_credits_warning_shown');
     if (user && user.credits <= LOW_CREDITS_WARNING_THRESHOLD && user.credits > 0 && !hasShownLowCreditsWarning && !hasShownLowCreditsThisSession) {
       setShowLowCreditsModal(true);
       setHasShownLowCreditsWarning(true);
       sessionStorage.setItem('low_credits_warning_shown', 'true');
     }
-  }, [user?.credits, hasShownLowCreditsWarning]);
+  }, [user?.credits, user?.welcomeCompleted, hasShownLowCreditsWarning]);
 
   // Show welcome modal for new users (once per session, not on auth pages)
   useEffect(() => {
