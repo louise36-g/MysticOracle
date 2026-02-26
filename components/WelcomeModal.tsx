@@ -328,29 +328,6 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
 
                 {((currentStep === 0 && !needsUsername) || currentStep === 1) && (
                   <motion.div
-                    key="step-0"
-                    custom={1}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.3 }}
-                    className="flex-1 flex flex-col items-center text-center"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center mb-6">
-                      <Sparkles className="w-8 h-8 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-heading text-amber-100 mb-4">
-                      {t('welcome.step1.title', 'Welcome to CelestiArcana')}
-                    </h2>
-                    <p className="text-slate-300 leading-relaxed">
-                      {t('welcome.step1.description', 'Your personal guide to tarot wisdom. Each reading is crafted uniquely for you, blending ancient symbolism with modern insight.')}
-                    </p>
-                  </motion.div>
-                )}
-
-                {currentStep === 2 && (
-                  <motion.div
                     key="step-referral"
                     custom={1}
                     variants={slideVariants}
@@ -459,6 +436,29 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                   </motion.div>
                 )}
 
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step-welcome"
+                    custom={1}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3 }}
+                    className="flex-1 flex flex-col items-center text-center"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center mb-6">
+                      <Sparkles className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-heading text-amber-100 mb-4">
+                      {t('welcome.step1.title', 'Welcome to CelestiArcana')}
+                    </h2>
+                    <p className="text-slate-300 leading-relaxed">
+                      {t('welcome.step1.description', 'Your personal guide to tarot wisdom. Each reading is crafted uniquely for you, blending ancient symbolism with modern insight.')}
+                    </p>
+                  </motion.div>
+                )}
+
                 {currentStep === 3 && (
                   <motion.div
                     key="step-1"
@@ -512,7 +512,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                     </h2>
                     <div className="text-slate-300 leading-relaxed space-y-3">
                       <p>
-                        {t('welcome.step3.description', 'You have 3 free credits to start. A single card reading costs 1 credit, larger spreads cost more. Earn extra credits through daily bonuses and referrals — or purchase more anytime.')}
+                        {referralRedeemed
+                          ? t('welcome.step3.description_with_referral', `All new users receive 3 free credits to get started. Plus, thanks to your referral code, you've earned an extra ${referralCredits} credits! A single card reading costs 1 credit, larger spreads cost more. Earn even more through daily bonuses — or purchase anytime.`)
+                          : t('welcome.step3.description', 'All new users receive 3 free credits to get started. A single card reading costs 1 credit, larger spreads cost more. Earn extra credits through daily bonuses and referrals — or purchase more anytime.')
+                        }
                       </p>
                       <div className="flex items-center justify-center gap-4 mt-2">
                         <button
@@ -550,7 +553,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
               </div>
 
               {/* Hide bottom nav on referral step (it has its own buttons) unless already redeemed */}
-              {(currentStep !== 2 || referralRedeemed) && (
+              {(((currentStep === 0 && !needsUsername) || currentStep === 1) ? referralRedeemed : true) && (
                 <div className="flex items-center justify-between">
                   <button
                     onClick={handleSkip}
