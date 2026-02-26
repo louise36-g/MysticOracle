@@ -75,8 +75,7 @@ const SignInPage: React.FC = () => {
 
       <SignIn
         appearance={clerkAppearance}
-        routing="path"
-        path="/sign-in"
+        routing="hash"
         signUpUrl="/sign-up"
         forceRedirectUrl="/"
       />

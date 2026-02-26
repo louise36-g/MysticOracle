@@ -181,14 +181,14 @@ const TarotArticleRedirect = () => {
 
 export const router = createBrowserRouter(
   [
-    // Auth routes - OUTSIDE RootLayout to avoid loading gate and re-renders
-    // that cause Clerk's SignUp/SignIn to send duplicate verification emails
+    // Auth routes - OUTSIDE RootLayout to avoid re-renders.
+    // Uses hash routing to prevent Clerk SDK bug that sends duplicate verification emails.
     {
-      path: '/sign-up/*',
+      path: '/sign-up',
       element: <SignUpPage />,
     },
     {
-      path: '/sign-in/*',
+      path: '/sign-in',
       element: <SignInPage />,
     },
 
