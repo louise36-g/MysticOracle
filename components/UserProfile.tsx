@@ -4,19 +4,19 @@ import { useApp } from '../context/AppContext';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import Toast from './ui/Toast';
-import { Calendar, Coins, Copy, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame, Gift, Clock, ChevronDown } from 'lucide-react';
+import { Calendar, Coins, LogOut, CheckCircle, Award, History, BookOpen, Loader2, CreditCard, Flame, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ACHIEVEMENTS } from '../types';
 import { ReadingTypeFilter, AchievementCard, TransactionFilters, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState, ReferralSection } from './profile';
 import { getAchievementsWithProgress } from '../utils/achievementService';
-import { useProfileData, useDailyBonus } from '../hooks';
+import { useProfileData } from '../hooks';
 
 // Constants
 const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
 const STAGGER_DELAY = 0.08;
 
 const UserProfile: React.FC = () => {
-    const { user, logout, t, language, claimDailyBonus } = useApp();
+    const { user, logout, t, language } = useApp();
     const { user: clerkUser, isSignedIn } = useUser();
     const { signOut } = useClerk();
 
@@ -65,26 +65,6 @@ const UserProfile: React.FC = () => {
         t,
     });
 
-    // Daily bonus hook
-    const {
-        canClaimBonus,
-        isClaiming,
-        timeUntilBonus,
-        claimBonus: handleClaimBonus,
-    } = useDailyBonus({
-        lastLoginDate: user?.lastLoginDate,
-        loginStreak: user?.loginStreak || 0,
-        language: language as 'en' | 'fr',
-        claimBonusFn: claimDailyBonus,
-        onSuccess: (credits) => {
-            showToast(
-                language === 'en' ? `+${credits} credits claimed!` : `+${credits} crédits réclamés !`,
-                'bonus'
-            );
-        },
-        onError: (message) => showToast(message, 'error'),
-    });
-
     // Calculate achievements with progress using the service
     const achievementsWithProgress = useMemo(() => {
         if (!user) return [];
@@ -121,11 +101,6 @@ const UserProfile: React.FC = () => {
         referralCode: user?.referralCode || 'MYSTIC' + Math.random().toString(36).substring(2, 6).toUpperCase(),
         emailVerified: clerkUser?.primaryEmailAddress?.verification?.status === 'verified',
         achievements: achievementIds,
-    };
-
-    const copyReferral = () => {
-        navigator.clipboard.writeText(displayUser.referralCode);
-        showToast(language === 'en' ? 'Referral code copied!' : 'Code copié !', 'copy');
     };
 
     const handleSignOut = async () => {
@@ -216,69 +191,6 @@ const UserProfile: React.FC = () => {
                         </button>
                     </div>
                 </motion.section>
-
-                {/* Action Bar - Daily Bonus & Referral */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: STAGGER_DELAY }}
-                    className="flex gap-3"
-                >
-                    {/* Daily Bonus Button */}
-                    <button
-                        onClick={handleClaimBonus}
-                        disabled={!canClaimBonus || isClaiming}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                                   border transition-all duration-200 ${
-                            canClaimBonus
-                                ? 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500/50 text-white hover:from-amber-500 hover:to-orange-500'
-                                : 'bg-slate-800/60 border-slate-700/50 text-slate-400'
-                        }`}
-                    >
-                        {isClaiming ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : canClaimBonus ? (
-                            <>
-                                <Gift className="w-4 h-4" />
-                                <span className="font-medium text-sm">
-                                    {language === 'en' ? 'Claim +2' : 'Réclamer +2'}
-                                    {(user?.loginStreak || 0) >= 6 && ' (+5)'}
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <span className="font-medium text-sm">
-                                    {language === 'en' ? 'Next bonus' : 'Prochain bonus'}
-                                </span>
-                                <Clock className="w-4 h-4" />
-                                <span className="font-medium text-sm">{timeUntilBonus || '...'}</span>
-                            </>
-                        )}
-                    </button>
-
-                    {/* Referral Button with Tooltip */}
-                    <div className="flex-1 relative group">
-                        <button
-                            onClick={copyReferral}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                                       bg-slate-800/60 border border-slate-700/50 text-slate-300
-                                       hover:bg-slate-700/60 hover:border-slate-600/50 transition-all duration-200"
-                        >
-                            <Copy className="w-4 h-4" />
-                            <span className="font-mono text-sm tracking-wider">{displayUser.referralCode}</span>
-                        </button>
-                        {/* Tooltip on hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5
-                                        bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-300
-                                        opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                                        whitespace-nowrap pointer-events-none z-10">
-                            {language === 'en'
-                                ? 'Share this code - you both get +5 credits!'
-                                : 'Partagez ce code - vous recevez tous les deux +5 crédits !'}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-700" />
-                        </div>
-                    </div>
-                </motion.div>
 
                 {/* Referral & Invite Section */}
                 <ReferralSection
