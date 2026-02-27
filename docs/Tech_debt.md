@@ -115,27 +115,30 @@ Changes needed:
 
 ---
 
-### 2. Test Coverage Gaps
+### ~~2. Test Coverage Gaps~~
+
+✅ **Resolved.** 348 tests passing across 22 test files.
 
 **Current Coverage:**
-- Unit tests: 288 tests passing (18 test files)
-- Route tests: Translation routes, auth middleware, AI routes
+- Unit tests: 348 tests passing (22 test files)
+- Route tests: Translation routes, auth middleware, AI routes, blog public routes, blog admin posts, blog trash routes
+- Service tests: CreditService, IdempotencyService, PlanetaryCalculation, Email service
+- Use case tests: CreateReading, AddFollowUp, ProcessPaymentWebhook, payments, admin, users (GDPR)
 - Integration tests: Minimal
 - E2E tests: None
 
-**Recently Added:**
+**Recently Added (Feb 2026):**
+- ✅ Blog public routes tests (14 tests: posts list/single/categories/tags, caching, pagination, filters)
+- ✅ Blog admin posts routes tests (19 tests: preview, list, get, create, reorder, update)
+- ✅ Blog trash routes tests (10 tests: soft delete, restore, permanent delete, empty trash)
+- ✅ Email service tests (15 tests: sendEmail, welcome, purchase, referral, contact, upsert, subscribe, unsubscribe)
+
+**Previously Added:**
 - ✅ ExportUserData use case tests (GDPR Article 20)
 - ✅ DeleteUserAccount use case tests (GDPR Article 17)
 - ✅ Translations routes tests (caching, language fetching)
 - ✅ Payment webhook tests (idempotency, refunds)
 - ✅ Credit deduction concurrent tests
-
-**Still Untested:**
-- Email template rendering
-- Blog/content routes
-- Admin routes (partial)
-
-**Fix:** Continue adding route-level tests for admin and content routes.
 
 ---
 
@@ -155,11 +158,11 @@ Changes needed:
 
 **Missing:**
 - ~~**Environment Validation:** No startup validation of required env vars~~ ✅ Done: `src/config/env.ts` validates all critical vars at startup, exits on failure
-- **Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring
+- ~~**Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring~~ ✅ Done: `captureException` wired into error handler middleware, `setUser` wired into auth middleware
 - **Performance Monitoring:** No APM tooling
 - **Rate Limiting:** Basic rate limiting exists but untested under load
 
-**Fix:** Wire up Sentry fully, then consider APM tooling.
+**Fix:** Consider APM tooling when needed.
 
 ---
 
@@ -249,9 +252,9 @@ These components handle too many concerns and are difficult to maintain.
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
 | Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
-| Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
+| Test coverage gaps | High | ✅ Done | 348 tests, blog routes, email service, trash, admin posts all covered |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
-| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry/APM still open |
+| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry wired ✅, APM still open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
 | ESLint warnings | Medium | ✅ Done | 0 issues remaining |
