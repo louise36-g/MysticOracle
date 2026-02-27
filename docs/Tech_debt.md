@@ -154,12 +154,12 @@ Changes needed:
 ### 4. Infrastructure Gaps
 
 **Missing:**
-- **Environment Validation:** No startup validation of required env vars
-- **Error Tracking:** No Sentry or similar for production error monitoring
+- ~~**Environment Validation:** No startup validation of required env vars~~ ✅ Done: `src/config/env.ts` validates all critical vars at startup, exits on failure
+- **Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring
 - **Performance Monitoring:** No APM tooling
 - **Rate Limiting:** Basic rate limiting exists but untested under load
 
-**Fix:** Add env validation first (quick win), then error tracking.
+**Fix:** Wire up Sentry fully, then consider APM tooling.
 
 ---
 
@@ -266,7 +266,7 @@ Main categories:
 | Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
 | Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
-| Infrastructure gaps | Medium | Open | No env validation, no error tracking |
+| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry/APM still open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | Partial | - |
 | ESLint warnings | Medium | Open | 81 issues to fix |
