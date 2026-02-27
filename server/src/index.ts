@@ -127,6 +127,10 @@ import { swaggerSpec } from './config/swagger.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust first proxy (Render reverse proxy) — required for express-rate-limit
+// to correctly read client IP from X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // Parse FRONTEND_URL (supports comma-separated values for multiple origins)
 const frontendUrls = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
