@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApplicationError, isOperationalError } from '../shared/errors/ApplicationError.js';
 import { formatError } from '../shared/errors/formatters.js';
 import { errorTrackingService } from '../services/errorTrackingService.js';
+import { captureException } from '../config/sentry.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   // Log all errors
@@ -26,6 +27,13 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
 
   // For non-operational errors, track for monitoring
   if (!isOperationalError(err)) {
+    // Send to Sentry (no-op in non-production)
+    captureException(err instanceof Error ? err : new Error(String(err)), {
+      path: req.path,
+      method: req.method,
+      userId: req.auth?.userId,
+    });
+
     const context = {
       path: req.path,
       method: req.method,

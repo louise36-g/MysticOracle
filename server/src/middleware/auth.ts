@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '@clerk/backend';
 import prisma from '../db/prisma.js';
+import { setUser } from '../config/sentry.js';
 
 // Extend Express Request type
 declare global {
@@ -48,6 +49,9 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       userId: payload.sub,
       sessionId: (payload.sid as string) || '',
     };
+
+    // Set user context for Sentry error tracking (no-op in non-production)
+    setUser(payload.sub);
 
     next();
   } catch (error) {
