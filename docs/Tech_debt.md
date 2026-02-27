@@ -184,16 +184,9 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 7. ESLint Warnings to Address
+### ~~7. ESLint Warnings to Address~~
 
-**Current Count:** 81 issues (13 errors, 68 warnings)
-
-Main categories:
-- `@typescript-eslint/no-explicit-any`: ~50 warnings (mostly in tarot-articles.ts, validation files)
-- `@typescript-eslint/no-unused-vars`: ~15 warnings
-- `prefer-const`: ~5 warnings
-
-**Fix:** Run `npm run lint:fix` for auto-fixable issues, then address remaining manually.
+✅ **Resolved.** Down from 81 issues to 0. Last two fixes: unused `userId` in readings.ts, unused `debug` import in profile.ts.
 
 ---
 
@@ -261,7 +254,7 @@ Main categories:
 | Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry/APM still open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
-| ESLint warnings | Medium | Open | 81 issues to fix |
+| ESLint warnings | Medium | ✅ Done | 0 issues remaining |
 | Error boundaries | Low | Open | - |
 | Console warnings | Low | Open | - |
 | Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
