@@ -179,16 +179,9 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 6. Inconsistent Credit Deduction Patterns
+### ~~6. Inconsistent Credit Deduction Patterns~~
 
-**Issue:** Some features deduct credits on frontend (validation only), others rely entirely on backend.
-
-**Current State:**
-- Tarot readings: Frontend validates → Backend deducts ✅
-- Follow-up questions: Frontend validates → Backend deducts ✅
-- Horoscope questions: Frontend deducts locally (needs review)
-
-**Fix:** Standardize all credit operations to backend-only with frontend validation.
+✅ **Resolved.** Horoscopes are free (no credits). Questions section was removed. All remaining credit flows (tarot readings, follow-ups) use backend-only deduction with frontend validation.
 
 ---
 
@@ -268,7 +261,7 @@ Main categories:
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
 | Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry/APM still open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
-| Credit deduction patterns | Medium | Partial | - |
+| Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
 | ESLint warnings | Medium | Open | 81 issues to fix |
 | Error boundaries | Low | Open | - |
 | Console warnings | Low | Open | - |
