@@ -95,13 +95,8 @@ Changes made:
 - Kept `prisma-client-js` generator (still supported, avoids import path changes)
 - Mapped enum behavior (`@map`) was NOT changed — `CardType.MAJOR_ARCANA` still equals `"MAJOR_ARCANA"`
 
-### React Router v6 → v7
-**Estimated Effort:** 2-4 hours
-
-Changes needed:
-- Review breaking changes in v7
-- Update route definitions
-- Test all navigation flows
+### ✅ React Router v6 → v7
+**Status:** Upgraded from v6.30.3 to v7.13.0. All existing APIs (createBrowserRouter, useRouteError, useParams, Navigate) are fully compatible — no code changes needed.
 
 ---
 
@@ -268,7 +263,7 @@ Main categories:
 | Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
 | Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
 | Prisma v5→v7 upgrade | Medium | ✅ Done | Upgraded to v7.4.1 with adapter-pg |
-| React Router v6→v7 | Medium | Pending | Phase 4 |
+| React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
 | Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
 | Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
