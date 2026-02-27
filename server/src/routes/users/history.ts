@@ -43,6 +43,9 @@ interface UnifiedReading {
   cards?: unknown;
   interpretation?: string;
   userReflection?: string;
+  hasClarification?: boolean;
+  clarificationCard?: unknown;
+  clarificationCard2?: unknown;
   followUps?: Array<{
     id: string;
     question: string;
@@ -153,6 +156,9 @@ router.get(
           cards: reading.cards,
           interpretation: reading.interpretation,
           userReflection: reading.userReflection || undefined,
+          hasClarification: reading.hasClarification,
+          clarificationCard: reading.clarificationCard || undefined,
+          clarificationCard2: reading.clarificationCard2 || undefined,
           followUps: reading.followUps.map(f => ({
             id: f.id,
             question: f.question,
