@@ -57,6 +57,9 @@ try {
   console.error('❌ Error resolving payment gateways:', err);
 }
 
+// Shared rate limiter options for Render reverse proxy
+const proxyValidation = { validate: { xForwardedForHeader: false } };
+
 // Rate limiting configurations
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -64,6 +67,7 @@ const generalLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const authLimiter = rateLimit({
@@ -72,6 +76,7 @@ const authLimiter = rateLimit({
   message: { error: 'Too many authentication attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const paymentLimiter = rateLimit({
@@ -80,6 +85,7 @@ const paymentLimiter = rateLimit({
   message: { error: 'Too many payment requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const strictLimiter = rateLimit({
@@ -88,6 +94,7 @@ const strictLimiter = rateLimit({
   message: { error: 'Rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const adminLimiter = rateLimit({
@@ -96,6 +103,7 @@ const adminLimiter = rateLimit({
   message: { error: 'Admin rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 // Import routes
