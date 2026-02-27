@@ -214,11 +214,9 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 10. Console Warnings in Development
+### ~~10. Console Warnings in Development~~
 
-**Issue:** Various React warnings about keys, dependencies, etc.
-
-**Fix:** Audit and fix warnings one by one.
+✅ **Resolved.** Audit found no issues: all list renders have proper keys, event listeners cleaned up, no deprecated React patterns, refs used safely, eslint-disable comments justified.
 
 ---
 
@@ -258,6 +256,6 @@ These components handle too many concerns and are difficult to maintain.
 | Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
 | ESLint warnings | Medium | ✅ Done | 0 issues remaining |
 | Error boundaries | Low | ✅ Done | Per-route + reading flow + admin boundaries |
-| Console warnings | Low | Open | - |
+| Console warnings | Low | ✅ Done | Audit found no issues |
 | Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Open | - |
