@@ -205,11 +205,12 @@ These components handle too many concerns and are difficult to maintain.
 
 ## Low Priority
 
-### 9. Missing Error Boundaries (React)
+### ~~9. Missing Error Boundaries (React)~~
 
-**Issue:** React components don't have error boundaries. Uncaught errors crash entire app.
-
-**Fix:** Add error boundaries at route level and around critical components.
+✅ **Resolved.** Error boundaries at three levels:
+- **Route-level**: `RouteErrorBoundary` on root layout + admin layout (catches navigation errors)
+- **Per-route**: Every `lazyLoad()` route wrapped in compact `ErrorBoundary` (isolates page crashes)
+- **Reading flow**: Dedicated `ErrorBoundary` around ActiveReading (preserves layout on error)
 
 ---
 
@@ -256,7 +257,7 @@ These components handle too many concerns and are difficult to maintain.
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
 | ESLint warnings | Medium | ✅ Done | 0 issues remaining |
-| Error boundaries | Low | Open | - |
+| Error boundaries | Low | ✅ Done | Per-route + reading flow + admin boundaries |
 | Console warnings | Low | Open | - |
 | Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Open | - |

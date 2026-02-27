@@ -7,6 +7,7 @@ import { RootLayout } from '../components/layout/RootLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
 import { AdminRoute } from '../components/routing/AdminRoute';
 import AdminLayout from '../components/admin/AdminLayout';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { SignUpPage, SignInPage } from '../components/auth';
 
 // Card back component matching the shuffle phase design
@@ -101,13 +102,15 @@ function RouteErrorBoundary() {
   );
 }
 
-// Lazy wrapper for cleaner code
+// Lazy wrapper with per-route error boundary
 const lazyLoad = (importFn: () => Promise<{ default: React.ComponentType }>) => {
   const Component = lazy(importFn);
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Component />
-    </Suspense>
+    <ErrorBoundary compact>
+      <Suspense fallback={<PageLoader />}>
+        <Component />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
@@ -140,11 +143,13 @@ const NotFound = () => {
   );
 };
 
-// Reading Layout (ReadingProvider is now at app level in index.tsx)
+// Reading Layout with error boundary (ReadingProvider is now at app level in index.tsx)
 const ReadingLayout = () => (
-  <Suspense fallback={<PageLoader />}>
-    <ActiveReading />
-  </Suspense>
+  <ErrorBoundary>
+    <Suspense fallback={<PageLoader />}>
+      <ActiveReading />
+    </Suspense>
+  </ErrorBoundary>
 );
 
 // Lazy-loaded TarotArticlePage (preserves previewId prop)
@@ -341,6 +346,7 @@ export const router = createBrowserRouter(
         children: [
           {
             element: <AdminLayout />,
+            errorElement: <RouteErrorBoundary />,
             children: [
               // Admin overview (index route)
               {
