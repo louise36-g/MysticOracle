@@ -24,7 +24,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@clerk/backend": "^2.29.7",
+    "@clerk/backend": "^2.32.2",
     "@getbrevo/brevo": "^3.0.1",
     "@paypal/paypal-server-sdk": "^2.1.0",
     "@prisma/client": "^5.22.0",

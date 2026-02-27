@@ -4,7 +4,7 @@
 
 ---
 
-## Last Updated: February 23, 2026
+## Last Updated: February 27, 2026
 
 ---
 
@@ -80,13 +80,8 @@ Complete overhaul of blog and tarot article systems:
 
 ## Pending Upgrades (Phase 4)
 
-### Clerk Backend v1 → v2
-**Estimated Effort:** 1-2 hours
-
-Changes needed:
-- Import `verifyToken` from `@clerk/backend/jwt` (new path in Core 2)
-- Test webhook signature verification
-- Minimum Node.js 18.17.0+ (likely already met)
+### ✅ Clerk Backend v1 → v2
+**Status:** Already on v2. Updated to latest v2.32.2 (Feb 2026). All 290 tests pass.
 
 ### Prisma v5 → v7
 **Estimated Effort:** 6-10 hours
@@ -272,7 +267,7 @@ Main categories:
 | Idempotency tests | High | ✅ Done | 15 tests added |
 | Horoscope system | High | ✅ Done | AI model, post-processing, formatting |
 | Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
-| Clerk v1→v2 upgrade | Medium | Pending | Phase 4 |
+| Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
 | React Router v6→v7 | Medium | Pending | Phase 4 |
 | Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
