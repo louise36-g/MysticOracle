@@ -83,18 +83,17 @@ Complete overhaul of blog and tarot article systems:
 ### ✅ Clerk Backend v1 → v2
 **Status:** Already on v2. Updated to latest v2.32.2 (Feb 2026). All 290 tests pass.
 
-### Prisma v5 → v7
-**Estimated Effort:** 6-10 hours
+### ✅ Prisma v5 → v7
+**Status:** Upgraded from v5.22.0 to v7.4.1 (Feb 2026). All 290 tests pass.
 
-⚠️ **HIGH RISK: Mapped Enums** - The `CardType` enum with `@map` values will change behavior. `CardType.MAJOR_ARCANA` will equal `"Major Arcana"` instead of `"MAJOR_ARCANA"`.
-
-Changes needed:
-- Install `@prisma/adapter-pg` and `pg` driver
-- Create `prisma.config.ts` with database connection
-- Update schema generator: `prisma-client-js` → `prisma-client` + `output` field
-- Update all Prisma client imports
-- Node.js 20.19.0+ minimum
-- Test all enum comparisons after upgrade
+Changes made:
+- Updated `prisma` and `@prisma/client` to ^7.0.0
+- Added `@prisma/adapter-pg` for required driver adapter
+- Created `prisma.config.ts` with `datasource.url` config
+- Removed `url` from `datasource` block in schema.prisma (v7 requirement)
+- Updated `src/db/prisma.ts` to use `PrismaPg` adapter
+- Kept `prisma-client-js` generator (still supported, avoids import path changes)
+- Mapped enum behavior (`@map`) was NOT changed — `CardType.MAJOR_ARCANA` still equals `"MAJOR_ARCANA"`
 
 ### React Router v6 → v7
 **Estimated Effort:** 2-4 hours
@@ -268,7 +267,7 @@ Main categories:
 | Horoscope system | High | ✅ Done | AI model, post-processing, formatting |
 | Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
 | Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
-| Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
+| Prisma v5→v7 upgrade | Medium | ✅ Done | Upgraded to v7.4.1 with adapter-pg |
 | React Router v6→v7 | Medium | Pending | Phase 4 |
 | Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
 | Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
