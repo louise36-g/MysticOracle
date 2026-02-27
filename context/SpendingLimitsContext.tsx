@@ -149,6 +149,15 @@ export const SpendingLimitsProvider: React.FC<{ children: React.ReactNode }> = (
         });
         parsed.pendingChanges = stillPending;
 
+        // Reset consecutive purchase counter if last purchase was outside the window
+        if (
+          parsed.lastPurchaseTime &&
+          (Date.now() - parsed.lastPurchaseTime) >= CONSECUTIVE_PURCHASE_WINDOW_MS
+        ) {
+          parsed.consecutivePurchases = 0;
+          parsed.lastPurchaseTime = null;
+        }
+
         setState({ ...DEFAULT_STATE, ...parsed });
       }
     } catch (e) {
