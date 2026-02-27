@@ -12,11 +12,9 @@ import { sendReferralInvite } from '../../services/api/user';
 
 interface ReferralSectionProps {
   referralCode: string;
-  referredById: string | null;
   language: 'en' | 'fr';
   animationDelay?: number;
   t: (key: string, fallback: string) => string;
-  onCreditsAwarded?: (amount: number) => void; // kept for interface compat
 }
 
 const SECTION_CLASSES =
@@ -24,11 +22,9 @@ const SECTION_CLASSES =
 
 export const ReferralSection: React.FC<ReferralSectionProps> = ({
   referralCode,
-  referredById,
   language,
   animationDelay = 0.16,
   t,
-  onCreditsAwarded,
 }) => {
   const { getToken } = useAuth();
   const [isCopied, setIsCopied] = useState(false);
@@ -99,7 +95,7 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
       </h2>
 
       <div className="space-y-3">
-        {/* Share row + Redeem — aligned horizontally */}
+        {/* Share row */}
         <div className="flex flex-wrap items-center gap-1.5">
           {/* Referral code display */}
           <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-purple-200 tracking-wider text-sm">
