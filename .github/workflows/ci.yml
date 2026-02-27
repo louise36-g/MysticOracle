@@ -28,6 +28,12 @@ jobs:
         run: npm ci
         working-directory: ./server
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        working-directory: ./server
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
       - name: Run frontend type check
         run: npx tsc --noEmit
 
