@@ -27,35 +27,7 @@ import { createAppContainer } from './shared/di/container.js';
 // Initialize DI container
 const container = createAppContainer();
 
-// Log container initialization
-console.log('🔧 DI Container initialized');
-
-// Debug: Check environment variables and payment gateway status
-console.log('🔍 Environment variables check:');
-console.log(
-  `   - STRIPE_SECRET_KEY: ${process.env.STRIPE_SECRET_KEY ? 'SET (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : 'NOT SET'}`
-);
-console.log(`   - STRIPE_WEBHOOK_SECRET: ${process.env.STRIPE_WEBHOOK_SECRET ? 'SET' : 'NOT SET'}`);
-console.log(`   - PAYPAL_CLIENT_ID: ${process.env.PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET'}`);
-console.log(`   - PAYPAL_CLIENT_SECRET: ${process.env.PAYPAL_CLIENT_SECRET ? 'SET' : 'NOT SET'}`);
-
-try {
-  const stripeGateway = container.resolve('stripeGateway');
-  const stripeLinkGateway = container.resolve('stripeLinkGateway');
-  const paypalGateway = container.resolve('paypalGateway');
-  console.log('💳 Payment gateways status:');
-  console.log(
-    `   - Stripe: ${stripeGateway ? (stripeGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-  console.log(
-    `   - Stripe Link: ${stripeLinkGateway ? (stripeLinkGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-  console.log(
-    `   - PayPal: ${paypalGateway ? (paypalGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-} catch (err) {
-  console.error('❌ Error resolving payment gateways:', err);
-}
+console.log('✅ Environment validated, DI container initialized');
 
 // Shared rate limiter options for Render reverse proxy
 const proxyValidation = { validate: { xForwardedForHeader: false } };
