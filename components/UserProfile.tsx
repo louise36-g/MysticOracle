@@ -195,16 +195,9 @@ const UserProfile: React.FC = () => {
                 {/* Referral & Invite Section */}
                 <ReferralSection
                     referralCode={displayUser.referralCode}
-                    referredById={user?.referredById || null}
                     language={language as 'en' | 'fr'}
                     animationDelay={STAGGER_DELAY * 2}
                     t={t}
-                    onCreditsAwarded={(amount) => {
-                        showToast(
-                            language === 'en' ? `+${amount} referral credits!` : `+${amount} crédits de parrainage !`,
-                            'bonus'
-                        );
-                    }}
                 />
 
                 {/* Collapsible Achievements */}
