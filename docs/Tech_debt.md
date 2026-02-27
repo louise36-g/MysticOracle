@@ -110,9 +110,7 @@ Changes made:
 |------|-------|-------------------|
 | ~~`server/src/routes/translations.ts`~~ | ~~2,370~~ | ✅ Already split: translations/ directory (admin.ts, public.ts, shared.ts, defaults.ts) |
 | ~~`services/apiService.ts`~~ | ~~2,058~~ | ✅ Already split: services/api/ has 12 modular files |
-| `server/src/routes/blog.ts` | ~800 | Split into admin.ts, public.ts |
-
-**Fix:** Apply same modular pattern used for tarot-articles (public.ts, admin.ts, shared.ts).
+| ~~`server/src/routes/blog.ts`~~ | ~~800~~ | ✅ Already split: blog/ directory (index.ts, public.ts, posts.ts, trash.ts, media.ts, import.ts, sitemap.ts, shared.ts) |
 
 ---
 
@@ -264,7 +262,7 @@ Main categories:
 | Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
 | Prisma v5→v7 upgrade | Medium | ✅ Done | Upgraded to v7.4.1 with adapter-pg |
 | React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
-| Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
+| Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
 | Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
 | Infrastructure gaps | Medium | Open | No env validation, no error tracking |
