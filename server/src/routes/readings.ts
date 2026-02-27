@@ -230,7 +230,6 @@ router.get('/horoscope/:sign', requireAuth, async (req, res) => {
 // Cache a generated horoscope
 router.post('/horoscope/:sign', requireAuth, async (req, res) => {
   try {
-    const userId = req.auth.userId;
     const { sign } = req.params;
     const { language, horoscope } = req.body;
 

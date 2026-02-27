@@ -7,7 +7,7 @@
  * - GET /me/credits - Get credit balance
  */
 
-import { Router, requireAuth, prisma, NotFoundError, debug } from './shared.js';
+import { Router, requireAuth, prisma, NotFoundError } from './shared.js';
 
 const router = Router();
 
