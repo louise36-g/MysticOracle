@@ -21,6 +21,7 @@ interface EndpointConfig {
   expectedMax: number;
   expectedWindowMs: number;
   connections: number;
+  spoofIp: string;
 }
 
 const endpoints: EndpointConfig[] = [
@@ -32,6 +33,7 @@ const endpoints: EndpointConfig[] = [
     expectedMax: 500,
     expectedWindowMs: 15 * 60 * 1000,
     connections: 10,
+    spoofIp: '10.0.0.1',
   },
   {
     name: 'Translations (General Limiter)',
@@ -41,6 +43,7 @@ const endpoints: EndpointConfig[] = [
     expectedMax: 500,
     expectedWindowMs: 15 * 60 * 1000,
     connections: 10,
+    spoofIp: '10.0.0.2',
   },
   {
     name: 'Contact (Strict Limiter)',
@@ -50,6 +53,7 @@ const endpoints: EndpointConfig[] = [
     expectedMax: 10,
     expectedWindowMs: 60 * 1000,
     connections: 5,
+    spoofIp: '10.0.0.3',
   },
 ];
 
@@ -79,6 +83,9 @@ async function runEndpointTest(endpoint: EndpointConfig): Promise<TestResult> {
     method: endpoint.method,
     duration: DURATION_SECONDS,
     connections: endpoint.connections,
+    // Use a distinct IP per endpoint so the global rate limiter
+    // tracks each endpoint independently (server has trust proxy enabled)
+    headers: { 'X-Forwarded-For': endpoint.spoofIp },
     // Don't throw on non-2xx
     bailout: undefined,
   });
