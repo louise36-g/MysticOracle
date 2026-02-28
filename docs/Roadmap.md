@@ -12,20 +12,33 @@ CelestiArcana serves two purposes:
 
 ---
 
-## Current Phase: Stabilization
+## Current Phase: Stabilization ✅
 
 **Goal:** Fix known issues, ensure reliability before mobile launch.
 
 ### Immediate Tasks
-- [ ] Verify horoscope generation with valid API key
-- [ ] Clean up removed endpoint references
-- [ ] Test credit flow end-to-end
-- [ ] Verify payment webhooks in production
+- [x] Verify horoscope generation with valid API key
+- [x] Clean up removed endpoint references
+- [x] Test credit flow end-to-end
+- [x] Verify payment webhooks in production
 
 ### Short-term Improvements
-- [ ] Add error boundaries
-- [ ] Improve loading state consistency
-- [ ] Audit and fix console warnings
+- [x] Add error boundaries (per-route + reading flow + admin)
+- [x] Improve loading state consistency
+- [x] Audit and fix console warnings (0 issues remaining)
+
+### Dependency Upgrades
+- [x] Stripe v14 → v20
+- [x] Clerk Backend v1 → v2
+- [x] React Router v6 → v7
+- [x] Prisma v5 → v6 (v1.2-prisma-v6, Feb 28 2026)
+- [ ] Prisma v6 → v7 (deferred — requires Dockerfile + adapter-pg for Coolify)
+
+### Quality & Observability
+- [x] ESLint 9 + Prettier configured (0 lint issues)
+- [x] 348 tests across 22 test files
+- [x] Sentry error tracking + performance monitoring
+- [x] Environment variable validation at startup
 
 ---
 
@@ -63,7 +76,7 @@ CelestiArcana serves two purposes:
 - [ ] Add cross-platform sync logic
 
 ### Mobile Considerations
-- [ ] Consider API versioning (`/api/v1/`)
+- [x] API versioning (`/api/v1/`) — implemented
 - [ ] Add mobile-specific rate limits
 - [ ] Implement offline sync queue support
 
@@ -109,4 +122,4 @@ Things we're explicitly **not** doing:
 
 ---
 
-*Roadmap updated: January 2026*
+*Roadmap updated: February 2026*
