@@ -98,6 +98,7 @@ describe('Users Bonus Routes', () => {
   let app: express.Application;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
     // Set "now" to 2026-01-15 12:00:00 UTC
     vi.setSystemTime(new Date('2026-01-15T12:00:00Z'));
