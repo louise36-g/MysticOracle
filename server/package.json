@@ -21,6 +21,7 @@
     "db:studio": "prisma studio",
     "seed:year-energy": "tsx scripts/seedYearEnergy.ts",
     "fix:schemas": "tsx scripts/regenerate-schemas.ts",
+    "load-test": "tsx scripts/load-test.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/autocannon": "^7.12.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsdom": "^27.0.0",
@@ -60,6 +62,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
+    "autocannon": "^8.0.0",
     "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",

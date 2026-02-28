@@ -30,11 +30,9 @@ Upgraded to v6.19.2 (from v5.22.0) on Feb 28, 2026. v7 is deferred because it re
 ### 2. Rate Limiting Load Testing
 
 **Priority:** Medium
-**Status:** Not started
+**Status:** Done
 
-Basic rate limiting exists (`express-rate-limit`) but has never been tested under load. Unknown whether current limits are appropriate for production traffic.
-
-**Fix:** Run load tests against rate-limited endpoints to verify limits are sensible and the server degrades gracefully.
+Integration tests added (`rateLimiting.integration.test.ts`) verifying 429 enforcement, header correctness, per-IP isolation, window resets, all 5 limiter tiers, JSON error format, and global+per-route stacking. Load test script added (`scripts/load-test.ts`) using autocannon for manual verification against a running server (`npm run load-test`).
 
 ---
 
@@ -67,7 +65,7 @@ Some UI strings are hardcoded instead of using the translation system. Translati
 | Issue | Priority | Status | Notes |
 |-------|----------|--------|-------|
 | Prisma v6 → v7 | Medium | Blocked | Needs Dockerfile + adapter-pg; Coolify networking issue |
-| Rate limiting load test | Medium | Not started | Basic limits exist, untested under load |
+| Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
 | Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Not started | ~75-80% translation coverage, remainder to migrate |
 
