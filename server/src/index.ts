@@ -251,7 +251,7 @@ app.get('/api-docs.json', (req, res) => {
 // Register v1 routes (current API as v1)
 const v1Router = Router();
 v1Router.use('/health', healthRoutes);
-v1Router.use('/users', authLimiter, userRoutes);
+v1Router.use('/users', generalLimiter, userRoutes);
 v1Router.use('/readings', strictLimiter, readingRoutes);
 v1Router.use('/payments', paymentLimiter, paymentRoutes);
 v1Router.use('/admin', adminLimiter, adminRoutes);
