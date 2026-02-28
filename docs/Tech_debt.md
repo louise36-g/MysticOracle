@@ -1,6 +1,6 @@
 # CelestiArcana Technical Debt
 
-> Known issues, inconsistencies, and areas needing improvement.
+> Outstanding issues and improvements still to be addressed.
 
 ---
 
@@ -8,220 +8,57 @@
 
 ---
 
-## Recently Completed (January 2026)
+## Pending
 
-### ✅ Horoscope System Improvements
-Complete overhaul of horoscope generation:
-- **AI Model Upgrade:** Switched from free tier to `openai/gpt-4o-mini` for reliable output
-- **Post-Processing:** Added `cleanHoroscopeText()` function to remove astrological jargon
-- **Formatting:** Added intelligent paragraph breaks after sentence boundaries
-- **Planning Detection:** Added patterns to reject AI reasoning output in OpenRouterService
-- **Prompt Refinement:** Updated system prompt to request 5 structured paragraphs without planet mentions
+### 1. Prisma v6 → v7
 
-### ✅ Card Image Standardization
-- Identified and resized 10 card images with non-standard dimensions
-- All reading-cards-mini now standardized to 256x384 pixels
-- Files fixed: 10-the-wheel-of-fortune-reversed.jpeg, 20-judgement-reversed.jpeg, 18-the-moon-reversed.jpg, 17-the-star-reversed.jpg, 06-the-lovers-reversed.jpeg, 08-strength-cover.jpeg, 18-the-moon-cover.jpeg, 03-of-pentacles-cover.jpg, 03-of-cups-cover.jpeg, 06-the-lovers-cover.jpeg
+**Priority:** Medium
+**Status:** Blocked
 
-### ✅ Content System Refactoring (9 Phases)
-Complete overhaul of blog and tarot article systems:
-- **Phase 1:** Fixed critical bug (missing `});` in tarot-articles.ts)
-- **Phase 2:** Extracted shared utilities (sorting, schema, validation)
-- **Phase 3:** Database migration - unified taxonomy (categories/tags shared between blog/tarot)
-- **Phase 4:** Split backend routes (tarot-articles → modular: public.ts, admin.ts, trash.ts)
-- **Phase 5:** Created service layer (ContentService, TarotArticleService, TaxonomyService)
-- **Phase 6:** Split frontend components (AdminTarotArticles → ArticlesTab, TrashTab, hooks)
-- **Phase 7:** Added client-side form validation with error display
-- **Phase 8:** Unified taxonomy API (categories/tags at `/api/v1/taxonomy/*`)
-- **Phase 9:** Cleanup and documentation updates
+Upgraded to v6.19.2 (from v5.22.0) on Feb 28, 2026. v7 is deferred because it requires:
+- `@prisma/adapter-pg` and `pg` driver
+- `prisma.config.ts` with database connection
+- Generator change: `prisma-client-js` → `prisma-client` + updated imports
+- Dockerfile for Coolify deployment (Nixpacks won't work)
 
-### ✅ API Versioning Added
-- All routes now use `/api/v1/` prefix
-- Deprecated `/api/*` routes include sunset headers
-- New unified taxonomy at `/api/v1/taxonomy/*`
+**Blocker:** Coolify Docker networking issues caused an outage during a previous v7 attempt. The mapped enum `@map` breaking change was reverted in v7.3, so that is no longer a risk.
 
-### ✅ Stripe Updated to v20
-- Updated from v14.0.0 to v20.3.0
-- API version updated to `2026-01-28.clover`
-- All 256 tests pass
-
-### ✅ Dead Code Removed
-- Removed unused `deductCredits` function from `services/apiService.ts`
-- Removed old tarot-specific taxonomy routes and API functions
-- Removed `server/src/routes/tarot-articles/taxonomy.ts` (replaced by unified)
-
-### ✅ LocalStorage Cleanup
-- Added `cleanupDeprecatedStorage()` utility in `storageService.ts`
-- Called on app initialization to remove stale keys
-- Deprecated keys: `readingHistory`, `oldUserCredits`, `mystic_reading_history`, `user_session`
-
-### ✅ Critical `any` Types Fixed
-- `admin.ts`: Replaced `any` with `Prisma.UserWhereInput` and `Prisma.TransactionWhereInput`
-- `tarot-articles.ts`: Replaced `any` with `Prisma.TarotArticleWhereInput` and typed sort function
-
-### ✅ ESLint & Prettier Configured
-- ESLint 9 with flat config (`eslint.config.js`)
-- Prettier with consistent formatting (`.prettierrc`)
-- Scripts: `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`
-- 81 lint issues identified (13 errors, 68 warnings) - to be fixed incrementally
-
-### ✅ Test Coverage Expanded
-- Added 29 new tests (53 → 82 total)
-- `ProcessPaymentWebhook.test.ts` - 14 tests for webhook handling and idempotency
-- `IdempotencyService.test.ts` - 15 tests for idempotency key management
-
-### ✅ AdminTarotArticles Modularized
-- Slimmed from 1,045 lines to 224 lines
-- Extracted ArticlesTab.tsx (375 lines) with drag-drop reorder
-- Extracted TrashTab.tsx (200 lines)
-- Created hooks: useArticleList, useTrashList, useArticleForm
+**When to do it:** After Coolify Docker networking is resolved or if migrating off Coolify.
 
 ---
 
-## Pending Upgrades (Phase 4)
+### 2. Rate Limiting Load Testing
 
-### ✅ Clerk Backend v1 → v2
-**Status:** Already on v2. Updated to latest v2.32.2 (Feb 2026). All 290 tests pass.
+**Priority:** Medium
+**Status:** Not started
 
-### Prisma v5 → v7 (Partial — upgraded to v6)
-**Status:** Upgraded to v6.19.2. v7 deferred.
+Basic rate limiting exists (`express-rate-limit`) but has never been tested under load. Unknown whether current limits are appropriate for production traffic.
 
-✅ **v6 upgrade complete.** No breaking changes applied to this codebase (no implicit M2M, no Bytes fields, no NotFoundError usage, no fullTextSearch preview feature). All 348 tests pass. No source code changes needed.
-
-⚠️ **v7 deferred.** Requires `@prisma/adapter-pg`, `prisma.config.ts`, generator change (`prisma-client` instead of `prisma-client-js`), and Dockerfile for Coolify deployment. Blocked by Coolify Docker networking issues. The mapped enum `@map` breaking change was reverted in v7.3, so that is no longer a risk.
-
-### ✅ React Router v6 → v7
-**Status:** Upgraded from v6.30.3 to v7.13.0. All existing APIs (createBrowserRouter, useRouteError, useParams, Navigate) are fully compatible — no code changes needed.
+**Fix:** Run load tests against rate-limited endpoints to verify limits are sensible and the server degrades gracefully.
 
 ---
 
-## High Priority
+### 3. Dual Content Systems (Blog + Tarot Articles)
 
-### 1. Oversized Backend Files
+**Priority:** Medium
+**Status:** Not started
 
-**Files requiring splitting:**
-
-| File | Lines | Recommended Split |
-|------|-------|-------------------|
-| ~~`server/src/routes/translations.ts`~~ | ~~2,370~~ | ✅ Already split: translations/ directory (admin.ts, public.ts, shared.ts, defaults.ts) |
-| ~~`services/apiService.ts`~~ | ~~2,058~~ | ✅ Already split: services/api/ has 12 modular files |
-| ~~`server/src/routes/blog.ts`~~ | ~~800~~ | ✅ Already split: blog/ directory (index.ts, public.ts, posts.ts, trash.ts, media.ts, import.ts, sitemap.ts, shared.ts) |
-
----
-
-### ~~2. Test Coverage Gaps~~
-
-✅ **Resolved.** 348 tests passing across 22 test files.
-
-**Current Coverage:**
-- Unit tests: 348 tests passing (22 test files)
-- Route tests: Translation routes, auth middleware, AI routes, blog public routes, blog admin posts, blog trash routes
-- Service tests: CreditService, IdempotencyService, PlanetaryCalculation, Email service
-- Use case tests: CreateReading, AddFollowUp, ProcessPaymentWebhook, payments, admin, users (GDPR)
-- Integration tests: Minimal
-- E2E tests: None
-
-**Recently Added (Feb 2026):**
-- ✅ Blog public routes tests (14 tests: posts list/single/categories/tags, caching, pagination, filters)
-- ✅ Blog admin posts routes tests (19 tests: preview, list, get, create, reorder, update)
-- ✅ Blog trash routes tests (10 tests: soft delete, restore, permanent delete, empty trash)
-- ✅ Email service tests (15 tests: sendEmail, welcome, purchase, referral, contact, upsert, subscribe, unsubscribe)
-
-**Previously Added:**
-- ✅ ExportUserData use case tests (GDPR Article 20)
-- ✅ DeleteUserAccount use case tests (GDPR Article 17)
-- ✅ Translations routes tests (caching, language fetching)
-- ✅ Payment webhook tests (idempotency, refunds)
-- ✅ Credit deduction concurrent tests
-
----
-
-### 3. Missing Documentation
-
-**Required Documentation:**
-- ~~`docs/API_ERRORS.md`~~ — ✅ Done: Error codes, HTTP status mapping, troubleshooting
-- ~~`docs/PAYMENT_FLOW.md`~~ — ✅ Done: Stripe/PayPal flow, webhook handling, idempotency
-- ~~`docs/CREDIT_SYSTEM.md`~~ — ✅ Done: Credit deduction rules, bonus logic, race condition prevention
-- ~~`docs/DEPLOYMENT.md`~~ — ✅ Done: Render setup, environment variables, rollback procedures
-
-**Status:** ✅ All required documentation complete.
-
----
-
-### 4. Infrastructure Gaps
-
-**Missing:**
-- ~~**Environment Validation:** No startup validation of required env vars~~ ✅ Done: `src/config/env.ts` validates all critical vars at startup, exits on failure
-- ~~**Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring~~ ✅ Done: `captureException` wired into error handler middleware, `setUser` wired into auth middleware
-- ~~**Performance Monitoring:** No APM tooling~~ ✅ Done: Sentry custom spans on AI generation (`openrouter.request`), payments (`stripe.checkout.create/retrieve`, `paypal.order.create/capture`), credit transactions (`credit.deduct/add`), and email (`brevo.send_email/upsert_contact`). Profiling enabled via `@sentry/profiling-node`. Sample rates configurable via `SENTRY_TRACES_SAMPLE_RATE` and `SENTRY_PROFILES_SAMPLE_RATE` env vars.
-- **Rate Limiting:** Basic rate limiting exists but untested under load
-
-**Fix:** Rate limiting load testing when needed.
-
----
-
-## Medium Priority
-
-### 5. Large Component Files
-
-**Locations:**
-- ~~`components/ActiveReading.tsx`~~ (✅ Refactored: ~900 → 642 lines, uses useReadingFlow hook, phases extracted)
-- ~~`components/admin/AdminBlog.tsx`~~ (✅ Refactored: ~800 → 232 lines)
-- ~~`components/UserProfile.tsx`~~ (✅ Refactored: ~580 → 474 lines, uses useProfileData and useDailyBonus hooks)
-- ~~`components/admin/AdminTarotArticles.tsx`~~ (✅ Refactored: 1,045 → 224 lines)
-
-These components handle too many concerns and are difficult to maintain.
-
-**Fix:** Extract sub-components, use custom hooks for logic.
-
----
-
-### ~~6. Inconsistent Credit Deduction Patterns~~
-
-✅ **Resolved.** Horoscopes are free (no credits). Questions section was removed. All remaining credit flows (tarot readings, follow-ups) use backend-only deduction with frontend validation.
-
----
-
-### ~~7. ESLint Warnings to Address~~
-
-✅ **Resolved.** Down from 81 issues to 0. Last two fixes: unused `userId` in readings.ts, unused `debug` import in profile.ts.
-
----
-
-### 8. Dual Content Systems (Blog + Tarot Articles)
-
-**Issue:** Two separate content systems exist side-by-side with overlapping functionality. Blog system has richer features (rich text editor, media management, taxonomy, featured posts, view counts, sitemap). Tarot articles system adds card-specific fields (cardType, cardNumber, schemaJson). Both have independent sortOrder, caching, and admin interfaces, which led to the category sort order bug (Feb 2026).
+Two separate content systems exist with overlapping functionality. Blog has richer features (rich text editor, media management, featured posts, view counts, sitemap). Tarot articles add card-specific fields (cardType, cardNumber, schemaJson). Both have independent sortOrder, caching, and admin interfaces, which led to the category sort order bug (Feb 2026).
 
 **Recommendation:** Consolidate into one system by extending the blog system with optional tarot-specific fields. Migrate existing tarot articles into blog posts.
-
-**Estimated Effort:** 4-6 hours
 
 **When to do it:** Not urgent — both systems work. Best triggered when a pain point surfaces (e.g., wanting view counts on tarot articles, needing the rich text editor for card meanings, or another ordering/caching discrepancy).
 
 ---
 
-## Low Priority
+### 4. Hardcoded Strings
 
-### ~~9. Missing Error Boundaries (React)~~
+**Priority:** Low
+**Status:** Not started
 
-✅ **Resolved.** Error boundaries at three levels:
-- **Route-level**: `RouteErrorBoundary` on root layout + admin layout (catches navigation errors)
-- **Per-route**: Every `lazyLoad()` route wrapped in compact `ErrorBoundary` (isolates page crashes)
-- **Reading flow**: Dedicated `ErrorBoundary` around ActiveReading (preserves layout on error)
+Some UI strings are hardcoded instead of using the translation system. Translation coverage is ~75-80% of user-facing components.
 
----
-
-### ~~10. Console Warnings in Development~~
-
-✅ **Resolved.** Audit found no issues: all list renders have proper keys, event listeners cleaned up, no deprecated React patterns, refs used safely, eslint-disable comments justified.
-
----
-
-### 11. Hardcoded Strings
-
-**Issue:** Some UI strings are hardcoded instead of using translation system.
-
-**Fix:** Move all user-facing strings to translation files.
+**Fix:** Move remaining user-facing strings to translation files.
 
 ---
 
@@ -229,30 +66,36 @@ These components handle too many concerns and are difficult to maintain.
 
 | Issue | Priority | Status | Notes |
 |-------|----------|--------|-------|
-| Content system refactoring | High | ✅ Done | 9 phases completed |
-| API versioning | Medium | ✅ Done | All routes use /api/v1/ |
-| Unified taxonomy | High | ✅ Done | Categories/tags shared |
-| AdminTarotArticles modular | Medium | ✅ Done | 1,045 → 224 lines |
-| Stripe upgrade v14→v20 | Critical | ✅ Done | Upgraded to v20.1.2 |
-| Dead code (deductCredits) | High | ✅ Done | Removed from apiService.ts |
-| LocalStorage cleanup | Medium | ✅ Done | Added cleanup utility |
-| Critical `any` types | High | ✅ Done | Fixed in admin.ts, tarot-articles.ts |
-| ESLint/Prettier setup | Medium | ✅ Done | Configured with flat config |
-| Payment webhook tests | Critical | ✅ Done | 14 tests added |
-| Idempotency tests | High | ✅ Done | 15 tests added |
-| Horoscope system | High | ✅ Done | AI model, post-processing, formatting |
-| Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
-| Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
-| Prisma v5→v7 upgrade | Medium | Partial | Upgraded to v6; v7 deferred (needs Dockerfile + adapter-pg) |
-| React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
-| Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
-| Test coverage gaps | High | ✅ Done | 348 tests, blog routes, email service, trash, admin posts all covered |
-| Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
-| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry wired ✅, APM ✅, rate limiting load test open |
-| Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
-| Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
-| ESLint warnings | Medium | ✅ Done | 0 issues remaining |
-| Error boundaries | Low | ✅ Done | Per-route + reading flow + admin boundaries |
-| Console warnings | Low | ✅ Done | Audit found no issues |
-| Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
-| Hardcoded strings | Low | Open | - |
+| Prisma v6 → v7 | Medium | Blocked | Needs Dockerfile + adapter-pg; Coolify networking issue |
+| Rate limiting load test | Medium | Not started | Basic limits exist, untested under load |
+| Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
+| Hardcoded strings | Low | Not started | ~75-80% translation coverage, remainder to migrate |
+
+---
+
+## Previously Completed
+
+For reference, the following were all resolved prior to or during February 2026:
+
+- Horoscope system overhaul (AI model, post-processing, formatting)
+- Card image standardization (10 images resized to 256x384)
+- Content system refactoring (9 phases, unified taxonomy)
+- API versioning (`/api/v1/` prefix on all routes)
+- Stripe v14 → v20 upgrade
+- Clerk Backend v1 → v2 upgrade (bumped to v2.32.2)
+- React Router v6 → v7 upgrade (v7.13.0)
+- Prisma v5 → v6 upgrade (v6.19.2)
+- Dead code removal (deductCredits, old taxonomy routes)
+- LocalStorage cleanup utility
+- Critical `any` types fixed (admin.ts, tarot-articles.ts)
+- ESLint 9 + Prettier configured (0 issues remaining)
+- 348 tests across 22 test files (blog, email, payments, GDPR, auth, AI, credits)
+- All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT)
+- Environment validation at startup
+- Sentry error tracking + performance monitoring with custom spans
+- Oversized backend files split (translations/, services/api/, blog/)
+- Large components refactored (AdminTarotArticles, AdminBlog, ActiveReading, UserProfile)
+- Credit deduction patterns unified (backend-only deduction)
+- Error boundaries at route, page, and reading flow levels
+- Console warnings audited (no issues found)
+- AdminTarotArticles modularized (1,045 → 224 lines)
