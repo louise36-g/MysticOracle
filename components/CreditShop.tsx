@@ -174,6 +174,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     fetchCreditPackages()
       .then(setPackages)
+      .catch((err) => console.warn('[CreditShop] Failed to load packages:', err))
       .finally(() => setPackagesLoaded(true));
   }, []);
 

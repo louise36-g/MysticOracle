@@ -90,9 +90,14 @@ function BrandedLoadingScreen({ timedOut }: { timedOut?: boolean }) {
               Taking longer than expected...
             </p>
             <button
-              onClick={() => {
+              onClick={async () => {
                 localStorage.clear();
                 sessionStorage.clear();
+                // Unregister service workers to clear stale cached assets
+                if ('serviceWorker' in navigator) {
+                  const registrations = await navigator.serviceWorker.getRegistrations();
+                  await Promise.all(registrations.map(r => r.unregister()));
+                }
                 window.location.reload();
               }}
               className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors"
@@ -220,8 +225,9 @@ export function RootLayout() {
   };
 
   // Show branded loading screen while Clerk initializes
-  if (!clerkLoaded || isLoading) {
-    return <BrandedLoadingScreen timedOut={loadingTimedOut} />;
+  // If loading times out, show the app anyway (without auth) so the site remains browsable
+  if ((!clerkLoaded || isLoading) && !loadingTimedOut) {
+    return <BrandedLoadingScreen timedOut={false} />;
   }
 
   return (
