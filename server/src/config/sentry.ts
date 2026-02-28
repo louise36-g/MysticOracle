@@ -4,6 +4,7 @@
  */
 
 import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const sentryDsn = process.env.SENTRY_DSN;
@@ -27,8 +28,11 @@ export function initSentry(): void {
     dsn: sentryDsn,
     environment: process.env.NODE_ENV || 'development',
 
-    // Performance monitoring - sample 10% of transactions in production
-    tracesSampleRate: 0.1,
+    // Performance monitoring - configurable via env, defaults to 10%
+    tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+
+    // Profiling - configurable via env, defaults to 10%
+    profilesSampleRate: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || '0.1'),
 
     // Only send errors, not warnings
     beforeSend(event) {
@@ -40,7 +44,11 @@ export function initSentry(): void {
     },
 
     // Integrations
-    integrations: [Sentry.httpIntegration(), Sentry.expressIntegration()],
+    integrations: [
+      Sentry.httpIntegration(),
+      Sentry.expressIntegration(),
+      nodeProfilingIntegration(),
+    ],
   });
 
   console.log('✅ Sentry initialized for error tracking');

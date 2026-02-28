@@ -4,6 +4,7 @@
  */
 
 import * as Brevo from '@getbrevo/brevo';
+import * as Sentry from '@sentry/node';
 
 // Initialize Brevo API clients with authentication
 const apiKey = process.env.BREVO_API_KEY;
@@ -439,7 +440,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
       };
     }
 
-    await transactionalApi.sendTransacEmail(sendSmtpEmail);
+    await Sentry.startSpan(
+      { name: 'brevo.send_email', op: 'http.client', attributes: { subject: options.subject } },
+      () => transactionalApi.sendTransacEmail(sendSmtpEmail)
+    );
     console.log(`✅ Email sent to ${options.to}`);
     return true;
   } catch (error) {
@@ -655,7 +659,9 @@ export async function upsertContact(
 
     contact.updateEnabled = true; // Update if exists
 
-    await contactsApi.createContact(contact);
+    await Sentry.startSpan({ name: 'brevo.upsert_contact', op: 'http.client' }, () =>
+      contactsApi.createContact(contact)
+    );
     console.log(`✅ Contact added/updated: ${email}`);
     return true;
   } catch (error) {
