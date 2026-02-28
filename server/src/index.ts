@@ -187,20 +187,6 @@ app.use(
 // Attach scoped DI container to each request (before routes)
 app.use(scopePerRequest(container));
 
-// Security headers
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  // COOP: allow-popups needed for Clerk OAuth flows
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  // HSTS: enforce HTTPS (1 year, include subdomains)
-  if (process.env.NODE_ENV === 'production') {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  }
-  next();
-});
-
 // Webhook routes need raw body (before express.json())
 app.use('/api/webhooks', webhookRoutes);
 
