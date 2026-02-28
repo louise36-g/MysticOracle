@@ -87,7 +87,7 @@ For reference, the following were all resolved prior to or during February 2026:
 - LocalStorage cleanup utility
 - Critical `any` types fixed (admin.ts, tarot-articles.ts)
 - ESLint 9 + Prettier configured (0 issues remaining)
-- 348 tests across 22 test files (blog, email, payments, GDPR, auth, AI, credits)
+- 509 tests across 30 test files (blog, email, payments, GDPR, auth, AI, credits, routes)
 - All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT)
 - Environment validation at startup
 - Sentry error tracking + performance monitoring with custom spans

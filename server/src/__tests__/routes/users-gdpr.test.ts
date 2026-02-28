@@ -3,7 +3,7 @@
  * Tests for GET /me/export, DELETE /me, POST /withdrawal-request
  */
 
-import { describe, it, expect, vi, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 

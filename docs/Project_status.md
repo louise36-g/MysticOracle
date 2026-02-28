@@ -29,7 +29,7 @@
 | Follow-up questions not saved | ✅ Done | Saves to backend |
 | Browser alerts | ✅ Done | Styled modals |
 | Horoscope API errors | 🔄 Improved | Better error messages |
-| Removed endpoint calls | ⏳ Pending | /deduct-credits still called |
+| Removed endpoint calls | ✅ Done | Removed in Feb 2026 refactoring |
 
 ### Tech Debt
 
@@ -45,7 +45,7 @@
 
 | Task | Status |
 |------|--------|
-| API endpoint tests | ⏳ Pending |
+| API endpoint tests | ✅ Done | 509 tests across 30 files |
 | E2E critical paths | ⏳ Pending |
 | Prisma model tests | ⏳ Pending |
 
@@ -109,6 +109,7 @@ None currently.
 
 ## Recent Changes
 
+- 2026-02-28: Route test coverage expanded to 509 tests across 30 files (added 136 route tests across 7 new test files)
 - 2026-01-09: Fixed AdminTarotArticles UX issues (back button, modal popups, image flickering)
 - 2026-01-09: Improved ImportArticle UI (removed sidebar, header buttons, preview modal, warnings toggle)
 - 2026-01-09: Relaxed FAQ validation for contextual phrases and em dashes in blockquotes

@@ -3,7 +3,7 @@
  * Tests for GET /, POST /bootstrap, GET /admin-status
  */
 
-import { describe, it, expect, vi, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 

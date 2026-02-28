@@ -36,7 +36,7 @@ CelestiArcana serves two purposes:
 
 ### Quality & Observability
 - [x] ESLint 9 + Prettier configured (0 lint issues)
-- [x] 348 tests across 22 test files
+- [x] 509 tests across 30 test files
 - [x] Sentry error tracking + performance monitoring
 - [x] Environment variable validation at startup
 
