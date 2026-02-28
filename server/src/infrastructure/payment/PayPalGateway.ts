@@ -6,6 +6,7 @@
  */
 
 import { createRequire } from 'module';
+import * as Sentry from '@sentry/node';
 const require = createRequire(import.meta.url);
 const PayPalSDK = require('@paypal/paypal-server-sdk');
 
@@ -70,32 +71,36 @@ export class PayPalGateway implements IPaymentGateway {
       throw new Error('PayPal is not configured');
     }
 
-    const { body } = await this.ordersController.createOrder({
-      body: {
-        intent: CheckoutPaymentIntent.Capture,
-        purchaseUnits: [
-          {
-            amount: {
-              currencyCode: 'EUR',
-              value: params.creditPackage.priceEur.toFixed(2),
+    const { body } = await Sentry.startSpan(
+      { name: 'paypal.order.create', op: 'http.client' },
+      () =>
+        this.ordersController!.createOrder({
+          body: {
+            intent: CheckoutPaymentIntent.Capture,
+            purchaseUnits: [
+              {
+                amount: {
+                  currencyCode: 'EUR',
+                  value: params.creditPackage.priceEur.toFixed(2),
+                },
+                description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
+                customId: JSON.stringify({
+                  userId: params.userId,
+                  packageId: params.creditPackage.id,
+                  credits: params.creditPackage.credits + (params.creditPackage.bonusCredits || 0),
+                }),
+              },
+            ],
+            applicationContext: {
+              brandName: 'CelestiArcana',
+              landingPage: OrderApplicationContextLandingPage.Login,
+              userAction: OrderApplicationContextUserAction.PayNow,
+              returnUrl: params.successUrl,
+              cancelUrl: params.cancelUrl,
             },
-            description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
-            customId: JSON.stringify({
-              userId: params.userId,
-              packageId: params.creditPackage.id,
-              credits: params.creditPackage.credits + (params.creditPackage.bonusCredits || 0),
-            }),
           },
-        ],
-        applicationContext: {
-          brandName: 'CelestiArcana',
-          landingPage: OrderApplicationContextLandingPage.Login,
-          userAction: OrderApplicationContextUserAction.PayNow,
-          returnUrl: params.successUrl,
-          cancelUrl: params.cancelUrl,
-        },
-      },
-    });
+        })
+    );
 
     const order: Order = typeof body === 'string' ? JSON.parse(body) : body;
     const approvalUrl = order.links?.find(link => link.rel === 'approve')?.href;
@@ -163,9 +168,13 @@ export class PayPalGateway implements IPaymentGateway {
     }
 
     try {
-      const { body } = await this.ordersController.captureOrder({
-        id: params.orderId,
-      });
+      const { body } = await Sentry.startSpan(
+        { name: 'paypal.order.capture', op: 'http.client' },
+        () =>
+          this.ordersController!.captureOrder({
+            id: params.orderId,
+          })
+      );
 
       const captureData: Order = typeof body === 'string' ? JSON.parse(body) : body;
 

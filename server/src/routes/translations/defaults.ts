@@ -87,11 +87,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Select Your Zodiac Sign',
     fr: 'Sélectionnez Votre Signe du Zodiaque',
   },
-  'horoscope.HoroscopeReading.insufficient_credits_message': {
-    en: "You've used your free question for this pair. Each credit unlocks 2 questions - earn more credits through daily logins, achievements, or referrals to continue exploring the stars.",
-    fr: 'Vous avez utilisé votre question gratuite pour cette paire. Chaque crédit débloque 2 questions - gagnez plus de crédits grâce aux connexions quotidiennes, aux succès ou aux parrainages pour continuer à explorer les étoiles.',
-  },
-
   // Horoscopes Index Page
   'horoscopes.HoroscopesIndex.title': { en: 'Daily Horoscopes', fr: 'Horoscopes du Jour' },
   'horoscopes.HoroscopesIndex.subtitle': {

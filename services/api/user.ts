@@ -182,6 +182,21 @@ export interface UnifiedReadingData {
   cards?: ReadingCard[] | unknown;
   interpretation?: string;
   userReflection?: string;
+  hasClarification?: boolean;
+  clarificationCard?: {
+    cardId: number;
+    isReversed: boolean;
+    cardNameEn: string;
+    cardNameFr: string;
+    interpretation: string;
+  };
+  clarificationCard2?: {
+    cardId: number;
+    isReversed: boolean;
+    cardNameEn: string;
+    cardNameFr: string;
+    interpretation: string;
+  };
   followUps?: Array<{
     id: string;
     question: string;

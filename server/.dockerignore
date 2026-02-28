@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env.*
+*.log
+coverage
+src/__tests__
+vitest.config.ts
+eslint.config.js
+.prettierrc
+.husky

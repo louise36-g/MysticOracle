@@ -10,6 +10,7 @@
  */
 
 import { getAISettings } from './aiSettings.js';
+import * as Sentry from '@sentry/node';
 
 interface OpenRouterConfig {
   model: string;
@@ -141,22 +142,30 @@ export class OpenRouterService {
           controller.abort();
         }, REQUEST_TIMEOUT_MS);
 
-        const response = await fetch(`${this.baseURL}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
-            'HTTP-Referer': process.env.FRONTEND_URL || 'https://celestiarcana.com',
-            'X-Title': 'CelestiArcana',
+        const response = await Sentry.startSpan(
+          {
+            name: 'openrouter.request',
+            op: 'http.client',
+            attributes: { model: requestConfig.model, attempt: attempt + 1 },
           },
-          body: JSON.stringify({
-            model: requestConfig.model,
-            messages,
-            temperature: requestConfig.temperature,
-            max_tokens: requestConfig.maxTokens,
-          }),
-          signal: controller.signal,
-        });
+          () =>
+            fetch(`${this.baseURL}/chat/completions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.apiKey}`,
+                'HTTP-Referer': process.env.FRONTEND_URL || 'https://celestiarcana.com',
+                'X-Title': 'CelestiArcana',
+              },
+              body: JSON.stringify({
+                model: requestConfig.model,
+                messages,
+                temperature: requestConfig.temperature,
+                max_tokens: requestConfig.maxTokens,
+              }),
+              signal: controller.signal,
+            })
+        );
 
         clearTimeout(timeoutId);
 

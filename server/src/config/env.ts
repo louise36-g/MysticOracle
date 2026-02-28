@@ -21,15 +21,18 @@ const envConfig: EnvConfig = {
     'FRONTEND_URL',
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
+    'CLERK_WEBHOOK_SECRET',
     'OPENROUTER_API_KEY',
     'BREVO_API_KEY',
+    'PAYPAL_CLIENT_ID',
+    'PAYPAL_CLIENT_SECRET',
   ],
-  recommendedInProduction: [
-    'SENTRY_DSN', // Error tracking
-  ],
+  recommendedInProduction: ['SENTRY_DSN', 'PAYPAL_MODE', 'PAYPAL_WEBHOOK_ID'],
   optional: {
     PORT: '3001',
     NODE_ENV: 'development',
+    FRONTEND_URL: 'http://localhost:5173',
+    STORAGE_PROVIDER: 'local',
   },
 };
 
