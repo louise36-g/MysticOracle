@@ -252,7 +252,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
             <div className="flex justify-end p-4">
               <button
                 onClick={handleSkip}
-                className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+                className="text-slate-500 hover:text-slate-300 transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label={t('common.close', 'Close')}
               >
                 <X className="w-5 h-5" />
@@ -551,18 +551,20 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
                 )}
               </AnimatePresence>
 
-              <div className="flex justify-center gap-2 mt-8 mb-6">
+              <div className="flex justify-center gap-1 mt-8 mb-6">
                 {Array.from({ length: totalSteps }).map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentStep(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    aria-label={`Go to step ${i + 1}`}
+                  >
+                    <span className={`block rounded-full transition-all duration-300 h-2.5 ${
                       i === currentStep
                         ? 'bg-amber-500 w-6'
-                        : 'bg-slate-600 hover:bg-slate-500'
-                    }`}
-                    aria-label={`Go to step ${i + 1}`}
-                  />
+                        : 'bg-slate-600 hover:bg-slate-500 w-2.5'
+                    }`} />
+                  </button>
                 ))}
               </div>
 

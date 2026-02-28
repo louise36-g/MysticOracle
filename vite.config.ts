@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -12,6 +13,64 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [
         react(),
+        VitePWA({
+          registerType: 'prompt',
+          includeAssets: ['logos/celestiarcana-comet-cream.svg', 'background-celestiarcana.png'],
+          manifest: false, // Use existing public/manifest.json
+          workbox: {
+            globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+            maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB — background image is ~2.15 MB
+            runtimeCaching: [
+              {
+                // API calls — network first, fall back to cache
+                urlPattern: /\/api\//,
+                handler: 'NetworkFirst',
+                options: {
+                  cacheName: 'api-cache',
+                  expiration: {
+                    maxEntries: 50,
+                    maxAgeSeconds: 60 * 60, // 1 hour
+                  },
+                  networkTimeoutSeconds: 10,
+                },
+              },
+              {
+                // Static image assets — cache first
+                urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+                handler: 'CacheFirst',
+                options: {
+                  cacheName: 'image-cache',
+                  expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                  },
+                },
+              },
+              {
+                // Google Fonts stylesheets
+                urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+                handler: 'StaleWhileRevalidate',
+                options: {
+                  cacheName: 'google-fonts-stylesheets',
+                },
+              },
+              {
+                // Google Fonts webfont files
+                urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+                handler: 'CacheFirst',
+                options: {
+                  cacheName: 'google-fonts-webfonts',
+                  expiration: {
+                    maxEntries: 30,
+                    maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                  },
+                },
+              },
+            ],
+            navigateFallback: 'index.html',
+            navigateFallbackDenylist: [/^\/api/],
+          },
+        }),
         visualizer({
           filename: './dist/stats.html',
           open: false,

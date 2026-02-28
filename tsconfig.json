@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "types": [
       "node",
-      "vite/client"
+      "vite/client",
+      "vite-plugin-pwa/react"
     ],
     "moduleResolution": "bundler",
     "isolatedModules": true,

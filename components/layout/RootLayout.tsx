@@ -1,7 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Suspense, useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
 import SubNav from '../SubNav';
 import Footer from '../Footer';
@@ -14,6 +14,7 @@ import Button from '../Button';
 import { useApp } from '../../context/AppContext';
 import { trackPageView } from '../../utils/analytics';
 import { Coins, AlertTriangle, X, Moon } from 'lucide-react';
+import PWAUpdatePrompt from '../PWAUpdatePrompt';
 
 // Low credits threshold
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
@@ -224,6 +225,7 @@ export function RootLayout() {
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
       {/* Cosmic Background Image */}
       <div
@@ -250,6 +252,9 @@ export function RootLayout() {
 
       {/* Scroll Restoration for React Router */}
       <ScrollRestoration />
+
+      {/* PWA Update Prompt */}
+      <PWAUpdatePrompt />
 
       {/* Welcome Modal */}
       <WelcomeModal
@@ -285,7 +290,7 @@ export function RootLayout() {
             >
               <button
                 onClick={() => setShowLowCreditsModal(false)}
-                className="absolute top-4 right-4 p-1 text-slate-400 hover:text-white"
+                className="absolute top-3 right-3 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -322,5 +327,6 @@ export function RootLayout() {
         )}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

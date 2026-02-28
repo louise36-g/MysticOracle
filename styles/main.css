@@ -1061,18 +1061,16 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 }
 
 /* Aspect ratio-based image sizing */
-/* Portrait images (9:16 format) - 250px wide */
+/* Portrait images (9:16 format) - 250px wide, constrained to viewport */
 .prose img.aspect-portrait {
   width: 250px;
-  min-width: 250px;
-  max-width: 250px;
+  max-width: 100%;
   height: auto;
 }
-/* Landscape images (16:9 format) - 450px wide */
+/* Landscape images (16:9 format) - 450px wide, constrained to viewport */
 .prose img.aspect-landscape {
   width: 450px;
-  min-width: 450px;
-  max-width: 450px;
+  max-width: 100%;
   height: auto;
 }
 

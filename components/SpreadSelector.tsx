@@ -363,9 +363,9 @@ const SpreadSelector: React.FC<SpreadSelectorProps> = ({ onSelect }) => {
                       }}
                     >
                       <button
-                        className="flex items-center gap-1 px-2 py-1 bg-amber-500/90 hover:bg-amber-400 rounded text-white text-[9px] font-semibold transition-all"
+                        className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] bg-amber-500/90 hover:bg-amber-400 rounded-lg text-white text-xs font-semibold transition-all"
                       >
-                        <ShoppingCart className="w-2.5 h-2.5" />
+                        <ShoppingCart className="w-3.5 h-3.5" />
                         {t('SpreadSelector.tsx.SpreadSelector.buy_credits', 'Buy Credits')}
                       </button>
                     </div>

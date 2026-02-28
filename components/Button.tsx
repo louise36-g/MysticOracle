@@ -17,7 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = "relative inline-flex items-center justify-center rounded-xl font-heading tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group";
+  const baseStyles = "relative inline-flex items-center justify-center rounded-xl font-heading tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group active:scale-[0.98]";
 
   const variants = {
     primary: "bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 hover:from-purple-500 hover:via-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 border border-purple-400/30 hover:shadow-purple-500/40 hover:shadow-xl hover:-translate-y-0.5",

@@ -121,7 +121,7 @@ const Header: React.FC<HeaderProps> = () => {
 
           <button
             onClick={toggleLanguage}
-            className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-300 transition-colors"
             aria-label={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english', 'Switch to English')}
             title={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english_fr', 'Passer en anglais')}
           >
@@ -157,7 +157,7 @@ const Header: React.FC<HeaderProps> = () => {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden p-2 text-slate-300"
+          className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300"
           onClick={toggleMobileMenu}
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-menu"

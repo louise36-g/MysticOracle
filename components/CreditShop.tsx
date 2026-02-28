@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useSpendingLimits } from '../context/SpendingLimitsContext';
 import Button from './Button';
+import Skeleton from './ui/Skeleton';
 import SpendingLimitsSettings from './SpendingLimitsSettings';
 import { ROUTES } from '../routes/routes';
 import {
@@ -62,6 +63,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
   } = useSpendingLimits();
 
   const [packages, setPackages] = useState<CreditPackage[]>([]);
+  const [packagesLoaded, setPackagesLoaded] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'stripe_link' | 'paypal' | null>(null);
@@ -170,7 +172,9 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
 
   // Load packages on mount
   useEffect(() => {
-    fetchCreditPackages().then(setPackages);
+    fetchCreditPackages()
+      .then(setPackages)
+      .finally(() => setPackagesLoaded(true));
   }, []);
 
   // Show break reminder when needed
@@ -349,14 +353,14 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSpendingLimits(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-white text-sm border border-slate-600"
+                className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-white text-sm border border-slate-600"
               >
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('CreditShop.tsx.CreditShop.limits', 'Limits')}</span>
               </button>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -443,7 +447,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                     <button
                       key={credits}
                       onClick={() => handleSelectQuickBuy(credits)}
-                      className={`flex-1 py-3 px-2 rounded-lg border-2 transition-all text-center ${
+                      className={`flex-1 py-3 px-2 min-h-[44px] rounded-lg border-2 transition-all text-center ${
                         isSelected
                           ? 'border-amber-400 bg-amber-900/30 shadow-lg shadow-amber-500/20'
                           : 'border-slate-600 bg-slate-800/50 hover:border-purple-500/50'
@@ -470,6 +474,47 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
 
             {/* Package Selection - Custom Layout: 2 small on top, 3 larger below */}
             <div className="space-y-4 mb-6">
+              {!packagesLoaded ? (
+                /* Skeleton loading state */
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1].map((i) => (
+                      <div key={i} className="p-3 rounded-xl border-2 border-slate-700 bg-slate-800/50">
+                        <div className="flex items-start justify-between mb-2">
+                          <Skeleton width={60} height={20} variant="text" />
+                          <Skeleton width={16} height={16} variant="circular" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Skeleton width={20} height={20} variant="circular" />
+                            <Skeleton width={40} height={28} variant="text" />
+                          </div>
+                          <Skeleton width={50} height={24} variant="text" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="p-4 rounded-xl border-2 border-slate-700 bg-slate-800/50">
+                        <div className="flex items-start justify-between mb-3">
+                          <Skeleton width={70} height={20} variant="text" />
+                          <Skeleton width={20} height={20} variant="circular" />
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Skeleton width={24} height={24} variant="circular" />
+                          <Skeleton width={50} height={32} variant="text" />
+                        </div>
+                        <Skeleton width={100} height={16} variant="text" className="mb-3" />
+                        <div className="pt-3 border-t border-slate-700/50">
+                          <Skeleton width={70} height={28} variant="text" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+              <>
               {/* First row: 2 smaller starter packages */}
               <div className="grid grid-cols-2 gap-3">
                 {packages.slice(0, 2).map((pkg, index) => {
@@ -614,6 +659,8 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   );
                 })}
               </div>
+              </>
+              )}
             </div>
 
             {/* Payment Methods Section */}

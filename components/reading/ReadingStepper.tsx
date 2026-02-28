@@ -148,7 +148,7 @@ const ReadingStepper: React.FC<ReadingStepperProps> = ({
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         onClick={handleBackClick}
-        className="absolute -left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-black/40 border border-white/10 text-slate-400 hover:text-white hover:bg-black/60 hover:border-white/20 transition-all group"
+        className="absolute -left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-11 h-11 rounded-full bg-black/40 border border-white/10 text-slate-400 hover:text-white hover:bg-black/60 hover:border-white/20 transition-all group"
         title={backButtonTitle}
       >
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
