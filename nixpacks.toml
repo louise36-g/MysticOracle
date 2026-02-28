@@ -1,2 +1,2 @@
 [start]
-cmd = "sed -i 's|try_files {path} /index.html|try_files {path} {path}/index.html /index.html|' /assets/Caddyfile && sed -i 's|file_server|header /assets/* Cache-Control \"public, max-age=31536000, immutable\"\\n\\theader /logos/* Cache-Control \"public, max-age=2592000\"\\n\\theader /sw.js Cache-Control \"no-cache, must-revalidate\"\\n\\tfile_server|' /assets/Caddyfile && caddy run --config /assets/Caddyfile --adapter caddyfile 2>&1"
+cmd = "sed -i 's|try_files {path} /index.html|try_files {path} {path}/index.html /index.html|' /assets/Caddyfile && caddy run --config /assets/Caddyfile --adapter caddyfile 2>&1"
