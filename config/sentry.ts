@@ -64,7 +64,7 @@ export function initSentry(): void {
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
   if (!isProduction || !sentryDsn) {
-    console.error('[Sentry would capture]:', error.message, context);
+    console.warn('[Sentry would capture]:', error.message, context);
     return;
   }
 

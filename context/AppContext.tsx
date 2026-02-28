@@ -234,7 +234,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       }
 
     } catch (error) {
-      console.error('[AppContext] Error fetching user from backend:', error);
+      console.warn('[AppContext] Error fetching user from backend:', error);
       // User might not exist in our DB yet (Clerk webhook will create them)
       // Only create a temporary user object if we don't already have user data
       // This prevents overwriting valid credits (e.g., 76) with fallback (3) on refresh failures

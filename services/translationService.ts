@@ -81,12 +81,12 @@ async function fetchTranslationsFromServer(language: Language): Promise<Translat
   try {
     const response = await fetch(`${API_URL}/api/translations/${language}`);
     if (!response.ok) {
-      console.error('[TranslationService] Failed to fetch translations:', response.status);
+      console.warn('[TranslationService] Failed to fetch translations:', response.status);
       return null;
     }
     return response.json();
   } catch (e) {
-    console.error('[TranslationService] Error fetching translations:', e);
+    console.warn('[TranslationService] Error fetching translations:', e);
     return null;
   }
 }

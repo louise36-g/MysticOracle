@@ -17,7 +17,10 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 // Global error handler to catch render errors
 window.onerror = (message, source, lineno, colno, error) => {
-  console.error('Global error:', { message, source, lineno, colno, error });
+  // Downgrade network errors to warn (expected when API is unavailable)
+  const isNetworkError = error?.message?.includes('Failed to fetch') || String(message).includes('Failed to fetch');
+  const log = isNetworkError ? console.warn : console.error;
+  log('Global error:', { message, source, lineno, colno, error });
 
   // Capture in Sentry
   if (error) {
@@ -54,7 +57,10 @@ window.onerror = (message, source, lineno, colno, error) => {
 };
 
 window.onunhandledrejection = (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
+  // Downgrade network errors to warn (expected when API is unavailable)
+  const isNetworkError = event.reason instanceof TypeError && event.reason.message?.includes('Failed to fetch');
+  const log = isNetworkError ? console.warn : console.error;
+  log('Unhandled promise rejection:', event.reason);
   // Capture in Sentry
   if (event.reason instanceof Error) {
     captureException(event.reason);

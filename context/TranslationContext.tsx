@@ -65,7 +65,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
           setLanguages(data.languages);
         }
       } catch (error) {
-        console.error('Failed to fetch languages:', error);
+        console.warn('Failed to fetch languages:', error);
         // Set default languages as fallback
         setLanguages([
           { id: '1', code: 'en', name: 'English', nativeName: 'English', isDefault: true },
@@ -94,7 +94,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
           setTranslations(FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en);
         }
       } catch (error) {
-        console.error('Failed to fetch translations:', error);
+        console.warn('Failed to fetch translations:', error);
         setTranslations(FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en);
       } finally {
         setIsLoading(false);

@@ -111,7 +111,7 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
       lastStatus = response.status;
 
       if (!response.ok) {
-        console.error(`[apiRequest] Request failed: ${method} ${fullUrl} - Status ${response.status}`);
+        console.warn(`[apiRequest] Request failed: ${method} ${fullUrl} - Status ${response.status}`);
         const error = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
         const errorMessage = error.error || `API Error: ${response.status}`;
 

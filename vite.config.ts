@@ -15,10 +15,10 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'prompt',
-          includeAssets: ['logos/celestiarcana-comet-cream.svg', 'background-celestiarcana.png'],
+          includeAssets: ['logos/celestiarcana-comet-cream.svg', 'background-celestiarcana.avif', 'background-celestiarcana.webp', 'background-celestiarcana.png'],
           manifest: false, // Use existing public/manifest.json
           workbox: {
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+            globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}'],
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB — background image is ~2.15 MB
             runtimeCaching: [
               {
@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
               },
               {
                 // Static image assets — cache first
-                urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+                urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
                 handler: 'CacheFirst',
                 options: {
                   cacheName: 'image-cache',
