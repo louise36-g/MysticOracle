@@ -1,6 +1,7 @@
 // components/reading/phases/SpreadIntroSelector.tsx
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../../../context/AppContext';
 import {
   ChevronDown,
   Check,
@@ -172,6 +173,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
   onStyleToggle,
   showQuestionError = false,
 }) => {
+  const { t } = useApp();
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedPositions, setExpandedPositions] = useState<string | null>(null);
 
@@ -491,7 +493,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                           <div className="flex items-center gap-2">
                                             <Settings className="w-4 h-4 text-slate-500" />
                                             <span className="text-slate-400">
-                                              {language === 'en' ? 'Go Deeper' : 'Approfondir'}
+                                              {t('reading.go_deeper', 'Go Deeper')}
                                             </span>
                                             {isAdvanced && selectedStyles.length > 0 && (
                                               <span className="text-xs text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
@@ -513,16 +515,14 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                             >
                                               <div className="pt-3">
                                                 <p className="text-xs text-slate-500 mb-3">
-                                                  {language === 'en'
-                                                    ? 'Add extra perspectives to your reading (+1 credit for any selection)'
-                                                    : 'Ajoutez des perspectives supplémentaires (+1 crédit pour toute sélection)'}
+                                                  {t('reading.extra_perspectives', 'Add extra perspectives to your reading (+1 credit for any selection)')}
                                                 </p>
                                                 <div className="grid grid-cols-2 gap-2">
                                                   {[
-                                                    { id: InterpretationStyle.SPIRITUAL, labelEn: 'Spiritual', labelFr: 'Spirituel' },
-                                                    { id: InterpretationStyle.PSYCHO_EMOTIONAL, labelEn: 'Psycho-Emotional', labelFr: 'Psycho-Émotionnel' },
-                                                    { id: InterpretationStyle.NUMEROLOGY, labelEn: 'Numerology', labelFr: 'Numérologie' },
-                                                    { id: InterpretationStyle.ELEMENTAL, labelEn: 'Elements', labelFr: 'Éléments' }
+                                                    { id: InterpretationStyle.SPIRITUAL, label: t('reading.style_spiritual', 'Spiritual') },
+                                                    { id: InterpretationStyle.PSYCHO_EMOTIONAL, label: t('reading.style_psycho_emotional', 'Psycho-Emotional') },
+                                                    { id: InterpretationStyle.NUMEROLOGY, label: t('reading.style_numerology', 'Numerology') },
+                                                    { id: InterpretationStyle.ELEMENTAL, label: t('reading.style_elements', 'Elements') }
                                                   ].map((option) => (
                                                     <button
                                                       key={option.id}
@@ -538,7 +538,7 @@ const SpreadIntroSelector: React.FC<SpreadIntroSelectorProps> = ({
                                                       }`}>
                                                         {selectedStyles.includes(option.id) && <Check className="w-2.5 h-2.5 text-white" />}
                                                       </div>
-                                                      {language === 'en' ? option.labelEn : option.labelFr}
+                                                      {option.label}
                                                     </button>
                                                   ))}
                                                 </div>

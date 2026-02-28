@@ -1972,4 +1972,192 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'services.openrouterService.english_2': { en: 'English', fr: 'French' }, // services/openrouterService.ts:428
   'services.openrouterService.english_3': { en: 'English', fr: 'French' }, // services/openrouterService.ts:485
   'services.openrouterService.english_4': { en: 'English', fr: 'French' }, // services/openrouterService.ts:543
+
+  // ============================================
+  // TarotArticlesList.tsx
+  // ============================================
+  'tarot.TarotArticlesList.subtitle': {
+    en: 'Explore the deep symbolism and meanings of each tarot card',
+    fr: 'Explorez le symbolisme profond et les significations de chaque carte de tarot',
+  },
+  'tarot.TarotArticlesList.try_again': { en: 'Try Again', fr: 'Réessayer' },
+
+  // ============================================
+  // TarotArticlePage.tsx - CTA block
+  // ============================================
+  'tarot.TarotArticlePage.cta_title': {
+    en: 'Ready to Discover Your Path?',
+    fr: 'Prêt à Découvrir Votre Chemin ?',
+  },
+  'tarot.TarotArticlePage.cta_description': {
+    en: 'Let the tarot illuminate your journey with gentle guidance.',
+    fr: 'Laissez le tarot illuminer votre voyage avec des conseils bienveillants.',
+  },
+  'tarot.TarotArticlePage.cta_button': {
+    en: 'Get your reading now',
+    fr: 'Obtenez votre tirage maintenant',
+  },
+
+  // ============================================
+  // HoroscopeReading.tsx
+  // ============================================
+  'horoscope.HoroscopeReading.error': {
+    en: 'Failed to generate horoscope. Please try again.',
+    fr: "Échec de la génération de l'horoscope. Veuillez réessayer.",
+  },
+  'horoscope.HoroscopeReading.all_signs': { en: 'All signs', fr: 'Tous les signes' },
+  // 'horoscope.HoroscopeReading.choose_another_sign' already exists above (line 82)
+  'horoscope.HoroscopeReading.reading_the_stars': {
+    en: 'Reading the Stars',
+    fr: 'Lire les Étoiles',
+  },
+  'horoscope.HoroscopeReading.subtitle': {
+    en: 'Twelve signs. One cosmos. Insight into the energies shaping your day.',
+    fr: 'Douze signes. Un cosmos. Un aperçu des énergies qui façonnent votre journée.',
+  },
+  'horoscope.HoroscopeReading.disclaimer': {
+    en: 'Astrology offers a symbolic snapshot of the themes that may be active around you today. Let your daily horoscope offer perspective rather than prediction.',
+    fr: "L'astrologie offre un aperçu symbolique des thèmes qui peuvent être actifs autour de vous aujourd'hui. Laissez votre horoscope du jour vous offrir une perspective plutôt qu'une prédiction.",
+  },
+
+  // ============================================
+  // Header.tsx
+  // ============================================
+  'header.buy_credits': { en: 'Buy Credits', fr: 'Acheter' },
+  'header.buy_credits_mobile': { en: 'Buy Credits', fr: 'Acheter des crédits' },
+  'header.new_reading_confirm': {
+    en: 'Start a new reading? Current progress will be lost.',
+    fr: 'Commencer un nouveau tirage ? Votre progression actuelle sera perdue.',
+  },
+  'header.switch_to_french': { en: 'Switch to French', fr: 'Passer en français' },
+  'header.switch_to_english': { en: 'Switch to English', fr: 'Switch to English' },
+  'header.switch_to_english_fr': { en: 'Switch to English', fr: 'Passer en anglais' },
+  'header.switch_to_french_label': { en: 'Passer en Français', fr: 'Passer en Français' },
+  'header.switch_to_english_label': { en: 'Switch to English', fr: 'Switch to English' },
+  'header.new_reading': { en: 'New Reading', fr: 'Nouveau tirage' },
+  'header.how_credits_work': { en: 'How Credits Work', fr: 'Comment fonctionnent les crédits' },
+  'header.help_faq': { en: 'Help & FAQ', fr: 'Aide & FAQ' },
+  'header.my_account': { en: 'My Account', fr: 'Mon compte' },
+
+  // ============================================
+  // ReadingModeSelector.tsx
+  // ============================================
+  'reading.enter_the_arcana': { en: 'Enter the Arcana', fr: 'Entrez dans les Arcanes' },
+  'reading.tarot_reading': { en: 'Tarot Reading', fr: 'Lecture de Tarot' },
+  'reading.tarot_reading_desc': {
+    en: 'Classic card spreads for deep insights.',
+    fr: 'Tirages de cartes classiques pour des insights profonds.',
+  },
+  'reading.daily_horoscope': { en: 'Daily Horoscope', fr: 'Horoscope du Jour' },
+  'reading.daily_horoscope_desc': {
+    en: 'What the stars have in store for you today.',
+    fr: "Ce que les étoiles vous réservent aujourd'hui.",
+  },
+  'reading.thought_for_today': { en: 'Thought for Today', fr: 'Pensée du Jour' },
+
+  // ============================================
+  // SpreadIntroSelector.tsx - Go Deeper section
+  // ============================================
+  'reading.go_deeper': { en: 'Go Deeper', fr: 'Approfondir' },
+  'reading.extra_perspectives': {
+    en: 'Add extra perspectives to your reading (+1 credit for any selection)',
+    fr: 'Ajoutez des perspectives supplémentaires (+1 crédit pour toute sélection)',
+  },
+  'reading.style_spiritual': { en: 'Spiritual', fr: 'Spirituel' },
+  'reading.style_psycho_emotional': { en: 'Psycho-Emotional', fr: 'Psycho-Émotionnel' },
+  'reading.style_numerology': { en: 'Numerology', fr: 'Numérologie' },
+  'reading.style_elements': { en: 'Elements', fr: 'Éléments' },
+
+  // ============================================
+  // QuestionLengthModal.tsx
+  // ============================================
+  'question.long_question_detected': {
+    en: 'Long Question Detected',
+    fr: 'Question Longue Détectée',
+  },
+  'question.your_question': { en: 'Your question:', fr: 'Votre question:' },
+  'question.characters': { en: 'characters', fr: 'caractères' },
+  'question.limit_500_free': { en: 'limit is 500 for free', fr: 'limite de 500 pour gratuit' },
+  'question.your_balance': { en: 'Your balance:', fr: 'Votre solde:' },
+  'question.credits': { en: 'credits', fr: 'crédits' },
+  'question.choose_how': { en: 'Choose how to proceed:', fr: 'Choisissez comment procéder:' },
+  'question.shorten_it': { en: "I'll shorten it", fr: 'Je vais la raccourcir' },
+  'question.edit_manually': {
+    en: 'Edit your question manually',
+    fr: 'Modifier votre question manuellement',
+  },
+  'question.free': { en: 'Free', fr: 'Gratuit' },
+  'question.ai_rewrite': { en: 'AI rewrite', fr: 'Réécriture IA' },
+  'question.summarize_essence': {
+    en: 'Summarize while keeping the essence',
+    fr: "Résumer en gardant l'essence",
+  },
+  'question.credit': { en: 'credit', fr: 'crédit' },
+  'question.use_full_question': {
+    en: 'Use full question',
+    fr: 'Utiliser la question complète',
+  },
+  'question.proceed_extended': {
+    en: 'Proceed with your extended question',
+    fr: 'Continuer avec votre question étendue',
+  },
+  'question.need_credit': {
+    en: 'You need at least 1 credit for paid options',
+    fr: "Vous avez besoin d'au moins 1 crédit pour les options payantes",
+  },
+
+  // ============================================
+  // SpendingLimitsSettings.tsx
+  // ============================================
+  'spending.responsible_play': { en: 'Responsible Play', fr: 'Jeu Responsable' },
+  'spending.manage_limits': {
+    en: 'Manage your spending limits',
+    fr: 'Gérez vos limites de dépenses',
+  },
+  'spending.self_exclusion_active': { en: 'Self-Exclusion Active', fr: 'Auto-exclusion Active' },
+  'spending.paused_until': { en: 'Purchases paused until', fr: "Achats suspendus jusqu'au" },
+  'spending.paused_indefinitely': {
+    en: 'Purchases paused indefinitely',
+    fr: 'Achats suspendus indéfiniment',
+  },
+  'spending.spending_limits': { en: 'Spending Limits', fr: 'Limites de Dépenses' },
+  'spending.set_limits_desc': {
+    en: 'Set limits to help manage your spending. All changes take effect immediately.',
+    fr: 'Définissez des limites pour gérer vos dépenses. Tous les changements prennent effet immédiatement.',
+  },
+  'spending.daily_limit': { en: 'Daily Limit', fr: 'Limite Quotidienne' },
+  'spending.weekly_limit': { en: 'Weekly Limit', fr: 'Limite Hebdomadaire' },
+  'spending.monthly_limit': { en: 'Monthly Limit', fr: 'Limite Mensuelle' },
+  'spending.spent': { en: 'Spent', fr: 'Dépensé' },
+  'spending.no_limit': { en: 'No limit', fr: 'Pas de limite' },
+  'spending.custom_amount': { en: 'Custom amount', fr: 'Montant personnalisé' },
+  'spending.set': { en: 'Set', fr: 'Définir' },
+  'spending.take_a_break': { en: 'Take a Break', fr: 'Faire une Pause' },
+  'spending.break_desc': {
+    en: 'Need a break? Temporarily pause all purchases. This cannot be undone early - choose carefully.',
+    fr: "Besoin d'une pause ? Suspendez temporairement tous les achats. Cela ne peut pas être annulé prématurément.",
+  },
+  'spending.24_hours': { en: '24 hours', fr: '24 heures' },
+  'spending.1_week': { en: '1 week', fr: '1 semaine' },
+  'spending.1_month': { en: '1 month', fr: '1 mois' },
+  'spending.3_months': { en: '3 months', fr: '3 mois' },
+  'spending.exclusion_confirm': {
+    en: "Are you sure? You won't be able to make purchases and this cannot be cancelled early.",
+    fr: "Êtes-vous sûr ? Vous ne pourrez pas faire d'achats et cela ne peut pas être annulé.",
+  },
+  'spending.yes_take_break': { en: 'Yes, take a break', fr: 'Oui, faire une pause' },
+  'spending.enable_break': { en: 'Enable Break', fr: 'Activer la Pause' },
+  'spending.break_active': { en: 'Break is active.', fr: 'La pause est active.' },
+  'spending.ends': { en: 'Ends', fr: 'Fin' },
+  'spending.history_resources': { en: 'History & Resources', fr: 'Historique & Ressources' },
+  'spending.export_history': {
+    en: 'Export Spending History',
+    fr: "Exporter l'Historique",
+  },
+  'spending.support_resources': { en: 'Support Resources', fr: 'Ressources de Soutien' },
+  'spending.resources_desc': {
+    en: 'If you feel your spending is becoming a problem, these organizations can help.',
+    fr: 'Si vous pensez que vos dépenses deviennent problématiques, ces organisations peuvent vous aider.',
+  },
+  'spending.done': { en: 'Done', fr: 'Terminé' },
 };

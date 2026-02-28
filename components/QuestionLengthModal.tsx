@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Edit3, Sparkles, ArrowRight, Loader2, Coins } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 import Button from './Button';
 
 interface QuestionLengthModalProps {
@@ -26,6 +27,7 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
   onUseFullQuestion,
   isLoading = false
 }) => {
+  const { t } = useApp();
   const [summarizing, setSummarizing] = useState(false);
 
   const handleAISummarize = async () => {
@@ -60,7 +62,7 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
             {/* Header */}
             <div className="bg-gradient-to-r from-amber-900/50 to-purple-900/50 px-6 py-4 flex items-center justify-between border-b border-white/10">
               <h2 className="text-xl font-heading text-amber-100">
-                {language === 'en' ? 'Long Question Detected' : 'Question Longue Détectée'}
+                {t('question.long_question_detected', 'Long Question Detected')}
               </h2>
               <button
                 onClick={onClose}
@@ -75,7 +77,7 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
               {/* Question Preview */}
               <div>
                 <p className="text-sm text-slate-400 mb-2">
-                  {language === 'en' ? 'Your question:' : 'Votre question:'}
+                  {t('question.your_question', 'Your question:')}
                 </p>
                 <div className="bg-slate-800/50 rounded-lg p-4 border border-white/5 max-h-32 overflow-y-auto">
                   <p className="text-slate-300 text-sm leading-relaxed">
@@ -83,10 +85,10 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
                   </p>
                 </div>
                 <p className="text-xs text-amber-400 mt-2">
-                  {charCount} {language === 'en' ? 'characters' : 'caractères'}
+                  {charCount} {t('question.characters', 'characters')}
                   {charCount > 500 && (
                     <span className="text-slate-500">
-                      {' '}— {language === 'en' ? 'limit is 500 for free' : 'limite de 500 pour gratuit'}
+                      {' '}— {t('question.limit_500_free', 'limit is 500 for free')}
                     </span>
                   )}
                 </p>
@@ -96,20 +98,18 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
               <div className="flex items-center gap-2 bg-slate-800/30 rounded-lg px-4 py-2 border border-white/5">
                 <Coins className="w-4 h-4 text-amber-400" />
                 <span className="text-sm text-slate-300">
-                  {language === 'en' ? 'Your balance:' : 'Votre solde:'}
+                  {t('question.your_balance', 'Your balance:')}
                 </span>
                 <span className="font-bold text-amber-400">{credits}</span>
                 <span className="text-sm text-slate-500">
-                  {language === 'en' ? 'credits' : 'crédits'}
+                  {t('question.credits', 'credits')}
                 </span>
               </div>
 
               {/* Options */}
               <div className="space-y-3">
                 <p className="text-sm text-slate-400 mb-3">
-                  {language === 'en'
-                    ? 'Choose how to proceed:'
-                    : 'Choisissez comment procéder:'}
+                  {t('question.choose_how', 'Choose how to proceed:')}
                 </p>
 
                 {/* Option 1: Shorten manually */}
@@ -123,14 +123,14 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-white">
-                      {language === 'en' ? "I'll shorten it" : 'Je vais la raccourcir'}
+                      {t('question.shorten_it', "I'll shorten it")}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {language === 'en' ? 'Edit your question manually' : 'Modifier votre question manuellement'}
+                      {t('question.edit_manually', 'Edit your question manually')}
                     </p>
                   </div>
                   <span className="text-xs text-green-400 font-medium">
-                    {language === 'en' ? 'Free' : 'Gratuit'}
+                    {t('question.free', 'Free')}
                   </span>
                 </button>
 
@@ -149,16 +149,14 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-white">
-                      {language === 'en' ? 'AI rewrite' : 'Réécriture IA'}
+                      {t('question.ai_rewrite', 'AI rewrite')}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {language === 'en'
-                        ? 'Summarize while keeping the essence'
-                        : "Résumer en gardant l'essence"}
+                      {t('question.summarize_essence', 'Summarize while keeping the essence')}
                     </p>
                   </div>
                   <span className="text-xs text-amber-400 font-medium">
-                    1 {language === 'en' ? 'credit' : 'crédit'}
+                    1 {t('question.credit', 'credit')}
                   </span>
                 </button>
 
@@ -174,16 +172,14 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
                     </div>
                     <div className="flex-1 text-left">
                       <p className="font-medium text-white">
-                        {language === 'en' ? 'Use full question' : 'Utiliser la question complète'}
+                        {t('question.use_full_question', 'Use full question')}
                       </p>
                       <p className="text-xs text-slate-500">
-                        {language === 'en'
-                          ? 'Proceed with your extended question'
-                          : 'Continuer avec votre question étendue'}
+                        {t('question.proceed_extended', 'Proceed with your extended question')}
                       </p>
                     </div>
                     <span className="text-xs text-cyan-400 font-medium">
-                      1 {language === 'en' ? 'credit' : 'crédit'}
+                      1 {t('question.credit', 'credit')}
                     </span>
                   </button>
                 )}
@@ -191,9 +187,7 @@ const QuestionLengthModal: React.FC<QuestionLengthModalProps> = ({
 
               {credits < 1 && (
                 <p className="text-xs text-red-400 text-center">
-                  {language === 'en'
-                    ? 'You need at least 1 credit for paid options'
-                    : 'Vous avez besoin d\'au moins 1 crédit pour les options payantes'}
+                  {t('question.need_credit', 'You need at least 1 credit for paid options')}
                 </p>
               )}
             </div>

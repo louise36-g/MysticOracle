@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Download, AlertTriangle, Info, Coffee, X, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
@@ -17,15 +17,15 @@ const PRESET_LIMITS = {
   monthly: [50, 100, 200, 500],
 };
 
-const SELF_EXCLUSION_OPTIONS = [
-  { days: 1, label: '24 hours' },
-  { days: 7, label: '1 week' },
-  { days: 30, label: '1 month' },
-  { days: 90, label: '3 months' },
-];
-
 const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen, onClose }) => {
-  const { language } = useApp();
+  const { language, t } = useApp();
+
+  const SELF_EXCLUSION_OPTIONS = useMemo(() => [
+    { days: 1, label: t('spending.24_hours', '24 hours') },
+    { days: 7, label: t('spending.1_week', '1 week') },
+    { days: 30, label: t('spending.1_month', '1 month') },
+    { days: 90, label: t('spending.3_months', '3 months') },
+  ], [t]);
   const {
     limits,
     selfExclusion,
@@ -103,7 +103,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
         <div className="flex items-center justify-between">
           <span className="text-slate-300">{label}</span>
           <span className="text-sm text-slate-400">
-            {language === 'en' ? 'Spent' : 'Dépensé'}: €{spent.toFixed(2)}
+            {t('spending.spent', 'Spent')}: €{spent.toFixed(2)}
             {currentStatus.limit && ` / €${currentStatus.limit}`}
           </span>
         </div>
@@ -146,7 +146,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
             }`}
           >
-            {language === 'en' ? 'No limit' : 'Pas de limite'}
+            {t('spending.no_limit', 'No limit')}
           </button>
         </div>
 
@@ -154,7 +154,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
         <div className="flex gap-2">
           <input
             type="number"
-            placeholder={language === 'en' ? 'Custom amount' : 'Montant personnalisé'}
+            placeholder={t('spending.custom_amount', 'Custom amount')}
             value={customValues[field]}
             onChange={e => setCustomValues(prev => ({ ...prev, [field]: e.target.value }))}
             className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-purple-500 focus:outline-none"
@@ -167,7 +167,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
             onClick={() => handleCustomLimit(field)}
             disabled={!customValues[field]}
           >
-            {language === 'en' ? 'Set' : 'Définir'}
+            {t('spending.set', 'Set')}
           </Button>
         </div>
       </div>
@@ -205,10 +205,10 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
               </div>
               <div>
                 <h2 className="text-lg font-heading font-bold text-white">
-                  {language === 'en' ? 'Responsible Play' : 'Jeu Responsable'}
+                  {t('spending.responsible_play', 'Responsible Play')}
                 </h2>
                 <p className="text-sm text-slate-400">
-                  {language === 'en' ? 'Manage your spending limits' : 'Gérez vos limites de dépenses'}
+                  {t('spending.manage_limits', 'Manage your spending limits')}
                 </p>
               </div>
             </div>
@@ -246,12 +246,12 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                 <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-bold text-red-300">
-                    {language === 'en' ? 'Self-Exclusion Active' : 'Auto-exclusion Active'}
+                    {t('spending.self_exclusion_active', 'Self-Exclusion Active')}
                   </h3>
                   <p className="text-sm text-red-200/80 mt-1">
                     {selfExclusion.endDate
-                      ? `${language === 'en' ? 'Purchases paused until' : 'Achats suspendus jusqu\'au'} ${new Date(selfExclusion.endDate).toLocaleDateString()}`
-                      : language === 'en' ? 'Purchases paused indefinitely' : 'Achats suspendus indéfiniment'}
+                      ? `${t('spending.paused_until', 'Purchases paused until')} ${new Date(selfExclusion.endDate).toLocaleDateString()}`
+                      : t('spending.paused_indefinitely', 'Purchases paused indefinitely')}
                   </p>
                 </div>
               </div>
@@ -267,7 +267,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                 className="w-full px-4 py-3 flex items-center justify-between bg-slate-800/50 hover:bg-slate-800 transition-colors"
               >
                 <span className="font-medium text-white">
-                  {language === 'en' ? 'Spending Limits' : 'Limites de Dépenses'}
+                  {t('spending.spending_limits', 'Spending Limits')}
                 </span>
                 {expandedSection === 'limits' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
               </button>
@@ -282,17 +282,15 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                   >
                     <div className="p-4 space-y-6 border-t border-slate-700">
                       <p className="text-sm text-slate-400">
-                        {language === 'en'
-                          ? 'Set limits to help manage your spending. All changes take effect immediately.'
-                          : 'Définissez des limites pour gérer vos dépenses. Tous les changements prennent effet immédiatement.'}
+                        {t('spending.set_limits_desc', 'Set limits to help manage your spending. All changes take effect immediately.')}
                       </p>
 
-                      {renderLimitRow('daily', language === 'en' ? 'Daily Limit' : 'Limite Quotidienne', spentToday, PRESET_LIMITS.daily)}
+                      {renderLimitRow('daily', t('spending.daily_limit', 'Daily Limit'), spentToday, PRESET_LIMITS.daily)}
                       <div className="border-t border-slate-700 pt-4">
-                        {renderLimitRow('weekly', language === 'en' ? 'Weekly Limit' : 'Limite Hebdomadaire', spentThisWeek, PRESET_LIMITS.weekly)}
+                        {renderLimitRow('weekly', t('spending.weekly_limit', 'Weekly Limit'), spentThisWeek, PRESET_LIMITS.weekly)}
                       </div>
                       <div className="border-t border-slate-700 pt-4">
-                        {renderLimitRow('monthly', language === 'en' ? 'Monthly Limit' : 'Limite Mensuelle', spentThisMonth, PRESET_LIMITS.monthly)}
+                        {renderLimitRow('monthly', t('spending.monthly_limit', 'Monthly Limit'), spentThisMonth, PRESET_LIMITS.monthly)}
                       </div>
                     </div>
                   </motion.div>
@@ -308,7 +306,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
               >
                 <span className="font-medium text-white flex items-center gap-2">
                   <Coffee className="w-4 h-4 text-amber-400" />
-                  {language === 'en' ? 'Take a Break' : 'Faire une Pause'}
+                  {t('spending.take_a_break', 'Take a Break')}
                 </span>
                 {expandedSection === 'break' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
               </button>
@@ -323,9 +321,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                   >
                     <div className="p-4 space-y-4 border-t border-slate-700">
                       <p className="text-sm text-slate-400">
-                        {language === 'en'
-                          ? 'Need a break? Temporarily pause all purchases. This cannot be undone early - choose carefully.'
-                          : 'Besoin d\'une pause ? Suspendez temporairement tous les achats. Cela ne peut pas être annulé prématurément.'}
+                        {t('spending.break_desc', 'Need a break? Temporarily pause all purchases. This cannot be undone early - choose carefully.')}
                       </p>
 
                       {!selfExclusion.enabled ? (
@@ -349,16 +345,14 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                           {showExclusionConfirm ? (
                             <div className="bg-amber-900/30 border border-amber-500/30 rounded-lg p-4 space-y-3">
                               <p className="text-sm text-amber-200">
-                                {language === 'en'
-                                  ? `Are you sure? You won't be able to make purchases for ${selfExclusionDays} days and this cannot be cancelled early.`
-                                  : `Êtes-vous sûr ? Vous ne pourrez pas faire d'achats pendant ${selfExclusionDays} jours et cela ne peut pas être annulé.`}
+                                {t('spending.exclusion_confirm', `Are you sure? You won't be able to make purchases for ${selfExclusionDays} days and this cannot be cancelled early.`)}
                               </p>
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" onClick={() => setShowExclusionConfirm(false)}>
-                                  {language === 'en' ? 'Cancel' : 'Annuler'}
+                                  {t('common.cancel', 'Cancel')}
                                 </Button>
                                 <Button variant="primary" size="sm" onClick={handleSelfExclusion}>
-                                  {language === 'en' ? 'Yes, take a break' : 'Oui, faire une pause'}
+                                  {t('spending.yes_take_break', 'Yes, take a break')}
                                 </Button>
                               </div>
                             </div>
@@ -368,18 +362,18 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                               onClick={() => setShowExclusionConfirm(true)}
                               className="w-full"
                             >
-                              {language === 'en' ? 'Enable Break' : 'Activer la Pause'}
+                              {t('spending.enable_break', 'Enable Break')}
                             </Button>
                           )}
                         </>
                       ) : (
                         <div className="text-center py-4">
                           <p className="text-amber-300">
-                            {language === 'en' ? 'Break is active.' : 'La pause est active.'}
+                            {t('spending.break_active', 'Break is active.')}
                           </p>
                           {selfExclusion.endDate && (
                             <p className="text-sm text-slate-400 mt-2">
-                              {language === 'en' ? 'Ends' : 'Fin'}: {new Date(selfExclusion.endDate).toLocaleDateString()}
+                              {t('spending.ends', 'Ends')}: {new Date(selfExclusion.endDate).toLocaleDateString()}
                             </p>
                           )}
                         </div>
@@ -397,7 +391,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                 className="w-full px-4 py-3 flex items-center justify-between bg-slate-800/50 hover:bg-slate-800 transition-colors"
               >
                 <span className="font-medium text-white">
-                  {language === 'en' ? 'History & Resources' : 'Historique & Ressources'}
+                  {t('spending.history_resources', 'History & Resources')}
                 </span>
                 {expandedSection === 'resources' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
               </button>
@@ -418,18 +412,16 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                         className="w-full flex items-center justify-center gap-2"
                       >
                         <Download className="w-4 h-4" />
-                        {language === 'en' ? 'Export Spending History' : 'Exporter l\'Historique'}
+                        {t('spending.export_history', 'Export Spending History')}
                       </Button>
 
                       {/* Resources */}
                       <div className="pt-4 border-t border-slate-700">
                         <h4 className="text-sm font-medium text-slate-300 mb-3">
-                          {language === 'en' ? 'Support Resources' : 'Ressources de Soutien'}
+                          {t('spending.support_resources', 'Support Resources')}
                         </h4>
                         <p className="text-xs text-slate-500 mb-3">
-                          {language === 'en'
-                            ? 'If you feel your spending is becoming a problem, these organizations can help.'
-                            : 'Si vous pensez que vos dépenses deviennent problématiques, ces organisations peuvent vous aider.'}
+                          {t('spending.resources_desc', 'If you feel your spending is becoming a problem, these organizations can help.')}
                         </p>
                         <ul className="space-y-2">
                           {resources.map(resource => (
@@ -458,7 +450,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
           {/* Footer */}
           <div className="sticky bottom-0 bg-slate-900 border-t border-purple-500/20 p-4">
             <Button variant="primary" onClick={onClose} className="w-full">
-              {language === 'en' ? 'Done' : 'Terminé'}
+              {t('spending.done', 'Done')}
             </Button>
           </div>
         </motion.div>

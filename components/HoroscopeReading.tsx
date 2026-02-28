@@ -144,7 +144,7 @@ const CornerDecoration: React.FC<{ position: 'tl' | 'tr' | 'bl' | 'br'; classNam
 };
 
 const HoroscopeReading: React.FC = () => {
-  const { language } = useApp();
+  const { language, t } = useApp();
   const { getToken } = useAuth();
   const [selectedSign, setSelectedSign] = useState<string | null>(null);
   const [selectedSignIndex, setSelectedSignIndex] = useState<number | null>(null);
@@ -175,9 +175,7 @@ const HoroscopeReading: React.FC = () => {
       setHoroscopeLanguage(language);
     } catch (error: any) {
       console.error('Error generating horoscope:', error);
-      const errorMsg = error?.message || (language === 'en'
-        ? 'Failed to generate horoscope. Please try again.'
-        : 'Échec de la génération de l\'horoscope. Veuillez réessayer.');
+      const errorMsg = error?.message || t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
       setHoroscope(errorMsg);
     } finally {
       setIsLoading(false);
@@ -210,9 +208,7 @@ const HoroscopeReading: React.FC = () => {
       setHoroscopeLanguage(language);
     } catch (error: any) {
       console.error('Error generating horoscope:', error);
-      const errorMsg = error?.message || (language === 'en'
-        ? 'Failed to generate horoscope. Please try again.'
-        : 'Échec de la génération de l\'horoscope. Veuillez réessayer.');
+      const errorMsg = error?.message || t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
       setHoroscope(errorMsg);
     } finally {
       setIsLoading(false);
@@ -329,7 +325,7 @@ const HoroscopeReading: React.FC = () => {
           whileHover={{ x: -4 }}
         >
           <ChevronLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">{language === 'fr' ? 'Tous les signes' : 'All signs'}</span>
+          <span className="text-sm font-medium">{t('horoscope.HoroscopeReading.all_signs', 'All signs')}</span>
         </motion.button>
 
         {/* Result card with gold frame */}
@@ -396,7 +392,7 @@ const HoroscopeReading: React.FC = () => {
               <div className="flex items-center justify-center gap-2 text-slate-400">
                 <Stars className="w-3 h-3 text-amber-500/60" />
                 <span className="text-xs uppercase tracking-[0.15em]">
-                  {language === 'fr' ? 'Horoscope du Jour' : 'Daily Horoscope'}
+                  {t('horoscope.HoroscopeReading.daily_horoscope', 'Daily Horoscope')}
                 </span>
                 <Stars className="w-3 h-3 text-amber-500/60" />
               </div>
@@ -427,7 +423,7 @@ const HoroscopeReading: React.FC = () => {
             {/* Footer */}
             <div className="mt-5 pt-4 border-t border-white/10 text-center">
               <Button onClick={handleBack} variant="outline">
-                {language === 'fr' ? 'Choisir un autre signe' : 'Choose another sign'}
+                {t('horoscope.HoroscopeReading.choose_another_sign', 'Choose another sign')}
               </Button>
             </div>
           </div>
@@ -480,19 +476,15 @@ const HoroscopeReading: React.FC = () => {
         </div>
 
         <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
-          {language === 'fr' ? 'Lire les Étoiles' : 'Reading the Stars'}
+          {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
         </h2>
 
         <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-6">
-          {language === 'fr'
-            ? 'Douze signes. Un cosmos. Un aperçu des énergies qui façonnent votre journée.'
-            : 'Twelve signs. One cosmos. Insight into the energies shaping your day.'}
+          {t('horoscope.HoroscopeReading.subtitle', 'Twelve signs. One cosmos. Insight into the energies shaping your day.')}
         </p>
 
         <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
-          {language === 'fr'
-            ? 'L\'astrologie offre un aperçu symbolique des thèmes qui peuvent être actifs autour de vous aujourd\'hui. Laissez votre horoscope du jour vous offrir une perspective plutôt qu\'une prédiction.'
-            : 'Astrology offers a symbolic snapshot of the themes that may be active around you today. Let your daily horoscope offer perspective rather than prediction.'}
+          {t('horoscope.HoroscopeReading.disclaimer', 'Astrology offers a symbolic snapshot of the themes that may be active around you today. Let your daily horoscope offer perspective rather than prediction.')}
         </p>
       </motion.div>
 

@@ -34,7 +34,7 @@ const cardVariants = {
 };
 
 const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) => {
-  const { language } = useApp();
+  const { language, t } = useApp();
   const quote = getTodaysQuote();
 
   return (
@@ -46,7 +46,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         className="text-center mb-8"
       >
         <h2 className="text-lg md:text-xl font-semibold text-purple-200/90 tracking-widest uppercase">
-          {language === 'en' ? 'Enter the Arcana' : 'Entrez dans les Arcanes'}
+          {t('reading.enter_the_arcana', 'Enter the Arcana')}
         </h2>
       </motion.div>
 
@@ -85,10 +85,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </div>
 
             <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
-              {language === 'en' ? 'Tarot Reading' : 'Lecture de Tarot'}
+              {t('reading.tarot_reading', 'Tarot Reading')}
             </h3>
             <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
-              {language === 'en' ? 'Classic card spreads for deep insights.' : 'Tirages de cartes classiques pour des insights profonds.'}
+              {t('reading.tarot_reading_desc', 'Classic card spreads for deep insights.')}
             </p>
           </Link>
         </motion.div>
@@ -121,10 +121,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           </div>
 
           <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
-            {language === 'en' ? 'Daily Horoscope' : 'Horoscope du Jour'}
+            {t('reading.daily_horoscope', 'Daily Horoscope')}
           </h3>
           <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
-            {language === 'en' ? 'What the stars have in store for you today.' : 'Ce que les étoiles vous réservent aujourd\'hui.'}
+            {t('reading.daily_horoscope_desc', 'What the stars have in store for you today.')}
           </p>
         </motion.div>
       </motion.div>
@@ -152,7 +152,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
 
         {/* Section title */}
         <h3 className="text-sm font-heading font-medium tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300/80 via-purple-300/80 to-amber-300/80 mb-4">
-          {language === 'en' ? 'Thought for Today' : 'Pensée du Jour'}
+          {t('reading.thought_for_today', 'Thought for Today')}
         </h3>
 
         {/* Quote text */}

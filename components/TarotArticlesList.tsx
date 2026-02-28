@@ -107,7 +107,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
             className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg flex items-center gap-2 mx-auto"
           >
             <RefreshCw className="w-4 h-4" />
-            {language === 'en' ? 'Try Again' : 'Réessayer'}
+            {t('tarot.TarotArticlesList.try_again', 'Try Again')}
           </button>
         </div>
       </div>
@@ -122,9 +122,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
           {t('tarot.TarotArticlesList.title', 'Tarot Card Meanings')}
         </h1>
         <p className="text-lg text-purple-300/70 max-w-2xl mx-auto">
-          {language === 'en'
-            ? 'Explore the deep symbolism and meanings of each tarot card'
-            : 'Explorez le symbolisme profond et les significations de chaque carte de tarot'}
+          {t('tarot.TarotArticlesList.subtitle', 'Explore the deep symbolism and meanings of each tarot card')}
         </p>
       </div>
 

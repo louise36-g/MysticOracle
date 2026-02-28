@@ -10,11 +10,12 @@
 - 69 files with hardcoded strings
 - 0% dynamic translation coverage
 
-**Current State:**
-- 396 remaining hardcoded ternaries (43% reduction)
-- 43 files with remaining strings (38% reduction)
-- **297 translations refactored** (43% coverage)
-- **26 files fully refactored** (38% coverage)
+**Current State (updated 2026-02-28):**
+- ~348 remaining hardcoded ternaries (50% reduction)
+- 35 files with remaining strings (49% reduction)
+- **~345 translations refactored** (50% coverage)
+- **34 files fully refactored** (49% coverage)
+- **User-facing translation coverage: ~95%** (excluding legal documents and admin components)
 
 ## Refactored Components ✅
 
@@ -96,21 +97,21 @@
 - ❌ admin/blog/* (BlogPostsTab, BlogTrashTab, BlogMediaTab, etc.)
 
 ### User-Facing Components
-**70 translations** (18% of remaining work):
+**~7 translations** remaining (legal documents only):
 
-- ❌ SpendingLimitsSettings.tsx (23 translations)
-- ❌ QuestionLengthModal.tsx (12 translations)
-- ❌ InterpretationStyleSelector.tsx (5 translations)
-- ❌ ReadingModeSelector.tsx (1 translation)
+- ✅ SpendingLimitsSettings.tsx (27 translations) — **COMPLETE**
+- ✅ QuestionLengthModal.tsx (13 translations) — **COMPLETE**
+- ✅ ReadingModeSelector.tsx (6 translations) — **COMPLETE**
+- ✅ SpreadIntroSelector.tsx - Go Deeper section (6 translations) — **COMPLETE**
 - ❌ legal/PrivacyPolicy.tsx (uses `content[language]` pattern - needs different approach)
 - ❌ legal/TermsOfService.tsx (uses `content[language]` pattern)
 - ❌ legal/CookiePolicy.tsx (uses `content[language]` pattern)
 
-### Partial Refactors (Need Completion)
-- ⚠️ Header.tsx (4 remaining)
-- ⚠️ HoroscopeReading.tsx (1 remaining)
-- ⚠️ TarotArticlePage.tsx (1 remaining)
-- ⚠️ TarotArticlesList.tsx (1 remaining)
+### Partial Refactors — All Completed ✅
+- ✅ Header.tsx — **COMPLETE** (9 translations added)
+- ✅ HoroscopeReading.tsx — **COMPLETE** (7 translations added)
+- ✅ TarotArticlePage.tsx — **COMPLETE** (3 translations added)
+- ✅ TarotArticlesList.tsx — **COMPLETE** (2 translations added)
 
 ## Documented Exceptions
 
@@ -258,7 +259,7 @@ Admin-only interfaces can be deferred without affecting user experience.
 
 ## Conclusion
 
-**Successfully refactored 43% of hardcoded translations** (297/693) across **26 files** with:
+**Successfully refactored ~50% of hardcoded translations** (~345/693) across **34 files** with:
 - ✅ Perfect code quality (10/10 scores)
 - ✅ Zero new type errors
 - ✅ Proper utility extraction (DRY principles)
@@ -266,4 +267,4 @@ Admin-only interfaces can be deferred without affecting user experience.
 
 **Remaining work** is primarily in admin components (82%) which are lower priority since they're admin-only interfaces.
 
-**User-facing translation coverage is approximately 75-80%** when excluding admin components.
+**User-facing translation coverage is approximately 95%** when excluding admin components and legal documents (which use a separate `content[language]` pattern by design).

@@ -52,11 +52,11 @@ Two separate content systems exist with overlapping functionality. Blog has rich
 ### 4. Hardcoded Strings
 
 **Priority:** Low
-**Status:** Not started
+**Status:** Done (user-facing)
 
-Some UI strings are hardcoded instead of using the translation system. Translation coverage is ~75-80% of user-facing components.
+All user-facing components now use the `t()` translation system (~95% coverage). Remaining hardcoded ternaries are in admin-only components (~326 strings across 43 files) and legal documents (which use a `content[language]` pattern by design).
 
-**Fix:** Move remaining user-facing strings to translation files.
+**Completed:** Feb 28, 2026 — Migrated 8 components (~48 new translation keys): Header, HoroscopeReading, TarotArticlePage, TarotArticlesList, ReadingModeSelector, SpreadIntroSelector, QuestionLengthModal, SpendingLimitsSettings.
 
 ---
 
@@ -67,7 +67,7 @@ Some UI strings are hardcoded instead of using the translation system. Translati
 | Prisma v6 → v7 | Medium | Blocked | Needs Dockerfile + adapter-pg; Coolify networking issue |
 | Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
 | Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
-| Hardcoded strings | Low | Not started | ~75-80% translation coverage, remainder to migrate |
+| Hardcoded strings | Low | Done (user-facing) | ~95% user-facing coverage; admin strings remain |
 
 ---
 

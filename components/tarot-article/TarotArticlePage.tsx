@@ -399,18 +399,16 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
           >
             <div className="cta-banner p-6 rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#c026d3] border border-purple-500/20 text-center relative overflow-hidden">
               <h3 className="text-xl md:text-2xl font-heading text-white mb-2 relative z-10">
-                {language === 'fr' ? 'Prêt à Découvrir Votre Chemin ?' : 'Ready to Discover Your Path?'}
+                {t('tarot.TarotArticlePage.cta_title', 'Ready to Discover Your Path?')}
               </h3>
               <p className="text-white/90 mb-4 max-w-xl mx-auto text-sm relative z-10">
-                {language === 'fr'
-                  ? 'Laissez le tarot illuminer votre voyage avec des conseils bienveillants.'
-                  : 'Let the tarot illuminate your journey with gentle guidance.'}
+                {t('tarot.TarotArticlePage.cta_description', 'Let the tarot illuminate your journey with gentle guidance.')}
               </p>
               <Link
                 to={ROUTES.READING}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-purple-700 rounded-lg hover:bg-purple-50 transition-all font-medium text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 relative z-10"
               >
-                {language === 'fr' ? 'Obtenez votre tirage maintenant' : 'Get your reading now'}
+                {t('tarot.TarotArticlePage.cta_button', 'Get your reading now')}
               </Link>
             </div>
           </motion.section>
