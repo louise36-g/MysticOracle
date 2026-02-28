@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
 
-// NOTE: These tests are skipped because astronomy-engine has ESM/CJS interop issues in Vitest
-// The Year Energy feature is still in development
-// TODO: Fix module loading or add proper mocking for astronomy-engine
-
-// We can't even import the service at the top level because it tries to load astronomy-engine
-// which fails in the Vitest environment. Using dynamic import inside tests.
 type PlanetaryDataType = {
   date: Date;
   sun: { longitude: number; sign: string; degrees: number };
@@ -18,7 +12,7 @@ type PlanetaryDataType = {
   aspects: Array<{ planet1: string; planet2: string; type: string; angle: number; orb: number }>;
 };
 
-describe.skip('PlanetaryCalculationService', () => {
+describe('PlanetaryCalculationService', () => {
   // Tests will use dynamic import to avoid module loading issues at file load time
 
   describe('calculatePlanetaryData', () => {
