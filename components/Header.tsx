@@ -79,6 +79,8 @@ const Header: React.FC<HeaderProps> = () => {
           <img
             src="/logos/celestiarcana-comet-cream.svg"
             alt=""
+            width={53}
+            height={40}
             className="h-10 w-auto"
             aria-hidden="true"
           />
