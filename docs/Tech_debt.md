@@ -159,10 +159,10 @@ Changes needed:
 **Missing:**
 - ~~**Environment Validation:** No startup validation of required env vars~~ ✅ Done: `src/config/env.ts` validates all critical vars at startup, exits on failure
 - ~~**Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring~~ ✅ Done: `captureException` wired into error handler middleware, `setUser` wired into auth middleware
-- **Performance Monitoring:** No APM tooling
+- ~~**Performance Monitoring:** No APM tooling~~ ✅ Done: Sentry custom spans on AI generation (`openrouter.request`), payments (`stripe.checkout.create/retrieve`, `paypal.order.create/capture`), credit transactions (`credit.deduct/add`), and email (`brevo.send_email/upsert_contact`). Profiling enabled via `@sentry/profiling-node`. Sample rates configurable via `SENTRY_TRACES_SAMPLE_RATE` and `SENTRY_PROFILES_SAMPLE_RATE` env vars.
 - **Rate Limiting:** Basic rate limiting exists but untested under load
 
-**Fix:** Consider APM tooling when needed.
+**Fix:** Rate limiting load testing when needed.
 
 ---
 
@@ -254,7 +254,7 @@ These components handle too many concerns and are difficult to maintain.
 | Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
 | Test coverage gaps | High | ✅ Done | 348 tests, blog routes, email service, trash, admin posts all covered |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
-| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry wired ✅, APM still open |
+| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry wired ✅, APM ✅, rate limiting load test open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
 | Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
 | ESLint warnings | Medium | ✅ Done | 0 issues remaining |

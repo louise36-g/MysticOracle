@@ -8,6 +8,7 @@
  */
 
 import { PrismaClient, TransactionType } from '@prisma/client';
+import * as Sentry from '@sentry/node';
 import prismaClient from '../db/prisma.js';
 import type { IUserRepository } from '../application/ports/repositories/IUserRepository.js';
 import type { ITransactionRepository } from '../application/ports/repositories/ITransactionRepository.js';
@@ -154,27 +155,31 @@ class CreditService {
       }
 
       // Atomic transaction: deduct credits + create transaction record
-      const [transaction, updatedUser] = await this.prisma.$transaction([
-        this.prisma.transaction.create({
-          data: {
-            userId: op.userId,
-            type: op.type,
-            amount: -op.amount, // Negative for deductions
-            description: op.description,
-            paymentProvider: op.metadata?.paymentProvider,
-            paymentId: op.metadata?.paymentId,
-            paymentAmount: op.metadata?.paymentAmount,
-            currency: op.metadata?.currency,
-          },
-        }),
-        this.prisma.user.update({
-          where: { id: op.userId },
-          data: {
-            credits: { decrement: op.amount },
-            totalCreditsSpent: { increment: op.amount },
-          },
-        }),
-      ]);
+      const [transaction, updatedUser] = await Sentry.startSpan(
+        { name: 'credit.deduct', op: 'db.transaction', attributes: { amount: op.amount } },
+        () =>
+          this.prisma.$transaction([
+            this.prisma.transaction.create({
+              data: {
+                userId: op.userId,
+                type: op.type,
+                amount: -op.amount, // Negative for deductions
+                description: op.description,
+                paymentProvider: op.metadata?.paymentProvider,
+                paymentId: op.metadata?.paymentId,
+                paymentAmount: op.metadata?.paymentAmount,
+                currency: op.metadata?.currency,
+              },
+            }),
+            this.prisma.user.update({
+              where: { id: op.userId },
+              data: {
+                credits: { decrement: op.amount },
+                totalCreditsSpent: { increment: op.amount },
+              },
+            }),
+          ])
+      );
 
       console.log(
         `[CreditService] Deducted ${op.amount} credits from user ${op.userId}. ` +
@@ -214,28 +219,32 @@ class CreditService {
       }
 
       // Atomic transaction: add credits + create transaction record
-      const [transaction, updatedUser] = await this.prisma.$transaction([
-        this.prisma.transaction.create({
-          data: {
-            userId: op.userId,
-            type: op.type,
-            amount: op.amount, // Positive for additions
-            description: op.description,
-            paymentProvider: op.metadata?.paymentProvider,
-            paymentId: op.metadata?.paymentId,
-            paymentAmount: op.metadata?.paymentAmount,
-            currency: op.metadata?.currency,
-            paymentStatus: op.metadata?.paymentId ? 'COMPLETED' : undefined,
-          },
-        }),
-        this.prisma.user.update({
-          where: { id: op.userId },
-          data: {
-            credits: { increment: op.amount },
-            totalCreditsEarned: { increment: op.amount },
-          },
-        }),
-      ]);
+      const [transaction, updatedUser] = await Sentry.startSpan(
+        { name: 'credit.add', op: 'db.transaction', attributes: { amount: op.amount } },
+        () =>
+          this.prisma.$transaction([
+            this.prisma.transaction.create({
+              data: {
+                userId: op.userId,
+                type: op.type,
+                amount: op.amount, // Positive for additions
+                description: op.description,
+                paymentProvider: op.metadata?.paymentProvider,
+                paymentId: op.metadata?.paymentId,
+                paymentAmount: op.metadata?.paymentAmount,
+                currency: op.metadata?.currency,
+                paymentStatus: op.metadata?.paymentId ? 'COMPLETED' : undefined,
+              },
+            }),
+            this.prisma.user.update({
+              where: { id: op.userId },
+              data: {
+                credits: { increment: op.amount },
+                totalCreditsEarned: { increment: op.amount },
+              },
+            }),
+          ])
+      );
 
       console.log(
         `[CreditService] Added ${op.amount} credits to user ${op.userId}. ` +
