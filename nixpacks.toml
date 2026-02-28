@@ -1,2 +1,2 @@
 [start]
-cmd = "sed -i 's|try_files {path} /index.html|try_files {path} {path}/index.html /index.html|' /assets/Caddyfile && caddy run --config /assets/Caddyfile --adapter caddyfile 2>&1"
+cmd = "cat /assets/Caddyfile && echo '---END CADDYFILE---' && sed -i 's|try_files {path} /index.html|try_files {path} {path}/index.html /index.html|' /assets/Caddyfile && caddy run --config /assets/Caddyfile --adapter caddyfile 2>&1"
