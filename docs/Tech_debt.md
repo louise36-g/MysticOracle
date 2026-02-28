@@ -4,7 +4,7 @@
 
 ---
 
-## Last Updated: February 27, 2026
+## Last Updated: February 28, 2026
 
 ---
 
@@ -83,18 +83,12 @@ Complete overhaul of blog and tarot article systems:
 ### ✅ Clerk Backend v1 → v2
 **Status:** Already on v2. Updated to latest v2.32.2 (Feb 2026). All 290 tests pass.
 
-### Prisma v5 → v7
-**Estimated Effort:** 6-10 hours
+### Prisma v5 → v7 (Partial — upgraded to v6)
+**Status:** Upgraded to v6.19.2. v7 deferred.
 
-⚠️ **HIGH RISK: Mapped Enums** - The `CardType` enum with `@map` values will change behavior. `CardType.MAJOR_ARCANA` will equal `"Major Arcana"` instead of `"MAJOR_ARCANA"`.
+✅ **v6 upgrade complete.** No breaking changes applied to this codebase (no implicit M2M, no Bytes fields, no NotFoundError usage, no fullTextSearch preview feature). All 348 tests pass. No source code changes needed.
 
-Changes needed:
-- Install `@prisma/adapter-pg` and `pg` driver
-- Create `prisma.config.ts` with database connection
-- Update schema generator: `prisma-client-js` → `prisma-client` + `output` field
-- Update all Prisma client imports
-- Node.js 20.19.0+ minimum
-- Test all enum comparisons after upgrade
+⚠️ **v7 deferred.** Requires `@prisma/adapter-pg`, `prisma.config.ts`, generator change (`prisma-client` instead of `prisma-client-js`), and Dockerfile for Coolify deployment. Blocked by Coolify Docker networking issues. The mapped enum `@map` breaking change was reverted in v7.3, so that is no longer a risk.
 
 ### ✅ React Router v6 → v7
 **Status:** Upgraded from v6.30.3 to v7.13.0. All existing APIs (createBrowserRouter, useRouteError, useParams, Navigate) are fully compatible — no code changes needed.
@@ -249,7 +243,7 @@ These components handle too many concerns and are difficult to maintain.
 | Horoscope system | High | ✅ Done | AI model, post-processing, formatting |
 | Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
 | Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
-| Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
+| Prisma v5→v7 upgrade | Medium | Partial | Upgraded to v6; v7 deferred (needs Dockerfile + adapter-pg) |
 | React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
 | Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
 | Test coverage gaps | High | ✅ Done | 348 tests, blog routes, email service, trash, admin posts all covered |
