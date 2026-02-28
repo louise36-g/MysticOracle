@@ -3,6 +3,7 @@
  */
 
 import Stripe from 'stripe';
+import * as Sentry from '@sentry/node';
 import type {
   IPaymentGateway,
   CheckoutParams,
@@ -54,37 +55,41 @@ export class StripeGateway implements IPaymentGateway {
       throw new Error('Stripe is not configured');
     }
 
-    const session = await this.stripe.checkout.sessions.create({
-      payment_method_types: this.useStripeLink ? ['card', 'link'] : ['card'],
-      mode: 'payment',
-      customer_email: params.userEmail,
-      // Disable invoice creation - we just want receipts
-      invoice_creation: {
-        enabled: false,
-      },
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: params.creditPackage.name,
-              description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
-            },
-            unit_amount: Math.round(params.creditPackage.priceEur * 100),
+    const session = await Sentry.startSpan(
+      { name: 'stripe.checkout.create', op: 'http.client' },
+      () =>
+        this.stripe!.checkout.sessions.create({
+          payment_method_types: this.useStripeLink ? ['card', 'link'] : ['card'],
+          mode: 'payment',
+          customer_email: params.userEmail,
+          // Disable invoice creation - we just want receipts
+          invoice_creation: {
+            enabled: false,
           },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        userId: params.userId,
-        packageId: params.creditPackage.id,
-        credits: (
-          params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)
-        ).toString(),
-      },
-      success_url: params.successUrl,
-      cancel_url: params.cancelUrl,
-    });
+          line_items: [
+            {
+              price_data: {
+                currency: 'eur',
+                product_data: {
+                  name: params.creditPackage.name,
+                  description: `${params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)} credits for CelestiArcana`,
+                },
+                unit_amount: Math.round(params.creditPackage.priceEur * 100),
+              },
+              quantity: 1,
+            },
+          ],
+          metadata: {
+            userId: params.userId,
+            packageId: params.creditPackage.id,
+            credits: (
+              params.creditPackage.credits + (params.creditPackage.bonusCredits || 0)
+            ).toString(),
+          },
+          success_url: params.successUrl,
+          cancel_url: params.cancelUrl,
+        })
+    );
 
     return {
       sessionId: session.id,
@@ -99,7 +104,10 @@ export class StripeGateway implements IPaymentGateway {
     }
 
     console.log('[StripeGateway] Retrieving session:', sessionId);
-    const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    const session = await Sentry.startSpan(
+      { name: 'stripe.checkout.retrieve', op: 'http.client' },
+      () => this.stripe!.checkout.sessions.retrieve(sessionId)
+    );
     console.log('[StripeGateway] Session payment_status:', session.payment_status);
     console.log('[StripeGateway] Session metadata:', session.metadata);
 

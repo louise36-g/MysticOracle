@@ -27,35 +27,10 @@ import { createAppContainer } from './shared/di/container.js';
 // Initialize DI container
 const container = createAppContainer();
 
-// Log container initialization
-console.log('🔧 DI Container initialized');
+console.log('✅ Environment validated, DI container initialized');
 
-// Debug: Check environment variables and payment gateway status
-console.log('🔍 Environment variables check:');
-console.log(
-  `   - STRIPE_SECRET_KEY: ${process.env.STRIPE_SECRET_KEY ? 'SET (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : 'NOT SET'}`
-);
-console.log(`   - STRIPE_WEBHOOK_SECRET: ${process.env.STRIPE_WEBHOOK_SECRET ? 'SET' : 'NOT SET'}`);
-console.log(`   - PAYPAL_CLIENT_ID: ${process.env.PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET'}`);
-console.log(`   - PAYPAL_CLIENT_SECRET: ${process.env.PAYPAL_CLIENT_SECRET ? 'SET' : 'NOT SET'}`);
-
-try {
-  const stripeGateway = container.resolve('stripeGateway');
-  const stripeLinkGateway = container.resolve('stripeLinkGateway');
-  const paypalGateway = container.resolve('paypalGateway');
-  console.log('💳 Payment gateways status:');
-  console.log(
-    `   - Stripe: ${stripeGateway ? (stripeGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-  console.log(
-    `   - Stripe Link: ${stripeLinkGateway ? (stripeLinkGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-  console.log(
-    `   - PayPal: ${paypalGateway ? (paypalGateway.isConfigured() ? 'configured' : 'not configured') : 'UNDEFINED'}`
-  );
-} catch (err) {
-  console.error('❌ Error resolving payment gateways:', err);
-}
+// Shared rate limiter options for Render reverse proxy
+const proxyValidation = { validate: { xForwardedForHeader: false } };
 
 // Rate limiting configurations
 const generalLimiter = rateLimit({
@@ -64,6 +39,7 @@ const generalLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const authLimiter = rateLimit({
@@ -72,6 +48,7 @@ const authLimiter = rateLimit({
   message: { error: 'Too many authentication attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const paymentLimiter = rateLimit({
@@ -80,6 +57,7 @@ const paymentLimiter = rateLimit({
   message: { error: 'Too many payment requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const strictLimiter = rateLimit({
@@ -88,6 +66,7 @@ const strictLimiter = rateLimit({
   message: { error: 'Rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 const adminLimiter = rateLimit({
@@ -96,6 +75,7 @@ const adminLimiter = rateLimit({
   message: { error: 'Admin rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  ...proxyValidation,
 });
 
 // Import routes
@@ -126,6 +106,10 @@ import { swaggerSpec } from './config/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Trust first proxy (Render reverse proxy) — required for express-rate-limit
+// to correctly read client IP from X-Forwarded-For header
+app.set('trust proxy', 1);
 
 // Parse FRONTEND_URL (supports comma-separated values for multiple origins)
 const frontendUrls = process.env.FRONTEND_URL

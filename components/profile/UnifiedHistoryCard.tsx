@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, MessageCircle, BookOpen, Sparkles, Calendar, Sun, Moon, Share2 } from 'lucide-react';
+import { ChevronDown, MessageCircle, BookOpen, Sparkles, Calendar, Sun, Moon, Share2, Layers } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { SpreadType } from '../../types';
 import { SPREADS, FULL_DECK } from '../../constants';
@@ -376,6 +376,40 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
                     style={{ maxHeight: `${MAX_INTERPRETATION_HEIGHT_PX}px` }}
                   >
                     <ReactMarkdown>{interpretationContent}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+
+              {/* Clarification Cards (Tarot only) */}
+              {reading.hasClarification && (reading.clarificationCard || reading.clarificationCard2) && (
+                <div className="pt-4 border-t border-slate-700/30">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <Layers className="w-4 h-4" />
+                    {lang === 'fr' ? 'Cartes de clarification' : 'Clarification Cards'}
+                  </p>
+                  <div className="space-y-3">
+                    {[reading.clarificationCard, reading.clarificationCard2]
+                      .filter(Boolean)
+                      .map((card, i) => (
+                        <div key={i} className="bg-slate-900/50 rounded-lg p-4 flex gap-4">
+                          <div className="flex-shrink-0">
+                            <CardThumbnail cardId={card!.cardId} isReversed={card!.isReversed} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-amber-300 mb-1">
+                              {lang === 'fr' ? card!.cardNameFr : card!.cardNameEn}
+                              {card!.isReversed && (
+                                <span className="text-purple-400 ml-1">
+                                  ({lang === 'fr' ? 'Renversée' : 'Reversed'})
+                                </span>
+                              )}
+                            </p>
+                            <div className="text-sm text-slate-400 prose prose-sm prose-invert max-w-none">
+                              <ReactMarkdown>{card!.interpretation}</ReactMarkdown>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}

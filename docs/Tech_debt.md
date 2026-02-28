@@ -96,13 +96,8 @@ Changes needed:
 - Node.js 20.19.0+ minimum
 - Test all enum comparisons after upgrade
 
-### React Router v6 → v7
-**Estimated Effort:** 2-4 hours
-
-Changes needed:
-- Review breaking changes in v7
-- Update route definitions
-- Test all navigation flows
+### ✅ React Router v6 → v7
+**Status:** Upgraded from v6.30.3 to v7.13.0. All existing APIs (createBrowserRouter, useRouteError, useParams, Navigate) are fully compatible — no code changes needed.
 
 ---
 
@@ -116,33 +111,34 @@ Changes needed:
 |------|-------|-------------------|
 | ~~`server/src/routes/translations.ts`~~ | ~~2,370~~ | ✅ Already split: translations/ directory (admin.ts, public.ts, shared.ts, defaults.ts) |
 | ~~`services/apiService.ts`~~ | ~~2,058~~ | ✅ Already split: services/api/ has 12 modular files |
-| `server/src/routes/blog.ts` | ~800 | Split into admin.ts, public.ts |
-
-**Fix:** Apply same modular pattern used for tarot-articles (public.ts, admin.ts, shared.ts).
+| ~~`server/src/routes/blog.ts`~~ | ~~800~~ | ✅ Already split: blog/ directory (index.ts, public.ts, posts.ts, trash.ts, media.ts, import.ts, sitemap.ts, shared.ts) |
 
 ---
 
-### 2. Test Coverage Gaps
+### ~~2. Test Coverage Gaps~~
+
+✅ **Resolved.** 348 tests passing across 22 test files.
 
 **Current Coverage:**
-- Unit tests: 288 tests passing (18 test files)
-- Route tests: Translation routes, auth middleware, AI routes
+- Unit tests: 348 tests passing (22 test files)
+- Route tests: Translation routes, auth middleware, AI routes, blog public routes, blog admin posts, blog trash routes
+- Service tests: CreditService, IdempotencyService, PlanetaryCalculation, Email service
+- Use case tests: CreateReading, AddFollowUp, ProcessPaymentWebhook, payments, admin, users (GDPR)
 - Integration tests: Minimal
 - E2E tests: None
 
-**Recently Added:**
+**Recently Added (Feb 2026):**
+- ✅ Blog public routes tests (14 tests: posts list/single/categories/tags, caching, pagination, filters)
+- ✅ Blog admin posts routes tests (19 tests: preview, list, get, create, reorder, update)
+- ✅ Blog trash routes tests (10 tests: soft delete, restore, permanent delete, empty trash)
+- ✅ Email service tests (15 tests: sendEmail, welcome, purchase, referral, contact, upsert, subscribe, unsubscribe)
+
+**Previously Added:**
 - ✅ ExportUserData use case tests (GDPR Article 20)
 - ✅ DeleteUserAccount use case tests (GDPR Article 17)
 - ✅ Translations routes tests (caching, language fetching)
 - ✅ Payment webhook tests (idempotency, refunds)
 - ✅ Credit deduction concurrent tests
-
-**Still Untested:**
-- Email template rendering
-- Blog/content routes
-- Admin routes (partial)
-
-**Fix:** Continue adding route-level tests for admin and content routes.
 
 ---
 
@@ -161,12 +157,12 @@ Changes needed:
 ### 4. Infrastructure Gaps
 
 **Missing:**
-- **Environment Validation:** No startup validation of required env vars
-- **Error Tracking:** No Sentry or similar for production error monitoring
-- **Performance Monitoring:** No APM tooling
+- ~~**Environment Validation:** No startup validation of required env vars~~ ✅ Done: `src/config/env.ts` validates all critical vars at startup, exits on failure
+- ~~**Error Tracking:** Sentry SDK installed but not fully wired up for production monitoring~~ ✅ Done: `captureException` wired into error handler middleware, `setUser` wired into auth middleware
+- ~~**Performance Monitoring:** No APM tooling~~ ✅ Done: Sentry custom spans on AI generation (`openrouter.request`), payments (`stripe.checkout.create/retrieve`, `paypal.order.create/capture`), credit transactions (`credit.deduct/add`), and email (`brevo.send_email/upsert_contact`). Profiling enabled via `@sentry/profiling-node`. Sample rates configurable via `SENTRY_TRACES_SAMPLE_RATE` and `SENTRY_PROFILES_SAMPLE_RATE` env vars.
 - **Rate Limiting:** Basic rate limiting exists but untested under load
 
-**Fix:** Add env validation first (quick win), then error tracking.
+**Fix:** Rate limiting load testing when needed.
 
 ---
 
@@ -186,29 +182,15 @@ These components handle too many concerns and are difficult to maintain.
 
 ---
 
-### 6. Inconsistent Credit Deduction Patterns
+### ~~6. Inconsistent Credit Deduction Patterns~~
 
-**Issue:** Some features deduct credits on frontend (validation only), others rely entirely on backend.
-
-**Current State:**
-- Tarot readings: Frontend validates → Backend deducts ✅
-- Follow-up questions: Frontend validates → Backend deducts ✅
-- Horoscope questions: Frontend deducts locally (needs review)
-
-**Fix:** Standardize all credit operations to backend-only with frontend validation.
+✅ **Resolved.** Horoscopes are free (no credits). Questions section was removed. All remaining credit flows (tarot readings, follow-ups) use backend-only deduction with frontend validation.
 
 ---
 
-### 7. ESLint Warnings to Address
+### ~~7. ESLint Warnings to Address~~
 
-**Current Count:** 81 issues (13 errors, 68 warnings)
-
-Main categories:
-- `@typescript-eslint/no-explicit-any`: ~50 warnings (mostly in tarot-articles.ts, validation files)
-- `@typescript-eslint/no-unused-vars`: ~15 warnings
-- `prefer-const`: ~5 warnings
-
-**Fix:** Run `npm run lint:fix` for auto-fixable issues, then address remaining manually.
+✅ **Resolved.** Down from 81 issues to 0. Last two fixes: unused `userId` in readings.ts, unused `debug` import in profile.ts.
 
 ---
 
@@ -226,19 +208,18 @@ Main categories:
 
 ## Low Priority
 
-### 9. Missing Error Boundaries (React)
+### ~~9. Missing Error Boundaries (React)~~
 
-**Issue:** React components don't have error boundaries. Uncaught errors crash entire app.
-
-**Fix:** Add error boundaries at route level and around critical components.
+✅ **Resolved.** Error boundaries at three levels:
+- **Route-level**: `RouteErrorBoundary` on root layout + admin layout (catches navigation errors)
+- **Per-route**: Every `lazyLoad()` route wrapped in compact `ErrorBoundary` (isolates page crashes)
+- **Reading flow**: Dedicated `ErrorBoundary` around ActiveReading (preserves layout on error)
 
 ---
 
-### 10. Console Warnings in Development
+### ~~10. Console Warnings in Development~~
 
-**Issue:** Various React warnings about keys, dependencies, etc.
-
-**Fix:** Audit and fix warnings one by one.
+✅ **Resolved.** Audit found no issues: all list renders have proper keys, event listeners cleaned up, no deprecated React patterns, refs used safely, eslint-disable comments justified.
 
 ---
 
@@ -269,15 +250,15 @@ Main categories:
 | Card image dimensions | Low | ✅ Done | 10 images resized to 256x384 |
 | Clerk v1→v2 upgrade | Medium | ✅ Done | Already on v2, bumped to 2.32.2 |
 | Prisma v5→v7 upgrade | Medium | Pending | Phase 4 (mapped enum risk) |
-| React Router v6→v7 | Medium | Pending | Phase 4 |
-| Oversized backend files | High | ✅ Done | translations/ and services/api/ already modular (only blog.ts ~800 lines remains) |
-| Test coverage gaps | High | Partial | 288 tests, critical flows covered (GDPR, payments, credits, translations) |
+| React Router v6→v7 | Medium | ✅ Done | Upgraded to v7.13.0 |
+| Oversized backend files | High | ✅ Done | All split: translations/, services/api/, blog/ |
+| Test coverage gaps | High | ✅ Done | 348 tests, blog routes, email service, trash, admin posts all covered |
 | Missing documentation | Medium | ✅ Done | All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT) |
-| Infrastructure gaps | Medium | Open | No env validation, no error tracking |
+| Infrastructure gaps | Medium | Partial | Env validation ✅, Sentry wired ✅, APM ✅, rate limiting load test open |
 | Large components | Medium | ✅ Done | AdminTarotArticles, AdminBlog, ActiveReading refactored |
-| Credit deduction patterns | Medium | Partial | - |
-| ESLint warnings | Medium | Open | 81 issues to fix |
-| Error boundaries | Low | Open | - |
-| Console warnings | Low | Open | - |
+| Credit deduction patterns | Medium | ✅ Done | Horoscopes free, all credit flows use backend deduction |
+| ESLint warnings | Medium | ✅ Done | 0 issues remaining |
+| Error boundaries | Low | ✅ Done | Per-route + reading flow + admin boundaries |
+| Console warnings | Low | ✅ Done | Audit found no issues |
 | Dual content systems | Medium | Open | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Open | - |
