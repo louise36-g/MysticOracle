@@ -77,11 +77,11 @@ const Header: React.FC<HeaderProps> = () => {
           aria-label="CelestiArcana - Go to homepage"
         >
           <img
-            src="/logos/celestiarcana-comet-cream.svg"
+            src="/logos/celestiarcana-moon.png"
             alt=""
-            width={53}
+            width={40}
             height={40}
-            className="h-10 w-auto"
+            className="h-10 w-10 object-cover"
             aria-hidden="true"
           />
           <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
