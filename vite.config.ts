@@ -14,8 +14,9 @@ export default defineConfig(({ mode }) => {
       plugins: [
         react(),
         VitePWA({
-          registerType: 'prompt',
-          includeAssets: ['logos/celestiarcana-comet-cream.svg', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
+          registerType: 'autoUpdate',
+          injectRegister: 'inline',
+          includeAssets: ['logos/celestiarcana-moon.png', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
           manifest: false, // Use existing public/manifest.json
           workbox: {
             globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}'],
