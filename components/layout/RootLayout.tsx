@@ -18,14 +18,11 @@ import PWAUpdatePrompt from '../PWAUpdatePrompt';
 // Low credits threshold
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
 
-// Loading fallback for lazy-loaded routes
+// Minimal loading fallback — pages load fast so this rarely shows
 function PageLoader() {
   return (
     <div className="min-h-[400px] flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-purple-300/70 text-sm">Loading...</p>
-      </div>
+      <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
     </div>
   );
 }

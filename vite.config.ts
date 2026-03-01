@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'autoUpdate',
-          injectRegister: 'inline',
+          injectRegister: false,
           includeAssets: ['logos/celestiarcana-moon.png', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
           manifest: false, // Use existing public/manifest.json
           workbox: {
