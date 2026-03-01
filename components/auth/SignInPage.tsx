@@ -1,7 +1,5 @@
 import React from 'react';
 import { SignIn } from '@clerk/clerk-react';
-import { Link } from 'react-router-dom';
-import { ROUTES } from '../../routes/routes';
 import AuthLayout from './AuthLayout';
 
 // Read language directly from localStorage to avoid context subscriptions
@@ -42,12 +40,6 @@ const clerkAppearance = {
     formFieldInput: 'bg-purple-900/50 border-purple-400/40 text-white placeholder:text-purple-300/60 focus:border-amber-400 focus:ring-amber-400',
     formButtonPrimary: 'bg-gradient-to-r from-purple-600 to-amber-600 hover:from-purple-500 hover:to-amber-500 text-white font-semibold',
     footerActionLink: 'text-amber-400 hover:text-amber-300',
-    footer: '!hidden',
-    footerPages: '!hidden',
-    footerAction: '!hidden',
-    cardFooter: '!hidden',
-    cardFooterAction: '!hidden',
-    cardFooterActionText: '!hidden',
     poweredBy: '!hidden',
     identityPreviewEditButton: 'text-amber-400 hover:text-amber-300',
     formFieldAction: 'text-amber-400 hover:text-amber-300',
@@ -80,15 +72,6 @@ const SignInPage: React.FC = () => {
         forceRedirectUrl="/"
       />
 
-      {/* Don't have account - at bottom */}
-      <div className="mt-4 p-3 text-center bg-purple-800/40 rounded-xl border border-purple-400/30">
-        <span className="text-purple-200">
-          {language === 'fr' ? 'Pas encore de compte ?' : "Don't have an account?"}
-        </span>{' '}
-        <Link to={ROUTES.SIGN_UP} className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
-          {language === 'fr' ? "S'inscrire" : 'Sign up'}
-        </Link>
-      </div>
     </AuthLayout>
   );
 };

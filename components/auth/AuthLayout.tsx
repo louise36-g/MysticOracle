@@ -13,12 +13,11 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Mystical background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-purple-950/50 to-slate-950" />
-      <div className="absolute inset-0 bg-[url('/stars-bg.svg')] opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-purple-950/50 to-slate-950 pointer-events-none" />
 
       {/* Animated orbs */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
