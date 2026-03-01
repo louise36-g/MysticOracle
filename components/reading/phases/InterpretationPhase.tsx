@@ -455,7 +455,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             animate={{ y: [0, -4, 0] }}
                             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                           >
-                            <img src="/logos/celestiarcana-moon.png" alt="" className="w-8 h-8 object-contain" />
+                            <img src="/logos/card-back-moon.webp" alt="" className="w-8 h-8 object-contain" />
                           </motion.div>
                         </motion.button>
 
@@ -502,7 +502,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             }}
                           >
                             <motion.img
-                              src="/logos/celestiarcana-moon.png"
+                              src="/logos/card-back-moon.webp"
                               alt=""
                               className="w-8 h-8 object-contain"
                               animate={{ opacity: [0.5, 1, 0.5] }}

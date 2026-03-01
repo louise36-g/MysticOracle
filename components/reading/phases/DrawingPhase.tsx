@@ -135,7 +135,7 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <img src="/logos/celestiarcana-moon.png" alt="" className="w-10 h-10 md:w-12 md:h-12 object-contain mb-1" />
+                  <img src="/logos/card-back-moon.webp" alt="" className="w-10 h-10 md:w-12 md:h-12 object-contain mb-1" />
                   <span className="text-xs md:text-sm text-amber-300 font-medium whitespace-nowrap">
                     {language === 'en' ? 'Draw a card' : 'Tirez une carte'}
                   </span>
