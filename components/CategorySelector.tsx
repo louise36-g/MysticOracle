@@ -529,17 +529,24 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                             <span className="font-bold">{depth.cost}</span>
                           </div>
 
-                          {/* Locked overlay with buy credits button */}
+                          {/* Locked overlay with sign-in or buy credits button */}
                           {!canAfford && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl backdrop-blur-sm">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setShowCreditShop(true);
+                                  if (!user) {
+                                    navigate('/sign-in');
+                                  } else {
+                                    setShowCreditShop(true);
+                                  }
                                 }}
                                 className="text-xs font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30 hover:from-amber-300 hover:to-yellow-400 hover:scale-105 transition-all duration-200"
                               >
-                                {language === 'fr' ? 'Acheter des crédits' : 'Get More Credits'}
+                                {!user
+                                  ? (language === 'fr' ? 'Connectez-vous' : 'Please sign in')
+                                  : (language === 'fr' ? 'Acheter des crédits' : 'Get More Credits')
+                                }
                               </button>
                             </div>
                           )}
@@ -628,17 +635,24 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 <span className="font-bold">{depth.cost}</span>
                               </div>
 
-                              {/* Locked overlay with buy credits button */}
+                              {/* Locked overlay with sign-in or buy credits button */}
                               {!canAfford && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl backdrop-blur-sm">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setShowCreditShop(true);
+                                      if (!user) {
+                                        navigate('/sign-in');
+                                      } else {
+                                        setShowCreditShop(true);
+                                      }
                                     }}
                                     className="text-[10px] font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 rounded-full border border-amber-300 shadow-lg shadow-amber-500/30"
                                   >
-                                    {language === 'fr' ? 'Crédits' : 'Credits'}
+                                    {!user
+                                      ? (language === 'fr' ? 'Connexion' : 'Sign in')
+                                      : (language === 'fr' ? 'Crédits' : 'Credits')
+                                    }
                                   </button>
                                 </div>
                               )}
