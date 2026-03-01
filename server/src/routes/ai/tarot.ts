@@ -484,12 +484,29 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
         ? reading.interpretation.substring(0, 500) + '...'
         : reading.interpretation;
 
+    // Include first clarification card's interpretation when generating the second
+    const isSecondClarification = !!reading.clarificationCard;
+    let previousClarification: string | undefined;
+    if (isSecondClarification && reading.clarificationCard) {
+      const firstCard = reading.clarificationCard as {
+        cardNameEn?: string;
+        cardNameFr?: string;
+        interpretation?: string;
+      };
+      const firstCardName = language === 'en' ? firstCard.cardNameEn : firstCard.cardNameFr;
+      previousClarification =
+        firstCardName && firstCard.interpretation
+          ? `${firstCardName}: ${firstCard.interpretation}`
+          : firstCard.interpretation;
+    }
+
     const prompt = await getClarificationCardPrompt({
       originalQuestion: reading.question || '',
       originalReading: readingSummary,
       clarificationCard: cardName,
       orientation,
       language,
+      previousClarification,
     });
 
     // Generate interpretation
@@ -509,7 +526,6 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
     });
 
     // Save to reading - use first or second slot
-    const isSecondCard = !!reading.clarificationCard;
     const cardData = {
       cardId: card.id,
       isReversed,
@@ -522,7 +538,9 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
       where: { id: readingId },
       data: {
         hasClarification: true,
-        ...(isSecondCard ? { clarificationCard2: cardData } : { clarificationCard: cardData }),
+        ...(isSecondClarification
+          ? { clarificationCard2: cardData }
+          : { clarificationCard: cardData }),
       },
     });
 

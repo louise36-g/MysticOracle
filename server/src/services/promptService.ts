@@ -437,11 +437,16 @@ export async function getClarificationCardPrompt(params: {
   clarificationCard: string;
   orientation: string;
   language: 'en' | 'fr';
+  previousClarification?: string;
 }): Promise<string> {
   try {
     const template = await getPrompt('PROMPT_TAROT_CLARIFICATION');
 
     const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const previousClarificationText = params.previousClarification
+      ? `\nPrevious Clarification Card Interpretation:\n${params.previousClarification}\n`
+      : '';
 
     const variables = {
       language: languageName,
@@ -449,6 +454,7 @@ export async function getClarificationCardPrompt(params: {
       originalReading: params.originalReading,
       clarificationCard: params.clarificationCard,
       orientation: params.orientation,
+      previousClarification: previousClarificationText,
     };
 
     return interpolatePrompt(template, variables);
