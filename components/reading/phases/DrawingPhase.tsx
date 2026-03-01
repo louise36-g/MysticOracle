@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Moon } from 'lucide-react';
+
 import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import ThemedBackground from '../ThemedBackground';
 import { SPREAD_THEMES } from '../SpreadThemes';
@@ -129,19 +129,13 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
               <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
                 {/* Inner border */}
                 <div className="absolute inset-1.5 md:inset-2 border border-amber-500/30 rounded-sm" />
-                {/* Decorative pattern */}
-                <div className="absolute inset-3 md:inset-4">
-                  <div className="w-full h-full border border-purple-400/40 rounded-sm" />
-                  <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
-                </div>
-                {/* Center symbol - Moon with pulse animation */}
-                {/* Draw instruction - overlaid on deck */}
+                {/* Draw instruction - overlaid on deck with logo */}
                 <motion.div
                   className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 rounded-lg"
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Moon className="w-6 h-6 md:w-8 md:h-8 text-amber-400 mb-1" />
+                  <img src="/logos/celestiarcana-moon.png" alt="" className="w-10 h-10 md:w-12 md:h-12 object-contain mb-1" />
                   <span className="text-xs md:text-sm text-amber-300 font-medium whitespace-nowrap">
                     {language === 'en' ? 'Draw a card' : 'Tirez une carte'}
                   </span>
