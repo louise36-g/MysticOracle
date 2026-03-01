@@ -286,41 +286,64 @@ Nous nous efforçons de répondre à toutes les demandes relatives aux cookies d
                   </h2>
                 </div>
                 <div className="text-slate-300 prose prose-invert prose-sm max-w-none">
-                  {section.content.split('\n\n').map((paragraph, pIndex) => (
-                    <div key={pIndex} className="mb-4">
-                      {paragraph.split('\n').map((line, lIndex) => {
-                        const formattedLine = line.replace(
-                          /\*\*(.*?)\*\*/g,
-                          '<strong class="text-purple-200">$1</strong>'
-                        );
-                        if (line.startsWith('•')) {
+                  {section.content.split('\n\n').map((paragraph, pIndex) => {
+                    const lines = paragraph.split('\n');
+                    const isTable = lines.length > 2 && lines[0].startsWith('|') && lines[1].startsWith('|---');
+                    if (isTable) {
+                      const headerCells = lines[0].split('|').filter(c => c.trim());
+                      const dataRows = lines.slice(2).filter(l => l.startsWith('|'));
+                      return (
+                        <div key={pIndex} className="mb-4 overflow-x-auto">
+                          <table className="w-full text-sm border-collapse">
+                            <thead>
+                              <tr className="border-b border-purple-500/30">
+                                {headerCells.map((cell, i) => (
+                                  <th key={i} className="text-left py-2 px-3 text-purple-200 font-semibold">{cell.trim()}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {dataRows.map((row, rIndex) => {
+                                const cells = row.split('|').filter(c => c.trim());
+                                return (
+                                  <tr key={rIndex} className="border-b border-white/5">
+                                    {cells.map((cell, i) => (
+                                      <td key={i} className="py-2 px-3 text-slate-400">{cell.trim()}</td>
+                                    ))}
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={pIndex} className="mb-4">
+                        {lines.map((line, lIndex) => {
+                          const formattedLine = line.replace(
+                            /\*\*(.*?)\*\*/g,
+                            '<strong class="text-purple-200">$1</strong>'
+                          );
+                          if (line.startsWith('•')) {
+                            return (
+                              <p
+                                key={lIndex}
+                                className="ml-4 text-slate-400"
+                                dangerouslySetInnerHTML={{ __html: formattedLine }}
+                              />
+                            );
+                          }
                           return (
                             <p
                               key={lIndex}
-                              className="ml-4 text-slate-400"
                               dangerouslySetInnerHTML={{ __html: formattedLine }}
                             />
                           );
-                        }
-                        if (line.startsWith('|')) {
-                          // Simple table row styling
-                          return (
-                            <p
-                              key={lIndex}
-                              className="font-mono text-xs text-slate-400"
-                              dangerouslySetInnerHTML={{ __html: formattedLine }}
-                            />
-                          );
-                        }
-                        return (
-                          <p
-                            key={lIndex}
-                            dangerouslySetInnerHTML={{ __html: formattedLine }}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
