@@ -99,10 +99,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Header */}
-      <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
+      <div
           className="relative pt-6 pb-4 px-4"
         >
           {/* Tarot card silhouettes in background */}
@@ -126,10 +123,7 @@ const HomePage: React.FC = () => {
           {/* Elegant header with integrated branding */}
           <div className="max-w-4xl mx-auto relative">
             {/* Upper tagline with decorative elements */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
+            <div
               className="flex items-center justify-center gap-3 mb-5"
             >
               <Star className="w-3 h-3 text-amber-400/50" />
@@ -137,13 +131,10 @@ const HomePage: React.FC = () => {
                 {language === 'en' ? 'Guidance & Self-Discovery' : 'Guidance & Découverte de Soi'}
               </span>
               <Star className="w-3 h-3 text-amber-400/50" />
-            </motion.div>
+            </div>
 
             {/* Title with breathing glow animation */}
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            <h1
               className="relative text-center text-5xl md:text-6xl font-heading font-bold mb-4"
             >
               {/* Breathing glow layer behind text */}
@@ -168,19 +159,16 @@ const HomePage: React.FC = () => {
               <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-purple-200 to-purple-400">
                 CelestiArcana
               </span>
-            </motion.h1>
+            </h1>
 
             {/* Tagline - slightly brighter */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+            <p
               className="text-center text-base md:text-lg text-slate-300 max-w-lg mx-auto"
             >
               {language === 'en'
                 ? 'A reflective tarot space for insight, clarity, and conscious growth'
                 : 'Un espace de tarot réflexif pour l\'intuition, la clarté et la croissance consciente'}
-            </motion.p>
+            </p>
 
             {/* Simplified elegant divider - just a crescent moon */}
             <motion.div
@@ -199,7 +187,7 @@ const HomePage: React.FC = () => {
               <div className="h-px w-16 bg-gradient-to-l from-transparent to-purple-500/40" />
             </motion.div>
           </div>
-        </motion.div>
+        </div>
 
       {/* Main Content Area */}
       {user ? (

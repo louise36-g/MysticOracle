@@ -1,6 +1,5 @@
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Suspense, useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
 import SubNav from '../SubNav';
@@ -13,7 +12,7 @@ import ErrorBoundary from '../ui/ErrorBoundary';
 import Button from '../Button';
 import { useApp } from '../../context/AppContext';
 import { trackPageView } from '../../utils/analytics';
-import { Coins, AlertTriangle, X, Moon } from 'lucide-react';
+import { Coins, AlertTriangle, X } from 'lucide-react';
 import PWAUpdatePrompt from '../PWAUpdatePrompt';
 
 // Low credits threshold
@@ -31,105 +30,9 @@ function PageLoader() {
   );
 }
 
-// Max seconds to wait for Clerk/API before showing the page anyway
-const LOADING_TIMEOUT_MS = 12000;
-
-// Branded loading screen for initial load
-function BrandedLoadingScreen({ timedOut }: { timedOut?: boolean }) {
-  return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#0f0c29]"
-      style={{
-        backgroundImage: `image-set(url("/background-celestiarcana.avif") type("image/avif"), url("/background-celestiarcana.webp") type("image/webp"), url("/background-celestiarcana.png") type("image/png"))`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      {/* Subtle glow effect */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-800/20 rounded-full blur-3xl animate-pulse" />
-      </div>
-
-      {/* Logo/Brand */}
-      <div className="relative z-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-10 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-          CelestiArcana
-        </h1>
-
-        {/* Animated tarot cards - matching shuffle phase design */}
-        <div className="flex justify-center gap-3 mb-8">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-14 h-20 rounded-lg bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 shadow-xl border-2 border-amber-500/50"
-              style={{
-                animation: 'bounce 1s ease-in-out infinite',
-                animationDelay: `${i * 0.15}s`,
-              }}
-            >
-              <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
-                {/* Inner border */}
-                <div className="absolute inset-1 border border-amber-500/30 rounded-sm" />
-                {/* Decorative pattern */}
-                <div className="absolute inset-2">
-                  <div className="w-full h-full border border-purple-400/40 rounded-sm" />
-                  <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
-                </div>
-                {/* Center symbol */}
-                <Moon className="w-5 h-5 text-amber-400/80" />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Timeout recovery message */}
-        {timedOut && (
-          <div className="mt-4 space-y-3">
-            <p className="text-slate-400 text-sm">
-              Taking longer than expected...
-            </p>
-            <button
-              onClick={async () => {
-                localStorage.clear();
-                sessionStorage.clear();
-                // Unregister service workers to clear stale cached assets
-                if ('serviceWorker' in navigator) {
-                  const registrations = await navigator.serviceWorker.getRegistrations();
-                  await Promise.all(registrations.map(r => r.unregister()));
-                }
-                window.location.reload();
-              }}
-              className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors"
-            >
-              Clear Cache &amp; Reload
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export function RootLayout() {
-  const { user, isLoading, refreshUser, t } = useApp();
-  const { isLoaded: clerkLoaded } = useUser();
+  const { user, refreshUser, t } = useApp();
   const location = useLocation();
-  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
-
-  // Safety timeout: if loading takes too long, show recovery UI
-  useEffect(() => {
-    if (clerkLoaded && !isLoading) return; // Already loaded, no timer needed
-
-    const timer = setTimeout(() => {
-      if (!clerkLoaded || isLoading) {
-        console.warn('[RootLayout] Loading timed out after', LOADING_TIMEOUT_MS, 'ms. clerkLoaded:', clerkLoaded, 'isLoading:', isLoading);
-        setLoadingTimedOut(true);
-      }
-    }, LOADING_TIMEOUT_MS);
-
-    return () => clearTimeout(timer);
-  }, [clerkLoaded, isLoading]);
 
   // Track page views on route changes (only if user consented to analytics)
   useEffect(() => {
@@ -223,12 +126,6 @@ export function RootLayout() {
     setShowLowCreditsModal(false);
     setShowCreditShop(true);
   };
-
-  // Show branded loading screen while Clerk initializes
-  // If loading times out, show the app anyway (without auth) so the site remains browsable
-  if ((!clerkLoaded || isLoading) && !loadingTimedOut) {
-    return <BrandedLoadingScreen timedOut={false} />;
-  }
 
   return (
     <MotionConfig reducedMotion="user">

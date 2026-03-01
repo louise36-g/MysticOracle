@@ -9,6 +9,7 @@ import { AdminRoute } from '../components/routing/AdminRoute';
 import AdminLayout from '../components/admin/AdminLayout';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { SignUpPage, SignInPage } from '../components/auth';
+import HomePage from '../components/HomePage';
 
 // Card back component matching the shuffle phase design
 const LoaderCardBack = ({ delay }: { delay: number }) => (
@@ -207,7 +208,7 @@ export const router = createBrowserRouter(
       // =====================
       {
         path: ROUTES.HOME,
-        element: lazyLoad(() => import('../components/HomePage')),
+        element: <HomePage />,
       },
 
       // Blog routes

@@ -170,13 +170,14 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
     }, packages[0]).id;
   }, [packages]);
 
-  // Load packages on mount
+  // Load packages only when modal is opened (not on mount - saves 3.5s from critical path)
   useEffect(() => {
+    if (!isOpen || packagesLoaded) return;
     fetchCreditPackages()
       .then(setPackages)
       .catch((err) => console.warn('[CreditShop] Failed to load packages:', err))
       .finally(() => setPackagesLoaded(true));
-  }, []);
+  }, [isOpen, packagesLoaded]);
 
   // Show break reminder when needed
   useEffect(() => {

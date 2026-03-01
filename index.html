@@ -57,6 +57,10 @@
     <meta name="application-name" content="CelestiArcana" />
     <meta name="msapplication-TileColor" content="#0f0c29" />
 
+    <!-- Preload LCP background image (browser picks best supported format) -->
+    <link rel="preload" as="image" href="/background-celestiarcana.avif" type="image/avif">
+    <link rel="preload" as="image" href="/background-celestiarcana.webp" type="image/webp">
+
     <!-- Fonts - preconnect for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -173,7 +177,33 @@
     <!-- Blog Content Typography now in styles/main.css -->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static app shell for instant LCP — replaced by React on mount -->
+      <div style="min-height:100vh;color:#e2e8f0;position:relative;overflow:hidden;display:flex;flex-direction:column">
+        <div style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:image-set(url('/background-celestiarcana.avif') type('image/avif'),url('/background-celestiarcana.webp') type('image/webp'),url('/background-celestiarcana.png') type('image/png'));background-size:cover;background-position:center;background-repeat:no-repeat"></div>
+        <header style="position:sticky;top:0;z-index:50;width:100%;border-bottom:1px solid rgba(168,85,247,0.2);background:rgba(40,23,78,0.95);backdrop-filter:blur(12px)">
+          <div style="max-width:1280px;margin:0 auto;padding:0 1rem;height:4rem;display:flex;align-items:center">
+            <div style="display:flex;align-items:center;gap:0.5rem">
+              <img src="/logos/celestiarcana-comet-cream.svg" alt="" width="53" height="40" style="height:2.5rem;width:auto" />
+              <span style="font-size:1.25rem;font-family:'Cinzel',serif;font-weight:700;background:linear-gradient(to right,#fde68a,#e9d5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">CelestiArcana</span>
+            </div>
+          </div>
+        </header>
+        <main style="position:relative;z-index:10;flex:1">
+          <div style="padding:1.5rem 1rem 1rem;position:relative">
+            <div style="max-width:56rem;margin:0 auto;text-align:center">
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.75rem;margin-bottom:1.25rem">
+                <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.25em;color:rgba(254,243,199,0.9);font-weight:500">Guidance &amp; Self-Discovery</span>
+              </div>
+              <h1 style="position:relative;text-align:center;font-size:3rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem;line-height:1.1">
+                <span style="background:linear-gradient(to bottom,#fde68a,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">CelestiArcana</span>
+              </h1>
+              <p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto">A reflective tarot space for insight, clarity, and conscious growth</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
