@@ -455,7 +455,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             animate={{ y: [0, -4, 0] }}
                             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                           >
-                            <span className="text-amber-400/70 text-xl">☽</span>
+                            <img src="/logos/celestiarcana-moon.png" alt="" className="w-8 h-8 object-contain" />
                           </motion.div>
                         </motion.button>
 
@@ -501,13 +501,13 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                               scale: { duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 },
                             }}
                           >
-                            <motion.span
-                              className="text-amber-400/70 text-xl"
+                            <motion.img
+                              src="/logos/celestiarcana-moon.png"
+                              alt=""
+                              className="w-8 h-8 object-contain"
                               animate={{ opacity: [0.5, 1, 0.5] }}
                               transition={{ duration: 1.5, repeat: Infinity }}
-                            >
-                              ☽
-                            </motion.span>
+                            />
                           </motion.div>
                         </div>
 

@@ -125,8 +125,11 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
       <div className="w-full h-full flex items-center justify-center relative rounded-md overflow-hidden">
         {/* Inner border */}
         <div className="absolute inset-1 border border-amber-500/30 rounded-sm" />
-        {/* Center logo */}
-        <img src="/logos/celestiarcana-moon.png" alt="" className="w-8 h-8 md:w-10 md:h-10 object-contain relative z-10" />
+        {/* Decorative pattern */}
+        <div className="absolute inset-2">
+          <div className="w-full h-full border border-purple-400/40 rounded-sm" />
+          <div className="absolute inset-1 border border-purple-400/25 rounded-sm" />
+        </div>
       </div>
     </div>
   );
