@@ -209,15 +209,16 @@ async function main() {
   console.log('');
 
   try {
-    // Fetch all tarot articles
-    const articles = await prisma.tarotArticle.findMany({
+    // Fetch all tarot articles (now stored in BlogPost with contentType)
+    const rawArticles = await prisma.blogPost.findMany({
+      where: { contentType: 'TAROT_ARTICLE' },
       select: {
         id: true,
         slug: true,
-        title: true,
-        excerpt: true,
-        seoMetaDescription: true,
-        featuredImage: true,
+        titleEn: true,
+        excerptEn: true,
+        metaDescEn: true,
+        coverImage: true,
         cardType: true,
         faq: true,
         createdAt: true,
@@ -225,6 +226,15 @@ async function main() {
         schemaJson: true,
       },
     });
+
+    // Map to legacy field names used by schema builder functions
+    const articles = rawArticles.map(a => ({
+      ...a,
+      title: a.titleEn,
+      excerpt: a.excerptEn,
+      seoMetaDescription: a.metaDescEn,
+      featuredImage: a.coverImage,
+    }));
 
     console.log(`Found ${articles.length} articles to process\n`);
 
@@ -250,7 +260,7 @@ async function main() {
         const newSchemaHtml = schemaToHTML(newSchema);
 
         // Update in database
-        await prisma.tarotArticle.update({
+        await prisma.blogPost.update({
           where: { id: article.id },
           data: {
             schemaJson: newSchema as unknown as Prisma.InputJsonValue,

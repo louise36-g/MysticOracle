@@ -29,6 +29,7 @@
     "noEmit": true
   },
   "exclude": [
-    "server/scripts/archive"
+    "server/scripts/archive",
+    "server/src/**/*.example.ts"
   ]
 }

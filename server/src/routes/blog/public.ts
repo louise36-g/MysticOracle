@@ -39,7 +39,7 @@ router.get('/posts', async (req, res) => {
     const where: Prisma.BlogPostWhereInput = {
       status: 'PUBLISHED',
       publishedAt: { not: null },
-      deletedAt: null, // Exclude deleted posts
+      deletedAt: null,
     };
 
     if (params.category) {
@@ -64,11 +64,14 @@ router.get('/posts', async (req, res) => {
           excerptFr: true,
           coverImage: true,
           coverImageAlt: true,
+          coverImageAltFr: true,
           authorName: true,
           featured: true,
           viewCount: true,
           readTimeMinutes: true,
           publishedAt: true,
+          contentType: true,
+          cardType: true,
           categories: {
             include: {
               category: { select: { slug: true, nameEn: true, nameFr: true, color: true } },
@@ -90,6 +93,7 @@ router.get('/posts', async (req, res) => {
     const response = {
       posts: posts.map(p => ({
         ...p,
+        contentType: p.contentType,
         categories: p.categories.map(c => c.category),
         tags: p.tags.map(t => t.tag),
       })),
@@ -174,6 +178,7 @@ router.get('/posts/:slug', async (req, res) => {
     res.json({
       post: {
         ...post,
+        contentType: post.contentType,
         categories: post.categories.map(c => c.category),
         tags: post.tags.map(t => t.tag),
       },

@@ -35,6 +35,8 @@ export interface BlogTag {
   _count?: { posts: number };
 }
 
+export type ContentType = 'BLOG_POST' | 'TAROT_ARTICLE';
+
 export interface BlogPost {
   id: string;
   slug: string;
@@ -46,6 +48,7 @@ export interface BlogPost {
   contentFr: string;
   coverImage?: string;
   coverImageAlt?: string;
+  coverImageAltFr?: string;
   metaTitleEn?: string;
   metaTitleFr?: string;
   metaDescEn?: string;
@@ -68,6 +71,8 @@ export interface BlogPost {
   tags: BlogTag[];
   categoryIds?: string[];
   tagIds?: string[];
+  contentType?: ContentType;
+  cardType?: string;
 }
 
 export type CreateBlogPostData = {

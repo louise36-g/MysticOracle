@@ -16,12 +16,15 @@ const router = Router();
 
 const blogTrashConfig: TrashConfig = {
   entityName: 'Post',
-  findUnique: id => prisma.blogPost.findUnique({ where: { id } }),
+  findUnique: id => prisma.blogPost.findFirst({ where: { id, contentType: 'BLOG_POST' } }),
   updateItem: (id, data) => prisma.blogPost.update({ where: { id }, data }),
   deleteItem: id => prisma.blogPost.delete({ where: { id } }),
   findSlugConflict: (slug, excludeId) =>
     prisma.blogPost.findFirst({ where: { slug, id: { not: excludeId } } }),
-  deleteAllTrashed: () => prisma.blogPost.deleteMany({ where: { deletedAt: { not: null } } }),
+  deleteAllTrashed: () =>
+    prisma.blogPost.deleteMany({
+      where: { contentType: 'BLOG_POST', deletedAt: { not: null } },
+    }),
   onAfterSoftDelete: async () => {
     await cacheService.flushPattern('blog:');
   },

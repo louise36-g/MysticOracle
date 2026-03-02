@@ -3,6 +3,8 @@
  *
  * Business logic for tarot article operations.
  * Handles CRUD, validation, schema generation, and caching.
+ *
+ * Now queries BlogPost table with contentType = 'TAROT_ARTICLE'.
  */
 
 import { Prisma } from '@prisma/client';
@@ -17,7 +19,7 @@ import {
 import { processArticleSchema, type TarotArticleData } from '../../lib/schema-builder.js';
 import { sortByCardNumber } from '../../lib/tarot/sorting.js';
 
-// Types for tarot articles
+// Types for tarot articles (API response shape)
 export interface TarotArticle {
   id: string;
   title: string;
@@ -98,6 +100,42 @@ export interface ImportResult {
 }
 
 /**
+ * Convert validated tarot data to BlogPost create data
+ */
+function tarotToBlogPostData(prismaData: ReturnType<typeof convertToPrismaFormatLenient>) {
+  return {
+    titleEn: prismaData.title,
+    excerptEn: prismaData.excerpt,
+    contentEn: prismaData.content,
+    authorName: prismaData.author,
+    coverImage: prismaData.featuredImage,
+    coverImageAlt: prismaData.featuredImageAlt,
+    readTimeMinutes:
+      typeof prismaData.readTime === 'string'
+        ? parseInt(prismaData.readTime.replace(/[^0-9]/g, ''), 10) || 5
+        : 5,
+    metaTitleEn: prismaData.seoMetaTitle,
+    metaDescEn: prismaData.seoMetaDescription,
+    seoFocusKeyword: prismaData.seoFocusKeyword,
+    slug: prismaData.slug,
+    cardType: prismaData.cardType,
+    cardNumber: prismaData.cardNumber,
+    element: prismaData.element,
+    astrologicalCorrespondence: prismaData.astrologicalCorrespondence,
+    isCourtCard: prismaData.isCourtCard,
+    isChallengeCard: prismaData.isChallengeCard,
+    relatedCards: prismaData.relatedCards,
+    faq: prismaData.faq,
+    breadcrumbCategory: prismaData.breadcrumbCategory,
+    breadcrumbCategoryUrl: prismaData.breadcrumbCategoryUrl,
+    datePublished: prismaData.datePublished,
+    dateModified: prismaData.dateModified,
+    status: prismaData.status as Prisma.EnumBlogPostStatusFieldUpdateOperationsInput['set'],
+    contentType: 'TAROT_ARTICLE' as const,
+  };
+}
+
+/**
  * Service for tarot article operations
  */
 export class TarotArticleService extends ContentService<
@@ -113,29 +151,27 @@ export class TarotArticleService extends ContentService<
   // Select fields for list operations
   private listSelectFields = {
     id: true,
-    title: true,
+    titleEn: true,
     titleFr: true,
     slug: true,
-    excerpt: true,
+    excerptEn: true,
     excerptFr: true,
-    featuredImage: true,
-    featuredImageAlt: true,
-    featuredImageAltFr: true,
+    coverImage: true,
+    coverImageAlt: true,
+    coverImageAltFr: true,
     cardType: true,
     cardNumber: true,
     datePublished: true,
-    readTime: true,
-    tags: true,
-    categories: true,
+    readTimeMinutes: true,
     status: true,
   };
 
   // Include fields for full article with relations
   private fullIncludeFields = {
-    articleCategories: {
+    categories: {
       include: { category: true },
     },
-    articleTags: {
+    tags: {
       include: { tag: true },
     },
   };
@@ -145,8 +181,8 @@ export class TarotArticleService extends ContentService<
   // ============================================
 
   async findById(id: string): Promise<TarotArticle | null> {
-    const article = await prisma.tarotArticle.findUnique({
-      where: { id },
+    const article = await prisma.blogPost.findFirst({
+      where: { id, contentType: 'TAROT_ARTICLE' },
       include: this.fullIncludeFields,
     });
 
@@ -160,9 +196,10 @@ export class TarotArticleService extends ContentService<
     const cached = await this.getCachedItem(slug);
     if (cached) return cached;
 
-    const article = await prisma.tarotArticle.findFirst({
+    const article = await prisma.blogPost.findFirst({
       where: {
         slug,
+        contentType: 'TAROT_ARTICLE',
         status: 'PUBLISHED',
         deletedAt: null,
       },
@@ -180,7 +217,9 @@ export class TarotArticleService extends ContentService<
   async list(params: ListParams): Promise<PaginatedResult<TarotArticleListItem>> {
     const { page, limit, status, search, deleted } = params;
 
-    const where: Prisma.TarotArticleWhereInput = {};
+    const where: Prisma.BlogPostWhereInput = {
+      contentType: 'TAROT_ARTICLE',
+    };
 
     // Filter by trash status
     if (deleted === true) {
@@ -195,24 +234,39 @@ export class TarotArticleService extends ContentService<
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
+        { titleEn: { contains: search, mode: 'insensitive' } },
         { slug: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     const [articles, total] = await Promise.all([
-      prisma.tarotArticle.findMany({
+      prisma.blogPost.findMany({
         where,
         select: this.listSelectFields,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       }),
-      prisma.tarotArticle.count({ where }),
+      prisma.blogPost.count({ where }),
     ]);
 
     return {
-      items: articles as unknown as TarotArticleListItem[],
+      items: articles.map(a => ({
+        id: a.id,
+        title: a.titleEn,
+        titleFr: a.titleFr,
+        slug: a.slug,
+        excerpt: a.excerptEn,
+        excerptFr: a.excerptFr,
+        featuredImage: a.coverImage || '',
+        featuredImageAlt: a.coverImageAlt || '',
+        featuredImageAltFr: a.coverImageAltFr || '',
+        cardType: a.cardType || '',
+        cardNumber: a.cardNumber || '',
+        status: a.status,
+        datePublished: a.datePublished as Date,
+        readTime: `${a.readTimeMinutes} min read`,
+      })),
       total,
       page,
       limit,
@@ -224,6 +278,7 @@ export class TarotArticleService extends ContentService<
     const prismaData = convertToPrismaFormatLenient(
       data as Parameters<typeof convertToPrismaFormatLenient>[0]
     );
+    const blogPostData = tarotToBlogPostData(prismaData);
 
     // Generate schema
     let schema: object | null = null;
@@ -236,12 +291,13 @@ export class TarotArticleService extends ContentService<
       // Schema generation failed - continue without it
     }
 
-    const article = await prisma.tarotArticle.create({
+    const article = await prisma.blogPost.create({
       data: {
-        ...prismaData,
+        ...blogPostData,
         schemaJson: (schema as Prisma.InputJsonValue) || {},
         schemaHtml,
         status: 'DRAFT',
+        contentType: 'TAROT_ARTICLE',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -254,7 +310,9 @@ export class TarotArticleService extends ContentService<
   }
 
   async update(id: string, data: TarotArticleUpdateInput): Promise<TarotArticle> {
-    const existing = await prisma.tarotArticle.findUnique({ where: { id } });
+    const existing = await prisma.blogPost.findFirst({
+      where: { id, contentType: 'TAROT_ARTICLE' },
+    });
     if (!existing) {
       throw new Error('Article not found');
     }
@@ -262,6 +320,7 @@ export class TarotArticleService extends ContentService<
     const prismaData = convertToPrismaFormatLenient(
       data as Parameters<typeof convertToPrismaFormatLenient>[0]
     );
+    const blogPostData = tarotToBlogPostData(prismaData);
 
     // Generate schema
     let schema: object | null = null;
@@ -273,29 +332,31 @@ export class TarotArticleService extends ContentService<
     } catch {
       // Keep existing schema
       schema = existing.schemaJson as object;
-      schemaHtml = existing.schemaHtml;
+      schemaHtml = existing.schemaHtml || '';
     }
 
-    const article = await prisma.tarotArticle.update({
+    const article = await prisma.blogPost.update({
       where: { id },
       data: {
-        ...prismaData,
+        ...blogPostData,
         schemaJson: schema
           ? (schema as Prisma.InputJsonValue)
           : ((existing.schemaJson as Prisma.InputJsonValue) ?? Prisma.JsonNull),
-        schemaHtml: schemaHtml || existing.schemaHtml,
+        schemaHtml: schemaHtml || existing.schemaHtml || '',
         updatedAt: new Date(),
       },
       include: this.fullIncludeFields,
     });
 
-    await this.invalidateOnUpdate(existing.slug, prismaData.slug);
+    await this.invalidateOnUpdate(existing.slug, blogPostData.slug);
 
     return this.transformArticle(article);
   }
 
   async softDelete(id: string): Promise<void> {
-    const article = await prisma.tarotArticle.findUnique({ where: { id } });
+    const article = await prisma.blogPost.findFirst({
+      where: { id, contentType: 'TAROT_ARTICLE' },
+    });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -303,7 +364,7 @@ export class TarotArticleService extends ContentService<
     const timestamp = Date.now();
     const trashedSlug = `_deleted_${timestamp}_${article.slug}`;
 
-    await prisma.tarotArticle.update({
+    await prisma.blogPost.update({
       where: { id },
       data: {
         deletedAt: new Date(),
@@ -316,7 +377,9 @@ export class TarotArticleService extends ContentService<
   }
 
   async restore(id: string): Promise<{ slug: string }> {
-    const article = await prisma.tarotArticle.findUnique({ where: { id } });
+    const article = await prisma.blogPost.findFirst({
+      where: { id, contentType: 'TAROT_ARTICLE' },
+    });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -328,7 +391,7 @@ export class TarotArticleService extends ContentService<
     const originalSlug = article.originalSlug || article.slug.replace(/^_deleted_\d+_/, '');
 
     // Check if original slug is available
-    const existingWithSlug = await prisma.tarotArticle.findFirst({
+    const existingWithSlug = await prisma.blogPost.findFirst({
       where: {
         slug: originalSlug,
         id: { not: article.id },
@@ -337,7 +400,7 @@ export class TarotArticleService extends ContentService<
 
     const restoredSlug = existingWithSlug ? `${originalSlug}-restored-${Date.now()}` : originalSlug;
 
-    await prisma.tarotArticle.update({
+    await prisma.blogPost.update({
       where: { id },
       data: {
         deletedAt: null,
@@ -352,7 +415,9 @@ export class TarotArticleService extends ContentService<
   }
 
   async permanentDelete(id: string): Promise<void> {
-    const article = await prisma.tarotArticle.findUnique({ where: { id } });
+    const article = await prisma.blogPost.findFirst({
+      where: { id, contentType: 'TAROT_ARTICLE' },
+    });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -361,15 +426,12 @@ export class TarotArticleService extends ContentService<
       throw new Error('Article must be in trash before permanent deletion');
     }
 
-    // Delete junction table entries first
-    await prisma.tarotArticleCategory.deleteMany({ where: { articleId: id } });
-    await prisma.tarotArticleTag.deleteMany({ where: { articleId: id } });
-
-    await prisma.tarotArticle.delete({ where: { id } });
+    // BlogPostCategory and BlogPostTag have onDelete: Cascade
+    await prisma.blogPost.delete({ where: { id } });
   }
 
   async isSlugAvailable(slug: string, excludeId?: string): Promise<boolean> {
-    const existing = await prisma.tarotArticle.findFirst({
+    const existing = await prisma.blogPost.findFirst({
       where: {
         slug,
         ...(excludeId ? { id: { not: excludeId } } : {}),
@@ -400,48 +462,74 @@ export class TarotArticleService extends ContentService<
 
     const selectFields = {
       id: true,
-      title: true,
+      titleEn: true,
       titleFr: true,
       slug: true,
-      excerpt: true,
+      excerptEn: true,
       excerptFr: true,
-      featuredImage: true,
-      featuredImageAlt: true,
-      featuredImageAltFr: true,
+      coverImage: true,
+      coverImageAlt: true,
+      coverImageAltFr: true,
       cardType: true,
       cardNumber: true,
-      readTime: true,
+      readTimeMinutes: true,
+    };
+
+    const baseWhere = {
+      contentType: 'TAROT_ARTICLE' as const,
+      status: 'PUBLISHED' as const,
+      deletedAt: null,
     };
 
     const [majorArcana, wands, cups, swords, pentacles] = await Promise.all([
-      prisma.tarotArticle.findMany({
-        where: { cardType: 'MAJOR_ARCANA', status: 'PUBLISHED', deletedAt: null },
+      prisma.blogPost.findMany({
+        where: { ...baseWhere, cardType: 'MAJOR_ARCANA' },
         select: selectFields,
       }),
-      prisma.tarotArticle.findMany({
-        where: { cardType: 'SUIT_OF_WANDS', status: 'PUBLISHED', deletedAt: null },
+      prisma.blogPost.findMany({
+        where: { ...baseWhere, cardType: 'SUIT_OF_WANDS' },
         select: selectFields,
       }),
-      prisma.tarotArticle.findMany({
-        where: { cardType: 'SUIT_OF_CUPS', status: 'PUBLISHED', deletedAt: null },
+      prisma.blogPost.findMany({
+        where: { ...baseWhere, cardType: 'SUIT_OF_CUPS' },
         select: selectFields,
       }),
-      prisma.tarotArticle.findMany({
-        where: { cardType: 'SUIT_OF_SWORDS', status: 'PUBLISHED', deletedAt: null },
+      prisma.blogPost.findMany({
+        where: { ...baseWhere, cardType: 'SUIT_OF_SWORDS' },
         select: selectFields,
       }),
-      prisma.tarotArticle.findMany({
-        where: { cardType: 'SUIT_OF_PENTACLES', status: 'PUBLISHED', deletedAt: null },
+      prisma.blogPost.findMany({
+        where: { ...baseWhere, cardType: 'SUIT_OF_PENTACLES' },
         select: selectFields,
       }),
     ]);
 
+    const transformItems = (items: typeof majorArcana) =>
+      sortByCardNumber(
+        items.map(a => ({
+          id: a.id,
+          title: a.titleEn,
+          titleFr: a.titleFr,
+          slug: a.slug,
+          excerpt: a.excerptEn,
+          excerptFr: a.excerptFr,
+          featuredImage: a.coverImage || '',
+          featuredImageAlt: a.coverImageAlt || '',
+          featuredImageAltFr: a.coverImageAltFr || '',
+          cardType: a.cardType || '',
+          cardNumber: a.cardNumber || '',
+          readTime: `${a.readTimeMinutes} min read`,
+          status: 'PUBLISHED',
+          datePublished: new Date(),
+        }))
+      ) as unknown as TarotArticleListItem[];
+
     const result = {
-      majorArcana: sortByCardNumber(majorArcana) as unknown as TarotArticleListItem[],
-      wands: sortByCardNumber(wands) as unknown as TarotArticleListItem[],
-      cups: sortByCardNumber(cups) as unknown as TarotArticleListItem[],
-      swords: sortByCardNumber(swords) as unknown as TarotArticleListItem[],
-      pentacles: sortByCardNumber(pentacles) as unknown as TarotArticleListItem[],
+      majorArcana: transformItems(majorArcana),
+      wands: transformItems(wands),
+      cups: transformItems(cups),
+      swords: transformItems(swords),
+      pentacles: transformItems(pentacles),
     };
 
     await this.cacheItem(cacheKey, result as unknown as TarotArticle);
@@ -554,6 +642,7 @@ export class TarotArticleService extends ContentService<
     }
 
     const prismaData = convertToPrismaFormatLenient(warningsResult.data);
+    const blogPostData = tarotToBlogPostData(prismaData);
 
     let schema: object | null = null;
     let schemaHtml = '';
@@ -565,12 +654,13 @@ export class TarotArticleService extends ContentService<
       warningsResult.warnings.push('[Schema] Could not generate structured data');
     }
 
-    const article = await prisma.tarotArticle.create({
+    const article = await prisma.blogPost.create({
       data: {
-        ...prismaData,
+        ...blogPostData,
         schemaJson: (schema as Prisma.InputJsonValue) || {},
         schemaHtml,
         status: 'DRAFT',
+        contentType: 'TAROT_ARTICLE',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -583,7 +673,7 @@ export class TarotArticleService extends ContentService<
       forceSaved: true,
       article: {
         id: article.id,
-        title: article.title,
+        title: article.titleEn,
         slug: article.slug,
         status: article.status,
       },
@@ -602,7 +692,9 @@ export class TarotArticleService extends ContentService<
    * Reorder an article within its card type
    */
   async reorder(articleId: string, cardType: string, newPosition: number): Promise<void> {
-    const article = await prisma.tarotArticle.findUnique({ where: { id: articleId } });
+    const article = await prisma.blogPost.findFirst({
+      where: { id: articleId, contentType: 'TAROT_ARTICLE' },
+    });
 
     if (!article) {
       throw new Error('Article not found');
@@ -614,8 +706,12 @@ export class TarotArticleService extends ContentService<
       );
     }
 
-    const articles = await prisma.tarotArticle.findMany({
-      where: { cardType: cardType as Prisma.EnumCardTypeFilter, deletedAt: null },
+    const articles = await prisma.blogPost.findMany({
+      where: {
+        contentType: 'TAROT_ARTICLE',
+        cardType: cardType as Prisma.EnumCardTypeNullableFilter['equals'],
+        deletedAt: null,
+      },
       orderBy: { sortOrder: 'asc' },
       select: { id: true, sortOrder: true },
     });
@@ -640,7 +736,7 @@ export class TarotArticleService extends ContentService<
     // Update all positions in transaction
     await prisma.$transaction(
       articles.map((a, index) =>
-        prisma.tarotArticle.update({
+        prisma.blogPost.update({
           where: { id: a.id },
           data: { sortOrder: index },
         })
@@ -654,23 +750,9 @@ export class TarotArticleService extends ContentService<
    * Empty trash (permanently delete all trashed articles)
    */
   async emptyTrash(): Promise<number> {
-    const trashedArticles = await prisma.tarotArticle.findMany({
-      where: { deletedAt: { not: null } },
-      select: { id: true },
-    });
-
-    const articleIds = trashedArticles.map(a => a.id);
-
-    // Delete junction entries first
-    await prisma.tarotArticleCategory.deleteMany({
-      where: { articleId: { in: articleIds } },
-    });
-    await prisma.tarotArticleTag.deleteMany({
-      where: { articleId: { in: articleIds } },
-    });
-
-    const result = await prisma.tarotArticle.deleteMany({
-      where: { deletedAt: { not: null } },
+    // BlogPostCategory and BlogPostTag have onDelete: Cascade
+    const result = await prisma.blogPost.deleteMany({
+      where: { contentType: 'TAROT_ARTICLE', deletedAt: { not: null } },
     });
 
     return result.count;
@@ -681,43 +763,54 @@ export class TarotArticleService extends ContentService<
   // ============================================
 
   /**
-   * Transform Prisma article to service response format
+   * Transform Prisma BlogPost to TarotArticle service response format
    */
   private transformArticle(article: {
     id: string;
-    title: string;
+    titleEn: string;
     slug: string;
-    excerpt: string;
-    content: string;
+    excerptEn: string;
+    contentEn: string;
     status: string;
-    cardType: string;
-    cardNumber: string;
-    categories: unknown;
-    tags: unknown;
+    cardType: string | null;
+    cardNumber: string | null;
     deletedAt: Date | null;
-    articleCategories?: Array<{
+    categories?: Array<{
       category: { id: string; slug: string; nameEn: string; nameFr: string };
     }>;
-    articleTags?: Array<{
+    tags?: Array<{
       tag: { id: string; slug: string; nameEn: string; nameFr: string };
     }>;
     [key: string]: unknown;
   }): TarotArticle {
-    const categories = Array.isArray(article.categories) ? (article.categories as string[]) : [];
-    const tags = Array.isArray(article.tags) ? (article.tags as string[]) : [];
-
     return {
       ...article,
+      title: article.titleEn,
+      excerpt: article.excerptEn,
+      content: article.contentEn,
+      author: (article.authorName as string) || '',
+      readTime: `${article.readTimeMinutes || 5} min read`,
+      featuredImage: (article.coverImage as string) || '',
+      featuredImageAlt: (article.coverImageAlt as string) || '',
+      featuredImageAltFr: (article.coverImageAltFr as string) || '',
+      seoFocusKeyword: (article.seoFocusKeyword as string) || '',
+      seoMetaTitle: (article.metaTitleEn as string) || '',
+      seoMetaDescription: (article.metaDescEn as string) || '',
+      seoFocusKeywordFr: (article.seoFocusKeywordFr as string) || '',
+      seoMetaTitleFr: (article.metaTitleFr as string) || '',
+      seoMetaDescriptionFr: (article.metaDescFr as string) || '',
       status: article.status as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
-      categories,
-      tags,
-      categoryObjects: article.articleCategories?.map(ac => ({
+      cardType: article.cardType || '',
+      cardNumber: article.cardNumber || '',
+      categories: [] as string[],
+      tags: [] as string[],
+      categoryObjects: article.categories?.map(ac => ({
         id: ac.category.id,
         slug: ac.category.slug,
         name: ac.category.nameEn,
         nameFr: ac.category.nameFr,
       })),
-      tagObjects: article.articleTags?.map(at => ({
+      tagObjects: article.tags?.map(at => ({
         id: at.tag.id,
         slug: at.tag.slug,
         name: at.tag.nameEn,

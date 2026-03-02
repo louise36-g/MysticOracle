@@ -17,26 +17,17 @@ async function main() {
   console.log(`Setting all authors to: ${NEW_AUTHOR}\n`);
 
   try {
-    // Update Tarot Articles
-    const tarotResult = await prisma.tarotArticle.updateMany({
-      data: {
-        author: NEW_AUTHOR,
-      },
-    });
-    console.log(`✓ Updated ${tarotResult.count} Tarot articles`);
-
-    // Update Blog Posts
-    const blogResult = await prisma.blogPost.updateMany({
+    // Update all content (blog posts + tarot articles are now in one table)
+    const result = await prisma.blogPost.updateMany({
       data: {
         authorName: NEW_AUTHOR,
       },
     });
-    console.log(`✓ Updated ${blogResult.count} Blog posts`);
+    console.log(`✓ Updated ${result.count} posts (blog + tarot)`);
 
     console.log('\n' + '='.repeat(60));
     console.log('Summary:');
-    console.log(`  Tarot articles updated: ${tarotResult.count}`);
-    console.log(`  Blog posts updated: ${blogResult.count}`);
+    console.log(`  Total updated: ${result.count}`);
     console.log('='.repeat(60));
   } catch (error) {
     console.error('Error updating authors:', error);

@@ -4,7 +4,6 @@ import { useApp } from '../../context/AppContext';
 import {
   fetchBlogPosts,
   fetchBlogCategories,
-  fetchTarotArticles,
   BlogPost,
   BlogCategory,
 } from '../../services/api';
@@ -26,7 +25,7 @@ interface DisplayArticle {
   publishedAt: string;
   viewCount?: number;
   createdAt: string;
-  type: 'blog' | 'tarot'; // Distinguish between blog posts and tarot articles
+  type: 'blog' | 'tarot'; // Distinguish for navigation routing
 }
 
 const BlogList: React.FC = () => {
@@ -39,7 +38,6 @@ const BlogList: React.FC = () => {
 
   const [articles, setArticles] = useState<DisplayArticle[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
-  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({}); // Accurate counts including tarot articles
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -60,95 +58,25 @@ const BlogList: React.FC = () => {
     publishedAt: post.publishedAt || post.createdAt,
     viewCount: post.viewCount,
     createdAt: post.createdAt,
-    type: 'blog',
+    // Determine type from contentType field
+    type: post.contentType === 'TAROT_ARTICLE' ? 'tarot' : 'blog',
   });
-
-  // Convert tarot article to display article
-  const tarotArticleToArticle = (tarotArticle: any): DisplayArticle => {
-    // Parse readTime string (e.g., "15 min read" -> 15)
-    const readTimeMatch = tarotArticle.readTime?.match(/(\d+)/);
-    const readTimeMinutes = readTimeMatch ? parseInt(readTimeMatch[1], 10) : 5;
-
-    return {
-      id: tarotArticle.id,
-      slug: tarotArticle.slug,
-      title: tarotArticle.title,
-      excerpt: tarotArticle.excerpt,
-      coverImage: tarotArticle.featuredImage,
-      coverImageAlt: tarotArticle.featuredImageAlt,
-      categories: [], // Tarot articles don't have explicit categories, we'll handle this in rendering
-      readTimeMinutes,
-      publishedAt: tarotArticle.datePublished || tarotArticle.createdAt,
-      viewCount: 0,
-      createdAt: tarotArticle.datePublished || tarotArticle.createdAt,
-      type: 'tarot',
-    };
-  };
 
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
 
-      let allArticles: DisplayArticle[] = [];
-      let combinedTotal = 0;
-      let combinedTotalPages = 1;
-
-      // Map category slugs to tarot article card types
-      const categoryToCardType: Record<string, string | null> = {
-        'major-arcana': 'MAJOR_ARCANA',
-        'wands': 'SUIT_OF_WANDS',
-        'cups': 'SUIT_OF_CUPS',
-        'swords': 'SUIT_OF_SWORDS',
-        'pentacles': 'SUIT_OF_PENTACLES',
-        'suit-of-wands': 'SUIT_OF_WANDS',
-        'suit-of-cups': 'SUIT_OF_CUPS',
-        'suit-of-swords': 'SUIT_OF_SWORDS',
-        'suit-of-pentacles': 'SUIT_OF_PENTACLES',
-        'tarot-meanings': null, // null = fetch all types
-      };
-
-      // When viewing a tarot category, fetch all blog posts (no pagination split)
-      // so they combine cleanly with tarot articles on one page
-      const isTarotCategory = selectedCategory && selectedCategory in categoryToCardType;
       const blogResult = await fetchBlogPosts({
-        page: isTarotCategory ? 1 : page,
-        limit: isTarotCategory ? 50 : 9,
+        page,
+        limit: 12,
         category: selectedCategory || undefined,
       });
 
-      allArticles = blogResult.posts.map(blogPostToArticle);
-      combinedTotal = blogResult.pagination.total;
-      combinedTotalPages = blogResult.pagination.totalPages;
-
-      if (selectedCategory && selectedCategory in categoryToCardType) {
-        try {
-          const tarotParams: any = {
-            page: 1,
-            limit: 100, // Fetch all tarot articles at once (max 22 for major arcana, 14 for suits)
-            status: 'PUBLISHED',
-          };
-
-          const cardType = categoryToCardType[selectedCategory];
-          if (cardType) {
-            tarotParams.cardType = cardType;
-          }
-
-          const tarotResult = await fetchTarotArticles(tarotParams);
-          const tarotArticles = tarotResult.articles.map(tarotArticleToArticle);
-
-          // Append tarot articles after blog posts
-          allArticles = [...allArticles, ...tarotArticles];
-          combinedTotal = allArticles.length;
-          combinedTotalPages = 1; // All items fit on one page
-        } catch (tarotErr) {
-          console.error('Failed to load tarot articles:', tarotErr);
-          // Continue with just blog posts if tarot fetch fails
-        }
-      }
+      const allArticles = blogResult.posts.map(blogPostToArticle);
 
       setArticles(allArticles);
-      setTotalPages(combinedTotalPages);
-      setTotal(combinedTotal);
+      setTotalPages(blogResult.pagination.totalPages);
+      setTotal(blogResult.pagination.total);
     } catch (err) {
       console.error('Failed to load posts:', err);
     } finally {
@@ -160,43 +88,6 @@ const BlogList: React.FC = () => {
     try {
       const result = await fetchBlogCategories();
       setCategories(result.categories);
-
-      // Map category slugs to tarot card types for accurate counts
-      const countCardTypes: Record<string, string | null> = {
-        'major-arcana': 'MAJOR_ARCANA',
-        'wands': 'SUIT_OF_WANDS',
-        'cups': 'SUIT_OF_CUPS',
-        'swords': 'SUIT_OF_SWORDS',
-        'pentacles': 'SUIT_OF_PENTACLES',
-        'suit-of-wands': 'SUIT_OF_WANDS',
-        'suit-of-cups': 'SUIT_OF_CUPS',
-        'suit-of-swords': 'SUIT_OF_SWORDS',
-        'suit-of-pentacles': 'SUIT_OF_PENTACLES',
-        'tarot-meanings': null, // null = all types
-      };
-
-      // Calculate accurate counts including tarot articles for tarot categories
-      const counts: Record<string, number> = {};
-
-      for (const cat of result.categories) {
-        let count = cat.postCount || 0; // Start with blog post count
-
-        if (cat.slug in countCardTypes) {
-          try {
-            const params: any = { status: 'PUBLISHED', limit: 1 };
-            const cardType = countCardTypes[cat.slug];
-            if (cardType) params.cardType = cardType;
-            const tarotResult = await fetchTarotArticles(params);
-            count += tarotResult.total;
-          } catch (err) {
-            console.error(`Failed to load tarot count for ${cat.slug}:`, err);
-          }
-        }
-
-        counts[cat.slug] = count;
-      }
-
-      setCategoryCounts(counts);
     } catch (err) {
       console.error('Failed to load categories:', err);
     }
@@ -258,7 +149,7 @@ const BlogList: React.FC = () => {
       {/* Category Filter Dropdown */}
       {(() => {
         // Only show categories with published articles
-        const filteredCategories = categories.filter((cat) => (categoryCounts[cat.slug] || cat.postCount || 0) > 0);
+        const filteredCategories = categories.filter((cat) => (cat.postCount || 0) > 0);
 
         return filteredCategories.length > 0 && (
           <section className="mb-10">
@@ -391,7 +282,7 @@ const BlogList: React.FC = () => {
         ) : (
           <div className="flex flex-wrap gap-6 justify-center">
             {articles.map((article, index) => {
-              // Determine navigation path based on article type
+              // Determine navigation path based on content type
               const articlePath = article.type === 'tarot'
                 ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })
                 : buildRoute(ROUTES.BLOG_POST, { slug: article.slug });

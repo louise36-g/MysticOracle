@@ -82,18 +82,25 @@ router.get('/registry', async (_req, res) => {
     // - We intentionally include DRAFT and PUBLISHED content here (exclude only soft-deleted / archived)
     // - This makes the registry useful while editors are still preparing content
     // - Public visibility is still controlled by the main content APIs
-    const [tarotArticles, rawBlogPosts] = await Promise.all([
-      prisma.tarotArticle.findMany({
-        where: { deletedAt: null },
-        select: { slug: true, title: true, cardType: true },
-        orderBy: { title: 'asc' },
+    const [tarotArticlesRaw, rawBlogPosts] = await Promise.all([
+      prisma.blogPost.findMany({
+        where: { contentType: 'TAROT_ARTICLE', deletedAt: null },
+        select: { slug: true, titleEn: true, cardType: true },
+        orderBy: { titleEn: 'asc' },
       }),
       prisma.blogPost.findMany({
-        where: { deletedAt: null },
+        where: { contentType: 'BLOG_POST', deletedAt: null },
         select: { slug: true, titleEn: true },
         orderBy: { titleEn: 'asc' },
       }),
     ]);
+
+    // Transform tarot articles to match existing API shape
+    const tarotArticles = tarotArticlesRaw.map(a => ({
+      slug: a.slug,
+      title: a.titleEn,
+      cardType: a.cardType,
+    }));
 
     // Transform blog posts to use 'title' field
     const blogPosts = rawBlogPosts.map(post => ({

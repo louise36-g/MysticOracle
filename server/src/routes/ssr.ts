@@ -31,10 +31,11 @@ router.get('/tarot/articles/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 
-    // Fetch the article with schema
-    const article = await prisma.tarotArticle.findFirst({
+    // Fetch the article with schema (now from BlogPost table)
+    const article = await prisma.blogPost.findFirst({
       where: {
         slug,
+        contentType: 'TAROT_ARTICLE',
         status: 'PUBLISHED',
       },
     });
@@ -72,17 +73,15 @@ ${JSON.stringify(article.schemaJson, null, 2)}
 </script>`;
 
     // Escape values for safe HTML insertion
-    const safeTitle = escapeHtml(article.seoMetaTitle || article.title);
-    const safeDescription = escapeHtml(article.seoMetaDescription || article.excerpt);
-    const safeAuthor = escapeHtml(article.author);
+    const safeTitle = escapeHtml((article.metaTitleEn || article.titleEn) as string);
+    const safeDescription = escapeHtml((article.metaDescEn || article.excerptEn) as string);
+    const safeAuthor = escapeHtml(article.authorName);
     const safeSlug = escapeHtml(article.slug);
-    const safeTags = article.tags.map(tag => escapeHtml(tag));
 
     // Generate Open Graph and Twitter meta tags
     const metaTags = `
     <title>${safeTitle} | CelestiArcana</title>
     <meta name="description" content="${safeDescription}" />
-    <meta name="keywords" content="${safeTags.join(', ')}" />
     <link rel="canonical" href="https://celestiarcana.com/tarot/articles/${safeSlug}" />
 
     <!-- Open Graph / Facebook -->
@@ -90,18 +89,17 @@ ${JSON.stringify(article.schemaJson, null, 2)}
     <meta property="og:url" content="https://celestiarcana.com/tarot/articles/${safeSlug}" />
     <meta property="og:title" content="${safeTitle}" />
     <meta property="og:description" content="${safeDescription}" />
-    <meta property="og:image" content="${article.featuredImage}" />
-    <meta property="article:published_time" content="${article.datePublished.toISOString()}" />
-    <meta property="article:modified_time" content="${article.dateModified.toISOString()}" />
+    <meta property="og:image" content="${article.coverImage || ''}" />
+    ${article.datePublished ? `<meta property="article:published_time" content="${article.datePublished.toISOString()}" />` : ''}
+    ${article.dateModified ? `<meta property="article:modified_time" content="${article.dateModified.toISOString()}" />` : ''}
     <meta property="article:author" content="${safeAuthor}" />
-    ${safeTags.map(tag => `<meta property="article:tag" content="${tag}" />`).join('\n    ')}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://celestiarcana.com/tarot/articles/${safeSlug}" />
     <meta property="twitter:title" content="${safeTitle}" />
     <meta property="twitter:description" content="${safeDescription}" />
-    <meta property="twitter:image" content="${article.featuredImage}" />
+    <meta property="twitter:image" content="${article.coverImage || ''}" />
 `;
 
     // Inject schema and meta tags into the HTML head

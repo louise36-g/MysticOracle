@@ -609,6 +609,37 @@ model BlogPost {
   faq             Json?      // Array of { question: string, answer: string }
   cta             Json?      // { heading: string, text: string, buttonText: string, buttonUrl: string }
 
+  // Content type discriminator
+  contentType               ContentType @default(BLOG_POST)
+
+  // Tarot-specific metadata (null for blog posts)
+  cardType                  CardType?
+  cardNumber                String?
+  element                   Element?
+  astrologicalCorrespondence String?
+  isCourtCard               Boolean     @default(false)
+  isChallengeCard           Boolean     @default(false)
+  relatedCards              String[]    @default([])
+
+  // Schema.org (pre-generated for tarot articles)
+  schemaJson                Json?
+  schemaHtml                String?     @db.Text
+
+  // Breadcrumbs (tarot articles)
+  breadcrumbCategory        String?
+  breadcrumbCategoryUrl     String?
+
+  // SEO focus keyword (tarot articles have this, blog posts don't)
+  seoFocusKeyword           String?
+  seoFocusKeywordFr         String?
+
+  // French alt text for cover image
+  coverImageAltFr           String?
+
+  // Schema.org dates (explicit editorial control, separate from publishedAt/updatedAt)
+  datePublished             DateTime?
+  dateModified              DateTime?
+
   // Relations
   categories      BlogPostCategory[]
   tags            BlogPostTag[]
@@ -618,12 +649,20 @@ model BlogPost {
   @@index([featured])
   @@index([deletedAt])
   @@index([sortOrder])
+  @@index([contentType])
+  @@index([contentType, cardType])
+  @@index([contentType, status])
 }
 
 enum BlogPostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+enum ContentType {
+  BLOG_POST
+  TAROT_ARTICLE
 }
 
 model BlogCategory {
@@ -648,7 +687,6 @@ model BlogCategory {
 
   // Relations
   posts          BlogPostCategory[]
-  tarotArticles  TarotArticleCategory[]
 
   @@index([slug])
 }
@@ -668,7 +706,6 @@ model BlogTag {
 
   // Relations
   posts          BlogPostTag[]
-  tarotArticles  TarotArticleTag[]
 
   @@index([slug])
 }
@@ -700,35 +737,6 @@ model BlogPostTag {
   @@index([tagId])
 }
 
-// Junction table: TarotArticle <-> BlogCategory (shared taxonomy)
-model TarotArticleCategory {
-  id          String   @id @default(cuid())
-  articleId   String
-  categoryId  String
-
-  article     TarotArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  category    BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([articleId, categoryId])
-  @@index([articleId])
-  @@index([categoryId])
-  @@map("tarot_article_categories")
-}
-
-// Junction table: TarotArticle <-> BlogTag (shared taxonomy)
-model TarotArticleTag {
-  id          String   @id @default(cuid())
-  articleId   String
-  tagId       String
-
-  article     TarotArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  tag         BlogTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([articleId, tagId])
-  @@index([articleId])
-  @@index([tagId])
-  @@map("tarot_article_tags")
-}
 
 // Media uploads for blog
 model MediaUpload {
@@ -760,10 +768,9 @@ model MediaUpload {
 }
 
 // ============================================
-// TAROT ARTICLES (GEO-Optimized Content)
+// TAROT ENUMS (used by BlogPost for tarot articles)
 // ============================================
 
-// Enums for Tarot Cards
 enum CardType {
   MAJOR_ARCANA      @map("Major Arcana")
   SUIT_OF_WANDS     @map("Suit of Wands")
@@ -777,104 +784,6 @@ enum Element {
   WATER
   AIR
   EARTH
-}
-
-enum ArticleStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-// Main Tarot Article Model
-model TarotArticle {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Content - English (primary)
-  title              String
-  slug               String   @unique
-  excerpt            String
-  content            String   @db.Text
-  author             String
-  readTime           String
-
-  // Content - French (optional translations)
-  titleFr            String   @default("")
-  excerptFr          String   @default("")
-  contentFr          String   @default("") @db.Text
-
-  // Dates (for schema)
-  datePublished      DateTime
-  dateModified       DateTime
-
-  // Images
-  featuredImage      String
-  featuredImageAlt   String
-  featuredImageAltFr String   @default("")
-
-  // Card Metadata
-  cardType                   CardType
-  cardNumber                 String
-  astrologicalCorrespondence String
-  element                    Element
-
-  // Taxonomy (legacy JSON arrays - to be removed after migration)
-  categories         String[]
-  tags               String[]
-
-  // Taxonomy (proper relations - shared with Blog)
-  articleCategories  TarotArticleCategory[]
-  articleTags        TarotArticleTag[]
-
-  // SEO - English
-  seoFocusKeyword    String
-  seoMetaTitle       String
-  seoMetaDescription String
-
-  // SEO - French (optional)
-  seoFocusKeywordFr    String   @default("")
-  seoMetaTitleFr       String   @default("")
-  seoMetaDescriptionFr String   @default("")
-
-  // FAQ (stored as JSON - contains both languages)
-  faq                Json     // Array of { question: string, answer: string }
-
-  // Breadcrumbs
-  breadcrumbCategory    String
-  breadcrumbCategoryUrl String?
-
-  // Related Content
-  relatedCards       String[]
-
-  // Flags
-  isCourtCard        Boolean  @default(false)
-  isChallengeCard    Boolean  @default(false)
-
-  // Generated Schema (stored for performance)
-  schemaJson         Json     // The complete JSON-LD schema
-  schemaHtml         String   @db.Text
-
-  // Publishing
-  status             ArticleStatus @default(DRAFT)
-  publishedAt        DateTime?
-
-  // Soft delete
-  deletedAt          DateTime?  // If set, article is in trash
-  originalSlug       String?    // Original slug before deletion (for restore)
-
-  // Admin ordering (per card type)
-  sortOrder          Int      @default(0)
-
-  // Indexes for common queries
-  @@index([cardType])
-  @@index([status])
-  @@index([slug])
-  @@index([datePublished])
-  @@index([deletedAt])
-  @@index([cardType, sortOrder])
-
-  @@map("tarot_articles")
 }
 
 // Optional: Card Reference Table

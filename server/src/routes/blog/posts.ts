@@ -89,7 +89,9 @@ router.get('/posts', async (req, res) => {
       })
       .parse(req.query);
 
-    const where: Prisma.BlogPostWhereInput = {};
+    const where: Prisma.BlogPostWhereInput = {
+      contentType: 'BLOG_POST',
+    };
 
     // Filter by deleted status
     if (params.deleted) {
@@ -291,6 +293,7 @@ router.patch('/posts/reorder', async (req, res) => {
 
     // Build where clause matching the same filters the admin list uses
     const whereClause: Prisma.BlogPostWhereInput = {
+      contentType: 'BLOG_POST',
       deletedAt: null,
     };
 

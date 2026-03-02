@@ -5,7 +5,7 @@ import { z } from 'zod';
 import type {
   Prisma,
   CardType as PrismaCardType,
-  ArticleStatus as PrismaArticleStatus,
+  BlogPostStatus as PrismaArticleStatus,
 } from '@prisma/client';
 
 // ============================================

@@ -3,6 +3,8 @@
  *
  * Soft delete, restore, and permanent delete operations.
  * Requires authentication and admin privileges.
+ *
+ * Now operates on BlogPost table with contentType = 'TAROT_ARTICLE'.
  */
 
 import { Router } from 'express';
@@ -19,12 +21,15 @@ const router = Router();
 
 const tarotTrashConfig: TrashConfig = {
   entityName: 'Article',
-  findUnique: id => prisma.tarotArticle.findUnique({ where: { id } }),
-  updateItem: (id, data) => prisma.tarotArticle.update({ where: { id }, data }),
-  deleteItem: id => prisma.tarotArticle.delete({ where: { id } }),
+  findUnique: id => prisma.blogPost.findFirst({ where: { id, contentType: 'TAROT_ARTICLE' } }),
+  updateItem: (id, data) => prisma.blogPost.update({ where: { id }, data }),
+  deleteItem: id => prisma.blogPost.delete({ where: { id } }),
   findSlugConflict: (slug, excludeId) =>
-    prisma.tarotArticle.findFirst({ where: { slug, id: { not: excludeId } } }),
-  deleteAllTrashed: () => prisma.tarotArticle.deleteMany({ where: { deletedAt: { not: null } } }),
+    prisma.blogPost.findFirst({ where: { slug, id: { not: excludeId } } }),
+  deleteAllTrashed: () =>
+    prisma.blogPost.deleteMany({
+      where: { contentType: 'TAROT_ARTICLE', deletedAt: { not: null } },
+    }),
   onAfterSoftDelete: async item => {
     await cacheService.invalidateTarotArticle(item.slug);
   },
@@ -32,17 +37,12 @@ const tarotTrashConfig: TrashConfig = {
     await cacheService.invalidateTarot();
   },
   onBeforePermanentDelete: async id => {
-    await prisma.tarotArticleCategory.deleteMany({ where: { articleId: id } });
-    await prisma.tarotArticleTag.deleteMany({ where: { articleId: id } });
+    // BlogPostCategory and BlogPostTag have onDelete: Cascade, so junction
+    // records are automatically cleaned up when the BlogPost is deleted.
+    // No manual cleanup needed.
   },
   onBeforeEmptyTrash: async () => {
-    const trashedArticles = await prisma.tarotArticle.findMany({
-      where: { deletedAt: { not: null } },
-      select: { id: true },
-    });
-    const articleIds = trashedArticles.map(a => a.id);
-    await prisma.tarotArticleCategory.deleteMany({ where: { articleId: { in: articleIds } } });
-    await prisma.tarotArticleTag.deleteMany({ where: { articleId: { in: articleIds } } });
+    // Same as above - cascade handles junction cleanup
   },
 };
 

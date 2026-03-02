@@ -335,16 +335,16 @@ app.listen(PORT, async () => {
       'SUIT_OF_PENTACLES',
     ] as const;
     for (const cardType of cardTypes) {
-      const articles = await prismaClient.tarotArticle.findMany({
-        where: { cardType, deletedAt: null },
+      const articles = await prismaClient.blogPost.findMany({
+        where: { contentType: 'TAROT_ARTICLE', cardType, deletedAt: null },
         orderBy: { createdAt: 'asc' },
         select: { id: true, sortOrder: true },
       });
-      const allZero = articles.every(a => a.sortOrder === 0);
+      const allZero = articles.every((a: { sortOrder: number }) => a.sortOrder === 0);
       if (allZero && articles.length > 1) {
         await prismaClient.$transaction(
-          articles.map((article, index) =>
-            prismaClient.tarotArticle.update({
+          articles.map((article: { id: string }, index: number) =>
+            prismaClient.blogPost.update({
               where: { id: article.id },
               data: { sortOrder: index },
             })

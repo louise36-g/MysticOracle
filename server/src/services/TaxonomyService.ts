@@ -73,7 +73,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -90,7 +89,7 @@ class TaxonomyService {
       icon: cat.icon,
       sortOrder: cat.sortOrder,
       blogPostCount: cat._count.posts,
-      tarotArticleCount: cat._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     }));
 
     await cacheService.set(cacheKey, result, this.cacheTTL);
@@ -108,7 +107,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -127,7 +125,7 @@ class TaxonomyService {
       icon: category.icon,
       sortOrder: category.sortOrder,
       blogPostCount: category._count.posts,
-      tarotArticleCount: category._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
   }
 
@@ -149,7 +147,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -168,7 +165,7 @@ class TaxonomyService {
       icon: category.icon,
       sortOrder: category.sortOrder,
       blogPostCount: category._count.posts,
-      tarotArticleCount: category._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
   }
 
@@ -193,7 +190,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -212,7 +208,7 @@ class TaxonomyService {
       icon: category.icon,
       sortOrder: category.sortOrder,
       blogPostCount: category._count.posts,
-      tarotArticleCount: category._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
   }
 
@@ -221,12 +217,7 @@ class TaxonomyService {
    * Note: Will fail if used by blog posts (only tarot associations are removed)
    */
   async deleteCategory(id: string): Promise<void> {
-    // Remove tarot article associations first
-    await prisma.tarotArticleCategory.deleteMany({
-      where: { categoryId: id },
-    });
-
-    // Delete the category (will fail if blog posts use it)
+    // Delete the category (will fail if posts use it via BlogPostCategory)
     await prisma.blogCategory.delete({ where: { id } });
 
     await this.invalidateCategoryCache();
@@ -263,7 +254,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -275,7 +265,7 @@ class TaxonomyService {
       nameFr: tag.nameFr,
       slug: tag.slug,
       blogPostCount: tag._count.posts,
-      tarotArticleCount: tag._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostTag
     }));
 
     await cacheService.set(cacheKey, result, this.cacheTTL);
@@ -293,7 +283,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -307,7 +296,7 @@ class TaxonomyService {
       nameFr: tag.nameFr,
       slug: tag.slug,
       blogPostCount: tag._count.posts,
-      tarotArticleCount: tag._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostTag
     };
   }
 
@@ -325,7 +314,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -339,7 +327,7 @@ class TaxonomyService {
       nameFr: tag.nameFr,
       slug: tag.slug,
       blogPostCount: tag._count.posts,
-      tarotArticleCount: tag._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostTag
     };
   }
 
@@ -360,7 +348,6 @@ class TaxonomyService {
         _count: {
           select: {
             posts: true,
-            tarotArticles: true,
           },
         },
       },
@@ -374,7 +361,7 @@ class TaxonomyService {
       nameFr: tag.nameFr,
       slug: tag.slug,
       blogPostCount: tag._count.posts,
-      tarotArticleCount: tag._count.tarotArticles,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostTag
     };
   }
 
@@ -383,12 +370,7 @@ class TaxonomyService {
    * Note: Will fail if used by blog posts (only tarot associations are removed)
    */
   async deleteTag(id: string): Promise<void> {
-    // Remove tarot article associations first
-    await prisma.tarotArticleTag.deleteMany({
-      where: { tagId: id },
-    });
-
-    // Delete the tag (will fail if blog posts use it)
+    // Delete the tag (will fail if posts use it via BlogPostTag)
     await prisma.blogTag.delete({ where: { id } });
 
     await this.invalidateTagCache();
