@@ -203,6 +203,7 @@ router.get('/categories', async (req, res) => {
                 post: {
                   status: 'PUBLISHED',
                   publishedAt: { not: null },
+                  deletedAt: null,
                 },
               },
             },
@@ -239,6 +240,7 @@ router.get('/tags', async (req, res) => {
                 post: {
                   status: 'PUBLISHED',
                   publishedAt: { not: null },
+                  deletedAt: null,
                 },
               },
             },
