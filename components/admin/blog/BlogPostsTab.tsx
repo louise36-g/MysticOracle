@@ -45,6 +45,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import BlogPostEditor from '../BlogPostEditor';
+import TarotArticleEditor from '../TarotArticleEditor';
 import type { BlogPost, Pagination } from './types';
 
 interface BlogPostsTabProps {
@@ -52,6 +53,7 @@ interface BlogPostsTabProps {
   onLoadTags: () => Promise<void>;
   onLoadTrash: () => Promise<void>;
   onShowImportModal: () => void;
+  onShowTarotImportModal?: () => void;
   onShowConfirmModal: (config: {
     title: string;
     message: string;
@@ -66,6 +68,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   onLoadTags,
   onLoadTrash,
   onShowImportModal,
+  onShowTarotImportModal,
   onShowConfirmModal,
   onError,
 }) => {
@@ -84,7 +87,9 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>(''); // New category filter
+  const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [editingTarotId, setEditingTarotId] = useState<string | null>(null);
   const [isNewPost, setIsNewPost] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -118,7 +123,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         limit: pagination.limit,
         status: statusFilter || undefined,
         search: search || undefined,
-        category: categoryFilter || undefined, // Add category filter
+        category: categoryFilter || undefined,
+        contentType: contentTypeFilter || undefined,
       });
 
       setPosts(result.posts);
@@ -129,7 +135,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [getToken, pagination.page, pagination.limit, statusFilter, search, categoryFilter, onError]);
+  }, [getToken, pagination.page, pagination.limit, statusFilter, search, categoryFilter, contentTypeFilter, onError]);
 
   useEffect(() => {
     loadPosts();
@@ -193,7 +199,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       }
 
       console.log('Calling reorderBlogPost API with postId:', actualPostId);
-      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, statusFilter || null, finalNewIndex);
+      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, statusFilter || null, finalNewIndex, contentTypeFilter || null);
       console.log('Reorder API response:', result);
 
       // Reload posts to get updated sortOrder from server
@@ -235,6 +241,10 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   };
 
   const handleEditPost = async (post: BlogPost) => {
+    if (post.contentType === 'TAROT_ARTICLE') {
+      setEditingTarotId(post.id);
+      return;
+    }
     try {
       const token = await getToken();
       if (!token) return;
@@ -403,6 +413,24 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           <div className="text-sm text-slate-400 mt-1">{post.slug}</div>
         </td>
 
+        {/* Type */}
+        <td className="px-4 py-3">
+          {post.contentType === 'TAROT_ARTICLE' ? (
+            <div>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
+                Arcana
+              </span>
+              {post.cardType && (
+                <div className="text-xs text-slate-500 mt-1">{post.cardType.replace(/_/g, ' ')}</div>
+              )}
+            </div>
+          ) : (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+              Blog
+            </span>
+          )}
+        </td>
+
         {/* Categories */}
         <td className="px-4 py-3">
           <div className="flex flex-wrap gap-1">
@@ -435,8 +463,12 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
             <a
               href={
                 post.status === 'PUBLISHED'
-                  ? `/blog/${post.slug}`
-                  : `/admin/blog/preview/${post.id}`
+                  ? post.contentType === 'TAROT_ARTICLE'
+                    ? `/tarot/${post.slug}`
+                    : `/blog/${post.slug}`
+                  : post.contentType === 'TAROT_ARTICLE'
+                    ? `/admin/tarot-articles/preview/${post.id}`
+                    : `/admin/blog/preview/${post.id}`
               }
               target="_blank"
               rel="noopener noreferrer"
@@ -473,7 +505,21 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     );
   };
 
-  // If editing a post, show the full page editor
+  // If editing a tarot article, show the TarotArticleEditor
+  if (editingTarotId) {
+    return (
+      <TarotArticleEditor
+        articleId={editingTarotId}
+        onSave={() => {
+          setEditingTarotId(null);
+          loadPosts();
+        }}
+        onCancel={() => setEditingTarotId(null)}
+      />
+    );
+  }
+
+  // If editing a blog post, show the BlogPostEditor
   if (editingPost) {
     return (
       <BlogPostEditor
@@ -522,6 +568,18 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           ))}
         </select>
         <select
+          value={contentTypeFilter}
+          onChange={e => {
+            setContentTypeFilter(e.target.value);
+            setPagination({ ...pagination, page: 1 });
+          }}
+          className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
+        >
+          <option value="">{language === 'en' ? 'All Types' : 'Tous les types'}</option>
+          <option value="BLOG_POST">{language === 'en' ? 'Blog Posts' : 'Articles de blog'}</option>
+          <option value="TAROT_ARTICLE">{language === 'en' ? 'Tarot Articles' : 'Articles tarot'}</option>
+        </select>
+        <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
@@ -534,10 +592,21 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         <button
           onClick={onShowImportModal}
           className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600"
+          title={language === 'en' ? 'Import Blog JSON' : 'Importer Blog JSON'}
         >
           <FileJson className="w-4 h-4" />
-          {language === 'en' ? 'Import JSON' : 'Importer JSON'}
+          {language === 'en' ? 'Import Blog' : 'Importer Blog'}
         </button>
+        {onShowTarotImportModal && (
+          <button
+            onClick={onShowTarotImportModal}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600"
+            title={language === 'en' ? 'Import Tarot Article JSON' : 'Importer Article Tarot JSON'}
+          >
+            <FileJson className="w-4 h-4" />
+            {language === 'en' ? 'Import Tarot' : 'Importer Tarot'}
+          </button>
+        )}
         <button
           onClick={handleNewPost}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
@@ -571,6 +640,9 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
                       {language === 'en' ? 'Title' : 'Titre'}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      {language === 'en' ? 'Type' : 'Type'}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {language === 'en' ? 'Categories' : 'Catégories'}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
@@ -590,7 +662,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
                 <tbody>
                   {posts.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="p-8 text-center text-slate-400">
+                      <td colSpan={9} className="p-8 text-center text-slate-400">
                         {language === 'en'
                           ? 'No posts yet. Create your first post!'
                           : 'Aucun article. Creez votre premier article!'}

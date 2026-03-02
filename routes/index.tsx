@@ -380,10 +380,10 @@ export const router = createBrowserRouter(
                 element: lazyLoad(() => import('../components/admin/AdminBlog')),
               },
 
-              // Admin Tarot Articles routes
+              // Admin Tarot Articles routes - redirect to unified Content tab
               {
                 path: ROUTES.ADMIN_TAROT,
-                element: lazyLoad(() => import('../components/admin/AdminTarotArticles')),
+                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
               },
               {
                 path: ROUTES.ADMIN_TAROT_NEW,
@@ -395,15 +395,15 @@ export const router = createBrowserRouter(
               },
               {
                 path: ROUTES.ADMIN_TAROT_CATEGORIES,
-                element: lazyLoad(() => import('../components/admin/AdminTarotArticles')),
+                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
               },
               {
                 path: ROUTES.ADMIN_TAROT_TAGS,
-                element: lazyLoad(() => import('../components/admin/AdminTarotArticles')),
+                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
               },
               {
                 path: ROUTES.ADMIN_TAROT_TRASH,
-                element: lazyLoad(() => import('../components/admin/AdminTarotArticles')),
+                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
               },
             ],
           },

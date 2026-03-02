@@ -16,6 +16,7 @@ import {
   BlogTrashTab,
   BlogImportModal,
 } from './blog';
+import ImportArticle from './ImportArticle';
 import type { TabType, ConfirmModalState } from './blog/types';
 
 const AdminBlog: React.FC = () => {
@@ -27,6 +28,7 @@ const AdminBlog: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [trashCount, setTrashCount] = useState(0);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showTarotImportModal, setShowTarotImportModal] = useState(false);
   const [postsRefreshKey, setPostsRefreshKey] = useState(0);
 
   // Confirmation modal state
@@ -134,6 +136,7 @@ const AdminBlog: React.FC = () => {
           onLoadTags={loadTags}
           onLoadTrash={loadTrash}
           onShowImportModal={() => setShowImportModal(true)}
+          onShowTarotImportModal={() => setShowTarotImportModal(true)}
           onShowConfirmModal={showConfirmModal}
           onError={setError}
         />
@@ -171,6 +174,37 @@ const AdminBlog: React.FC = () => {
         }}
         onError={setError}
       />
+
+      {/* Tarot Import Modal */}
+      <AnimatePresence>
+        {showTarotImportModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4"
+            onClick={() => setShowTarotImportModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-900 rounded-xl border border-purple-500/30 p-0 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ImportArticle
+                isModal={true}
+                onClose={() => setShowTarotImportModal(false)}
+                onSuccess={() => {
+                  setShowTarotImportModal(false);
+                  setPostsRefreshKey(prev => prev + 1);
+                  loadTrash();
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Confirmation Modal */}
       <AnimatePresence>

@@ -67,13 +67,7 @@ const AdminNav: React.FC = () => {
     {
       to: ROUTES.ADMIN_BLOG,
       labelKey: 'admin.AdminDashboard.tab_blog',
-      labelDefault: 'Blog',
-      icon: <FileText className="w-4 h-4" />,
-    },
-    {
-      to: ROUTES.ADMIN_TAROT,
-      labelKey: 'admin.AdminDashboard.tab_tarot-articles',
-      labelDefault: 'The Arcanas',
+      labelDefault: 'Content',
       icon: <FileText className="w-4 h-4" />,
     },
     {

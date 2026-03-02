@@ -163,6 +163,9 @@ const BlogTrashTab: React.FC<BlogTrashTabProps> = ({
                     {language === 'en' ? 'Title' : 'Titre'}
                   </th>
                   <th className="text-left p-4 text-slate-300 font-medium">
+                    {language === 'en' ? 'Type' : 'Type'}
+                  </th>
+                  <th className="text-left p-4 text-slate-300 font-medium">
                     {language === 'en' ? 'Original Slug' : 'Slug original'}
                   </th>
                   <th className="text-left p-4 text-slate-300 font-medium">
@@ -180,6 +183,17 @@ const BlogTrashTab: React.FC<BlogTrashTabProps> = ({
                       <p className="text-slate-200 font-medium">
                         {language === 'en' ? post.titleEn : post.titleFr}
                       </p>
+                    </td>
+                    <td className="p-4">
+                      {post.contentType === 'TAROT_ARTICLE' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
+                          Arcana
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                          Blog
+                        </span>
+                      )}
                     </td>
                     <td className="p-4 text-slate-400 text-sm">
                       {post.originalSlug || post.slug.replace(/^_deleted_\d+_/, '')}

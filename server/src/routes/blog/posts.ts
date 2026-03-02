@@ -86,12 +86,15 @@ router.get('/posts', async (req, res) => {
         search: z.string().optional(),
         deleted: z.coerce.boolean().optional(), // true = show trash, false/undefined = show active
         category: z.string().optional(), // filter by category slug
+        contentType: z.enum(['BLOG_POST', 'TAROT_ARTICLE']).optional(),
       })
       .parse(req.query);
 
-    const where: Prisma.BlogPostWhereInput = {
-      contentType: 'BLOG_POST',
-    };
+    const where: Prisma.BlogPostWhereInput = {};
+
+    if (params.contentType) {
+      where.contentType = params.contentType;
+    }
 
     // Filter by deleted status
     if (params.deleted) {
@@ -249,7 +252,7 @@ router.post('/posts', async (req, res) => {
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
 router.patch('/posts/reorder', async (req, res) => {
   try {
-    const { postId, categorySlug, status, newPosition } = req.body;
+    const { postId, categorySlug, status, newPosition, contentType } = req.body;
 
     debug.log('=== REORDER REQUEST ===');
     debug.log('postId:', postId, 'type:', typeof postId);
@@ -293,9 +296,12 @@ router.patch('/posts/reorder', async (req, res) => {
 
     // Build where clause matching the same filters the admin list uses
     const whereClause: Prisma.BlogPostWhereInput = {
-      contentType: 'BLOG_POST',
       deletedAt: null,
     };
+
+    if (contentType && ['BLOG_POST', 'TAROT_ARTICLE'].includes(contentType)) {
+      whereClause.contentType = contentType;
+    }
 
     if (categorySlug) {
       whereClause.categories = {

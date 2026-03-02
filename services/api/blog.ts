@@ -198,7 +198,7 @@ export async function fetchBlogPostPreview(token: string, id: string): Promise<{
 
 export async function fetchAdminBlogPosts(
   token: string,
-  params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean; category?: string } = {}
+  params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean; category?: string; contentType?: string } = {}
 ): Promise<BlogPostListResponse> {
   return apiRequest(apiEndpoint('/api/blog/admin/posts', params as Record<string, ParamValue>), { token });
 }
@@ -231,11 +231,12 @@ export async function reorderBlogPost(
   postId: string,
   categorySlug: string | null,
   status: string | null,
-  newPosition: number
+  newPosition: number,
+  contentType?: string | null
 ): Promise<{ success: boolean; message: string }> {
   return apiRequest('/api/blog/admin/posts/reorder', {
     method: 'PATCH',
-    body: { postId, categorySlug, status, newPosition },
+    body: { postId, categorySlug, status, newPosition, contentType },
     token,
   });
 }
