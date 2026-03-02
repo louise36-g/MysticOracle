@@ -3,7 +3,7 @@
  * Tests for transactional emails, template rendering, and contact management
  */
 
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Set env before importing email module (it reads at import time)
 process.env.BREVO_API_KEY = 'test-api-key';

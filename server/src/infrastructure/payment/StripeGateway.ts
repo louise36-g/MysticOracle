@@ -55,10 +55,11 @@ export class StripeGateway implements IPaymentGateway {
       throw new Error('Stripe is not configured');
     }
 
+    const stripe = this.stripe;
     const session = await Sentry.startSpan(
       { name: 'stripe.checkout.create', op: 'http.client' },
       () =>
-        this.stripe!.checkout.sessions.create({
+        stripe.checkout.sessions.create({
           payment_method_types: this.useStripeLink ? ['card', 'link'] : ['card'],
           mode: 'payment',
           customer_email: params.userEmail,
@@ -103,10 +104,11 @@ export class StripeGateway implements IPaymentGateway {
       throw new Error('Stripe is not configured');
     }
 
+    const stripe = this.stripe;
     console.log('[StripeGateway] Retrieving session:', sessionId);
     const session = await Sentry.startSpan(
       { name: 'stripe.checkout.retrieve', op: 'http.client' },
-      () => this.stripe!.checkout.sessions.retrieve(sessionId)
+      () => stripe.checkout.sessions.retrieve(sessionId)
     );
     console.log('[StripeGateway] Session payment_status:', session.payment_status);
     console.log('[StripeGateway] Session metadata:', session.metadata);

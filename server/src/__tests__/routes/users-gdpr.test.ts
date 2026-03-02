@@ -310,14 +310,14 @@ describe('Users GDPR Routes', () => {
     });
 
     it('should return 400 when orderReference is missing', async () => {
-      const { orderReference, ...body } = validRequest;
+      const { orderReference: _orderReference, ...body } = validRequest;
       const res = await request(app).post('/withdrawal-request').send(body);
 
       expect(res.status).toBe(400);
     });
 
     it('should return 400 when purchaseDate is missing', async () => {
-      const { purchaseDate, ...body } = validRequest;
+      const { purchaseDate: _purchaseDate, ...body } = validRequest;
       const res = await request(app).post('/withdrawal-request').send(body);
 
       expect(res.status).toBe(400);

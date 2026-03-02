@@ -71,10 +71,11 @@ export class PayPalGateway implements IPaymentGateway {
       throw new Error('PayPal is not configured');
     }
 
+    const controller = this.ordersController;
     const { body } = await Sentry.startSpan(
       { name: 'paypal.order.create', op: 'http.client' },
       () =>
-        this.ordersController!.createOrder({
+        controller.createOrder({
           body: {
             intent: CheckoutPaymentIntent.Capture,
             purchaseUnits: [
@@ -167,11 +168,12 @@ export class PayPalGateway implements IPaymentGateway {
       throw new Error('PayPal is not configured');
     }
 
+    const controller = this.ordersController;
     try {
       const { body } = await Sentry.startSpan(
         { name: 'paypal.order.capture', op: 'http.client' },
         () =>
-          this.ordersController!.captureOrder({
+          controller.captureOrder({
             id: params.orderId,
           })
       );

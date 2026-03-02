@@ -86,7 +86,7 @@ describe('Readings Routes', () => {
     };
 
     it('should return 400 when spreadType is missing', async () => {
-      const { spreadType, ...body } = validBody;
+      const { spreadType: _spreadType, ...body } = validBody;
       const res = await request(app).post('/').send(body);
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch(/invalid request/i);
@@ -100,7 +100,7 @@ describe('Readings Routes', () => {
     });
 
     it('should return 400 when interpretation is missing', async () => {
-      const { interpretation, ...body } = validBody;
+      const { interpretation: _interpretation, ...body } = validBody;
       const res = await request(app).post('/').send(body);
       expect(res.status).toBe(400);
     });

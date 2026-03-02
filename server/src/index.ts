@@ -42,7 +42,7 @@ const generalLimiter = rateLimit({
   ...proxyValidation,
 });
 
-const authLimiter = rateLimit({
+const _authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Limit auth-related requests
   message: { error: 'Too many authentication attempts, please try again later.' },

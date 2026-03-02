@@ -37,7 +37,7 @@ describe('Contact Routes', () => {
     // --- Validation tests ---
 
     it('should return 400 when name is missing', async () => {
-      const { name, ...body } = validBody;
+      const { name: _name, ...body } = validBody;
       const res = await request(app).post('/submit').send(body);
       expect(res.status).toBe(400);
       expect(res.body.error).toBeDefined();
@@ -52,7 +52,7 @@ describe('Contact Routes', () => {
     });
 
     it('should return 400 when subject is missing', async () => {
-      const { subject, ...body } = validBody;
+      const { subject: _subject, ...body } = validBody;
       const res = await request(app).post('/submit').send(body);
       expect(res.status).toBe(400);
       expect(res.body.error).toBeDefined();
