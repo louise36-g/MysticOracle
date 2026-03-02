@@ -74,9 +74,14 @@ export default tseslint.config(
     },
   },
 
-  // Example files have relaxed rules
+  // Example files have relaxed rules and don't use project parsing
   {
     files: ['src/**/*.example.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: null,
+      },
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',

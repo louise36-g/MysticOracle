@@ -36,7 +36,7 @@ const tarotTrashConfig: TrashConfig = {
   onAfterRestore: async () => {
     await cacheService.invalidateTarot();
   },
-  onBeforePermanentDelete: async id => {
+  onBeforePermanentDelete: async _id => {
     // BlogPostCategory and BlogPostTag have onDelete: Cascade, so junction
     // records are automatically cleaned up when the BlogPost is deleted.
     // No manual cleanup needed.
