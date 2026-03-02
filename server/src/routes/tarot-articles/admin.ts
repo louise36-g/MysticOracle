@@ -554,16 +554,19 @@ router.patch('/:id', async (req, res) => {
       }
       if ('featuredImage' in updates) sanitizedUpdates.coverImage = updates.featuredImage;
       if ('featuredImageAlt' in updates) sanitizedUpdates.coverImageAlt = updates.featuredImageAlt;
-      if ('featuredImageAltFr' in updates)
+      if ('featuredImageAltFr' in updates) {
         sanitizedUpdates.coverImageAltFr = updates.featuredImageAltFr;
+      }
       if ('seoFocusKeyword' in updates) sanitizedUpdates.seoFocusKeyword = updates.seoFocusKeyword;
       if ('seoMetaTitle' in updates) sanitizedUpdates.metaTitleEn = updates.seoMetaTitle;
       if ('seoMetaDescription' in updates) sanitizedUpdates.metaDescEn = updates.seoMetaDescription;
-      if ('seoFocusKeywordFr' in updates)
+      if ('seoFocusKeywordFr' in updates) {
         sanitizedUpdates.seoFocusKeywordFr = updates.seoFocusKeywordFr;
+      }
       if ('seoMetaTitleFr' in updates) sanitizedUpdates.metaTitleFr = updates.seoMetaTitleFr;
-      if ('seoMetaDescriptionFr' in updates)
+      if ('seoMetaDescriptionFr' in updates) {
         sanitizedUpdates.metaDescFr = updates.seoMetaDescriptionFr;
+      }
 
       // Fields that map 1:1
       const directFields = [
