@@ -406,7 +406,7 @@ const HoroscopeReading: React.FC = () => {
               <ReactMarkdown
                 components={{
                   h1: ({ children }) => {
-                    const text = String(children).replace(/^Today'?s Energy\s*[-–—]\s*/i, '').replace(/^[ÉE]nergie du [Jj]our\s*[-–—]\s*/i, '');
+                    const text = String(children).replace(/^Today.?s Energy\s*[-–—:]\s*/i, '').replace(/^[ÉE]nergie du [Jj]our\s*[-–—:]\s*/i, '');
                     return <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal mt-0 mb-4">{text}</p>;
                   },
                   h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
