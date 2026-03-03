@@ -207,6 +207,36 @@ export function cleanHoroscopeText(text: string): string {
 }
 
 // ============================================
+// DATE HEADER
+// ============================================
+
+/**
+ * Format a date header shown at the top of each horoscope so users
+ * can see it's fresh content for the current day.
+ * EN: "Today's Energy - Tuesday, 3 March 2026"
+ * FR: "L'Énergie du Jour - mardi 3 mars 2026"
+ */
+export function formatDateHeader(language: 'en' | 'fr'): string {
+  const now = new Date();
+  if (language === 'fr') {
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    return `**L'Énergie du Jour - ${dateStr}**`;
+  }
+  const dateStr = now.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  return `**Today's Energy - ${dateStr}**`;
+}
+
+// ============================================
 // GENERATION
 // ============================================
 
@@ -241,8 +271,9 @@ export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Pr
       maxTokens: 2000,
     });
 
-    // Return horoscope as-is - the prompt now handles tone and formatting
-    return horoscope;
+    // Prepend date header so users can see it's today's horoscope
+    const header = formatDateHeader(language);
+    return `${header}\n\n${horoscope}`;
   } catch (error) {
     // If planetary calculations fail, throw explicit error
     // Don't silently fallback to generating without data

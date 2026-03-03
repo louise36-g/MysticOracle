@@ -89,6 +89,7 @@ import internalLinksRoutes from './routes/internal-links.js';
 import yearEnergyRoutes from './routes/yearEnergy/index.js';
 import contactRoutes from './routes/contact.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
+import { preGenerateHoroscopes } from './jobs/preGenerateHoroscopes.js';
 import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
 import { Router } from 'express';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -297,10 +298,14 @@ function scheduleHoroscopeCleanup(): void {
   const msUntilMidnight = nextMidnight.getTime() - now.getTime();
 
   setTimeout(() => {
-    cleanupOldHoroscopes().catch(err => console.error('[Horoscope Cleanup] Error:', err));
+    cleanupOldHoroscopes()
+      .then(() => preGenerateHoroscopes())
+      .catch(err => console.error('[Horoscope] Cleanup/pre-gen error:', err));
     // Then run every 24 hours at midnight
     setInterval(() => {
-      cleanupOldHoroscopes().catch(err => console.error('[Horoscope Cleanup] Error:', err));
+      cleanupOldHoroscopes()
+        .then(() => preGenerateHoroscopes())
+        .catch(err => console.error('[Horoscope] Cleanup/pre-gen error:', err));
     }, CLEANUP_INTERVAL);
   }, msUntilMidnight);
 
@@ -353,6 +358,9 @@ app.listen(PORT, async () => {
 
   // Schedule background jobs
   scheduleHoroscopeCleanup();
+
+  // Pre-generate today's horoscopes (fills any missing combos)
+  preGenerateHoroscopes().catch(err => console.error('[Horoscope Pre-Gen] Startup error:', err));
 });
 
 export default app;
