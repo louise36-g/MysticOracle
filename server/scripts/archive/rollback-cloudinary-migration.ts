@@ -18,7 +18,10 @@ import fs from 'fs';
 import path from 'path';
 
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  }),
 });
 
 interface MigrationRecord {
