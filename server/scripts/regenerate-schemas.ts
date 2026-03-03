@@ -5,9 +5,13 @@
  * Or: npx tsx scripts/regenerate-schemas.ts
  */
 
+import 'dotenv/config';
 import { PrismaClient, Prisma } from '../src/generated/prisma/client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 // Force the correct URL (don't rely on env var)
 const SITE_URL = 'https://celestiarcana.com';

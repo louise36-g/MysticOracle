@@ -4,9 +4,13 @@
  * Run with: npx tsx scripts/clear-horoscope-cache.ts
  */
 
+import 'dotenv/config';
 import { PrismaClient } from '../src/generated/prisma/client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 async function main() {
   // Delete all cached horoscopes from database

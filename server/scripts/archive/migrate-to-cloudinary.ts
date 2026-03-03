@@ -13,12 +13,16 @@
  * Dry run:  npx tsx scripts/migrate-to-cloudinary.ts --dry-run
  */
 
+import 'dotenv/config';
 import { PrismaClient } from '../../src/generated/prisma/client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 // Parse command line arguments
 const args = process.argv.slice(2);
