@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { fetchAdminAnalytics, AdminAnalytics as AnalyticsData } from '../../services/api';
 import { TrendingUp, Award, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const AdminAnalytics: React.FC = () => {
   const { t } = useApp();
@@ -33,7 +34,7 @@ const AdminAnalytics: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        <LoadingSpinner />
       </div>
     );
   }

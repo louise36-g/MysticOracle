@@ -407,27 +407,6 @@ model UserAchievement {
 }
 
 // ============================================
-// EMAIL & MARKETING (Brevo integration)
-// ============================================
-
-model EmailSubscription {
-  id          String   @id @default(cuid())
-  email       String   @unique
-
-  // Consent
-  newsletter  Boolean  @default(false)
-  marketing   Boolean  @default(false)
-
-  // Brevo sync
-  brevoContactId String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([email])
-}
-
-// ============================================
 // CREDIT PACKAGES (Admin-managed)
 // ============================================
 
@@ -784,35 +763,6 @@ enum Element {
   WATER
   AIR
   EARTH
-}
-
-// Optional: Card Reference Table
-model TarotCard {
-  id          String   @id @default(cuid())
-
-  name        String   @unique  // "The Fool", "Three of Cups"
-  slug        String   @unique  // "the-fool", "three-of-cups"
-  cardType    CardType
-  cardNumber  String            // "0", "3", etc.
-  element     Element
-
-  // Correspondences
-  astrologicalSign    String?
-  astrologicalPlanet  String?
-  hebrewLetter        String?
-
-  // Quick reference
-  uprightKeywords     String[]
-  reversedKeywords    String[]
-
-  // Relationships
-  // article          TarotArticle? @relation(fields: [articleId], references: [id])
-  // articleId        String?       @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("tarot_cards")
 }
 
 // ============================================

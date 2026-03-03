@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { fetchAdminTransactions, fetchRevenueMonths } from '../../services/api';
 import { ChevronLeft, ChevronRight, Filter, Download, Calendar, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface TransactionWithUser {
   id: string;
@@ -204,7 +205,7 @@ const AdminTransactions: React.FC = () => {
 
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <LoadingSpinner />
         </div>
       )}
 

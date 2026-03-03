@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
+import { generateSlug } from '../../utils/slug';
 import {
   fetchUnifiedTags,
   createUnifiedTag,
@@ -49,15 +50,6 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
   useEffect(() => {
     loadTags();
   }, [loadTags]);
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
 
   const handleNew = () => {
     setEditingTag({ id: '', name: '', nameFr: '', slug: '' });

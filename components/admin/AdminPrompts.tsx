@@ -10,6 +10,7 @@ import {
 } from '../../services/api';
 import { MessageSquare, Edit2, Check, X, RotateCcw, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const AdminPrompts: React.FC = () => {
   const { language } = useApp();
@@ -113,7 +114,7 @@ const AdminPrompts: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        <LoadingSpinner />
       </div>
     );
   }

@@ -24,6 +24,7 @@ import {
   transformArticleResponse,
   mapBlogPostToTarotFields,
 } from './shared.js';
+import { handleReorder } from '../shared/reorderUtils.js';
 
 const router = Router();
 
@@ -403,78 +404,38 @@ router.get('/:id', async (req, res) => {
  * PATCH /admin/reorder
  * Reorder a tarot article within its card type
  */
-router.patch('/reorder', async (req, res) => {
-  try {
-    const { articleId, cardType, newPosition } = req.body;
-
-    if (!articleId || !cardType || typeof newPosition !== 'number') {
-      return res.status(400).json({
-        error: 'Missing required fields: articleId, cardType, newPosition',
-      });
-    }
-
-    if (newPosition < 0) {
-      return res.status(400).json({ error: 'newPosition must be >= 0' });
-    }
-
-    const article = await prisma.blogPost.findFirst({
-      where: { id: articleId, contentType: 'TAROT_ARTICLE' },
-    });
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    if (article.cardType !== cardType) {
-      return res.status(400).json({
-        error: `Article cardType (${article.cardType}) does not match provided cardType (${cardType})`,
-      });
-    }
-
-    const articles = await prisma.blogPost.findMany({
-      where: {
-        contentType: 'TAROT_ARTICLE',
-        cardType: cardType as Prisma.EnumCardTypeNullableFilter['equals'],
-        deletedAt: null,
+router.patch('/reorder', (req, res) => {
+  handleReorder(
+    {
+      entityName: 'Article',
+      getItemId: body => body.articleId as string | undefined,
+      findItem: id =>
+        prisma.blogPost.findFirst({
+          where: { id, contentType: 'TAROT_ARTICLE' },
+        }) as Promise<Record<string, unknown> | null>,
+      validateItem: (item, body) => {
+        const { cardType } = body as Record<string, string>;
+        if (!cardType) {
+          return 'Missing required field: cardType';
+        }
+        if (item.cardType !== cardType) {
+          return `Article cardType (${item.cardType}) does not match provided cardType (${cardType})`;
+        }
+        return null;
       },
-      orderBy: { sortOrder: 'asc' },
-      select: { id: true, sortOrder: true },
-    });
-
-    if (newPosition >= articles.length) {
-      return res.status(400).json({
-        error: `newPosition (${newPosition}) exceeds number of articles (${articles.length})`,
-      });
-    }
-
-    const oldIndex = articles.findIndex(a => a.id === articleId);
-    if (oldIndex === -1) {
-      return res.status(404).json({ error: 'Article not found in card type' });
-    }
-
-    if (oldIndex === newPosition) {
-      return res.json({ success: true, message: 'Article is already at the target position' });
-    }
-
-    const [movedArticle] = articles.splice(oldIndex, 1);
-    articles.splice(newPosition, 0, movedArticle);
-
-    await prisma.$transaction(
-      articles.map((article, index) =>
-        prisma.blogPost.update({
-          where: { id: article.id },
-          data: { sortOrder: index },
-        })
-      )
-    );
-
-    await cacheService.invalidateTarot();
-
-    res.json({ success: true, message: 'Article reordered successfully' });
-  } catch (error) {
-    console.error('Error reordering article:', error);
-    res.status(500).json({ error: 'Failed to reorder article' });
-  }
+      buildWhereClause: body => {
+        const { cardType } = body as Record<string, string>;
+        return {
+          contentType: 'TAROT_ARTICLE',
+          cardType: cardType as Prisma.EnumCardTypeNullableFilter['equals'],
+          deletedAt: null,
+        };
+      },
+      invalidateCache: () => cacheService.invalidateTarot(),
+    },
+    req,
+    res
+  );
 });
 
 /**

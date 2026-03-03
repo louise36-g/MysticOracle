@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
+import { generateSlug } from '../../../utils/slug';
 import {
   fetchUnifiedCategories,
   createUnifiedCategory,
@@ -90,15 +91,6 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
   const [isNewTag, setIsNewTag] = useState(false);
 
   const [saving, setSaving] = useState(false);
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
 
   // Load categories
   const loadCategories = useCallback(async () => {

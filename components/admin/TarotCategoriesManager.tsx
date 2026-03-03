@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
+import { generateSlug } from '../../utils/slug';
 import {
   fetchUnifiedCategories,
   createUnifiedCategory,
@@ -52,15 +53,6 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
 
   const handleNew = () => {
     setEditingCategory({ id: '', name: '', nameFr: '', slug: '', description: '', color: '', icon: '' });

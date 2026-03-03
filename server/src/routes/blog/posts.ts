@@ -10,7 +10,6 @@ import {
   z,
   ConflictError,
   processBlogContent,
-  debug,
   createPostSchema,
 } from './shared.js';
 import {
@@ -20,6 +19,7 @@ import {
   extractCategoryIds,
   extractTagIds,
 } from '../shared/queryUtils.js';
+import { handleReorder } from '../shared/reorderUtils.js';
 
 const router = Router();
 
@@ -241,131 +241,37 @@ router.post('/posts', async (req, res) => {
 
 // Reorder blog post (for admin drag-and-drop within category)
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
-router.patch('/posts/reorder', async (req, res) => {
-  try {
-    const { postId, categorySlug, status, newPosition, contentType } = req.body;
-
-    debug.log('=== REORDER REQUEST ===');
-    debug.log('postId:', postId, 'type:', typeof postId);
-    debug.log('categorySlug:', categorySlug);
-    debug.log('status:', status);
-    debug.log('newPosition:', newPosition);
-
-    // Validate input
-    if (!postId || typeof newPosition !== 'number') {
-      debug.log('Validation failed: missing fields');
-      return res.status(400).json({
-        error: 'Missing required fields: postId, newPosition',
-      });
-    }
-
-    if (newPosition < 0) {
-      return res.status(400).json({
-        error: 'newPosition must be >= 0',
-      });
-    }
-
-    // Verify post exists
-    const post = await prisma.blogPost.findUnique({
-      where: { id: postId },
-      include: { categories: { include: { category: true } } },
-    });
-
-    if (!post) {
-      // Debug: list some post IDs to compare
-      const samplePosts = await prisma.blogPost.findMany({
-        take: 5,
-        select: { id: true, slug: true, deletedAt: true },
-        orderBy: { updatedAt: 'desc' },
-      });
-      debug.log(
-        'Post not found. Sample post IDs:',
-        samplePosts.map(p => ({ id: p.id, slug: p.slug, deleted: !!p.deletedAt }))
-      );
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    // Build where clause matching the same filters the admin list uses
-    const whereClause: Prisma.BlogPostWhereInput = {
-      deletedAt: null,
-    };
-
-    if (contentType && ['BLOG_POST', 'TAROT_ARTICLE'].includes(contentType)) {
-      whereClause.contentType = contentType;
-    }
-
-    if (categorySlug) {
-      whereClause.categories = {
-        some: { category: { slug: categorySlug } },
-      };
-    }
-
-    // Apply status filter so backend operates on the same set the frontend shows
-    if (status && ['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
-      whereClause.status = status;
-    }
-
-    // Get all posts in the same context, with deterministic ordering
-    // createdAt tiebreaker must match the admin list endpoint
-    const allPosts = await prisma.blogPost.findMany({
-      where: whereClause,
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      select: { id: true, sortOrder: true },
-    });
-
-    debug.log('Posts in context:', allPosts.length);
-    debug.log('Requested newPosition:', newPosition);
-
-    if (newPosition >= allPosts.length) {
-      debug.log('Position exceeds post count');
-      return res.status(400).json({
-        error: `newPosition (${newPosition}) exceeds number of posts (${allPosts.length})`,
-      });
-    }
-
-    // Reorder logic: remove post from old position, insert at new position
-    const oldIndex = allPosts.findIndex(p => p.id === postId);
-    if (oldIndex === -1) {
-      return res.status(404).json({ error: 'Post not found in list' });
-    }
-
-    if (oldIndex === newPosition) {
-      // No change needed
-      return res.json({
-        success: true,
-        message: 'Post is already at the target position',
-      });
-    }
-
-    // Remove from old position
-    const [movedPost] = allPosts.splice(oldIndex, 1);
-    // Insert at new position
-    allPosts.splice(newPosition, 0, movedPost);
-
-    // Update sortOrder for all posts in transaction
-    await prisma.$transaction(
-      allPosts.map((p, index) =>
-        prisma.blogPost.update({
-          where: { id: p.id },
-          data: { sortOrder: index },
-        })
-      )
-    );
-
-    // Invalidate blog cache
-    await cacheService.flushPattern('blog:');
-
-    debug.log('Reorder successful');
-    res.json({
-      success: true,
-      message: 'Post reordered successfully',
-    });
-  } catch (error) {
-    console.error('Error reordering post:', error);
-    res.status(500).json({
-      error: 'Failed to reorder post',
-    });
-  }
+router.patch('/posts/reorder', (req, res) => {
+  handleReorder(
+    {
+      entityName: 'Post',
+      getItemId: body => body.postId as string | undefined,
+      findItem: id =>
+        prisma.blogPost.findUnique({
+          where: { id },
+          include: { categories: { include: { category: true } } },
+        }),
+      buildWhereClause: body => {
+        const where: Prisma.BlogPostWhereInput = { deletedAt: null };
+        const { contentType, categorySlug, status } = body as Record<string, string>;
+        if (contentType && ['BLOG_POST', 'TAROT_ARTICLE'].includes(contentType)) {
+          where.contentType = contentType as Prisma.BlogPostWhereInput['contentType'];
+        }
+        if (categorySlug) {
+          where.categories = { some: { category: { slug: categorySlug } } };
+        }
+        if (status && ['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
+          where.status = status as Prisma.BlogPostWhereInput['status'];
+        }
+        return where;
+      },
+      invalidateCache: async () => {
+        await cacheService.flushPattern('blog:');
+      },
+    },
+    req,
+    res
+  );
 });
 
 // Update post

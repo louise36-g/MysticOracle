@@ -12,6 +12,7 @@ import {
 } from '../../services/api';
 import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const AdminUsers: React.FC = () => {
   const { t } = useApp();
@@ -187,7 +188,7 @@ const AdminUsers: React.FC = () => {
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <LoadingSpinner />
         </div>
       )}
 

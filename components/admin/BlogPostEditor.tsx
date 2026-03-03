@@ -3,6 +3,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { ROUTES } from '../../routes/routes';
+import { generateSlug } from '../../utils/slug';
 import {
   fetchUnifiedCategories,
   fetchUnifiedTags,
@@ -207,15 +208,6 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     } finally {
       setSaving(false);
     }
-  };
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
   };
 
   const handleTitleChange = (value: string) => {
