@@ -405,7 +405,10 @@ const HoroscopeReading: React.FC = () => {
             <div className="prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({ children }) => <h1 className="text-lg font-heading font-bold text-amber-300 mt-3 mb-1.5 first:mt-0">{children}</h1>,
+                  h1: ({ children }) => {
+                    const text = String(children).replace(/^Today'?s Energy\s*[-–—]\s*/i, '').replace(/^[ÉE]nergie du [Jj]our\s*[-–—]\s*/i, '');
+                    return <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal mt-0 mb-4">{text}</p>;
+                  },
                   h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
                   h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-2 mb-0.5">{children}</h3>,
                   p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
