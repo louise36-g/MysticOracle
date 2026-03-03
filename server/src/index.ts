@@ -42,15 +42,6 @@ const generalLimiter = rateLimit({
   ...proxyValidation,
 });
 
-const _authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Limit auth-related requests
-  message: { error: 'Too many authentication attempts, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  ...proxyValidation,
-});
-
 const paymentLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 30, // Limit payment requests

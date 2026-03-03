@@ -148,21 +148,14 @@ export {
   createTarotArticle,
   updateTarotArticle,
   deleteTarotArticle,
-  fetchAdminTarotArticles,
   fetchAdminTarotArticle,
   previewTarotArticle,
-  updateTarotArticleStatus,
-  restoreTarotArticle,
-  permanentlyDeleteTarotArticle,
-  emptyTarotArticlesTrash,
-  reorderTarotArticle,
 } from './tarotArticles';
 export type {
   FAQItem,
   CTAItem,
   TarotArticle,
   TarotArticlesListResponse,
-  AdminTarotArticlesListResponse,
   TarotOverviewCard,
   TarotOverviewData,
 } from './tarotArticles';

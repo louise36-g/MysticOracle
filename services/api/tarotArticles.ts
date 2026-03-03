@@ -71,14 +71,6 @@ export interface TarotArticlesListResponse {
   limit: number;
 }
 
-export interface AdminTarotArticlesListResponse {
-  articles: TarotArticle[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export interface TarotOverviewCard {
   id: string;
   title: string;
@@ -187,23 +179,6 @@ export async function deleteTarotArticle(
 }
 
 /**
- * Fetch admin tarot articles list with filters
- */
-export async function fetchAdminTarotArticles(
-  token: string,
-  params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    cardType?: string;
-    status?: string;
-    deleted?: boolean;
-  }
-): Promise<AdminTarotArticlesListResponse> {
-  return apiRequest(apiEndpoint('/api/v1/tarot-articles/admin/list', params as Record<string, ParamValue>), { token });
-}
-
-/**
  * Fetch single admin tarot article for editing
  */
 export async function fetchAdminTarotArticle(
@@ -227,73 +202,3 @@ export async function previewTarotArticle(
   });
 }
 
-/**
- * Update tarot article status
- */
-export async function updateTarotArticleStatus(
-  token: string,
-  id: string,
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-): Promise<TarotArticle> {
-  return apiRequest(`/api/v1/tarot-articles/admin/${id}`, {
-    method: 'PATCH',
-    body: { status },
-    token,
-  });
-}
-
-/**
- * Restore a deleted tarot article
- */
-export async function restoreTarotArticle(
-  token: string,
-  id: string
-): Promise<{ success: boolean; slug: string; message: string }> {
-  return apiRequest(`/api/v1/tarot-articles/admin/${id}/restore`, {
-    method: 'POST',
-    token,
-  });
-}
-
-/**
- * Permanently delete a tarot article
- */
-export async function permanentlyDeleteTarotArticle(
-  token: string,
-  id: string
-): Promise<{ success: boolean; message: string }> {
-  return apiRequest(`/api/v1/tarot-articles/admin/${id}/permanent`, {
-    method: 'DELETE',
-    token,
-  });
-}
-
-/**
- * Empty the tarot articles trash
- */
-export async function emptyTarotArticlesTrash(
-  token: string
-): Promise<{ success: boolean; deleted: number; message: string }> {
-  return apiRequest('/api/v1/tarot-articles/admin/trash/empty', {
-    method: 'DELETE',
-    token,
-  });
-}
-
-/**
- * Reorder a tarot article within its card type
- */
-export async function reorderTarotArticle(
-  token: string,
-  params: {
-    articleId: string;
-    cardType: string;
-    newPosition: number;
-  }
-): Promise<{ success: boolean; message: string }> {
-  return apiRequest('/api/v1/tarot-articles/admin/reorder', {
-    method: 'PATCH',
-    body: params,
-    token,
-  });
-}
