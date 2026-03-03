@@ -6,17 +6,11 @@ import { ROUTES } from '../../routes/routes';
 import {
   fetchUnifiedCategories,
   fetchUnifiedTags,
-  fetchAdminBlogMedia,
-  uploadBlogMedia,
-  deleteBlogMedia,
   createBlogPost,
   updateBlogPost,
   fetchAdminBlogPost,
-  fetchLinkRegistry,
   BlogPost,
-  BlogMedia,
   CreateBlogPostData,
-  LinkRegistry,
 } from '../../services/api';
 import type { UnifiedCategory, UnifiedTag } from '../../services/api/taxonomy';
 import {
@@ -33,14 +27,11 @@ import {
 } from 'lucide-react';
 import BlogFAQManager from './BlogFAQManager';
 import BlogCTAManager from './BlogCTAManager';
-import {
-  scanForLinkableTerms,
-  applyLinkSuggestions,
-  LinkSuggestionModal,
-  type LinkSuggestion,
-} from '../internal-links';
+import { LinkSuggestionModal } from '../internal-links';
 import RichTextEditor from './RichTextEditor';
 import MarkdownEditor from './MarkdownEditor';
+import { useEditorMedia } from './editor/hooks/useEditorMedia';
+import { useEditorLinks } from './editor/hooks/useEditorLinks';
 import {
   EditorTopBar,
   EditorLayout,
@@ -90,7 +81,9 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   // Sidebar data
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
   const [tags, setTags] = useState<UnifiedTag[]>([]);
-  const [media, setMedia] = useState<BlogMedia[]>([]);
+
+  // Media library
+  const { media, setMedia, loadMedia, handleMediaUpload, handleMediaDelete } = useEditorMedia();
 
   // Collapsible sections
   const [showSettings, setShowSettings] = useState(true);
@@ -102,9 +95,25 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const [showCoverImage, setShowCoverImage] = useState(true);
 
   // Internal links
-  const [showLinkModal, setShowLinkModal] = useState(false);
-  const [linkSuggestions, setLinkSuggestions] = useState<LinkSuggestion[]>([]);
-  const [scanningLinks, setScanningLinks] = useState(false);
+  const {
+    showLinkModal,
+    linkSuggestions,
+    scanningLinks,
+    handleOpenLinkModal,
+    handleApplyLinks,
+    closeLinkModal,
+  } = useEditorLinks({
+    getContent: () => editLanguage === 'en' ? (post?.contentEn || '') : (post?.contentFr || ''),
+    slug: post?.slug || '',
+    language,
+    onContentUpdate: (updatedContent) => {
+      setPost(prev => prev ? {
+        ...prev,
+        ...(editLanguage === 'en' ? { contentEn: updatedContent } : { contentFr: updatedContent }),
+      } : prev);
+    },
+    onError: setError,
+  });
 
   // Fetch post from API when accessed via URL (no prop passed)
   useEffect(() => {
@@ -128,6 +137,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
   useEffect(() => {
     loadSidebarData();
+    loadMedia();
   }, []);
 
   const loadSidebarData = async () => {
@@ -135,28 +145,15 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       const token = await getToken();
       if (!token) return;
 
-      const [catResult, tagResult, mediaResult] = await Promise.all([
+      const [catResult, tagResult] = await Promise.all([
         fetchUnifiedCategories(token),
         fetchUnifiedTags(token),
-        fetchAdminBlogMedia(token),
       ]);
 
       setCategories(catResult.categories);
       setTags(tagResult.tags);
-      setMedia(mediaResult.media);
     } catch (err) {
       console.error('Failed to load sidebar data:', err);
-    }
-  };
-
-  const loadMedia = async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-      const result = await fetchAdminBlogMedia(token);
-      setMedia(result.media);
-    } catch (err) {
-      console.error('Failed to load media:', err);
     }
   };
 
@@ -221,21 +218,6 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       .trim();
   };
 
-  const handleMediaUpload = async (file: File): Promise<string> => {
-    const token = await getToken();
-    if (!token) throw new Error('No token');
-    const result = await uploadBlogMedia(token, file);
-    await loadMedia();
-    return result.media.url;
-  };
-
-  const handleMediaDelete = async (id: string): Promise<void> => {
-    const token = await getToken();
-    if (!token) throw new Error('No token');
-    await deleteBlogMedia(token, id);
-    await loadMedia();
-  };
-
   const handleTitleChange = (value: string) => {
     if (editLanguage === 'en') {
       setPost({
@@ -251,44 +233,6 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   const previewUrl = !isNew
     ? (post.status === 'PUBLISHED' ? `/blog/${post.slug}` : `/admin/blog/preview/${post.id}`)
     : undefined;
-
-  // Internal links handlers
-  const handleOpenLinkModal = async () => {
-    const content = editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '');
-    if (!content.trim()) {
-      setError(language === 'en' ? 'Add some content first before adding internal links' : 'Ajoutez du contenu avant d\'ajouter des liens internes');
-      return;
-    }
-
-    try {
-      setScanningLinks(true);
-      const registry = await fetchLinkRegistry();
-      const suggestions = scanForLinkableTerms(content, registry, {
-        // Allow converting existing <a> links (e.g., manually entered URLs)
-        // into shortcodes, but still skip existing shortcodes
-        skipExistingLinks: false,
-        currentArticleSlug: post.slug, // Prevent self-linking
-      });
-
-      setLinkSuggestions(suggestions);
-      setShowLinkModal(true);
-    } catch (err) {
-      console.error('Failed to scan for links:', err);
-      setError(language === 'en' ? 'Failed to scan for linkable content' : 'Échec de l\'analyse du contenu');
-    } finally {
-      setScanningLinks(false);
-    }
-  };
-
-  const handleApplyLinks = (selected: LinkSuggestion[]) => {
-    const content = editLanguage === 'en' ? (post.contentEn || '') : (post.contentFr || '');
-    const updatedContent = applyLinkSuggestions(content, selected);
-
-    setPost({
-      ...post,
-      ...(editLanguage === 'en' ? { contentEn: updatedContent } : { contentFr: updatedContent }),
-    });
-  };
 
   const currentLangFlag = AVAILABLE_LANGUAGES.find(l => l.code === editLanguage)?.flag;
 
@@ -628,7 +572,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       />
       <LinkSuggestionModal
         isOpen={showLinkModal}
-        onClose={() => setShowLinkModal(false)}
+        onClose={closeLinkModal}
         suggestions={linkSuggestions}
         onApply={handleApplyLinks}
       />

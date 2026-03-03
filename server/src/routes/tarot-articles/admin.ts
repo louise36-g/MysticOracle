@@ -16,7 +16,14 @@ import {
   convertToPrismaFormatLenient,
 } from '../../lib/validation.js';
 import { processArticleSchema, type TarotArticleData } from '../../lib/schema-builder.js';
-import { prisma, cacheService, z, articleFullInclude, transformArticleResponse } from './shared.js';
+import {
+  prisma,
+  cacheService,
+  z,
+  articleFullInclude,
+  transformArticleResponse,
+  mapBlogPostToTarotFields,
+} from './shared.js';
 
 const router = Router();
 
@@ -329,33 +336,9 @@ router.get('/list', async (req, res) => {
     ]);
 
     // Transform to TarotArticle API shape
-    const transformedArticles = articles.map(a => ({
-      id: a.id,
-      title: a.titleEn,
-      titleFr: a.titleFr,
-      slug: a.slug,
-      excerpt: a.excerptEn,
-      excerptFr: a.excerptFr,
-      content: a.contentEn,
-      contentFr: a.contentFr,
-      featuredImage: a.coverImage || '',
-      featuredImageAlt: a.coverImageAlt || '',
-      featuredImageAltFr: a.coverImageAltFr || '',
-      cardType: a.cardType,
-      cardNumber: a.cardNumber,
-      datePublished: a.datePublished,
-      status: a.status,
-      createdAt: a.createdAt,
-      updatedAt: a.updatedAt,
-      deletedAt: a.deletedAt,
-      originalSlug: a.originalSlug,
-      seoFocusKeyword: a.seoFocusKeyword || '',
-      seoMetaTitle: a.metaTitleEn || '',
-      seoMetaDescription: a.metaDescEn || '',
-      seoFocusKeywordFr: a.seoFocusKeywordFr || '',
-      seoMetaTitleFr: a.metaTitleFr || '',
-      seoMetaDescriptionFr: a.metaDescFr || '',
-    }));
+    const transformedArticles = articles.map(a =>
+      mapBlogPostToTarotFields(a as unknown as Record<string, unknown>)
+    );
 
     res.json({
       articles: transformedArticles,
@@ -385,26 +368,7 @@ router.get('/preview/:id', async (req, res) => {
     }
 
     // Transform to TarotArticle API shape
-    const bp = article as Record<string, unknown>;
-    res.json({
-      ...bp,
-      title: article.titleEn,
-      excerpt: article.excerptEn,
-      content: article.contentEn,
-      author: article.authorName,
-      readTime: `${article.readTimeMinutes} min read`,
-      featuredImage: article.coverImage || '',
-      featuredImageAlt: article.coverImageAlt || '',
-      featuredImageAltFr: article.coverImageAltFr || '',
-      seoFocusKeyword: article.seoFocusKeyword || '',
-      seoMetaTitle: article.metaTitleEn || '',
-      seoMetaDescription: article.metaDescEn || '',
-      seoFocusKeywordFr: article.seoFocusKeywordFr || '',
-      seoMetaTitleFr: article.metaTitleFr || '',
-      seoMetaDescriptionFr: article.metaDescFr || '',
-      categories: [] as string[],
-      tags: [] as string[],
-    });
+    res.json(mapBlogPostToTarotFields(article as unknown as Record<string, unknown>));
   } catch (error) {
     console.error('Error previewing tarot article:', error);
     res.status(500).json({ error: 'Failed to preview article' });
@@ -606,26 +570,9 @@ router.patch('/:id', async (req, res) => {
       );
 
       // Return in TarotArticle API shape
-      const bp = updatedArticle as Record<string, unknown>;
-      return res.json({
-        ...bp,
-        title: updatedArticle.titleEn,
-        excerpt: updatedArticle.excerptEn,
-        content: updatedArticle.contentEn,
-        author: updatedArticle.authorName,
-        readTime: `${updatedArticle.readTimeMinutes} min read`,
-        featuredImage: updatedArticle.coverImage || '',
-        featuredImageAlt: updatedArticle.coverImageAlt || '',
-        featuredImageAltFr: updatedArticle.coverImageAltFr || '',
-        seoFocusKeyword: updatedArticle.seoFocusKeyword || '',
-        seoMetaTitle: updatedArticle.metaTitleEn || '',
-        seoMetaDescription: updatedArticle.metaDescEn || '',
-        seoFocusKeywordFr: updatedArticle.seoFocusKeywordFr || '',
-        seoMetaTitleFr: updatedArticle.metaTitleFr || '',
-        seoMetaDescriptionFr: updatedArticle.metaDescFr || '',
-        categories: [] as string[],
-        tags: [] as string[],
-      });
+      return res.json(
+        mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>)
+      );
     }
 
     // Full validation mode
@@ -659,18 +606,8 @@ router.patch('/:id', async (req, res) => {
 
         await cacheService.invalidateTarotArticle(existingArticle.slug, blogPostData.slug);
 
-        const bp = updatedArticle as Record<string, unknown>;
         return res.json({
-          ...bp,
-          title: updatedArticle.titleEn,
-          excerpt: updatedArticle.excerptEn,
-          content: updatedArticle.contentEn,
-          author: updatedArticle.authorName,
-          readTime: `${updatedArticle.readTimeMinutes} min read`,
-          featuredImage: updatedArticle.coverImage || '',
-          featuredImageAlt: updatedArticle.coverImageAlt || '',
-          seoMetaTitle: updatedArticle.metaTitleEn || '',
-          seoMetaDescription: updatedArticle.metaDescEn || '',
+          ...mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>),
           _forceUpdated: true,
           _warnings: warningsResult.warnings,
           _stats: warningsResult.stats,
@@ -718,18 +655,8 @@ router.patch('/:id', async (req, res) => {
 
       await cacheService.invalidateTarotArticle(existingArticle.slug, blogPostData.slug);
 
-      const bp = updatedArticle as Record<string, unknown>;
       return res.json({
-        ...bp,
-        title: updatedArticle.titleEn,
-        excerpt: updatedArticle.excerptEn,
-        content: updatedArticle.contentEn,
-        author: updatedArticle.authorName,
-        readTime: `${updatedArticle.readTimeMinutes} min read`,
-        featuredImage: updatedArticle.coverImage || '',
-        featuredImageAlt: updatedArticle.coverImageAlt || '',
-        seoMetaTitle: updatedArticle.metaTitleEn || '',
-        seoMetaDescription: updatedArticle.metaDescEn || '',
+        ...mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>),
         _warnings: warningMessages,
         _stats: validationResult.stats,
       });
@@ -756,19 +683,7 @@ router.patch('/:id', async (req, res) => {
 
     await cacheService.invalidateTarotArticle(existingArticle.slug);
 
-    const bp = updatedArticle as Record<string, unknown>;
-    res.json({
-      ...bp,
-      title: updatedArticle.titleEn,
-      excerpt: updatedArticle.excerptEn,
-      content: updatedArticle.contentEn,
-      author: updatedArticle.authorName,
-      readTime: `${updatedArticle.readTimeMinutes} min read`,
-      featuredImage: updatedArticle.coverImage || '',
-      featuredImageAlt: updatedArticle.coverImageAlt || '',
-      seoMetaTitle: updatedArticle.metaTitleEn || '',
-      seoMetaDescription: updatedArticle.metaDescEn || '',
-    });
+    res.json(mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>));
   } catch (error) {
     console.error('Error updating tarot article:', error);
     res.status(500).json({ error: 'Failed to update article' });

@@ -13,6 +13,13 @@ import {
   debug,
   createPostSchema,
 } from './shared.js';
+import {
+  includeCategoriesAndTags,
+  flattenCategories,
+  flattenTags,
+  extractCategoryIds,
+  extractTagIds,
+} from '../shared/queryUtils.js';
 
 const router = Router();
 
@@ -21,14 +28,7 @@ router.get('/preview/:id', async (req, res) => {
   try {
     const post = await prisma.blogPost.findUnique({
       where: { id: req.params.id, deletedAt: null },
-      include: {
-        categories: {
-          include: { category: true },
-        },
-        tags: {
-          include: { tag: true },
-        },
-      },
+      include: includeCategoriesAndTags,
     });
 
     if (!post) {
@@ -38,8 +38,8 @@ router.get('/preview/:id', async (req, res) => {
     // Transform to flat structure
     const transformedPost = {
       ...post,
-      categories: post.categories.map(pc => pc.category),
-      tags: post.tags.map(pt => pt.tag),
+      categories: flattenCategories(post.categories),
+      tags: flattenTags(post.tags),
     };
 
     // Get related posts (same category) for preview
@@ -51,7 +51,7 @@ router.get('/preview/:id', async (req, res) => {
         id: { not: post.id },
         categories: {
           some: {
-            categoryId: { in: post.categories.map(c => c.categoryId) },
+            categoryId: { in: extractCategoryIds(post.categories) },
           },
         },
       },
@@ -125,10 +125,7 @@ router.get('/posts', async (req, res) => {
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
         where,
-        include: {
-          categories: { include: { category: true } },
-          tags: { include: { tag: true } },
-        },
+        include: includeCategoriesAndTags,
         orderBy,
         skip: (params.page - 1) * params.limit,
         take: params.limit,
@@ -139,8 +136,8 @@ router.get('/posts', async (req, res) => {
     res.json({
       posts: posts.map(p => ({
         ...p,
-        categories: p.categories.map(c => c.category),
-        tags: p.tags.map(t => t.tag),
+        categories: flattenCategories(p.categories),
+        tags: flattenTags(p.tags),
       })),
       pagination: {
         page: params.page,
@@ -163,10 +160,7 @@ router.get('/posts/:id', async (req, res) => {
   try {
     const post = await prisma.blogPost.findUnique({
       where: { id: req.params.id },
-      include: {
-        categories: { include: { category: true } },
-        tags: { include: { tag: true } },
-      },
+      include: includeCategoriesAndTags,
     });
 
     if (!post) {
@@ -176,8 +170,8 @@ router.get('/posts/:id', async (req, res) => {
     res.json({
       post: {
         ...post,
-        categoryIds: post.categories.map(c => c.categoryId),
-        tagIds: post.tags.map(t => t.tagId),
+        categoryIds: extractCategoryIds(post.categories),
+        tagIds: extractTagIds(post.tags),
       },
     });
   } catch (error) {
@@ -232,10 +226,7 @@ router.post('/posts', async (req, res) => {
           create: tagIds.map(tagId => ({ tagId })),
         },
       },
-      include: {
-        categories: { include: { category: true } },
-        tags: { include: { tag: true } },
-      },
+      include: includeCategoriesAndTags,
     });
 
     // Invalidate blog cache
@@ -450,10 +441,7 @@ router.patch('/posts/:id', async (req, res) => {
     const post = await prisma.blogPost.update({
       where: { id },
       data: updateData,
-      include: {
-        categories: { include: { category: true } },
-        tags: { include: { tag: true } },
-      },
+      include: includeCategoriesAndTags,
     });
 
     // Invalidate blog cache

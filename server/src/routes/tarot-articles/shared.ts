@@ -10,9 +10,13 @@ import { z } from 'zod';
 import { prisma } from '../../db/prisma.js';
 import { cacheService, CacheService } from '../../services/cache.js';
 import { sortByCardNumber } from '../../lib/tarot/sorting.js';
+import { includeCategoriesAndTags } from '../shared/queryUtils.js';
 
 // Re-export for use by route modules
 export { prisma, cacheService, CacheService, z, sortByCardNumber };
+
+// Re-export shared include config under legacy name for backwards compatibility
+export { includeCategoriesAndTags as articleFullInclude };
 
 // Common select fields for article listings (maps BlogPost fields to TarotArticle response)
 export const articleListSelect = {
@@ -30,16 +34,6 @@ export const articleListSelect = {
   datePublished: true,
   readTimeMinutes: true,
   status: true,
-};
-
-// Full article include fields for relations
-export const articleFullInclude = {
-  categories: {
-    include: { category: true },
-  },
-  tags: {
-    include: { tag: true },
-  },
 };
 
 /**
@@ -117,9 +111,10 @@ export function transformArticleResponse(post: {
 }
 
 /**
- * Map BlogPost field names back to the TarotArticle API field names
+ * Map BlogPost field names back to the TarotArticle API field names.
+ * Used by transformArticleResponse and inline response transforms in admin.ts.
  */
-function mapBlogPostToTarotFields(post: Record<string, unknown>) {
+export function mapBlogPostToTarotFields(post: Record<string, unknown>) {
   return {
     id: post.id,
     slug: post.slug,

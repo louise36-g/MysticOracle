@@ -8,22 +8,14 @@ import {
   updateTarotArticle,
   fetchUnifiedCategories,
   fetchUnifiedTags,
-  fetchLinkRegistry,
   TarotArticle,
   UnifiedCategory,
   UnifiedTag,
-  fetchAdminBlogMedia,
-  uploadBlogMedia,
-  deleteBlogMedia,
-  BlogMedia,
 } from '../../services/api';
 import { Image as ImageIcon, HelpCircle, Link as LinkIcon, Tag, Folder, AlertCircle, Link2, Loader2, Eye } from 'lucide-react';
-import {
-  scanForLinkableTerms,
-  applyLinkSuggestions,
-  LinkSuggestionModal,
-  type LinkSuggestion,
-} from '../internal-links';
+import { LinkSuggestionModal } from '../internal-links';
+import { useEditorMedia } from './editor/hooks/useEditorMedia';
+import { useEditorLinks } from './editor/hooks/useEditorLinks';
 import RichTextEditor from './RichTextEditor';
 import TarotFAQManager, { FAQItem } from './TarotFAQManager';
 import {
@@ -73,7 +65,9 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   // Sidebar data
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
   const [tags, setTags] = useState<UnifiedTag[]>([]);
-  const [media, setMedia] = useState<BlogMedia[]>([]);
+
+  // Media library
+  const { media, setMedia, loadMedia, handleMediaUpload, handleMediaDelete } = useEditorMedia({ folder: 'tarot' });
 
   // Form validation
   const {
@@ -95,9 +89,23 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   const [showSEO, setShowSEO] = useState(false);
 
   // Internal links
-  const [showLinkModal, setShowLinkModal] = useState(false);
-  const [linkSuggestions, setLinkSuggestions] = useState<LinkSuggestion[]>([]);
-  const [scanningLinks, setScanningLinks] = useState(false);
+  const {
+    showLinkModal,
+    linkSuggestions,
+    scanningLinks,
+    handleOpenLinkModal,
+    handleApplyLinks,
+    closeLinkModal,
+  } = useEditorLinks({
+    getContent: () => editLanguage === 'en' ? (article?.content || '') : (article?.contentFr || ''),
+    slug: article?.slug || '',
+    language,
+    onContentUpdate: (updatedContent) => {
+      const fieldToUpdate = editLanguage === 'en' ? 'content' : 'contentFr';
+      setArticle(prev => prev ? { ...prev, [fieldToUpdate]: updatedContent } : prev);
+    },
+    onError: setError,
+  });
 
   // Field change handlers - must be before any early returns to follow Rules of Hooks
   const handleFieldChange = useCallback((field: keyof TarotArticle, value: unknown) => {
@@ -111,6 +119,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   useEffect(() => {
     loadArticle();
     loadSidebarData();
+    loadMedia();
   }, [articleId]);
 
   const loadArticle = async () => {
@@ -131,27 +140,14 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     try {
       const token = await getToken();
       if (!token) return;
-      const [catResult, tagResult, mediaResult] = await Promise.all([
+      const [catResult, tagResult] = await Promise.all([
         fetchUnifiedCategories(token),
         fetchUnifiedTags(token),
-        fetchAdminBlogMedia(token),
       ]);
       setCategories(catResult.categories);
       setTags(tagResult.tags);
-      setMedia(mediaResult.media);
     } catch (err) {
       console.error('Failed to load sidebar data:', err);
-    }
-  };
-
-  const loadMedia = async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-      const result = await fetchAdminBlogMedia(token);
-      setMedia(result.media);
-    } catch (err) {
-      console.error('Failed to load media:', err);
     }
   };
 
@@ -210,58 +206,6 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     if (!article) return;
     const newStatus = article.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
     handleSave(false, newStatus);
-  };
-
-  const handleMediaUpload = async (file: File): Promise<string> => {
-    const token = await getToken();
-    if (!token) throw new Error('No token');
-    const result = await uploadBlogMedia(token, file, undefined, undefined, 'tarot');
-    await loadMedia();
-    return result.media.url;
-  };
-
-  const handleMediaDelete = async (id: string): Promise<void> => {
-    const token = await getToken();
-    if (!token) throw new Error('No token');
-    await deleteBlogMedia(token, id);
-    await loadMedia();
-  };
-
-  // Internal links handlers
-  const handleOpenLinkModal = async () => {
-    if (!article) return;
-    const content = editLanguage === 'en' ? (article.content || '') : (article.contentFr || '');
-    if (!content.trim()) {
-      setError(language === 'en' ? 'Add some content first before adding internal links' : 'Ajoutez du contenu avant d\'ajouter des liens internes');
-      return;
-    }
-
-    try {
-      setScanningLinks(true);
-      const registry = await fetchLinkRegistry();
-      const suggestions = scanForLinkableTerms(content, registry, {
-        // Allow converting existing <a> links (e.g., legacy "[INSERT CARD URL]" anchors)
-        // into shortcodes, but still skip existing shortcodes
-        skipExistingLinks: false,
-        currentArticleSlug: article.slug, // Prevent self-linking
-      });
-
-      setLinkSuggestions(suggestions);
-      setShowLinkModal(true);
-    } catch (err) {
-      console.error('Failed to scan for links:', err);
-      setError(language === 'en' ? 'Failed to scan for linkable content' : 'Échec de l\'analyse du contenu');
-    } finally {
-      setScanningLinks(false);
-    }
-  };
-
-  const handleApplyLinks = (selected: LinkSuggestion[]) => {
-    if (!article) return;
-    const content = editLanguage === 'en' ? (article.content || '') : (article.contentFr || '');
-    const updatedContent = applyLinkSuggestions(content, selected);
-    const fieldToUpdate = editLanguage === 'en' ? 'content' : 'contentFr';
-    setArticle(prev => prev ? { ...prev, [fieldToUpdate]: updatedContent } : prev);
   };
 
   if (loading) {
@@ -617,7 +561,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
       />
       <LinkSuggestionModal
         isOpen={showLinkModal}
-        onClose={() => setShowLinkModal(false)}
+        onClose={closeLinkModal}
         suggestions={linkSuggestions}
         onApply={handleApplyLinks}
       />

@@ -5,6 +5,12 @@
 import { Router } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma, cacheService, CacheService, z } from './shared.js';
+import {
+  includeCategoriesAndTags,
+  flattenCategories,
+  flattenTags,
+  extractCategoryIds,
+} from '../shared/queryUtils.js';
 
 const router = Router();
 
@@ -94,8 +100,8 @@ router.get('/posts', async (req, res) => {
       posts: posts.map(p => ({
         ...p,
         contentType: p.contentType,
-        categories: p.categories.map(c => c.category),
-        tags: p.tags.map(t => t.tag),
+        categories: flattenCategories(p.categories),
+        tags: flattenTags(p.tags),
       })),
       pagination: {
         page: params.page,
@@ -126,14 +132,7 @@ router.get('/posts/:slug', async (req, res) => {
         status: 'PUBLISHED',
         publishedAt: { not: null },
       },
-      include: {
-        categories: {
-          include: { category: true },
-        },
-        tags: {
-          include: { tag: true },
-        },
-      },
+      include: includeCategoriesAndTags,
     });
 
     if (!post) {
@@ -157,7 +156,7 @@ router.get('/posts/:slug', async (req, res) => {
         id: { not: post.id },
         categories: {
           some: {
-            categoryId: { in: post.categories.map(c => c.categoryId) },
+            categoryId: { in: extractCategoryIds(post.categories) },
           },
         },
       },
@@ -179,8 +178,8 @@ router.get('/posts/:slug', async (req, res) => {
       post: {
         ...post,
         contentType: post.contentType,
-        categories: post.categories.map(c => c.category),
-        tags: post.tags.map(t => t.tag),
+        categories: flattenCategories(post.categories),
+        tags: flattenTags(post.tags),
       },
       relatedPosts,
     });
