@@ -8,7 +8,7 @@
  * 3. Never return success if credits weren't properly charged
  */
 
-import { FollowUpQuestion } from '@prisma/client';
+import { FollowUpQuestion } from '../../../generated/prisma/client.js';
 import type { IReadingRepository } from '../../ports/repositories/IReadingRepository.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';

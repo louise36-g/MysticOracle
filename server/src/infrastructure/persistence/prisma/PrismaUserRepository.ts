@@ -2,7 +2,7 @@
  * PrismaUserRepository - Prisma implementation of IUserRepository
  */
 
-import { PrismaClient, User, AccountStatus } from '@prisma/client';
+import { PrismaClient, User, AccountStatus } from '../../../generated/prisma/client.js';
 import type {
   IUserRepository,
   CreateUserDTO,

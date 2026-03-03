@@ -2,7 +2,7 @@
  * PrismaHoroscopeCacheRepository - Prisma implementation of IHoroscopeCacheRepository
  */
 
-import { PrismaClient, HoroscopeCache } from '@prisma/client';
+import { PrismaClient, HoroscopeCache } from '../../../generated/prisma/client.js';
 import type {
   IHoroscopeCacheRepository,
   CreateHoroscopeCacheDTO,

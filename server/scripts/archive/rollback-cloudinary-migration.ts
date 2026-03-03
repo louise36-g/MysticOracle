@@ -11,7 +11,7 @@
  * Cloudinary files are NOT deleted by this script (manual cleanup if needed).
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../src/generated/prisma/client.js';
 import fs from 'fs';
 import path from 'path';
 

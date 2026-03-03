@@ -3,7 +3,7 @@
  * Toggles a user's admin status
  */
 
-import { User } from '@prisma/client';
+import { User } from '../../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../../ports/repositories/IUserRepository.js';
 
 export interface ToggleUserAdminInput {

@@ -9,7 +9,7 @@ import {
   type ListUsersInput,
 } from '../../../application/use-cases/admin/users/ListUsers.js';
 import type { IUserRepository } from '../../../application/ports/repositories/IUserRepository.js';
-import { AccountStatus } from '@prisma/client';
+import { AccountStatus } from '../../../generated/prisma/client.js';
 
 const createMockUserRepository = (): IUserRepository => ({
   create: vi.fn(),

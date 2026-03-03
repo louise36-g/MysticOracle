@@ -3,7 +3,7 @@
  * Abstracts database operations for EmailTemplate entity
  */
 
-import type { EmailTemplate } from '@prisma/client';
+import type { EmailTemplate } from '../../../generated/prisma/client.js';
 
 // DTOs for creating/updating templates
 export interface CreateTemplateDTO {

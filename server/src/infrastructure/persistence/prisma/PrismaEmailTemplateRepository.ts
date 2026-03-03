@@ -2,7 +2,7 @@
  * PrismaEmailTemplateRepository - Prisma implementation of IEmailTemplateRepository
  */
 
-import { PrismaClient, EmailTemplate } from '@prisma/client';
+import { PrismaClient, EmailTemplate } from '../../../generated/prisma/client.js';
 import type {
   IEmailTemplateRepository,
   CreateTemplateDTO,

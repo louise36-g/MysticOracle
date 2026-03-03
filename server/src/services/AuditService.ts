@@ -3,7 +3,7 @@
  * GDPR & SOC2 compliance audit trail
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 export type AuditAction =
   | 'USER_DATA_EXPORT'

@@ -3,7 +3,7 @@
  * Generates CSV exports and provides month availability
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 export interface MonthOption {
   year: number;

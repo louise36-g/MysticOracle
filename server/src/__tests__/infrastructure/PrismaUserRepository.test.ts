@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/PrismaUserRepository.js';
 import { createMockPrismaClient } from '../mocks/prisma.js';
-import type { User, AccountStatus } from '@prisma/client';
+import type { User, AccountStatus } from '../../generated/prisma/client.js';
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository;

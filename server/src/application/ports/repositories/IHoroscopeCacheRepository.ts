@@ -3,7 +3,7 @@
  * Abstracts database operations for HoroscopeCache entity
  */
 
-import type { HoroscopeCache } from '@prisma/client';
+import type { HoroscopeCache } from '../../../generated/prisma/client.js';
 
 // DTO for creating a cached horoscope
 export interface CreateHoroscopeCacheDTO {

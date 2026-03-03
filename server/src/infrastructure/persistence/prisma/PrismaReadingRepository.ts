@@ -2,7 +2,12 @@
  * PrismaReadingRepository - Prisma implementation of IReadingRepository
  */
 
-import { PrismaClient, Prisma, Reading, FollowUpQuestion } from '@prisma/client';
+import {
+  PrismaClient,
+  Prisma,
+  Reading,
+  FollowUpQuestion,
+} from '../../../generated/prisma/client.js';
 import type {
   IReadingRepository,
   CreateReadingDTO,

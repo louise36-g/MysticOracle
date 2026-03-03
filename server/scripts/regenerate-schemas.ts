@@ -5,7 +5,7 @@
  * Or: npx tsx scripts/regenerate-schemas.ts
  */
 
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '../src/generated/prisma/client.js';
 
 const prisma = new PrismaClient();
 

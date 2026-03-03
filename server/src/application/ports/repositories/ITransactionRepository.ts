@@ -3,7 +3,12 @@
  * Abstracts database operations for Transaction entity
  */
 
-import type { Transaction, TransactionType, PaymentProvider, PaymentStatus } from '@prisma/client';
+import type {
+  Transaction,
+  TransactionType,
+  PaymentProvider,
+  PaymentStatus,
+} from '../../../generated/prisma/client.js';
 
 // DTOs for creating transactions
 export interface CreateTransactionDTO {

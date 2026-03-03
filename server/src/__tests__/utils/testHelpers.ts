@@ -9,7 +9,7 @@ import type {
   PaymentStatus,
   TransactionType,
   PaymentProvider,
-} from '@prisma/client';
+} from '../../generated/prisma/client.js';
 import type {
   WebhookEvent,
   WebhookEventType,

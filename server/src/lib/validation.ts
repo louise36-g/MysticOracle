@@ -6,7 +6,7 @@ import type {
   Prisma,
   CardType as PrismaCardType,
   BlogPostStatus as PrismaArticleStatus,
-} from '@prisma/client';
+} from '../generated/prisma/client.js';
 
 // ============================================
 // ENUMS (matching Prisma schema)

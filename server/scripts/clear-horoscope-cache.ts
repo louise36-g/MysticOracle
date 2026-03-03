@@ -4,7 +4,7 @@
  * Run with: npx tsx scripts/clear-horoscope-cache.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client.js';
 
 const prisma = new PrismaClient();
 

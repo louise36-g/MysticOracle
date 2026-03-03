@@ -3,7 +3,7 @@
  * Provides consolidated dashboard metrics for admin overview
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client.js';
 import type { IUserRepository } from '../application/ports/repositories/IUserRepository.js';
 import type { IReadingRepository } from '../application/ports/repositories/IReadingRepository.js';
 import type { ITransactionRepository } from '../application/ports/repositories/ITransactionRepository.js';

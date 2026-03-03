@@ -8,7 +8,7 @@ import {
   type TarotArticleInput,
 } from './validation.js';
 import { processArticleSchema, type FAQItem } from './schema-builder.js';
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '../generated/prisma/client.js';
 
 /**
  * Example 1: Basic validation

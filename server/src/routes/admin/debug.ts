@@ -3,7 +3,7 @@
  */
 
 import { Router, z, prisma, creditService } from './shared.js';
-import { SpreadType, InterpretationStyle } from '@prisma/client';
+import { SpreadType, InterpretationStyle } from '../../generated/prisma/client.js';
 import { logError } from './maintenance.js';
 
 const router = Router();

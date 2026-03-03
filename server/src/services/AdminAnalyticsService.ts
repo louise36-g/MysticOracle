@@ -3,7 +3,7 @@
  * Provides detailed analytics data for admin dashboard
  */
 
-import { PrismaClient, SpreadType as PrismaSpreadType } from '@prisma/client';
+import { PrismaClient, SpreadType as PrismaSpreadType } from '../generated/prisma/client.js';
 
 export interface DailyReadings {
   date: string;

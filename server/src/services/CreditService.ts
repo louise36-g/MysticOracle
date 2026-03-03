@@ -7,7 +7,7 @@
  * Prisma transactions for atomic operations.
  */
 
-import { PrismaClient, TransactionType } from '@prisma/client';
+import { PrismaClient, TransactionType } from '../generated/prisma/client.js';
 import * as Sentry from '@sentry/node';
 import prismaClient from '../db/prisma.js';
 import type { IUserRepository } from '../application/ports/repositories/IUserRepository.js';

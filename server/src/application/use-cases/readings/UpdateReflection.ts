@@ -3,7 +3,7 @@
  * Handles the business logic for updating a reading's user reflection
  */
 
-import { Reading } from '@prisma/client';
+import { Reading } from '../../../generated/prisma/client.js';
 import type { IReadingRepository } from '../../ports/repositories/IReadingRepository.js';
 
 // Input DTO

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { CreditService } from '../../services/CreditService.js';
-import { PrismaClient, TransactionType } from '@prisma/client';
+import { PrismaClient, TransactionType } from '../../generated/prisma/client.js';
 
 // Mock PrismaClient with transaction support
 const createMockPrismaClient = () => {

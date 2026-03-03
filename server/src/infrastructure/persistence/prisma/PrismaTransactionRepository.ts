@@ -8,7 +8,7 @@ import {
   TransactionType,
   PaymentProvider,
   PaymentStatus,
-} from '@prisma/client';
+} from '../../../generated/prisma/client.js';
 import type {
   ITransactionRepository,
   CreateTransactionDTO,

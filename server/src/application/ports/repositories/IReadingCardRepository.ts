@@ -4,7 +4,7 @@
  * Used for RAG queries and analytics
  */
 
-import type { ReadingCard } from '@prisma/client';
+import type { ReadingCard } from '../../../generated/prisma/client.js';
 
 // DTO for creating reading cards
 export interface CreateReadingCardDTO {

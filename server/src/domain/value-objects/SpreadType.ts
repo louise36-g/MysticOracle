@@ -6,7 +6,7 @@
 
 import { InvalidSpreadTypeError } from '../errors/index.js';
 import { CreditAmount } from './CreditAmount.js';
-import { SpreadType as PrismaSpreadType } from '@prisma/client';
+import { SpreadType as PrismaSpreadType } from '../../generated/prisma/client.js';
 
 // Spread type configuration
 interface SpreadConfig {

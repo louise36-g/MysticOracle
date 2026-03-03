@@ -7,7 +7,10 @@
 import { SpreadType } from '../value-objects/SpreadType.js';
 import { CreditAmount } from '../value-objects/CreditAmount.js';
 import { ValidationError } from '../errors/index.js';
-import { InterpretationStyle, SpreadType as PrismaSpreadType } from '@prisma/client';
+import {
+  InterpretationStyle,
+  SpreadType as PrismaSpreadType,
+} from '../../generated/prisma/client.js';
 
 // Card position in a reading
 export interface CardPosition {

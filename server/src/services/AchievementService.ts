@@ -17,7 +17,7 @@
  * - share_reading: (manual trigger when user shares)
  */
 
-import { PrismaClient, SpreadType } from '@prisma/client';
+import { PrismaClient, SpreadType } from '../generated/prisma/client.js';
 
 // Achievement definitions with rewards
 const ACHIEVEMENTS: Record<string, { reward: number }> = {

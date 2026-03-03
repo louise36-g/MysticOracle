@@ -4,7 +4,7 @@
  * Returns all user data in a portable format
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 
 export interface ExportUserDataInput {

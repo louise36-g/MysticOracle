@@ -3,7 +3,7 @@
  * Abstracts database operations for SystemSetting entity
  */
 
-import type { SystemSetting } from '@prisma/client';
+import type { SystemSetting } from '../../../generated/prisma/client.js';
 
 /**
  * System Setting Repository Interface

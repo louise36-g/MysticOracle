@@ -2,7 +2,7 @@
  * PrismaSystemSettingRepository - Prisma implementation of ISystemSettingRepository
  */
 
-import { PrismaClient, SystemSetting } from '@prisma/client';
+import { PrismaClient, SystemSetting } from '../../../generated/prisma/client.js';
 import type { ISystemSettingRepository } from '../../../application/ports/repositories/ISystemSettingRepository.js';
 
 export class PrismaSystemSettingRepository implements ISystemSettingRepository {

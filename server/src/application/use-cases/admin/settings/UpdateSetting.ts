@@ -3,7 +3,7 @@
  * Updates a system setting value
  */
 
-import { SystemSetting } from '@prisma/client';
+import { SystemSetting } from '../../../../generated/prisma/client.js';
 import type { ISystemSettingRepository } from '../../../ports/repositories/ISystemSettingRepository.js';
 import { EDITABLE_SETTINGS } from '../../../../shared/constants/admin.js';
 

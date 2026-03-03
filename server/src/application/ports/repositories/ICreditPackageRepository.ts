@@ -3,7 +3,7 @@
  * Abstracts database operations for CreditPackage entity
  */
 
-import type { CreditPackage } from '@prisma/client';
+import type { CreditPackage } from '../../../generated/prisma/client.js';
 
 // DTOs for creating/updating packages
 export interface CreatePackageDTO {

@@ -3,7 +3,7 @@
  * Seeds default email templates
  */
 
-import { EmailTemplate } from '@prisma/client';
+import { EmailTemplate } from '../../../../generated/prisma/client.js';
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
 import { DEFAULT_EMAIL_TEMPLATES } from '../../../../shared/constants/admin.js';
 

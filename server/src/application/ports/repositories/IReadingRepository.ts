@@ -3,7 +3,12 @@
  * Abstracts database operations for Reading and FollowUpQuestion entities
  */
 
-import type { Reading, FollowUpQuestion, SpreadType, InterpretationStyle } from '@prisma/client';
+import type {
+  Reading,
+  FollowUpQuestion,
+  SpreadType,
+  InterpretationStyle,
+} from '../../../generated/prisma/client.js';
 import type { PaginationOptions } from './IUserRepository.js';
 
 // Card position stored in JSON

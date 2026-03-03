@@ -11,6 +11,7 @@ dist/
 
 # Prisma
 prisma/migrations/
+src/generated/
 
 # Logs
 *.log

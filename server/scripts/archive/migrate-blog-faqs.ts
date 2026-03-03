@@ -12,7 +12,7 @@
  */
 
 import prisma from '../src/db/prisma.js';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../src/generated/prisma/client.js';
 import { JSDOM } from 'jsdom';
 
 interface FAQItem {

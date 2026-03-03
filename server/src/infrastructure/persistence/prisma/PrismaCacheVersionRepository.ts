@@ -2,7 +2,7 @@
  * PrismaCacheVersionRepository - Prisma implementation of ICacheVersionRepository
  */
 
-import { PrismaClient, CacheVersion } from '@prisma/client';
+import { PrismaClient, CacheVersion } from '../../../generated/prisma/client.js';
 import type { ICacheVersionRepository } from '../../../application/ports/repositories/ICacheVersionRepository.js';
 
 export class PrismaCacheVersionRepository implements ICacheVersionRepository {

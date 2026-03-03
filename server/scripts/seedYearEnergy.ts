@@ -8,7 +8,7 @@
  * Example: npx tsx scripts/seedYearEnergy.ts 2026
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client.js';
 import { OpenRouterService } from '../src/services/openRouterService.js';
 
 const prisma = new PrismaClient();

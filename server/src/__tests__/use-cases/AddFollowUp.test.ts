@@ -13,7 +13,7 @@ import type { IReadingRepository } from '../../application/ports/repositories/IR
 import type { IUserRepository } from '../../application/ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../services/CreditService.js';
 import { CREDIT_COSTS } from '../../services/CreditService.js';
-import type { FollowUpQuestion } from '@prisma/client';
+import type { FollowUpQuestion } from '../../generated/prisma/client.js';
 
 // Mock factory functions
 const createMockReadingRepository = (): IReadingRepository => ({

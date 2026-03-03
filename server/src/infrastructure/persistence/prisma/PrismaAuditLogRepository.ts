@@ -3,7 +3,7 @@
  * GDPR & SOC2 compliance audit trail persistence
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../generated/prisma/client.js';
 import type {
   IAuditLogRepository,
   CreateAuditLogDTO,

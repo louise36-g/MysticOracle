@@ -2,7 +2,7 @@
  * PrismaCreditPackageRepository - Prisma implementation of ICreditPackageRepository
  */
 
-import { PrismaClient, CreditPackage } from '@prisma/client';
+import { PrismaClient, CreditPackage } from '../../../generated/prisma/client.js';
 import type {
   ICreditPackageRepository,
   CreatePackageDTO,

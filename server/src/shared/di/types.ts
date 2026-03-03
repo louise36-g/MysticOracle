@@ -3,7 +3,7 @@
  * Type definitions for dependency injection container
  */
 
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '../../generated/prisma/client.js';
 
 // Repositories
 import type { IUserRepository } from '../../application/ports/repositories/IUserRepository.js';

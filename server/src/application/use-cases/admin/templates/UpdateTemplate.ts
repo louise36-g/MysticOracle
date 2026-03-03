@@ -3,7 +3,7 @@
  * Updates an existing email template
  */
 
-import { EmailTemplate } from '@prisma/client';
+import { EmailTemplate } from '../../../../generated/prisma/client.js';
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
 
 export interface UpdateTemplateInput {

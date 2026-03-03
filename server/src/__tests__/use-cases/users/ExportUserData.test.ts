@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { ExportUserDataUseCase } from '../../../application/use-cases/users/ExportUserData.js';
 import type { IUserRepository } from '../../../application/ports/repositories/IUserRepository.js';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../generated/prisma/client.js';
 
 const createMockUserRepository = (): IUserRepository => ({
   create: vi.fn(),

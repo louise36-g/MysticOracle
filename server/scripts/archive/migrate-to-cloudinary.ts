@@ -13,7 +13,7 @@
  * Dry run:  npx tsx scripts/migrate-to-cloudinary.ts --dry-run
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../src/generated/prisma/client.js';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';

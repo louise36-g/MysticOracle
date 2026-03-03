@@ -7,7 +7,7 @@ import { z } from 'zod';
 // Re-export commonly used imports
 export { Router } from 'express';
 export { z } from 'zod';
-export { Prisma } from '@prisma/client';
+export { Prisma } from '../../generated/prisma/client.js';
 export { default as prisma } from '../../db/prisma.js';
 export { requireAuth, requireAdmin } from '../../middleware/auth.js';
 export { default as cacheService } from '../../services/cache.js';

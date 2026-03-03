@@ -17,7 +17,7 @@ import {
   paginationQuerySchema,
   debug,
 } from './shared.js';
-import { TransactionType, PaymentStatus } from '@prisma/client';
+import { TransactionType, PaymentStatus } from '../../generated/prisma/client.js';
 
 const router = Router();
 

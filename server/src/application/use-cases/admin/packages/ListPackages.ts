@@ -3,7 +3,7 @@
  * Lists all credit packages
  */
 
-import { CreditPackage } from '@prisma/client';
+import { CreditPackage } from '../../../../generated/prisma/client.js';
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
 
 export interface ListPackagesResult {

@@ -2,7 +2,7 @@
 // This file demonstrates how to integrate the schema builder into your API routes
 
 import { processArticleSchema, type TarotArticleData } from './schema-builder.js';
-import type { TarotArticle } from '@prisma/client';
+import type { TarotArticle } from '../generated/prisma/client.js';
 
 /**
  * Example: Convert Prisma TarotArticle to schema-ready format

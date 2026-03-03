@@ -2,7 +2,7 @@
  * PrismaReadingCardRepository - Prisma implementation of IReadingCardRepository
  */
 
-import { PrismaClient, ReadingCard } from '@prisma/client';
+import { PrismaClient, ReadingCard } from '../../../generated/prisma/client.js';
 import type {
   IReadingCardRepository,
   CreateReadingCardDTO,

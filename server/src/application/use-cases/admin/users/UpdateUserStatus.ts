@@ -3,7 +3,7 @@
  * Updates a user's account status (ACTIVE, FLAGGED, SUSPENDED)
  */
 
-import { AccountStatus, User } from '@prisma/client';
+import { AccountStatus, User } from '../../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../../ports/repositories/IUserRepository.js';
 
 export interface UpdateUserStatusInput {

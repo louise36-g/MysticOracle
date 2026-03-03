@@ -11,7 +11,7 @@ import {
   createBalanceCheck,
   createSuccessfulCreditResult,
 } from '../mocks/creditService.js';
-import type { SpreadType, InterpretationStyle } from '@prisma/client';
+import type { SpreadType, InterpretationStyle } from '../../generated/prisma/client.js';
 
 // Mock achievement service
 const createMockAchievementService = () => ({

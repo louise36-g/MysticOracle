@@ -3,7 +3,7 @@
  * Provides health checks and service status information
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 export interface ServiceHealth {
   status: 'ok' | 'error' | 'not_configured';

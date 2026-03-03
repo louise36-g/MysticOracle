@@ -3,7 +3,7 @@
  * Seeds default credit packages
  */
 
-import { CreditPackage } from '@prisma/client';
+import { CreditPackage } from '../../../../generated/prisma/client.js';
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
 import { DEFAULT_PACKAGES } from '../../../../shared/constants/admin.js';
 

@@ -8,7 +8,7 @@
  * 3. Never return success if credits weren't properly charged
  */
 
-import { InterpretationStyle, Reading } from '@prisma/client';
+import { InterpretationStyle, Reading } from '../../../generated/prisma/client.js';
 import type {
   IReadingRepository,
   CardPosition,
@@ -16,7 +16,7 @@ import type {
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
 import type { AchievementService } from '../../../services/AchievementService.js';
-import { SpreadType as PrismaSpreadType } from '@prisma/client';
+import { SpreadType as PrismaSpreadType } from '../../../generated/prisma/client.js';
 
 // Domain types
 import {

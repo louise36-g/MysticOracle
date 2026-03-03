@@ -6,7 +6,7 @@
  * their corresponding Cloudinary URLs from the migration.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../src/generated/prisma/client.js';
 import fs from 'fs';
 import path from 'path';
 

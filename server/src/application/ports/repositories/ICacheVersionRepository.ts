@@ -3,7 +3,7 @@
  * Used for client-side cache invalidation via version checking
  */
 
-import type { CacheVersion } from '@prisma/client';
+import type { CacheVersion } from '../../../generated/prisma/client.js';
 
 /**
  * Cache Version Repository Interface

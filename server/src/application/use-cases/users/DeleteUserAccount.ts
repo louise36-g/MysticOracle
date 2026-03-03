@@ -4,7 +4,7 @@
  * Anonymizes user data while preserving aggregated analytics
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 
 export interface DeleteUserAccountInput {

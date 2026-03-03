@@ -3,7 +3,13 @@
  * Gets detailed user information including achievements, readings, and transactions
  */
 
-import { PrismaClient, User, UserAchievement, Reading, Transaction } from '@prisma/client';
+import {
+  PrismaClient,
+  User,
+  UserAchievement,
+  Reading,
+  Transaction,
+} from '../../../../generated/prisma/client.js';
 
 export interface GetUserInput {
   userId: string;

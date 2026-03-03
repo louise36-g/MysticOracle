@@ -3,7 +3,7 @@
  * Abstracts database operations for User entity
  */
 
-import type { User, AccountStatus } from '@prisma/client';
+import type { User, AccountStatus } from '../../../generated/prisma/client.js';
 
 // DTOs for creating/updating users
 export interface CreateUserDTO {
