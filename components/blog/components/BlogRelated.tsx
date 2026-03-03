@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BlogPost } from '../../../services/api';
 import { ROUTES, buildRoute } from '../../../routes/routes';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../../utils/cloudinaryUrl';
 
 interface BlogRelatedProps {
   relatedPosts: BlogPost[];
@@ -42,7 +43,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
             {related.coverImage && (
               <div className="aspect-video overflow-hidden">
                 <img
-                  src={related.coverImage}
+                  src={optimizeCloudinaryUrl(related.coverImage, IMAGE_SIZES.related)}
                   alt={language === 'en' ? related.titleEn : related.titleFr}
                   className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-500"
                 />

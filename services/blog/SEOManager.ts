@@ -1,4 +1,5 @@
 import { BlogPost as BlogPostType, BlogCategory, BlogTag } from '../api';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 /**
  * SEOManager
@@ -30,7 +31,8 @@ export class SEOManager {
     this.updateOrCreateMeta('og:description', description, 'property');
     this.updateOrCreateMeta('og:type', 'article', 'property');
     this.updateOrCreateMeta('og:url', url, 'property');
-    if (image) this.updateOrCreateMeta('og:image', image, 'property');
+    const ogImage = optimizeCloudinaryUrl(image, IMAGE_SIZES.og);
+    if (ogImage) this.updateOrCreateMeta('og:image', ogImage, 'property');
     this.updateOrCreateMeta('og:site_name', 'CelestiArcana', 'property');
     this.updateOrCreateMeta('og:locale', language === 'en' ? 'en_US' : 'fr_FR', 'property');
 
@@ -38,7 +40,7 @@ export class SEOManager {
     this.updateOrCreateMeta('twitter:card', 'summary_large_image', 'name');
     this.updateOrCreateMeta('twitter:title', title, 'name');
     this.updateOrCreateMeta('twitter:description', description, 'name');
-    if (image) this.updateOrCreateMeta('twitter:image', image, 'name');
+    if (ogImage) this.updateOrCreateMeta('twitter:image', ogImage, 'name');
 
     // Article specific meta
     if (post.publishedAt) {

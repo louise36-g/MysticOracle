@@ -11,6 +11,7 @@ import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRig
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../context/TranslationContext';
 import { ROUTES, buildRoute } from '../../routes/routes';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 // Unified article type for display
 interface DisplayArticle {
@@ -198,7 +199,7 @@ const BlogList: React.FC = () => {
                   {post.coverImage && (
                     <div className="aspect-video overflow-hidden">
                       <img
-                        src={post.coverImage}
+                        src={optimizeCloudinaryUrl(post.coverImage, IMAGE_SIZES.thumbnail)}
                         alt={post.coverImageAlt || (language === 'en' ? post.titleEn : post.titleFr)}
                         className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-500"
                       />
@@ -302,7 +303,7 @@ const BlogList: React.FC = () => {
                     {article.coverImage && (
                       <div className="aspect-video overflow-hidden">
                         <img
-                          src={article.coverImage}
+                          src={optimizeCloudinaryUrl(article.coverImage, IMAGE_SIZES.thumbnail)}
                           alt={article.coverImageAlt || article.title}
                           className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-500"
                         />

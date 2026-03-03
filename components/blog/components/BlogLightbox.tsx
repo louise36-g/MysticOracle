@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../../utils/cloudinaryUrl';
 
 interface BlogLightboxProps {
   imageUrl: string;
@@ -26,7 +27,7 @@ export const BlogLightbox: React.FC<BlogLightboxProps> = ({ imageUrl, onClose })
         <X className="w-8 h-8" />
       </button>
       <img
-        src={imageUrl}
+        src={optimizeCloudinaryUrl(imageUrl, IMAGE_SIZES.lightbox)}
         alt="Full size image"
         className="max-w-full max-h-[90vh] object-contain rounded-lg"
         onClick={(e) => e.stopPropagation()}

@@ -6,6 +6,7 @@ import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
 import { fetchTarotArticles, TarotArticle } from '../services/api';
 import { useTranslation } from '../context/TranslationContext';
 import { buildRoute, ROUTES } from '../routes/routes';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../utils/cloudinaryUrl';
 
 interface TarotArticlesListProps {
   defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc. (can also come from URL params)
@@ -195,7 +196,7 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
                 <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
                   {article.featuredImage ? (
                     <img
-                      src={article.featuredImage}
+                      src={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.thumbnail)}
                       alt={article.featuredImageAlt || article.title}
                       className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-200"
                       loading="lazy"

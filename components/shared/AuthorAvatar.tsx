@@ -1,4 +1,5 @@
 import React from 'react';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 interface AuthorAvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -31,7 +32,7 @@ export const AuthorAvatar: React.FC<AuthorAvatarProps> = ({
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <img
-        src={AUTHOR_IMAGE}
+        src={optimizeCloudinaryUrl(AUTHOR_IMAGE, IMAGE_SIZES.avatar)}
         alt={AUTHOR_NAME}
         className={`${sizeClasses[size]} rounded-full object-cover border-2 border-purple-400/30 shadow-lg shadow-purple-500/10`}
       />

@@ -16,6 +16,7 @@ import {
 } from '../../services/api';
 import { ROUTES } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 // Sub-components
 import { ArticleSkeleton } from './ArticleSkeleton';
@@ -274,7 +275,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={localizedSeoTitle} />
         <meta property="og:description" content={localizedSeoDescription} />
-        <meta property="og:image" content={article.featuredImage} />
+        <meta property="og:image" content={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.og)} />
         <meta property="og:image:alt" content={localizedImageAlt} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:locale" content={language === 'fr' ? 'fr_FR' : 'en_US'} />
@@ -289,7 +290,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={localizedSeoTitle} />
         <meta name="twitter:description" content={localizedSeoDescription} />
-        <meta name="twitter:image" content={article.featuredImage} />
+        <meta name="twitter:image" content={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.og)} />
         <meta name="twitter:image:alt" content={localizedImageAlt} />
 
         {/* JSON-LD Schema */}

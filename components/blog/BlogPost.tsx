@@ -9,6 +9,7 @@ import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, BlogLightbox } from './components';
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 interface BlogPostProps {
   previewId?: string;
@@ -186,7 +187,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         >
           <div className="relative">
             <img
-              src={post.coverImage}
+              src={optimizeCloudinaryUrl(post.coverImage, IMAGE_SIZES.cover)}
               alt={post.coverImageAlt || title}
               className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-150"
             />

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { LightboxProps } from './types';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 /**
  * Image lightbox modal
@@ -24,7 +25,7 @@ export function Lightbox({ image, onClose }: LightboxProps) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            src={image}
+            src={optimizeCloudinaryUrl(image, IMAGE_SIZES.lightbox)}
             alt="Enlarged view"
             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
           />

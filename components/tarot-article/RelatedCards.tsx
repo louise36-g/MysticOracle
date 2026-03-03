@@ -6,6 +6,7 @@ import { useTranslation } from '../../context/TranslationContext';
 import { useApp } from '../../context/AppContext';
 import { fetchTarotArticles, TarotArticle } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 interface RelatedCardsProps {
   cards: string[];
@@ -137,7 +138,7 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                   <div className="aspect-[3/4] overflow-hidden bg-slate-900 relative">
                     {article.featuredImage ? (
                       <img
-                        src={article.featuredImage}
+                        src={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.related)}
                         alt={language === 'fr' && article.featuredImageAltFr ? article.featuredImageAltFr : (article.featuredImageAlt || article.title)}
                         width={200}
                         height={267}

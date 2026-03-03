@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ZoomIn } from 'lucide-react';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 interface FeaturedImageProps {
   src: string;
@@ -21,7 +22,7 @@ export function FeaturedImage({ src, alt, onClick }: FeaturedImageProps) {
       onClick={onClick}
     >
       <img
-        src={src}
+        src={optimizeCloudinaryUrl(src, IMAGE_SIZES.cover)}
         alt={alt}
         width={896}
         height={504}
