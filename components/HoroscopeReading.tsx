@@ -401,27 +401,48 @@ const HoroscopeReading: React.FC = () => {
             {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent mb-3" />
 
-            {/* Horoscope content */}
-            <div className="prose prose-invert prose-sm max-w-none">
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => {
-                    const text = String(children).replace(/^Today.?s Energy\s*[-–—:]\s*/i, '').replace(/^[ÉE]nergie du [Jj]our\s*[-–—:]\s*/i, '');
-                    return <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal mt-0 mb-4">{text}</p>;
-                  },
-                  h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-2 mb-0.5">{children}</h3>,
-                  p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
-                  strong: ({ children }) => <strong className="text-amber-200 font-semibold">{children}</strong>,
-                  em: ({ children }) => <em className="text-purple-200 italic">{children}</em>,
-                  ul: ({ children }) => <ul className="mb-2.5 space-y-1 text-slate-300/90">{children}</ul>,
-                  ol: ({ children }) => <ol className="mb-2.5 space-y-1 text-slate-300/90 list-decimal list-inside">{children}</ol>,
-                  li: ({ children }) => <li className="text-slate-300/90 text-sm flex items-start gap-2"><span className="text-amber-400 mt-1">•</span><span>{children}</span></li>,
-                }}
-              >
-                {horoscope}
-              </ReactMarkdown>
-            </div>
+            {/* Extract date and clean horoscope content */}
+            {(() => {
+              const dateLine = /\*{0,2}Today.?s Energy\s*[-–—:]\s*(.+?)\*{0,2}\s*\n/i;
+              const dateLineFr = /\*{0,2}[ÉE]nergie du [Jj]our\s*[-–—:]\s*(.+?)\*{0,2}\s*\n/i;
+              const dateHeading = /^#{1,2}\s*Today.?s Energy\s*[-–—:]\s*(.+)/im;
+              const dateHeadingFr = /^#{1,2}\s*[ÉE]nergie du [Jj]our\s*[-–—:]\s*(.+)/im;
+              const dateMatch = horoscope.match(dateLine) || horoscope.match(dateLineFr) || horoscope.match(dateHeading) || horoscope.match(dateHeadingFr);
+              const cleanedHoroscope = horoscope
+                .replace(dateLine, '\n')
+                .replace(dateLineFr, '\n')
+                .replace(dateHeading, '')
+                .replace(dateHeadingFr, '');
+
+              return (
+                <>
+                  {dateMatch && (
+                    <p className="text-center font-heading italic text-base tracking-wide text-amber-200/70 mb-4">
+                      {dateMatch[1].trim()}
+                    </p>
+                  )}
+
+                  {/* Horoscope content */}
+                  <div className="prose prose-invert prose-sm max-w-none">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ children }) => <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal mt-0 mb-4">{children}</p>,
+                        h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-2 mb-0.5">{children}</h3>,
+                        p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
+                        strong: ({ children }) => <strong className="text-amber-200 font-semibold">{children}</strong>,
+                        em: ({ children }) => <em className="text-purple-200 italic">{children}</em>,
+                        ul: ({ children }) => <ul className="mb-2.5 space-y-1 text-slate-300/90">{children}</ul>,
+                        ol: ({ children }) => <ol className="mb-2.5 space-y-1 text-slate-300/90 list-decimal list-inside">{children}</ol>,
+                        li: ({ children }) => <li className="text-slate-300/90 text-sm flex items-start gap-2"><span className="text-amber-400 mt-1">•</span><span>{children}</span></li>,
+                      }}
+                    >
+                      {cleanedHoroscope}
+                    </ReactMarkdown>
+                  </div>
+                </>
+              );
+            })()}
 
             {/* Footer */}
             <div className="mt-5 pt-4 border-t border-white/10 text-center">
