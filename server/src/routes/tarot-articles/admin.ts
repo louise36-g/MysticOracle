@@ -520,20 +520,61 @@ router.patch('/:id', async (req, res) => {
         return res.status(400).json({ error: 'Invalid status value' });
       }
 
-      const updatedArticle = await prisma.blogPost.update({
+      // Extract category/tag name arrays before the main update
+      const categoryNames: string[] | undefined = updates.categories;
+      const tagNames: string[] | undefined = updates.tags;
+
+      await prisma.blogPost.update({
         where: { id },
         data: { ...sanitizedUpdates, updatedAt: new Date() },
       });
+
+      // Handle category updates (names → IDs → junction table)
+      if (Array.isArray(categoryNames)) {
+        await prisma.blogPostCategory.deleteMany({ where: { postId: id } });
+        if (categoryNames.length > 0) {
+          const categories = await prisma.blogCategory.findMany({
+            where: { nameEn: { in: categoryNames } },
+          });
+          if (categories.length > 0) {
+            await prisma.blogPostCategory.createMany({
+              data: categories.map(c => ({ postId: id, categoryId: c.id })),
+            });
+          }
+        }
+      }
+
+      // Handle tag updates (names → IDs → junction table)
+      if (Array.isArray(tagNames)) {
+        await prisma.blogPostTag.deleteMany({ where: { postId: id } });
+        if (tagNames.length > 0) {
+          const tags = await prisma.blogTag.findMany({
+            where: { nameEn: { in: tagNames } },
+          });
+          if (tags.length > 0) {
+            await prisma.blogPostTag.createMany({
+              data: tags.map(t => ({ postId: id, tagId: t.id })),
+            });
+          }
+        }
+      }
 
       await cacheService.invalidateTarotArticle(
         existingArticle.slug,
         sanitizedUpdates.slug as string | undefined
       );
 
-      // Return in TarotArticle API shape
-      return res.json(
-        mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>)
-      );
+      // Re-fetch with relations so categories/tags are included in response
+      const refreshedArticle = await prisma.blogPost.findFirst({
+        where: { id, contentType: 'TAROT_ARTICLE' },
+        include: articleFullInclude,
+      });
+
+      if (!refreshedArticle) {
+        return res.status(404).json({ error: 'Article not found after update' });
+      }
+
+      return res.json(transformArticleResponse(refreshedArticle));
     }
 
     // Full validation mode

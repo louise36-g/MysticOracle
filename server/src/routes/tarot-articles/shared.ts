@@ -92,6 +92,9 @@ export function transformArticleResponse(post: {
 
   return {
     ...mapBlogPostToTarotFields(blogPost),
+    // Override the empty arrays from mapBlogPostToTarotFields with actual data
+    categories: post.categories.map(c => c.category.nameEn),
+    tags: post.tags.map(t => t.tag.nameEn),
     // Flatten junction table relations
     articleCategories: post.categories,
     articleTags: post.tags,

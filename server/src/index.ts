@@ -2,16 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
+// Load environment variables FIRST (must be before any other imports that read process.env)
+import 'dotenv/config';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { scopePerRequest } from 'awilix-express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Load environment variables
-dotenv.config();
 
 // Initialize Sentry early (before other imports that might throw)
 import { initSentry, getSentryErrorHandler } from './config/sentry.js';
