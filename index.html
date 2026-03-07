@@ -62,11 +62,10 @@
     <!-- Preload LCP background image (AVIF only — 96%+ browser support, WebP fallback via CSS image-set) -->
     <link rel="preload" as="image" href="/background-celestiarcana.avif" type="image/avif">
 
-    <!-- Fonts - preconnect for faster loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap"></noscript>
+    <!-- Self-hosted fonts -->
+    <link rel="preload" href="/fonts/cinzel-latin-400-700.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/lato-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/fonts/fonts.css">
     <!-- Critical CSS to prevent FOUC -->
     <style>
       body {
@@ -181,7 +180,7 @@
     <div id="root">
       <!-- Static app shell for instant LCP — replaced by React on mount -->
       <div style="min-height:100vh;color:#e2e8f0;position:relative;overflow:hidden;display:flex;flex-direction:column">
-        <div style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:image-set(url('/background-celestiarcana.avif') type('image/avif'),url('/background-celestiarcana.webp') type('image/webp'),url('/background-celestiarcana.png') type('image/png'));background-size:cover;background-position:center;background-repeat:no-repeat"></div>
+        <div style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:image-set(url('/background-celestiarcana.avif') type('image/avif'),url('/background-celestiarcana.webp') type('image/webp'));background-size:cover;background-position:center;background-repeat:no-repeat"></div>
         <header style="position:sticky;top:0;z-index:50;width:100%;border-bottom:1px solid rgba(168,85,247,0.2);background:rgba(40,23,78,0.95);backdrop-filter:blur(12px)">
           <div style="max-width:1280px;margin:0 auto;padding:0 1rem;height:4rem;display:flex;align-items:center">
             <div style="display:flex;align-items:center;gap:0.5rem">

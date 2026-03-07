@@ -131,7 +131,7 @@ export function RootLayout() {
       <div
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: `image-set(url("/background-celestiarcana.avif") type("image/avif"), url("/background-celestiarcana.webp") type("image/webp"), url("/background-celestiarcana.png") type("image/png"))`,
+          backgroundImage: `image-set(url("/background-celestiarcana.avif") type("image/avif"), url("/background-celestiarcana.webp") type("image/webp"))`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

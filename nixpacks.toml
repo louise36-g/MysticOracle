@@ -17,7 +17,7 @@ cmd = '''cat > /assets/Caddyfile << 'CADDYEOF'
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
-		Content-Security-Policy "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://img.clerk.com; connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev https://api.celestiarcana.com https://www.google-analytics.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev; worker-src 'self' blob:; manifest-src 'self';"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://img.clerk.com; connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev https://api.celestiarcana.com https://www.google-analytics.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev; worker-src 'self' blob:; manifest-src 'self';"
 		-Server
 	}
 
@@ -34,6 +34,14 @@ cmd = '''cat > /assets/Caddyfile << 'CADDYEOF'
 		path /assets/*.js /assets/*.css
 	}
 	header @hashedAssets {
+		Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	# --- Self-hosted fonts: 1 year cache ---
+	@fonts {
+		path /fonts/*
+	}
+	header @fonts {
 		Cache-Control "public, max-age=31536000, immutable"
 	}
 
@@ -63,7 +71,7 @@ cmd = '''cat > /assets/Caddyfile << 'CADDYEOF'
 
 	# --- SPA fallback + HTML caching ---
 	@notStaticFile {
-		not path /assets/* /logos/* /icons/* /screenshots/*
+		not path /assets/* /fonts/* /logos/* /icons/* /screenshots/*
 		not path /background-celestiarcana.* /favicon.png /apple-touch-icon.png
 		not path /og-image.jpg /manifest.json /robots.txt /sitemap.xml
 		not path /sw.js
