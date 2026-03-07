@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { motion } from 'framer-motion';
 import { Mail, Send, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -203,6 +204,7 @@ const Contact: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20">
+      <Helmet><title>Contact - CelestiArcana</title></Helmet>
       {/* Hero Section */}
       <section className="relative py-16 px-4 text-center overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl -z-10" />

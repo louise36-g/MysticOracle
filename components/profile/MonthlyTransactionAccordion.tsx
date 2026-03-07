@@ -98,6 +98,7 @@ const MonthlyTransactionAccordion: React.FC<MonthlyTransactionAccordionProps> = 
         <div className="bg-slate-800/30 rounded-xl border border-slate-700/40 overflow-hidden">
           <button
             onClick={() => toggleSection('this-month')}
+            aria-expanded={expandedSections.has('this-month')}
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-700/20 transition-colors"
           >
             <div className="flex items-center gap-3">
@@ -149,6 +150,7 @@ const MonthlyTransactionAccordion: React.FC<MonthlyTransactionAccordionProps> = 
         <div className="bg-slate-800/30 rounded-xl border border-slate-700/40 overflow-hidden">
           <button
             onClick={() => toggleSection('all')}
+            aria-expanded={expandedSections.has('all')}
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-700/20 transition-colors"
           >
             <div className="flex items-center gap-3">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import {
@@ -135,6 +136,7 @@ const BlogList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
+      <Helmet><title>Blog - CelestiArcana</title></Helmet>
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-4">

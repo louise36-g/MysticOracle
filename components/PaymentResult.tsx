@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
@@ -126,9 +127,10 @@ const PaymentResult: React.FC = () => {
           <XCircle className="w-12 h-12 text-orange-400" />
         </motion.div>
 
-        <h1 className="text-2xl font-heading text-white mb-2">
+        <h1 className="sr-only">Payment Result</h1>
+        <h2 className="text-2xl font-heading text-white mb-2">
           {t('PaymentResult.tsx.PaymentResult.payment_cancelled', 'Payment Cancelled')}
-        </h1>
+        </h2>
 
         <p className="text-slate-400 mb-8 text-center max-w-md">
           {t('PaymentResult.tsx.PaymentResult.no_worries_your', "No worries! Your payment was cancelled and you haven't been charged.")}
@@ -155,6 +157,7 @@ const PaymentResult: React.FC = () => {
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+      <Helmet><title>Payment - CelestiArcana</title></Helmet>
       {isSuccess ? (
         <>
           <motion.div
@@ -175,9 +178,10 @@ const PaymentResult: React.FC = () => {
             </motion.div>
           </motion.div>
 
-          <h1 className="text-3xl font-heading text-white mb-2">
+          <h1 className="sr-only">Payment Result</h1>
+          <h2 className="text-3xl font-heading text-white mb-2">
             {t('PaymentResult.tsx.PaymentResult.payment_successful', 'Payment Successful!')}
-          </h1>
+          </h2>
 
           {result?.credits && result.credits > 0 && (
             <motion.div
@@ -223,9 +227,10 @@ const PaymentResult: React.FC = () => {
             <XCircle className="w-12 h-12 text-red-400" />
           </motion.div>
 
-          <h1 className="text-2xl font-heading text-white mb-2">
+          <h1 className="sr-only">Payment Result</h1>
+          <h2 className="text-2xl font-heading text-white mb-2">
             {t('PaymentResult.tsx.PaymentResult.payment_failed', 'Payment Failed')}
-          </h1>
+          </h2>
 
           <p className="text-slate-400 mb-4 text-center max-w-md">
             {result?.error || t('PaymentResult.tsx.PaymentResult.there_was_an', 'There was an issue processing your payment. Please try again.')}

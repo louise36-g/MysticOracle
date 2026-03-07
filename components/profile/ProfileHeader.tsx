@@ -57,9 +57,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
         {/* User Info */}
         <div className="text-center md:text-left flex-1">
-          <h1 className="text-2xl md:text-3xl font-heading text-white mb-1">
+          <h2 className="text-2xl md:text-3xl font-heading text-white mb-1">
             {displayUser.username}
-          </h1>
+          </h2>
           <p className="text-slate-400 mb-2">{displayUser.email}</p>
           <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-slate-500">
             <Calendar className="w-4 h-4" />

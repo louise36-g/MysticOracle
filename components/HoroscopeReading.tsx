@@ -2,6 +2,7 @@
 // Celestial horoscope experience with unified CelestiArcana aesthetic
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -563,6 +564,7 @@ const HoroscopeReading: React.FC = () => {
   // Zodiac sign selector - unified design
   return (
     <div className="relative max-w-5xl mx-auto px-4">
+      <Helmet><title>Daily Horoscopes - CelestiArcana</title></Helmet>
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[100px]" />

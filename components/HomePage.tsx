@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
@@ -72,6 +73,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="pb-12 relative z-10">
+      <Helmet><title>CelestiArcana - Personalized Tarot Readings & Daily Horoscopes</title></Helmet>
       {/* Atmospheric background - persistent */}
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden">
         {/* Gradient orbs */}

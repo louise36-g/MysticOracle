@@ -178,6 +178,9 @@ const CookieConsent: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <button
+                    role="switch"
+                    aria-checked={settings.analytics}
+                    aria-label={t.analytics}
                     onClick={() => setSettings(s => ({ ...s, analytics: !s.analytics }))}
                     className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${
                       settings.analytics ? 'bg-purple-600 justify-end' : 'bg-slate-600 justify-start'
@@ -196,6 +199,9 @@ const CookieConsent: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <button
+                    role="switch"
+                    aria-checked={settings.marketing}
+                    aria-label={t.marketing}
                     onClick={() => setSettings(s => ({ ...s, marketing: !s.marketing }))}
                     className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${
                       settings.marketing ? 'bg-purple-600 justify-end' : 'bg-slate-600 justify-start'

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Sparkles, Heart, Brain, Compass, Palette } from 'lucide-react';
@@ -126,6 +127,7 @@ const AboutUs: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] py-16 px-4">
+      <Helmet><title>About - CelestiArcana</title></Helmet>
       <div className="max-w-3xl mx-auto">
         {/* Hero */}
         <motion.div

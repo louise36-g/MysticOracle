@@ -38,6 +38,7 @@ const FormInput: React.FC<FormInputProps> = ({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        aria-invalid={error || undefined}
         className={`
           w-full bg-slate-950 border rounded-lg py-3 text-white
           focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/50
