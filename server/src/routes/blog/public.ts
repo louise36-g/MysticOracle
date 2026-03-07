@@ -192,6 +192,9 @@ router.get('/posts/:slug', async (req, res) => {
 // List all categories
 router.get('/categories', async (req, res) => {
   try {
+    const cached = await cacheService.get<Record<string, unknown>>('blog:categories');
+    if (cached) return res.json(cached);
+
     const categories = await prisma.blogCategory.findMany({
       orderBy: { sortOrder: 'asc' },
       include: {
@@ -211,12 +214,15 @@ router.get('/categories', async (req, res) => {
       },
     });
 
-    res.json({
+    const response = {
       categories: categories.map(c => ({
         ...c,
         postCount: c._count.posts,
       })),
-    });
+    };
+
+    await cacheService.set('blog:categories', response, CacheService.TTL.CATEGORIES);
+    res.json(response);
   } catch (error) {
     console.error(
       'Error fetching categories:',
@@ -229,6 +235,9 @@ router.get('/categories', async (req, res) => {
 // List all tags with post counts
 router.get('/tags', async (req, res) => {
   try {
+    const cached = await cacheService.get<Record<string, unknown>>('blog:tags');
+    if (cached) return res.json(cached);
+
     const tags = await prisma.blogTag.findMany({
       orderBy: { nameEn: 'asc' },
       include: {
@@ -248,12 +257,15 @@ router.get('/tags', async (req, res) => {
       },
     });
 
-    res.json({
+    const response = {
       tags: tags.map(t => ({
         ...t,
         postCount: t._count.posts,
       })),
-    });
+    };
+
+    await cacheService.set('blog:tags', response, CacheService.TTL.TAGS);
+    res.json(response);
   } catch (error) {
     console.error('Error fetching tags:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch tags' });

@@ -53,6 +53,70 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 const REQUEST_TIMEOUT_MS = 30000;
 
 /**
+ * Circuit breaker to prevent cascading failures when the AI service is down.
+ * States: closed (normal) -> open (failing) -> half-open (testing recovery)
+ */
+class CircuitBreaker {
+  private failures = 0;
+  private lastFailureTime = 0;
+  private state: 'closed' | 'open' | 'half-open' = 'closed';
+
+  private static NON_RETRYABLE_PATTERNS = [
+    'authentication',
+    'credits exhausted',
+    'not configured',
+    'not found',
+    'API key',
+  ];
+
+  constructor(
+    private threshold: number = 5,
+    private resetTimeMs: number = 60000
+  ) {}
+
+  async execute<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.state === 'open') {
+      if (Date.now() - this.lastFailureTime > this.resetTimeMs) {
+        this.state = 'half-open';
+      } else {
+        throw new Error('AI service temporarily unavailable. Please try again in a moment.');
+      }
+    }
+    try {
+      const result = await fn();
+      this.reset();
+      return result;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      const isNonRetryable = CircuitBreaker.NON_RETRYABLE_PATTERNS.some(p =>
+        message.toLowerCase().includes(p.toLowerCase())
+      );
+      if (!isNonRetryable) {
+        this.recordFailure();
+      }
+      throw error;
+    }
+  }
+
+  private recordFailure() {
+    this.failures++;
+    this.lastFailureTime = Date.now();
+    if (this.failures >= this.threshold) {
+      this.state = 'open';
+      console.error(`[CircuitBreaker] Circuit opened after ${this.failures} failures`);
+    }
+  }
+
+  private reset() {
+    if (this.state !== 'closed') {
+      console.log('[CircuitBreaker] Circuit closed - service recovered');
+    }
+    this.failures = 0;
+    this.state = 'closed';
+  }
+}
+
+/**
  * OpenRouter Service - Unified interface for all AI generation
  */
 export class OpenRouterService {
@@ -60,6 +124,7 @@ export class OpenRouterService {
   private model: string;
   private baseURL = 'https://openrouter.ai/api/v1';
   private retryConfig: RetryConfig;
+  private circuitBreaker = new CircuitBreaker(5, 60000);
 
   constructor(retryConfig: Partial<RetryConfig> = {}) {
     this.model = 'openai/gpt-oss-120b:free'; // Default model
@@ -99,9 +164,19 @@ export class OpenRouterService {
   }
 
   /**
-   * Make a request to OpenRouter with retry logic
+   * Make a request to OpenRouter, wrapped with circuit breaker
    */
   private async makeRequest(
+    messages: OpenRouterMessage[],
+    config: Partial<OpenRouterConfig> = {}
+  ): Promise<string> {
+    return this.circuitBreaker.execute(() => this.doMakeRequest(messages, config));
+  }
+
+  /**
+   * Internal: Make a request to OpenRouter with retry logic
+   */
+  private async doMakeRequest(
     messages: OpenRouterMessage[],
     config: Partial<OpenRouterConfig> = {}
   ): Promise<string> {

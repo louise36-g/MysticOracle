@@ -3,6 +3,7 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { randomUUID } from 'crypto';
 // Load environment variables FIRST (must be before any other imports that read process.env)
 import 'dotenv/config';
 
@@ -187,6 +188,14 @@ app.use(
     credentials: true,
   })
 );
+
+// Request ID middleware (before routes, after CORS/helmet/compression)
+app.use((req, res, next) => {
+  const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+  res.locals.requestId = requestId;
+  res.setHeader('X-Request-Id', requestId);
+  next();
+});
 
 // Attach scoped DI container to each request (before routes)
 app.use(scopePerRequest(container));

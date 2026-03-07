@@ -56,34 +56,24 @@ router.get('/overview', async (req, res) => {
       deletedAt: null,
     };
 
-    // Fetch all cards per category in parallel
-    const [majorArcana, wands, cups, swords, pentacles] = await Promise.all([
-      prisma.blogPost.findMany({
-        where: { ...baseWhere, cardType: 'MAJOR_ARCANA' },
-        select: selectFields,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-      prisma.blogPost.findMany({
-        where: { ...baseWhere, cardType: 'SUIT_OF_WANDS' },
-        select: selectFields,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-      prisma.blogPost.findMany({
-        where: { ...baseWhere, cardType: 'SUIT_OF_CUPS' },
-        select: selectFields,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-      prisma.blogPost.findMany({
-        where: { ...baseWhere, cardType: 'SUIT_OF_SWORDS' },
-        select: selectFields,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-      prisma.blogPost.findMany({
-        where: { ...baseWhere, cardType: 'SUIT_OF_PENTACLES' },
-        select: selectFields,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-    ]);
+    // Fetch all articles in a single query and group by card type
+    const allArticles = await prisma.blogPost.findMany({
+      where: baseWhere,
+      select: selectFields,
+      orderBy: [{ cardType: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+
+    const grouped: Record<string, typeof allArticles> = {};
+    for (const article of allArticles) {
+      const key = article.cardType || 'unknown';
+      (grouped[key] = grouped[key] || []).push(article);
+    }
+
+    const majorArcana = grouped['MAJOR_ARCANA'] || [];
+    const wands = grouped['SUIT_OF_WANDS'] || [];
+    const cups = grouped['SUIT_OF_CUPS'] || [];
+    const swords = grouped['SUIT_OF_SWORDS'] || [];
+    const pentacles = grouped['SUIT_OF_PENTACLES'] || [];
 
     // Transform to TarotArticle API shape
     const transform = (items: typeof majorArcana) =>
