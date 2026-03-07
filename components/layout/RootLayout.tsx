@@ -138,9 +138,17 @@ export function RootLayout() {
         }}
       />
 
+      {/* Skip to main content link for keyboard/screen reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-purple-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       <Header />
       <SubNav />
-      <main className="relative z-10 flex-grow">
+      <main id="main-content" className="relative z-10 flex-grow">
         <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Outlet />
@@ -192,7 +200,8 @@ export function RootLayout() {
             >
               <button
                 onClick={() => setShowLowCreditsModal(false)}
-                className="absolute top-3 right-3 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white"
+                aria-label="Close"
+                className="absolute top-3 right-3 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>

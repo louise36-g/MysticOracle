@@ -52,6 +52,51 @@ const SubNav: React.FC = () => {
     setOpenDropdown(null);
   };
 
+  // Keyboard handler for dropdown trigger buttons
+  const handleDropdownKeyDown = (name: string) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setOpenDropdown(name);
+      // Focus first link in the dropdown after it renders
+      requestAnimationFrame(() => {
+        const dropdown = document.getElementById(`${name}-dropdown`);
+        const firstLink = dropdown?.querySelector<HTMLElement>('a');
+        firstLink?.focus();
+      });
+    }
+    if (e.key === 'Escape') {
+      setOpenDropdown(null);
+    }
+  };
+
+  // Keyboard handler for dropdown items
+  const handleDropdownItemKeyDown = (name: string, index: number, total: number) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpenDropdown(null);
+      // Return focus to the trigger button
+      const trigger = document.getElementById(`${name}-trigger`);
+      trigger?.focus();
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const dropdown = document.getElementById(`${name}-dropdown`);
+      const links = dropdown?.querySelectorAll<HTMLElement>('a');
+      if (links && index < total - 1) links[index + 1]?.focus();
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (index === 0) {
+        setOpenDropdown(null);
+        document.getElementById(`${name}-trigger`)?.focus();
+      } else {
+        const dropdown = document.getElementById(`${name}-dropdown`);
+        const links = dropdown?.querySelectorAll<HTMLElement>('a');
+        if (links) links[index - 1]?.focus();
+      }
+    }
+  };
+
   // Helper to check if path is active
   const isActive = useCallback((path: string) => {
     return location.pathname.startsWith(path);
@@ -111,8 +156,10 @@ const SubNav: React.FC = () => {
     }
   ];
 
-  const renderDropdown = (items: DropdownItem[]) => (
+  const renderDropdown = (name: string, items: DropdownItem[]) => (
     <motion.div
+      id={`${name}-dropdown`}
+      role="menu"
       initial={{ opacity: 0, y: -10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -120,11 +167,13 @@ const SubNav: React.FC = () => {
       className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
     >
       <div className="p-2 max-h-[400px] overflow-y-auto">
-        {items.map(item => (
+        {items.map((item, index) => (
           <Link
             key={item.id}
             to={item.href}
+            role="menuitem"
             onClick={handleItemClick}
+            onKeyDown={handleDropdownItemKeyDown(name, index, items.length)}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all hover:bg-white/5 hover:scale-[1.02] cursor-pointer"
           >
             <div className={`w-9 h-9 rounded-lg ${item.iconBg} flex items-center justify-center flex-shrink-0`}>
@@ -203,6 +252,11 @@ const SubNav: React.FC = () => {
             onMouseLeave={handleMouseLeave}
           >
             <button
+              id="learn-trigger"
+              aria-expanded={openDropdown === 'learn'}
+              aria-controls="learn-dropdown"
+              aria-haspopup="true"
+              onKeyDown={handleDropdownKeyDown('learn')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isLearnActive || openDropdown === 'learn'
                   ? 'text-blue-300 bg-blue-500/10'
@@ -214,7 +268,7 @@ const SubNav: React.FC = () => {
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
-              {openDropdown === 'learn' && renderDropdown(learnItems)}
+              {openDropdown === 'learn' && renderDropdown('learn', learnItems)}
             </AnimatePresence>
           </div>
 

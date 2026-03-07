@@ -204,10 +204,11 @@ const BirthCardEntry: React.FC = () => {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {/* Day input */}
                 <div>
-                  <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
+                  <label htmlFor="birth-day" className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
                     {language === 'fr' ? 'Jour' : 'Day'}
                   </label>
                   <input
+                    id="birth-day"
                     ref={dayRef}
                     type="number"
                     min="1"
@@ -221,10 +222,11 @@ const BirthCardEntry: React.FC = () => {
 
                 {/* Month input */}
                 <div>
-                  <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
+                  <label htmlFor="birth-month" className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
                     {language === 'fr' ? 'Mois' : 'Month'}
                   </label>
                   <input
+                    id="birth-month"
                     ref={monthRef}
                     type="number"
                     min="1"
@@ -238,10 +240,11 @@ const BirthCardEntry: React.FC = () => {
 
                 {/* Year input */}
                 <div>
-                  <label className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
+                  <label htmlFor="birth-year" className="block text-xs text-white/50 mb-1 uppercase tracking-wider">
                     {language === 'fr' ? 'Année' : 'Year'}
                   </label>
                   <input
+                    id="birth-year"
                     ref={yearRef}
                     type="number"
                     min="1900"

@@ -62,6 +62,7 @@ const Modal: React.FC<ModalProps> = ({
     [closeOnBackdrop, onClose]
   );
 
+  // Keyboard: Escape to close
   useEffect(() => {
     if (!isOpen) return;
 
@@ -73,6 +74,53 @@ const Modal: React.FC<ModalProps> = ({
       document.body.style.overflow = '';
     };
   }, [isOpen, handleKeyDown]);
+
+  // Focus trap: keep focus within modal, restore on close
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousFocus = document.activeElement as HTMLElement;
+
+    // Wait for animation to finish rendering content
+    const rafId = requestAnimationFrame(() => {
+      const modal = modalRef.current;
+      if (!modal) return;
+
+      const focusableEls = modal.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableEls.length > 0) focusableEls[0].focus();
+    });
+
+    const handleTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const modal = modalRef.current;
+      if (!modal) return;
+
+      const focusableEls = modal.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableEls.length === 0) return;
+
+      const first = focusableEls[0];
+      const last = focusableEls[focusableEls.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTrap);
+    return () => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener('keydown', handleTrap);
+      previousFocus?.focus();
+    };
+  }, [isOpen]);
 
   const modalContent = (
     <AnimatePresence>
@@ -113,7 +161,7 @@ const Modal: React.FC<ModalProps> = ({
                 {showCloseButton && (
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-300 hover:text-white"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />

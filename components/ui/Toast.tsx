@@ -51,6 +51,9 @@ export const Toast: React.FC<ToastProps> = ({
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]"
         >
           <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
             className={`flex items-center gap-2 px-4 py-2.5 rounded-full shadow-lg ${TOAST_STYLES[type]}`}
           >
             {TOAST_ICONS[type]}

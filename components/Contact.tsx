@@ -256,33 +256,39 @@ const Contact: React.FC = () => {
                 {/* Name & Email row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    <label htmlFor="contact-name" className="block text-sm font-medium text-slate-300 mb-1.5">
                       {t.form.name}
                     </label>
                     <input
+                      id="contact-name"
                       type="text"
                       value={form.name}
                       onChange={e => updateField('name', e.target.value)}
                       placeholder={t.form.namePlaceholder}
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? 'contact-name-error' : undefined}
                       className={inputClasses('name')}
                     />
                     {errors.name && (
-                      <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>
+                      <p id="contact-name-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.name}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    <label htmlFor="contact-email" className="block text-sm font-medium text-slate-300 mb-1.5">
                       {t.form.email}
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       value={form.email}
                       onChange={e => updateField('email', e.target.value)}
                       placeholder={t.form.emailPlaceholder}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? 'contact-email-error' : undefined}
                       className={inputClasses('email')}
                     />
                     {errors.email && (
-                      <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>
+                      <p id="contact-email-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.email}</p>
                     )}
                   </div>
                 </div>
@@ -290,10 +296,11 @@ const Contact: React.FC = () => {
                 {/* Phone & Subject row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    <label htmlFor="contact-phone" className="block text-sm font-medium text-slate-300 mb-1.5">
                       {t.form.phone}
                     </label>
                     <input
+                      id="contact-phone"
                       type="tel"
                       value={form.phone}
                       onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
@@ -302,12 +309,15 @@ const Contact: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    <label htmlFor="contact-subject" className="block text-sm font-medium text-slate-300 mb-1.5">
                       {t.form.subject}
                     </label>
                     <select
+                      id="contact-subject"
                       value={form.subject}
                       onChange={e => updateField('subject', e.target.value)}
+                      aria-invalid={!!errors.subject}
+                      aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
                       className={`${inputClasses('subject')} ${!form.subject ? 'text-slate-500' : ''}`}
                     >
                       <option value="">{t.form.subjectPlaceholder}</option>
@@ -318,25 +328,28 @@ const Contact: React.FC = () => {
                       <option value="Other">{t.form.subjects.other}</option>
                     </select>
                     {errors.subject && (
-                      <p className="mt-1.5 text-xs text-red-400">{errors.subject}</p>
+                      <p id="contact-subject-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.subject}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-slate-300 mb-1.5">
                     {t.form.message}
                   </label>
                   <textarea
+                    id="contact-message"
                     value={form.message}
                     onChange={e => updateField('message', e.target.value)}
                     placeholder={t.form.messagePlaceholder}
                     rows={6}
+                    aria-invalid={!!errors.message}
+                    aria-describedby={errors.message ? 'contact-message-error' : undefined}
                     className={`${inputClasses('message')} resize-none`}
                   />
                   {errors.message && (
-                    <p className="mt-1.5 text-xs text-red-400">{errors.message}</p>
+                    <p id="contact-message-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.message}</p>
                   )}
                 </div>
 

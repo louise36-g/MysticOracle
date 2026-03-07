@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 py-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           {/* Copyright */}
-          <p className="text-slate-400">
+          <p className="text-slate-300">
             © {currentYear} CelestiArcana. {language === 'fr' ? 'Divertissement uniquement.' : 'Entertainment only.'}
           </p>
 
@@ -21,31 +21,31 @@ const Footer: React.FC = () => {
           <nav className="flex items-center gap-5">
             <Link
               to={ROUTES.PRIVACY}
-              className="text-slate-400 hover:text-purple-300 transition-colors"
+              className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               {language === 'fr' ? 'Confidentialité' : 'Privacy'}
             </Link>
             <Link
               to={ROUTES.TERMS}
-              className="text-slate-400 hover:text-purple-300 transition-colors"
+              className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               {language === 'fr' ? 'Conditions' : 'Terms'}
             </Link>
             <Link
               to={ROUTES.COOKIES}
-              className="text-slate-400 hover:text-purple-300 transition-colors"
+              className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               Cookies
             </Link>
             <Link
               to={ROUTES.FAQ}
-              className="text-slate-400 hover:text-purple-300 transition-colors"
+              className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               FAQ
             </Link>
             <a
               href="mailto:contact@celestiarcana.com"
-              className="text-slate-400 hover:text-purple-300 transition-colors"
+              className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               Contact
             </a>
