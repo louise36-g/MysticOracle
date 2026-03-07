@@ -46,7 +46,7 @@ const AdminTranslations: React.FC = () => {
         const token = await getToken();
         if (!token) throw new Error('No token');
 
-        const res = await fetch(`${API_URL}/api/translations/admin/languages`, {
+        const res = await fetch(`${API_URL}/api/v1/translations/admin/languages`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -79,7 +79,7 @@ const AdminTranslations: React.FC = () => {
         const token = await getToken();
         if (!token) return;
 
-        const res = await fetch(`${API_URL}/api/translations/admin/${selectedLang}`, {
+        const res = await fetch(`${API_URL}/api/v1/translations/admin/${selectedLang}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -101,7 +101,7 @@ const AdminTranslations: React.FC = () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
 
-      const res = await fetch(`${API_URL}/api/translations/admin/seed`, {
+      const res = await fetch(`${API_URL}/api/v1/translations/admin/seed`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -112,7 +112,7 @@ const AdminTranslations: React.FC = () => {
       }
 
       // Reload languages
-      const langRes = await fetch(`${API_URL}/api/translations/admin/languages`, {
+      const langRes = await fetch(`${API_URL}/api/v1/translations/admin/languages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!langRes.ok) throw new Error('Failed to reload languages');
@@ -141,7 +141,7 @@ const AdminTranslations: React.FC = () => {
       const lang = languages.find(l => l.code === selectedLang);
       if (!lang) return;
 
-      const res = await fetch(`${API_URL}/api/translations/admin/translations`, {
+      const res = await fetch(`${API_URL}/api/v1/translations/admin/translations`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
