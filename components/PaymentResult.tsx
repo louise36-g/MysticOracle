@@ -234,12 +234,12 @@ const PaymentResult: React.FC = () => {
           <div className="flex gap-4">
             <Link to={ROUTES.PROFILE}>
               <Button variant="outline">
-                {t('PaymentResult.tsx.PaymentResult.back_to_profile_2', 'Back to Profile')}
+                {t('PaymentResult.tsx.PaymentResult.back_to_profile', 'Back to Profile')}
               </Button>
             </Link>
             <Link to={ROUTES.HOME}>
               <Button>
-                {t('PaymentResult.tsx.PaymentResult.go_home_2', 'Home Page')}
+                {t('PaymentResult.tsx.PaymentResult.go_home', 'Home Page')}
               </Button>
             </Link>
           </div>

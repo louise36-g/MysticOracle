@@ -213,7 +213,7 @@ const UserProfile: React.FC = () => {
                     >
                         <h2 className="text-base font-heading text-purple-100 flex items-center gap-2">
                             <Award className="w-4 h-4 text-amber-400" />
-                            {t('UserProfile.tsx.UserProfile.achievements_2', 'Achievements')}
+                            {t('UserProfile.tsx.UserProfile.achievements', 'Achievements')}
                             <span className="text-xs text-slate-500 font-normal">
                                 ({achievementsWithProgress.filter(a => a.isUnlocked).length}/{achievementsWithProgress.length})
                             </span>
@@ -414,7 +414,7 @@ const UserProfile: React.FC = () => {
                                     {isLoadingTransactions ? (
                                         <div className="flex items-center justify-center py-12">
                                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading_2', 'Loading...')}</span>
+                                            <span className="ml-3 text-slate-400">{t('UserProfile.tsx.UserProfile.loading', 'Loading...')}</span>
                                         </div>
                                     ) : !transactions || transactions.length === 0 ? (
                                         <EmptyState type="transactions" />

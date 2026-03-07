@@ -173,7 +173,7 @@ const AdminAnalytics: React.FC = () => {
             </h3>
           </div>
           {analytics.topStreakUsers.length === 0 ? (
-            <p className="text-slate-400">{t('admin.AdminAnalytics.no_users_yet_2', 'No users yet')}</p>
+            <p className="text-slate-400">{t('admin.AdminAnalytics.no_users_yet', 'No users yet')}</p>
           ) : (
             <div className="space-y-3">
               {analytics.topStreakUsers.map((user, i) => (

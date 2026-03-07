@@ -813,7 +813,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'app.App.buy_credits': { en: 'Buy Credits', fr: 'Acheter des Crédits' }, // App.tsx:875
   'app.App.running_low_on': { en: 'Running Low on Credits', fr: 'Crédits Bientôt Épuisés' }, // App.tsx:912
   'app.App.later': { en: 'Later', fr: 'Plus Tard' }, // App.tsx:925
-  'app.App.buy_credits_2': { en: 'Buy Credits', fr: 'Acheter des Crédits' }, // App.tsx:933
   'AboutUs.tsx.AboutUs.about_celestiarcana': {
     en: 'About CelestiArcana',
     fr: 'À Propos de CelestiArcana',
@@ -840,10 +839,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Transaction failed.',
     fr: 'La transaction a échoué.',
   }, // components/ActiveReading.tsx:274
-  'ActiveReading.tsx.ActiveReading.insufficient_credits_2': {
-    en: 'Insufficient credits!',
-    fr: 'Crédits insuffisants!',
-  }, // components/ActiveReading.tsx:410
   'Breadcrumb.tsx.Breadcrumb.home': { en: 'Home', fr: 'Accueil' }, // components/Breadcrumb.tsx:60
   'Breadcrumb.tsx.Breadcrumb.profile': { en: 'Profile', fr: 'Profil' }, // components/Breadcrumb.tsx:70
   'Breadcrumb.tsx.Breadcrumb.admin_dashboard': { en: 'Admin Dashboard', fr: 'Tableau de Bord' }, // components/Breadcrumb.tsx:77
@@ -869,13 +864,8 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'Breadcrumb.tsx.Breadcrumb.tarot_cards': { en: 'Tarot Cards', fr: 'Cartes de Tarot' }, // components/Breadcrumb.tsx:146
   'Breadcrumb.tsx.Breadcrumb.all_cards': { en: 'All Cards', fr: 'Toutes les Cartes' }, // components/Breadcrumb.tsx:152
   'Breadcrumb.tsx.Breadcrumb.card_details': { en: 'Card Details', fr: 'Détails' }, // components/Breadcrumb.tsx:158
-  'Breadcrumb.tsx.Breadcrumb.tarot_cards_2': { en: 'Tarot Cards', fr: 'Cartes de Tarot' }, // components/Breadcrumb.tsx:165
-  'Breadcrumb.tsx.Breadcrumb.tarot_cards_3': { en: 'Tarot Cards', fr: 'Cartes de Tarot' }, // components/Breadcrumb.tsx:172
-  'Breadcrumb.tsx.Breadcrumb.all_cards_2': { en: 'All Cards', fr: 'Toutes les Cartes' }, // components/Breadcrumb.tsx:178
-  'Breadcrumb.tsx.Breadcrumb.tarot_cards_4': { en: 'Tarot Cards', fr: 'Cartes de Tarot' }, // components/Breadcrumb.tsx:185
   'Breadcrumb.tsx.Breadcrumb.category': { en: 'Category', fr: 'Catégorie' }, // components/Breadcrumb.tsx:191
   'Breadcrumb.tsx.Breadcrumb.tarot_readings': { en: 'Tarot Readings', fr: 'Tirages Tarot' }, // components/Breadcrumb.tsx:200
-  'Breadcrumb.tsx.Breadcrumb.tarot_readings_2': { en: 'Tarot Readings', fr: 'Tirages Tarot' }, // components/Breadcrumb.tsx:221
   'Breadcrumb.tsx.Breadcrumb.horoscope': { en: 'Horoscope', fr: 'Horoscope' }, // components/Breadcrumb.tsx:226
   'Breadcrumb.tsx.Breadcrumb.oracle': { en: 'Oracle', fr: 'Oracle' }, // components/Breadcrumb.tsx:231
   'CookieConsent.tsx.CookieConsent.cancel': { en: 'Cancel', fr: 'Annuler' }, // components/CookieConsent.tsx:212
@@ -902,13 +892,11 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'CreditShop.tsx.CreditShop.starter': { en: 'Starter', fr: 'Découverte' }, // components/CreditShop.tsx:455
   'CreditShop.tsx.CreditShop.credits': { en: 'credits', fr: 'crédits' }, // components/CreditShop.tsx:481
   'CreditShop.tsx.CreditShop.best_value': { en: 'Best Value', fr: 'Meilleur' }, // components/CreditShop.tsx:536
-  'CreditShop.tsx.CreditShop.credits_2': { en: 'credits', fr: 'crédits' }, // components/CreditShop.tsx:557
   'CreditShop.tsx.CreditShop.credit': { en: 'credit', fr: 'crédit' }, // components/CreditShop.tsx:579
   'CreditShop.tsx.CreditShop.complete_purchase': {
     en: 'Complete Purchase',
     fr: "Finaliser l'Achat",
   }, // components/CreditShop.tsx:601
-  'CreditShop.tsx.CreditShop.credits_3': { en: 'credits', fr: 'crédits' }, // components/CreditShop.tsx:607
   'CreditShop.tsx.CreditShop.recommended': { en: 'Recommended', fr: 'Recommandé' }, // components/CreditShop.tsx:629
   'CreditShop.tsx.CreditShop.oneclick_checkout': {
     en: 'One-click checkout',
@@ -941,19 +929,15 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'FAQ.tsx.FAQ.credit': { en: 'credit', fr: 'crédit' }, // components/FAQ.tsx:316
   'FAQ.tsx.FAQ.credits': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:317
   'FAQ.tsx.FAQ.love_relationships': { en: 'Love & Relationships', fr: 'Amour & Relations' }, // components/FAQ.tsx:318
-  'FAQ.tsx.FAQ.credits_2': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:318
   'FAQ.tsx.FAQ.5card_spread_exploring': {
     en: '5-card spread exploring matters of the heart',
     fr: 'Tirage à 5 cartes explorant les affaires du cœur',
   }, // components/FAQ.tsx:318
   'FAQ.tsx.FAQ.career_path': { en: 'Career Path', fr: 'Chemin de Carrière' }, // components/FAQ.tsx:319
-  'FAQ.tsx.FAQ.credits_3': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:319
   'FAQ.tsx.FAQ.5card_spread_for': {
     en: '5-card spread for professional guidance',
     fr: 'Tirage à 5 cartes pour orientation professionnelle',
   }, // components/FAQ.tsx:319
-  'FAQ.tsx.FAQ.credits_4': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:320
-  'FAQ.tsx.FAQ.credits_5': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:321
   'Footer.tsx.Footer.help': { en: 'Help', fr: 'Aide' }, // components/Footer.tsx:39
   'Footer.tsx.Footer.faq': { en: 'FAQ', fr: 'FAQ' }, // components/Footer.tsx:47
   'Footer.tsx.Footer.how_credits_work': {
@@ -976,9 +960,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     fr: 'Tous droits réservés.',
   }, // components/Footer.tsx:106
   'Header.tsx.Header.fr': { en: 'fr', fr: 'en' }, // components/Header.tsx:28
-  'Header.tsx.Header.fr_2': { en: 'fr', fr: 'en' }, // components/Header.tsx:41
   'Header.tsx.Header.switch_to_french': { en: 'Switch to French', fr: 'Switch to English' }, // components/Header.tsx:90
-  'Header.tsx.Header.switch_to_french_2': { en: 'Switch to French', fr: 'Passer en anglais' }, // components/Header.tsx:91
   'Header.tsx.Header.sign_in': { en: 'Sign In', fr: 'Connexion' }, // components/Header.tsx:99
   'Header.tsx.Header.credits': { en: 'Credits', fr: 'Crédits' }, // components/Header.tsx:159
   'Header.tsx.Header.home': { en: 'Home', fr: 'Accueil' }, // components/Header.tsx:170
@@ -988,7 +970,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   }, // components/Header.tsx:188
   'Header.tsx.Header.help_faq': { en: 'Help & FAQ', fr: 'Aide & FAQ' }, // components/Header.tsx:197
   'Header.tsx.Header.my_account': { en: 'My Account', fr: 'Mon Compte' }, // components/Header.tsx:207
-  'Header.tsx.Header.sign_in_2': { en: 'Sign In', fr: 'Connexion' }, // components/Header.tsx:245
   'HoroscopeReading.tsx.HoroscopeReading.daily_horoscope': {
     en: 'Daily Horoscope',
     fr: 'Horoscope du Jour',
@@ -1003,7 +984,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   }, // components/HoroscopeReading.tsx:429
   'HoroscopeReading.tsx.HoroscopeReading.you': { en: 'You', fr: 'Vous' }, // components/HoroscopeReading.tsx:462
   'HoroscopeReading.tsx.HoroscopeReading.the_stars': { en: 'The Stars', fr: 'Les Étoiles' }, // components/HoroscopeReading.tsx:463
-  'HoroscopeReading.tsx.HoroscopeReading.the_stars_2': { en: 'The Stars', fr: 'Les Étoiles' }, // components/HoroscopeReading.tsx:481
   'HoroscopeReading.tsx.HoroscopeReading.consulting_the_cosmos': {
     en: 'Consulting the cosmos...',
     fr: 'Consultation du cosmos...',
@@ -1050,11 +1030,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Payment Failed',
     fr: 'Paiement Échoué',
   }, // components/PaymentResult.tsx:236
-  'PaymentResult.tsx.PaymentResult.back_to_profile_2': {
-    en: 'Back to Profile',
-    fr: 'Retour au Profil',
-  }, // components/PaymentResult.tsx:248
-  'PaymentResult.tsx.PaymentResult.go_home_2': { en: 'Go Home', fr: 'Accueil' }, // components/PaymentResult.tsx:253
   'QuestionLengthModal.tsx.QuestionLengthModal.long_question_detected': {
     en: 'Long Question Detected',
     fr: 'Question Longue Détectée',
@@ -1090,7 +1065,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Use full question',
     fr: 'Utiliser la question complète',
   }, // components/QuestionLengthModal.tsx:177
-  'QuestionLengthModal.tsx.QuestionLengthModal.credit_2': { en: 'credit', fr: 'crédit' }, // components/QuestionLengthModal.tsx:186
   'ReadingModeSelector.tsx.ReadingModeSelector.choose_your_reading': {
     en: 'Choose Your Reading',
     fr: 'Choisissez Votre Lecture',
@@ -1225,7 +1199,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Share & both get +5 credits',
     fr: 'Partagez et gagnez +5 crédits chacun',
   }, // components/UserProfile.tsx:323
-  'UserProfile.tsx.UserProfile.achievements_2': { en: 'Achievements', fr: 'Succès' }, // components/UserProfile.tsx:384
   'UserProfile.tsx.UserProfile.reading_history': {
     en: 'Reading History',
     fr: 'Historique des Lectures',
@@ -1240,7 +1213,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'UserProfile.tsx.UserProfile.purchased': { en: 'Purchased', fr: 'Achetés' }, // components/UserProfile.tsx:531
   'UserProfile.tsx.UserProfile.earned': { en: 'Earned', fr: 'Gagnés' }, // components/UserProfile.tsx:535
   'UserProfile.tsx.UserProfile.spent': { en: 'Spent', fr: 'Dépensés' }, // components/UserProfile.tsx:539
-  'UserProfile.tsx.UserProfile.loading_2': { en: 'Loading...', fr: 'Chargement...' }, // components/UserProfile.tsx:549
   'UserProfile.tsx.UserProfile.log_out': { en: 'Log Out', fr: 'Déconnexion' }, // components/UserProfile.tsx:587
   'admin.AdminAnalytics.analytics': { en: 'Analytics', fr: 'Analytique' }, // components/admin/AdminAnalytics.tsx:54
   'admin.AdminAnalytics.readings_last_7': {
@@ -1262,7 +1234,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Longest Login Streaks',
     fr: 'Plus Longues Series de Connexion',
   }, // components/admin/AdminAnalytics.tsx:171
-  'admin.AdminAnalytics.no_users_yet_2': { en: 'No users yet', fr: "Pas d'utilisateurs" }, // components/admin/AdminAnalytics.tsx:175
   'admin.AdminAnalytics.days': { en: 'days', fr: 'jours' }, // components/admin/AdminAnalytics.tsx:182
   'admin.AdminBlog.posts': { en: 'Posts', fr: 'Articles' }, // components/admin/AdminBlog.tsx:80
   'admin.AdminBlog.categories': { en: 'Categories', fr: 'Categories' }, // components/admin/AdminBlog.tsx:83
@@ -1370,7 +1341,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminPrompts.base_template': { en: 'Base Template', fr: 'Modèle de Base' }, // components/admin/AdminPrompts.tsx:277
   'admin.AdminPrompts.custom': { en: 'Custom', fr: 'Personnalisé' }, // components/admin/AdminPrompts.tsx:282
   'admin.AdminPrompts.horoscope_prompts': { en: 'Horoscope Prompts', fr: 'Prompts Horoscope' }, // components/admin/AdminPrompts.tsx:309
-  'admin.AdminPrompts.custom_2': { en: 'Custom', fr: 'Personnalisé' }, // components/admin/AdminPrompts.tsx:327
   'admin.AdminSettings.api_keys_settings': {
     en: 'API Keys & Settings',
     fr: 'Clés API & Paramètres',
@@ -1387,7 +1357,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminSettings.model': { en: 'Model', fr: 'Modèle' }, // components/admin/AdminSettings.tsx:439
   'admin.AdminSettings.api_key_status': { en: 'API Key Status', fr: 'Statut Clé API' }, // components/admin/AdminSettings.tsx:445
   'admin.AdminSettings.configured': { en: 'Configured', fr: 'Configuré' }, // components/admin/AdminSettings.tsx:452
-  'admin.AdminSettings.not_set_2': { en: 'Not Set', fr: 'Non configuré' }, // components/admin/AdminSettings.tsx:459
   'admin.AdminSettings.system_information': {
     en: 'System Information',
     fr: 'Informations Système',
@@ -1417,9 +1386,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   }, // components/admin/AdminTarotArticles.tsx:424
   'admin.AdminTarotArticles.all_types': { en: 'All Types', fr: 'Tous les types' }, // components/admin/AdminTarotArticles.tsx:436
   'admin.AdminTarotArticles.all_status': { en: 'All Status', fr: 'Tous les statuts' }, // components/admin/AdminTarotArticles.tsx:449
-  'admin.AdminTarotArticles.draft_2': { en: 'Draft', fr: 'Brouillon' }, // components/admin/AdminTarotArticles.tsx:450
-  'admin.AdminTarotArticles.published_2': { en: 'Published', fr: 'Publié' }, // components/admin/AdminTarotArticles.tsx:451
-  'admin.AdminTarotArticles.archived_2': { en: 'Archived', fr: 'Archivé' }, // components/admin/AdminTarotArticles.tsx:452
   'admin.AdminTarotArticles.import_json': { en: 'Import JSON', fr: 'Importer JSON' }, // components/admin/AdminTarotArticles.tsx:460
   'admin.AdminTarotArticles.article': { en: 'Article', fr: 'Article' }, // components/admin/AdminTarotArticles.tsx:475
   'admin.AdminTarotArticles.status': { en: 'Status', fr: 'Statut' }, // components/admin/AdminTarotArticles.tsx:476
@@ -1435,7 +1401,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminTarotArticles.unpublish': { en: 'Unpublish', fr: 'Dépublier' }, // components/admin/AdminTarotArticles.tsx:566
   'admin.AdminTarotArticles.publish': { en: 'Publish', fr: 'Publier' }, // components/admin/AdminTarotArticles.tsx:566
   'admin.AdminTarotArticles.delete': { en: 'Delete', fr: 'Supprimer' }, // components/admin/AdminTarotArticles.tsx:580
-  'admin.AdminTarotArticles.empty_trash_2': { en: 'Empty Trash', fr: 'Vider la corbeille' }, // components/admin/AdminTarotArticles.tsx:645
   'admin.AdminTarotArticles.trash_is_empty': {
     en: 'Trash is empty',
     fr: 'La corbeille est vide',
@@ -1444,12 +1409,9 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Deleted articles will appear here',
     fr: 'Les articles supprimés apparaîtront ici',
   }, // components/admin/AdminTarotArticles.tsx:661
-  'admin.AdminTarotArticles.article_2': { en: 'Article', fr: 'Article' }, // components/admin/AdminTarotArticles.tsx:670
   'admin.AdminTarotArticles.original_slug': { en: 'Original Slug', fr: 'Slug original' }, // components/admin/AdminTarotArticles.tsx:671
   'admin.AdminTarotArticles.deleted': { en: 'Deleted', fr: 'Supprimé' }, // components/admin/AdminTarotArticles.tsx:672
-  'admin.AdminTarotArticles.actions_2': { en: 'Actions', fr: 'Actions' }, // components/admin/AdminTarotArticles.tsx:673
   'admin.AdminTarotArticles.restore': { en: 'Restore', fr: 'Restaurer' }, // components/admin/AdminTarotArticles.tsx:711
-  'admin.AdminTarotArticles.restore_2': { en: 'Restore', fr: 'Restaurer' }, // components/admin/AdminTarotArticles.tsx:715
   'admin.AdminTarotArticles.delete_permanently': {
     en: 'Delete permanently',
     fr: 'Supprimer définitivement',
@@ -1503,7 +1465,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminUsers.activate_user': { en: 'Activate user', fr: 'Activer' }, // components/admin/AdminUsers.tsx:260
   'admin.AdminUsers.remove_admin': { en: 'Remove admin', fr: 'Retirer admin' }, // components/admin/AdminUsers.tsx:268
   'admin.AdminUsers.make_admin': { en: 'Make admin', fr: 'Rendre admin' }, // components/admin/AdminUsers.tsx:268
-  'admin.AdminUsers.adjust_credits_2': { en: 'Adjust Credits', fr: 'Ajuster Credits' }, // components/admin/AdminUsers.tsx:321
   'admin.AdminUsers.amount': { en: 'Amount (+/-)', fr: 'Montant (+/-)' }, // components/admin/AdminUsers.tsx:326
   'admin.AdminUsers.reason': { en: 'Reason', fr: 'Raison' }, // components/admin/AdminUsers.tsx:338
   'admin.AdminUsers.bonus_refund_etc': {
@@ -1514,7 +1475,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.AdminUsers.apply': { en: 'Apply', fr: 'Appliquer' }, // components/admin/AdminUsers.tsx:360
   'admin.AdminUsers.total_earned': { en: 'Total Earned', fr: 'Total gagne' }, // components/admin/AdminUsers.tsx:394
   'admin.AdminUsers.total_spent': { en: 'Total Spent', fr: 'Total depense' }, // components/admin/AdminUsers.tsx:398
-  'admin.AdminUsers.readings_2': { en: 'Readings', fr: 'Lectures' }, // components/admin/AdminUsers.tsx:402
   'admin.AdminUsers.login_streak': { en: 'Login Streak', fr: 'Jours consecutifs' }, // components/admin/AdminUsers.tsx:406
   'admin.AdminUsers.last_login': { en: 'Last Login', fr: 'Derniere connexion' }, // components/admin/AdminUsers.tsx:410
   'admin.AdminUsers.achievements': { en: 'Achievements', fr: 'Realisations' }, // components/admin/AdminUsers.tsx:414
@@ -1586,7 +1546,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   }, // components/admin/ImportArticle.tsx:640
   'admin.ImportArticle.status': { en: 'Status:', fr: 'Statut:' }, // components/admin/ImportArticle.tsx:650
   'admin.ImportArticle.view': { en: 'View', fr: 'Voir' }, // components/admin/ImportArticle.tsx:666
-  'admin.ImportArticle.preview_2': { en: 'Preview', fr: 'Aperçu' }, // components/admin/ImportArticle.tsx:667
   'admin.ImportArticle.imported_with_warnings': {
     en: 'Imported with warnings:',
     fr: 'Importé avec avertissements:',
@@ -1594,7 +1553,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.ImportArticle.import_failed': { en: 'Import Failed', fr: 'Importation Échouée' }, // components/admin/ImportArticle.tsx:693
   'admin.ImportArticle.article_preview': { en: 'Article Preview', fr: "Aperçu de l'Article" }, // components/admin/ImportArticle.tsx:737
   'admin.ImportArticle.faq': { en: 'FAQ', fr: 'Questions Fréquentes' }, // components/admin/ImportArticle.tsx:799
-  'admin.ImportArticle.close_2': { en: 'Close', fr: 'Fermer' }, // components/admin/ImportArticle.tsx:840
   'admin.TarotArticleEditor.title': { en: 'Title', fr: 'Titre' }, // components/admin/TarotArticleEditor.tsx:194
   'admin.TarotArticleEditor.excerpt': { en: 'Excerpt', fr: 'Extrait' }, // components/admin/TarotArticleEditor.tsx:201
   'admin.TarotArticleEditor.content': { en: 'Content', fr: 'Contenu' }, // components/admin/TarotArticleEditor.tsx:208
@@ -1617,10 +1575,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'No categories yet',
     fr: 'Aucune catégorie',
   }, // components/admin/TarotCategoriesManager.tsx:160
-  'admin.TarotCategoriesManager.new_category_2': {
-    en: 'New Category',
-    fr: 'Nouvelle catégorie',
-  }, // components/admin/TarotCategoriesManager.tsx:177
   'admin.TarotCategoriesManager.edit_category': {
     en: 'Edit Category',
     fr: 'Modifier catégorie',
@@ -1652,7 +1606,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.TarotTagsManager.delete_this_tag': { en: 'Delete this tag?', fr: 'Supprimer ce tag?' }, // components/admin/TarotTagsManager.tsx:87
   'admin.TarotTagsManager.new_tag': { en: 'New Tag', fr: 'Nouveau tag' }, // components/admin/TarotTagsManager.tsx:116
   'admin.TarotTagsManager.no_tags_yet': { en: 'No tags yet', fr: 'Aucun tag' }, // components/admin/TarotTagsManager.tsx:146
-  'admin.TarotTagsManager.new_tag_2': { en: 'New Tag', fr: 'Nouveau tag' }, // components/admin/TarotTagsManager.tsx:163
   'admin.TarotTagsManager.edit_tag': { en: 'Edit Tag', fr: 'Modifier tag' }, // components/admin/TarotTagsManager.tsx:163
   'admin.TarotTagsManager.name': { en: 'Name', fr: 'Nom' }, // components/admin/TarotTagsManager.tsx:171
   'admin.TarotTagsManager.cancel': { en: 'Cancel', fr: 'Annuler' }, // components/admin/TarotTagsManager.tsx:200
@@ -1674,7 +1627,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     fr: 'Catégories créées:',
   }, // components/admin/blog/BlogImportModal.tsx:192
   'admin.BlogImportModal.created_tags': { en: 'Created tags:', fr: 'Tags créés:' }, // components/admin/blog/BlogImportModal.tsx:200
-  'admin.BlogImportModal.errors_2': { en: 'Errors:', fr: 'Erreurs:' }, // components/admin/blog/BlogImportModal.tsx:209
   'admin.BlogImportModal.upload_json_file': {
     en: 'Upload JSON file',
     fr: 'Télécharger fichier JSON',
@@ -1723,16 +1675,11 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     fr: 'Échec de la suppression',
   }, // components/admin/blog/BlogTaxonomyTab.tsx:163
   'admin.BlogTaxonomyTab.delete_tag': { en: 'Delete Tag', fr: 'Supprimer le tag' }, // components/admin/blog/BlogTaxonomyTab.tsx:213
-  'admin.BlogTaxonomyTab.failed_to_delete_2': {
-    en: 'Failed to delete tag',
-    fr: 'Échec de la suppression',
-  }, // components/admin/blog/BlogTaxonomyTab.tsx:226
   'admin.BlogTaxonomyTab.new_category': { en: 'New Category', fr: 'Nouvelle categorie' }, // components/admin/blog/BlogTaxonomyTab.tsx:242
   'admin.BlogTaxonomyTab.edit': { en: 'Edit', fr: 'Modifier' }, // components/admin/blog/BlogTaxonomyTab.tsx:285
   'admin.BlogTaxonomyTab.color': { en: 'Color', fr: 'Couleur' }, // components/admin/blog/BlogTaxonomyTab.tsx:333
   'admin.BlogTaxonomyTab.cancel': { en: 'Cancel', fr: 'Annuler' }, // components/admin/blog/BlogTaxonomyTab.tsx:403
   'admin.BlogTaxonomyTab.new_tag': { en: 'New Tag', fr: 'Nouveau tag' }, // components/admin/blog/BlogTaxonomyTab.tsx:437
-  'admin.BlogTaxonomyTab.cancel_2': { en: 'Cancel', fr: 'Annuler' }, // components/admin/blog/BlogTaxonomyTab.tsx:538
   'admin.BlogTrashTab.failed_to_restore': {
     en: 'Failed to restore post',
     fr: 'Échec de la restauration',
@@ -1750,14 +1697,12 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Failed to empty trash',
     fr: 'Échec du vidage de la corbeille',
   }, // components/admin/blog/BlogTrashTab.tsx:119
-  'admin.BlogTrashTab.empty_trash_2': { en: 'Empty Trash', fr: 'Vider la corbeille' }, // components/admin/blog/BlogTrashTab.tsx:135
   'admin.BlogTrashTab.trash_is_empty': { en: 'Trash is empty', fr: 'La corbeille est vide' }, // components/admin/blog/BlogTrashTab.tsx:148
   'admin.BlogTrashTab.title': { en: 'Title', fr: 'Titre' }, // components/admin/blog/BlogTrashTab.tsx:163
   'admin.BlogTrashTab.original_slug': { en: 'Original Slug', fr: 'Slug original' }, // components/admin/blog/BlogTrashTab.tsx:166
   'admin.BlogTrashTab.deleted': { en: 'Deleted', fr: 'Supprimé' }, // components/admin/blog/BlogTrashTab.tsx:169
   'admin.BlogTrashTab.actions': { en: 'Actions', fr: 'Actions' }, // components/admin/blog/BlogTrashTab.tsx:172
   'admin.BlogTrashTab.restore': { en: 'Restore', fr: 'Restaurer' }, // components/admin/blog/BlogTrashTab.tsx:195
-  'admin.BlogTrashTab.restore_2': { en: 'Restore', fr: 'Restaurer' }, // components/admin/blog/BlogTrashTab.tsx:198
   'admin.BlogTrashTab.delete_permanently': {
     en: 'Delete permanently',
     fr: 'Supprimer définitivement',
@@ -1781,7 +1726,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'blog.BlogList.featured_articles': { en: 'Featured Articles', fr: 'Articles a la Une' }, // components/blog/BlogList.tsx:129
   'blog.BlogList.filtering_by': { en: 'Filtering by:', fr: 'Filtrer par:' }, // components/blog/BlogList.tsx:252
   'blog.BlogList.nameen': { en: 'nameEn', fr: 'nameFr' }, // components/blog/BlogList.tsx:259
-  'blog.BlogList.nameen_2': { en: 'nameEn', fr: 'nameFr' }, // components/blog/BlogList.tsx:268
   'blog.BlogList.filtered_articles': { en: 'Filtered Articles', fr: 'Articles Filtres' }, // components/blog/BlogList.tsx:279
   'blog.BlogList.all_articles': { en: 'All Articles', fr: 'Tous les Articles' }, // components/blog/BlogList.tsx:280
   'blog.BlogList.no_articles_found': { en: 'No articles found.', fr: 'Aucun article trouve.' }, // components/blog/BlogList.tsx:290
@@ -1790,11 +1734,9 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     fr: 'Page ${page} sur ${totalPages}',
   }, // components/blog/BlogList.tsx:361
   'blog.BlogPost.enus': { en: 'en_US', fr: 'fr_FR' }, // components/blog/BlogPost.tsx:103
-  'blog.BlogPost.enus_2': { en: 'en-US', fr: 'fr-FR' }, // components/blog/BlogPost.tsx:197
   'blog.BlogPost.article_not_found': { en: 'Article Not Found', fr: 'Article Non Trouve' }, // components/blog/BlogPost.tsx:262
   'blog.BlogPost.back_to_blog': { en: 'Back to Blog', fr: 'Retour au Blog' }, // components/blog/BlogPost.tsx:268
   'blog.BlogPost.preview_mode': { en: 'Preview Mode', fr: 'Mode Apercu' }, // components/blog/BlogPost.tsx:286
-  'blog.BlogPost.back_to_blog_2': { en: 'Back to Blog', fr: 'Retour au Blog' }, // components/blog/BlogPost.tsx:301
   'blog.BlogPost.read': { en: 'read', fr: 'lecture' }, // components/blog/BlogPost.tsx:343
   'blog.BlogPost.views': { en: 'views', fr: 'vues' }, // components/blog/BlogPost.tsx:347
   'blog.BlogPost.share': { en: 'Share:', fr: 'Partager:' }, // components/blog/BlogPost.tsx:355
@@ -1810,9 +1752,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'profile.AchievementCard.unlocked': { en: 'Unlocked: ', fr: 'Débloqué: ' }, // components/profile/AchievementCard.tsx:143
   'profile.AchievementCard.progress': { en: 'Progress: ', fr: 'Progrès: ' }, // components/profile/AchievementCard.tsx:149
   'profile.AchievementCard.new': { en: 'NEW!', fr: 'NOUVEAU!' }, // components/profile/AchievementCard.tsx:172
-  'profile.AchievementCard.unlocked_2': { en: 'Unlocked', fr: 'Débloqué' }, // components/profile/AchievementCard.tsx:225
   'profile.AchievementCard.credits': { en: 'credits', fr: 'crédits' }, // components/profile/AchievementCard.tsx:228
-  'profile.AchievementCard.credits_2': { en: 'credits', fr: 'crédits' }, // components/profile/AchievementCard.tsx:233
   'profile.ReadingFilters.search_by_question': {
     en: 'Search by question...',
     fr: 'Rechercher par question...',
@@ -1900,7 +1840,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Begin Reading',
     fr: 'Commencer la Lecture',
   }, // components/reading/phases/QuestionIntroPhase.ts...
-  'reading.QuestionIntroPhase.credits_2': { en: 'credits', fr: 'crédits' }, // components/reading/phases/QuestionIntroPhase.ts...
   'reading.RevealingPhase.the_cards_are': {
     en: 'The cards are laid.',
     fr: 'Les cartes sont posées.',
@@ -1975,9 +1914,6 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'General guidance',
     fr: 'Guidance générale',
   }, // services/openrouterService.ts:336
-  'services.openrouterService.english_2': { en: 'English', fr: 'French' }, // services/openrouterService.ts:428
-  'services.openrouterService.english_3': { en: 'English', fr: 'French' }, // services/openrouterService.ts:485
-  'services.openrouterService.english_4': { en: 'English', fr: 'French' }, // services/openrouterService.ts:543
 
   // ============================================
   // TarotArticlesList.tsx

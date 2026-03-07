@@ -349,7 +349,7 @@ const AdminUsers: React.FC = () => {
             className="bg-slate-900 border border-purple-500/30 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-lg font-heading text-purple-200 mb-4">
-              {t('admin.AdminUsers.adjust_credits_2', 'Adjust Credits')}: {creditModal.username}
+              {t('admin.AdminUsers.adjust_credits', 'Adjust Credits')}: {creditModal.username}
             </h3>
             <div className="space-y-4">
               <div>
@@ -430,7 +430,7 @@ const AdminUsers: React.FC = () => {
                 <span className="text-red-400">{selectedUser.totalCreditsSpent}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">{t('admin.AdminUsers.readings_2', 'Readings')}</span>
+                <span className="text-slate-400">{t('admin.AdminUsers.readings', 'Readings')}</span>
                 <span className="text-slate-200">{selectedUser.totalReadings}</span>
               </div>
               <div className="flex justify-between">

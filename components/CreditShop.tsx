@@ -640,7 +640,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                         {pkg.bonusCredits && pkg.bonusCredits > 0 && (
                           <span className="text-xl font-bold text-green-400">+{pkg.bonusCredits}</span>
                         )}
-                        <span className="text-sm text-slate-400">{t('CreditShop.tsx.CreditShop.credits_2', 'credits')}</span>
+                        <span className="text-sm text-slate-400">{t('CreditShop.tsx.CreditShop.credits', 'credits')}</span>
                       </div>
 
                       {/* Package name */}
@@ -683,7 +683,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                       <Coins className="w-4 h-4 text-amber-400" />
                       <span className="font-bold text-amber-300">{currentSelection.credits}</span>
                       <span className="text-amber-200/70 text-sm">
-                        {t('CreditShop.tsx.CreditShop.credits_3', 'credits')}
+                        {t('CreditShop.tsx.CreditShop.credits', 'credits')}
                       </span>
                     </div>
                   </div>

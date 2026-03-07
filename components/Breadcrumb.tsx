@@ -136,26 +136,26 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
       case 'tarot-cards':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_2', 'The Arcanas'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards-all':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_3', 'The Arcanas'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
           to: '/tarot/cards',
         });
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.all_cards_2', 'All Cards'),
+          label: t('Breadcrumb.tsx.Breadcrumb.all_cards', 'All Cards'),
           icon: <Sparkles className="w-3.5 h-3.5" />,
         });
         break;
 
       case 'tarot-cards-category':
         items.push({
-          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards_4', 'The Arcanas'),
+          label: t('Breadcrumb.tsx.Breadcrumb.tarot_cards', 'The Arcanas'),
           icon: <Layers className="w-3.5 h-3.5" />,
           to: '/tarot/cards',
         });
@@ -189,7 +189,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         // If we're on home but have a reading mode selected
         if (readingMode === 'tarot') {
           items.push({
-            label: t('Breadcrumb.tsx.Breadcrumb.tarot_readings_2', 'Tarot Readings'),
+            label: t('Breadcrumb.tsx.Breadcrumb.tarot_readings', 'Tarot Readings'),
             icon: <Sparkles className="w-3.5 h-3.5" />,
           });
         } else if (readingMode === 'horoscope') {
