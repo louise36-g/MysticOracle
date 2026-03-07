@@ -111,9 +111,10 @@ const AdminTranslations: React.FC = () => {
         throw new Error(body?.error || 'Failed to seed translations');
       }
 
-      // Reload languages
+      // Reload languages (get fresh token — seed may take long enough to expire the original)
+      const freshToken = await getToken();
       const langRes = await fetch(`${API_URL}/api/v1/translations/admin/languages`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${freshToken}` }
       });
       if (!langRes.ok) throw new Error('Failed to reload languages');
       const data = await langRes.json();

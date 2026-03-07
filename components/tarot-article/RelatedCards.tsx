@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
-import { useTranslation } from '../../context/TranslationContext';
 import { useApp } from '../../context/AppContext';
 import { fetchTarotArticles, TarotArticle } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
@@ -19,8 +18,7 @@ let articlesCache: TarotArticle[] | null = null;
  * Related cards section - shows links to related tarot card articles with images
  */
 export function RelatedCards({ cards }: RelatedCardsProps) {
-  const { t } = useTranslation();
-  const { language } = useApp();
+  const { language, t } = useApp();
   const [articles, setArticles] = useState<TarotArticle[]>([]);
   const [loading, setLoading] = useState(true);
 

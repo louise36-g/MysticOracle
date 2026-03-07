@@ -6,7 +6,6 @@ import { useAuth } from '@clerk/clerk-react';
 import { ArrowLeft } from 'lucide-react';
 
 import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../context/TranslationContext';
 import {
   fetchTarotArticle,
   previewTarotArticle,
@@ -57,8 +56,7 @@ interface TarotArticlePageProps {
 export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { language } = useApp();
-  const { t } = useTranslation();
+  const { language, t } = useApp();
   const { getToken } = useAuth();
 
   // State

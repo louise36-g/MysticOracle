@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { loadTranslations, refreshTranslations } from '../services/translationService';
+import { Language } from '../types';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api$/, '');
 
-interface Language {
+interface LanguageInfo {
   id: string;
   code: string;
   name: string;
@@ -13,11 +15,12 @@ interface Language {
 interface TranslationContextType {
   language: string;
   setLanguage: (code: string) => void;
-  languages: Language[];
+  languages: LanguageInfo[];
   translations: Record<string, string>;
   t: (key: string, fallback?: string, variables?: Record<string, string | number>) => string;
   isLoading: boolean;
   isReady: boolean;
+  refresh: () => Promise<void>;
 }
 
 const TranslationContext = createContext<TranslationContextType | null>(null);
@@ -48,7 +51,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     return ['en', 'fr'].includes(browserLang) ? browserLang : 'en';
   });
 
-  const [languages, setLanguages] = useState<Language[]>([]);
+  const [languages, setLanguages] = useState<LanguageInfo[]>([]);
   const [translations, setTranslations] = useState<Record<string, string>>(
     FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en
   );
@@ -77,38 +80,71 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     fetchLanguages();
   }, []);
 
-  // Fetch translations when language changes
+  // Load translations when language changes (uses translationService caching)
   useEffect(() => {
-    const fetchTranslations = async () => {
+    let isMounted = true;
+
+    const load = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_URL}/api/translations/${language}`);
-        if (res.ok) {
-          const data = await res.json();
+        const data = await loadTranslations(language as Language);
+        if (isMounted) {
           setTranslations({
             ...FALLBACK_TRANSLATIONS[language],
-            ...data.translations
+            ...data
           });
-        } else {
-          // Use fallback if fetch fails
-          setTranslations(FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en);
         }
       } catch (error) {
-        console.warn('Failed to fetch translations:', error);
-        setTranslations(FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en);
+        console.warn('Failed to load translations:', error);
+        if (isMounted) {
+          setTranslations(FALLBACK_TRANSLATIONS[language] || FALLBACK_TRANSLATIONS.en);
+        }
       } finally {
-        setIsLoading(false);
-        setIsReady(true);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsReady(true);
+        }
       }
     };
 
-    fetchTranslations();
+    load();
+
+    // Listen for background translation updates (version-based cache invalidation)
+    const handleTranslationsUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ language: Language }>;
+      if (customEvent.detail.language === language && isMounted) {
+        loadTranslations(language as Language).then(data => {
+          if (isMounted) {
+            setTranslations({
+              ...FALLBACK_TRANSLATIONS[language],
+              ...data
+            });
+          }
+        });
+      }
+    };
+
+    window.addEventListener('translations-updated', handleTranslationsUpdated);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('translations-updated', handleTranslationsUpdated);
+    };
   }, [language]);
 
   const setLanguage = useCallback((code: string) => {
     localStorage.setItem('celestiarcana-language', code);
     setLanguageState(code);
   }, []);
+
+  // Force-refresh translations (used after admin mutations)
+  const refresh = useCallback(async () => {
+    const data = await refreshTranslations(language as Language);
+    setTranslations({
+      ...FALLBACK_TRANSLATIONS[language],
+      ...data
+    });
+  }, [language]);
 
   // Translation function with variable interpolation support
   // Variables use {{varName}} syntax in translation strings
@@ -133,7 +169,8 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       translations,
       t,
       isLoading,
-      isReady
+      isReady,
+      refresh
     }}>
       {children}
     </TranslationContext.Provider>

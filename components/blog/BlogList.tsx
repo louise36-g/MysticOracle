@@ -9,7 +9,6 @@ import {
 } from '../../services/api';
 import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useTranslation } from '../../context/TranslationContext';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
@@ -30,8 +29,7 @@ interface DisplayArticle {
 }
 
 const BlogList: React.FC = () => {
-  const { language } = useApp();
-  const { t } = useTranslation();
+  const { language, t } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Get category from URL params

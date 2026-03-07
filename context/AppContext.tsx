@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
-import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
 import { useTranslation } from './TranslationContext';
 import { cleanupDeprecatedStorage } from '../services/storageService';
 
@@ -79,7 +78,7 @@ interface AppContextType {
   setLanguage: (lang: Language) => void;
 
   // Translations
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string, variables?: Record<string, string | number>) => string;
   refreshTranslationsCache: () => Promise<void>;
 
   // No more login/register - Clerk handles that
@@ -107,62 +106,23 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const { isSignedIn, getToken } = useAuth();
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
-  const { setLanguage: setTranslationLanguage } = useTranslation();
+  const { setLanguage: setTranslationLanguage, t, refresh: refreshTranslationContext } = useTranslation();
 
   const [user, setUser] = useState<User | null>(null);
   const [language, setLanguageState] = useState<Language>(detectInitialLanguage);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
-  const [translations, setTranslations] = useState<Record<string, string>>({});
 
   // Clean up deprecated localStorage keys on mount
   useEffect(() => {
     cleanupDeprecatedStorage();
   }, []);
 
-  // Load translations when language changes
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadLang = async () => {
-      const data = await loadTranslations(language);
-      if (isMounted) {
-        setTranslations(data);
-      }
-    };
-
-    loadLang();
-
-    // Listen for background translation updates
-    const handleTranslationsUpdated = (event: Event) => {
-      const customEvent = event as CustomEvent<{ language: Language }>;
-      if (customEvent.detail.language === language && isMounted) {
-        loadTranslations(language).then(setTranslations);
-      }
-    };
-
-    window.addEventListener('translations-updated', handleTranslationsUpdated);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener('translations-updated', handleTranslationsUpdated);
-    };
-  }, [language]);
-
-  // Translation function
-  const t = useCallback(
-    (key: string, fallback?: string): string => {
-      return translate(translations, key, fallback);
-    },
-    [translations]
-  );
-
-  // Refresh translations cache (useful after admin mutations)
+  // Delegate to TranslationContext's refresh (useful after admin mutations)
   const refreshTranslationsCache = useCallback(async () => {
-    const data = await refreshTranslations(language);
-    setTranslations(data);
-  }, [language]);
+    await refreshTranslationContext();
+  }, [refreshTranslationContext]);
 
   // Fetch user from backend
   const fetchUserFromBackend = useCallback(async (skipHistory = false) => {

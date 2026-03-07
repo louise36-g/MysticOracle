@@ -4,7 +4,6 @@ import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/api';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useTranslation } from '../../context/TranslationContext';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, BlogLightbox } from './components';
 import { ROUTES } from '../../routes/routes';
@@ -16,8 +15,7 @@ interface BlogPostProps {
 }
 
 const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
-  const { language } = useApp();
-  const { t } = useTranslation();
+  const { language, t } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Tag } from 'lucide-react';
-import { useTranslation } from '../../context/TranslationContext';
 import { useApp } from '../../context/AppContext';
 
 interface ArticleTagsProps {
@@ -162,8 +161,7 @@ function translateTag(tag: string, language: string): string {
  * Article tags section - displays topic tags with language support
  */
 export function ArticleTags({ tags }: ArticleTagsProps) {
-  const { t } = useTranslation();
-  const { language } = useApp();
+  const { language, t } = useApp();
 
   if (tags.length === 0) return null;
 

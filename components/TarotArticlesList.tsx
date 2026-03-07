@@ -4,7 +4,6 @@ import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
 import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
 import { fetchTarotArticles, TarotArticle } from '../services/api';
-import { useTranslation } from '../context/TranslationContext';
 import { buildRoute, ROUTES } from '../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../utils/cloudinaryUrl';
 
@@ -31,8 +30,7 @@ const cardTypeToSlug: Record<string, string> = {
 };
 
 const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }) => {
-  const { language } = useApp();
-  const { t } = useTranslation();
+  const { language, t } = useApp();
   const navigate = useNavigate();
   const { category: urlCategory } = useParams<{ category?: string }>();
 

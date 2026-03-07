@@ -2,7 +2,6 @@ import React, { useState, useCallback, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
-import { useTranslation } from '../context/TranslationContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
 import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles, Plus, Mail } from 'lucide-react';
@@ -18,7 +17,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = () => {
   const { user, language, setLanguage, t } = useApp();
-  const { setLanguage: setTranslationLanguage } = useTranslation();
   const { user: clerkUser, isSignedIn } = useUser();
   const { hasStartedReading, clearReading } = useReading();
   const navigate = useNavigate();
@@ -33,8 +31,7 @@ const Header: React.FC<HeaderProps> = () => {
   const toggleLanguage = useCallback(() => {
     const newLang = language === 'en' ? 'fr' : 'en';
     setLanguage(newLang);
-    setTranslationLanguage(newLang);
-  }, [language, setLanguage, setTranslationLanguage]);
+  }, [language, setLanguage]);
 
   const toggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(prev => !prev);
@@ -47,9 +44,8 @@ const Header: React.FC<HeaderProps> = () => {
   const handleMobileLanguage = useCallback(() => {
     const newLang = language === 'en' ? 'fr' : 'en';
     setLanguage(newLang);
-    setTranslationLanguage(newLang);
     setIsMobileMenuOpen(false);
-  }, [language, setLanguage, setTranslationLanguage]);
+  }, [language, setLanguage]);
 
   // Handle "New Reading" with confirmation if mid-reading
   const handleNewReading = useCallback((e: React.MouseEvent) => {

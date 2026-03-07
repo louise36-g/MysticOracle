@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, X, Flame, Sparkles, Coins, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../context/TranslationContext';
 
 interface DailyBonusPopupProps {
   isOpen: boolean;
@@ -10,8 +9,7 @@ interface DailyBonusPopupProps {
 }
 
 const DailyBonusPopup: React.FC<DailyBonusPopupProps> = ({ isOpen, onClose }) => {
-  const { user, language, claimDailyBonus } = useApp();
-  const { t } = useTranslation();
+  const { user, language, claimDailyBonus, t } = useApp();
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
   const [claimedAmount, setClaimedAmount] = useState(0);

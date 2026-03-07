@@ -221,36 +221,3 @@ export function clearTranslationCache(language?: Language): void {
   }
 }
 
-/**
- * Create a translation function bound to loaded translations
- */
-export function createTranslationFunction(
-  translations: Record<string, string>
-): (key: string, fallback?: string) => string {
-  return (key: string, fallback?: string): string => {
-    return translations[key] || fallback || key;
-  };
-}
-
-/**
- * Get translation with fallback
- * In development mode, logs warnings for missing translation keys
- */
-export function translate(
-  translations: Record<string, string>,
-  key: string,
-  fallback?: string
-): string {
-  const value = translations[key];
-
-  // Development warning for missing translations (disabled - too noisy)
-  // if (import.meta.env.DEV && !value && fallback !== key) {
-  //   console.warn(
-  //     `[Translation Missing] Key: "${key}" | Fallback: "${fallback || key}"`,
-  //     '\nAdd to backend seed:',
-  //     `'${key}': { en: '${fallback || key}', fr: 'TODO' },`
-  //   );
-  // }
-
-  return value || fallback || key;
-}
