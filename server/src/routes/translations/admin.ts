@@ -170,13 +170,14 @@ router.post('/translations', requireAuth, requireAdmin, async (req, res) => {
       update: { value },
     });
 
-    // Invalidate cache and bump version
-    await invalidateTranslationCache();
+    // Invalidate cache and bump version (non-fatal if cache fails)
+    await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true, translation });
   } catch (error) {
     console.error('Error upserting translation:', error);
-    res.status(500).json({ error: 'Failed to save translation' });
+    const message = error instanceof Error ? error.message : 'Failed to save translation';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -200,8 +201,8 @@ router.post('/translations/bulk', requireAuth, requireAdmin, async (req, res) =>
 
     await prisma.$transaction(operations);
 
-    // Invalidate cache and bump version
-    await invalidateTranslationCache();
+    // Invalidate cache and bump version (non-fatal if cache fails)
+    await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true, count: Object.keys(translations).length });
   } catch (error) {
@@ -216,8 +217,8 @@ router.delete('/translations/:id', requireAuth, requireAdmin, async (req, res) =
     const { id } = req.params;
     await prisma.translation.delete({ where: { id } });
 
-    // Invalidate cache and bump version
-    await invalidateTranslationCache();
+    // Invalidate cache and bump version (non-fatal if cache fails)
+    await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true });
   } catch (error) {
@@ -242,8 +243,9 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       update: {},
     });
 
-    // Insert all translations in batches to avoid timeout
-    const BATCH_SIZE = 100;
+    // Insert all translations in small batches to avoid transaction timeout
+    // with the pg driver adapter on remote databases
+    const BATCH_SIZE = 25;
     const entries = Object.entries(defaultTranslations);
     let processedCount = 0;
 
@@ -252,16 +254,17 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       const operations = [];
 
       for (const [key, values] of batch) {
+        // update: {} means only INSERT new keys — never overwrite admin edits
         operations.push(
           prisma.translation.upsert({
             where: { key_languageId: { key, languageId: enLang.id } },
             create: { key, value: values.en, language: { connect: { id: enLang.id } } },
-            update: { value: values.en },
+            update: {},
           }),
           prisma.translation.upsert({
             where: { key_languageId: { key, languageId: frLang.id } },
             create: { key, value: values.fr, language: { connect: { id: frLang.id } } },
-            update: { value: values.fr },
+            update: {},
           })
         );
       }
@@ -271,8 +274,8 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       debug.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
     }
 
-    // Invalidate cache and bump version
-    await invalidateTranslationCache();
+    // Invalidate cache and bump version (non-fatal if cache fails)
+    await invalidateTranslationCache().catch(() => {});
 
     res.json({
       success: true,
@@ -281,7 +284,8 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error('Error seeding translations:', error);
-    res.status(500).json({ error: 'Failed to seed translations' });
+    const message = error instanceof Error ? error.message : 'Failed to seed translations';
+    res.status(500).json({ error: message });
   }
 });
 

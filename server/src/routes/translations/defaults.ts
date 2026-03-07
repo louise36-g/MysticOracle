@@ -1800,6 +1800,12 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'blog.BlogPost.share': { en: 'Share:', fr: 'Partager:' }, // components/blog/BlogPost.tsx:355
   'blog.BlogPost.tags': { en: 'Tags:', fr: 'Tags:' }, // components/blog/BlogPost.tsx:440
   'blog.BlogPost.related_articles': { en: 'Related Articles', fr: 'Articles Similaires' }, // components/blog/BlogPost.tsx:465
+  'blog.BlogCTA.heading': { en: 'Seeking Clarity?', fr: 'En Quête de Clarté ?' },
+  'blog.BlogCTA.text': {
+    en: 'Let the cards illuminate your path forward.',
+    fr: 'Laissez les cartes illuminer votre chemin.',
+  },
+  'blog.BlogCTA.button_text': { en: 'Get a Tarot Reading', fr: 'Obtenir un Tirage de Cartes' },
   'profile.AchievementCard.enus': { en: 'en-US', fr: 'fr-FR' }, // components/profile/AchievementCard.tsx:103
   'profile.AchievementCard.unlocked': { en: 'Unlocked: ', fr: 'Débloqué: ' }, // components/profile/AchievementCard.tsx:143
   'profile.AchievementCard.progress': { en: 'Progress: ', fr: 'Progrès: ' }, // components/profile/AchievementCard.tsx:149

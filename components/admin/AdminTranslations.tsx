@@ -105,7 +105,10 @@ const AdminTranslations: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!res.ok) throw new Error('Failed to seed translations');
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || 'Failed to seed translations');
+      }
 
       // Reload languages
       const langRes = await fetch(`${API_URL}/api/translations/admin/languages`, {
@@ -175,8 +178,8 @@ const AdminTranslations: React.FC = () => {
     .map(([prefix, items]: [string, Translation[]]) => ({
       prefix,
       items: items.filter(t =>
-        t.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.value.toLowerCase().includes(searchQuery.toLowerCase())
+        (t.key || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.value || '').toLowerCase().includes(searchQuery.toLowerCase())
       )
     }))
     .filter(g => g.items.length > 0);
