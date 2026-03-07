@@ -3,6 +3,7 @@ import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
 import { loadTranslations, translate, refreshTranslations } from '../services/translationService';
+import { useTranslation } from './TranslationContext';
 import { cleanupDeprecatedStorage } from '../services/storageService';
 
 /**
@@ -106,6 +107,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const { isSignedIn, getToken } = useAuth();
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
+  const { setLanguage: setTranslationLanguage } = useTranslation();
 
   const [user, setUser] = useState<User | null>(null);
   const [language, setLanguageState] = useState<Language>(detectInitialLanguage);
@@ -210,6 +212,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       console.log('[AppContext] Setting user with credits:', mappedUser.credits);
       setUser(mappedUser);
       setLanguageState(mappedUser.language);
+      setTranslationLanguage(mappedUser.language);
 
       // Sync user's language preference to localStorage
       try {
@@ -273,7 +276,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isSignedIn, getToken, clerkUser]);
+  }, [isSignedIn, getToken, clerkUser, setTranslationLanguage]);
 
   // Fetch user when auth state changes
   useEffect(() => {
@@ -294,6 +297,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
 
   const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);
+    setTranslationLanguage(lang);
 
     // Always save to localStorage (for anonymous users and as backup)
     try {
@@ -314,7 +318,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         console.error('Error updating language:', error);
       }
     }
-  }, [user, isSignedIn, getToken]);
+  }, [user, isSignedIn, getToken, setTranslationLanguage]);
 
   const logout = useCallback(() => {
     // Clerk handles the actual logout, we just clear local state

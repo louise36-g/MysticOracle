@@ -41,7 +41,7 @@ const FALLBACK_TRANSLATIONS: Record<string, Record<string, string>> = {
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<string>(() => {
     // Check localStorage first, then browser language
-    const saved = localStorage.getItem('celestiarcana_language');
+    const saved = localStorage.getItem('celestiarcana-language');
     if (saved) return saved;
 
     const browserLang = navigator.language.split('-')[0];
@@ -106,7 +106,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const setLanguage = useCallback((code: string) => {
-    localStorage.setItem('celestiarcana_language', code);
+    localStorage.setItem('celestiarcana-language', code);
     setLanguageState(code);
   }, []);
 
