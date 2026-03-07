@@ -35,6 +35,7 @@ export class StripeGateway implements IPaymentGateway {
       try {
         this.stripe = new Stripe(secretKey, {
           apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
+          timeout: 10_000, // 10s timeout for all Stripe API calls
         });
         console.log(`[StripeGateway] ${this.provider} initialized successfully`);
       } catch (err) {

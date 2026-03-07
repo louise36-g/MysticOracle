@@ -40,12 +40,26 @@ import type {
   TabId,
 } from './birthCardTypes';
 
-// Import JSON data files (trusted static content)
-import personalityCards from '../../constants/birthCards/personalityCards.json';
-import soulCards from '../../constants/birthCards/soulCards.json';
-import birthCardPairs from '../../constants/birthCards/birthCardPairs.json';
-import unifiedBirthCards from '../../constants/birthCards/unifiedBirthCards.json';
-import yearEnergyCycle from '../../constants/birthCards/yearEnergyCycle.json';
+// JSON data loaded dynamically to avoid bundling ~788 KB into the chunk
+type BirthCardJsonData = {
+  personalityCards: PersonalityCardData[];
+  soulCards: SoulCardData[];
+  birthCardPairs: PairData[];
+  unifiedBirthCards: UnifiedCardData[];
+  yearEnergyCycle: YearEnergyData[];
+};
+
+async function loadBirthCardData(): Promise<BirthCardJsonData> {
+  const [personalityCards, soulCards, birthCardPairs, unifiedBirthCards, yearEnergyCycle] =
+    await Promise.all([
+      import('../../constants/birthCards/personalityCards.json').then(m => m.default),
+      import('../../constants/birthCards/soulCards.json').then(m => m.default),
+      import('../../constants/birthCards/birthCardPairs.json').then(m => m.default),
+      import('../../constants/birthCards/unifiedBirthCards.json').then(m => m.default),
+      import('../../constants/birthCards/yearEnergyCycle.json').then(m => m.default),
+    ]);
+  return { personalityCards, soulCards, birthCardPairs, unifiedBirthCards, yearEnergyCycle };
+}
 
 const BirthCardReveal: React.FC = () => {
   const location = useLocation();
@@ -56,6 +70,7 @@ const BirthCardReveal: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<TabId>('personality');
   const [isLoading, setIsLoading] = useState(true);
+  const [jsonData, setJsonData] = useState<BirthCardJsonData | null>(null);
 
   const currentYear = new Date().getFullYear();
   const calculatedPersonalYear = state?.birthDate
@@ -85,17 +100,27 @@ const BirthCardReveal: React.FC = () => {
   // Share modal state
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  // Redirect if no state
+  // Redirect if no state, load JSON data during loading animation
   useEffect(() => {
     if (!state?.birthDate) {
       navigate('/reading/birth-cards');
-    } else {
-      const timer = setTimeout(() => setIsLoading(false), 1500);
-      return () => clearTimeout(timer);
+      return;
     }
+
+    let cancelled = false;
+    const minDelay = new Promise<void>(resolve => setTimeout(resolve, 1500));
+
+    Promise.all([minDelay, loadBirthCardData()]).then(([, data]) => {
+      if (!cancelled) {
+        setJsonData(data);
+        setIsLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
   }, [state, navigate]);
 
-  if (!state?.birthDate) {
+  if (!state?.birthDate || !jsonData) {
     return null;
   }
 
@@ -109,28 +134,28 @@ const BirthCardReveal: React.FC = () => {
 
   const isUnified = soulCardId === personalityCardId;
 
-  // Get data from JSON files
-  const personalityData = personalityCards.find(
+  // Get data from dynamically loaded JSON
+  const personalityData = jsonData.personalityCards.find(
     (c: PersonalityCardData) => c.cardId === personalityCardId
   ) as PersonalityCardData | undefined;
 
-  const soulData = soulCards.find(
+  const soulData = jsonData.soulCards.find(
     (c: SoulCardData) => c.cardId === soulCardId
   ) as SoulCardData | undefined;
 
   const pairData = !isUnified
-    ? (birthCardPairs.find(
+    ? (jsonData.birthCardPairs.find(
         (p: PairData) => p.personalityCardId === personalityCardId && p.soulCardId === soulCardId
       ) as PairData | undefined)
     : undefined;
 
   const unifiedData = isUnified
-    ? (unifiedBirthCards.find((u: UnifiedCardData) => u.cardId === soulCardId) as UnifiedCardData | undefined)
+    ? (jsonData.unifiedBirthCards.find((u: UnifiedCardData) => u.cardId === soulCardId) as UnifiedCardData | undefined)
     : undefined;
 
   // Get year energy data for current year (defaults to 2026, the current cycle start)
-  const yearData = (yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
-    || (yearEnergyCycle as YearEnergyData[])[0]; // Fallback to 2026 if not found
+  const yearData = (jsonData.yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
+    || (jsonData.yearEnergyCycle as YearEnergyData[])[0]; // Fallback to 2026 if not found
 
   // Build image URLs
   const personalityImageUrl = getCardImageUrl(personalityCardId);

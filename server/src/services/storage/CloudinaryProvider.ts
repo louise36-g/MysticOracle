@@ -24,6 +24,7 @@ export class CloudinaryProvider implements StorageService {
       api_key: apiKey,
       api_secret: apiSecret,
       secure: true,
+      timeout: 15_000, // 15s timeout for upload/delete operations
     });
 
     this.baseFolder = process.env.CLOUDINARY_BASE_FOLDER || 'celestiarcana';

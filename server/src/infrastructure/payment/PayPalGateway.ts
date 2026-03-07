@@ -315,6 +315,8 @@ export class PayPalGateway implements IPaymentGateway {
       // Get PayPal access token
       const authString = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
+      const tokenController = new AbortController();
+      const tokenTimeout = setTimeout(() => tokenController.abort(), 10_000);
       const tokenRes = await fetch(`${this.apiBase}/v1/oauth2/token`, {
         method: 'POST',
         headers: {
@@ -322,7 +324,9 @@ export class PayPalGateway implements IPaymentGateway {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: 'grant_type=client_credentials',
+        signal: tokenController.signal,
       });
+      clearTimeout(tokenTimeout);
 
       if (!tokenRes.ok) {
         console.error('Failed to get PayPal access token');
@@ -333,6 +337,8 @@ export class PayPalGateway implements IPaymentGateway {
       const accessToken = tokenData.access_token;
 
       // Verify webhook signature with PayPal
+      const verifyController = new AbortController();
+      const verifyTimeout = setTimeout(() => verifyController.abort(), 10_000);
       const verifyRes = await fetch(`${this.apiBase}/v1/notifications/verify-webhook-signature`, {
         method: 'POST',
         headers: {
@@ -348,7 +354,9 @@ export class PayPalGateway implements IPaymentGateway {
           webhook_id: this.webhookId,
           webhook_event: eventBody,
         }),
+        signal: verifyController.signal,
       });
+      clearTimeout(verifyTimeout);
 
       if (!verifyRes.ok) {
         console.error('PayPal webhook verification request failed');
