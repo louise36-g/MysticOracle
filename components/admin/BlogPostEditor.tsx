@@ -46,9 +46,9 @@ import {
   SidebarSelect,
   SidebarLabel,
   SidebarTextArea,
-  TranslationToolbar,
   AVAILABLE_LANGUAGES,
 } from './editor';
+import TranslationToolbar from './editor/TranslationToolbar';
 
 interface BlogPostEditorProps {
   post?: BlogPost;

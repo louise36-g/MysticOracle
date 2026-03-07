@@ -4,10 +4,13 @@ import { ROUTES } from './routes';
 import { RootLayout } from '../components/layout/RootLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
 import { AdminRoute } from '../components/routing/AdminRoute';
-import AdminLayout from '../components/admin/AdminLayout';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
-import { SignUpPage, SignInPage } from '../components/auth';
-import HomePage from '../components/HomePage';
+
+// Lazy-load heavy components to reduce main bundle
+const AdminLayout = lazy(() => import('../components/admin/AdminLayout'));
+const HomePage = lazy(() => import('../components/HomePage'));
+const SignUpPage = lazy(() => import('../components/auth/SignUpPage'));
+const SignInPage = lazy(() => import('../components/auth/SignInPage'));
 
 // Minimal loading fallback — pages load fast so this rarely shows
 const PageLoader = () => (
@@ -146,11 +149,11 @@ export const router = createBrowserRouter(
     // Uses hash routing to prevent Clerk SDK bug that sends duplicate verification emails.
     {
       path: '/sign-up',
-      element: <SignUpPage />,
+      element: <Suspense fallback={<PageLoader />}><SignUpPage /></Suspense>,
     },
     {
       path: '/sign-in',
-      element: <SignInPage />,
+      element: <Suspense fallback={<PageLoader />}><SignInPage /></Suspense>,
     },
 
     {
@@ -163,7 +166,7 @@ export const router = createBrowserRouter(
       // =====================
       {
         path: ROUTES.HOME,
-        element: <HomePage />,
+        element: lazyLoad(() => import('../components/HomePage')),
       },
 
       // Blog routes
@@ -301,7 +304,7 @@ export const router = createBrowserRouter(
         element: <AdminRoute />,
         children: [
           {
-            element: <AdminLayout />,
+            element: <Suspense fallback={<PageLoader />}><AdminLayout /></Suspense>,
             errorElement: <RouteErrorBoundary />,
             children: [
               // Admin overview (index route)

@@ -1,11 +1,11 @@
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
 import SubNav from '../SubNav';
 import Footer from '../Footer';
 import CookieConsent from '../CookieConsent';
-import WelcomeModal from '../WelcomeModal';
+const WelcomeModal = lazy(() => import('../WelcomeModal'));
 import CreditShop from '../CreditShop';
 import { DailyBonusPopup } from '../rewards';
 import ErrorBoundary from '../ui/ErrorBoundary';
@@ -157,6 +157,7 @@ export function RootLayout() {
       <PWAUpdatePrompt />
 
       {/* Welcome Modal */}
+      <Suspense fallback={null}>
       <WelcomeModal
         isOpen={showWelcomeModal}
         onClose={() => setShowWelcomeModal(false)}
@@ -164,6 +165,7 @@ export function RootLayout() {
         onRefreshUser={refreshUser}
         credits={user?.credits ?? 3}
       />
+      </Suspense>
 
       {/* Credit Shop Modal */}
       <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />

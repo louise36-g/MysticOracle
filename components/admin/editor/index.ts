@@ -22,5 +22,4 @@ export {
   SidebarLabel,
 } from './EditorField';
 
-// Translation tools
-export { default as TranslationToolbar } from './TranslationToolbar';
+// TranslationToolbar: import directly from './editor/TranslationToolbar' to avoid pulling TipTap into shared chunk

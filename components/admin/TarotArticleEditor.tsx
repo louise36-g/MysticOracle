@@ -30,9 +30,9 @@ import {
   SidebarTextArea,
   SidebarInput,
   SidebarLabel,
-  TranslationToolbar,
   AVAILABLE_LANGUAGES,
 } from './editor';
+import TranslationToolbar from './editor/TranslationToolbar';
 import { useArticleForm } from './tarot-articles/hooks/useArticleForm';
 
 interface TarotArticleEditorProps {

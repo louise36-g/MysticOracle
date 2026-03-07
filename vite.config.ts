@@ -56,26 +56,6 @@ export default defineConfig(({ mode }) => {
                   },
                 },
               },
-              {
-                // Google Fonts stylesheets
-                urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-                handler: 'StaleWhileRevalidate',
-                options: {
-                  cacheName: 'google-fonts-stylesheets',
-                },
-              },
-              {
-                // Google Fonts webfont files
-                urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-                handler: 'CacheFirst',
-                options: {
-                  cacheName: 'google-fonts-webfonts',
-                  expiration: {
-                    maxEntries: 30,
-                    maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                  },
-                },
-              },
             ],
             navigateFallback: 'index.html',
             navigateFallbackDenylist: [/^\/api/],
@@ -96,15 +76,12 @@ export default defineConfig(({ mode }) => {
       build: {
         rollupOptions: {
           output: {
-            manualChunks: {
-              // Core React and framework
-              'vendor-react': ['react', 'react-dom'],
-              // Animation library
-              'vendor-motion': ['framer-motion'],
-              // Authentication
-              'vendor-clerk': ['@clerk/clerk-react'],
-              // UI utilities
-              'vendor-ui': ['lucide-react', 'dompurify', '@dr.pogodin/react-helmet'],
+            manualChunks(id) {
+              if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react';
+              if (id.includes('node_modules/framer-motion')) return 'vendor-motion';
+              if (id.includes('node_modules/@clerk/')) return 'vendor-clerk';
+              if (id.includes('node_modules/lucide-react') || id.includes('node_modules/dompurify') || id.includes('node_modules/@dr.pogodin/react-helmet')) return 'vendor-ui';
+              if (id.includes('node_modules/@sentry/')) return 'vendor-sentry';
             }
           }
         }
