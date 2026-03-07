@@ -9,6 +9,7 @@ export interface StandardErrorResponse {
     details?: unknown;
     timestamp: string;
     path?: string;
+    requestId?: string;
   };
 }
 
@@ -25,7 +26,8 @@ export interface LegacyErrorResponse {
 export function formatError(
   error: Error | ApplicationError | ZodError,
   path?: string,
-  useLegacyFormat = false
+  useLegacyFormat = false,
+  requestId?: string
 ): StandardErrorResponse | LegacyErrorResponse {
   // Handle ApplicationError instances
   if (error instanceof ApplicationError) {
@@ -44,6 +46,7 @@ export function formatError(
         details: error.details,
         timestamp: error.timestamp.toISOString(),
         path,
+        requestId,
       },
     };
   }
@@ -65,6 +68,7 @@ export function formatError(
         details: error.errors,
         timestamp: new Date().toISOString(),
         path,
+        requestId,
       },
     };
   }
@@ -81,6 +85,7 @@ export function formatError(
       message: error.message || 'Internal server error',
       timestamp: new Date().toISOString(),
       path,
+      requestId,
     },
   };
 }

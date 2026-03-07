@@ -128,6 +128,7 @@ app.use(
         connectSrc: ["'self'", 'https://api.stripe.com', 'https://openrouter.ai', ...frontendUrls],
         frameSrc: ["'self'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
         objectSrc: ["'none'"],
+        reportUri: ['/api/v1/health/csp-report'],
       },
     },
     strictTransportSecurity: {

@@ -5,8 +5,11 @@ import { errorTrackingService } from '../services/errorTrackingService.js';
 import { captureException } from '../config/sentry.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
-  // Log all errors
+  const requestId = res.locals.requestId as string | undefined;
+
+  // Log all errors with requestId for correlation
   console.error('[ErrorHandler]', {
+    requestId,
     path: req.path,
     method: req.method,
     error: err.message,
@@ -21,14 +24,15 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   const acceptVersion = req.headers['accept-version'] || req.headers['api-version'];
   const useLegacyFormat = !acceptVersion || acceptVersion === 'v1-legacy';
 
-  // Format and send error
-  const errorResponse = formatError(err, req.path, useLegacyFormat);
+  // Format and send error (includes requestId for correlation)
+  const errorResponse = formatError(err, req.path, useLegacyFormat, requestId);
   res.status(statusCode).json(errorResponse);
 
   // For non-operational errors, track for monitoring
   if (!isOperationalError(err)) {
     // Send to Sentry (no-op in non-production)
     captureException(err instanceof Error ? err : new Error(String(err)), {
+      requestId,
       path: req.path,
       method: req.method,
       userId: req.auth?.userId,

@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import express from 'express';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { logger } from '../lib/logger.js';
+import { captureMessage } from '../config/sentry.js';
 
 const router = Router();
 
@@ -80,6 +82,25 @@ router.get('/', async (req, res) => {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
+});
+
+// CSP violation reporting endpoint
+router.post('/csp-report', express.json({ type: 'application/csp-report' }), (req, res) => {
+  const report = req.body?.['csp-report'];
+  if (report) {
+    logger.warn('[CSP Violation]', {
+      documentUri: report['document-uri'],
+      violatedDirective: report['violated-directive'],
+      blockedUri: report['blocked-uri'],
+      sourceFile: report['source-file'],
+      lineNumber: report['line-number'],
+    });
+    captureMessage(
+      `CSP Violation: ${report['violated-directive']} blocked ${report['blocked-uri']}`,
+      'warning'
+    );
+  }
+  res.status(204).end();
 });
 
 // Bootstrap endpoint to set admin user (requires ADMIN_BOOTSTRAP_KEY env var)

@@ -17,7 +17,7 @@ cmd = '''cat > /assets/Caddyfile << 'CADDYEOF'
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
-		Content-Security-Policy "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://img.clerk.com; connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev https://api.celestiarcana.com https://www.google-analytics.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev; worker-src 'self' blob:; manifest-src 'self';"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://img.clerk.com; connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev https://api.celestiarcana.com https://www.google-analytics.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev; worker-src 'self' blob:; manifest-src 'self'; report-uri https://api.celestiarcana.com/api/v1/health/csp-report;"
 		-Server
 	}
 

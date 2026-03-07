@@ -47,6 +47,12 @@ export function initSentry(): void {
       return event;
     },
 
+    // Propagate tracing headers to backend for distributed tracing
+    tracePropagationTargets: [
+      'localhost',
+      /^https:\/\/api\.celestiarcana\.com/,
+    ],
+
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
