@@ -274,6 +274,35 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       debug.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
     }
 
+    // Clean up orphaned duplicate keys (e.g. tarot_cards_2, credits_3)
+    // These were created by auto-extraction and are no longer referenced in code.
+    // Safe: only deletes _N suffixed keys where the base key also exists.
+    const validKeys = new Set(Object.keys(defaultTranslations));
+    const allTranslations = await prisma.translation.findMany({
+      select: { id: true, key: true },
+    });
+
+    const duplicatePattern = /_[2-9]$/;
+    const orphanedIds: string[] = [];
+    for (const t of allTranslations) {
+      if (duplicatePattern.test(t.key)) {
+        const baseKey = t.key.replace(duplicatePattern, '');
+        // Only delete if the base key exists in defaults (safe guard)
+        if (validKeys.has(baseKey)) {
+          orphanedIds.push(t.id);
+        }
+      }
+    }
+
+    let deletedCount = 0;
+    if (orphanedIds.length > 0) {
+      const result = await prisma.translation.deleteMany({
+        where: { id: { in: orphanedIds } },
+      });
+      deletedCount = result.count;
+      debug.log(`[Translations] Cleaned up ${deletedCount} orphaned duplicate keys`);
+    }
+
     // Invalidate cache and bump version (non-fatal if cache fails)
     await invalidateTranslationCache().catch(() => {});
 
@@ -281,6 +310,7 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       success: true,
       languages: 2,
       translations: Object.keys(defaultTranslations).length * 2,
+      cleanedUp: deletedCount,
     });
   } catch (error) {
     console.error('Error seeding translations:', error);
