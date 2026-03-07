@@ -130,18 +130,48 @@ router.get('/:sign', optionalAuth, async (req, res) => {
   } catch (error) {
     console.error('Horoscope error:', error);
 
+    // Try to find yesterday's horoscope as a fallback
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const catchSign = normalizeSign(req.params.sign);
+    const catchLanguage = (req.query.language as 'en' | 'fr') || 'en';
+
+    let fallback;
+    try {
+      const yesterdayHoroscope = await prisma.horoscopeCache.findUnique({
+        where: {
+          sign_language_date: {
+            sign: catchSign,
+            language: catchLanguage,
+            date: yesterday,
+          },
+        },
+      });
+      if (yesterdayHoroscope) {
+        fallback = {
+          horoscope: yesterdayHoroscope.horoscope,
+          date: yesterday.toISOString().split('T')[0],
+        };
+      }
+    } catch {
+      // Fallback lookup failed — continue without it
+    }
+
     // Check if this is a planetary calculation failure
     if (error instanceof Error && error.message === 'PLANETARY_CALCULATION_FAILED') {
       return res.status(503).json({
         error:
-          "The stars appear a bit clouded right now - we're having trouble reading the planetary positions. Please try again in a few moments. We've been notified and are working to fix the issue.",
+          "The stars appear a bit clouded right now - we're having trouble reading the planetary positions. Please try again in a few moments.",
         code: 'PLANETARY_CALCULATION_FAILED',
         retryable: true,
+        fallback,
       });
     }
 
     const message = error instanceof Error ? error.message : 'Failed to get horoscope';
-    res.status(500).json({ error: message });
+    res.status(500).json({ error: message, retryable: true, fallback });
   }
 });
 

@@ -6,7 +6,7 @@
  */
 
 // Core client
-export { apiRequest, apiEndpoint, generateIdempotencyKey, API_URL } from './client';
+export { apiRequest, apiEndpoint, generateIdempotencyKey, API_URL, ApiError } from './client';
 export type { ApiOptions, ParamValue } from './client';
 
 // User API

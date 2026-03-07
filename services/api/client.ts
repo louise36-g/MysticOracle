@@ -52,6 +52,19 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Error class that preserves the full server error response body */
+export class ApiError extends Error {
+  status: number;
+  data: Record<string, unknown>;
+
+  constructor(message: string, status: number, data: Record<string, unknown>) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
 export interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
@@ -112,8 +125,8 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
 
       if (!response.ok) {
         console.warn(`[apiRequest] Request failed: ${method} ${fullUrl} - Status ${response.status}`);
-        const error = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
-        const errorMessage = error.error || `API Error: ${response.status}`;
+        const errorBody = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
+        const errorMessage = errorBody.error || `API Error: ${response.status}`;
 
         // Check if we should retry
         if (shouldRetry && isRetryableError(null, response.status) && attempt < maxAttempts - 1) {
@@ -123,7 +136,7 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
           continue;
         }
 
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorBody);
       }
 
       console.log(`[apiRequest] Success: ${method} ${fullUrl} - Status ${response.status}`);

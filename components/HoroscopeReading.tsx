@@ -5,9 +5,9 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Stars, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { fetchHoroscope } from '../services/api';
+import { fetchHoroscope, ApiError } from '../services/api';
 import Button from './Button';
 
 // Enhanced zodiac data with symbols, elements, dates, and taglines
@@ -153,6 +153,9 @@ const HoroscopeReading: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [showBurst, setShowBurst] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fallback, setFallback] = useState<{ horoscope: string; date: string } | null>(null);
+  const [showingFallback, setShowingFallback] = useState(false);
 
   const currentLoadingPhrases = useMemo(() => loadingPhrases[language], [language]);
   const currentZodiacSigns = useMemo(() => zodiacSigns[language], [language]);
@@ -168,15 +171,21 @@ const HoroscopeReading: React.FC = () => {
   const regenerateHoroscope = async (sign: string) => {
     setIsLoading(true);
     setHoroscope(null);
+    setError(null);
+    setFallback(null);
+    setShowingFallback(false);
     try {
       const token = await getToken();
       const { horoscope: reading } = await fetchHoroscope(sign, language, token);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
-    } catch (error: any) {
-      console.error('Error generating horoscope:', error);
-      const errorMsg = error?.message || t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
-      setHoroscope(errorMsg);
+    } catch (err: unknown) {
+      console.error('Error generating horoscope:', err);
+      const message = err instanceof Error ? err.message : t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
+      setError(message);
+      if (err instanceof ApiError && err.data?.fallback) {
+        setFallback(err.data.fallback as { horoscope: string; date: string });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -200,16 +209,22 @@ const HoroscopeReading: React.FC = () => {
     setSelectedSignIndex(index);
     setIsLoading(true);
     setHoroscope(null);
+    setError(null);
+    setFallback(null);
+    setShowingFallback(false);
 
     try {
       const token = await getToken();
       const { horoscope: reading } = await fetchHoroscope(sign, language, token);
       setHoroscope(reading);
       setHoroscopeLanguage(language);
-    } catch (error: any) {
-      console.error('Error generating horoscope:', error);
-      const errorMsg = error?.message || t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
-      setHoroscope(errorMsg);
+    } catch (err: unknown) {
+      console.error('Error generating horoscope:', err);
+      const message = err instanceof Error ? err.message : t('horoscope.HoroscopeReading.error', 'Failed to generate horoscope. Please try again.');
+      setError(message);
+      if (err instanceof ApiError && err.data?.fallback) {
+        setFallback(err.data.fallback as { horoscope: string; date: string });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -220,6 +235,24 @@ const HoroscopeReading: React.FC = () => {
     setSelectedSignIndex(null);
     setHoroscope(null);
     setHoroscopeLanguage(null);
+    setError(null);
+    setFallback(null);
+    setShowingFallback(false);
+  };
+
+  const handleRetry = () => {
+    if (selectedSign) {
+      regenerateHoroscope(selectedSign);
+    }
+  };
+
+  const handleShowFallback = () => {
+    if (fallback) {
+      setHoroscope(fallback.horoscope);
+      setHoroscopeLanguage(language);
+      setShowingFallback(true);
+      setError(null);
+    }
   };
 
   // Get the display name for the selected sign in current language
@@ -309,6 +342,65 @@ const HoroscopeReading: React.FC = () => {
     );
   }
 
+  // Error state with retry
+  if (error && !isLoading && selectedSign && selectedZodiac) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-lg mx-auto px-4 text-center"
+      >
+        <motion.button
+          onClick={handleBack}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mb-8 group"
+          whileHover={{ x: -4 }}
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">{t('horoscope.HoroscopeReading.all_signs', 'All signs')}</span>
+        </motion.button>
+
+        <div className="relative rounded-2xl overflow-hidden backdrop-blur-sm p-8"
+          style={{
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            background: 'rgba(30, 10, 60, 0.03)',
+          }}
+        >
+          <motion.div
+            className="text-5xl mb-4"
+            style={{ color: unifiedTheme.border }}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            {selectedZodiac.symbol}
+          </motion.div>
+
+          <AlertTriangle className="w-8 h-8 text-amber-400/70 mx-auto mb-3" />
+
+          <p className="text-slate-300 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
+            {t('horoscope.HoroscopeReading.stars_clouded', "The stars seem a bit clouded right now. Let's try reaching them again.")}
+          </p>
+
+          <Button onClick={handleRetry} variant="primary" className="mb-4">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {t('horoscope.HoroscopeReading.try_again', 'Try Again')}
+          </Button>
+
+          {fallback && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <button
+                onClick={handleShowFallback}
+                className="text-xs text-slate-500 hover:text-purple-300 transition-colors underline underline-offset-2"
+              >
+                {t('horoscope.HoroscopeReading.show_yesterday', "Or view yesterday's reading instead")}
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
   // Horoscope result display
   if (horoscope && selectedSign && selectedZodiac) {
     return (
@@ -392,10 +484,22 @@ const HoroscopeReading: React.FC = () => {
               <div className="flex items-center justify-center gap-2 text-slate-400">
                 <Stars className="w-3 h-3 text-amber-500/60" />
                 <span className="text-xs uppercase tracking-[0.15em]">
-                  {t('horoscope.HoroscopeReading.daily_horoscope', 'Daily Horoscope')}
+                  {showingFallback
+                    ? t('horoscope.HoroscopeReading.yesterday_horoscope', "Yesterday's Horoscope")
+                    : t('horoscope.HoroscopeReading.daily_horoscope', 'Daily Horoscope')
+                  }
                 </span>
                 <Stars className="w-3 h-3 text-amber-500/60" />
               </div>
+              {showingFallback && (
+                <button
+                  onClick={handleRetry}
+                  className="mt-2 text-xs text-purple-300/60 hover:text-purple-200 transition-colors flex items-center justify-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  {t('horoscope.HoroscopeReading.try_today', "Try loading today's reading")}
+                </button>
+              )}
             </div>
 
             {/* Divider */}
