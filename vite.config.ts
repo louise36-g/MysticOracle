@@ -20,7 +20,15 @@ export default defineConfig(({ mode }) => {
           manifest: false, // Use existing public/manifest.json
           workbox: {
             globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}'],
-            globIgnores: ['**/background-celestiarcana.png'], // 2MB PNG excluded — AVIF/WebP are precached instead
+            globIgnores: [
+              '**/background-celestiarcana.png', // 2MB PNG excluded — AVIF/WebP are precached instead
+              '**/Admin*.js',
+              '**/BlogPostEditor*.js',
+              '**/TarotArticleEditor*.js',
+              '**/TranslationToolbar*.js',
+              '**/WithdrawalForm*.js',
+              '**/stats.html',
+            ],
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
             runtimeCaching: [
               {

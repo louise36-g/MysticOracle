@@ -5,6 +5,11 @@ import { logger } from '../lib/logger.js';
 
 const router = Router();
 
+// Lightweight ping for uptime monitors (no DB query)
+router.get('/ping', (_req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
+});
+
 /**
  * @openapi
  * /api/v1/health:

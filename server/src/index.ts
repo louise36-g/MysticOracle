@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -136,6 +137,18 @@ app.use(
   })
 );
 
+// Compression middleware (after Helmet, before routes)
+app.use(
+  compression({
+    threshold: 1024,
+    level: 6,
+    filter: (req, res) => {
+      if (req.path.includes('/webhooks')) return false;
+      return compression.filter(req, res);
+    },
+  })
+);
+
 // HTTPS enforcement in production (Render sets x-forwarded-proto)
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
@@ -209,17 +222,51 @@ app.use(
 
 // Add middleware for API cache headers (before routes)
 app.use('/api', (req, res, next) => {
-  // Only cache GET requests to public endpoints
-  if (req.method === 'GET' && !req.path.includes('/admin')) {
-    // Blog posts should not be cached to ensure content updates are visible immediately
-    if (req.path.includes('/blog/posts/')) {
-      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-    } else {
-      res.setHeader('Cache-Control', 'private, max-age=300'); // 5 minutes
-    }
-  } else {
+  if (req.method !== 'GET') {
     res.setHeader('Cache-Control', 'no-store');
+    return next();
   }
+
+  // Admin endpoints: no-store
+  if (req.path.includes('/admin')) {
+    res.setHeader('Cache-Control', 'no-store');
+    return next();
+  }
+
+  // User-specific endpoints: private, no-cache
+  if (
+    req.path.includes('/users/me') ||
+    req.path.includes('/readings') ||
+    req.path.includes('/payments')
+  ) {
+    res.setHeader('Cache-Control', 'private, no-cache');
+    return next();
+  }
+
+  // Translations: long public cache
+  if (req.path.includes('/translations')) {
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+    return next();
+  }
+
+  // Horoscopes: public but shorter (changes daily, same for all users)
+  if (req.path.includes('/horoscopes')) {
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    return next();
+  }
+
+  // Public content endpoints: blog, tarot-articles, health
+  if (
+    req.path.includes('/blog') ||
+    req.path.includes('/tarot-articles') ||
+    req.path.includes('/health')
+  ) {
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    return next();
+  }
+
+  // Default for other GET requests
+  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
   next();
 });
 
