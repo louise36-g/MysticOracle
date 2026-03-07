@@ -178,7 +178,12 @@ const listArticlesSchema = z.object({
   cardType: z
     .enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'])
     .optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+  status: z
+    .preprocess(
+      v => (typeof v === 'string' ? v.toUpperCase() : v),
+      z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+    )
+    .optional(),
   search: z.string().optional(),
   deleted: z.coerce.boolean().optional(),
   sortBy: z.enum(['datePublished', 'cardNumber']).optional(),
@@ -188,6 +193,13 @@ router.get('/', async (req, res) => {
   try {
     const params = listArticlesSchema.parse(req.query);
     const { page, limit, cardType, status } = params;
+
+    // Check cache first
+    const cacheKey = `tarot:list:${page}:${limit}:${cardType || ''}:${status || ''}`;
+    const cached = await cacheService.get<unknown>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
 
     const where: Prisma.BlogPostWhereInput = {
       contentType: 'TAROT_ARTICLE',
@@ -211,7 +223,7 @@ router.get('/', async (req, res) => {
       prisma.blogPost.count({ where }),
     ]);
 
-    res.json({
+    const response = {
       articles: articles.map(transformListItem),
       pagination: {
         page,
@@ -221,8 +233,16 @@ router.get('/', async (req, res) => {
       },
       // Legacy response shape compatibility
       total,
-    });
+    };
+
+    // Cache for 5 minutes
+    await cacheService.set(cacheKey, response, CacheService.TTL.ARTICLES);
+
+    res.json(response);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid query parameters', details: error.errors });
+    }
     console.error('Error listing tarot articles:', error);
     res.status(500).json({ error: 'Failed to list articles' });
   }
