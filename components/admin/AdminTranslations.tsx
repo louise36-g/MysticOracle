@@ -53,11 +53,12 @@ const AdminTranslations: React.FC = () => {
         if (!res.ok) throw new Error('Failed to fetch languages');
 
         const data = await res.json();
-        setLanguages(data.languages);
+        const langs = data.languages ?? [];
+        setLanguages(langs);
 
         // Select first language by default
-        if (data.languages.length > 0 && !selectedLang) {
-          setSelectedLang(data.languages[0].code);
+        if (langs.length > 0 && !selectedLang) {
+          setSelectedLang(langs[0].code);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load languages');
@@ -85,7 +86,7 @@ const AdminTranslations: React.FC = () => {
         if (!res.ok) throw new Error('Failed to fetch translations');
 
         const data = await res.json();
-        setTranslations(data.translations);
+        setTranslations(data.translations ?? []);
       } catch (err) {
         console.error('Failed to fetch translations:', err);
       }
@@ -114,11 +115,13 @@ const AdminTranslations: React.FC = () => {
       const langRes = await fetch(`${API_URL}/api/translations/admin/languages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (!langRes.ok) throw new Error('Failed to reload languages');
       const data = await langRes.json();
-      setLanguages(data.languages);
+      const langs = data.languages ?? [];
+      setLanguages(langs);
 
-      if (data.languages.length > 0) {
-        setSelectedLang(data.languages[0].code);
+      if (langs.length > 0) {
+        setSelectedLang(langs[0].code);
       }
 
       setError(null);
