@@ -14,6 +14,42 @@ import {
 
 const router = Router();
 
+// View count buffer — flushes to DB periodically
+const viewCountBuffer = new Map<string, number>();
+
+function incrementViewCount(postId: string): void {
+  viewCountBuffer.set(postId, (viewCountBuffer.get(postId) || 0) + 1);
+}
+
+async function flushViewCounts(): Promise<void> {
+  if (viewCountBuffer.size === 0) return;
+  const entries = [...viewCountBuffer.entries()];
+  viewCountBuffer.clear();
+
+  try {
+    await Promise.all(
+      entries.map(([id, count]) =>
+        prisma.blogPost.update({
+          where: { id },
+          data: { viewCount: { increment: count } },
+        })
+      )
+    );
+  } catch (err) {
+    console.error('[ViewCount] Flush failed:', err);
+  }
+}
+
+// Flush every 60 seconds
+setInterval(() => {
+  flushViewCounts().catch(() => {});
+}, 60_000);
+
+// Also flush on process exit
+process.on('beforeExit', () => {
+  flushViewCounts().catch(() => {});
+});
+
 // List published posts with pagination
 router.get('/posts', async (req, res) => {
   try {
@@ -139,13 +175,8 @@ router.get('/posts/:slug', async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Increment view count (non-blocking)
-    prisma.blogPost
-      .update({
-        where: { id: post.id },
-        data: { viewCount: { increment: 1 } },
-      })
-      .catch(() => {});
+    // Increment view count (batched, flushes every 60s)
+    incrementViewCount(post.id);
 
     // Get related posts (same category, excluding current and deleted)
     const relatedPosts = await prisma.blogPost.findMany({

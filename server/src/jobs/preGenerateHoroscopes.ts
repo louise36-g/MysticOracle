@@ -22,7 +22,7 @@ const SIGNS = [
 
 const LANGUAGES = ['en', 'fr'] as const;
 
-const DELAY_BETWEEN_CALLS_MS = 3000;
+const DELAY_BETWEEN_BATCHES_MS = 2000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -61,19 +61,27 @@ export async function preGenerateHoroscopes(): Promise<void> {
   let skipped = 0;
   let failed = 0;
 
+  // Build list of all combos to generate
+  const combos: Array<{ sign: (typeof SIGNS)[number]; language: (typeof LANGUAGES)[number] }> = [];
   for (const sign of SIGNS) {
     for (const language of LANGUAGES) {
-      const memoryCacheKey = `horoscope:${sign}:${language}:${dateKey}`;
+      combos.push({ sign, language });
+    }
+  }
 
-      try {
+  const BATCH_SIZE = 4;
+
+  for (let i = 0; i < combos.length; i += BATCH_SIZE) {
+    const batch = combos.slice(i, i + BATCH_SIZE);
+
+    const results = await Promise.allSettled(
+      batch.map(async ({ sign, language }) => {
+        const memoryCacheKey = `horoscope:${sign}:${language}:${dateKey}`;
+
         // Check if already in DB (skip if so)
         const existing = await prisma.horoscopeCache.findUnique({
           where: {
-            sign_language_date: {
-              sign,
-              language,
-              date: today,
-            },
+            sign_language_date: { sign, language, date: today },
           },
         });
 
@@ -91,8 +99,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
               secondsUntilMidnight
             );
           }
-          skipped++;
-          continue;
+          return 'skipped' as const;
         }
 
         // Generate horoscope
@@ -108,49 +115,43 @@ export async function preGenerateHoroscopes(): Promise<void> {
           maxTokens: 2000,
         });
 
-        // Prepend date header so users can see it's today's horoscope
         const header = formatDateHeader(language);
         const horoscope = `${header}\n\n${rawHoroscope}`;
         const createdAt = new Date();
 
-        // Save to DB (upsert handles race with on-demand generation)
         await prisma.horoscopeCache.upsert({
           where: {
-            sign_language_date: {
-              sign,
-              language,
-              date: today,
-            },
+            sign_language_date: { sign, language, date: today },
           },
-          create: {
-            sign,
-            language,
-            date: today,
-            horoscope,
-          },
-          update: {
-            horoscope,
-          },
+          create: { sign, language, date: today, horoscope },
+          update: { horoscope },
         });
 
-        // Save to memory cache (expires at midnight)
         const now = new Date();
         const midnight = new Date(now);
         midnight.setHours(24, 0, 0, 0);
         const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
         await cacheService.set(memoryCacheKey, { horoscope, createdAt }, secondsUntilMidnight);
 
-        generated++;
         console.log(`[Horoscope Pre-Gen] ✓ ${sign} (${language})`);
+        return 'generated' as const;
+      })
+    );
 
-        // Delay between API calls to avoid rate limits
-        await sleep(DELAY_BETWEEN_CALLS_MS);
-      } catch (err) {
+    // Count results
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        if (result.value === 'skipped') skipped++;
+        else generated++;
+      } else {
         failed++;
-        console.error(`[Horoscope Pre-Gen] ✗ ${sign} (${language}):`, err);
-        // Continue with next combo — one failure shouldn't block others
-        await sleep(DELAY_BETWEEN_CALLS_MS);
+        console.error('[Horoscope Pre-Gen] ✗', result.reason);
       }
+    }
+
+    // Delay between batches to avoid rate limits
+    if (i + BATCH_SIZE < combos.length) {
+      await sleep(DELAY_BETWEEN_BATCHES_MS);
     }
   }
 

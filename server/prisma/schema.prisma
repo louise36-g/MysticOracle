@@ -631,6 +631,8 @@ model BlogPost {
   @@index([contentType])
   @@index([contentType, cardType])
   @@index([contentType, status])
+  @@index([contentType, status, deletedAt, sortOrder])
+  @@index([status, publishedAt, deletedAt, featured])
 }
 
 enum BlogPostStatus {

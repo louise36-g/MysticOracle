@@ -323,11 +323,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // DEPRECATED: Mount same routes at /api/* for backward compatibility
-// Deprecation date: 2 weeks from now, Sunset: 2 months from now
 const deprecatedRouter = createVersionedRouter(v1Router, {
   version: 'v1',
-  deprecationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-  sunsetDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+  deprecationDate: '2026-06-01T00:00:00.000Z',
+  sunsetDate: '2026-09-01T00:00:00.000Z',
 });
 app.use('/api', deprecatedRouter);
 
@@ -370,52 +369,17 @@ function scheduleHoroscopeCleanup(): void {
 }
 
 // Start server
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`🔮 CelestiArcana API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-
-  // One-time fix: assign sequential sortOrder to articles that all have sortOrder=0
-  try {
-    const { prisma: prismaClient } = await import('./db/prisma.js');
-    const { cacheService } = await import('./services/cache.js');
-    const cardTypes = [
-      'MAJOR_ARCANA',
-      'SUIT_OF_WANDS',
-      'SUIT_OF_CUPS',
-      'SUIT_OF_SWORDS',
-      'SUIT_OF_PENTACLES',
-    ] as const;
-    for (const cardType of cardTypes) {
-      const articles = await prismaClient.blogPost.findMany({
-        where: { contentType: 'TAROT_ARTICLE', cardType, deletedAt: null },
-        orderBy: { createdAt: 'asc' },
-        select: { id: true, sortOrder: true },
-      });
-      const allZero = articles.every((a: { sortOrder: number }) => a.sortOrder === 0);
-      if (allZero && articles.length > 1) {
-        await prismaClient.$transaction(
-          articles.map((article: { id: string }, index: number) =>
-            prismaClient.blogPost.update({
-              where: { id: article.id },
-              data: { sortOrder: index },
-            })
-          )
-        );
-        console.log(`[SortOrder] Initialized ${articles.length} ${cardType} articles`);
-      }
-    }
-    await cacheService.invalidateTarot();
-    await cacheService.invalidateBlog();
-    console.log('[Cache] Tarot + blog cache cleared on startup');
-  } catch (err) {
-    console.error('[SortOrder] Failed to initialize sort order:', err);
-  }
 
   // Schedule background jobs
   scheduleHoroscopeCleanup();
 
-  // Pre-generate today's horoscopes (fills any missing combos)
-  preGenerateHoroscopes().catch(err => console.error('[Horoscope Pre-Gen] Startup error:', err));
+  // Pre-generate today's horoscopes (deferred to not block startup)
+  setTimeout(() => {
+    preGenerateHoroscopes().catch(err => console.error('[Horoscope Pre-Gen] Startup error:', err));
+  }, 5000);
 });
 
 export default app;
