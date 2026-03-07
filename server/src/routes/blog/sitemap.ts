@@ -11,17 +11,33 @@ router.get('/sitemap.xml', async (req, res) => {
   try {
     const baseUrl = process.env.FRONTEND_URL || 'https://celestiarcana.com';
 
-    // Get all published posts
+    // Get all published blog posts
     const posts = await prisma.blogPost.findMany({
       where: {
         status: 'PUBLISHED',
         publishedAt: { not: null },
+        contentType: 'BLOG_POST',
       },
       select: {
         slug: true,
         updatedAt: true,
       },
       orderBy: { publishedAt: 'desc' },
+    });
+
+    // Get all published tarot articles
+    const tarotArticles = await prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: { not: null },
+        contentType: 'TAROT_ARTICLE',
+        deletedAt: null,
+      },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+      orderBy: { sortOrder: 'asc' },
     });
 
     // Get all categories
@@ -81,6 +97,24 @@ router.get('/sitemap.xml', async (req, res) => {
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>${baseUrl}/about</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/faq</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 `;
 
     // Add blog posts
@@ -88,6 +122,18 @@ router.get('/sitemap.xml', async (req, res) => {
       const lastmod = post.updatedAt.toISOString().split('T')[0];
       xml += `  <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+    }
+
+    // Add tarot articles
+    for (const article of tarotArticles) {
+      const lastmod = article.updatedAt.toISOString().split('T')[0];
+      xml += `  <url>
+    <loc>${baseUrl}/tarot/articles/${article.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

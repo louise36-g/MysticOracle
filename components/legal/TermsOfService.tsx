@@ -1,6 +1,8 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useApp } from '../../context/AppContext';
 import { FileText, AlertTriangle, CreditCard, Users, Scale, Mail } from 'lucide-react';
+import { SEOTags } from '../../utils/seo';
 
 const TermsOfService: React.FC = () => {
   const { language } = useApp();
@@ -280,6 +282,11 @@ Délai de réponse : Sous 48 heures les jours ouvrables`
 
   return (
     <div className="min-h-screen py-12 px-4 relative z-10">
+      <Helmet>
+        <title>Terms of Service - CelestiArcana</title>
+        <meta name="description" content="CelestiArcana terms of service. Read our terms covering account usage, credits, payments, content policies, and user responsibilities." />
+      </Helmet>
+      <SEOTags path="/terms" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

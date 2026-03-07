@@ -1,6 +1,8 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useApp } from '../../context/AppContext';
 import { Shield, Mail, Clock, Users, Globe, AlertCircle } from 'lucide-react';
+import { SEOTags } from '../../utils/seo';
 
 const PrivacyPolicy: React.FC = () => {
   const { language } = useApp();
@@ -426,6 +428,11 @@ Nous nous efforçons de répondre à toutes les demandes sous 30 jours.`
 
   return (
     <div className="min-h-screen py-12 px-4 relative z-10">
+      <Helmet>
+        <title>Privacy Policy - CelestiArcana</title>
+        <meta name="description" content="CelestiArcana privacy policy. Learn how we collect, use, and protect your personal data. GDPR compliant, EU-hosted." />
+      </Helmet>
+      <SEOTags path="/privacy" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

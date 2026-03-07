@@ -8,6 +8,7 @@ import Button from './Button';
 import { Star, Shield, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReadingModeSelector from './ReadingModeSelector';
+import { SEOTags } from '../utils/seo';
 
 // Floating mystical star component
 const FloatingStar: React.FC<{
@@ -73,7 +74,11 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="pb-12 relative z-10">
-      <Helmet><title>CelestiArcana - Personalized Tarot Readings & Daily Horoscopes</title></Helmet>
+      <Helmet>
+        <title>Personalized Tarot Readings & Daily Horoscopes - CelestiArcana</title>
+        <meta name="description" content="Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads and more. Free daily horoscopes." />
+      </Helmet>
+      <SEOTags path="/" />
       {/* Atmospheric background - persistent */}
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden">
         {/* Gradient orbs */}

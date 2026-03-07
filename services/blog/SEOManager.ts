@@ -48,6 +48,14 @@ export class SEOManager {
     }
     this.updateOrCreateMeta('article:author', post.authorName, 'property');
 
+    // Canonical URL
+    this.updateOrCreateLink('canonical', url);
+
+    // Hreflang alternate links
+    this.updateOrCreateLink('alternate', url, 'en');
+    this.updateOrCreateLink('alternate', url, 'fr');
+    this.updateOrCreateLink('alternate', url, 'x-default');
+
     // Add JSON-LD structured data
     this.addJsonLd(post, url, language);
   }
@@ -69,6 +77,9 @@ export class SEOManager {
       if (meta) meta.remove();
     });
 
+    // Remove canonical and hreflang links
+    document.querySelectorAll('link[data-seo-blog]').forEach(el => el.remove());
+
     // Remove JSON-LD
     const jsonLd = document.querySelector('script[type="application/ld+json"][data-blog]');
     if (jsonLd) jsonLd.remove();
@@ -85,6 +96,24 @@ export class SEOManager {
       document.head.appendChild(meta);
     }
     meta.content = value;
+  }
+
+  /**
+   * Update or create a link element
+   */
+  private updateOrCreateLink(rel: string, href: string, hreflang?: string): void {
+    const selector = hreflang
+      ? `link[rel="${rel}"][hreflang="${hreflang}"][data-seo-blog]`
+      : `link[rel="${rel}"][data-seo-blog]`;
+    let link = document.querySelector(selector) as HTMLLinkElement;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = rel;
+      if (hreflang) link.hreflang = hreflang;
+      link.setAttribute('data-seo-blog', 'true');
+      document.head.appendChild(link);
+    }
+    link.href = href;
   }
 
   /**

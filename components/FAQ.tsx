@@ -8,6 +8,7 @@ import { SPREADS } from '../constants';
 import { SpreadType } from '../types';
 import Button from './Button';
 import { ROUTES } from '../routes/routes';
+import { SEOTags } from '../utils/seo';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
@@ -322,7 +323,11 @@ const FAQ: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      <Helmet><title>FAQ - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>FAQ - CelestiArcana</title>
+        <meta name="description" content="Frequently asked questions about CelestiArcana tarot readings, credits, spreads, horoscopes, privacy, and billing. Find answers to common questions." />
+      </Helmet>
+      <SEOTags path="/faq" />
       {/* Hero Section */}
       <section className="relative py-16 px-4 text-center overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl -z-10" />

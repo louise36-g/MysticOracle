@@ -5,6 +5,7 @@ import { Mail, Send, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { apiRequest } from '../services/api/client';
 import Button from './Button';
+import { SEOTags } from '../utils/seo';
 
 const content = {
   en: {
@@ -204,7 +205,11 @@ const Contact: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      <Helmet><title>Contact - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>Contact Us - CelestiArcana</title>
+        <meta name="description" content="Get in touch with CelestiArcana. Send us a message about tarot readings, billing, feedback, or general enquiries. We reply within 24-48 hours." />
+      </Helmet>
+      <SEOTags path="/contact" />
       {/* Hero Section */}
       <section className="relative py-16 px-4 text-center overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl -z-10" />

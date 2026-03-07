@@ -265,6 +265,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <title>{localizedSeoTitle} | CelestiArcana</title>
         <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="en" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="fr" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
         <meta name="keywords" content={article.tags.join(', ')} />
         <meta name="author" content={article.author} />
         <html lang={language} />

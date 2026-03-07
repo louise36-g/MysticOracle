@@ -10,6 +10,7 @@ import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle } fro
 import { useApp } from '../context/AppContext';
 import { fetchHoroscope, ApiError } from '../services/api';
 import Button from './Button';
+import { SEOTags } from '../utils/seo';
 
 // Enhanced zodiac data with symbols, elements, dates, and taglines
 const zodiacData = [
@@ -564,7 +565,11 @@ const HoroscopeReading: React.FC = () => {
   // Zodiac sign selector - unified design
   return (
     <div className="relative max-w-5xl mx-auto px-4">
-      <Helmet><title>Daily Horoscopes - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>Daily Horoscopes - CelestiArcana</title>
+        <meta name="description" content="Read your free daily horoscope for all 12 zodiac signs. Personalized celestial guidance powered by AI for love, career, and wellbeing." />
+      </Helmet>
+      <SEOTags path="/horoscopes" />
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[100px]" />

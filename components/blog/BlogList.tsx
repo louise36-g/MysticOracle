@@ -12,6 +12,7 @@ import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRig
 import { motion } from 'framer-motion';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
+import { SEOTags } from '../../utils/seo';
 
 // Unified article type for display
 interface DisplayArticle {
@@ -136,7 +137,11 @@ const BlogList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-      <Helmet><title>Blog - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>Mystic Insights Blog - CelestiArcana</title>
+        <meta name="description" content="Explore the mystical world of tarot, astrology, and spiritual growth through curated articles on card meanings, spreads, and celestial guidance." />
+      </Helmet>
+      <SEOTags path="/blog" />
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-4">

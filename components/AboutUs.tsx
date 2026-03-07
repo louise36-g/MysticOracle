@@ -6,6 +6,7 @@ import { Sparkles, Heart, Brain, Compass, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../routes/routes';
 import { AuthorAvatar } from './shared/AuthorAvatar';
+import { SEOTags } from '../utils/seo';
 
 const AboutUs: React.FC = () => {
   const { language } = useApp();
@@ -127,7 +128,11 @@ const AboutUs: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] py-16 px-4">
-      <Helmet><title>About - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>About Us - CelestiArcana</title>
+        <meta name="description" content="Learn about CelestiArcana, a reflective tarot space combining classical card interpretation with modern intuition for insight, clarity, and conscious growth." />
+      </Helmet>
+      <SEOTags path="/about" />
       <div className="max-w-3xl mx-auto">
         {/* Hero */}
         <motion.div

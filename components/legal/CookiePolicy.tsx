@@ -1,6 +1,8 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useApp } from '../../context/AppContext';
 import { Cookie, Shield, Settings, Clock, Globe, Mail } from 'lucide-react';
+import { SEOTags } from '../../utils/seo';
 
 const CookiePolicy: React.FC = () => {
   const { language } = useApp();
@@ -258,6 +260,11 @@ Nous nous efforçons de répondre à toutes les demandes relatives aux cookies d
 
   return (
     <div className="min-h-screen py-12 px-4 relative z-10">
+      <Helmet>
+        <title>Cookie Policy - CelestiArcana</title>
+        <meta name="description" content="CelestiArcana cookie policy. Learn about the cookies we use, how to manage your preferences, and your privacy rights under GDPR." />
+      </Helmet>
+      <SEOTags path="/cookies" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
