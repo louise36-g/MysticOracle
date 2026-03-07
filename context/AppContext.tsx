@@ -114,10 +114,11 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [achievementNotifications, setAchievementNotifications] = useState<AchievementNotification[]>([]);
 
-  // Clean up deprecated localStorage keys on mount
+  // Clean up deprecated localStorage keys on mount + sync HTML lang attribute
   useEffect(() => {
     cleanupDeprecatedStorage();
-  }, []);
+    document.documentElement.lang = language;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Delegate to TranslationContext's refresh (useful after admin mutations)
   const refreshTranslationsCache = useCallback(async () => {
@@ -173,6 +174,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       setUser(mappedUser);
       setLanguageState(mappedUser.language);
       setTranslationLanguage(mappedUser.language);
+      document.documentElement.lang = mappedUser.language;
 
       // Sync user's language preference to localStorage
       try {
@@ -258,6 +260,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);
     setTranslationLanguage(lang);
+    document.documentElement.lang = lang;
 
     // Always save to localStorage (for anonymous users and as backup)
     try {

@@ -109,7 +109,7 @@ const AdminNav: React.FC = () => {
     'bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white';
 
   return (
-    <nav className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/20 pb-4">
+    <nav aria-label="Admin navigation" className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/20 pb-4">
       {navItems.map((item) => (
         <NavLink
           key={item.to}

@@ -76,6 +76,8 @@ const MenuButton: React.FC<{
     type="button"
     onClick={onClick}
     disabled={disabled}
+    aria-label={title}
+    aria-pressed={isActive}
     title={title}
     className={`p-1.5 rounded transition-colors ${
       isActive

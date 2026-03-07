@@ -61,11 +61,13 @@ const EditorTopBar: React.FC<EditorTopBarProps> = ({
             <div className="flex items-center gap-1 bg-slate-800 rounded-lg p-0.5">
               <button
                 onClick={() => onEditorModeChange('markdown')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${
                   editorMode === 'markdown'
                     ? 'bg-purple-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-700'
                 }`}
+                aria-label="Markdown editor"
+                aria-pressed={editorMode === 'markdown'}
                 title="Markdown editor"
               >
                 <Code className="w-3.5 h-3.5" />
@@ -73,11 +75,13 @@ const EditorTopBar: React.FC<EditorTopBarProps> = ({
               </button>
               <button
                 onClick={() => onEditorModeChange('visual')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${
                   editorMode === 'visual'
                     ? 'bg-purple-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-700'
                 }`}
+                aria-label="Visual editor"
+                aria-pressed={editorMode === 'visual'}
                 title="Visual editor"
               >
                 <FileText className="w-3.5 h-3.5" />
