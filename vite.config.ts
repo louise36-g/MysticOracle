@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
         VitePWA({
           registerType: 'autoUpdate',
           injectRegister: false,
-          includeAssets: ['logos/celestiarcana-moon.png', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
+          includeAssets: ['logos/celestiarcana-moon.webp', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
           manifest: false, // Use existing public/manifest.json
           workbox: {
             globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}'],

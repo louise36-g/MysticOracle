@@ -198,6 +198,28 @@ app.use((req, res, next) => {
   next();
 });
 
+// Request timeout middleware (prevents hanging requests)
+app.use((req, res, next) => {
+  const timeout = req.path.includes('/ai') || req.path.includes('/readings') ? 60000 : 30000;
+  req.setTimeout(timeout);
+  res.setTimeout(timeout);
+  next();
+});
+
+// Slow request logging (warn on >2s responses)
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (duration > 2000) {
+      console.warn(
+        `[Slow Request] ${req.method} ${req.path} took ${duration}ms (status: ${res.statusCode})`
+      );
+    }
+  });
+  next();
+});
+
 // Attach scoped DI container to each request (before routes)
 app.use(scopePerRequest(container));
 
@@ -240,6 +262,12 @@ app.use('/api', (req, res, next) => {
   // Admin endpoints: no-store
   if (req.path.includes('/admin')) {
     res.setHeader('Cache-Control', 'no-store');
+    return next();
+  }
+
+  // Credit packages: static data, cache aggressively
+  if (req.path.includes('/payments/packages')) {
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
     return next();
   }
 

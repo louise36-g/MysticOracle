@@ -162,6 +162,17 @@ router.get('/posts/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
 
+    // Check cache first (2 min TTL — views are batched separately)
+    const cacheKey = `blog:post:${slug}`;
+    const cached = await cacheService.get<{ post: { id: string }; relatedPosts: unknown[] }>(
+      cacheKey
+    );
+    if (cached) {
+      // Still count the view even on cache hit
+      incrementViewCount(cached.post.id);
+      return res.json(cached);
+    }
+
     const post = await prisma.blogPost.findFirst({
       where: {
         slug,
@@ -205,7 +216,7 @@ router.get('/posts/:slug', async (req, res) => {
       orderBy: { publishedAt: 'desc' },
     });
 
-    res.json({
+    const response = {
       post: {
         ...post,
         contentType: post.contentType,
@@ -213,7 +224,10 @@ router.get('/posts/:slug', async (req, res) => {
         tags: flattenTags(post.tags),
       },
       relatedPosts,
-    });
+    };
+
+    await cacheService.set(cacheKey, response, 120); // 2 min cache
+    res.json(response);
   } catch (error) {
     console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
     res.status(500).json({ error: 'Failed to fetch post' });

@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = () => {
           aria-label="CelestiArcana - Go to homepage"
         >
           <img
-            src="/logos/celestiarcana-moon.png"
+            src="/logos/celestiarcana-moon.webp"
             alt=""
             width={40}
             height={40}

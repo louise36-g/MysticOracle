@@ -126,7 +126,7 @@ export function RootLayout() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="min-h-screen text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
+    <div className="min-h-dvh text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
       {/* Cosmic Background Image */}
       <div
         className="fixed inset-0 z-0 pointer-events-none"

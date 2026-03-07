@@ -1,0 +1,23 @@
+# CelestiArcana Robots.txt
+# https://www.robotstxt.org/
+
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/*
+Allow: /tarot
+Allow: /tarot/*
+Allow: /horoscopes
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /payment/
+Disallow: /profile
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://celestiarcana.com/sitemap.xml

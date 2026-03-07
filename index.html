@@ -8,22 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta Tags -->
-    <!-- VARIATION A (Primary): Concise, keyword-focused, power words -->
     <title>Personalized Tarot Readings & Daily Horoscopes - CelestiArcana</title>
     <meta name="title" content="Personalized Tarot Readings & Daily Horoscopes - CelestiArcana" />
     <meta name="description" content="Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads & more. Free daily horoscopes. Discover your destiny now." />
-
-    <!-- VARIATION B (Alternative): Benefit-focused for A/B testing
-    <title>Personalized Tarot Readings & Spiritual Guidance - AI</title>
-    <meta name="title" content="Personalized Tarot Readings & Spiritual Guidance - AI" />
-    <meta name="description" content="Unveil hidden insights with AI-powered tarot readings. 6+ spread types, real-time interpretations, spiritual guidance. Get your first free reading today." />
-    -->
-
-    <!-- VARIATION C (Alternative): Curiosity-driven for A/B testing
-    <title>Free AI Tarot Reader & Horoscope Generator 2026</title>
-    <meta name="title" content="Free AI Tarot Reader & Horoscope Generator 2026" />
-    <meta name="description" content="Experience AI-powered tarot readings like never before. Personalized insights, multiple spreads, daily horoscopes. Join thousands discovering their spiritual path." />
-    -->
     <meta name="keywords" content="tarot, tarot reading, horoscope, personalized tarot, fortune telling, divination, spiritual guidance, celtic cross, three card spread" />
     <meta name="author" content="CelestiArcana" />
     <meta name="robots" content="index, follow" />
@@ -72,9 +59,10 @@
         font-family: 'Lato', sans-serif;
         background-color: #0f0c29;
         margin: 0;
+        touch-action: manipulation;
       }
       #root {
-        min-height: 100vh;
+        min-height: 100dvh;
         background-color: #0f0c29;
       }
       /* Ensure all clickable elements have pointer cursor */
@@ -179,12 +167,12 @@
   <body>
     <div id="root">
       <!-- Static app shell for instant LCP — replaced by React on mount -->
-      <div style="min-height:100vh;color:#e2e8f0;position:relative;overflow:hidden;display:flex;flex-direction:column">
+      <div style="min-height:100dvh;color:#e2e8f0;position:relative;overflow:hidden;display:flex;flex-direction:column">
         <div style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:image-set(url('/background-celestiarcana.avif') type('image/avif'),url('/background-celestiarcana.webp') type('image/webp'));background-size:cover;background-position:center;background-repeat:no-repeat"></div>
         <header style="position:sticky;top:0;z-index:50;width:100%;border-bottom:1px solid rgba(168,85,247,0.2);background:rgba(40,23,78,0.95);backdrop-filter:blur(12px)">
           <div style="max-width:1280px;margin:0 auto;padding:0 1rem;height:4rem;display:flex;align-items:center">
             <div style="display:flex;align-items:center;gap:0.5rem">
-              <img src="/logos/celestiarcana-moon.png" alt="" width="40" height="40" style="height:2.5rem;width:2.5rem;object-fit:cover" />
+              <img src="/logos/celestiarcana-moon.webp" alt="" width="40" height="40" style="height:2.5rem;width:2.5rem;object-fit:cover" />
               <span style="font-size:1.25rem;font-family:'Cinzel',serif;font-weight:700;background:linear-gradient(to right,#fde68a,#e9d5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">CelestiArcana</span>
             </div>
           </div>
