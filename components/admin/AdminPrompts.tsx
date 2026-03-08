@@ -8,6 +8,7 @@ import {
   seedAdminPrompts,
   AdminPrompt,
 } from '../../services/api';
+import { useAdminCrud } from '../../hooks';
 import { MessageSquare, Edit2, Check, X, RotateCcw, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -17,11 +18,10 @@ const AdminPrompts: React.FC = () => {
   const { getToken } = useAuth();
   const [prompts, setPrompts] = useState<AdminPrompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const crud = useAdminCrud();
+  const { editingId: editingKey, error, saving } = crud;
   const [formData, setFormData] = useState({ value: '' });
   const [seeding, setSeeding] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadPrompts();
@@ -35,29 +35,22 @@ const AdminPrompts: React.FC = () => {
 
       const data = await fetchAdminPrompts(token);
       setPrompts(data.prompts);
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load prompts');
+      crud.setError(err instanceof Error ? err.message : 'Failed to load prompts');
     } finally {
       setLoading(false);
     }
   };
 
   const handleUpdate = async (key: string) => {
-    try {
-      setSaving(true);
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await updateAdminPrompt(token, key, { value: formData.value });
       await loadPrompts();
-      setEditingKey(null);
       setFormData({ value: '' });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update prompt');
-    } finally {
-      setSaving(false);
-    }
+    }, { errorPrefix: 'Failed to update prompt' });
   };
 
   const handleReset = async (key: string) => {
@@ -70,28 +63,25 @@ const AdminPrompts: React.FC = () => {
     )
       return;
 
-    try {
+    const wasEditing = editingKey === key;
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await resetAdminPrompt(token, key);
       await loadPrompts();
-      if (editingKey === key) {
-        setEditingKey(null);
+      if (wasEditing) {
         setFormData({ value: '' });
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset prompt');
-    }
+    }, { resetOnSuccess: wasEditing, errorPrefix: 'Failed to reset prompt' });
   };
 
   const startEdit = (prompt: AdminPrompt) => {
     setFormData({ value: prompt.value });
-    setEditingKey(prompt.key);
+    crud.startEditing(prompt.key);
   };
 
   const cancelEdit = () => {
-    setEditingKey(null);
+    crud.cancelEditing();
     setFormData({ value: '' });
   };
 
@@ -103,9 +93,9 @@ const AdminPrompts: React.FC = () => {
 
       await seedAdminPrompts(token);
       await loadPrompts();
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to seed prompts');
+      crud.setError(err instanceof Error ? err.message : 'Failed to seed prompts');
     } finally {
       setSeeding(false);
     }

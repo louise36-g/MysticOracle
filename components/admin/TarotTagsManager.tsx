@@ -9,6 +9,7 @@ import {
   deleteUnifiedTag,
   UnifiedTag,
 } from '../../services/api';
+import { useAdminCrud } from '../../hooks';
 import { Plus, Edit2, Trash2, Tag, X, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,7 +30,7 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
   const { getToken } = useAuth();
   const [tags, setTags] = useState<UnifiedTag[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const crud = useAdminCrud();
   const [editingTag, setEditingTag] = useState<EditingTag | null>(null);
   const [isNew, setIsNew] = useState(false);
 
@@ -59,10 +60,9 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
   const handleSave = async () => {
     if (!editingTag || !editingTag.name || !editingTag.slug) return;
 
-    try {
-      setSaving(true);
+    await crud.withSaving(async () => {
       const token = await getToken();
-      if (!token) return;
+      if (!token) throw new Error('No token');
 
       const data = {
         name: editingTag.name,
@@ -80,25 +80,19 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
       setIsNew(false);
       loadTags();
       onTagsChange?.();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save tag');
-    } finally {
-      setSaving(false);
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to save tag' });
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this tag?' : 'Supprimer ce tag?')) return;
 
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
-      if (!token) return;
+      if (!token) throw new Error('No token');
       await deleteUnifiedTag(token, id);
       loadTags();
       onTagsChange?.();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete tag');
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to delete tag' });
   };
 
   if (loading) {
@@ -120,6 +114,12 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
           {language === 'en' ? 'New Tag' : 'Nouveau tag'}
         </button>
       </div>
+
+      {crud.error && (
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300 mb-4">
+          {crud.error}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         {tags.map((tag) => {
@@ -235,10 +235,10 @@ const TarotTagsManager: React.FC<TarotTagsManagerProps> = ({ onTagsChange }) => 
                   </button>
                   <button
                     onClick={handleSave}
-                    disabled={saving || !editingTag.name || !editingTag.slug}
+                    disabled={crud.saving || !editingTag.name || !editingTag.slug}
                     className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 disabled:opacity-50"
                   >
-                    {saving ? '...' : (language === 'en' ? 'Save' : 'Enregistrer')}
+                    {crud.saving ? '...' : (language === 'en' ? 'Save' : 'Enregistrer')}
                   </button>
                 </div>
               </div>

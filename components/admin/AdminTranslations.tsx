@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useTranslation } from '../../context/TranslationContext';
+import { useAdminCrud } from '../../hooks';
 import { Languages, Search, ChevronDown, ChevronRight, Plus, Download, Globe, Edit2, Trash2, Check, X, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -31,13 +32,12 @@ const AdminTranslations: React.FC = () => {
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const crud = useAdminCrud();
+  const { editingId: editingKey, error, saving } = crud;
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
-  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [seeding, setSeeding] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   // Fetch languages
   useEffect(() => {
@@ -61,7 +61,7 @@ const AdminTranslations: React.FC = () => {
           setSelectedLang(langs[0].code);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load languages');
+        crud.setError(err instanceof Error ? err.message : 'Failed to load languages');
       } finally {
         setLoading(false);
       }
@@ -125,22 +125,21 @@ const AdminTranslations: React.FC = () => {
         setSelectedLang(langs[0].code);
       }
 
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to seed');
+      crud.setError(err instanceof Error ? err.message : 'Failed to seed');
     } finally {
       setSeeding(false);
     }
   };
 
   const handleSaveTranslation = async (key: string, value: string) => {
-    try {
-      setSaving(true);
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
 
       const lang = languages.find(l => l.code === selectedLang);
-      if (!lang) return;
+      if (!lang) throw new Error('No language selected');
 
       const res = await fetch(`${API_URL}/api/v1/translations/admin/translations`, {
         method: 'POST',
@@ -161,13 +160,7 @@ const AdminTranslations: React.FC = () => {
         }
         return [...prev, { id: 'new', key, value, languageId: lang.id }];
       });
-
-      setEditingKey(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
+    }, { errorPrefix: 'Failed to save translation' });
   };
 
   // Group translations by prefix (e.g., nav.*, tarot.*)
@@ -360,7 +353,7 @@ const AdminTranslations: React.FC = () => {
                                   <Check className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => setEditingKey(null)}
+                                  onClick={() => crud.cancelEditing()}
                                   className="p-1 text-slate-400 hover:bg-slate-700 rounded"
                                 >
                                   <X className="w-4 h-4" />
@@ -373,7 +366,7 @@ const AdminTranslations: React.FC = () => {
                                 </div>
                                 <button
                                   onClick={() => {
-                                    setEditingKey(t.key);
+                                    crud.startEditing(t.key);
                                     setEditValue(t.value);
                                   }}
                                   className="p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded"

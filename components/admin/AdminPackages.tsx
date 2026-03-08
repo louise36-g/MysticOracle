@@ -9,6 +9,7 @@ import {
   seedAdminPackages,
   AdminCreditPackage
 } from '../../services/api';
+import { useAdminCrud } from '../../hooks';
 import { Plus, Edit2, Trash2, Package, Check, X, GripVertical, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -185,11 +186,10 @@ const PackageFormFields: React.FC<{
 const AdminPackages: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const crud = useAdminCrud();
+  const { editingId, showNewForm, error } = crud;
   const [packages, setPackages] = useState<AdminCreditPackage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [showNewForm, setShowNewForm] = useState(false);
   const [seeding, setSeeding] = useState(false);
 
   // Form state
@@ -218,60 +218,48 @@ const AdminPackages: React.FC = () => {
 
       const { packages: pkgs } = await fetchAdminPackages(token);
       setPackages(pkgs);
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load packages');
+      crud.setError(err instanceof Error ? err.message : 'Failed to load packages');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async () => {
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await createAdminPackage(token, {
         ...formData,
         badge: formData.badge || null
       });
       await loadPackages();
-      setShowNewForm(false);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create package');
-    }
+    }, { errorPrefix: 'Failed to create package' });
   };
 
   const handleUpdate = async (id: string) => {
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await updateAdminPackage(token, id, {
         ...formData,
         badge: formData.badge || null
       });
       await loadPackages();
-      setEditingId(null);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update package');
-    }
+    }, { errorPrefix: 'Failed to update package' });
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this package?' : 'Supprimer ce forfait?')) return;
-
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await deleteAdminPackage(token, id);
       await loadPackages();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete package');
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to delete package' });
   };
 
   const startEdit = (pkg: AdminCreditPackage) => {
@@ -287,8 +275,7 @@ const AdminPackages: React.FC = () => {
       isActive: pkg.isActive,
       sortOrder: pkg.sortOrder
     });
-    setEditingId(pkg.id);
-    setShowNewForm(false);
+    crud.startEditing(pkg.id);
   };
 
   const resetForm = () => {
@@ -307,8 +294,8 @@ const AdminPackages: React.FC = () => {
   };
 
   const cancelEdit = () => {
-    setEditingId(null);
-    setShowNewForm(false);
+    crud.cancelEditing();
+    crud.cancelCreating();
     resetForm();
   };
 
@@ -320,9 +307,9 @@ const AdminPackages: React.FC = () => {
 
       const result = await seedAdminPackages(token);
       setPackages(result.packages);
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to seed packages');
+      crud.setError(err instanceof Error ? err.message : 'Failed to seed packages');
     } finally {
       setSeeding(false);
     }
@@ -347,7 +334,7 @@ const AdminPackages: React.FC = () => {
         </div>
         {!showNewForm && !editingId && (
           <button
-            onClick={() => { resetForm(); setShowNewForm(true); }}
+            onClick={() => { resetForm(); crud.startCreating(); }}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm"
           >
             <Plus className="w-4 h-4" />

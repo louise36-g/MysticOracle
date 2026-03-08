@@ -9,6 +9,7 @@ import {
   deleteUnifiedCategory,
   UnifiedCategory,
 } from '../../services/api';
+import { useAdminCrud } from '../../hooks';
 import { Plus, Trash2, Folder, X, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,7 +33,7 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
   const { getToken } = useAuth();
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const crud = useAdminCrud();
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
   const [isNew, setIsNew] = useState(false);
 
@@ -62,10 +63,9 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
   const handleSave = async () => {
     if (!editingCategory || !editingCategory.name || !editingCategory.slug) return;
 
-    try {
-      setSaving(true);
+    await crud.withSaving(async () => {
       const token = await getToken();
-      if (!token) return;
+      if (!token) throw new Error('No token');
 
       const data = {
         name: editingCategory.name,
@@ -86,25 +86,19 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
       setIsNew(false);
       loadCategories();
       onCategoriesChange?.();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save category');
-    } finally {
-      setSaving(false);
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to save category' });
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this category?' : 'Supprimer cette catégorie?')) return;
 
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
-      if (!token) return;
+      if (!token) throw new Error('No token');
       await deleteUnifiedCategory(token, id);
       loadCategories();
       onCategoriesChange?.();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete category');
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to delete category' });
   };
 
   if (loading) {
@@ -126,6 +120,12 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
           {language === 'en' ? 'New Category' : 'Nouvelle catégorie'}
         </button>
       </div>
+
+      {crud.error && (
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300 mb-4">
+          {crud.error}
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {categories.map((cat) => (
@@ -285,10 +285,10 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
                   </button>
                   <button
                     onClick={handleSave}
-                    disabled={saving || !editingCategory.name || !editingCategory.slug}
+                    disabled={crud.saving || !editingCategory.name || !editingCategory.slug}
                     className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 disabled:opacity-50"
                   >
-                    {saving ? '...' : (language === 'en' ? 'Save' : 'Enregistrer')}
+                    {crud.saving ? '...' : (language === 'en' ? 'Save' : 'Enregistrer')}
                   </button>
                 </div>
               </div>
