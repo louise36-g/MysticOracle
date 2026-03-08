@@ -10,21 +10,6 @@
 
 ## Pending
 
-### 1. Prisma v6 → v7
-
-**Priority:** Medium
-**Status:** Blocked
-
-Upgraded to v6.19.2 (from v5.22.0) on Feb 28, 2026. v7 is deferred because it requires:
-- `@prisma/adapter-pg` and `pg` driver
-- `prisma.config.ts` with database connection
-- Generator change: `prisma-client-js` → `prisma-client` + updated imports
-- Dockerfile for Coolify deployment (Nixpacks won't work)
-
-**Blocker:** Coolify Docker networking issues caused an outage during a previous v7 attempt. The mapped enum `@map` breaking change was reverted in v7.3, so that is no longer a risk.
-
-**When to do it:** After Coolify Docker networking is resolved or if migrating off Coolify.
-
 ---
 
 ### 2. Rate Limiting Load Testing
@@ -64,12 +49,11 @@ All user-facing components now use the `t()` translation system (~95% coverage).
 
 | Issue | Priority | Status | Notes |
 |-------|----------|--------|-------|
-| Prisma v6 → v7 | Medium | Blocked | Needs Dockerfile + adapter-pg; Coolify networking issue |
+| Prisma v5 → v7 | Medium | Done | v7.4.2 with adapter-pg, prisma-client generator |
 | Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
 | Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Done (user-facing) | ~95% user-facing coverage; admin strings remain |
 | localStorage fallback removal | Medium | Done | Ghost keys removed; all remaining usage legitimate |
-| API response standardization | Low | Deferred | 95% consistent already; 171 changes across 39 files for marginal gain |
 
 ---
 
@@ -84,7 +68,7 @@ For reference, the following were all resolved prior to or during March 2026:
 - Stripe v14 → v20 upgrade
 - Clerk Backend v1 → v2 upgrade (bumped to v2.32.2)
 - React Router v6 → v7 upgrade (v7.13.0)
-- Prisma v5 → v6 upgrade (v6.19.2)
+- Prisma v5 → v7 upgrade (v7.4.2 with adapter-pg, prisma-client generator)
 - Dead code removal (deductCredits, old taxonomy routes)
 - LocalStorage cleanup utility
 - Critical `any` types fixed (admin.ts, tarot-articles.ts)

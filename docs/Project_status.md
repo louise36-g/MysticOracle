@@ -44,7 +44,6 @@
 | Split large components | ✅ Done | Medium |
 | Error boundaries | ✅ Done | Low |
 | Remove localStorage fallback | ✅ Done | Medium |
-| API response standardization | ⏸️ Deferred | Low |
 
 ### Testing
 
@@ -121,7 +120,7 @@ None currently.
 - 2026-03-08: Quick wins: dead code removal (~300 lines), crash handler, AppContext memoization, 3 DB composite indexes
 - 2026-03-07: Fixed Coolify Nixpacks build (CSP headers, Docker memory limits)
 - 2026-02-28: Route test coverage expanded to 509 tests across 30 files
-- 2026-02-28: Prisma v5 → v6 upgrade, ESLint 9 flat config, Sentry integration
+- 2026-02-28: Prisma v5 → v7 upgrade (v7.4.2), ESLint 9 flat config, Sentry integration
 - 2026-01-09: AdminTarotArticles modularized (1,045 → 224 lines)
 - 2026-01-08: Fixed double credit deduction, 0-card readings, follow-up pricing
 
