@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
+import { useAdminCrud } from '../../hooks';
 import {
   fetchAdminEmailTemplatesCRUD,
   createAdminEmailTemplate,
@@ -29,12 +30,11 @@ const sanitizeEmailHtml = (html: string): string => {
 const AdminEmailTemplates: React.FC = () => {
   const { language } = useApp();
   const { getToken } = useAuth();
+  const crud = useAdminCrud();
+  const { editingId, showNewForm, error } = crud;
   const [templates, setTemplates] = useState<AdminEmailTemplate[]>([]);
   const [brevoConfigured, setBrevoConfigured] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [showNewForm, setShowNewForm] = useState(false);
   const [previewLang, setPreviewLang] = useState<'en' | 'fr'>('en');
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
@@ -61,54 +61,43 @@ const AdminEmailTemplates: React.FC = () => {
       const data = await fetchAdminEmailTemplatesCRUD(token);
       setTemplates(data.templates);
       setBrevoConfigured(data.brevoConfigured);
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load templates');
+      crud.setError(err instanceof Error ? err.message : 'Failed to load templates');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async () => {
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await createAdminEmailTemplate(token, formData);
       await loadTemplates();
-      setShowNewForm(false);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create template');
-    }
+    }, { errorPrefix: 'Failed to create template' });
   };
 
   const handleUpdate = async (id: string) => {
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await updateAdminEmailTemplate(token, id, formData);
       await loadTemplates();
-      setEditingId(null);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update template');
-    }
+    }, { errorPrefix: 'Failed to update template' });
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this template?' : 'Supprimer ce modele?')) return;
 
-    try {
+    await crud.withSaving(async () => {
       const token = await getToken();
       if (!token) throw new Error('No token');
-
       await deleteAdminEmailTemplate(token, id);
       await loadTemplates();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete template');
-    }
+    }, { resetOnSuccess: false, errorPrefix: 'Failed to delete template' });
   };
 
   const startEdit = (template: AdminEmailTemplate) => {
@@ -120,8 +109,7 @@ const AdminEmailTemplates: React.FC = () => {
       bodyFr: template.bodyFr,
       isActive: template.isActive
     });
-    setEditingId(template.id);
-    setShowNewForm(false);
+    crud.startEditing(template.id);
     setPreviewingId(null);
   };
 
@@ -137,8 +125,8 @@ const AdminEmailTemplates: React.FC = () => {
   };
 
   const cancelEdit = () => {
-    setEditingId(null);
-    setShowNewForm(false);
+    crud.cancelEditing();
+    crud.cancelCreating();
     resetForm();
   };
 
@@ -150,9 +138,9 @@ const AdminEmailTemplates: React.FC = () => {
 
       const result = await seedAdminEmailTemplates(token);
       setTemplates(result.templates);
-      setError(null);
+      crud.clearError();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to seed templates');
+      crud.setError(err instanceof Error ? err.message : 'Failed to seed templates');
     } finally {
       setSeeding(false);
     }
@@ -285,7 +273,7 @@ const AdminEmailTemplates: React.FC = () => {
         </div>
         {!showNewForm && !editingId && (
           <button
-            onClick={() => { resetForm(); setShowNewForm(true); }}
+            onClick={() => { resetForm(); crud.startCreating(); }}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm"
           >
             <Plus className="w-4 h-4" />

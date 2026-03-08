@@ -48,3 +48,5 @@ export {
 } from './useProfileData';
 
 export { useDailyBonus } from './useDailyBonus';
+
+export { useAdminCrud, type UseAdminCrudReturn } from './useAdminCrud';
