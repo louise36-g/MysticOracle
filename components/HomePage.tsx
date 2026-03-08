@@ -77,6 +77,25 @@ const HomePage: React.FC = () => {
       <Helmet>
         <title>Personalized Tarot Readings & Daily Horoscopes - CelestiArcana</title>
         <meta name="description" content="Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads and more. Free daily horoscopes." />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'CelestiArcana',
+            url: 'https://celestiarcana.com',
+            logo: 'https://celestiarcana.com/logo.png',
+            description: 'AI-powered tarot readings and daily horoscopes for insight, clarity, and personal growth.',
+            contactPoint: {
+              '@type': 'ContactPoint',
+              email: 'contact@celestiarcana.com',
+              contactType: 'Customer Support',
+            },
+            founder: {
+              '@type': 'Organization',
+              name: 'La Petite Voie',
+            },
+          })}
+        </script>
       </Helmet>
       <SEOTags path="/" />
       {/* Atmospheric background - persistent */}

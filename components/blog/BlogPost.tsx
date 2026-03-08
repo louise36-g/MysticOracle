@@ -5,7 +5,7 @@ import { FAQItem, CTAItem } from '../../services/api';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
-import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, BlogLightbox } from './components';
+import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArticles, BlogLightbox } from './components';
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
@@ -251,6 +251,9 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         language={language}
         t={t}
       />
+
+      {/* Related Tarot Cards (shown for tarot-related blog categories) */}
+      <RelatedTarotArticles categories={post.categories} />
 
       {/* Lightbox Modal */}
       {lightboxImage && <BlogLightbox imageUrl={lightboxImage} onClose={() => setLightboxImage(null)} />}

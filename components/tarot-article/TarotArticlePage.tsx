@@ -28,6 +28,7 @@ import { ArticleHeader } from './ArticleHeader';
 import { FeaturedImage } from './FeaturedImage';
 import { ArticleTags } from './ArticleTags';
 import { RelatedCards } from './RelatedCards';
+import { RelatedBlogPosts } from './RelatedBlogPosts';
 
 // Hooks
 import {
@@ -430,6 +431,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
 
             {/* Related Cards Section */}
             <RelatedCards cards={article.relatedCards} />
+
+            {/* Related Blog Posts Section */}
+            <RelatedBlogPosts cardType={article.cardType} articleId={article.id} />
           </motion.footer>
 
           {/* Bottom spacing */}
