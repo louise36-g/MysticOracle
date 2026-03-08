@@ -10,27 +10,7 @@
 
 ## Pending
 
----
-
-### 2. Rate Limiting Load Testing
-
-**Priority:** Medium
-**Status:** Done
-
-Integration tests added (`rateLimiting.integration.test.ts`) verifying 429 enforcement, header correctness, per-IP isolation, window resets, all 5 limiter tiers, JSON error format, and global+per-route stacking. Load test script added (`scripts/load-test.ts`) using autocannon for manual verification against a running server (`npm run load-test`).
-
----
-
----
-
-### 4. Hardcoded Strings
-
-**Priority:** Low
-**Status:** Done (user-facing)
-
-All user-facing components now use the `t()` translation system (~95% coverage). Remaining hardcoded ternaries are in admin-only components (~326 strings across 43 files) and legal documents (which use a `content[language]` pattern by design).
-
-**Completed:** Feb 28, 2026 — Migrated 8 components (~48 new translation keys): Header, HoroscopeReading, TarotArticlePage, TarotArticlesList, ReadingModeSelector, SpreadIntroSelector, QuestionLengthModal, SpendingLimitsSettings.
+No outstanding technical debt. Phase 1 (Stabilization) is complete.
 
 ---
 
@@ -59,10 +39,11 @@ For reference, the following were all resolved prior to or during March 2026:
 - React Router v6 → v7 upgrade (v7.13.0)
 - Prisma v5 → v7 upgrade (v7.4.2 with adapter-pg, prisma-client generator)
 - Dead code removal (deductCredits, old taxonomy routes)
-- LocalStorage cleanup utility
+- LocalStorage cleanup (ghost keys removed, all remaining usage legitimate)
 - Critical `any` types fixed (admin.ts, tarot-articles.ts)
 - ESLint 9 + Prettier configured (0 issues remaining)
 - 509 tests across 30 test files (blog, email, payments, GDPR, auth, AI, credits, routes)
+- 38 E2E tests across 7 files (homepage, blog, legal, tarot, horoscope, info pages, navigation)
 - All documentation complete (API_ERRORS, CREDIT_SYSTEM, PAYMENT_FLOW, DEPLOYMENT)
 - Environment validation at startup
 - Sentry error tracking + performance monitoring with custom spans
@@ -78,3 +59,5 @@ For reference, the following were all resolved prior to or during March 2026:
 - DB composite indexes added (Reading[userId,createdAt], Transaction[userId,paymentStatus], AuditLog[action,createdAt])
 - useAdminCrud shared hook created and adopted in 6 admin components (centralizes CRUD state management)
 - Coolify Nixpacks build fixed (CSP headers extracted to Caddyfile.template, Docker memory limits configured)
+- Rate limiting with integration tests and load test script
+- Hardcoded strings migrated to translation system (~95% user-facing coverage)
