@@ -1,8 +1,8 @@
 # CelestiArcana - Project Status
 
-**Last Updated:** January 2026
+**Last Updated:** March 2026
 **Current Phase:** 1 - Stabilization
-**Health:** 🟡 Functional with issues
+**Health:** 🟢 Stable and deployed
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| Phase 1: Stabilization | 🔄 Active | 65% |
+| Phase 1: Stabilization | 🔄 Active | 90% |
 | Phase 2: Mobile Funnel | ⏳ Pending | 0% |
 | Phase 3: Shared Backend | ⏳ Pending | 0% |
 | Phase 4: New Features | ⏳ Backlog | 0% |
@@ -28,7 +28,7 @@
 | Reading history not persisting | ✅ Done | Fetches from backend |
 | Follow-up questions not saved | ✅ Done | Saves to backend |
 | Browser alerts | ✅ Done | Styled modals |
-| Horoscope API errors | 🔄 Improved | Better error messages |
+| Horoscope API errors | ✅ Done | Working in production |
 | Removed endpoint calls | ✅ Done | Removed in Feb 2026 refactoring |
 
 ### Tech Debt
@@ -36,16 +36,21 @@
 | Task | Status | Priority |
 |------|--------|----------|
 | Backend-only credit deduction | ✅ Done | High |
+| Dead code removal | ✅ Done | Medium |
+| Context memoization | ✅ Done | Medium |
+| DB composite indexes | ✅ Done | Medium |
+| Unhandled rejection handler | ✅ Done | Medium |
+| useAdminCrud shared hook | ✅ Done | Medium |
+| Split large components | ✅ Done | Medium |
+| Error boundaries | ✅ Done | Low |
 | Remove localStorage fallback | ⏳ Pending | Medium |
-| Split large components | ⏳ Pending | Medium |
-| Error boundaries | ⏳ Pending | Low |
 | API response standardization | ⏳ Pending | Low |
 
 ### Testing
 
 | Task | Status |
 |------|--------|
-| API endpoint tests | ✅ Done | 509 tests across 30 files |
+| API endpoint tests | ✅ Done (509 tests, 30 files) |
 | E2E critical paths | ⏳ Pending |
 | Prisma model tests | ⏳ Pending |
 
@@ -82,7 +87,7 @@
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Daily Horoscope | ⚠️ Needs Config | Requires OPENROUTER_API_KEY |
+| Daily Horoscope | ✅ Working | Pre-generates daily at midnight UTC |
 | Blog CMS | ✅ Working | Posts, categories, tags, media |
 | Tarot Articles CMS | ✅ Working | Admin management, validation, import |
 | Admin Dashboard | ✅ Working | Users, transactions, analytics |
@@ -109,19 +114,14 @@ None currently.
 
 ## Recent Changes
 
-- 2026-02-28: Route test coverage expanded to 509 tests across 30 files (added 136 route tests across 7 new test files)
-- 2026-01-09: Fixed AdminTarotArticles UX issues (back button, modal popups, image flickering)
-- 2026-01-09: Improved ImportArticle UI (removed sidebar, header buttons, preview modal, warnings toggle)
-- 2026-01-09: Relaxed FAQ validation for contextual phrases and em dashes in blockquotes
-- 2026-01-09: Completed AdminTarotArticles management interface with validation
-- 2026-01-09: Added snake_case to camelCase JSON conversion for article imports
-- 2026-01-09: Relaxed em dash and image URL validation to warnings (non-blocking)
-- 2026-01-09: Fixed API route URLs in frontend (correct /api/tarot-articles/admin/* paths)
-- 2026-01-08: Added Spec-Kit documentation and Claude agents/commands
-- 2026-01-08: Fixed double credit deduction, 0-card readings
-- 2026-01-08: Added transaction history to user profile
-- 2026-01-08: Updated follow-up pricing to 2 questions per credit
-- 2026-01-08: Improved horoscope error handling
+- 2026-03-08: Adopted useAdminCrud hook in 5 more admin components (AdminPackages, AdminPrompts, AdminTranslations, TarotCategoriesManager, TarotTagsManager)
+- 2026-03-08: Created useAdminCrud shared hook + proof of concept in AdminEmailTemplates
+- 2026-03-08: Quick wins: dead code removal (~300 lines), crash handler, AppContext memoization, 3 DB composite indexes
+- 2026-03-07: Fixed Coolify Nixpacks build (CSP headers, Docker memory limits)
+- 2026-02-28: Route test coverage expanded to 509 tests across 30 files
+- 2026-02-28: Prisma v5 → v6 upgrade, ESLint 9 flat config, Sentry integration
+- 2026-01-09: AdminTarotArticles modularized (1,045 → 224 lines)
+- 2026-01-08: Fixed double credit deduction, 0-card readings, follow-up pricing
 
 ---
 

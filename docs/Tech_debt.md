@@ -4,7 +4,7 @@
 
 ---
 
-## Last Updated: February 28, 2026
+## Last Updated: March 8, 2026
 
 ---
 
@@ -68,12 +68,14 @@ All user-facing components now use the `t()` translation system (~95% coverage).
 | Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
 | Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Done (user-facing) | ~95% user-facing coverage; admin strings remain |
+| localStorage fallback removal | Medium | Not started | Backend is source of truth; localStorage is redundant |
+| API response standardization | Low | Not started | Consistent envelope format across all endpoints |
 
 ---
 
 ## Previously Completed
 
-For reference, the following were all resolved prior to or during February 2026:
+For reference, the following were all resolved prior to or during March 2026:
 
 - Horoscope system overhaul (AI model, post-processing, formatting)
 - Card image standardization (10 images resized to 256x384)
@@ -97,3 +99,9 @@ For reference, the following were all resolved prior to or during February 2026:
 - Error boundaries at route, page, and reading flow levels
 - Console warnings audited (no issues found)
 - AdminTarotArticles modularized (1,045 → 224 lines)
+- Dead code removal: unused CRUD factory (~120 lines), unused cleanHoroscopeText (~185 lines), backup file (1,062 lines)
+- AppContext provider value memoized with useMemo (prevents unnecessary re-renders)
+- Unhandled promise rejection handler added (prevents silent crashes)
+- DB composite indexes added (Reading[userId,createdAt], Transaction[userId,paymentStatus], AuditLog[action,createdAt])
+- useAdminCrud shared hook created and adopted in 6 admin components (centralizes CRUD state management)
+- Coolify Nixpacks build fixed (CSP headers extracted to Caddyfile.template, Docker memory limits configured)
