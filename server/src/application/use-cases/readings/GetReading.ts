@@ -7,6 +7,7 @@ import type {
   IReadingRepository,
   ReadingWithFollowUps,
 } from '../../ports/repositories/IReadingRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface GetReadingInput {
@@ -56,7 +57,7 @@ export class GetReadingUseCase {
         reading: readingWithFollowUps,
       };
     } catch (error) {
-      console.error('[GetReading] Error:', error);
+      logger.error('[GetReading] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to get reading',

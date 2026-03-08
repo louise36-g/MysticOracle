@@ -4,6 +4,7 @@
  */
 
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface DeleteTemplateInput {
   id: string;
@@ -29,7 +30,7 @@ export class DeleteTemplateUseCase {
 
       return { success: true };
     } catch (error) {
-      console.error('[DeleteTemplate] Error:', error);
+      logger.error('[DeleteTemplate] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete template',

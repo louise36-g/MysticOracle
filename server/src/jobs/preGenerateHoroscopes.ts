@@ -1,5 +1,6 @@
 import prisma from '../db/prisma.js';
 import cacheService from '../services/cache.js';
+import { logger } from '../lib/logger.js';
 import { PlanetaryCalculationService } from '../services/planetaryCalculationService.js';
 import { getHoroscopePrompt } from '../services/promptService.js';
 import { openRouterService } from '../services/openRouterService.js';
@@ -38,7 +39,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
   today.setHours(0, 0, 0, 0);
   const dateKey = today.toISOString().split('T')[0];
 
-  console.log(`[Horoscope Pre-Gen] Starting for ${dateKey}...`);
+  logger.info(`[Horoscope Pre-Gen] Starting for ${dateKey}...`);
 
   // Calculate planetary data once (same for all signs on a given date)
   const planetaryService = new PlanetaryCalculationService();
@@ -47,7 +48,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
     const planetaryData = await planetaryService.calculatePlanetaryData(new Date());
     formattedPlanetaryData = planetaryService.formatForPrompt(planetaryData);
   } catch (err) {
-    console.error('[Horoscope Pre-Gen] Planetary calculation failed, aborting:', err);
+    logger.error('[Horoscope Pre-Gen] Planetary calculation failed, aborting:', err);
     return;
   }
 
@@ -133,7 +134,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
         const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
         await cacheService.set(memoryCacheKey, { horoscope, createdAt }, secondsUntilMidnight);
 
-        console.log(`[Horoscope Pre-Gen] ✓ ${sign} (${language})`);
+        logger.info(`[Horoscope Pre-Gen] ✓ ${sign} (${language})`);
         return 'generated' as const;
       })
     );
@@ -145,7 +146,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
         else generated++;
       } else {
         failed++;
-        console.error('[Horoscope Pre-Gen] ✗', result.reason);
+        logger.error('[Horoscope Pre-Gen] ✗', result.reason);
       }
     }
 
@@ -155,7 +156,7 @@ export async function preGenerateHoroscopes(): Promise<void> {
     }
   }
 
-  console.log(
+  logger.info(
     `[Horoscope Pre-Gen] Done: ${generated} generated, ${skipped} skipped, ${failed} failed`
   );
 }

@@ -217,7 +217,7 @@ router.post(
       });
     } catch (emailError) {
       // Log but don't fail - the request is still valid
-      console.error('[Withdrawal Request] Failed to send notification email:', emailError);
+      logger.error('[Withdrawal Request] Failed to send notification email:', emailError);
     }
 
     // Send confirmation email to user
@@ -238,7 +238,7 @@ router.post(
       });
     } catch (emailError) {
       // Log but don't fail
-      console.error('[Withdrawal Request] Failed to send confirmation email:', emailError);
+      logger.error('[Withdrawal Request] Failed to send confirmation email:', emailError);
     }
 
     res.json({

@@ -5,6 +5,7 @@
 
 import { CreditPackage } from '../../../../generated/prisma/client.js';
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface UpdatePackageInput {
   id: string;
@@ -53,7 +54,7 @@ export class UpdatePackageUseCase {
 
       return { success: true, package: pkg };
     } catch (error) {
-      console.error('[UpdatePackage] Error:', error);
+      logger.error('[UpdatePackage] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update package',

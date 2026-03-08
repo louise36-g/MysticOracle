@@ -24,6 +24,7 @@ interface Order {
 const CheckoutPaymentIntent = { Capture: 'CAPTURE' as const };
 const OrderApplicationContextLandingPage = { Login: 'LOGIN' as const };
 const OrderApplicationContextUserAction = { PayNow: 'PAY_NOW' as const };
+import { logger, debug } from '../../lib/logger.js';
 import type {
   IPaymentGateway,
   CheckoutParams,
@@ -155,7 +156,7 @@ export class PayPalGateway implements IPaymentGateway {
         status: order.status,
       };
     } catch (error) {
-      console.error('PayPal verify payment error:', error);
+      logger.error('PayPal verify payment error:', error);
       return {
         success: false,
         status: 'ERROR',
@@ -181,7 +182,7 @@ export class PayPalGateway implements IPaymentGateway {
       const captureData: Order = typeof body === 'string' ? JSON.parse(body) : body;
 
       // Log full capture response for debugging
-      console.log('[PayPal] Capture response:', JSON.stringify(captureData, null, 2));
+      debug.log('[PayPal] Capture response:', JSON.stringify(captureData, null, 2));
 
       if (captureData.status === 'COMPLETED') {
         // Parse custom data to get credits
@@ -192,7 +193,7 @@ export class PayPalGateway implements IPaymentGateway {
         const purchaseUnit = purchaseUnitsArray?.[0];
 
         // Log purchase unit structure
-        console.log('[PayPal] Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
+        debug.log('[PayPal] Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
 
         // Try multiple locations where custom_id might be
         const payments = purchaseUnit?.payments as
@@ -207,19 +208,19 @@ export class PayPalGateway implements IPaymentGateway {
           (purchaseUnit?.custom_id as string) ||
           (purchaseUnit?.customId as string);
 
-        console.log('[PayPal] Found customId:', customId);
+        debug.log('[PayPal] Found customId:', customId);
 
         let credits = 0;
         if (customId) {
           try {
             const customData = JSON.parse(customId);
             credits = customData.credits || 0;
-            console.log('[PayPal] Parsed credits:', credits);
+            debug.log('[PayPal] Parsed credits:', credits);
           } catch (e) {
-            console.error('[PayPal] Failed to parse customId:', e);
+            logger.error('[PayPal] Failed to parse customId:', e);
           }
         } else {
-          console.warn('[PayPal] No customId found in capture response');
+          logger.warn('[PayPal] No customId found in capture response');
         }
 
         return {
@@ -234,7 +235,7 @@ export class PayPalGateway implements IPaymentGateway {
         error: `Payment status: ${captureData.status}`,
       };
     } catch (error) {
-      console.error('PayPal capture error:', error);
+      logger.error('PayPal capture error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to capture PayPal payment',
@@ -258,7 +259,7 @@ export class PayPalGateway implements IPaymentGateway {
     );
 
     if (!isValid) {
-      console.error('PayPal webhook signature verification failed');
+      logger.error('PayPal webhook signature verification failed');
       return null;
     }
 
@@ -302,7 +303,7 @@ export class PayPalGateway implements IPaymentGateway {
       }
 
       default:
-        console.log(`Unhandled PayPal event type: ${eventType}`);
+        logger.info(`Unhandled PayPal event type: ${eventType}`);
         return null;
     }
   }
@@ -329,7 +330,7 @@ export class PayPalGateway implements IPaymentGateway {
       clearTimeout(tokenTimeout);
 
       if (!tokenRes.ok) {
-        console.error('Failed to get PayPal access token');
+        logger.error('Failed to get PayPal access token');
         return false;
       }
 
@@ -359,14 +360,14 @@ export class PayPalGateway implements IPaymentGateway {
       clearTimeout(verifyTimeout);
 
       if (!verifyRes.ok) {
-        console.error('PayPal webhook verification request failed');
+        logger.error('PayPal webhook verification request failed');
         return false;
       }
 
       const verifyData = (await verifyRes.json()) as { verification_status: string };
       return verifyData.verification_status === 'SUCCESS';
     } catch (error) {
-      console.error('PayPal webhook verification error:', error);
+      logger.error('PayPal webhook verification error:', error);
       return false;
     }
   }

@@ -28,7 +28,7 @@ import { createAppContainer } from './shared/di/container.js';
 // Initialize DI container
 const container = createAppContainer();
 
-console.log('✅ Environment validated, DI container initialized');
+logger.info('✅ Environment validated, DI container initialized');
 
 // Shared rate limiter options for Render reverse proxy
 const proxyValidation = { validate: { xForwardedForHeader: false } };
@@ -96,6 +96,7 @@ import { Router } from 'express';
 import { errorHandler } from './middleware/errorHandler.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
+import { logger } from './lib/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -182,7 +183,7 @@ app.use(
       if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
         callback(null, true);
       } else {
-        console.warn(`CORS blocked request from: ${origin}`);
+        logger.warn(`CORS blocked request from: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -212,7 +213,7 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const duration = Date.now() - start;
     if (duration > 2000) {
-      console.warn(
+      logger.warn(
         `[Slow Request] ${req.method} ${req.path} took ${duration}ms (status: ${res.statusCode})`
       );
     }
@@ -348,7 +349,7 @@ app.use('/api/v1', v1Router);
 // DEV ONLY: Mount development routes (only in non-production)
 if (process.env.NODE_ENV !== 'production') {
   app.use('/api/v1/dev', generalLimiter, devRoutes);
-  console.log('🔧 Dev endpoints enabled at /api/v1/dev');
+  logger.info('🔧 Dev endpoints enabled at /api/v1/dev');
 }
 
 // DEPRECATED: Mount same routes at /api/* for backward compatibility
@@ -383,36 +384,36 @@ function scheduleHoroscopeCleanup(): void {
   setTimeout(() => {
     cleanupOldHoroscopes()
       .then(() => preGenerateHoroscopes())
-      .catch(err => console.error('[Horoscope] Cleanup/pre-gen error:', err));
+      .catch(err => logger.error('[Horoscope] Cleanup/pre-gen error:', err));
     // Then run every 24 hours at midnight
     setInterval(() => {
       cleanupOldHoroscopes()
         .then(() => preGenerateHoroscopes())
-        .catch(err => console.error('[Horoscope] Cleanup/pre-gen error:', err));
+        .catch(err => logger.error('[Horoscope] Cleanup/pre-gen error:', err));
     }, CLEANUP_INTERVAL);
   }, msUntilMidnight);
 
-  console.log(
+  logger.info(
     `[Horoscope Cleanup] Daily cleanup scheduled for midnight UTC (next run: ${nextMidnight.toISOString()})`
   );
 }
 
 // Catch unhandled promise rejections (prevents silent crashes)
 process.on('unhandledRejection', (reason, _promise) => {
-  console.error('[FATAL] Unhandled Promise Rejection:', reason);
+  logger.error('[FATAL] Unhandled Promise Rejection:', reason);
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🔮 CelestiArcana API running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🔮 CelestiArcana API running on port ${PORT}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 
   // Schedule background jobs
   scheduleHoroscopeCleanup();
 
   // Pre-generate today's horoscopes (deferred to not block startup)
   setTimeout(() => {
-    preGenerateHoroscopes().catch(err => console.error('[Horoscope Pre-Gen] Startup error:', err));
+    preGenerateHoroscopes().catch(err => logger.error('[Horoscope Pre-Gen] Startup error:', err));
   }, 5000);
 });
 

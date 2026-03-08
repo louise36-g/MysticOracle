@@ -6,6 +6,7 @@
  */
 
 import { processArticleSchema, type TarotArticleData } from '../schema-builder.js';
+import { logger } from '../logger.js';
 
 export interface SchemaResult {
   success: boolean;
@@ -30,7 +31,7 @@ export function generateTarotSchema(article: TarotArticleData): SchemaResult {
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Schema generation failed';
-    console.warn(`[Schema] Failed to generate schema for article: ${errorMessage}`);
+    logger.warn(`[Schema] Failed to generate schema for article: ${errorMessage}`);
     return {
       success: false,
       schema: null,

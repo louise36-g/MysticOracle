@@ -6,6 +6,7 @@
 import { CreditPackage } from '../../../../generated/prisma/client.js';
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
 import { DEFAULT_PACKAGES } from '../../../../shared/constants/admin.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface SeedPackagesResult {
   success: boolean;
@@ -42,7 +43,7 @@ export class SeedPackagesUseCase {
         count: packages.length,
       };
     } catch (error) {
-      console.error('[SeedPackages] Error:', error);
+      logger.error('[SeedPackages] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to seed packages',

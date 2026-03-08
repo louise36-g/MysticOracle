@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '@clerk/backend';
 import prisma from '../db/prisma.js';
 import { setUser } from '../config/sentry.js';
+import { logger } from '../lib/logger.js';
 
 // Extend Express Request type
 declare global {
@@ -55,7 +56,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error) {
-    console.error('Auth error:', error);
+    logger.error('Auth error:', error);
     return res.status(401).json({ error: 'Authentication failed' });
   }
 }
@@ -116,8 +117,8 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
 
     next();
   } catch (error) {
-    console.error('Admin auth error:', error);
-    console.error('User ID:', req.auth?.userId);
+    logger.error('Admin auth error:', error);
+    logger.error('User ID:', req.auth?.userId);
     return res.status(403).json({
       error: 'Admin verification failed',
       details: error instanceof Error ? error.message : 'Unknown error',

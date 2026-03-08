@@ -23,6 +23,7 @@ import {
   YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { logger } from '../../lib/logger.js';
 
 const router = Router();
 
@@ -320,10 +321,10 @@ Ecrivez a la deuxieme personne ("vous"), avec chaleur et profondeur mystique. Pa
         if (refundResult.success) {
           debug.log('[YearEnergy] Refunded credits after threshold generation failure');
         } else {
-          console.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
+          logger.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
         }
       } catch (refundError) {
-        console.error('[YearEnergy] CRITICAL: Refund error:', refundError);
+        logger.error('[YearEnergy] CRITICAL: Refund error:', refundError);
       }
     }
 

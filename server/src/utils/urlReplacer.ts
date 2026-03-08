@@ -12,6 +12,8 @@
  * - /tarot/king-of-wands-tarot-card-meaning
  */
 
+import { debug } from '../lib/logger.js';
+
 /**
  * Converts a card name to a URL-friendly slug
  * @param cardName - The card name (e.g., "THE EMPEROR", "ACE OF SWORDS")
@@ -42,7 +44,7 @@ export function replaceArticleUrls(content: string): string {
   processedContent = processedContent.replace(cardUrlPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
     const url = `/tarot/${slug}`;
-    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    debug.log(`Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
 
@@ -51,7 +53,7 @@ export function replaceArticleUrls(content: string): string {
   processedContent = processedContent.replace(urlForCardPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
     const url = `/tarot/${slug}`;
-    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    debug.log(`Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
 
@@ -60,7 +62,7 @@ export function replaceArticleUrls(content: string): string {
   processedContent = processedContent.replace(articleUrlPattern, (match, cardName) => {
     const slug = cardNameToSlug(cardName.trim());
     const url = `/tarot/${slug}`;
-    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    debug.log(`Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
 
@@ -76,13 +78,13 @@ export function replaceArticleUrls(content: string): string {
       cleanName.includes('READING') ||
       cleanName.includes('IMAGE')
     ) {
-      console.log(`⏭️  Skipping non-card placeholder: "${match}"`);
+      debug.log(`Skipping non-card placeholder: "${match}"`);
       return match; // Return unchanged
     }
 
     const slug = cardNameToSlug(cleanName);
     const url = `/tarot/${slug}`;
-    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    debug.log(`Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
 
@@ -99,13 +101,13 @@ export function replaceArticleUrls(content: string): string {
       cardName.includes('READING') ||
       cardName.includes('IMAGE')
     ) {
-      console.log(`⏭️  Skipping non-card placeholder: "${match}"`);
+      debug.log(`Skipping non-card placeholder: "${match}"`);
       return match;
     }
 
     const slug = cardNameToSlug(cardName);
     const url = `/tarot/${slug}`;
-    console.log(`📝 Replacing placeholder: "${match}" → "${url}"`);
+    debug.log(`Replacing placeholder: "${match}" → "${url}"`);
     return url;
   });
 
@@ -128,14 +130,14 @@ export function replaceArticleUrls(content: string): string {
         cardName.toLowerCase().includes('article') ||
         cardName.toLowerCase().includes('full guide')
       ) {
-        console.log(`⏭️  Skipping non-card anchor: "${cardName}"`);
+        debug.log(`Skipping non-card anchor: "${cardName}"`);
         return match;
       }
 
       const slug = cardNameToSlug(cardName);
       const url = `/tarot/${slug}`;
       const newAnchor = `<a ${beforeHref}${url}${afterHref}>${anchorText}</a>`;
-      console.log(`📝 Replacing anchor placeholder: "${anchorText}" → "${url}"`);
+      debug.log(`Replacing anchor placeholder: "${anchorText}" → "${url}"`);
       return newAnchor;
     }
   );
@@ -151,7 +153,7 @@ export function replaceArticleUrls(content: string): string {
     }
 
     const correctedUrl = `/tarot/${cardSlug}-tarot-card-meaning`;
-    console.log(`🔧 Fixing incorrect URL: "${fullUrl}" → "${correctedUrl}"`);
+    debug.log(`Fixing incorrect URL: "${fullUrl}" → "${correctedUrl}"`);
     return `href="${correctedUrl}"`;
   });
 

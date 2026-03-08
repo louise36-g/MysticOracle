@@ -8,6 +8,7 @@
 
 import prisma from '../db/prisma.js';
 import { DEFAULT_PROMPTS, getDefaultPrompt } from '../shared/constants/prompts.js';
+import { logger } from '../lib/logger.js';
 
 // Cache interface
 interface CachedPrompt {
@@ -51,7 +52,7 @@ export async function getPrompt(key: string): Promise<string> {
     // No value in DB, fall back to default
     const defaultPrompt = getDefaultPrompt(key);
     if (defaultPrompt) {
-      console.warn(`[PromptService] No DB value for ${key}, using default`);
+      logger.warn(`[PromptService] No DB value for ${key}, using default`);
       // Cache the default too
       promptCache.set(key, {
         value: defaultPrompt.defaultValue,
@@ -62,12 +63,12 @@ export async function getPrompt(key: string): Promise<string> {
 
     throw new Error(`Prompt not found and no default available: ${key}`);
   } catch (error) {
-    console.error(`[PromptService] Failed to fetch prompt ${key}:`, error);
+    logger.error(`[PromptService] Failed to fetch prompt ${key}:`, error);
 
     // Try fallback to default
     const defaultPrompt = getDefaultPrompt(key);
     if (defaultPrompt) {
-      console.warn(`[PromptService] Using fallback default for ${key} due to DB error`);
+      logger.warn(`[PromptService] Using fallback default for ${key} due to DB error`);
       return defaultPrompt.defaultValue;
     }
 
@@ -203,7 +204,7 @@ export async function getTarotReadingPrompt(params: {
 
     return interpolatePrompt(basePrompt, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling tarot reading prompt:', error);
+    logger.error('[PromptService] Error assembling tarot reading prompt:', error);
     throw error;
   }
 }
@@ -276,7 +277,7 @@ export async function getSingleCardReadingPrompt(params: {
 
     return interpolatePrompt(basePrompt, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling single card prompt:', error);
+    logger.error('[PromptService] Error assembling single card prompt:', error);
     throw error;
   }
 }
@@ -304,7 +305,7 @@ export async function getTarotFollowUpPrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling tarot follow-up prompt:', error);
+    logger.error('[PromptService] Error assembling tarot follow-up prompt:', error);
     throw error;
   }
 }
@@ -332,7 +333,7 @@ export async function getHoroscopePrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling horoscope prompt:', error);
+    logger.error('[PromptService] Error assembling horoscope prompt:', error);
     throw error;
   }
 }
@@ -364,7 +365,7 @@ export async function getHoroscopeFollowUpPrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling horoscope follow-up prompt:', error);
+    logger.error('[PromptService] Error assembling horoscope follow-up prompt:', error);
     throw error;
   }
 }
@@ -392,7 +393,7 @@ export async function getYearEnergyReadingPrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling year energy prompt:', error);
+    logger.error('[PromptService] Error assembling year energy prompt:', error);
     throw error;
   }
 }
@@ -423,7 +424,7 @@ export async function getBirthCardSynthesisPrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling birth card synthesis prompt:', error);
+    logger.error('[PromptService] Error assembling birth card synthesis prompt:', error);
     throw error;
   }
 }
@@ -459,7 +460,7 @@ export async function getClarificationCardPrompt(params: {
 
     return interpolatePrompt(template, variables);
   } catch (error) {
-    console.error('[PromptService] Error assembling clarification card prompt:', error);
+    logger.error('[PromptService] Error assembling clarification card prompt:', error);
     throw error;
   }
 }
@@ -470,7 +471,7 @@ export async function getClarificationCardPrompt(params: {
 export function clearCache(): void {
   const size = promptCache.size;
   promptCache.clear();
-  console.log(`[PromptService] Cache cleared, ${size} entries removed`);
+  logger.info(`[PromptService] Cache cleared, ${size} entries removed`);
 }
 
 /**
@@ -503,7 +504,7 @@ export async function seedPrompts(): Promise<{
         results.push({ key: prompt.key, created: false });
       }
     } catch (error) {
-      console.error(`[PromptService] Failed to seed prompt ${prompt.key}:`, error);
+      logger.error(`[PromptService] Failed to seed prompt ${prompt.key}:`, error);
       results.push({ key: prompt.key, created: false });
     }
   }

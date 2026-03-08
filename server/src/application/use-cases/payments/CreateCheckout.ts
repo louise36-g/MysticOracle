@@ -6,6 +6,7 @@
 import type { IPaymentGateway, CreditPackage } from '../../ports/services/IPaymentGateway.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { ITransactionRepository } from '../../ports/repositories/ITransactionRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface CreateCheckoutInput {
@@ -203,7 +204,7 @@ export class CreateCheckoutUseCase {
         url: session.url,
       };
     } catch (error) {
-      console.error('[CreateCheckout] Error:', error);
+      logger.error('[CreateCheckout] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create checkout session',

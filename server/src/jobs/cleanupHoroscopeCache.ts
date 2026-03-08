@@ -1,4 +1,5 @@
 import prisma from '../db/prisma.js';
+import { logger } from '../lib/logger.js';
 
 /**
  * Cleanup old horoscope cache entries
@@ -15,12 +16,12 @@ export async function cleanupOldHoroscopes(): Promise<number> {
       },
     });
 
-    console.log(
+    logger.info(
       `[Horoscope Cleanup] Deleted ${result.count} horoscope cache entries from before today`
     );
     return result.count;
   } catch (error) {
-    console.error('[Horoscope Cleanup] Error:', error);
+    logger.error('[Horoscope Cleanup] Error:', error);
     throw error;
   }
 }

@@ -8,7 +8,7 @@
  *   GET /:id/html   — Invoice HTML (via invoiceService.generateInvoiceHtml)
  */
 
-import { describe, it, expect, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 
@@ -153,6 +153,10 @@ const makeAggregateResult = (amount: number | null, count: number, avg?: number 
 // ============================================
 // GET / — List invoices
 // ============================================
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('GET / — List invoices', () => {
   it('returns paginated invoice list with default params', async () => {

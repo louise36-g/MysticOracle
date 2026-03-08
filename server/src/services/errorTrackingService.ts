@@ -5,6 +5,7 @@
  */
 
 import prisma from '../db/prisma.js';
+import { logger } from '../lib/logger.js';
 
 interface ErrorContext {
   path?: string;
@@ -46,7 +47,7 @@ class ErrorTrackingService {
     };
 
     // Always log to console (structured for log aggregation)
-    console.error(
+    logger.error(
       '[ERROR_TRACKING]',
       JSON.stringify({
         ...trackedError,
@@ -103,7 +104,7 @@ class ErrorTrackingService {
       });
     } catch (dbError) {
       // Don't let database errors cause cascading failures
-      console.error('[ERROR_TRACKING] Failed to store error in database:', dbError);
+      logger.error('[ERROR_TRACKING] Failed to store error in database:', dbError);
     }
   }
 
@@ -116,7 +117,7 @@ class ErrorTrackingService {
     // In production, could trigger immediate alerts here
     // e.g., send email, Slack notification, PagerDuty, etc.
     if (this.isProduction) {
-      console.error('[CRITICAL_ALERT] System error requires immediate attention:', error.message);
+      logger.error('[CRITICAL_ALERT] System error requires immediate attention:', error.message);
     }
   }
 }

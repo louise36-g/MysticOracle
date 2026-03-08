@@ -25,6 +25,7 @@ import {
   InsufficientCreditsError,
   DomainError,
 } from '../../../domain/index.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface CreateReadingInput {
@@ -130,7 +131,7 @@ export class CreateReadingUseCase {
 
       creditCost = costBreakdown.totalCost;
 
-      console.log('[CreateReading] Cost calculated server-side:', costBreakdown);
+      logger.info('[CreateReading] Cost calculated server-side:', costBreakdown);
 
       // 5. Check if user exists and has sufficient credits
       const balanceCheck = await this.creditService.checkSufficientCredits(
@@ -181,7 +182,7 @@ export class CreateReadingUseCase {
 
       if (!deductResult.success) {
         // Credit deduction failed - do NOT create reading
-        console.error(`[CreateReading] Credit deduction failed: ${deductResult.error}`);
+        logger.error(`[CreateReading] Credit deduction failed: ${deductResult.error}`);
         return {
           success: false,
           error: deductResult.error || 'Failed to process credits',
@@ -206,7 +207,7 @@ export class CreateReadingUseCase {
         });
       } catch (readingError) {
         // Reading creation failed - REFUND the credits
-        console.error(
+        logger.error(
           `[CreateReading] Reading creation failed, refunding ${creditCost} credits:`,
           readingError
         );
@@ -220,7 +221,7 @@ export class CreateReadingUseCase {
 
         if (!refundResult.success) {
           // Critical: refund also failed - log for manual intervention
-          console.error(
+          logger.error(
             `[CreateReading] CRITICAL: Refund failed after reading creation failure! ` +
               `User: ${input.userId}, Amount: ${creditCost}, Original TX: ${transactionId}`
           );
@@ -247,7 +248,7 @@ export class CreateReadingUseCase {
         }
       } catch (updateError) {
         // Log but don't fail - reading was created successfully
-        console.warn(`[CreateReading] Failed to update user reading count:`, updateError);
+        logger.warn(`[CreateReading] Failed to update user reading count:`, updateError);
       }
 
       // 9. Check and unlock achievements (non-critical, don't fail if this fails)
@@ -259,7 +260,7 @@ export class CreateReadingUseCase {
         });
       } catch (achievementError) {
         // Log but don't fail - reading was created successfully
-        console.warn(`[CreateReading] Failed to check achievements:`, achievementError);
+        logger.warn(`[CreateReading] Failed to check achievements:`, achievementError);
       }
 
       return {
@@ -268,11 +269,11 @@ export class CreateReadingUseCase {
         transactionId,
       };
     } catch (error) {
-      console.error('[CreateReading] Unexpected error:', error);
+      logger.error('[CreateReading] Unexpected error:', error);
 
       // If we already deducted credits, try to refund
       if (transactionId && creditCost > 0) {
-        console.log(`[CreateReading] Attempting refund after unexpected error...`);
+        logger.info(`[CreateReading] Attempting refund after unexpected error...`);
         const refundResult = await this.creditService.refundCredits(
           input.userId,
           creditCost,

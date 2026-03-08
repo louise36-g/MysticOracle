@@ -1,4 +1,5 @@
 import prisma from '../db/prisma.js';
+import { logger } from '../lib/logger.js';
 
 interface CardFromJson {
   cardId: string | number;
@@ -19,7 +20,7 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
   let skipped = 0;
   let errors = 0;
 
-  console.log('[Normalize Readings] Starting backfill job...');
+  logger.info('[Normalize Readings] Starting backfill job...');
 
   while (true) {
     // Find readings that don't have normalized cards yet
@@ -32,7 +33,7 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
     });
 
     if (readings.length === 0) {
-      console.log('[Normalize Readings] No more readings to process');
+      logger.info('[Normalize Readings] No more readings to process');
       break;
     }
 
@@ -57,17 +58,17 @@ export async function normalizeExistingReadings(batchSize = 100): Promise<{
 
         processed++;
       } catch (error) {
-        console.error(`[Normalize Readings] Error processing reading ${reading.id}:`, error);
+        logger.error(`[Normalize Readings] Error processing reading ${reading.id}:`, error);
         errors++;
       }
     }
 
-    console.log(
+    logger.info(
       `[Normalize Readings] Progress: ${processed} processed, ${skipped} skipped, ${errors} errors`
     );
   }
 
-  console.log(
+  logger.info(
     `[Normalize Readings] Complete: ${processed} processed, ${skipped} skipped, ${errors} errors`
   );
 

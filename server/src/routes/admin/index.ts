@@ -15,6 +15,7 @@
 
 import { Router } from 'express';
 import { requireAuth, requireAdmin } from '../../middleware/auth.js';
+import { logger } from '../../lib/logger.js';
 
 // Import route modules
 import usersRoutes from './users.js';
@@ -56,7 +57,7 @@ router.get('/stats', async (req, res) => {
     const stats = await adminStatsService.getDashboardStats();
     res.json(stats);
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
+    logger.error('Error fetching admin stats:', error);
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });

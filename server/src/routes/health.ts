@@ -137,7 +137,7 @@ router.post('/bootstrap', requireAuth, async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error('Bootstrap error:', error);
+    logger.error('Bootstrap error:', error);
     res.status(500).json({ error: 'Bootstrap failed' });
   }
 });
@@ -156,7 +156,7 @@ router.get('/admin-status', requireAuth, async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error('Admin status check error:', error);
+    logger.error('Admin status check error:', error);
     res.status(500).json({ error: 'Failed to check admin status' });
   }
 });

@@ -5,6 +5,7 @@
 
 import { EmailTemplate } from '../../../../generated/prisma/client.js';
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface CreateTemplateInput {
   slug: string;
@@ -54,7 +55,7 @@ export class CreateTemplateUseCase {
 
       return { success: true, template };
     } catch (error) {
-      console.error('[CreateTemplate] Error:', error);
+      logger.error('[CreateTemplate] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create template',

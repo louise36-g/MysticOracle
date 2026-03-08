@@ -11,6 +11,7 @@ import {
   emptyTrash,
   TrashConfig,
 } from '../../services/content/TrashUtils.js';
+import { logger } from '../../lib/logger.js';
 
 interface TrashRouterOptions {
   config: TrashConfig;
@@ -28,7 +29,7 @@ export function createTrashRouter({ config, itemPrefix = '' }: TrashRouterOption
       const result = await softDeleteItem(config, req.params.id);
       res.status(result.status).json(result.body);
     } catch (error) {
-      console.error(
+      logger.error(
         `Error deleting ${entity}:`,
         error instanceof Error ? error.message : String(error)
       );
@@ -42,7 +43,7 @@ export function createTrashRouter({ config, itemPrefix = '' }: TrashRouterOption
       const result = await restoreItem(config, req.params.id);
       res.status(result.status).json(result.body);
     } catch (error) {
-      console.error(
+      logger.error(
         `Error restoring ${entity}:`,
         error instanceof Error ? error.message : String(error)
       );
@@ -56,7 +57,7 @@ export function createTrashRouter({ config, itemPrefix = '' }: TrashRouterOption
       const result = await permanentDeleteItem(config, req.params.id);
       res.status(result.status).json(result.body);
     } catch (error) {
-      console.error(
+      logger.error(
         `Error permanently deleting ${entity}:`,
         error instanceof Error ? error.message : String(error)
       );
@@ -70,7 +71,7 @@ export function createTrashRouter({ config, itemPrefix = '' }: TrashRouterOption
       const result = await emptyTrash(config);
       res.status(result.status).json(result.body);
     } catch (error) {
-      console.error(
+      logger.error(
         `Error emptying ${entity} trash:`,
         error instanceof Error ? error.message : String(error)
       );

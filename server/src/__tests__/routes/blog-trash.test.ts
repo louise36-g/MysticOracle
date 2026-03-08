@@ -46,7 +46,8 @@ vi.mock('../../services/cache.js', () => ({
 
 // Mock logger
 vi.mock('../../lib/logger.js', () => ({
-  debug: vi.fn(),
+  debug: { log: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
 // Mock TrashUtils directly for isolated testing

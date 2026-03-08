@@ -23,6 +23,7 @@ import {
   YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { logger } from '../../lib/logger.js';
 
 const router = Router();
 
@@ -289,10 +290,10 @@ Element du Zodiaque: ${zodiac.elementFr}
         if (refundResult.success) {
           debug.log('[YearEnergy] Refunded credits after generation failure');
         } else {
-          console.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
+          logger.error('[YearEnergy] CRITICAL: Failed to refund credits:', refundResult.error);
         }
       } catch (refundError) {
-        console.error('[YearEnergy] CRITICAL: Refund error:', refundError);
+        logger.error('[YearEnergy] CRITICAL: Refund error:', refundError);
       }
     }
 

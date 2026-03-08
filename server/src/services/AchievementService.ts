@@ -18,6 +18,7 @@
  */
 
 import { PrismaClient, SpreadType } from '../generated/prisma/client.js';
+import { logger } from '../lib/logger.js';
 
 // Achievement definitions with rewards
 const ACHIEVEMENTS: Record<string, { reward: number }> = {
@@ -218,7 +219,7 @@ export class AchievementService {
       }
 
       if (unlockedAchievements.length > 0) {
-        console.log(
+        logger.info(
           `[AchievementService] User ${userId} unlocked:`,
           unlockedAchievements.map(a => a.achievementId)
         );
@@ -226,7 +227,7 @@ export class AchievementService {
 
       return unlockedAchievements;
     } catch (error) {
-      console.error('[AchievementService] Error checking achievements:', error);
+      logger.error('[AchievementService] Error checking achievements:', error);
       // Don't throw - achievement failures shouldn't break the main flow
       return [];
     }
@@ -242,7 +243,7 @@ export class AchievementService {
   ): Promise<UnlockedAchievement | null> {
     const achievement = ACHIEVEMENTS[achievementId];
     if (!achievement) {
-      console.error(`[AchievementService] Unknown achievement: ${achievementId}`);
+      logger.error(`[AchievementService] Unknown achievement: ${achievementId}`);
       return null;
     }
 
@@ -293,7 +294,7 @@ export class AchievementService {
       });
 
       if (result) {
-        console.log(
+        logger.info(
           `[AchievementService] ✅ Unlocked ${achievementId} for user ${userId}, awarded ${achievement.reward} credits`
         );
       }
@@ -302,12 +303,12 @@ export class AchievementService {
     } catch (error) {
       // Handle unique constraint violation (race condition)
       if (error instanceof Error && 'code' in error && error.code === 'P2002') {
-        console.log(
+        logger.info(
           `[AchievementService] Achievement ${achievementId} already unlocked (race condition)`
         );
         return null;
       }
-      console.error(`[AchievementService] Error unlocking ${achievementId}:`, error);
+      logger.error(`[AchievementService] Error unlocking ${achievementId}:`, error);
       return null;
     }
   }

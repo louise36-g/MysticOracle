@@ -5,12 +5,13 @@
 
 import * as Brevo from '@getbrevo/brevo';
 import * as Sentry from '@sentry/node';
+import { logger } from '../lib/logger.js';
 
 // Initialize Brevo API clients with authentication
 const apiKey = process.env.BREVO_API_KEY;
 
 if (!apiKey) {
-  console.warn('⚠️ BREVO_API_KEY not configured - emails will not be sent');
+  logger.warn('[Email] BREVO_API_KEY not configured - emails will not be sent');
 }
 
 // Create API instances with API key
@@ -444,10 +445,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
       { name: 'brevo.send_email', op: 'http.client', attributes: { subject: options.subject } },
       () => transactionalApi.sendTransacEmail(sendSmtpEmail)
     );
-    console.log(`✅ Email sent to ${options.to}`);
+    logger.info(`✅ Email sent to ${options.to}`);
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    logger.error('Error sending email:', error);
     return false;
   }
 }
@@ -662,10 +663,10 @@ export async function upsertContact(
     await Sentry.startSpan({ name: 'brevo.upsert_contact', op: 'http.client' }, () =>
       contactsApi.createContact(contact)
     );
-    console.log(`✅ Contact added/updated: ${email}`);
+    logger.info(`✅ Contact added/updated: ${email}`);
     return true;
   } catch (error) {
-    console.error('Error upserting contact:', error);
+    logger.error('Error upserting contact:', error);
     return false;
   }
 }
@@ -692,10 +693,10 @@ export async function unsubscribeContact(email: string): Promise<boolean> {
     updateContact.emailBlacklisted = true;
 
     await contactsApi.updateContact(email, updateContact);
-    console.log(`✅ Contact unsubscribed: ${email}`);
+    logger.info(`✅ Contact unsubscribed: ${email}`);
     return true;
   } catch (error) {
-    console.error('Error unsubscribing contact:', error);
+    logger.error('Error unsubscribing contact:', error);
     return false;
   }
 }

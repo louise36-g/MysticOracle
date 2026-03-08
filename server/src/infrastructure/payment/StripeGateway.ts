@@ -4,6 +4,7 @@
 
 import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
+import { logger, debug } from '../../lib/logger.js';
 import type {
   IPaymentGateway,
   CheckoutParams,
@@ -27,7 +28,7 @@ export class StripeGateway implements IPaymentGateway {
     this.provider = useStripeLink ? 'STRIPE_LINK' : 'STRIPE';
     this.webhookSecret = webhookSecret || null;
 
-    console.log(
+    logger.info(
       `[StripeGateway] Initializing ${this.provider}, secretKey provided: ${!!secretKey}, length: ${secretKey?.length || 0}`
     );
 
@@ -37,13 +38,13 @@ export class StripeGateway implements IPaymentGateway {
           apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
           timeout: 10_000, // 10s timeout for all Stripe API calls
         });
-        console.log(`[StripeGateway] ${this.provider} initialized successfully`);
+        logger.info(`[StripeGateway] ${this.provider} initialized successfully`);
       } catch (err) {
-        console.error(`[StripeGateway] Failed to initialize ${this.provider}:`, err);
+        logger.error(`[StripeGateway] Failed to initialize ${this.provider}:`, err);
         this.stripe = null;
       }
     } else {
-      console.log(`[StripeGateway] ${this.provider} - No secret key provided`);
+      logger.info(`[StripeGateway] ${this.provider} - No secret key provided`);
     }
   }
 
@@ -106,13 +107,13 @@ export class StripeGateway implements IPaymentGateway {
     }
 
     const stripe = this.stripe;
-    console.log('[StripeGateway] Retrieving session:', sessionId);
+    debug.log('[StripeGateway] Retrieving session:', sessionId);
     const session = await Sentry.startSpan(
       { name: 'stripe.checkout.retrieve', op: 'http.client' },
       () => stripe.checkout.sessions.retrieve(sessionId)
     );
-    console.log('[StripeGateway] Session payment_status:', session.payment_status);
-    console.log('[StripeGateway] Session metadata:', session.metadata);
+    debug.log('[StripeGateway] Session payment_status:', session.payment_status);
+    debug.log('[StripeGateway] Session metadata:', session.metadata);
 
     if (session.payment_status === 'paid') {
       return {
@@ -137,7 +138,7 @@ export class StripeGateway implements IPaymentGateway {
     try {
       event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
     } catch (err) {
-      console.error('Stripe webhook signature verification failed:', err);
+      logger.error('Stripe webhook signature verification failed:', err);
       return null;
     }
 
@@ -172,7 +173,7 @@ export class StripeGateway implements IPaymentGateway {
       // Handle invoice.paid for cases where Stripe creates invoices
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.log('[Stripe Webhook] invoice.paid received:', {
+        logger.info('[Stripe Webhook] invoice.paid received:', {
           invoiceId: invoice.id,
           customerId: invoice.customer,
           amount: invoice.amount_paid,
@@ -196,7 +197,7 @@ export class StripeGateway implements IPaymentGateway {
         }
 
         // If no metadata, log for debugging
-        console.log('[Stripe Webhook] invoice.paid has no userId/credits metadata - skipping');
+        debug.log('[Stripe Webhook] invoice.paid has no userId/credits metadata - skipping');
         return null;
       }
 
@@ -210,7 +211,7 @@ export class StripeGateway implements IPaymentGateway {
       }
 
       default:
-        console.log(`Unhandled Stripe event type: ${event.type}`);
+        logger.info(`Unhandled Stripe event type: ${event.type}`);
         return null;
     }
   }

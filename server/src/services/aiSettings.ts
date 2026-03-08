@@ -9,6 +9,8 @@
  * - AI_MODEL: AI model identifier (optional, defaults to free tier)
  */
 
+import { debug } from '../lib/logger.js';
+
 interface AISettings {
   apiKey: string | null;
   model: string;
@@ -40,10 +42,10 @@ export async function getAISettings(): Promise<AISettings> {
   const model = process.env.AI_MODEL || DEFAULT_MODEL;
 
   // Log configuration for debugging
-  console.log(`[AI Settings] API Key: ${apiKey ? 'configured' : 'NOT CONFIGURED'}`);
-  console.log(`[AI Settings] Model: ${model}`);
+  debug.log(`[AI Settings] API Key: ${apiKey ? 'configured' : 'NOT CONFIGURED'}`);
+  debug.log(`[AI Settings] Model: ${model}`);
   if (apiKey) {
-    console.log(`[AI Settings] API Key prefix: ${apiKey.substring(0, 15)}...`);
+    debug.log(`[AI Settings] API Key prefix: ${apiKey.substring(0, 15)}...`);
   }
 
   cachedSettings = { apiKey, model };

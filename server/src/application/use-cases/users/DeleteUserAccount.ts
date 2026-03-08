@@ -6,6 +6,7 @@
 
 import { PrismaClient } from '../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 export interface DeleteUserAccountInput {
   userId: string;
@@ -110,7 +111,7 @@ export class DeleteUserAccountUseCase {
         });
       });
 
-      console.log(`[DeleteUserAccount] User ${input.userId} data anonymized successfully`);
+      logger.info(`[DeleteUserAccount] User ${input.userId} data anonymized successfully`);
 
       return {
         success: true,
@@ -118,7 +119,7 @@ export class DeleteUserAccountUseCase {
           'Your account data has been anonymized and your account has been deactivated. This action cannot be undone.',
       };
     } catch (error) {
-      console.error('[DeleteUserAccount] Error:', error);
+      logger.error('[DeleteUserAccount] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete account',

@@ -10,6 +10,7 @@
 import { Request, Response } from 'express';
 import { Prisma } from '../../generated/prisma/client.js';
 import prisma from '../../db/prisma.js';
+import { logger } from '../../lib/logger.js';
 
 interface ReorderConfig {
   entityName: string;
@@ -100,7 +101,7 @@ export async function handleReorder(config: ReorderConfig, req: Request, res: Re
       message: `${config.entityName} reordered successfully`,
     });
   } catch (error) {
-    console.error(`Error reordering ${config.entityName.toLowerCase()}:`, error);
+    logger.error(`Error reordering ${config.entityName.toLowerCase()}:`, error);
     res.status(500).json({ error: `Failed to reorder ${config.entityName.toLowerCase()}` });
   }
 }

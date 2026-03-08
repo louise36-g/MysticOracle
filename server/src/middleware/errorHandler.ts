@@ -4,12 +4,13 @@ import { ApplicationError, isOperationalError } from '../shared/errors/Applicati
 import { formatError } from '../shared/errors/formatters.js';
 import { errorTrackingService } from '../services/errorTrackingService.js';
 import { captureException } from '../config/sentry.js';
+import { logger } from '../lib/logger.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   const requestId = res.locals.requestId as string | undefined;
 
   // Log all errors with requestId for correlation
-  console.error('[ErrorHandler]', {
+  logger.error('[ErrorHandler]', {
     requestId,
     path: req.path,
     method: req.method,

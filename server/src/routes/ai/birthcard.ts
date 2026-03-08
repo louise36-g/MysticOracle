@@ -20,6 +20,7 @@ import {
   birthCardSynthesisSchema,
 } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { logger } from '../../lib/logger.js';
 
 const router = Router();
 
@@ -398,7 +399,7 @@ ${elementalAnalysis}`;
       debug.log('[Birth Card Synthesis] Cached synthesis for user:', userId);
     } catch (cacheError) {
       // Don't fail the request if caching fails, just log it
-      console.error('[Birth Card Synthesis] Failed to cache synthesis:', cacheError);
+      logger.error('[Birth Card Synthesis] Failed to cache synthesis:', cacheError);
     }
 
     // Update user's birth date if not already set
@@ -408,7 +409,7 @@ ${elementalAnalysis}`;
         data: { birthDate: new Date(birthDate) },
       });
     } catch (updateError) {
-      console.error('[Birth Card Synthesis] Failed to update user birth date:', updateError);
+      logger.error('[Birth Card Synthesis] Failed to update user birth date:', updateError);
     }
 
     res.json({

@@ -36,6 +36,8 @@ const envConfig: EnvConfig = {
   },
 };
 
+import { logger } from '../lib/logger.js';
+
 interface ValidationResult {
   valid: boolean;
   missing: string[];
@@ -103,15 +105,15 @@ export function validateEnvOrExit(): void {
 
   // Log warnings (in development and production for recommended vars)
   if (result.warnings.length > 0) {
-    console.warn('⚠️  Environment warnings:');
-    result.warnings.forEach(warning => console.warn(`   - ${warning}`));
+    logger.warn('⚠️  Environment warnings:');
+    result.warnings.forEach(warning => logger.warn(`   - ${warning}`));
   }
 
   // Exit if missing required variables
   if (!result.valid) {
-    console.error('❌ Missing required environment variables:');
-    result.missing.forEach(envVar => console.error(`   - ${envVar}`));
-    console.error('\nPlease set these variables in your .env file or environment.');
+    logger.error('❌ Missing required environment variables:');
+    result.missing.forEach(envVar => logger.error(`   - ${envVar}`));
+    logger.error('\nPlease set these variables in your .env file or environment.');
     process.exit(1);
   }
 }

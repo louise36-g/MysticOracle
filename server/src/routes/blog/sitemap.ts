@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { prisma } from './shared.js';
+import { logger } from '../../lib/logger.js';
 
 const router = Router();
 
@@ -168,7 +169,7 @@ router.get('/sitemap.xml', async (req, res) => {
     res.set('Content-Type', 'application/xml');
     res.send(xml);
   } catch (error) {
-    console.error(
+    logger.error(
       'Error generating sitemap:',
       error instanceof Error ? error.message : String(error)
     );

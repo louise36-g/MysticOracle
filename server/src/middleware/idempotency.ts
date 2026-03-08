@@ -13,6 +13,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { idempotencyService } from '../services/IdempotencyService.js';
+import { logger } from '../lib/logger.js';
 
 // Header name for idempotency key
 const IDEMPOTENCY_HEADER = 'x-idempotency-key';
@@ -76,7 +77,7 @@ export async function idempotent(req: Request, res: Response, next: NextFunction
 
     // If completed, return the cached result
     if (existing.state === 'completed') {
-      console.log(`[Idempotency] Returning cached result for key: ${idempotencyKey}`);
+      logger.info(`[Idempotency] Returning cached result for key: ${idempotencyKey}`);
 
       // Set header to indicate this is a cached response
       res.setHeader('X-Idempotency-Replayed', 'true');
@@ -99,12 +100,12 @@ export async function idempotent(req: Request, res: Response, next: NextFunction
     // Only cache successful responses (2xx)
     if (statusCode >= 200 && statusCode < 300) {
       idempotencyService.markCompleted(idempotencyKey, body, statusCode).catch(err => {
-        console.error('[Idempotency] Error caching result:', err);
+        logger.error('[Idempotency] Error caching result:', err);
       });
     } else {
       // For failed responses, remove the pending state so client can retry
       idempotencyService.markFailed(idempotencyKey).catch(err => {
-        console.error('[Idempotency] Error marking failed:', err);
+        logger.error('[Idempotency] Error marking failed:', err);
       });
     }
 

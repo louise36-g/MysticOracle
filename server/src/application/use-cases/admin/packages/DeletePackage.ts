@@ -4,6 +4,7 @@
  */
 
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface DeletePackageInput {
   id: string;
@@ -29,7 +30,7 @@ export class DeletePackageUseCase {
 
       return { success: true };
     } catch (error) {
-      console.error('[DeletePackage] Error:', error);
+      logger.error('[DeletePackage] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete package',

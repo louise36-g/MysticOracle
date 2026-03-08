@@ -6,6 +6,7 @@
 import { StorageService } from './StorageService.js';
 import { CloudinaryProvider } from './CloudinaryProvider.js';
 import { LocalProvider } from './LocalProvider.js';
+import { logger } from '../../lib/logger.js';
 
 export type {
   StorageService,
@@ -35,16 +36,16 @@ export function getStorageService(): StorageService {
       process.env.CLOUDINARY_API_KEY &&
       process.env.CLOUDINARY_API_SECRET
     ) {
-      console.log('[Storage] Using Cloudinary provider');
+      logger.info('[Storage] Using Cloudinary provider');
       storageServiceInstance = new CloudinaryProvider();
     } else {
-      console.warn(
+      logger.warn(
         '[Storage] STORAGE_PROVIDER=cloudinary but credentials not set. Falling back to local storage.'
       );
       storageServiceInstance = new LocalProvider();
     }
   } else {
-    console.log('[Storage] Using local filesystem provider');
+    logger.info('[Storage] Using local filesystem provider');
     storageServiceInstance = new LocalProvider();
   }
 

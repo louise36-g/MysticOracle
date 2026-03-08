@@ -6,6 +6,7 @@
 import { SystemSetting } from '../../../../generated/prisma/client.js';
 import type { ISystemSettingRepository } from '../../../ports/repositories/ISystemSettingRepository.js';
 import { EDITABLE_SETTINGS } from '../../../../shared/constants/admin.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface UpdateSettingInput {
   key: string;
@@ -48,7 +49,7 @@ export class UpdateSettingUseCase {
         setting,
       };
     } catch (error) {
-      console.error('[UpdateSetting] Error:', error);
+      logger.error('[UpdateSetting] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update setting',

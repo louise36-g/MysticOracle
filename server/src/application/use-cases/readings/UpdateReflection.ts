@@ -5,6 +5,7 @@
 
 import { Reading } from '../../../generated/prisma/client.js';
 import type { IReadingRepository } from '../../ports/repositories/IReadingRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface UpdateReflectionInput {
@@ -56,7 +57,7 @@ export class UpdateReflectionUseCase {
         reading: updatedReading,
       };
     } catch (error) {
-      console.error('[UpdateReflection] Error:', error);
+      logger.error('[UpdateReflection] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update reflection',

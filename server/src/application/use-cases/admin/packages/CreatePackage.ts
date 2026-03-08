@@ -5,6 +5,7 @@
 
 import { CreditPackage } from '../../../../generated/prisma/client.js';
 import type { ICreditPackageRepository } from '../../../ports/repositories/ICreditPackageRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface CreatePackageInput {
   credits: number;
@@ -56,7 +57,7 @@ export class CreatePackageUseCase {
 
       return { success: true, package: pkg };
     } catch (error) {
-      console.error('[CreatePackage] Error:', error);
+      logger.error('[CreatePackage] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create package',

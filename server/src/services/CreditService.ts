@@ -10,6 +10,7 @@
 import { PrismaClient, TransactionType } from '../generated/prisma/client.js';
 import * as Sentry from '@sentry/node';
 import prismaClient from '../db/prisma.js';
+import { logger } from '../lib/logger.js';
 import type { IUserRepository } from '../application/ports/repositories/IUserRepository.js';
 import type { ITransactionRepository } from '../application/ports/repositories/ITransactionRepository.js';
 
@@ -181,7 +182,7 @@ class CreditService {
           ])
       );
 
-      console.log(
+      logger.info(
         `[CreditService] Deducted ${op.amount} credits from user ${op.userId}. ` +
           `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
@@ -192,7 +193,7 @@ class CreditService {
         transactionId: transaction.id,
       };
     } catch (error) {
-      console.error('[CreditService] Error deducting credits:', error);
+      logger.error('[CreditService] Error deducting credits:', error);
       return {
         success: false,
         newBalance: 0,
@@ -246,7 +247,7 @@ class CreditService {
           ])
       );
 
-      console.log(
+      logger.info(
         `[CreditService] Added ${op.amount} credits to user ${op.userId}. ` +
           `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
@@ -257,7 +258,7 @@ class CreditService {
         transactionId: transaction.id,
       };
     } catch (error) {
-      console.error('[CreditService] Error adding credits:', error);
+      logger.error('[CreditService] Error adding credits:', error);
       return {
         success: false,
         newBalance: 0,
@@ -332,7 +333,7 @@ class CreditService {
         }),
       ]);
 
-      console.log(
+      logger.info(
         `[CreditService] Processed refund of ${originalAmount} credits for user ${userId}. ` +
           `New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
@@ -343,7 +344,7 @@ class CreditService {
         transactionId: transaction.id,
       };
     } catch (error) {
-      console.error('[CreditService] Error processing refund:', error);
+      logger.error('[CreditService] Error processing refund:', error);
       return {
         success: false,
         newBalance: 0,
@@ -394,7 +395,7 @@ class CreditService {
         }),
       ]);
 
-      console.log(
+      logger.info(
         `[CreditService] Refunded ${amount} credits to user ${userId}. ` +
           `Reason: ${reason}. New balance: ${updatedUser.credits}. Transaction: ${transaction.id}`
       );
@@ -405,7 +406,7 @@ class CreditService {
         transactionId: transaction.id,
       };
     } catch (error) {
-      console.error('[CreditService] Error refunding credits:', error);
+      logger.error('[CreditService] Error refunding credits:', error);
       return {
         success: false,
         newBalance: 0,
@@ -423,7 +424,7 @@ class CreditService {
   async addCreditsToUser(userId: string, amount: number): Promise<number | null> {
     try {
       if (amount <= 0) {
-        console.error('[CreditService] addCreditsToUser: amount must be positive');
+        logger.error('[CreditService] addCreditsToUser: amount must be positive');
         return null;
       }
 
@@ -437,7 +438,7 @@ class CreditService {
 
       return updatedUser.credits;
     } catch (error) {
-      console.error('[CreditService] Error adding credits to user:', error);
+      logger.error('[CreditService] Error adding credits to user:', error);
       return null;
     }
   }
@@ -462,7 +463,7 @@ class CreditService {
       });
       return true;
     } catch (error) {
-      console.error('[CreditService] Error updating transaction status:', error);
+      logger.error('[CreditService] Error updating transaction status:', error);
       return false;
     }
   }

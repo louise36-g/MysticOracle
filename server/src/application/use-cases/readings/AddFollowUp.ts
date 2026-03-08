@@ -14,6 +14,7 @@ import type { IUserRepository } from '../../ports/repositories/IUserRepository.j
 import type { CreditService } from '../../../services/CreditService.js';
 import { CREDIT_COSTS } from '../../../services/CreditService.js';
 import type { AchievementService } from '../../../services/AchievementService.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface AddFollowUpInput {
@@ -102,7 +103,7 @@ export class AddFollowUpUseCase {
       });
 
       if (!deductResult.success) {
-        console.error(`[AddFollowUp] Credit deduction failed: ${deductResult.error}`);
+        logger.error(`[AddFollowUp] Credit deduction failed: ${deductResult.error}`);
         return {
           success: false,
           error: deductResult.error || 'Failed to process credits',
@@ -123,7 +124,7 @@ export class AddFollowUpUseCase {
         });
       } catch (followUpError) {
         // Follow-up creation failed - REFUND the credits
-        console.error(
+        logger.error(
           `[AddFollowUp] Follow-up creation failed, refunding ${creditCost} credits:`,
           followUpError
         );
@@ -136,7 +137,7 @@ export class AddFollowUpUseCase {
         );
 
         if (!refundResult.success) {
-          console.error(
+          logger.error(
             `[AddFollowUp] CRITICAL: Refund failed! User: ${input.userId}, Amount: ${creditCost}`
           );
         }
@@ -159,7 +160,7 @@ export class AddFollowUpUseCase {
           });
         }
       } catch (updateError) {
-        console.warn('[AddFollowUp] Failed to update question count:', updateError);
+        logger.warn('[AddFollowUp] Failed to update question count:', updateError);
       }
 
       // 7. Check and unlock question_seeker achievement (non-critical)
@@ -169,7 +170,7 @@ export class AddFollowUpUseCase {
             askedFollowUp: true,
           });
         } catch (achievementError) {
-          console.warn('[AddFollowUp] Failed to check achievements:', achievementError);
+          logger.warn('[AddFollowUp] Failed to check achievements:', achievementError);
         }
       }
 
@@ -179,7 +180,7 @@ export class AddFollowUpUseCase {
         transactionId,
       };
     } catch (error) {
-      console.error('[AddFollowUp] Unexpected error:', error);
+      logger.error('[AddFollowUp] Unexpected error:', error);
 
       // If we already deducted credits, try to refund
       if (transactionId) {

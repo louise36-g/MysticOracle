@@ -6,6 +6,7 @@
 import { EmailTemplate } from '../../../../generated/prisma/client.js';
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
 import { DEFAULT_EMAIL_TEMPLATES } from '../../../../shared/constants/admin.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface SeedTemplatesResult {
   success: boolean;
@@ -42,7 +43,7 @@ export class SeedTemplatesUseCase {
         count: templates.length,
       };
     } catch (error) {
-      console.error('[SeedTemplates] Error:', error);
+      logger.error('[SeedTemplates] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to seed templates',

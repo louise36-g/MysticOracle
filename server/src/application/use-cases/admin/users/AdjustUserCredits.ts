@@ -5,6 +5,7 @@
 
 import type { IUserRepository } from '../../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../../services/CreditService.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface AdjustUserCreditsInput {
   userId: string;
@@ -68,7 +69,7 @@ export class AdjustUserCreditsUseCase {
         transactionId: result.transactionId,
       };
     } catch (error) {
-      console.error('[AdjustUserCredits] Error:', error);
+      logger.error('[AdjustUserCredits] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to adjust credits',

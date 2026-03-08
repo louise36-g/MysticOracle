@@ -7,6 +7,7 @@
 import type { IPaymentGateway } from '../../ports/services/IPaymentGateway.js';
 import type { ITransactionRepository } from '../../ports/repositories/ITransactionRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
+import { logger } from '../../../lib/logger.js';
 
 export interface VerifyStripePaymentInput {
   userId: string;
@@ -53,7 +54,7 @@ export class VerifyStripePaymentUseCase {
 
       if (existingCompleted) {
         // Credits already added (by webhook or previous verify call)
-        console.log(`[VerifyStripe] Credits already added for session ${input.sessionId}`);
+        logger.info(`[VerifyStripe] Credits already added for session ${input.sessionId}`);
         return {
           success: true,
           credits: verification.credits,
@@ -67,7 +68,7 @@ export class VerifyStripePaymentUseCase {
       );
 
       if (!pendingTx) {
-        console.error(`[VerifyStripe] No pending transaction for session ${input.sessionId}`);
+        logger.error(`[VerifyStripe] No pending transaction for session ${input.sessionId}`);
         // Payment succeeded but no transaction - unusual state
         // Return success since payment was made, but log the issue
         return {
@@ -79,7 +80,7 @@ export class VerifyStripePaymentUseCase {
 
       // 4. Add credits (this is the backup to webhook)
       const credits = verification.credits || pendingTx.amount;
-      console.log(`[VerifyStripe] Adding ${credits} credits for user ${pendingTx.userId}`);
+      logger.info(`[VerifyStripe] Adding ${credits} credits for user ${pendingTx.userId}`);
 
       const result = await this.creditService.addCredits({
         userId: pendingTx.userId,
@@ -97,7 +98,7 @@ export class VerifyStripePaymentUseCase {
       // 5. Update transaction status
       await this.transactionRepository.updateStatusByPaymentId(input.sessionId, 'COMPLETED');
 
-      console.log(`[VerifyStripe] Credits added: ${credits}, new balance: ${result.newBalance}`);
+      logger.info(`[VerifyStripe] Credits added: ${credits}, new balance: ${result.newBalance}`);
 
       return {
         success: true,
@@ -105,7 +106,7 @@ export class VerifyStripePaymentUseCase {
         newBalance: result.newBalance,
       };
     } catch (error) {
-      console.error('[VerifyStripe] Error:', error);
+      logger.error('[VerifyStripe] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Verification failed',

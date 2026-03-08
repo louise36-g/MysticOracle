@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import { Prisma } from '../../generated/prisma/client.js';
 import { prisma, cacheService, CacheService, z } from './shared.js';
+import { logger } from '../../lib/logger.js';
 import {
   includeCategoriesAndTags,
   flattenCategories,
@@ -38,7 +39,7 @@ async function flushViewCounts(): Promise<void> {
       )
     );
   } catch (err) {
-    console.error('[ViewCount] Flush failed:', err);
+    logger.error('[ViewCount] Flush failed:', err);
   }
 }
 

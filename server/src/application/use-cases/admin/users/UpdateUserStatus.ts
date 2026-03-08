@@ -5,6 +5,7 @@
 
 import { AccountStatus, User } from '../../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../../ports/repositories/IUserRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface UpdateUserStatusInput {
   userId: string;
@@ -41,7 +42,7 @@ export class UpdateUserStatusUseCase {
         user,
       };
     } catch (error) {
-      console.error('[UpdateUserStatus] Error:', error);
+      logger.error('[UpdateUserStatus] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update user status',

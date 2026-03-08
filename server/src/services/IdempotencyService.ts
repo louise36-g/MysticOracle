@@ -15,6 +15,7 @@
  */
 
 import cacheService from './cache.js';
+import { logger } from '../lib/logger.js';
 
 // Idempotency key states
 export type IdempotencyState = 'pending' | 'completed' | 'failed';
@@ -88,7 +89,7 @@ class IdempotencyService {
     const existing = await cacheService.get<IdempotencyRecord>(cacheKey);
 
     if (!existing) {
-      console.warn(`[Idempotency] Attempted to complete unknown key: ${idempotencyKey}`);
+      logger.warn(`[Idempotency] Attempted to complete unknown key: ${idempotencyKey}`);
       return;
     }
 

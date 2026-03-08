@@ -5,6 +5,7 @@
 
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { logger, debug } from '../lib/logger.js';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const sentryDsn = process.env.SENTRY_DSN;
@@ -15,12 +16,12 @@ const sentryDsn = process.env.SENTRY_DSN;
  */
 export function initSentry(): void {
   if (!isProduction) {
-    console.log('ℹ️  Sentry disabled in development');
+    debug.log('ℹ️  Sentry disabled in development');
     return;
   }
 
   if (!sentryDsn) {
-    console.warn('⚠️  SENTRY_DSN not configured - error tracking disabled');
+    logger.warn('⚠️  SENTRY_DSN not configured - error tracking disabled');
     return;
   }
 
@@ -51,7 +52,7 @@ export function initSentry(): void {
     ],
   });
 
-  console.log('✅ Sentry initialized for error tracking');
+  logger.info('✅ Sentry initialized for error tracking');
 }
 
 /**
@@ -59,7 +60,7 @@ export function initSentry(): void {
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
   if (!isProduction || !sentryDsn) {
-    console.error('[Sentry would capture]:', error.message, context);
+    debug.log('[Sentry would capture]:', error.message, context);
     return;
   }
 
@@ -73,7 +74,7 @@ export function captureException(error: Error, context?: Record<string, unknown>
  */
 export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info'): void {
   if (!isProduction || !sentryDsn) {
-    console.log(`[Sentry would log ${level}]:`, message);
+    debug.log(`[Sentry would log ${level}]:`, message);
     return;
   }
 

@@ -7,6 +7,7 @@ import type {
   IReadingRepository,
   ReadingWithFollowUps,
 } from '../../ports/repositories/IReadingRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface GetReadingHistoryInput {
@@ -46,7 +47,7 @@ export class GetReadingHistoryUseCase {
         total,
       };
     } catch (error) {
-      console.error('[GetReadingHistory] Error:', error);
+      logger.error('[GetReadingHistory] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to get reading history',

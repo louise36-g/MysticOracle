@@ -6,6 +6,7 @@
 import type { IPaymentGateway } from '../../ports/services/IPaymentGateway.js';
 import type { ITransactionRepository } from '../../ports/repositories/ITransactionRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface CapturePaymentInput {
@@ -79,7 +80,7 @@ export class CapturePaymentUseCase {
       );
 
       if (existingCompleted) {
-        console.log(`[CapturePayment] Credits already added for order ${input.orderId}`);
+        logger.info(`[CapturePayment] Credits already added for order ${input.orderId}`);
         return {
           success: true,
           credits: existingCompleted.amount,
@@ -94,7 +95,7 @@ export class CapturePaymentUseCase {
       );
 
       if (!pendingTx) {
-        console.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
+        logger.error(`[CapturePayment] No pending transaction found for order ${input.orderId}`);
         return {
           success: false,
           error: 'No pending transaction found - please contact support',
@@ -108,7 +109,7 @@ export class CapturePaymentUseCase {
       const newBalance = await this.creditService.addCreditsToUser(pendingTx.userId, credits);
 
       if (newBalance === null) {
-        console.error(`[CapturePayment] Failed to add credits to user ${pendingTx.userId}`);
+        logger.error(`[CapturePayment] Failed to add credits to user ${pendingTx.userId}`);
         return {
           success: false,
           error: 'Failed to add credits',
@@ -126,7 +127,7 @@ export class CapturePaymentUseCase {
         captureId: captureResult.captureId,
       };
     } catch (error) {
-      console.error('[CapturePayment] Error:', error);
+      logger.error('[CapturePayment] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to capture payment',

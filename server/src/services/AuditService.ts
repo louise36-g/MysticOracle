@@ -4,6 +4,7 @@
  */
 
 import { PrismaClient } from '../generated/prisma/client.js';
+import { logger } from '../lib/logger.js';
 
 export type AuditAction =
   | 'USER_DATA_EXPORT'
@@ -50,12 +51,12 @@ export class AuditService {
           details: details as object | undefined,
         },
       });
-      console.log(
+      logger.info(
         `[AuditService] Logged: ${action} on ${entityType}${entityId ? `:${entityId}` : ''}`
       );
     } catch (error) {
       // Log but don't fail the main operation - audit logging should not block business logic
-      console.error('[AuditService] Failed to create audit log:', error);
+      logger.error('[AuditService] Failed to create audit log:', error);
     }
   }
 
@@ -80,9 +81,9 @@ export class AuditService {
           userAgent: context.userAgent,
         },
       });
-      console.log(`[AuditService] Consent logged: ${consentType}=${consented} for user ${userId}`);
+      logger.info(`[AuditService] Consent logged: ${consentType}=${consented} for user ${userId}`);
     } catch (error) {
-      console.error('[AuditService] Failed to create consent log:', error);
+      logger.error('[AuditService] Failed to create consent log:', error);
     }
   }
 

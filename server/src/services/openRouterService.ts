@@ -11,6 +11,7 @@
 
 import { getAISettings } from './aiSettings.js';
 import * as Sentry from '@sentry/node';
+import { logger, debug } from '../lib/logger.js';
 
 interface OpenRouterConfig {
   model: string;
@@ -103,13 +104,13 @@ class CircuitBreaker {
     this.lastFailureTime = Date.now();
     if (this.failures >= this.threshold) {
       this.state = 'open';
-      console.error(`[CircuitBreaker] Circuit opened after ${this.failures} failures`);
+      logger.error(`[CircuitBreaker] Circuit opened after ${this.failures} failures`);
     }
   }
 
   private reset() {
     if (this.state !== 'closed') {
-      console.log('[CircuitBreaker] Circuit closed - service recovered');
+      logger.info('[CircuitBreaker] Circuit closed - service recovered');
     }
     this.failures = 0;
     this.state = 'closed';
@@ -180,9 +181,9 @@ export class OpenRouterService {
     messages: OpenRouterMessage[],
     config: Partial<OpenRouterConfig> = {}
   ): Promise<string> {
-    console.log('[OpenRouterService] makeRequest called, initializing...');
+    debug.log('[OpenRouterService] makeRequest called, initializing...');
     await this.initialize();
-    console.log('[OpenRouterService] Initialized, model:', this.model);
+    debug.log('[OpenRouterService] Initialized, model:', this.model);
 
     if (!this.apiKey) {
       throw new Error('API key not available after initialization');
@@ -194,7 +195,7 @@ export class OpenRouterService {
       maxTokens: config.maxTokens ?? 1000,
     };
 
-    console.log('[OpenRouterService] Config:', {
+    debug.log('[OpenRouterService] Config:', {
       model: requestConfig.model,
       maxTokens: requestConfig.maxTokens,
     });
@@ -203,7 +204,7 @@ export class OpenRouterService {
 
     for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
-        console.log(
+        debug.log(
           '[OpenRouterService] Attempt',
           attempt + 1,
           '- sending request with',
@@ -213,7 +214,7 @@ export class OpenRouterService {
         // Create abort controller for timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          console.log('[OpenRouterService] Timeout reached, aborting...');
+          logger.warn('[OpenRouterService] Timeout reached, aborting...');
           controller.abort();
         }, REQUEST_TIMEOUT_MS);
 
@@ -248,7 +249,7 @@ export class OpenRouterService {
           const errorText = await response.text();
 
           // Log detailed error information
-          console.error('[OpenRouterService] API error:', {
+          logger.error('[OpenRouterService] API error:', {
             status: response.status,
             statusText: response.statusText,
             error: errorText,
@@ -271,7 +272,7 @@ export class OpenRouterService {
           ) {
             // Retry on 429 or 5xx errors
             const delay = this.calculateBackoffDelay(attempt);
-            console.log(
+            logger.warn(
               `[OpenRouterService] Retrying after ${delay}ms (attempt ${attempt + 1}/${this.retryConfig.maxRetries})`
             );
             await new Promise(resolve => setTimeout(resolve, delay));
@@ -284,7 +285,7 @@ export class OpenRouterService {
         }
 
         const data = (await response.json()) as OpenRouterResponse;
-        console.log(
+        debug.log(
           '[OpenRouterService] Response status:',
           response.status,
           'finish_reason:',
@@ -299,11 +300,11 @@ export class OpenRouterService {
           const reasoning = message.reasoning as string | undefined;
 
           if (reasoning) {
-            console.log(
+            debug.log(
               '[OpenRouterService] No content but found reasoning field, length:',
               reasoning.length
             );
-            console.log(
+            debug.log(
               '[OpenRouterService] Reasoning preview (first 500 chars):',
               reasoning.substring(0, 500)
             );
@@ -324,7 +325,7 @@ export class OpenRouterService {
                   return text;
                 })
                 .join('\n\n');
-              console.log(
+              debug.log(
                 '[OpenRouterService] Extracted',
                 quotedTexts.length,
                 'paragraphs from quoted text'
@@ -343,14 +344,14 @@ export class OpenRouterService {
                 if (energyMatch) parts.push(`**The Card's Energy**\n\n${energyMatch[1].trim()}`);
                 if (guidanceMatch) parts.push(`**Guidance**\n\n${guidanceMatch[1].trim()}`);
                 content = parts.join('\n\n');
-                console.log('[OpenRouterService] Extracted content using section header matching');
+                debug.log('[OpenRouterService] Extracted content using section header matching');
               } else {
                 // Last resort: use the last substantial paragraph from reasoning
                 const paragraphs = reasoning.split(/\n\n+/).filter(p => p.trim().length > 100);
                 if (paragraphs.length > 0) {
                   const lastParagraph = paragraphs[paragraphs.length - 1].trim();
                   content = `**Guidance**\n\n${lastParagraph}`;
-                  console.log('[OpenRouterService] Used last paragraph as fallback content');
+                  debug.log('[OpenRouterService] Used last paragraph as fallback content');
                 }
               }
             }
@@ -358,12 +359,10 @@ export class OpenRouterService {
         }
 
         if (!content) {
-          console.error('[OpenRouterService] No usable content in response');
+          logger.error('[OpenRouterService] No usable content in response');
           const message = data.choices[0]?.message as Record<string, unknown>;
           if (message?.reasoning) {
-            console.error(
-              '[OpenRouterService] Reasoning was present but could not extract content'
-            );
+            logger.error('[OpenRouterService] Reasoning was present but could not extract content');
           }
           throw new Error('No content in AI response');
         }
@@ -387,10 +386,10 @@ export class OpenRouterService {
 
         const looksLikePlanning = planningPatterns.some(pattern => pattern.test(content));
         if (looksLikePlanning) {
-          console.error(
+          logger.error(
             '[OpenRouterService] Content appears to be AI planning/reasoning, not actual output'
           );
-          console.error('[OpenRouterService] Content preview:', content.substring(0, 300));
+          logger.error('[OpenRouterService] Content preview:', content.substring(0, 300));
           throw new Error(
             'AI returned planning/reasoning instead of actual content. Please retry.'
           );
@@ -398,7 +397,7 @@ export class OpenRouterService {
 
         // Log token usage if available
         if (data.usage) {
-          console.log('[OpenRouterService] Token usage:', {
+          debug.log('[OpenRouterService] Token usage:', {
             prompt: data.usage.prompt_tokens,
             completion: data.usage.completion_tokens,
             total: data.usage.total_tokens,
@@ -408,7 +407,7 @@ export class OpenRouterService {
         return content;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');
-        console.error('[OpenRouterService] Caught error:', lastError.name, lastError.message);
+        logger.error('[OpenRouterService] Caught error:', lastError.name, lastError.message);
 
         // Handle timeout (abort) errors - check multiple ways AbortError can manifest
         const isAbortError =
@@ -417,7 +416,7 @@ export class OpenRouterService {
           lastError.message.includes('aborted');
 
         if (isAbortError) {
-          console.error('[OpenRouterService] Request timed out after', REQUEST_TIMEOUT_MS, 'ms');
+          logger.error('[OpenRouterService] Request timed out after', REQUEST_TIMEOUT_MS, 'ms');
           throw new Error('AI request timed out. Please try again.');
         }
 
@@ -434,7 +433,7 @@ export class OpenRouterService {
         // Retry on network errors
         if (attempt < this.retryConfig.maxRetries) {
           const delay = this.calculateBackoffDelay(attempt);
-          console.log(
+          logger.warn(
             `[OpenRouterService] Network error: "${lastError.message}", retrying after ${delay}ms (attempt ${attempt + 1}/${this.retryConfig.maxRetries})`
           );
           await new Promise(resolve => setTimeout(resolve, delay));

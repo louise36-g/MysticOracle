@@ -6,6 +6,7 @@
 
 import { PrismaClient } from '../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
+import { logger } from '../../../lib/logger.js';
 
 export interface ExportUserDataInput {
   userId: string;
@@ -140,7 +141,7 @@ export class ExportUserDataUseCase {
 
       return { success: true, data: exportData };
     } catch (error) {
-      console.error('[ExportUserData] Error:', error);
+      logger.error('[ExportUserData] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to export data',

@@ -14,6 +14,7 @@ import {
   NotFoundError,
   ConflictError,
   achievementService,
+  logger,
 } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 
@@ -126,7 +127,7 @@ router.post(
         loginStreak: newStreak,
       });
     } catch (achievementError) {
-      console.warn('[Daily Bonus] Failed to check achievements:', achievementError);
+      logger.warn('[Daily Bonus] Failed to check achievements:', achievementError);
     }
 
     res.json({

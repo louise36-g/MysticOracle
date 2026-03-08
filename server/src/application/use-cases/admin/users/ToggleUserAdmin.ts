@@ -5,6 +5,7 @@
 
 import { User } from '../../../../generated/prisma/client.js';
 import type { IUserRepository } from '../../../ports/repositories/IUserRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface ToggleUserAdminInput {
   userId: string;
@@ -41,7 +42,7 @@ export class ToggleUserAdminUseCase {
         user,
       };
     } catch (error) {
-      console.error('[ToggleUserAdmin] Error:', error);
+      logger.error('[ToggleUserAdmin] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update admin status',

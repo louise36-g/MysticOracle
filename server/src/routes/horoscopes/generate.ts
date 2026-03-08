@@ -6,6 +6,7 @@
  */
 
 import { getHoroscopePrompt, openRouterService, PlanetaryCalculationService } from './shared.js';
+import { logger } from '../../lib/logger.js';
 
 const planetaryService = new PlanetaryCalculationService();
 
@@ -81,7 +82,7 @@ export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Pr
     // If planetary calculations fail, throw explicit error
     // Don't silently fallback to generating without data
     if (error instanceof Error && error.message.includes('planetary')) {
-      console.error('[Horoscope] Planetary calculation failed:', error.message);
+      logger.error('[Horoscope] Planetary calculation failed:', error.message);
       throw new Error('PLANETARY_CALCULATION_FAILED');
     }
     throw error;

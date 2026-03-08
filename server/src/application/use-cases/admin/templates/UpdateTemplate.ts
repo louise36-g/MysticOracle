@@ -5,6 +5,7 @@
 
 import { EmailTemplate } from '../../../../generated/prisma/client.js';
 import type { IEmailTemplateRepository } from '../../../ports/repositories/IEmailTemplateRepository.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface UpdateTemplateInput {
   id: string;
@@ -50,7 +51,7 @@ export class UpdateTemplateUseCase {
 
       return { success: true, template };
     } catch (error) {
-      console.error('[UpdateTemplate] Error:', error);
+      logger.error('[UpdateTemplate] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update template',

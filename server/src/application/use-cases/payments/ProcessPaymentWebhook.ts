@@ -7,6 +7,7 @@ import type { IPaymentGateway, WebhookEvent } from '../../ports/services/IPaymen
 import type { ITransactionRepository } from '../../ports/repositories/ITransactionRepository.js';
 import type { IUserRepository } from '../../ports/repositories/IUserRepository.js';
 import type { CreditService } from '../../../services/CreditService.js';
+import { logger } from '../../../lib/logger.js';
 
 // Input DTO
 export interface ProcessWebhookInput {
@@ -77,7 +78,7 @@ export class ProcessPaymentWebhookUseCase {
           break;
 
         default:
-          console.log(`Unhandled webhook event type: ${event.type}`);
+          logger.info(`Unhandled webhook event type: ${event.type}`);
       }
 
       return {
@@ -86,7 +87,7 @@ export class ProcessPaymentWebhookUseCase {
         eventType: event.type,
       };
     } catch (error) {
-      console.error('[ProcessWebhook] Error:', error);
+      logger.error('[ProcessWebhook] Error:', error);
       return {
         success: false,
         processed: false,
@@ -106,7 +107,7 @@ export class ProcessPaymentWebhookUseCase {
     );
 
     if (existingTx) {
-      console.log(`⏭️ Webhook already processed for payment ${event.paymentId}`);
+      logger.info(`Webhook already processed for payment ${event.paymentId}`);
       return;
     }
 
@@ -117,7 +118,7 @@ export class ProcessPaymentWebhookUseCase {
     );
 
     if (!pendingTx) {
-      console.error(`No pending transaction found for payment ${event.paymentId}`);
+      logger.error(`No pending transaction found for payment ${event.paymentId}`);
       return;
     }
 
@@ -142,14 +143,12 @@ export class ProcessPaymentWebhookUseCase {
     // Update pending transaction to COMPLETED
     await this.transactionRepository.updateStatusByPaymentId(event.paymentId, 'COMPLETED');
 
-    console.log(
-      `✅ Credits added: ${credits} for user ${userId}, new balance: ${result.newBalance}`
-    );
+    logger.info(`Credits added: ${credits} for user ${userId}, new balance: ${result.newBalance}`);
   }
 
   private async handlePaymentFailed(event: WebhookEvent): Promise<void> {
     await this.transactionRepository.updateStatusByPaymentId(event.paymentId, 'FAILED');
-    console.log(`❌ Payment failed/expired for ${event.paymentId}`);
+    logger.info(`Payment failed/expired for ${event.paymentId}`);
   }
 
   private async handlePaymentRefunded(
@@ -163,7 +162,7 @@ export class ProcessPaymentWebhookUseCase {
     );
 
     if (existingRefund) {
-      console.log(`⏭️ Refund already processed for ${event.paymentId}`);
+      logger.info(`Refund already processed for ${event.paymentId}`);
       return;
     }
 
@@ -174,7 +173,7 @@ export class ProcessPaymentWebhookUseCase {
     );
 
     if (!originalTx) {
-      console.error(`No completed transaction found for refund ${event.paymentId}`);
+      logger.error(`No completed transaction found for refund ${event.paymentId}`);
       return;
     }
 
@@ -186,7 +185,7 @@ export class ProcessPaymentWebhookUseCase {
       provider
     );
 
-    console.log(`✅ Refund processed for ${event.paymentId}`);
+    logger.info(`Refund processed for ${event.paymentId}`);
   }
 }
 

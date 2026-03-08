@@ -11,6 +11,7 @@ import {
   InjectionMode,
   AwilixContainer,
 } from 'awilix';
+import { debug } from '../../lib/logger.js';
 
 // Database
 import prismaClient from '../../db/prisma.js';
@@ -89,17 +90,17 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
   });
 
   // Debug: Log env vars at container creation time
-  console.log('[DI Container] Creating container, checking env vars:');
+  debug.log('[DI Container] Creating container, checking env vars:');
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const stripeWebhook = process.env.STRIPE_WEBHOOK_SECRET;
   const ppClientId = process.env.PAYPAL_CLIENT_ID;
   const ppClientSecret = process.env.PAYPAL_CLIENT_SECRET;
   const ppWebhookId = process.env.PAYPAL_WEBHOOK_ID;
   const ppIsLive = process.env.PAYPAL_MODE === 'live';
-  console.log(
+  debug.log(
     `[DI Container] STRIPE_SECRET_KEY: ${stripeKey ? 'SET (' + stripeKey.substring(0, 10) + '...)' : 'NOT SET'}`
   );
-  console.log(`[DI Container] PAYPAL_CLIENT_ID: ${ppClientId ? 'SET' : 'NOT SET'}`);
+  debug.log(`[DI Container] PAYPAL_CLIENT_ID: ${ppClientId ? 'SET' : 'NOT SET'}`);
 
   // Register configuration values - capture values in local vars first
   container.register({
@@ -146,14 +147,14 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     stripeGateway: asFunction(() => {
       const key = process.env.STRIPE_SECRET_KEY;
       const webhook = process.env.STRIPE_WEBHOOK_SECRET;
-      console.log('[DI] Creating stripeGateway, key from env:', key ? 'SET' : 'NOT SET');
+      debug.log('[DI] Creating stripeGateway, key from env:', key ? 'SET' : 'NOT SET');
       return new StripeGateway(key, webhook, false);
     }).singleton(),
 
     stripeLinkGateway: asFunction(() => {
       const key = process.env.STRIPE_SECRET_KEY;
       const webhook = process.env.STRIPE_WEBHOOK_SECRET;
-      console.log('[DI] Creating stripeLinkGateway, key from env:', key ? 'SET' : 'NOT SET');
+      debug.log('[DI] Creating stripeLinkGateway, key from env:', key ? 'SET' : 'NOT SET');
       return new StripeGateway(key, webhook, true);
     }).singleton(),
 
@@ -162,7 +163,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
       const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
       const webhookId = process.env.PAYPAL_WEBHOOK_ID;
       const isLive = process.env.PAYPAL_MODE === 'live';
-      console.log('[DI] Creating paypalGateway, clientId from env:', clientId ? 'SET' : 'NOT SET');
+      debug.log('[DI] Creating paypalGateway, clientId from env:', clientId ? 'SET' : 'NOT SET');
       return new PayPalGateway(clientId, clientSecret, webhookId, isLive);
     }).singleton(),
 
@@ -185,7 +186,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
         process.env.PAYPAL_WEBHOOK_ID,
         process.env.PAYPAL_MODE === 'live'
       );
-      console.log('[DI] Creating paymentGateways array:', {
+      debug.log('[DI] Creating paymentGateways array:', {
         stripe: stripeGateway.isConfigured(),
         stripeLink: stripeLinkGateway.isConfigured(),
         paypal: paypalGateway.isConfigured(),

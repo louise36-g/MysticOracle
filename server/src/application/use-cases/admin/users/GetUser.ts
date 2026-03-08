@@ -10,6 +10,7 @@ import {
   Reading,
   Transaction,
 } from '../../../../generated/prisma/client.js';
+import { logger } from '../../../../lib/logger.js';
 
 export interface GetUserInput {
   userId: string;
@@ -66,7 +67,7 @@ export class GetUserUseCase {
         user: user as UserDetail,
       };
     } catch (error) {
-      console.error('[GetUser] Error:', error);
+      logger.error('[GetUser] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch user',
