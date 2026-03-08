@@ -140,9 +140,13 @@ const BirthCardReveal: React.FC = () => {
     (c: PersonalityCardData) => c.cardId === personalityCardId
   ) as PersonalityCardData | undefined;
 
-  const soulData = jsonData?.soulCards.find(
+  // Fall back to personalityCards data if soulCards doesn't have this ID
+  // (soulCards.json only covers IDs 1-9, but soulCardId can be 10-21)
+  const soulData = (jsonData?.soulCards.find(
     (c: SoulCardData) => c.cardId === soulCardId
-  ) as SoulCardData | undefined;
+  ) || jsonData?.personalityCards.find(
+    (c: PersonalityCardData) => c.cardId === soulCardId
+  )) as SoulCardData | undefined;
 
   const pairData = !isUnified && jsonData
     ? (jsonData.birthCardPairs.find(
