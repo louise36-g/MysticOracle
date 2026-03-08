@@ -38,7 +38,7 @@ test.describe('Homepage', () => {
 
   test('should navigate to Tarot page', async ({ page }) => {
     await page.getByRole('link', { name: /tarot/i }).first().click();
-    await expect(page).toHaveURL(/.*tarot/);
+    await expect(page).toHaveURL(/.*reading/);
   });
 
   test('should navigate to Horoscope page', async ({ page }) => {

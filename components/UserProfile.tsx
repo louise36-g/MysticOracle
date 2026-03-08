@@ -105,12 +105,7 @@ const UserProfile: React.FC = () => {
     };
 
     const handleSignOut = async () => {
-        // Clear app-specific localStorage
-        localStorage.removeItem('celestiarcana_user');
-        localStorage.removeItem('celestiarcana_credits');
-        localStorage.removeItem('reading_draft');
-
-        // Clear any cached data
+        // Clear Clerk cached data
         Object.keys(localStorage).forEach(key => {
             if (key.startsWith('clerk') || key.startsWith('__clerk')) {
                 localStorage.removeItem(key);
