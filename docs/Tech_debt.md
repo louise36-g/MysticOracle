@@ -68,8 +68,8 @@ All user-facing components now use the `t()` translation system (~95% coverage).
 | Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
 | Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
 | Hardcoded strings | Low | Done (user-facing) | ~95% user-facing coverage; admin strings remain |
-| localStorage fallback removal | Medium | Not started | Backend is source of truth; localStorage is redundant |
-| API response standardization | Low | Not started | Consistent envelope format across all endpoints |
+| localStorage fallback removal | Medium | Done | Ghost keys removed; all remaining usage legitimate |
+| API response standardization | Low | Deferred | 95% consistent already; 171 changes across 39 files for marginal gain |
 
 ---
 

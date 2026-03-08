@@ -43,15 +43,15 @@
 | useAdminCrud shared hook | ✅ Done | Medium |
 | Split large components | ✅ Done | Medium |
 | Error boundaries | ✅ Done | Low |
-| Remove localStorage fallback | ⏳ Pending | Medium |
-| API response standardization | ⏳ Pending | Low |
+| Remove localStorage fallback | ✅ Done | Medium |
+| API response standardization | ⏸️ Deferred | Low |
 
 ### Testing
 
 | Task | Status |
 |------|--------|
 | API endpoint tests | ✅ Done (509 tests, 30 files) |
-| E2E critical paths | ⏳ Pending |
+| E2E critical paths | ✅ Done (38 tests, 7 files) |
 | Prisma model tests | ⏳ Pending |
 
 ### Documentation
@@ -114,6 +114,8 @@ None currently.
 
 ## Recent Changes
 
+- 2026-03-08: E2E tests expanded to 38 tests across 7 files (tarot, horoscope, info pages, navigation, 404)
+- 2026-03-08: localStorage cleanup: removed ghost keys, audited all usage (all legitimate)
 - 2026-03-08: Adopted useAdminCrud hook in 5 more admin components (AdminPackages, AdminPrompts, AdminTranslations, TarotCategoriesManager, TarotTagsManager)
 - 2026-03-08: Created useAdminCrud shared hook + proof of concept in AdminEmailTemplates
 - 2026-03-08: Quick wins: dead code removal (~300 lines), crash handler, AppContext memoization, 3 DB composite indexes
