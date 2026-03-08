@@ -4,6 +4,9 @@
  * Endpoints:
  * - GET /cached - Get cached personal year reading
  * - POST / - Generate personalized year energy reading
+ *
+ * NOTE: The POST / route keeps its try/catch because the catch block
+ * implements credit refund logic that must run when generation fails.
  */
 
 import {
@@ -19,6 +22,7 @@ import {
   creditService,
   YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -31,8 +35,10 @@ const router = Router();
  * Get cached personal year reading for current user
  * Returns null if no cached reading exists
  */
-router.get('/cached', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/cached',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const language = (req.query.language as string) || 'en';
     const year = parseInt(req.query.year as string, 10) || new Date().getFullYear();
@@ -70,11 +76,8 @@ router.get('/cached', requireAuth, async (req, res) => {
         createdAt: cached.createdAt,
       },
     });
-  } catch (error) {
-    console.error('[YearEnergy] Error fetching cached personal reading:', error);
-    res.status(500).json({ error: 'Failed to fetch cached reading' });
-  }
-});
+  })
+);
 
 // ============================================
 // GENERATE PERSONAL READING
@@ -90,11 +93,9 @@ router.post('/', requireAuth, async (req, res) => {
 
   try {
     const userId = req.auth.userId;
-    console.log('[YearEnergy POST] Request received for user:', userId);
     const validation = personalYearSchema.safeParse(req.body);
 
     if (!validation.success) {
-      console.log('[YearEnergy POST] Validation failed:', validation.error.errors);
       return res.status(400).json({
         error: 'Invalid request data',
         details: validation.error.errors,
@@ -102,12 +103,6 @@ router.post('/', requireAuth, async (req, res) => {
     }
 
     const { personalityCard, soulCard, zodiac, birthDate, language } = validation.data;
-    console.log('[YearEnergy POST] Validated data:', {
-      personalityCard: personalityCard.cardId,
-      soulCard: soulCard.cardId,
-      birthDate,
-      language,
-    });
     const year = validation.data.year || new Date().getFullYear();
 
     // Always charge credits for Year Energy readings
@@ -139,7 +134,6 @@ router.post('/', requireAuth, async (req, res) => {
     });
 
     if (!deductResult.success) {
-      console.error('[YearEnergy] Credit deduction failed:', deductResult.error);
       return res.status(400).json({ error: 'Failed to process credits' });
     }
 
@@ -179,18 +173,18 @@ Universal Year Element: ${yearEnergy.yearElement}
 Cycle Position: ${yearEnergy.cyclePosition} of 9
 
 Note: The Personal Year is calculated from their birth date + current year. It represents THEIR personal energy for ${year}, while the Universal Year affects everyone collectively.`
-        : `=== LEUR ANNÉE PERSONNELLE (LE PLUS IMPORTANT) ===
-Numéro d'Année Personnelle: ${personalYearNumber}
-Carte d'Année Personnelle: ${personalYearCard?.nameFr}
-Élément d'Année Personnelle: ${personalYearCard?.elementFr}
+        : `=== LEUR ANNEE PERSONNELLE (LE PLUS IMPORTANT) ===
+Numero d'Annee Personnelle: ${personalYearNumber}
+Carte d'Annee Personnelle: ${personalYearCard?.nameFr}
+Element d'Annee Personnelle: ${personalYearCard?.elementFr}
 
-=== CONTEXTE DE L'ANNÉE UNIVERSELLE ===
-Numéro d'Année Universelle: ${yearEnergy.yearNumber}
-Carte d'Année Universelle: ${yearCard?.nameFr}
-Élément d'Année Universelle: ${yearEnergy.yearElement}
+=== CONTEXTE DE L'ANNEE UNIVERSELLE ===
+Numero d'Annee Universelle: ${yearEnergy.yearNumber}
+Carte d'Annee Universelle: ${yearCard?.nameFr}
+Element d'Annee Universelle: ${yearEnergy.yearElement}
 Position dans le Cycle: ${yearEnergy.cyclePosition} sur 9
 
-Note: L'Année Personnelle est calculée à partir de leur date de naissance + l'année en cours. Elle représente LEUR énergie personnelle pour ${year}.`;
+Note: L'Annee Personnelle est calculee a partir de leur date de naissance + l'annee en cours. Elle represente LEUR energie personnelle pour ${year}.`;
 
     // Build birth cards section with clear element mapping
     const birthCardsSection =
@@ -210,19 +204,19 @@ Zodiac Element: ${zodiac.element}
 - Soul Card Element: ${soulCard.element}
 - Zodiac Element: ${zodiac.element}`
         : `=== CARTES DE NAISSANCE ===
-Carte de Personnalité: ${personalityCard.cardNameFr} (élément ${personalityCard.elementFr})
-Carte de l'Âme: ${soulCard.cardNameFr} (élément ${soulCard.elementFr})
+Carte de Personnalite: ${personalityCard.cardNameFr} (element ${personalityCard.elementFr})
+Carte de l'Ame: ${soulCard.cardNameFr} (element ${soulCard.elementFr})
 
 === ZODIAQUE ===
 Signe: ${zodiac.nameFr}
-Élément du Zodiaque: ${zodiac.elementFr}
+Element du Zodiaque: ${zodiac.elementFr}
 
-=== RÉSUMÉ DES ÉLÉMENTS ===
-- Élément Année Personnelle: ${personalYearCard?.elementFr}
-- Élément Année Universelle: ${yearCard?.elementFr}
-- Élément Carte Personnalité: ${personalityCard.elementFr}
-- Élément Carte Âme: ${soulCard.elementFr}
-- Élément Zodiaque: ${zodiac.elementFr}`;
+=== RESUME DES ELEMENTS ===
+- Element Annee Personnelle: ${personalYearCard?.elementFr}
+- Element Annee Universelle: ${yearCard?.elementFr}
+- Element Carte Personnalite: ${personalityCard.elementFr}
+- Element Carte Ame: ${soulCard.elementFr}
+- Element Zodiaque: ${zodiac.elementFr}`;
 
     // Generate prompt
     const prompt = await getYearEnergyReadingPrompt({
@@ -283,8 +277,6 @@ Signe: ${zodiac.nameFr}
       creditsUsed: YEAR_ENERGY_CREDIT_COST,
     });
   } catch (error) {
-    console.error('[YearEnergy] Error generating personal reading:', error);
-
     // Refund credits if we deducted them but generation failed
     if (transactionId) {
       try {

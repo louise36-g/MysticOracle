@@ -3,6 +3,7 @@
  */
 
 import { Router, prisma, clearAISettingsCache, updateSettingSchema } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -11,8 +12,9 @@ const router = Router();
 // ============================================
 
 // Get current AI configuration (checks DB settings first, then env vars)
-router.get('/config/ai', async (req, res) => {
-  try {
+router.get(
+  '/config/ai',
+  asyncHandler(async (_req, res) => {
     // Check database for overridden settings
     const dbSettings = await prisma.systemSetting.findMany({
       where: { key: { in: ['AI_MODEL', 'OPENROUTER_API_KEY'] } },
@@ -27,61 +29,53 @@ router.get('/config/ai', async (req, res) => {
       provider: process.env.AI_PROVIDER || 'openrouter',
       hasApiKey,
     });
-  } catch (error) {
-    console.error('Error fetching AI config:', error);
-    res.status(500).json({ error: 'Failed to fetch AI config' });
-  }
-});
+  })
+);
 
 // ============================================
 // SERVICE CONFIGURATION
 // ============================================
 
-router.get('/services', async (req, res) => {
-  try {
+router.get(
+  '/services',
+  asyncHandler(async (req, res) => {
     const systemHealthService = req.container.resolve('systemHealthService');
     const services = await systemHealthService.getServiceStatuses();
     res.json({ services });
-  } catch (error) {
-    console.error('Error fetching services:', error);
-    res.status(500).json({ error: 'Failed to fetch services' });
-  }
-});
+  })
+);
 
 // ============================================
 // SYSTEM HEALTH
 // ============================================
 
-router.get('/health', async (req, res) => {
-  try {
+router.get(
+  '/health',
+  asyncHandler(async (req, res) => {
     const systemHealthService = req.container.resolve('systemHealthService');
     const health = await systemHealthService.checkHealth();
     res.json(health);
-  } catch (error) {
-    console.error('Error checking health:', error);
-    res.status(500).json({ error: 'Failed to check health' });
-  }
-});
+  })
+);
 
 // ============================================
 // SYSTEM SETTINGS CRUD
 // ============================================
 
 // Get all editable settings
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const getSettingsUseCase = req.container.resolve('getSettingsUseCase');
     const result = await getSettingsUseCase.execute();
     res.json(result);
-  } catch (error) {
-    console.error('Error fetching settings:', error);
-    res.status(500).json({ error: 'Failed to fetch settings' });
-  }
-});
+  })
+);
 
 // Update a setting
-router.post('/', async (req, res) => {
-  try {
+router.post(
+  '/',
+  asyncHandler(async (req, res) => {
     const { key, value } = updateSettingSchema.parse(req.body);
 
     // Handle empty value (delete setting to fall back to env var)
@@ -90,7 +84,8 @@ router.post('/', async (req, res) => {
       if (key === 'OPENROUTER_API_KEY' || key === 'AI_MODEL') {
         clearAISettingsCache();
       }
-      return res.json({ success: true });
+      res.json({ success: true });
+      return;
     }
 
     const updateSettingUseCase = req.container.resolve('updateSettingUseCase');
@@ -106,10 +101,7 @@ router.post('/', async (req, res) => {
     }
 
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error updating setting:', error);
-    res.status(500).json({ error: 'Failed to update setting' });
-  }
-});
+  })
+);
 
 export default router;

@@ -10,6 +10,8 @@
 
 import { Router, z, prisma, Prisma } from './shared.js';
 import { invoiceService } from '../../services/invoiceService.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -87,16 +89,9 @@ const listInvoicesSchema = z.object({
  *       200:
  *         description: List of invoices
  */
-router.get('/', async (req, res) => {
-  try {
-    const validation = listInvoicesSchema.safeParse(req.query);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors,
-      });
-    }
-
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const {
       page,
       limit,
@@ -108,7 +103,7 @@ router.get('/', async (req, res) => {
       paymentProvider,
       sortBy,
       sortOrder,
-    } = validation.data;
+    } = listInvoicesSchema.parse(req.query);
 
     // Build where clause for completed purchases only
     const where: Prisma.TransactionWhereInput = {
@@ -218,11 +213,8 @@ router.get('/', async (req, res) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error) {
-    console.error('[Admin Invoices] Error listing invoices:', error);
-    res.status(500).json({ error: 'Failed to list invoices' });
-  }
-});
+  })
+);
 
 // ============================================
 // ACCOUNTING STATS
@@ -253,8 +245,9 @@ router.get('/', async (req, res) => {
  *       200:
  *         description: Accounting statistics
  */
-router.get('/stats', async (req, res) => {
-  try {
+router.get(
+  '/stats',
+  asyncHandler(async (req, res) => {
     const dateFrom = req.query.dateFrom as string | undefined;
     const dateTo = req.query.dateTo as string | undefined;
 
@@ -404,11 +397,8 @@ router.get('/stats', async (req, res) => {
       })),
       periodComparison,
     });
-  } catch (error) {
-    console.error('[Admin Invoices] Error fetching stats:', error);
-    res.status(500).json({ error: 'Failed to fetch accounting stats' });
-  }
-});
+  })
+);
 
 // ============================================
 // EXPORT INVOICES (CSV)
@@ -464,17 +454,10 @@ const exportInvoicesSchema = z.object({
  *             schema:
  *               type: array
  */
-router.get('/export', async (req, res) => {
-  try {
-    const validation = exportInvoicesSchema.safeParse(req.query);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors,
-      });
-    }
-
-    const { dateFrom, dateTo, paymentProvider, format } = validation.data;
+router.get(
+  '/export',
+  asyncHandler(async (req, res) => {
+    const { dateFrom, dateTo, paymentProvider, format } = exportInvoicesSchema.parse(req.query);
 
     // Build where clause
     const where: Prisma.TransactionWhereInput = {
@@ -538,7 +521,8 @@ router.get('/export', async (req, res) => {
         'Content-Disposition',
         `attachment; filename="invoices-${new Date().toISOString().split('T')[0]}.json"`
       );
-      return res.json(exportData);
+      res.json(exportData);
+      return;
     }
 
     // Generate CSV
@@ -586,11 +570,8 @@ router.get('/export', async (req, res) => {
       `attachment; filename="invoices-${new Date().toISOString().split('T')[0]}.csv"`
     );
     res.send(bom + csv);
-  } catch (error) {
-    console.error('[Admin Invoices] Error exporting invoices:', error);
-    res.status(500).json({ error: 'Failed to export invoices' });
-  }
-});
+  })
+);
 
 // ============================================
 // GET SINGLE INVOICE
@@ -617,8 +598,9 @@ router.get('/export', async (req, res) => {
  *       404:
  *         description: Invoice not found
  */
-router.get('/:id', async (req, res) => {
-  try {
+router.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const transaction = await prisma.transaction.findFirst({
@@ -639,7 +621,7 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!transaction) {
-      return res.status(404).json({ error: 'Invoice not found' });
+      throw new NotFoundError('Invoice', id);
     }
 
     // Get full invoice data
@@ -660,11 +642,8 @@ router.get('/:id', async (req, res) => {
       description: transaction.description,
       invoiceData,
     });
-  } catch (error) {
-    console.error('[Admin Invoices] Error fetching invoice:', error);
-    res.status(500).json({ error: 'Failed to fetch invoice' });
-  }
-});
+  })
+);
 
 // ============================================
 // GET INVOICE HTML
@@ -701,8 +680,9 @@ router.get('/:id', async (req, res) => {
  *       404:
  *         description: Invoice not found
  */
-router.get('/:id/html', async (req, res) => {
-  try {
+router.get(
+  '/:id/html',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const language = (req.query.language as 'en' | 'fr') || 'fr';
 
@@ -716,22 +696,19 @@ router.get('/:id/html', async (req, res) => {
     });
 
     if (!transaction) {
-      return res.status(404).json({ error: 'Invoice not found' });
+      throw new NotFoundError('Invoice', id);
     }
 
     const html = await invoiceService.generateInvoiceHtml(id, transaction.userId, language);
 
     if (!html) {
-      return res.status(404).json({ error: 'Invoice not found' });
+      throw new NotFoundError('Invoice', id);
     }
 
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Disposition', `inline; filename="invoice-${id}.html"`);
     res.send(html);
-  } catch (error) {
-    console.error('[Admin Invoices] Error generating invoice HTML:', error);
-    res.status(500).json({ error: 'Failed to generate invoice' });
-  }
-});
+  })
+);
 
 export default router;

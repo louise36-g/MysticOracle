@@ -8,7 +8,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 import { idempotent } from '../middleware/idempotency.js';
+
 import { debug } from '../lib/logger.js';
 
 const router = Router();
@@ -42,14 +44,16 @@ const reflectionSchema = z.object({
 
 // Create a new reading
 // Uses idempotency middleware to prevent duplicate charges on retried requests
-router.post('/', requireAuth, idempotent, async (req, res) => {
-  try {
+router.post(
+  '/',
+  requireAuth,
+  idempotent,
+  asyncHandler(async (req, res) => {
     debug.log('[Reading API] Received reading creation request from userId:', req.auth.userId);
     debug.log('[Reading API] Request body:', JSON.stringify(req.body, null, 2));
 
     const validation = createReadingSchema.safeParse(req.body);
     if (!validation.success) {
-      console.error('[Reading API] Validation failed:', validation.error.errors);
       return res
         .status(400)
         .json({ error: 'Invalid request data', details: validation.error.errors });
@@ -74,29 +78,27 @@ router.post('/', requireAuth, idempotent, async (req, res) => {
     });
 
     if (!result.success) {
-      console.error('[Reading API] Use case failed:', result.error, 'Code:', result.errorCode);
       const statusCode =
         result.errorCode === 'USER_NOT_FOUND'
           ? 404
           : result.errorCode === 'INSUFFICIENT_CREDITS'
-            ? 402 // ✅ Payment Required
+            ? 402 // Payment Required
             : result.errorCode === 'VALIDATION_ERROR'
               ? 400
               : 500;
       return res.status(statusCode).json({ error: result.error });
     }
 
-    debug.log('[Reading API] ✅ Reading created successfully! ID:', result.reading?.id);
+    debug.log('[Reading API] Reading created successfully! ID:', result.reading?.id);
     res.status(201).json(result.reading);
-  } catch (error) {
-    console.error('[Reading API] Unexpected error creating reading:', error);
-    res.status(500).json({ error: 'Failed to create reading' });
-  }
-});
+  })
+);
 
 // Get a specific reading
-router.get('/:id', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const getReadingUseCase = req.container.resolve('getReadingUseCase');
 
     const result = await getReadingUseCase.execute({
@@ -109,16 +111,16 @@ router.get('/:id', requireAuth, async (req, res) => {
     }
 
     res.json(result.reading);
-  } catch (error) {
-    console.error('Error fetching reading:', error);
-    res.status(500).json({ error: 'Failed to fetch reading' });
-  }
-});
+  })
+);
 
 // Add follow-up question to a reading
 // Uses idempotency middleware to prevent duplicate charges on retried requests
-router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
-  try {
+router.post(
+  '/:id/follow-up',
+  requireAuth,
+  idempotent,
+  asyncHandler(async (req, res) => {
     const validation = followUpSchema.safeParse(req.body);
     if (!validation.success) {
       return res
@@ -140,7 +142,7 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
         result.errorCode === 'READING_NOT_FOUND'
           ? 404
           : result.errorCode === 'INSUFFICIENT_CREDITS'
-            ? 402 // ✅ Payment Required
+            ? 402 // Payment Required
             : result.errorCode === 'VALIDATION_ERROR'
               ? 400
               : 500;
@@ -148,15 +150,14 @@ router.post('/:id/follow-up', requireAuth, idempotent, async (req, res) => {
     }
 
     res.status(201).json(result.followUp);
-  } catch (error) {
-    console.error('Error creating follow-up:', error);
-    res.status(500).json({ error: 'Failed to create follow-up' });
-  }
-});
+  })
+);
 
 // Update reading with user reflection
-router.patch('/:id', requireAuth, async (req, res) => {
-  try {
+router.patch(
+  '/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const validation = reflectionSchema.safeParse(req.body);
     if (!validation.success) {
       return res
@@ -183,11 +184,8 @@ router.patch('/:id', requireAuth, async (req, res) => {
     }
 
     res.json({ success: true, reading: result.reading });
-  } catch (error) {
-    console.error('Error updating reading reflection:', error);
-    res.status(500).json({ error: 'Failed to update reading' });
-  }
-});
+  })
+);
 
 // ============================================================
 // Horoscope endpoints (kept in readings.ts for now, will be
@@ -195,8 +193,10 @@ router.patch('/:id', requireAuth, async (req, res) => {
 // ============================================================
 
 // Get or create cached horoscope
-router.get('/horoscope/:sign', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/horoscope/:sign',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const { sign } = req.params;
     const { language = 'en' } = req.query;
 
@@ -220,16 +220,16 @@ router.get('/horoscope/:sign', requireAuth, async (req, res) => {
       return res.json(cached);
     }
 
-    res.status(404).json({ error: 'No cached horoscope', needsGeneration: true });
-  } catch (error) {
-    console.error('Error fetching horoscope:', error);
-    res.status(500).json({ error: 'Failed to fetch horoscope' });
-  }
-});
+    // Return special response so frontend knows to trigger generation
+    res.status(404).json({ needsGeneration: true });
+  })
+);
 
 // Cache a generated horoscope
-router.post('/horoscope/:sign', requireAuth, async (req, res) => {
-  try {
+router.post(
+  '/horoscope/:sign',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const { sign } = req.params;
     const { language, horoscope } = req.body;
 
@@ -257,10 +257,7 @@ router.post('/horoscope/:sign', requireAuth, async (req, res) => {
     });
 
     res.json(cached);
-  } catch (error) {
-    console.error('Error caching horoscope:', error);
-    res.status(500).json({ error: 'Failed to cache horoscope' });
-  }
-});
+  })
+);
 
 export default router;

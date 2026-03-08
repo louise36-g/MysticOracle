@@ -15,14 +15,18 @@ import {
   fs,
 } from './shared.js';
 import { getStorageService } from '../../services/storage/index.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { ValidationError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
 // Upload image
-router.post('/upload', memoryUpload.single('image'), async (req, res) => {
-  try {
+router.post(
+  '/upload',
+  memoryUpload.single('image'),
+  asyncHandler(async (req, res) => {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      throw new ValidationError('No file uploaded');
     }
 
     // Get folder from request body, validate to prevent path traversal
@@ -62,15 +66,13 @@ router.post('/upload', memoryUpload.single('image'), async (req, res) => {
     await cacheService.flushPattern('media:');
 
     res.json({ success: true, media });
-  } catch (error) {
-    console.error('Error uploading file:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to upload file' });
-  }
-});
+  })
+);
 
 // List media
-router.get('/media', async (req, res) => {
-  try {
+router.get(
+  '/media',
+  asyncHandler(async (req, res) => {
     // Optional folder filter via query parameter, validate to prevent injection
     const folderParam = req.query.folder as string | undefined;
     const folder = folderParam ? validateFolder(folderParam) : undefined;
@@ -79,7 +81,8 @@ router.get('/media', async (req, res) => {
     // Check cache first
     const cached = await cacheService.get<Record<string, unknown>[]>(cacheKey);
     if (cached) {
-      return res.json({ media: cached });
+      res.json({ media: cached });
+      return;
     }
 
     const where = folder ? { folder } : {};
@@ -94,15 +97,13 @@ router.get('/media', async (req, res) => {
     await cacheService.set(cacheKey, media, CacheService.TTL.MEDIA);
 
     res.json({ media });
-  } catch (error) {
-    console.error('Error fetching media:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to fetch media' });
-  }
-});
+  })
+);
 
 // Delete media
-router.delete('/media/:id', async (req, res) => {
-  try {
+router.delete(
+  '/media/:id',
+  asyncHandler(async (req, res) => {
     const media = await prisma.mediaUpload.findUnique({
       where: { id: req.params.id },
     });
@@ -139,10 +140,7 @@ router.delete('/media/:id', async (req, res) => {
     }
 
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting media:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to delete media' });
-  }
-});
+  })
+);
 
 export default router;

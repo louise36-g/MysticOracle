@@ -80,6 +80,16 @@ describe('Users Profile Routes', () => {
     app = express();
     app.use(express.json());
     app.use('/', profileRouter);
+
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
   });
 
   // ============================================
@@ -117,12 +127,12 @@ describe('Users Profile Routes', () => {
       });
     });
 
-    it('should return 500 when user not found (throws NotFoundError)', async () => {
+    it('should return 404 when user not found', async () => {
       mockedPrisma.user.findUnique.mockResolvedValue(null);
 
       const res = await request(app).get('/me');
 
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(404);
     });
 
     it('should return 500 on DB error', async () => {
@@ -131,7 +141,7 @@ describe('Users Profile Routes', () => {
       const res = await request(app).get('/me');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to fetch/i);
+      expect(res.body.error).toBe('DB error');
     });
   });
 
@@ -350,12 +360,12 @@ describe('Users Profile Routes', () => {
       });
     });
 
-    it('should return 500 when user not found (throws NotFoundError)', async () => {
+    it('should return 404 when user not found', async () => {
       mockedPrisma.user.findUnique.mockResolvedValue(null);
 
       const res = await request(app).get('/me/credits');
 
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(404);
     });
 
     it('should return 500 on DB error', async () => {
@@ -364,7 +374,7 @@ describe('Users Profile Routes', () => {
       const res = await request(app).get('/me/credits');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to fetch/i);
+      expect(res.body.error).toBe('DB error');
     });
   });
 });

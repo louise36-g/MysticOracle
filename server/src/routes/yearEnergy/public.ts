@@ -7,6 +7,8 @@
  */
 
 import { Router, prisma, yearParamSchema, MAJOR_ARCANA } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -19,20 +21,18 @@ const router = Router();
  * Convenience endpoint to get current year's energy
  * NOTE: Must be defined BEFORE /:year to avoid route conflict
  */
-router.get('/current', async (req, res) => {
-  const currentYear = new Date().getFullYear();
-  const language = (req.query.language as string) || 'en';
+router.get(
+  '/current',
+  asyncHandler(async (req, res) => {
+    const currentYear = new Date().getFullYear();
+    const language = (req.query.language as string) || 'en';
 
-  try {
     const yearEnergy = await prisma.yearEnergy.findUnique({
       where: { year: currentYear },
     });
 
     if (!yearEnergy) {
-      return res.status(404).json({
-        error: 'Year energy not found',
-        message: `No energy data available for year ${currentYear}`,
-      });
+      throw new NotFoundError('Year energy');
     }
 
     const card = MAJOR_ARCANA[yearEnergy.yearCardId];
@@ -50,11 +50,8 @@ router.get('/current', async (req, res) => {
       challenges: language === 'en' ? yearEnergy.challengesEn : yearEnergy.challengesFr,
       opportunities: language === 'en' ? yearEnergy.opportunitiesEn : yearEnergy.opportunitiesFr,
     });
-  } catch (error) {
-    console.error('[YearEnergy] Error fetching current year energy:', error);
-    res.status(500).json({ error: 'Failed to fetch year energy' });
-  }
-});
+  })
+);
 
 // ============================================
 // SPECIFIC YEAR ENERGY
@@ -65,14 +62,10 @@ router.get('/current', async (req, res) => {
  * Get universal year energy for a specific year
  * Public endpoint
  */
-router.get('/:year', async (req, res) => {
-  try {
-    const validation = yearParamSchema.safeParse(req.params);
-    if (!validation.success) {
-      return res.status(400).json({ error: 'Invalid year parameter' });
-    }
-
-    const { year } = validation.data;
+router.get(
+  '/:year',
+  asyncHandler(async (req, res) => {
+    const { year } = yearParamSchema.parse(req.params);
     const language = (req.query.language as string) || 'en';
 
     const yearEnergy = await prisma.yearEnergy.findUnique({
@@ -80,10 +73,7 @@ router.get('/:year', async (req, res) => {
     });
 
     if (!yearEnergy) {
-      return res.status(404).json({
-        error: 'Year energy not found',
-        message: `No energy data available for year ${year}`,
-      });
+      throw new NotFoundError('Year energy');
     }
 
     const card = MAJOR_ARCANA[yearEnergy.yearCardId];
@@ -101,10 +91,7 @@ router.get('/:year', async (req, res) => {
       challenges: language === 'en' ? yearEnergy.challengesEn : yearEnergy.challengesFr,
       opportunities: language === 'en' ? yearEnergy.opportunitiesEn : yearEnergy.opportunitiesFr,
     });
-  } catch (error) {
-    console.error('[YearEnergy] Error fetching year energy:', error);
-    res.status(500).json({ error: 'Failed to fetch year energy' });
-  }
-});
+  })
+);
 
 export default router;

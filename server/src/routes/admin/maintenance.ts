@@ -3,6 +3,7 @@
  */
 
 import { Router, prisma, cacheService } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -77,8 +78,9 @@ router.delete('/error-logs', (req, res) => {
 // ============================================
 
 // GET /api/admin/cache/stats
-router.get('/cache/stats', async (req, res) => {
-  try {
+router.get(
+  '/cache/stats',
+  asyncHandler(async (_req, res) => {
     const stats = cacheService.getStats();
     const lastPurge = cacheService.getLastPurge();
 
@@ -86,30 +88,26 @@ router.get('/cache/stats', async (req, res) => {
       ...stats,
       lastPurge: lastPurge?.toISOString() || null,
     });
-  } catch (error) {
-    console.error('Error getting cache stats:', error);
-    res.status(500).json({ error: 'Failed to get cache stats' });
-  }
-});
+  })
+);
 
 // POST /api/admin/cache/purge
-router.post('/cache/purge', async (req, res) => {
-  try {
+router.post(
+  '/cache/purge',
+  asyncHandler(async (_req, res) => {
     await cacheService.flush();
     res.json({ success: true, message: 'Cache purged successfully' });
-  } catch (error) {
-    console.error('Error purging cache:', error);
-    res.status(500).json({ error: 'Failed to purge cache' });
-  }
-});
+  })
+);
 
 // ============================================
 // MAINTENANCE
 // ============================================
 
 // POST /api/admin/maintenance/normalize-readings
-router.post('/normalize-readings', async (req, res) => {
-  try {
+router.post(
+  '/normalize-readings',
+  asyncHandler(async (_req, res) => {
     // Import dynamically to avoid circular dependency issues
     const { normalizeExistingReadings } = await import('../../jobs/normalizeReadingCards.js');
     const result = await normalizeExistingReadings();
@@ -119,15 +117,13 @@ router.post('/normalize-readings', async (req, res) => {
       ...result,
       message: `Normalized ${result.processed} readings (${result.skipped} skipped, ${result.errors} errors)`,
     });
-  } catch (error) {
-    console.error('Error normalizing readings:', error);
-    res.status(500).json({ error: 'Failed to normalize readings' });
-  }
-});
+  })
+);
 
 // POST /api/admin/maintenance/cleanup-horoscopes
-router.post('/cleanup-horoscopes', async (req, res) => {
-  try {
+router.post(
+  '/cleanup-horoscopes',
+  asyncHandler(async (_req, res) => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -140,10 +136,7 @@ router.post('/cleanup-horoscopes', async (req, res) => {
       deleted: result.count,
       message: `Deleted ${result.count} old horoscope cache entries`,
     });
-  } catch (error) {
-    console.error('Error cleaning up horoscopes:', error);
-    res.status(500).json({ error: 'Failed to cleanup horoscope cache' });
-  }
-});
+  })
+);
 
 export default router;

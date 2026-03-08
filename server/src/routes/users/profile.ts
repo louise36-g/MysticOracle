@@ -8,6 +8,8 @@
  */
 
 import { Router, requireAuth, prisma, NotFoundError } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { ValidationError, ConflictError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -37,8 +39,10 @@ const router = Router();
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.get('/me', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
 
     const user = await prisma.user.findUnique({
@@ -59,19 +63,18 @@ router.get('/me', requireAuth, async (req, res) => {
     }
 
     res.json(user);
-  } catch (error) {
-    console.error('[Users /me] Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
+  })
+);
 
 // ============================================
 // UPDATE PREFERENCES
 // ============================================
 
 // Update user preferences
-router.patch('/me', requireAuth, async (req, res) => {
-  try {
+router.patch(
+  '/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const { language, welcomeCompleted, username } = req.body;
 
@@ -80,9 +83,9 @@ router.patch('/me', requireAuth, async (req, res) => {
       // Validate format
       const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
       if (!usernameRegex.test(username)) {
-        return res.status(400).json({
-          error: 'Username must be 3-20 characters, letters, numbers, and underscores only',
-        });
+        throw new ValidationError(
+          'Username must be 3-20 characters, letters, numbers, and underscores only'
+        );
       }
 
       // Check reserved usernames
@@ -97,7 +100,7 @@ router.patch('/me', requireAuth, async (req, res) => {
         'mod',
       ];
       if (reserved.includes(username.toLowerCase())) {
-        return res.status(400).json({ error: 'This username is reserved' });
+        throw new ValidationError('This username is reserved');
       }
 
       // Check if username is taken (case-insensitive, excluding current user)
@@ -114,7 +117,7 @@ router.patch('/me', requireAuth, async (req, res) => {
       });
 
       if (existingUser) {
-        return res.status(409).json({ error: 'Username is already taken' });
+        throw new ConflictError('Username is already taken');
       }
     }
 
@@ -128,23 +131,21 @@ router.patch('/me', requireAuth, async (req, res) => {
     });
 
     res.json(user);
-  } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).json({ error: 'Failed to update user' });
-  }
-});
+  })
+);
 
 // ============================================
 // USERNAME AVAILABILITY CHECK
 // ============================================
 
 // Check if username is available
-router.get('/check-username', async (req, res) => {
-  try {
+router.get(
+  '/check-username',
+  asyncHandler(async (req, res) => {
     const { username } = req.query;
 
     if (!username || typeof username !== 'string') {
-      return res.status(400).json({ error: 'Username is required' });
+      throw new ValidationError('Username is required');
     }
 
     // Validate format
@@ -189,19 +190,18 @@ router.get('/check-username', async (req, res) => {
       available: !existingUser,
       reason: existingUser ? 'already_taken' : undefined,
     });
-  } catch (error) {
-    console.error('Error checking username:', error);
-    res.status(500).json({ error: 'Failed to check username' });
-  }
-});
+  })
+);
 
 // ============================================
 // CREDITS
 // ============================================
 
 // Get user credits
-router.get('/me/credits', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/me/credits',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
 
     const user = await prisma.user.findUnique({
@@ -218,10 +218,7 @@ router.get('/me/credits', requireAuth, async (req, res) => {
     }
 
     res.json(user);
-  } catch (error) {
-    console.error('Error fetching credits:', error);
-    res.status(500).json({ error: 'Failed to fetch credits' });
-  }
-});
+  })
+);
 
 export default router;

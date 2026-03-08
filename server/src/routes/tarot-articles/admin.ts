@@ -10,6 +10,8 @@
 
 import { Router } from 'express';
 import { Prisma } from '../../generated/prisma/client.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import {
   validateTarotArticle,
   validateArticleWithWarnings,
@@ -82,8 +84,9 @@ function tarotToBlogPostData(prismaData: ReturnType<typeof convertToPrismaFormat
  * POST /admin/validate
  * Validate tarot article JSON with content quality checks
  */
-router.post('/validate', async (req, res) => {
-  try {
+router.post(
+  '/validate',
+  asyncHandler(async (req, res) => {
     const result = validateTarotArticle(req.body);
     const warningMessages = result.warnings.map(w => w.message);
 
@@ -113,18 +116,16 @@ router.post('/validate', async (req, res) => {
       schema,
       data: result.data,
     });
-  } catch (error) {
-    console.error('Validation error:', error);
-    res.status(500).json({ error: 'Validation failed' });
-  }
-});
+  })
+);
 
 /**
  * POST /admin/import
  * Import and save a validated tarot article
  */
-router.post('/import', async (req, res) => {
-  try {
+router.post(
+  '/import',
+  asyncHandler(async (req, res) => {
     const articleData = req.body;
     const forceMode = req.query.force === 'true';
 
@@ -259,23 +260,16 @@ router.post('/import', async (req, res) => {
       warnings: warningMessages,
       stats: validationResult.stats,
     });
-  } catch (error) {
-    console.error('Error importing tarot article:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Import failed: ' + (error instanceof Error ? error.message : 'Unknown error'),
-      errors: ['Import failed'],
-      warnings: [],
-    });
-  }
-});
+  })
+);
 
 /**
  * GET /admin/list
  * List all tarot articles (including drafts)
  */
-router.get('/list', async (req, res) => {
-  try {
+router.get(
+  '/list',
+  asyncHandler(async (req, res) => {
     const params = listArticlesSchema.parse(req.query);
     const { page, limit, cardType, status, search, deleted } = params;
 
@@ -348,40 +342,36 @@ router.get('/list', async (req, res) => {
       limit,
       totalPages: Math.ceil(total / limit),
     });
-  } catch (error) {
-    console.error('Error listing tarot articles (admin):', error);
-    res.status(500).json({ error: 'Failed to list articles' });
-  }
-});
+  })
+);
 
 /**
  * GET /admin/preview/:id
  * Preview any article (bypasses published status check)
  */
-router.get('/preview/:id', async (req, res) => {
-  try {
+router.get(
+  '/preview/:id',
+  asyncHandler(async (req, res) => {
     const article = await prisma.blogPost.findFirst({
       where: { id: req.params.id, contentType: 'TAROT_ARTICLE', deletedAt: null },
     });
 
     if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
+      throw new NotFoundError('Article');
     }
 
     // Transform to TarotArticle API shape
     res.json(mapBlogPostToTarotFields(article as unknown as Record<string, unknown>));
-  } catch (error) {
-    console.error('Error previewing tarot article:', error);
-    res.status(500).json({ error: 'Failed to preview article' });
-  }
-});
+  })
+);
 
 /**
  * GET /admin/:id
  * Get single article for editing
  */
-router.get('/:id', async (req, res) => {
-  try {
+router.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const article = await prisma.blogPost.findFirst({
@@ -390,15 +380,12 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
+      throw new NotFoundError('Article');
     }
 
     res.json(transformArticleResponse(article));
-  } catch (error) {
-    console.error('Error fetching single tarot article:', error);
-    res.status(500).json({ error: 'Failed to fetch article' });
-  }
-});
+  })
+);
 
 /**
  * PATCH /admin/reorder
@@ -442,8 +429,9 @@ router.patch('/reorder', (req, res) => {
  * PATCH /admin/:id
  * Update a tarot article
  */
-router.patch('/:id', async (req, res) => {
-  try {
+router.patch(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     const isVisualEditorMode = updates._visualEditorMode === true;
@@ -454,7 +442,7 @@ router.patch('/:id', async (req, res) => {
     });
 
     if (!existingArticle) {
-      return res.status(404).json({ error: 'Article not found' });
+      throw new NotFoundError('Article');
     }
 
     // Visual editor mode: partial updates without strict validation
@@ -529,7 +517,7 @@ router.patch('/:id', async (req, res) => {
         data: { ...sanitizedUpdates, updatedAt: new Date() },
       });
 
-      // Handle category updates (names → IDs → junction table)
+      // Handle category updates (names -> IDs -> junction table)
       if (Array.isArray(categoryNames)) {
         await prisma.blogPostCategory.deleteMany({ where: { postId: id } });
         if (categoryNames.length > 0) {
@@ -544,7 +532,7 @@ router.patch('/:id', async (req, res) => {
         }
       }
 
-      // Handle tag updates (names → IDs → junction table)
+      // Handle tag updates (names -> IDs -> junction table)
       if (Array.isArray(tagNames)) {
         await prisma.blogPostTag.deleteMany({ where: { postId: id } });
         if (tagNames.length > 0) {
@@ -571,7 +559,7 @@ router.patch('/:id', async (req, res) => {
       });
 
       if (!refreshedArticle) {
-        return res.status(404).json({ error: 'Article not found after update' });
+        throw new NotFoundError('Article');
       }
 
       return res.json(transformArticleResponse(refreshedArticle));
@@ -686,10 +674,7 @@ router.patch('/:id', async (req, res) => {
     await cacheService.invalidateTarotArticle(existingArticle.slug);
 
     res.json(mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>));
-  } catch (error) {
-    console.error('Error updating tarot article:', error);
-    res.status(500).json({ error: 'Failed to update article' });
-  }
-});
+  })
+);
 
 export default router;

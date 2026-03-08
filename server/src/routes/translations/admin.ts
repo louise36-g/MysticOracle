@@ -7,6 +7,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../../db/prisma.js';
 import { requireAuth, requireAdmin } from '../../middleware/auth.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { debug } from '../../lib/logger.js';
 import { invalidateTranslationCache } from './shared.js';
 import { defaultTranslations } from './defaults.js';
@@ -14,8 +16,11 @@ import { defaultTranslations } from './defaults.js';
 const router = Router();
 
 // Get all languages with translation count (admin)
-router.get('/languages', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.get(
+  '/languages',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (_req, res) => {
     const languages = await prisma.language.findMany({
       orderBy: { sortOrder: 'asc' },
       include: {
@@ -23,11 +28,8 @@ router.get('/languages', requireAuth, requireAdmin, async (req, res) => {
       },
     });
     res.json({ languages });
-  } catch (error) {
-    console.error('Error fetching languages:', error);
-    res.status(500).json({ error: 'Failed to fetch languages' });
-  }
-});
+  })
+);
 
 // Create language
 const createLanguageSchema = z.object({
@@ -43,8 +45,11 @@ const createLanguageSchema = z.object({
   sortOrder: z.number().int().default(0),
 });
 
-router.post('/languages', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.post(
+  '/languages',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const parsed = createLanguageSchema.parse(req.body);
 
     // If this is set as default, unset other defaults
@@ -66,11 +71,8 @@ router.post('/languages', requireAuth, requireAdmin, async (req, res) => {
       },
     });
     res.json({ success: true, language });
-  } catch (error) {
-    console.error('Error creating language:', error);
-    res.status(500).json({ error: 'Failed to create language' });
-  }
-});
+  })
+);
 
 // Update language schema
 const updateLanguageSchema = z.object({
@@ -87,8 +89,11 @@ const updateLanguageSchema = z.object({
   sortOrder: z.number().int().optional(),
 });
 
-router.patch('/languages/:id', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.patch(
+  '/languages/:id',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const data = updateLanguageSchema.parse(req.body);
 
@@ -104,27 +109,27 @@ router.patch('/languages/:id', requireAuth, requireAdmin, async (req, res) => {
       data,
     });
     res.json({ success: true, language });
-  } catch (error) {
-    console.error('Error updating language:', error);
-    res.status(500).json({ error: 'Failed to update language' });
-  }
-});
+  })
+);
 
 // Delete language (and all its translations)
-router.delete('/languages/:id', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.delete(
+  '/languages/:id',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     await prisma.language.delete({ where: { id } });
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting language:', error);
-    res.status(500).json({ error: 'Failed to delete language' });
-  }
-});
+  })
+);
 
 // Get all translations for a language (admin - with full details)
-router.get('/:langCode', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.get(
+  '/:langCode',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { langCode } = req.params;
 
     const language = await prisma.language.findUnique({
@@ -137,15 +142,12 @@ router.get('/:langCode', requireAuth, requireAdmin, async (req, res) => {
     });
 
     if (!language) {
-      return res.status(404).json({ error: 'Language not found' });
+      throw new NotFoundError('Language');
     }
 
     res.json({ language, translations: language.translations });
-  } catch (error) {
-    console.error('Error fetching translations:', error);
-    res.status(500).json({ error: 'Failed to fetch translations' });
-  }
-});
+  })
+);
 
 // Create/Update translation (upsert)
 const upsertTranslationSchema = z.object({
@@ -154,8 +156,11 @@ const upsertTranslationSchema = z.object({
   languageId: z.string().min(1),
 });
 
-router.post('/translations', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.post(
+  '/translations',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { key, value, languageId } = upsertTranslationSchema.parse(req.body);
 
     const translation = await prisma.translation.upsert({
@@ -174,12 +179,8 @@ router.post('/translations', requireAuth, requireAdmin, async (req, res) => {
     await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true, translation });
-  } catch (error) {
-    console.error('Error upserting translation:', error);
-    const message = error instanceof Error ? error.message : 'Failed to save translation';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 // Bulk upsert translations
 const bulkUpsertSchema = z.object({
@@ -187,8 +188,11 @@ const bulkUpsertSchema = z.object({
   translations: z.record(z.string()), // { key: value }
 });
 
-router.post('/translations/bulk', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.post(
+  '/translations/bulk',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { languageId, translations } = bulkUpsertSchema.parse(req.body);
 
     const operations = Object.entries(translations).map(([key, value]) =>
@@ -205,15 +209,15 @@ router.post('/translations/bulk', requireAuth, requireAdmin, async (req, res) =>
     await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true, count: Object.keys(translations).length });
-  } catch (error) {
-    console.error('Error bulk upserting translations:', error);
-    res.status(500).json({ error: 'Failed to save translations' });
-  }
-});
+  })
+);
 
 // Delete translation
-router.delete('/translations/:id', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.delete(
+  '/translations/:id',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     await prisma.translation.delete({ where: { id } });
 
@@ -221,15 +225,15 @@ router.delete('/translations/:id', requireAuth, requireAdmin, async (req, res) =
     await invalidateTranslationCache().catch(() => {});
 
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting translation:', error);
-    res.status(500).json({ error: 'Failed to delete translation' });
-  }
-});
+  })
+);
 
 // Seed default translations
-router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
-  try {
+router.post(
+  '/seed',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (_req, res) => {
     // Create default languages
     const enLang = await prisma.language.upsert({
       where: { code: 'en' },
@@ -239,7 +243,7 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
 
     const frLang = await prisma.language.upsert({
       where: { code: 'fr' },
-      create: { code: 'fr', name: 'French', nativeName: 'Français', sortOrder: 1 },
+      create: { code: 'fr', name: 'French', nativeName: 'Francais', sortOrder: 1 },
       update: {},
     });
 
@@ -312,11 +316,7 @@ router.post('/seed', requireAuth, requireAdmin, async (req, res) => {
       translations: Object.keys(defaultTranslations).length * 2,
       cleanedUp: deletedCount,
     });
-  } catch (error) {
-    console.error('Error seeding translations:', error);
-    const message = error instanceof Error ? error.message : 'Failed to seed translations';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 export default router;

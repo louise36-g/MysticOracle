@@ -101,6 +101,16 @@ describe('Users GDPR Routes', () => {
     });
     app.use('/', gdprRouter);
 
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
+
     mockAuditService.log.mockResolvedValue(undefined);
   });
 
@@ -177,7 +187,7 @@ describe('Users GDPR Routes', () => {
       const res = await request(app).get('/me/export');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to export/i);
+      expect(res.body.error).toBe('boom');
     });
   });
 
@@ -286,7 +296,7 @@ describe('Users GDPR Routes', () => {
       const res = await request(app).delete('/me').send({ confirmEmail: 'test@example.com' });
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to delete/i);
+      expect(res.body.error).toBe('boom');
     });
   });
 
@@ -429,7 +439,7 @@ describe('Users GDPR Routes', () => {
       const res = await request(app).post('/withdrawal-request').send(validRequest);
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to submit/i);
+      expect(res.body.error).toBe('DB error');
     });
   });
 });

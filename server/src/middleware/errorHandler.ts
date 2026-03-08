@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 import { ApplicationError, isOperationalError } from '../shared/errors/ApplicationError.js';
 import { formatError } from '../shared/errors/formatters.js';
 import { errorTrackingService } from '../services/errorTrackingService.js';
@@ -18,7 +19,8 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   });
 
   // Determine status code
-  const statusCode = err instanceof ApplicationError ? err.statusCode : 500;
+  const statusCode =
+    err instanceof ApplicationError ? err.statusCode : err instanceof ZodError ? 400 : 500;
 
   // Check if client accepts new format (via Accept-Version header)
   const acceptVersion = req.headers['accept-version'] || req.headers['api-version'];

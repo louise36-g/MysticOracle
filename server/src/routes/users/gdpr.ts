@@ -14,7 +14,10 @@ import {
   logger,
   sendEmail,
   withdrawalRequestSchema,
+  NotFoundError,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { ValidationError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -27,8 +30,10 @@ const router = Router();
  * GDPR Article 20 - Right to data portability
  * Returns all user data in a portable JSON format
  */
-router.get('/me/export', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/me/export',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const exportUserDataUseCase = req.container.resolve('exportUserDataUseCase');
     const auditService = req.container.resolve('auditService');
 
@@ -54,11 +59,8 @@ router.get('/me/export', requireAuth, async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
     res.json(result.data);
-  } catch (error) {
-    console.error('[Users /me/export] Error:', error);
-    res.status(500).json({ error: 'Failed to export data' });
-  }
-});
+  })
+);
 
 // ============================================
 // ACCOUNT DELETION (GDPR Article 17)
@@ -71,15 +73,16 @@ router.get('/me/export', requireAuth, async (req, res) => {
  *
  * Required body: { confirmEmail: string }
  */
-router.delete('/me', requireAuth, async (req, res) => {
-  try {
+router.delete(
+  '/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const { confirmEmail } = req.body;
 
     if (!confirmEmail || typeof confirmEmail !== 'string') {
-      return res.status(400).json({
-        error:
-          'Email confirmation required. Please provide your account email to confirm deletion.',
-      });
+      throw new ValidationError(
+        'Email confirmation required. Please provide your account email to confirm deletion.'
+      );
     }
 
     const deleteUserAccountUseCase = req.container.resolve('deleteUserAccountUseCase');
@@ -119,11 +122,8 @@ router.delete('/me', requireAuth, async (req, res) => {
       success: true,
       message: result.message,
     });
-  } catch (error) {
-    console.error('[Users DELETE /me] Error:', error);
-    res.status(500).json({ error: 'Failed to delete account' });
-  }
-});
+  })
+);
 
 // ============================================
 // WITHDRAWAL REQUEST (EU Consumer Rights)
@@ -172,20 +172,14 @@ router.delete('/me', requireAuth, async (req, res) => {
  *       401:
  *         description: Not authenticated
  */
-router.post('/withdrawal-request', requireAuth, async (req, res) => {
-  try {
+router.post(
+  '/withdrawal-request',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
 
     // Validate request body
-    const validation = withdrawalRequestSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors,
-      });
-    }
-
-    const { email, orderReference, purchaseDate, reason } = validation.data;
+    const { email, orderReference, purchaseDate, reason } = withdrawalRequestSchema.parse(req.body);
 
     // Get user info
     const user = await prisma.user.findUnique({
@@ -194,7 +188,7 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // Log the withdrawal request
@@ -208,18 +202,18 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
         to: 'contact@celestiarcana.com',
         subject: `Withdrawal Request - ${orderReference}`,
         htmlContent: `
-          <h2>New Withdrawal Request</h2>
-          <p><strong>User ID:</strong> ${userId}</p>
-          <p><strong>User Email:</strong> ${user.email || email}</p>
-          <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
-          <p><strong>Contact Email:</strong> ${email}</p>
-          <p><strong>Order Reference:</strong> ${orderReference}</p>
-          <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
-          <p><strong>Reason:</strong> ${reason || 'Not provided'}</p>
-          <p><strong>Request Date:</strong> ${new Date().toISOString()}</p>
-          <hr>
-          <p>This request must be processed within 14 days per EU Directive 2011/83/EU.</p>
-        `,
+        <h2>New Withdrawal Request</h2>
+        <p><strong>User ID:</strong> ${userId}</p>
+        <p><strong>User Email:</strong> ${user.email || email}</p>
+        <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
+        <p><strong>Contact Email:</strong> ${email}</p>
+        <p><strong>Order Reference:</strong> ${orderReference}</p>
+        <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
+        <p><strong>Reason:</strong> ${reason || 'Not provided'}</p>
+        <p><strong>Request Date:</strong> ${new Date().toISOString()}</p>
+        <hr>
+        <p>This request must be processed within 14 days per EU Directive 2011/83/EU.</p>
+      `,
       });
     } catch (emailError) {
       // Log but don't fail - the request is still valid
@@ -232,15 +226,15 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
         to: email,
         subject: 'Withdrawal Request Received - CelestiArcana',
         htmlContent: `
-          <h2>Withdrawal Request Confirmation</h2>
-          <p>We have received your withdrawal request for order <strong>${orderReference}</strong>.</p>
-          <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
-          <p><strong>Request Date:</strong> ${new Date().toLocaleDateString()}</p>
-          <p>Your request will be processed within 14 days as required by EU consumer protection law.</p>
-          <p>If you have any questions, please contact us at contact@celestiarcana.com</p>
-          <hr>
-          <p style="color: #666; font-size: 12px;">CelestiArcana - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
-        `,
+        <h2>Withdrawal Request Confirmation</h2>
+        <p>We have received your withdrawal request for order <strong>${orderReference}</strong>.</p>
+        <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
+        <p><strong>Request Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <p>Your request will be processed within 14 days as required by EU consumer protection law.</p>
+        <p>If you have any questions, please contact us at contact@celestiarcana.com</p>
+        <hr>
+        <p style="color: #666; font-size: 12px;">CelestiArcana - 7 rue Beauregard, 77171 Chalautre la Grande, France</p>
+      `,
       });
     } catch (emailError) {
       // Log but don't fail
@@ -252,10 +246,7 @@ router.post('/withdrawal-request', requireAuth, async (req, res) => {
       message: 'Withdrawal request submitted successfully',
       requestId: `WR-${Date.now()}`,
     });
-  } catch (error) {
-    console.error('[Users POST /withdrawal-request] Error:', error);
-    res.status(500).json({ error: 'Failed to submit withdrawal request' });
-  }
-});
+  })
+);
 
 export default router;

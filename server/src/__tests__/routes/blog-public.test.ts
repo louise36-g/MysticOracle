@@ -63,6 +63,16 @@ const app = express();
 app.use(express.json());
 app.use('/blog', publicRouter);
 
+// Error handler for tests (matches production behavior)
+app.use((err: any, _req: any, res: any, _next: any) => {
+  const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+  const body =
+    err.name === 'ZodError'
+      ? { error: 'Validation failed', details: err.errors }
+      : { error: err.message || 'Internal server error' };
+  res.status(status).json(body);
+});
+
 // Type mocked modules
 const mockedPrisma = prisma as unknown as {
   blogPost: {
@@ -218,7 +228,7 @@ describe('Blog Public Routes', () => {
       const res = await request(app).get('/blog/posts');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch posts');
+      expect(res.body.error).toBe('DB error');
     });
   });
 
@@ -288,7 +298,7 @@ describe('Blog Public Routes', () => {
       const res = await request(app).get('/blog/posts/test-post');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch post');
+      expect(res.body.error).toBe('DB error');
     });
   });
 
@@ -328,7 +338,7 @@ describe('Blog Public Routes', () => {
       const res = await request(app).get('/blog/categories');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch categories');
+      expect(res.body.error).toBe('DB error');
     });
   });
 
@@ -359,7 +369,7 @@ describe('Blog Public Routes', () => {
       const res = await request(app).get('/blog/tags');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch tags');
+      expect(res.body.error).toBe('DB error');
     });
   });
 });

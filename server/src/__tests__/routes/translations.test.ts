@@ -40,6 +40,15 @@ import cacheService from '../../services/cache.js';
 const app = express();
 app.use(express.json());
 app.use('/translations', translationsRouter);
+// Error handler for tests (matches production behavior)
+app.use((err: any, _req: any, res: any, _next: any) => {
+  const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+  const body =
+    err.name === 'ZodError'
+      ? { error: 'Validation failed', details: err.errors }
+      : { error: err.message || 'Internal server error' };
+  res.status(status).json(body);
+});
 
 // Type the mocked prisma (cast via unknown to satisfy TypeScript)
 const mockedPrisma = prisma as unknown as {
@@ -123,7 +132,7 @@ describe('Translations Public Routes', () => {
       const res = await request(app).get('/translations/languages');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch languages');
+      expect(res.body.error).toBe('Database error');
     });
 
     it('should return empty array when no languages exist', async () => {
@@ -261,7 +270,7 @@ describe('Translations Public Routes', () => {
       const res = await request(app).get('/translations/en');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to fetch translations');
+      expect(res.body.error).toBe('Database error');
     });
 
     it('should fetch French translations correctly', async () => {

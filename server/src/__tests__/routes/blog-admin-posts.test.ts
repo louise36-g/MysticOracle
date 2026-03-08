@@ -82,6 +82,16 @@ app.use((req, _res, next) => {
 });
 app.use('/', postsRouter);
 
+// Error handler for tests (matches production behavior)
+app.use((err: any, _req: any, res: any, _next: any) => {
+  const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+  const body =
+    err.name === 'ZodError'
+      ? { error: 'Validation failed', details: err.errors }
+      : { error: err.message || 'Internal server error' };
+  res.status(status).json(body);
+});
+
 // Type mocked modules
 const mockedPrisma = prisma as unknown as {
   blogPost: {
@@ -201,7 +211,7 @@ describe('Blog Admin Posts Routes', () => {
       const res = await request(app).get('/preview/post-1');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to load post preview');
+      expect(res.body.error).toBe('DB error');
     });
   });
 
@@ -308,13 +318,13 @@ describe('Blog Admin Posts Routes', () => {
       expect(res.body.post.slug).toBe('new-post');
     });
 
-    it('should return 500 when slug already exists', async () => {
+    it('should return 409 when slug already exists', async () => {
       mockedPrisma.blogPost.findUnique.mockResolvedValue({ id: 'existing' }); // slug conflict
 
       const res = await request(app).post('/posts').send(validCreateBody);
 
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Failed to create post');
+      expect(res.status).toBe(409);
+      expect(res.body.error).toMatch(/already exists/i);
     });
 
     it('should set publishedAt when status is PUBLISHED', async () => {

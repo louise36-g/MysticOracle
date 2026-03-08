@@ -5,14 +5,17 @@
 
 import { Router } from 'express';
 import prisma from '../../db/prisma.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import cacheService, { CacheService } from '../../services/cache.js';
 import type { CachedLanguage, TranslationsResponse } from './shared.js';
 
 const router = Router();
 
 // Get all active languages
-router.get('/languages', async (req, res) => {
-  try {
+router.get(
+  '/languages',
+  asyncHandler(async (_req, res) => {
     const cacheKey = 'translations:languages';
     const cached = await cacheService.get<{ languages: CachedLanguage[] }>(cacheKey);
     if (cached) {
@@ -34,15 +37,13 @@ router.get('/languages', async (req, res) => {
     const response = { languages };
     await cacheService.set(cacheKey, response, CacheService.TTL.TRANSLATIONS);
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching languages:', error);
-    res.status(500).json({ error: 'Failed to fetch languages' });
-  }
-});
+  })
+);
 
 // Get current translation version (for client-side cache invalidation)
-router.get('/version', async (req, res) => {
-  try {
+router.get(
+  '/version',
+  asyncHandler(async (_req, res) => {
     const cacheKey = 'translations:version';
     const cached = await cacheService.get<number>(cacheKey);
     if (cached !== undefined) {
@@ -56,15 +57,13 @@ router.get('/version', async (req, res) => {
 
     await cacheService.set(cacheKey, version, CacheService.TTL.TRANSLATIONS);
     res.json({ version });
-  } catch (error) {
-    console.error('Error fetching translation version:', error);
-    res.status(500).json({ error: 'Failed to fetch version' });
-  }
-});
+  })
+);
 
 // Get all translations for a language
-router.get('/:langCode', async (req, res) => {
-  try {
+router.get(
+  '/:langCode',
+  asyncHandler(async (req, res) => {
     const { langCode } = req.params;
     const cacheKey = `translations:${langCode}`;
 
@@ -90,7 +89,7 @@ router.get('/:langCode', async (req, res) => {
     ]);
 
     if (!language) {
-      return res.status(404).json({ error: 'Language not found' });
+      throw new NotFoundError('Language');
     }
 
     // Convert array to key-value object
@@ -111,10 +110,7 @@ router.get('/:langCode', async (req, res) => {
 
     await cacheService.set(cacheKey, response, CacheService.TTL.TRANSLATIONS);
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching translations:', error);
-    res.status(500).json({ error: 'Failed to fetch translations' });
-  }
-});
+  })
+);
 
 export default router;

@@ -5,14 +5,16 @@
  */
 
 import { Router } from 'express';
-import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 import { idempotent } from '../middleware/idempotency.js';
 import { CREDIT_PACKAGES } from '../application/use-cases/payments/index.js';
 
 const router = Router();
 
 // Validation schemas
+import { z } from 'zod';
+
 const stripeCheckoutSchema = z.object({
   packageId: z
     .string()
@@ -46,17 +48,11 @@ router.get('/packages', (_req, res) => {
 });
 
 // Create Stripe checkout session
-router.post('/stripe/checkout', requireAuth, async (req, res) => {
-  try {
-    const validation = stripeCheckoutSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message),
-      });
-    }
-
-    const { packageId, useStripeLink } = validation.data;
+router.post(
+  '/stripe/checkout',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { packageId, useStripeLink } = stripeCheckoutSchema.parse(req.body);
     const createCheckoutUseCase = req.container.resolve('createCheckoutUseCase');
     const frontendUrl = req.container.resolve('frontendUrl');
 
@@ -80,16 +76,14 @@ router.post('/stripe/checkout', requireAuth, async (req, res) => {
     }
 
     res.json({ sessionId: result.sessionId, url: result.url });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
-  }
-});
+  })
+);
 
 // Verify Stripe payment AND add credits (backup to webhook)
-router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
-  try {
-    console.log('[Stripe Verify] Verifying session:', req.params.sessionId);
+router.get(
+  '/stripe/verify/:sessionId',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const verifyUseCase = req.container.resolve('verifyStripePaymentUseCase');
 
     const result = await verifyUseCase.execute({
@@ -97,31 +91,22 @@ router.get('/stripe/verify/:sessionId', requireAuth, async (req, res) => {
       sessionId: req.params.sessionId,
     });
 
-    console.log('[Stripe Verify] Result:', result);
     res.json(result);
-  } catch (error) {
-    console.error('[Stripe Verify] Error:', error);
-    res.status(500).json({ error: 'Failed to verify payment' });
-  }
-});
+  })
+);
 
 // Create PayPal order
-router.post('/paypal/order', requireAuth, async (req, res) => {
-  try {
-    const validation = paypalOrderSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message),
-      });
-    }
-
+router.post(
+  '/paypal/order',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { packageId } = paypalOrderSchema.parse(req.body);
     const createCheckoutUseCase = req.container.resolve('createCheckoutUseCase');
     const frontendUrl = req.container.resolve('frontendUrl');
 
     const result = await createCheckoutUseCase.execute({
       userId: req.auth.userId,
-      packageId: validation.data.packageId,
+      packageId,
       provider: 'paypal',
       frontendUrl,
     });
@@ -139,29 +124,22 @@ router.post('/paypal/order', requireAuth, async (req, res) => {
     }
 
     res.json({ orderId: result.sessionId, approvalUrl: result.url });
-  } catch (error) {
-    console.error('Error creating PayPal order:', error);
-    res.status(500).json({ error: 'Failed to create PayPal order' });
-  }
-});
+  })
+);
 
 // Capture PayPal order (after user approves)
 // Uses idempotency middleware to prevent double-crediting on retried requests
-router.post('/paypal/capture', requireAuth, idempotent, async (req, res) => {
-  try {
-    const validation = paypalCaptureSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors.map(e => e.message),
-      });
-    }
-
+router.post(
+  '/paypal/capture',
+  requireAuth,
+  idempotent,
+  asyncHandler(async (req, res) => {
+    const { orderId } = paypalCaptureSchema.parse(req.body);
     const capturePaymentUseCase = req.container.resolve('capturePaymentUseCase');
 
     const result = await capturePaymentUseCase.execute({
       userId: req.auth.userId,
-      orderId: validation.data.orderId,
+      orderId,
       provider: 'paypal',
     });
 
@@ -181,15 +159,14 @@ router.post('/paypal/capture', requireAuth, idempotent, async (req, res) => {
       captureId: result.captureId,
       newBalance: result.newBalance,
     });
-  } catch (error) {
-    console.error('Error capturing PayPal order:', error);
-    res.status(500).json({ error: 'Failed to capture PayPal order' });
-  }
-});
+  })
+);
 
 // Get user's purchase history
-router.get('/history', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/history',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const transactionRepository = req.container.resolve('transactionRepository');
 
     const purchases = await transactionRepository.findByUser(req.auth.userId, {
@@ -199,11 +176,8 @@ router.get('/history', requireAuth, async (req, res) => {
     // Filter to only completed purchases
     const completed = purchases.filter(p => p.paymentStatus === 'COMPLETED');
     res.json(completed);
-  } catch (error) {
-    console.error('Error fetching purchase history:', error);
-    res.status(500).json({ error: 'Failed to fetch purchase history' });
-  }
-});
+  })
+);
 
 // Re-export CREDIT_PACKAGES for backward compatibility
 export { CREDIT_PACKAGES };

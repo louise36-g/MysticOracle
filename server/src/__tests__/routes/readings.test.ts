@@ -69,6 +69,16 @@ describe('Readings Routes', () => {
       next();
     });
     app.use('/', readingsRouter);
+
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
   });
 
   // ============================================
@@ -156,7 +166,7 @@ describe('Readings Routes', () => {
 
       const res = await request(app).post('/').send(validBody);
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to create reading/i);
+      expect(res.body.error).toBe('boom');
     });
   });
 

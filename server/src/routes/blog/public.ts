@@ -11,6 +11,8 @@ import {
   flattenTags,
   extractCategoryIds,
 } from '../shared/queryUtils.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -51,8 +53,9 @@ process.on('beforeExit', () => {
 });
 
 // List published posts with pagination
-router.get('/posts', async (req, res) => {
-  try {
+router.get(
+  '/posts',
+  asyncHandler(async (req, res) => {
     const params = z
       .object({
         page: z.coerce.number().min(1).default(1),
@@ -75,7 +78,8 @@ router.get('/posts', async (req, res) => {
     // Check cache first
     const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
     if (cached) {
-      return res.json(cached);
+      res.json(cached);
+      return;
     }
 
     const where: Prisma.BlogPostWhereInput = {
@@ -151,15 +155,13 @@ router.get('/posts', async (req, res) => {
     await cacheService.set(cacheKey, response, CacheService.TTL.BLOG_POSTS);
 
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching posts:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to fetch posts' });
-  }
-});
+  })
+);
 
 // Get single post by slug (with view count increment)
-router.get('/posts/:slug', async (req, res) => {
-  try {
+router.get(
+  '/posts/:slug',
+  asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
     // Check cache first (2 min TTL — views are batched separately)
@@ -170,7 +172,8 @@ router.get('/posts/:slug', async (req, res) => {
     if (cached) {
       // Still count the view even on cache hit
       incrementViewCount(cached.post.id);
-      return res.json(cached);
+      res.json(cached);
+      return;
     }
 
     const post = await prisma.blogPost.findFirst({
@@ -183,7 +186,7 @@ router.get('/posts/:slug', async (req, res) => {
     });
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      throw new NotFoundError('Post');
     }
 
     // Increment view count (batched, flushes every 60s)
@@ -228,17 +231,18 @@ router.get('/posts/:slug', async (req, res) => {
 
     await cacheService.set(cacheKey, response, 120); // 2 min cache
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to fetch post' });
-  }
-});
+  })
+);
 
 // List all categories
-router.get('/categories', async (req, res) => {
-  try {
+router.get(
+  '/categories',
+  asyncHandler(async (_req, res) => {
     const cached = await cacheService.get<Record<string, unknown>>('blog:categories');
-    if (cached) return res.json(cached);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
 
     const categories = await prisma.blogCategory.findMany({
       orderBy: { sortOrder: 'asc' },
@@ -268,20 +272,18 @@ router.get('/categories', async (req, res) => {
 
     await cacheService.set('blog:categories', response, CacheService.TTL.CATEGORIES);
     res.json(response);
-  } catch (error) {
-    console.error(
-      'Error fetching categories:',
-      error instanceof Error ? error.message : String(error)
-    );
-    res.status(500).json({ error: 'Failed to fetch categories' });
-  }
-});
+  })
+);
 
 // List all tags with post counts
-router.get('/tags', async (req, res) => {
-  try {
+router.get(
+  '/tags',
+  asyncHandler(async (_req, res) => {
     const cached = await cacheService.get<Record<string, unknown>>('blog:tags');
-    if (cached) return res.json(cached);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
 
     const tags = await prisma.blogTag.findMany({
       orderBy: { nameEn: 'asc' },
@@ -311,11 +313,8 @@ router.get('/tags', async (req, res) => {
 
     await cacheService.set('blog:tags', response, CacheService.TTL.TAGS);
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching tags:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to fetch tags' });
-  }
-});
+  })
+);
 
 export { flushViewCounts };
 export default router;

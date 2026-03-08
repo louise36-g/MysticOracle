@@ -10,6 +10,8 @@ import {
   adjustCreditsSchema,
 } from './shared.js';
 import { createClerkClient } from '@clerk/backend';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError, ValidationError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -18,38 +20,35 @@ const router = Router();
 // ============================================
 
 // List users with pagination, search, and sorting
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const params = listUsersSchema.parse(req.query);
     const listUsersUseCase = req.container.resolve('listUsersUseCase');
     const result = await listUsersUseCase.execute(params);
     res.json(result);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
-});
+  })
+);
 
 // Get single user with full details
-router.get('/:userId', async (req, res) => {
-  try {
+router.get(
+  '/:userId',
+  asyncHandler(async (req, res) => {
     const getUserUseCase = req.container.resolve('getUserUseCase');
     const result = await getUserUseCase.execute({ userId: req.params.userId });
 
     if (!result.success) {
-      return res.status(404).json({ error: result.error });
+      throw new NotFoundError('User', req.params.userId);
     }
 
     res.json(result.user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
+  })
+);
 
 // Update user status
-router.patch('/:userId/status', async (req, res) => {
-  try {
+router.patch(
+  '/:userId/status',
+  asyncHandler(async (req, res) => {
     const { status } = updateStatusSchema.parse(req.body);
     const updateUserStatusUseCase = req.container.resolve('updateUserStatusUseCase');
     const result = await updateUserStatusUseCase.execute({
@@ -62,15 +61,13 @@ router.patch('/:userId/status', async (req, res) => {
     }
 
     res.json({ success: true, user: result.user });
-  } catch (error) {
-    console.error('Error updating user status:', error);
-    res.status(500).json({ error: 'Failed to update user status' });
-  }
-});
+  })
+);
 
 // Adjust user credits
-router.post('/:userId/credits', async (req, res) => {
-  try {
+router.post(
+  '/:userId/credits',
+  asyncHandler(async (req, res) => {
     const { amount, reason } = adjustCreditsSchema.parse(req.body);
     const adjustUserCreditsUseCase = req.container.resolve('adjustUserCreditsUseCase');
     const result = await adjustUserCreditsUseCase.execute({
@@ -85,27 +82,25 @@ router.post('/:userId/credits', async (req, res) => {
     }
 
     res.json({ success: true, newBalance: result.newBalance });
-  } catch (error) {
-    console.error('[Admin Credits] Error adjusting credits:', error);
-    res.status(500).json({ error: 'Failed to adjust credits' });
-  }
-});
+  })
+);
 
 // Toggle admin status
-router.patch('/:userId/admin', async (req, res) => {
-  try {
+router.patch(
+  '/:userId/admin',
+  asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const adminUserId = req.auth.userId;
 
     // Can't demote yourself
     if (userId === adminUserId) {
-      return res.status(400).json({ error: 'Cannot change your own admin status' });
+      throw new ValidationError('Cannot change your own admin status');
     }
 
     // Get current user state to toggle
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     const toggleUserAdminUseCase = req.container.resolve('toggleUserAdminUseCase');
@@ -119,48 +114,40 @@ router.patch('/:userId/admin', async (req, res) => {
     }
 
     res.json({ success: true, isAdmin: result.user?.isAdmin });
-  } catch (error) {
-    console.error('Error toggling admin:', error);
-    res.status(500).json({ error: 'Failed to toggle admin status' });
-  }
-});
+  })
+);
 
 // Delete user permanently
-router.delete('/:userId', async (req, res) => {
-  try {
+router.delete(
+  '/:userId',
+  asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const adminUserId = req.auth.userId;
 
     // Can't delete yourself
     if (userId === adminUserId) {
-      return res.status(400).json({ error: 'Cannot delete your own account' });
+      throw new ValidationError('Cannot delete your own account');
     }
 
     // Check if user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // Delete from Clerk first
     try {
       const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
       await clerkClient.users.deleteUser(userId);
-      console.log(`[Admin] User ${userId} deleted from Clerk`);
-    } catch (clerkError) {
-      // Log but continue - user might already be deleted from Clerk
-      console.warn(`[Admin] Could not delete user ${userId} from Clerk:`, clerkError);
+    } catch {
+      // Continue even if Clerk deletion fails - user might already be deleted from Clerk
     }
 
     // Delete user from database (cascades to related records)
     await prisma.user.delete({ where: { id: userId } });
 
-    console.log(`[Admin] User ${userId} deleted by admin ${adminUserId}`);
     res.json({ success: true, message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ error: 'Failed to delete user' });
-  }
-});
+  })
+);
 
 export default router;

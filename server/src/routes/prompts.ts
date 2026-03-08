@@ -9,6 +9,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { NotFoundError } from '../shared/errors/ApplicationError.js';
 import { clearCache, seedPrompts } from '../services/promptService.js';
 import { DEFAULT_PROMPTS } from '../shared/constants/prompts.js';
 
@@ -73,8 +75,9 @@ const updatePromptSchema = z.object({
  *       403:
  *         $ref: '#/components/responses/ForbiddenError'
  */
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (_req, res) => {
     // Fetch all prompts from database
     const dbPrompts = await prisma.systemSetting.findMany({
       where: {
@@ -104,24 +107,22 @@ router.get('/', async (req, res) => {
     });
 
     res.json({ prompts: allPrompts });
-  } catch (error) {
-    console.error('[Admin Prompts] Error listing prompts:', error);
-    res.status(500).json({ error: 'Failed to list prompts' });
-  }
-});
+  })
+);
 
 /**
  * GET /api/admin/prompts/:key
  * Get single prompt by key
  */
-router.get('/:key', async (req, res) => {
-  try {
+router.get(
+  '/:key',
+  asyncHandler(async (req, res) => {
     const { key } = req.params;
 
     // Validate key exists in defaults
     const defaultPrompt = DEFAULT_PROMPTS.find(p => p.key === key);
     if (!defaultPrompt) {
-      return res.status(404).json({ error: 'Prompt not found' });
+      throw new NotFoundError('Prompt');
     }
 
     // Fetch from database
@@ -139,11 +140,8 @@ router.get('/:key', async (req, res) => {
       isCustom: !!dbPrompt,
       updatedAt: dbPrompt?.updatedAt?.toISOString() || null,
     });
-  } catch (error) {
-    console.error('[Admin Prompts] Error fetching prompt:', error);
-    res.status(500).json({ error: 'Failed to fetch prompt' });
-  }
-});
+  })
+);
 
 /**
  * @openapi
@@ -205,26 +203,19 @@ router.get('/:key', async (req, res) => {
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.put('/:key', async (req, res) => {
-  try {
+router.put(
+  '/:key',
+  asyncHandler(async (req, res) => {
     const { key } = req.params;
 
     // Validate key exists in defaults
     const defaultPrompt = DEFAULT_PROMPTS.find(p => p.key === key);
     if (!defaultPrompt) {
-      return res.status(404).json({ error: 'Prompt not found' });
+      throw new NotFoundError('Prompt');
     }
 
     // Validate body
-    const validation = updatePromptSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: validation.error.errors,
-      });
-    }
-
-    const { value } = validation.data;
+    const { value } = updatePromptSchema.parse(req.body);
 
     // Upsert to database
     const prompt = await prisma.systemSetting.upsert({
@@ -249,24 +240,22 @@ router.put('/:key', async (req, res) => {
         updatedAt: prompt.updatedAt.toISOString(),
       },
     });
-  } catch (error) {
-    console.error('[Admin Prompts] Error updating prompt:', error);
-    res.status(500).json({ error: 'Failed to update prompt' });
-  }
-});
+  })
+);
 
 /**
  * POST /api/admin/prompts/:key/reset
  * Reset prompt to default value
  */
-router.post('/:key/reset', async (req, res) => {
-  try {
+router.post(
+  '/:key/reset',
+  asyncHandler(async (req, res) => {
     const { key } = req.params;
 
     // Validate key exists in defaults
     const defaultPrompt = DEFAULT_PROMPTS.find(p => p.key === key);
     if (!defaultPrompt) {
-      return res.status(404).json({ error: 'Prompt not found' });
+      throw new NotFoundError('Prompt');
     }
 
     // Delete from database to fall back to default
@@ -285,18 +274,16 @@ router.post('/:key/reset', async (req, res) => {
         updatedAt: new Date().toISOString(),
       },
     });
-  } catch (error) {
-    console.error('[Admin Prompts] Error resetting prompt:', error);
-    res.status(500).json({ error: 'Failed to reset prompt' });
-  }
-});
+  })
+);
 
 /**
  * POST /api/admin/prompts/seed
  * Seed all default prompts to database
  */
-router.post('/seed', async (req, res) => {
-  try {
+router.post(
+  '/seed',
+  asyncHandler(async (_req, res) => {
     const result = await seedPrompts();
 
     res.json({
@@ -304,10 +291,7 @@ router.post('/seed', async (req, res) => {
       seeded: result.seeded,
       count: result.count,
     });
-  } catch (error) {
-    console.error('[Admin Prompts] Error seeding prompts:', error);
-    res.status(500).json({ error: 'Failed to seed prompts' });
-  }
-});
+  })
+);
 
 export default router;

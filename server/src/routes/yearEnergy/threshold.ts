@@ -5,6 +5,9 @@
  * - GET /status - Check threshold period status
  * - GET /cached - Get cached threshold reading
  * - POST / - Generate threshold reading
+ *
+ * NOTE: The POST / route keeps its try/catch because the catch block
+ * implements credit refund logic that must run when generation fails.
  */
 
 import {
@@ -19,6 +22,7 @@ import {
   creditService,
   YEAR_ENERGY_CREDIT_COST,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -30,8 +34,9 @@ const router = Router();
  * GET /api/v1/year-energy/threshold/status
  * Check if currently in threshold period and get relevant data
  */
-router.get('/status', async (req, res) => {
-  try {
+router.get(
+  '/status',
+  asyncHandler(async (req, res) => {
     const { isThreshold, transitionYear } = isThresholdPeriod();
 
     if (!isThreshold) {
@@ -72,11 +77,8 @@ router.get('/status', async (req, res) => {
           }
         : null,
     });
-  } catch (error) {
-    console.error('[YearEnergy] Error checking threshold status:', error);
-    res.status(500).json({ error: 'Failed to check threshold status' });
-  }
-});
+  })
+);
 
 // ============================================
 // CACHED THRESHOLD READING
@@ -86,8 +88,10 @@ router.get('/status', async (req, res) => {
  * GET /api/v1/year-energy/threshold/cached
  * Get cached threshold reading for current user
  */
-router.get('/cached', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/cached',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const { isThreshold, transitionYear } = isThresholdPeriod();
 
@@ -124,11 +128,8 @@ router.get('/cached', requireAuth, async (req, res) => {
         createdAt: cached.createdAt,
       },
     });
-  } catch (error) {
-    console.error('[YearEnergy] Error fetching cached threshold reading:', error);
-    res.status(500).json({ error: 'Failed to fetch cached threshold reading' });
-  }
-});
+  })
+);
 
 // ============================================
 // GENERATE THRESHOLD READING
@@ -193,7 +194,6 @@ router.post('/', requireAuth, async (req, res) => {
     });
 
     if (!deductResult.success) {
-      console.error('[YearEnergy] Credit deduction failed:', deductResult.error);
       return res.status(400).json({ error: 'Failed to process credits' });
     }
 
@@ -244,31 +244,31 @@ Write a 600-800 word threshold reading that:
 4. Offers practical wisdom for the liminal period
 
 Write in second person ("you"), with warmth and mystical depth. No headers, flowing prose only.`
-        : `Vous êtes un Guide Tarot chaleureux et perspicace qui rédige une lecture spéciale du Seuil de Fin d'Année.
+        : `Vous etes un Guide Tarot chaleureux et perspicace qui redige une lecture speciale du Seuil de Fin d'Annee.
 
-Cette personne se trouve dans l'espace sacré et liminal entre ${outgoingYear} et ${incomingYear}, où les énergies des deux années se chevauchent et se mêlent.
+Cette personne se trouve dans l'espace sacre et liminal entre ${outgoingYear} et ${incomingYear}, ou les energies des deux annees se chevauchent et se melent.
 
-## Année sortante: ${outgoingYear}
-Année Universelle ${outgoingEnergy.yearNumber}: ${outgoingCard?.nameFr} (élément ${outgoingCard?.elementFr})
+## Annee sortante: ${outgoingYear}
+Annee Universelle ${outgoingEnergy.yearNumber}: ${outgoingCard?.nameFr} (element ${outgoingCard?.elementFr})
 Position dans le Cycle: ${outgoingEnergy.cyclePosition} sur 9
 
-## Année entrante: ${incomingYear}
-Année Universelle ${incomingEnergy.yearNumber}: ${incomingCard?.nameFr} (élément ${incomingCard?.elementFr})
+## Annee entrante: ${incomingYear}
+Annee Universelle ${incomingEnergy.yearNumber}: ${incomingCard?.nameFr} (element ${incomingCard?.elementFr})
 Position dans le Cycle: ${incomingEnergy.cyclePosition} sur 9
 
 ## Cartes de Naissance de Cette Personne
-Carte de Personnalité: ${personalityCard.cardNameFr} (${personalityCard.elementFr})
-Carte de l'Âme: ${soulCard.cardNameFr} (${soulCard.elementFr})
+Carte de Personnalite: ${personalityCard.cardNameFr} (${personalityCard.elementFr})
+Carte de l'Ame: ${soulCard.cardNameFr} (${soulCard.elementFr})
 
 ---
 
-Rédigez une lecture de seuil de 600-800 mots qui:
-1. Honore ce que ${outgoingYear} a apporté et ce qui doit être libéré
-2. Accueille les nouvelles énergies de ${incomingYear}
+Redigez une lecture de seuil de 600-800 mots qui:
+1. Honore ce que ${outgoingYear} a apporte et ce qui doit etre libere
+2. Accueille les nouvelles energies de ${incomingYear}
 3. Montre comment leurs cartes de naissance naviguent cette transition
-4. Offre une sagesse pratique pour la période liminale
+4. Offre une sagesse pratique pour la periode liminale
 
-Écrivez à la deuxième personne ("vous"), avec chaleur et profondeur mystique. Pas de titres, prose fluide uniquement.`;
+Ecrivez a la deuxieme personne ("vous"), avec chaleur et profondeur mystique. Pas de titres, prose fluide uniquement.`;
 
     debug.log('[YearEnergy] Generating threshold reading for user:', userId);
 
@@ -308,8 +308,6 @@ Rédigez une lecture de seuil de 600-800 mots qui:
       creditsUsed: YEAR_ENERGY_CREDIT_COST,
     });
   } catch (error) {
-    console.error('[YearEnergy] Error generating threshold reading:', error);
-
     // Refund credits if we deducted them but generation failed
     if (transactionId) {
       try {

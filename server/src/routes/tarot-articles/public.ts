@@ -10,6 +10,8 @@
 
 import { Router } from 'express';
 import { Prisma } from '../../generated/prisma/client.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import {
   prisma,
   cacheService,
@@ -27,8 +29,9 @@ const router = Router();
  * GET /api/tarot-articles/overview
  * Get overview of all published tarot articles grouped by card type
  */
-router.get('/overview', async (req, res) => {
-  try {
+router.get(
+  '/overview',
+  asyncHandler(async (_req, res) => {
     // Check cache first
     const cached = await cacheService.get<unknown>('tarot:overview');
     if (cached) {
@@ -111,18 +114,16 @@ router.get('/overview', async (req, res) => {
     await cacheService.set('tarot:overview', result, CacheService.TTL.ARTICLES);
 
     res.json(result);
-  } catch (error) {
-    console.error('Error fetching tarot overview:', error);
-    res.status(500).json({ error: 'Failed to fetch tarot overview' });
-  }
-});
+  })
+);
 
 /**
  * GET /api/tarot-articles/:slug
  * Fetch a single published tarot article by slug
  */
-router.get('/:slug', async (req, res) => {
-  try {
+router.get(
+  '/:slug',
+  asyncHandler(async (req, res) => {
     const { slug } = req.params;
     const cacheKey = `tarot:article:${slug}`;
 
@@ -143,7 +144,7 @@ router.get('/:slug', async (req, res) => {
     });
 
     if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
+      throw new NotFoundError('Article');
     }
 
     const response = transformArticleResponse(article);
@@ -152,11 +153,8 @@ router.get('/:slug', async (req, res) => {
     await cacheService.set(cacheKey, response, CacheService.TTL.ARTICLE);
 
     res.json(response);
-  } catch (error) {
-    console.error('Error fetching tarot article:', error);
-    res.status(500).json({ error: 'Failed to fetch article' });
-  }
-});
+  })
+);
 
 /**
  * GET /api/tarot-articles
@@ -179,8 +177,9 @@ const listArticlesSchema = z.object({
   sortBy: z.enum(['datePublished', 'cardNumber']).optional(),
 });
 
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const params = listArticlesSchema.parse(req.query);
     const { page, limit, cardType, status } = params;
 
@@ -229,13 +228,7 @@ router.get('/', async (req, res) => {
     await cacheService.set(cacheKey, response, CacheService.TTL.ARTICLES);
 
     res.json(response);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid query parameters', details: error.errors });
-    }
-    console.error('Error listing tarot articles:', error);
-    res.status(500).json({ error: 'Failed to list articles' });
-  }
-});
+  })
+);
 
 export default router;

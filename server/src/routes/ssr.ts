@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../db/prisma.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { NotFoundError } from '../shared/errors/ApplicationError.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -27,8 +29,9 @@ function escapeHtml(text: string): string {
  * Server-Side Rendering for Tarot Article Pages
  * Serves HTML with JSON-LD schema pre-injected for SEO
  */
-router.get('/tarot/articles/:slug', async (req: Request, res: Response) => {
-  try {
+router.get(
+  '/tarot/articles/:slug',
+  asyncHandler(async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     // Fetch the article with schema (now from BlogPost table)
@@ -41,8 +44,7 @@ router.get('/tarot/articles/:slug', async (req: Request, res: Response) => {
     });
 
     if (!article) {
-      // Return 404 - let the SPA handle it
-      return res.status(404).send('Article not found');
+      throw new NotFoundError('Article');
     }
 
     // Read the index.html template
@@ -63,7 +65,6 @@ router.get('/tarot/articles/:slug', async (req: Request, res: Response) => {
     }
 
     if (!htmlTemplate) {
-      console.error('Could not find index.html in any of the expected locations');
       return res.status(500).send('Template not found');
     }
 
@@ -111,10 +112,7 @@ ${JSON.stringify(article.schemaJson, null, 2)}
     // Serve the modified HTML
     res.setHeader('Content-Type', 'text/html');
     res.send(modifiedHtml);
-  } catch (error) {
-    console.error('Error rendering article page:', error);
-    res.status(500).send('Internal server error');
-  }
-});
+  })
+);
 
 export default router;

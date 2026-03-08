@@ -24,6 +24,15 @@ describe('Contact Routes', () => {
     app = express();
     app.use(express.json());
     app.use('/', contactRouter);
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
   });
 
   const validBody = {
@@ -48,7 +57,7 @@ describe('Contact Routes', () => {
         .post('/submit')
         .send({ ...validBody, email: 'not-an-email' });
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch(/email/i);
+      expect(res.body.error).toBe('Validation failed');
     });
 
     it('should return 400 when subject is missing', async () => {
@@ -63,7 +72,7 @@ describe('Contact Routes', () => {
         .post('/submit')
         .send({ ...validBody, message: 'Short' });
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch(/10 characters/i);
+      expect(res.body.error).toBe('Validation failed');
     });
 
     it('should return 400 when message is too long', async () => {

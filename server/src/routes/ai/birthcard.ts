@@ -19,6 +19,7 @@ import {
   yearEnergySchema,
   birthCardSynthesisSchema,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -30,18 +31,12 @@ const router = Router();
  * POST /api/v1/ai/birthcard/year-energy
  * Generate a personalized year energy reading based on birth cards
  */
-router.post('/year-energy', requireAuth, async (req, res) => {
-  try {
-    const validation = yearEnergySchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
+router.post(
+  '/year-energy',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const { year, yearEnergy, personalityCard, soulCard, isUnifiedBirthCard, language } =
-      validation.data;
+      yearEnergySchema.parse(req.body);
 
     const userId = req.auth.userId;
     const creditCost = 3; // Year energy reading costs 3 credits
@@ -110,7 +105,7 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
     const elapsed = Date.now() - startTime;
 
     debug.log(
-      '[Year Energy] ✅ Generated interpretation:',
+      '[Year Energy] Generated interpretation:',
       interpretation.length,
       'chars in',
       elapsed,
@@ -129,13 +124,8 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
       interpretation,
       creditsUsed: creditCost,
     });
-  } catch (error) {
-    console.error('[Year Energy] Error:', error);
-    const message =
-      error instanceof Error ? error.message : 'Failed to generate year energy reading';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 // ============================================
 // BIRTH CARD SYNTHESIS - GET CACHED
@@ -146,8 +136,10 @@ ${soulCard.description || 'Soul card description not yet available.'}`;
  * Get cached birth card synthesis for the current user
  * Returns null if no cached synthesis exists
  */
-router.get('/synthesis', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/synthesis',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const language = (req.query.language as string) || 'en';
 
@@ -198,11 +190,8 @@ router.get('/synthesis', requireAuth, async (req, res) => {
         createdAt: cached.createdAt,
       },
     });
-  } catch (error) {
-    console.error('[Birth Card Synthesis Cache] Error:', error);
-    res.status(500).json({ error: 'Failed to fetch cached synthesis' });
-  }
-});
+  })
+);
 
 // ============================================
 // BIRTH CARD SYNTHESIS - GENERATE
@@ -214,17 +203,12 @@ router.get('/synthesis', requireAuth, async (req, res) => {
  * Weaves together zodiac sign, elemental energies, spiritual and psychological insights
  * Also caches the result for future requests
  */
-router.post('/synthesis', requireAuth, async (req, res) => {
-  try {
-    const validation = birthCardSynthesisSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
-    const { birthDate, personalityCard, soulCard, zodiac, isUnified, language } = validation.data;
+router.post(
+  '/synthesis',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { birthDate, personalityCard, soulCard, zodiac, isUnified, language } =
+      birthCardSynthesisSchema.parse(req.body);
 
     const userId = req.auth.userId;
     const creditCost = 2; // Birth card synthesis costs 2 credits
@@ -255,22 +239,22 @@ router.post('/synthesis', requireAuth, async (req, res) => {
 Keywords: ${personalityCard.keywords.join(', ')}
 
 ${personalityCard.description}`
-        : `**${personalityCard.cardNameFr}** (Élément: ${personalityCard.elementFr}, Planète: ${personalityCard.planetFr})
-Mots-clés: ${personalityCard.keywords.join(', ')}
+        : `**${personalityCard.cardNameFr}** (Element: ${personalityCard.elementFr}, Planete: ${personalityCard.planetFr})
+Mots-cles: ${personalityCard.keywords.join(', ')}
 
 ${personalityCard.description}`;
 
     const soulSection = isUnified
       ? language === 'en'
         ? `This person has UNIFIED energy: their Personality and Soul are both ${soulCard.cardName}. This means their outer expression and inner essence are the same energy, creating a concentrated, powerful presence.`
-        : `Cette personne a une énergie UNIFIÉE: sa Personnalité et son Âme sont toutes les deux ${soulCard.cardNameFr}. Cela signifie que leur expression extérieure et leur essence intérieure sont la même énergie, créant une présence concentrée et puissante.`
+        : `Cette personne a une energie UNIFIEE: sa Personnalite et son Ame sont toutes les deux ${soulCard.cardNameFr}. Cela signifie que leur expression exterieure et leur essence interieure sont la meme energie, creant une presence concentree et puissante.`
       : language === 'en'
         ? `**${soulCard.cardName}** (Element: ${soulCard.element}, Planet: ${soulCard.planet})
 Keywords: ${soulCard.keywords.join(', ')}
 
 ${soulCard.description}`
-        : `**${soulCard.cardNameFr}** (Élément: ${soulCard.elementFr}, Planète: ${soulCard.planetFr})
-Mots-clés: ${soulCard.keywords.join(', ')}
+        : `**${soulCard.cardNameFr}** (Element: ${soulCard.elementFr}, Planete: ${soulCard.planetFr})
+Mots-cles: ${soulCard.keywords.join(', ')}
 
 ${soulCard.description}`;
 
@@ -280,10 +264,10 @@ ${soulCard.description}`;
 Ruling Planet: ${zodiac.rulingPlanet}
 
 As a ${zodiac.name}, this person carries ${zodiac.element} energy with a ${zodiac.quality} approach to life. Their ruling planet ${zodiac.rulingPlanet} colours how they express their birth cards.`
-        : `**${zodiac.nameFr}** - Signe de ${zodiac.elementFr}, Qualité ${zodiac.qualityFr}
-Planète dominante: ${zodiac.rulingPlanetFr}
+        : `**${zodiac.nameFr}** - Signe de ${zodiac.elementFr}, Qualite ${zodiac.qualityFr}
+Planete dominante: ${zodiac.rulingPlanetFr}
 
-En tant que ${zodiac.nameFr}, cette personne porte l'énergie ${zodiac.elementFr} avec une approche ${zodiac.qualityFr} de la vie. Sa planète dominante ${zodiac.rulingPlanetFr} colore la façon dont elle exprime ses cartes de naissance.`;
+En tant que ${zodiac.nameFr}, cette personne porte l'energie ${zodiac.elementFr} avec une approche ${zodiac.qualityFr} de la vie. Sa planete dominante ${zodiac.rulingPlanetFr} colore la facon dont elle exprime ses cartes de naissance.`;
 
     // Build elemental analysis
     const elements = [personalityCard.element, soulCard.element, zodiac.element];
@@ -324,22 +308,22 @@ En tant que ${zodiac.nameFr}, cette personne porte l'énergie ${zodiac.elementFr
               : dominantElement[0] === 'Air'
                 ? 'Air'
                 : 'Terre';
-        elementalAnalysis = `Cette personne a une forte signature ${elFr}, avec ${dominantElement[1]} énergies clés sur 3 étant ${elFr}. `;
+        elementalAnalysis = `Cette personne a une forte signature ${elFr}, avec ${dominantElement[1]} energies cles sur 3 etant ${elFr}. `;
         if (dominantElement[0] === 'Fire') {
           elementalAnalysis +=
-            "Cela crée une énergie passionnée et orientée vers l'action avec une forte motivation et enthousiasme.";
+            "Cela cree une energie passionnee et orientee vers l'action avec une forte motivation et enthousiasme.";
         } else if (dominantElement[0] === 'Water') {
           elementalAnalysis +=
-            'Cela crée une énergie profondément intuitive et émotionnellement accordée avec une forte empathie et sensibilité.';
+            'Cela cree une energie profondement intuitive et emotionnellement accordee avec une forte empathie et sensibilite.';
         } else if (dominantElement[0] === 'Air') {
           elementalAnalysis +=
-            'Cela crée une énergie mentalement agile et communicative avec de forts dons intellectuels et sociaux.';
+            'Cela cree une energie mentalement agile et communicative avec de forts dons intellectuels et sociaux.';
         } else if (dominantElement[0] === 'Earth') {
           elementalAnalysis +=
-            'Cela crée une énergie ancrée et pratique avec de fortes capacités de construction et de manifestation.';
+            'Cela cree une energie ancree et pratique avec de fortes capacites de construction et de manifestation.';
         }
       } else {
-        elementalAnalysis = `Cette personne a un mélange élémentaire équilibré: ${personalityCard.elementFr} (Personnalité), ${soulCard.elementFr} (Âme), et ${zodiac.elementFr} (Zodiaque). Cette diversité crée de la polyvalence et la capacité de s'adapter à différentes situations.`;
+        elementalAnalysis = `Cette personne a un melange elementaire equilibre: ${personalityCard.elementFr} (Personnalite), ${soulCard.elementFr} (Ame), et ${zodiac.elementFr} (Zodiaque). Cette diversite cree de la polyvalence et la capacite de s'adapter a differentes situations.`;
       }
     }
 
@@ -367,7 +351,7 @@ ${elementalAnalysis}`;
     const elapsed = Date.now() - startTime;
 
     debug.log(
-      '[Birth Card Synthesis] ✅ Generated interpretation:',
+      '[Birth Card Synthesis] Generated interpretation:',
       interpretation.length,
       'chars in',
       elapsed,
@@ -411,7 +395,7 @@ ${elementalAnalysis}`;
             : { synthesisFr: interpretation }),
         },
       });
-      debug.log('[Birth Card Synthesis] ✅ Cached synthesis for user:', userId);
+      debug.log('[Birth Card Synthesis] Cached synthesis for user:', userId);
     } catch (cacheError) {
       // Don't fail the request if caching fails, just log it
       console.error('[Birth Card Synthesis] Failed to cache synthesis:', cacheError);
@@ -431,12 +415,7 @@ ${elementalAnalysis}`;
       interpretation,
       creditsUsed: creditCost,
     });
-  } catch (error) {
-    console.error('[Birth Card Synthesis] Error:', error);
-    const message =
-      error instanceof Error ? error.message : 'Failed to generate birth card synthesis';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 export default router;

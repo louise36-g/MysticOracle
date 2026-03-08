@@ -3,6 +3,7 @@
  */
 
 import { Router, z, Prisma, prisma } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -10,8 +11,9 @@ const router = Router();
 // TRANSACTIONS
 // ============================================
 
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const params = z
       .object({
         page: z.coerce.number().min(1).default(1),
@@ -57,18 +59,16 @@ router.get('/', async (req, res) => {
         totalPages: Math.ceil(total / params.limit),
       },
     });
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    res.status(500).json({ error: 'Failed to fetch transactions' });
-  }
-});
+  })
+);
 
 // ============================================
 // REVENUE
 // ============================================
 
-router.get('/revenue', async (req, res) => {
-  try {
+router.get(
+  '/revenue',
+  asyncHandler(async (_req, res) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -104,18 +104,16 @@ router.get('/revenue', async (req, res) => {
       },
       byProvider,
     });
-  } catch (error) {
-    console.error('Error fetching revenue:', error);
-    res.status(500).json({ error: 'Failed to fetch revenue' });
-  }
-});
+  })
+);
 
 // ============================================
 // REVENUE EXPORT
 // ============================================
 
-router.get('/revenue/export', async (req, res) => {
-  try {
+router.get(
+  '/revenue/export',
+  asyncHandler(async (req, res) => {
     const params = z
       .object({
         year: z.coerce.number().min(2020).max(2100),
@@ -129,22 +127,17 @@ router.get('/revenue/export', async (req, res) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="${data.filename}"`);
     res.send(data.csv);
-  } catch (error) {
-    console.error('Error exporting revenue:', error);
-    res.status(500).json({ error: 'Failed to export revenue' });
-  }
-});
+  })
+);
 
 // Get available months for export
-router.get('/revenue/months', async (req, res) => {
-  try {
+router.get(
+  '/revenue/months',
+  asyncHandler(async (req, res) => {
     const revenueExportService = req.container.resolve('revenueExportService');
     const months = await revenueExportService.getAvailableMonths();
     res.json({ months });
-  } catch (error) {
-    console.error('Error fetching revenue months:', error);
-    res.status(500).json({ error: 'Failed to fetch months' });
-  }
-});
+  })
+);
 
 export default router;

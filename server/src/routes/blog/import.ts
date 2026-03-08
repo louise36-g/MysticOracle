@@ -4,12 +4,14 @@
 
 import { Router } from 'express';
 import { prisma, importArticleSchema, DEFAULT_BLOG_CTA } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
 // Import one or more articles from JSON
-router.post('/import', async (req, res) => {
-  try {
+router.post(
+  '/import',
+  asyncHandler(async (req, res) => {
     const { articles, options } = req.body;
 
     // Allow single article or array
@@ -181,18 +183,13 @@ router.post('/import', async (req, res) => {
       success: true,
       results,
     });
-  } catch (error) {
-    console.error(
-      'Error importing articles:',
-      error instanceof Error ? error.message : String(error)
-    );
-    res.status(500).json({ error: 'Failed to import articles' });
-  }
-});
+  })
+);
 
 // Seed default data
-router.post('/seed', async (req, res) => {
-  try {
+router.post(
+  '/seed',
+  asyncHandler(async (_req, res) => {
     // Create default categories
     const categories = await Promise.all([
       prisma.blogCategory.upsert({
@@ -298,13 +295,7 @@ router.post('/seed', async (req, res) => {
       categories: categories.length,
       tags: tags.length,
     });
-  } catch (error) {
-    console.error(
-      'Error seeding blog data:',
-      error instanceof Error ? error.message : String(error)
-    );
-    res.status(500).json({ error: 'Failed to seed blog data' });
-  }
-});
+  })
+);
 
 export default router;

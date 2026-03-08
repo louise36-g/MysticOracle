@@ -5,6 +5,8 @@
 import { Router, z, prisma, creditService } from './shared.js';
 import { SpreadType, InterpretationStyle } from '../../generated/prisma/client.js';
 import { logError } from './maintenance.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -94,14 +96,15 @@ router.get('/info', (req, res) => {
 
 // POST /api/admin/debug/credit-deduction
 // Test credit deduction scenario
-router.post('/credit-deduction', async (req, res) => {
-  try {
+router.post(
+  '/credit-deduction',
+  asyncHandler(async (req, res) => {
     const { userId, amount, simulateFailure } = debugDeductSchema.parse(req.body);
 
     // Check user exists first
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // If simulating failure, return a mock failure response
@@ -114,7 +117,7 @@ router.post('/credit-deduction', async (req, res) => {
         userId,
       });
 
-      return res.json({
+      res.json({
         success: false,
         simulated: true,
         error: 'Simulated credit deduction failure',
@@ -123,6 +126,7 @@ router.post('/credit-deduction', async (req, res) => {
         afterBalance: user.credits,
         message: 'This was a simulated failure - no credits were deducted',
       });
+      return;
     }
 
     // Perform real deduction
@@ -149,22 +153,20 @@ router.post('/credit-deduction', async (req, res) => {
       transactionId: result.transactionId,
       error: result.error,
     });
-  } catch (error) {
-    console.error('[Debug] Credit deduction error:', error);
-    res.status(500).json({ error: 'Debug credit deduction failed' });
-  }
-});
+  })
+);
 
 // POST /api/admin/debug/credit-refund
 // Test credit refund scenario
-router.post('/credit-refund', async (req, res) => {
-  try {
+router.post(
+  '/credit-refund',
+  asyncHandler(async (req, res) => {
     const { userId, amount, reason, originalTransactionId } = debugRefundSchema.parse(req.body);
 
     // Check user exists first
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // Perform refund
@@ -190,23 +192,21 @@ router.post('/credit-refund', async (req, res) => {
       transactionId: result.transactionId,
       error: result.error,
     });
-  } catch (error) {
-    console.error('[Debug] Credit refund error:', error);
-    res.status(500).json({ error: 'Debug credit refund failed' });
-  }
-});
+  })
+);
 
 // POST /api/admin/debug/reading-creation
 // Test reading creation with deduct-first pattern
-router.post('/reading-creation', async (req, res) => {
-  try {
+router.post(
+  '/reading-creation',
+  asyncHandler(async (req, res) => {
     const { userId, spreadType, simulateReadingFailure, simulateAIFailure } =
       debugReadingSchema.parse(req.body);
 
     // Check user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     const initialBalance = user.credits;
@@ -224,7 +224,7 @@ router.post('/reading-creation', async (req, res) => {
         userId,
       });
 
-      return res.json({
+      res.json({
         success: false,
         simulated: true,
         errorType: 'AI_FAILURE',
@@ -237,12 +237,13 @@ router.post('/reading-creation', async (req, res) => {
         refunded: false,
         message: 'AI failures happen before credit deduction - no credits were affected',
       });
+      return;
     }
 
     // Check sufficient credits
     const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
     if (!balanceCheck.sufficient) {
-      return res.json({
+      res.json({
         success: false,
         error: `Insufficient credits: have ${balanceCheck.balance}, need ${creditCost}`,
         errorCode: 'INSUFFICIENT_CREDITS',
@@ -250,6 +251,7 @@ router.post('/reading-creation', async (req, res) => {
         initialBalance,
         finalBalance: initialBalance,
       });
+      return;
     }
 
     // Step 1: Deduct credits FIRST
@@ -261,7 +263,7 @@ router.post('/reading-creation', async (req, res) => {
     });
 
     if (!deductResult.success) {
-      return res.json({
+      res.json({
         success: false,
         error: deductResult.error,
         errorCode: 'CREDIT_DEDUCTION_FAILED',
@@ -269,6 +271,7 @@ router.post('/reading-creation', async (req, res) => {
         initialBalance,
         finalBalance: initialBalance,
       });
+      return;
     }
 
     // Step 2: Simulate reading creation
@@ -295,7 +298,7 @@ router.post('/reading-creation', async (req, res) => {
         userId,
       });
 
-      return res.json({
+      res.json({
         success: false,
         simulated: true,
         errorType: 'READING_CREATION_FAILURE',
@@ -311,6 +314,7 @@ router.post('/reading-creation', async (req, res) => {
         refundTransactionId: refundResult.transactionId,
         message: 'Deduct-first pattern working: credits were deducted, then refunded on failure',
       });
+      return;
     }
 
     // Step 3: Create actual test reading
@@ -344,22 +348,20 @@ router.post('/reading-creation', async (req, res) => {
       transactionId: deductResult.transactionId,
       message: 'Reading created successfully with proper credit deduction',
     });
-  } catch (error) {
-    console.error('[Debug] Reading creation error:', error);
-    res.status(500).json({ error: 'Debug reading creation failed' });
-  }
-});
+  })
+);
 
 // POST /api/admin/debug/follow-up-creation
 // Test follow-up creation with deduct-first pattern
-router.post('/follow-up-creation', async (req, res) => {
-  try {
+router.post(
+  '/follow-up-creation',
+  asyncHandler(async (req, res) => {
     const { userId, readingId, simulateFailure } = debugFollowUpSchema.parse(req.body);
 
     // Check user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // Check reading exists and belongs to user
@@ -367,7 +369,7 @@ router.post('/follow-up-creation', async (req, res) => {
       where: { id: readingId, userId },
     });
     if (!reading) {
-      return res.status(404).json({ error: 'Reading not found or does not belong to user' });
+      throw new NotFoundError('Reading', readingId);
     }
 
     const initialBalance = user.credits;
@@ -376,7 +378,7 @@ router.post('/follow-up-creation', async (req, res) => {
     // Check sufficient credits
     const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
     if (!balanceCheck.sufficient) {
-      return res.json({
+      res.json({
         success: false,
         error: `Insufficient credits: have ${balanceCheck.balance}, need ${creditCost}`,
         errorCode: 'INSUFFICIENT_CREDITS',
@@ -384,6 +386,7 @@ router.post('/follow-up-creation', async (req, res) => {
         initialBalance,
         finalBalance: initialBalance,
       });
+      return;
     }
 
     // Step 1: Deduct credits FIRST
@@ -395,7 +398,7 @@ router.post('/follow-up-creation', async (req, res) => {
     });
 
     if (!deductResult.success) {
-      return res.json({
+      res.json({
         success: false,
         error: deductResult.error,
         errorCode: 'CREDIT_DEDUCTION_FAILED',
@@ -403,6 +406,7 @@ router.post('/follow-up-creation', async (req, res) => {
         initialBalance,
         finalBalance: initialBalance,
       });
+      return;
     }
 
     // Step 2: Simulate follow-up creation
@@ -428,7 +432,7 @@ router.post('/follow-up-creation', async (req, res) => {
         userId,
       });
 
-      return res.json({
+      res.json({
         success: false,
         simulated: true,
         error: 'Simulated follow-up creation failure - credits refunded',
@@ -443,6 +447,7 @@ router.post('/follow-up-creation', async (req, res) => {
         refundTransactionId: refundResult.transactionId,
         message: 'Deduct-first pattern working: credits were deducted, then refunded on failure',
       });
+      return;
     }
 
     // Step 3: Create actual test follow-up
@@ -474,16 +479,14 @@ router.post('/follow-up-creation', async (req, res) => {
       transactionId: deductResult.transactionId,
       message: 'Follow-up created successfully with proper credit deduction',
     });
-  } catch (error) {
-    console.error('[Debug] Follow-up creation error:', error);
-    res.status(500).json({ error: 'Debug follow-up creation failed' });
-  }
-});
+  })
+);
 
 // GET /api/admin/debug/user-credit-history/:userId
 // Get recent credit transactions for debugging
-router.get('/user-credit-history/:userId', async (req, res) => {
-  try {
+router.get(
+  '/user-credit-history/:userId',
+  asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
@@ -501,7 +504,7 @@ router.get('/user-credit-history/:userId', async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new NotFoundError('User', userId);
     }
 
     // Get recent transactions
@@ -529,10 +532,7 @@ router.get('/user-credit-history/:userId', async (req, res) => {
         recentTransactionCount: transactions.length,
       },
     });
-  } catch (error) {
-    console.error('[Debug] User credit history error:', error);
-    res.status(500).json({ error: 'Failed to fetch user credit history' });
-  }
-});
+  })
+);
 
 export default router;

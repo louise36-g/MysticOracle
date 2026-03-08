@@ -3,6 +3,7 @@
  */
 
 import { Router, createPackageSchema, updatePackageSchema } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -11,20 +12,19 @@ const router = Router();
 // ============================================
 
 // List all packages
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const listPackagesUseCase = req.container.resolve('listPackagesUseCase');
     const result = await listPackagesUseCase.execute();
     res.json(result);
-  } catch (error) {
-    console.error('Error fetching packages:', error);
-    res.status(500).json({ error: 'Failed to fetch packages' });
-  }
-});
+  })
+);
 
 // Create package
-router.post('/', async (req, res) => {
-  try {
+router.post(
+  '/',
+  asyncHandler(async (req, res) => {
     const data = createPackageSchema.parse(req.body);
     const createPackageUseCase = req.container.resolve('createPackageUseCase');
     const result = await createPackageUseCase.execute({
@@ -45,15 +45,13 @@ router.post('/', async (req, res) => {
     }
 
     res.json({ success: true, package: result.package });
-  } catch (error) {
-    console.error('Error creating package:', error);
-    res.status(500).json({ error: 'Failed to create package' });
-  }
-});
+  })
+);
 
 // Update package
-router.patch('/:id', async (req, res) => {
-  try {
+router.patch(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const data = updatePackageSchema.parse(req.body);
     const updatePackageUseCase = req.container.resolve('updatePackageUseCase');
@@ -64,15 +62,13 @@ router.patch('/:id', async (req, res) => {
     }
 
     res.json({ success: true, package: result.package });
-  } catch (error) {
-    console.error('Error updating package:', error);
-    res.status(500).json({ error: 'Failed to update package' });
-  }
-});
+  })
+);
 
 // Delete package
-router.delete('/:id', async (req, res) => {
-  try {
+router.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const deletePackageUseCase = req.container.resolve('deletePackageUseCase');
     const result = await deletePackageUseCase.execute({ id });
@@ -82,18 +78,16 @@ router.delete('/:id', async (req, res) => {
     }
 
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting package:', error);
-    res.status(500).json({ error: 'Failed to delete package' });
-  }
-});
+  })
+);
 
 // ============================================
 // SEED PACKAGES
 // ============================================
 
-router.post('/seed', async (req, res) => {
-  try {
+router.post(
+  '/seed',
+  asyncHandler(async (req, res) => {
     const seedPackagesUseCase = req.container.resolve('seedPackagesUseCase');
     const result = await seedPackagesUseCase.execute();
 
@@ -102,10 +96,7 @@ router.post('/seed', async (req, res) => {
     }
 
     res.json({ success: true, packages: result.packages, count: result.count });
-  } catch (error) {
-    console.error('Error seeding packages:', error);
-    res.status(500).json({ error: 'Failed to seed packages' });
-  }
-});
+  })
+);
 
 export default router;

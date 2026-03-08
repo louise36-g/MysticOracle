@@ -17,6 +17,8 @@ import {
   getHoroscopeSchema,
   normalizeSign,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { ValidationError } from '../../shared/errors/ApplicationError.js';
 import { generateHoroscope } from './generate.js';
 
 const router = Router();
@@ -28,6 +30,9 @@ const router = Router();
 /**
  * GET /api/horoscopes/:sign
  * Get daily horoscope (cached)
+ *
+ * NOTE: This route keeps its try/catch because the catch block implements
+ * a fallback to yesterday's horoscope - this is business logic, not error handling.
  */
 router.get('/:sign', optionalAuth, async (req, res) => {
   try {
@@ -128,8 +133,6 @@ router.get('/:sign', optionalAuth, async (req, res) => {
       generatedAt: createdAt,
     });
   } catch (error) {
-    console.error('Horoscope error:', error);
-
     // Try to find yesterday's horoscope as a fallback
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -156,7 +159,7 @@ router.get('/:sign', optionalAuth, async (req, res) => {
         };
       }
     } catch {
-      // Fallback lookup failed — continue without it
+      // Fallback lookup failed -- continue without it
     }
 
     // Check if this is a planetary calculation failure
@@ -183,14 +186,16 @@ router.get('/:sign', optionalAuth, async (req, res) => {
  * POST /api/horoscopes/:sign/followup
  * Ask follow-up question about horoscope
  */
-router.post('/:sign/followup', optionalAuth, async (req, res) => {
-  try {
+router.post(
+  '/:sign/followup',
+  optionalAuth,
+  asyncHandler(async (req, res) => {
     const { sign } = req.params;
     const { question, horoscope, history } = req.body;
     const language = (req.query.language as 'en' | 'fr') || 'en';
 
     if (!question || !horoscope) {
-      return res.status(400).json({ error: 'Question and horoscope required' });
+      throw new ValidationError('Question and horoscope required');
     }
 
     const normalizedSign = normalizeSign(sign);
@@ -273,10 +278,7 @@ router.post('/:sign/followup', optionalAuth, async (req, res) => {
     }
 
     res.json({ answer, cached: false });
-  } catch (error) {
-    console.error('Follow-up error:', error);
-    res.status(500).json({ error: 'Failed to answer question' });
-  }
-});
+  })
+);
 
 export default router;

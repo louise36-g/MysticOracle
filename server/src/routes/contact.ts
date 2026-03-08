@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { sendContactFormEmail } from '../services/email.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { ApplicationError } from '../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -13,8 +15,9 @@ const contactSchema = z.object({
   language: z.enum(['en', 'fr']).optional(),
 });
 
-router.post('/submit', async (req, res) => {
-  try {
+router.post(
+  '/submit',
+  asyncHandler(async (req, res) => {
     const data = contactSchema.parse(req.body);
 
     const sent = await sendContactFormEmail(
@@ -27,19 +30,15 @@ router.post('/submit', async (req, res) => {
     );
 
     if (!sent) {
-      return res.status(500).json({ error: 'Failed to send message. Please try again.' });
+      throw new ApplicationError(
+        'Failed to send message. Please try again.',
+        'EMAIL_SEND_FAILED',
+        500
+      );
     }
 
-    return res.json({ success: true });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        error: error.errors[0]?.message || 'Invalid input',
-      });
-    }
-    console.error('Contact form error:', error);
-    return res.status(500).json({ error: 'Failed to send message' });
-  }
-});
+    res.json({ success: true });
+  })
+);
 
 export default router;

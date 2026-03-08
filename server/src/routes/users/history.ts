@@ -17,6 +17,8 @@ import {
   paginationQuerySchema,
   debug,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { TransactionType, PaymentStatus } from '../../generated/prisma/client.js';
 
 const router = Router();
@@ -98,155 +100,150 @@ router.get(
   '/me/readings/all',
   requireAuth,
   validateQuery(paginationQuerySchema),
-  async (req, res) => {
-    try {
-      const userId = req.auth.userId;
-      const typeFilter = req.query.type as string | undefined;
-      const _language = (req.query.language as string) || 'en'; // Reserved for future localization
+  asyncHandler(async (req, res) => {
+    const userId = req.auth.userId;
+    const typeFilter = req.query.type as string | undefined;
+    const _language = (req.query.language as string) || 'en'; // Reserved for future localization
 
-      debug.log('[User API] Fetching unified readings for userId:', userId, 'type:', typeFilter);
+    debug.log('[User API] Fetching unified readings for userId:', userId, 'type:', typeFilter);
 
-      // Fetch all reading types in parallel
-      const [tarotReadings, birthSynthesis, personalYearReadings, thresholdReadings] =
-        await Promise.all([
-          // Only fetch tarot if not filtering to birth_cards only
-          typeFilter !== 'birth_cards'
-            ? prisma.reading.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-                include: { followUps: true },
-              })
-            : Promise.resolve([]),
+    // Fetch all reading types in parallel
+    const [tarotReadings, birthSynthesis, personalYearReadings, thresholdReadings] =
+      await Promise.all([
+        // Only fetch tarot if not filtering to birth_cards only
+        typeFilter !== 'birth_cards'
+          ? prisma.reading.findMany({
+              where: { userId },
+              orderBy: { createdAt: 'desc' },
+              include: { followUps: true },
+            })
+          : Promise.resolve([]),
 
-          // Only fetch birth cards if not filtering to tarot only
-          typeFilter !== 'tarot'
-            ? prisma.birthCardSynthesis.findUnique({
-                where: { userId },
-              })
-            : Promise.resolve(null),
+        // Only fetch birth cards if not filtering to tarot only
+        typeFilter !== 'tarot'
+          ? prisma.birthCardSynthesis.findUnique({
+              where: { userId },
+            })
+          : Promise.resolve(null),
 
-          typeFilter !== 'tarot'
-            ? prisma.personalYearReading.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-              })
-            : Promise.resolve([]),
+        typeFilter !== 'tarot'
+          ? prisma.personalYearReading.findMany({
+              where: { userId },
+              orderBy: { createdAt: 'desc' },
+            })
+          : Promise.resolve([]),
 
-          typeFilter !== 'tarot'
-            ? prisma.thresholdReading.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-              })
-            : Promise.resolve([]),
-        ]);
+        typeFilter !== 'tarot'
+          ? prisma.thresholdReading.findMany({
+              where: { userId },
+              orderBy: { createdAt: 'desc' },
+            })
+          : Promise.resolve([]),
+      ]);
 
-      // Transform and merge all readings into unified format
-      const unifiedReadings: UnifiedReading[] = [];
+    // Transform and merge all readings into unified format
+    const unifiedReadings: UnifiedReading[] = [];
 
-      // Add tarot readings
-      tarotReadings.forEach(reading => {
+    // Add tarot readings
+    tarotReadings.forEach(reading => {
+      unifiedReadings.push({
+        id: reading.id,
+        readingType: 'tarot',
+        createdAt: reading.createdAt,
+        creditCost: reading.creditCost,
+        spreadType: reading.spreadType,
+        interpretationStyle: reading.interpretationStyle,
+        question: reading.question || undefined,
+        cards: reading.cards,
+        interpretation: reading.interpretation,
+        userReflection: reading.userReflection || undefined,
+        hasClarification: reading.hasClarification,
+        clarificationCard: reading.clarificationCard || undefined,
+        clarificationCard2: reading.clarificationCard2 || undefined,
+        followUps: reading.followUps.map(f => ({
+          id: f.id,
+          question: f.question,
+          answer: f.answer,
+          creditCost: f.creditCost,
+          createdAt: f.createdAt,
+        })),
+      });
+    });
+
+    // Add birth card synthesis (show if ANY language has synthesis)
+    if (birthSynthesis && (birthSynthesis.synthesisEn || birthSynthesis.synthesisFr)) {
+      unifiedReadings.push({
+        id: birthSynthesis.id,
+        readingType: 'birth_synthesis',
+        createdAt: birthSynthesis.createdAt,
+        creditCost: 2, // Birth synthesis costs 2 credits
+        personalityCardId: birthSynthesis.personalityCardId,
+        soulCardId: birthSynthesis.soulCardId,
+        zodiacSign: birthSynthesis.zodiacSign,
+        synthesisEn: birthSynthesis.synthesisEn,
+        synthesisFr: birthSynthesis.synthesisFr,
+      });
+    }
+
+    // Add personal year readings (show if ANY language has synthesis)
+    personalYearReadings.forEach(reading => {
+      if (reading.synthesisEn || reading.synthesisFr) {
         unifiedReadings.push({
           id: reading.id,
-          readingType: 'tarot',
+          readingType: 'personal_year',
           createdAt: reading.createdAt,
-          creditCost: reading.creditCost,
-          spreadType: reading.spreadType,
-          interpretationStyle: reading.interpretationStyle,
-          question: reading.question || undefined,
-          cards: reading.cards,
-          interpretation: reading.interpretation,
-          userReflection: reading.userReflection || undefined,
-          hasClarification: reading.hasClarification,
-          clarificationCard: reading.clarificationCard || undefined,
-          clarificationCard2: reading.clarificationCard2 || undefined,
-          followUps: reading.followUps.map(f => ({
-            id: f.id,
-            question: f.question,
-            answer: f.answer,
-            creditCost: f.creditCost,
-            createdAt: f.createdAt,
-          })),
-        });
-      });
-
-      // Add birth card synthesis (show if ANY language has synthesis)
-      if (birthSynthesis && (birthSynthesis.synthesisEn || birthSynthesis.synthesisFr)) {
-        unifiedReadings.push({
-          id: birthSynthesis.id,
-          readingType: 'birth_synthesis',
-          createdAt: birthSynthesis.createdAt,
-          creditCost: 2, // Birth synthesis costs 2 credits
-          personalityCardId: birthSynthesis.personalityCardId,
-          soulCardId: birthSynthesis.soulCardId,
-          zodiacSign: birthSynthesis.zodiacSign,
-          synthesisEn: birthSynthesis.synthesisEn,
-          synthesisFr: birthSynthesis.synthesisFr,
+          creditCost: 3, // Year energy costs 3 credits
+          year: reading.year,
+          personalYearNumber: reading.personalYearNumber,
+          personalYearCardId: reading.personalYearCardId,
+          personalityCardId: reading.personalityCardId,
+          soulCardId: reading.soulCardId,
+          zodiacSign: reading.zodiacSign,
+          synthesisEn: reading.synthesisEn,
+          synthesisFr: reading.synthesisFr,
         });
       }
+    });
 
-      // Add personal year readings (show if ANY language has synthesis)
-      personalYearReadings.forEach(reading => {
-        if (reading.synthesisEn || reading.synthesisFr) {
-          unifiedReadings.push({
-            id: reading.id,
-            readingType: 'personal_year',
-            createdAt: reading.createdAt,
-            creditCost: 3, // Year energy costs 3 credits
-            year: reading.year,
-            personalYearNumber: reading.personalYearNumber,
-            personalYearCardId: reading.personalYearCardId,
-            personalityCardId: reading.personalityCardId,
-            soulCardId: reading.soulCardId,
-            zodiacSign: reading.zodiacSign,
-            synthesisEn: reading.synthesisEn,
-            synthesisFr: reading.synthesisFr,
-          });
-        }
-      });
+    // Add threshold readings (show if ANY language has synthesis)
+    thresholdReadings.forEach(reading => {
+      if (reading.synthesisEn || reading.synthesisFr) {
+        unifiedReadings.push({
+          id: reading.id,
+          readingType: 'threshold',
+          createdAt: reading.createdAt,
+          creditCost: 3, // Threshold costs 3 credits
+          transitionYear: reading.transitionYear,
+          outgoingYearNumber: reading.outgoingYearNumber,
+          outgoingYearCardId: reading.outgoingYearCardId,
+          incomingYearNumber: reading.incomingYearNumber,
+          incomingYearCardId: reading.incomingYearCardId,
+          personalityCardId: reading.personalityCardId,
+          soulCardId: reading.soulCardId,
+          synthesisEn: reading.synthesisEn,
+          synthesisFr: reading.synthesisFr,
+        });
+      }
+    });
 
-      // Add threshold readings (show if ANY language has synthesis)
-      thresholdReadings.forEach(reading => {
-        if (reading.synthesisEn || reading.synthesisFr) {
-          unifiedReadings.push({
-            id: reading.id,
-            readingType: 'threshold',
-            createdAt: reading.createdAt,
-            creditCost: 3, // Threshold costs 3 credits
-            transitionYear: reading.transitionYear,
-            outgoingYearNumber: reading.outgoingYearNumber,
-            outgoingYearCardId: reading.outgoingYearCardId,
-            incomingYearNumber: reading.incomingYearNumber,
-            incomingYearCardId: reading.incomingYearCardId,
-            personalityCardId: reading.personalityCardId,
-            soulCardId: reading.soulCardId,
-            synthesisEn: reading.synthesisEn,
-            synthesisFr: reading.synthesisFr,
-          });
-        }
-      });
+    // Sort all by createdAt descending
+    unifiedReadings.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-      // Sort all by createdAt descending
-      unifiedReadings.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    // Apply pagination
+    const total = unifiedReadings.length;
+    const params = parsePaginationParams(req.query, 20, 100);
+    const paginatedReadings = unifiedReadings.slice(params.skip, params.skip + params.take);
 
-      // Apply pagination
-      const total = unifiedReadings.length;
-      const params = parsePaginationParams(req.query, 20, 100);
-      const paginatedReadings = unifiedReadings.slice(params.skip, params.skip + params.take);
+    debug.log(
+      '[User API] Found',
+      paginatedReadings.length,
+      'unified readings out of',
+      total,
+      'total'
+    );
 
-      debug.log(
-        '[User API] Found',
-        paginatedReadings.length,
-        'unified readings out of',
-        total,
-        'total'
-      );
-
-      res.json(createPaginatedResponse(paginatedReadings, params, total));
-    } catch (error) {
-      console.error('[User API] Error fetching unified readings:', error);
-      res.status(500).json({ error: 'Failed to fetch readings' });
-    }
-  }
+    res.json(createPaginatedResponse(paginatedReadings, params, total));
+  })
 );
 
 // ============================================
@@ -286,8 +283,11 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/me/readings', requireAuth, validateQuery(paginationQuerySchema), async (req, res) => {
-  try {
+router.get(
+  '/me/readings',
+  requireAuth,
+  validateQuery(paginationQuerySchema),
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const params = parsePaginationParams(req.query, 20, 100);
 
@@ -316,11 +316,8 @@ router.get('/me/readings', requireAuth, validateQuery(paginationQuerySchema), as
     );
 
     res.json(createPaginatedResponse(readings, params, total));
-  } catch (error) {
-    console.error('[User API] Error fetching readings:', error);
-    res.status(500).json({ error: 'Failed to fetch readings' });
-  }
-});
+  })
+);
 
 // ============================================
 // TRANSACTION HISTORY
@@ -373,37 +370,32 @@ router.get(
   '/me/transactions',
   requireAuth,
   validateQuery(paginationQuerySchema),
-  async (req, res) => {
-    try {
-      const userId = req.auth.userId;
-      const params = parsePaginationParams(req.query, 50, 100);
+  asyncHandler(async (req, res) => {
+    const userId = req.auth.userId;
+    const params = parsePaginationParams(req.query, 50, 100);
 
-      // Filter: show all non-purchase transactions, but only COMPLETED purchases
-      // This excludes pending/cancelled purchases from the history
-      const whereClause = {
-        userId,
-        OR: [
-          { type: { not: TransactionType.PURCHASE } },
-          { type: TransactionType.PURCHASE, paymentStatus: PaymentStatus.COMPLETED },
-        ],
-      };
+    // Filter: show all non-purchase transactions, but only COMPLETED purchases
+    // This excludes pending/cancelled purchases from the history
+    const whereClause = {
+      userId,
+      OR: [
+        { type: { not: TransactionType.PURCHASE } },
+        { type: TransactionType.PURCHASE, paymentStatus: PaymentStatus.COMPLETED },
+      ],
+    };
 
-      const [transactions, total] = await Promise.all([
-        prisma.transaction.findMany({
-          where: whereClause,
-          orderBy: { createdAt: 'desc' },
-          take: params.take,
-          skip: params.skip,
-        }),
-        prisma.transaction.count({ where: whereClause }),
-      ]);
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: params.take,
+        skip: params.skip,
+      }),
+      prisma.transaction.count({ where: whereClause }),
+    ]);
 
-      res.json(createPaginatedResponse(transactions, params, total));
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      res.status(500).json({ error: 'Failed to fetch transactions' });
-    }
-  }
+    res.json(createPaginatedResponse(transactions, params, total));
+  })
 );
 
 // ============================================
@@ -446,8 +438,10 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/me/transactions/:id/invoice', requireAuth, async (req, res) => {
-  try {
+router.get(
+  '/me/transactions/:id/invoice',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const { invoiceService } = await import('../../services/invoiceService.js');
     const userId = req.auth.userId;
     const transactionId = req.params.id;
@@ -456,18 +450,13 @@ router.get('/me/transactions/:id/invoice', requireAuth, async (req, res) => {
     const html = await invoiceService.generateInvoiceHtml(transactionId, userId, language);
 
     if (!html) {
-      return res
-        .status(404)
-        .json({ error: 'Invoice not found or transaction is not a completed purchase' });
+      throw new NotFoundError('Invoice');
     }
 
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Disposition', `inline; filename="invoice-${transactionId}.html"`);
     res.send(html);
-  } catch (error) {
-    console.error('Error generating invoice:', error);
-    res.status(500).json({ error: 'Failed to generate invoice' });
-  }
-});
+  })
+);
 
 export default router;

@@ -15,6 +15,7 @@ import {
   ConflictError,
   achievementService,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -61,8 +62,10 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/me/daily-bonus', requireAuth, async (req, res, next) => {
-  try {
+router.post(
+  '/me/daily-bonus',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
 
     const user = await prisma.user.findUnique({
@@ -104,7 +107,6 @@ router.post('/me/daily-bonus', requireAuth, async (req, res, next) => {
 
     // Verify credits were actually added before updating user state
     if (!result.success) {
-      console.error('[Daily Bonus] Credit addition failed:', result.error);
       throw new Error(result.error || 'Failed to add bonus credits');
     }
 
@@ -134,10 +136,7 @@ router.post('/me/daily-bonus', requireAuth, async (req, res, next) => {
       streak: newStreak,
       unlockedAchievements,
     });
-  } catch (error) {
-    console.error('Error claiming daily bonus:', error);
-    next(error); // Pass to error handler middleware
-  }
-});
+  })
+);
 
 export default router;

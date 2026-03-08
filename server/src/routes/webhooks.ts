@@ -2,6 +2,10 @@
  * Webhooks Routes
  * Handles webhooks from Stripe, PayPal, and Clerk
  * Dependencies injected via DI container
+ *
+ * NOTE: Webhook routes intentionally keep specific try/catch blocks
+ * where external services (Stripe, Clerk, PayPal) require particular
+ * status codes for their retry logic.
  */
 
 import { Router, raw, json } from 'express';
@@ -62,7 +66,6 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    console.error('Missing CLERK_WEBHOOK_SECRET');
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
@@ -75,6 +78,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
     return res.status(400).json({ error: 'Missing svix headers' });
   }
 
+  // Signature verification must use try/catch to return 400 to Clerk
   let payload: ClerkWebhookPayload;
   try {
     const wh = new Webhook(WEBHOOK_SECRET);
@@ -84,7 +88,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
       'svix-signature': svix_signature,
     }) as ClerkWebhookPayload;
   } catch (err) {
-    console.error('Clerk webhook verification failed:', err);
+    logger.error('Clerk webhook verification failed:', err);
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
@@ -93,6 +97,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
 
   switch (eventType) {
     case 'user.created': {
+      // Individual event handling uses try/catch to avoid failing the whole webhook
       try {
         const username = data.username || data.first_name || `user_${data.id.slice(-8)}`;
         const referralCode = generateReferralCode(username);
@@ -119,9 +124,9 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
           description: 'Welcome bonus',
         });
 
-        logger.info(`✅ User created: ${data.id}`);
+        logger.info(`User created: ${data.id}`);
       } catch (error) {
-        console.error('Error creating user:', error);
+        logger.error('Error creating user:', error);
       }
       break;
     }
@@ -136,7 +141,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
           },
         });
       } catch (error) {
-        console.error('Error updating user:', error);
+        logger.error('Error updating user:', error);
       }
       break;
     }
@@ -152,7 +157,7 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
           },
         });
       } catch (error) {
-        console.error('Error deleting user:', error);
+        logger.error('Error deleting user:', error);
       }
       break;
     }

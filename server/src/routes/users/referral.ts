@@ -17,6 +17,7 @@ import {
   ConflictError,
   logger,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { sendReferralInviteEmail, sendReferralRedeemedEmail } from '../../services/email.js';
 
 const router = Router();
@@ -29,8 +30,10 @@ const redeemSchema = z.object({
   code: z.string().min(1).max(20).trim().toUpperCase(),
 });
 
-router.post('/me/redeem-referral', requireAuth, async (req, res, next) => {
-  try {
+router.post(
+  '/me/redeem-referral',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const { code } = redeemSchema.parse(req.body);
 
@@ -123,13 +126,8 @@ router.post('/me/redeem-referral', requireAuth, async (req, res, next) => {
       creditsAwarded: bonusAmount,
       newBalance: refereeResult.newBalance,
     });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid referral code format' });
-    }
-    next(error);
-  }
-});
+  })
+);
 
 // ============================================
 // SEND REFERRAL INVITATION EMAIL
@@ -140,8 +138,10 @@ const inviteSchema = z.object({
   friendName: z.string().max(50).optional(),
 });
 
-router.post('/me/referral-invite', requireAuth, async (req, res, next) => {
-  try {
+router.post(
+  '/me/referral-invite',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
     const { email, friendName } = inviteSchema.parse(req.body);
 
@@ -174,14 +174,9 @@ router.post('/me/referral-invite', requireAuth, async (req, res, next) => {
     res.json({
       success: true,
       message:
-        language === 'fr' ? 'Invitation envoyée avec succès !' : 'Invitation sent successfully!',
+        language === 'fr' ? 'Invitation envoyee avec succes !' : 'Invitation sent successfully!',
     });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0]?.message || 'Invalid input' });
-    }
-    next(error);
-  }
-});
+  })
+);
 
 export default router;

@@ -20,19 +20,22 @@ import {
   extractTagIds,
 } from '../shared/queryUtils.js';
 import { handleReorder } from '../shared/reorderUtils.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
 // Preview any post (admin only) - bypasses published status check
-router.get('/preview/:id', async (req, res) => {
-  try {
+router.get(
+  '/preview/:id',
+  asyncHandler(async (req, res) => {
     const post = await prisma.blogPost.findUnique({
       where: { id: req.params.id, deletedAt: null },
       include: includeCategoriesAndTags,
     });
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      throw new NotFoundError('Post');
     }
 
     // Transform to flat structure
@@ -69,15 +72,13 @@ router.get('/preview/:id', async (req, res) => {
     });
 
     res.json({ post: transformedPost, relatedPosts });
-  } catch (error) {
-    console.error('Preview post error:', error);
-    res.status(500).json({ error: 'Failed to load post preview' });
-  }
-});
+  })
+);
 
 // List all posts (including drafts) for admin
-router.get('/posts', async (req, res) => {
-  try {
+router.get(
+  '/posts',
+  asyncHandler(async (req, res) => {
     const params = z
       .object({
         page: z.coerce.number().min(1).default(1),
@@ -146,25 +147,20 @@ router.get('/posts', async (req, res) => {
         totalPages: Math.ceil(total / params.limit),
       },
     });
-  } catch (error) {
-    console.error(
-      'Error fetching admin posts:',
-      error instanceof Error ? error.message : String(error)
-    );
-    res.status(500).json({ error: 'Failed to fetch posts' });
-  }
-});
+  })
+);
 
 // Get single post for editing
-router.get('/posts/:id', async (req, res) => {
-  try {
+router.get(
+  '/posts/:id',
+  asyncHandler(async (req, res) => {
     const post = await prisma.blogPost.findUnique({
       where: { id: req.params.id },
       include: includeCategoriesAndTags,
     });
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      throw new NotFoundError('Post');
     }
 
     res.json({
@@ -174,15 +170,13 @@ router.get('/posts/:id', async (req, res) => {
         tagIds: extractTagIds(post.tags),
       },
     });
-  } catch (error) {
-    console.error('Error fetching post:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to fetch post' });
-  }
-});
+  })
+);
 
 // Create post
-router.post('/posts', async (req, res) => {
-  try {
+router.post(
+  '/posts',
+  asyncHandler(async (req, res) => {
     const data = createPostSchema.parse(req.body);
     const { categoryIds, tagIds, faq, cta } = data;
 
@@ -233,11 +227,8 @@ router.post('/posts', async (req, res) => {
     await cacheService.flushPattern('blog:');
 
     res.json({ success: true, post });
-  } catch (error) {
-    console.error('Error creating post:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to create post' });
-  }
-});
+  })
+);
 
 // Reorder blog post (for admin drag-and-drop within category)
 // NOTE: This route MUST be defined BEFORE /posts/:id to avoid :id matching "reorder"
@@ -275,8 +266,9 @@ router.patch('/posts/reorder', (req, res) => {
 });
 
 // Update post
-router.patch('/posts/:id', async (req, res) => {
-  try {
+router.patch(
+  '/posts/:id',
+  asyncHandler(async (req, res) => {
     const { id } = req.params;
     const data = createPostSchema.partial().parse(req.body);
     const { categoryIds, tagIds, faq, cta, ...postData } = data;
@@ -294,7 +286,7 @@ router.patch('/posts/:id', async (req, res) => {
     // Get current post to check status change
     const current = await prisma.blogPost.findUnique({ where: { id } });
     if (!current) {
-      return res.status(404).json({ error: 'Post not found' });
+      throw new NotFoundError('Post');
     }
 
     // Set publishedAt if transitioning to published
@@ -354,10 +346,7 @@ router.patch('/posts/:id', async (req, res) => {
     await cacheService.flushPattern('blog:');
 
     res.json({ success: true, post });
-  } catch (error) {
-    console.error('Error updating post:', error instanceof Error ? error.message : String(error));
-    res.status(500).json({ error: 'Failed to update post' });
-  }
-});
+  })
+);
 
 export default router;

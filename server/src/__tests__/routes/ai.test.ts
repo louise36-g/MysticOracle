@@ -137,6 +137,16 @@ describe('AI Routes', () => {
     app.use(express.json());
     app.use('/api/v1/ai', aiRoutes);
 
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
+
     // Default mock responses
     mockGetTarotReadingPrompt.mockResolvedValue('Generated tarot prompt');
     mockGetTarotFollowUpPrompt.mockResolvedValue('Generated follow-up prompt');
@@ -156,7 +166,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
         expect(res.body.details).toBeDefined();
       });
 
@@ -172,7 +182,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with missing cards', async () => {
@@ -185,7 +195,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with invalid language', async () => {
@@ -200,7 +210,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with invalid card structure', async () => {
@@ -215,7 +225,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
     });
 
@@ -378,7 +388,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with empty reading', async () => {
@@ -390,7 +400,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with missing question', async () => {
@@ -403,7 +413,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with question exceeding 500 chars', async () => {
@@ -418,7 +428,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with invalid history role', async () => {
@@ -433,7 +443,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
 
       it('should reject request with invalid language', async () => {
@@ -445,7 +455,7 @@ describe('AI Routes', () => {
           .set('Authorization', 'Bearer test-token');
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid request data');
+        expect(res.body.error).toBe('Validation failed');
       });
     });
 

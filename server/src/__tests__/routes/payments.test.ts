@@ -62,6 +62,16 @@ describe('Payments Routes', () => {
       next();
     });
     app.use('/', paymentsRouter);
+
+    // Error handler for tests (matches production behavior)
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || (err.name === 'ZodError' ? 400 : 500);
+      const body =
+        err.name === 'ZodError'
+          ? { error: 'Validation failed', details: err.errors }
+          : { error: err.message || 'Internal server error' };
+      res.status(status).json(body);
+    });
   });
 
   // ============================================
@@ -207,7 +217,7 @@ describe('Payments Routes', () => {
       const res = await request(app).get('/stripe/verify/cs_test_123');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to verify/i);
+      expect(res.body.error).toBe('boom');
     });
   });
 
@@ -392,7 +402,7 @@ describe('Payments Routes', () => {
       const res = await request(app).get('/history');
 
       expect(res.status).toBe(500);
-      expect(res.body.error).toMatch(/failed to fetch/i);
+      expect(res.body.error).toBe('DB error');
     });
   });
 });

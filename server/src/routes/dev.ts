@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -21,8 +22,10 @@ const blockInProduction = (req: Request, res: Response, next: NextFunction) => {
 router.use(blockInProduction);
 
 // Reset daily bonus for testing
-router.post('/reset-daily-bonus', requireAuth, async (req, res) => {
-  try {
+router.post(
+  '/reset-daily-bonus',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
@@ -31,11 +34,8 @@ router.post('/reset-daily-bonus', requireAuth, async (req, res) => {
       data: { lastLoginDate: yesterday },
     });
 
-    return res.json({ success: true, message: 'Daily bonus reset - you can claim again!' });
-  } catch (error) {
-    console.error('Error resetting daily bonus:', error);
-    return res.status(500).json({ error: 'Failed to reset daily bonus' });
-  }
-});
+    res.json({ success: true, message: 'Daily bonus reset - you can claim again!' });
+  })
+);
 
 export default router;

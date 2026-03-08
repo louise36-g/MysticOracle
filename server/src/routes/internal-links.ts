@@ -7,6 +7,7 @@
 
 import { Router } from 'express';
 import prisma from '../db/prisma.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 import { SPREADS, ZODIAC_SIGNS } from '../shared/constants/index.js';
 
 const router = Router();
@@ -75,8 +76,9 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.get('/registry', async (_req, res) => {
-  try {
+router.get(
+  '/registry',
+  asyncHandler(async (_req, res) => {
     // Fetch tarot articles and blog posts in parallel
     // NOTE:
     // - We intentionally include DRAFT and PUBLISHED content here (exclude only soft-deleted / archived)
@@ -141,10 +143,7 @@ router.get('/registry', async (_req, res) => {
       spread: spreads,
       horoscope: horoscopes,
     });
-  } catch (error) {
-    console.error('[Internal Links] Error fetching registry:', error);
-    res.status(500).json({ error: 'Failed to fetch link registry' });
-  }
-});
+  })
+);
 
 export default router;

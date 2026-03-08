@@ -30,6 +30,12 @@ import {
   styleDescriptions,
   styleMap,
 } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
+import {
+  NotFoundError,
+  AuthorizationError,
+  ValidationError,
+} from '../../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -95,20 +101,14 @@ const router = Router();
  *                   type: string
  *                   example: Insufficient credits
  */
-router.post('/summarize-question', requireAuth, async (req, res) => {
-  try {
+router.post(
+  '/summarize-question',
+  requireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.auth.userId;
 
     // Validate input
-    const validation = summarizeQuestionSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
-    const { question, language } = validation.data;
+    const { question, language } = summarizeQuestionSchema.parse(req.body);
     const creditCost = CREDIT_COSTS.SUMMARIZE_QUESTION;
 
     // Check if user has enough credits using CreditService
@@ -127,7 +127,7 @@ router.post('/summarize-question', requireAuth, async (req, res) => {
         ? `Summarize this tarot question while preserving the core intent and emotional context. Keep it under 400 characters. Return only the summarized question, nothing else.
 
 Original question: "${question}"`
-        : `Résumez cette question de tarot en préservant l'intention principale et le contexte émotionnel. Gardez moins de 400 caractères. Retournez uniquement la question résumée, rien d'autre.
+        : `Resumez cette question de tarot en preservant l'intention principale et le contexte emotionnel. Gardez moins de 400 caracteres. Retournez uniquement la question resumee, rien d'autre.
 
 Question originale: "${question}"`;
 
@@ -158,11 +158,8 @@ Question originale: "${question}"`;
       summary,
       creditsUsed: creditCost,
     });
-  } catch (error) {
-    console.error('Error summarizing question:', error);
-    res.status(500).json({ error: 'Failed to summarize question' });
-  }
-});
+  })
+);
 
 // ============================================
 // TAROT READING GENERATION
@@ -173,17 +170,12 @@ Question originale: "${question}"`;
  * Generate a tarot reading interpretation
  * Phase 3: New endpoint for backend-generated tarot readings
  */
-router.post('/tarot/generate', requireAuth, async (req, res) => {
-  try {
-    const validation = generateTarotSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
-    const { spread, style, cards, question, language, category, layoutId } = validation.data;
+router.post(
+  '/tarot/generate',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { spread, style, cards, question, language, category, layoutId } =
+      generateTarotSchema.parse(req.body);
 
     debug.log('[Tarot Generate] Request:', {
       userId: req.auth.userId,
@@ -329,7 +321,7 @@ ${synthesisInstructions}`;
     const elapsed = Date.now() - startTime;
 
     debug.log(
-      '[Tarot Generate] ✅ Generated interpretation:',
+      '[Tarot Generate] Generated interpretation:',
       interpretation.length,
       'chars in',
       elapsed,
@@ -340,12 +332,8 @@ ${synthesisInstructions}`;
       interpretation,
       creditsRequired: spread.creditCost,
     });
-  } catch (error) {
-    console.error('[Tarot Generate] Error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate reading';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 // ============================================
 // TAROT FOLLOW-UP
@@ -356,17 +344,11 @@ ${synthesisInstructions}`;
  * Generate a follow-up answer for a tarot reading
  * Phase 3: New endpoint for backend-generated follow-ups
  */
-router.post('/tarot/followup', requireAuth, async (req, res) => {
-  try {
-    const validation = tarotFollowUpSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
-    const { reading, history, question, language } = validation.data;
+router.post(
+  '/tarot/followup',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { reading, history, question, language } = tarotFollowUpSchema.parse(req.body);
 
     debug.log('[Tarot Follow-up] Request:', {
       userId: req.auth.userId,
@@ -393,18 +375,14 @@ router.post('/tarot/followup', requireAuth, async (req, res) => {
       }
     );
 
-    debug.log('[Tarot Follow-up] ✅ Generated answer:', answer.length, 'chars');
+    debug.log('[Tarot Follow-up] Generated answer:', answer.length, 'chars');
 
     res.json({
       answer,
       creditsRequired: CREDIT_COSTS.FOLLOW_UP,
     });
-  } catch (error) {
-    console.error('[Tarot Follow-up] Error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate follow-up';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 // ============================================
 // CLARIFICATION CARD
@@ -426,17 +404,11 @@ const clarificationSchema = z.object({
  * POST /api/v1/ai/tarot/clarification
  * Generate a clarification card interpretation for an existing reading
  */
-router.post('/tarot/clarification', requireAuth, async (req, res) => {
-  try {
-    const validation = clarificationSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: 'Invalid request data',
-        details: validation.error.errors,
-      });
-    }
-
-    const { readingId, card, isReversed, language } = validation.data;
+router.post(
+  '/tarot/clarification',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { readingId, card, isReversed, language } = clarificationSchema.parse(req.body);
     const userId = req.auth.userId;
 
     debug.log('[Clarification] Request:', { userId, readingId, card: card.nameEn, isReversed });
@@ -447,18 +419,16 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
     });
 
     if (!reading) {
-      return res.status(404).json({ error: 'Reading not found' });
+      throw new NotFoundError('Reading');
     }
 
     if (reading.userId !== userId) {
-      return res.status(403).json({ error: 'Not authorized' });
+      throw new AuthorizationError('Not authorized');
     }
 
     // Check if max clarification cards reached (2 max)
     if (reading.clarificationCard && reading.clarificationCard2) {
-      return res
-        .status(400)
-        .json({ error: 'Maximum clarification cards already drawn for this reading' });
+      throw new ValidationError('Maximum clarification cards already drawn for this reading');
     }
 
     // Check credits
@@ -473,7 +443,7 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
     const orientation = isReversed
       ? language === 'en'
         ? 'Reversed'
-        : 'Renversée'
+        : 'Renversee'
       : language === 'en'
         ? 'Upright'
         : 'Droite';
@@ -554,11 +524,7 @@ router.post('/tarot/clarification', requireAuth, async (req, res) => {
       isReversed,
       creditsUsed: creditCost,
     });
-  } catch (error) {
-    console.error('[Clarification] Error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate clarification';
-    res.status(500).json({ error: message });
-  }
-});
+  })
+);
 
 export default router;

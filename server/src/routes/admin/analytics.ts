@@ -3,6 +3,7 @@
  */
 
 import { Router, prisma } from './shared.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
 const router = Router();
 
@@ -10,23 +11,22 @@ const router = Router();
 // DASHBOARD STATS
 // ============================================
 
-router.get('/stats', async (req, res) => {
-  try {
+router.get(
+  '/stats',
+  asyncHandler(async (req, res) => {
     const adminStatsService = req.container.resolve('adminStatsService');
     const stats = await adminStatsService.getDashboardStats();
     res.json(stats);
-  } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    res.status(500).json({ error: 'Failed to fetch stats' });
-  }
-});
+  })
+);
 
 // ============================================
 // READINGS ANALYTICS
 // ============================================
 
-router.get('/readings/stats', async (req, res) => {
-  try {
+router.get(
+  '/readings/stats',
+  asyncHandler(async (req, res) => {
     const [bySpreadType, recentReadings] = await Promise.all([
       prisma.reading.groupBy({
         by: ['spreadType'],
@@ -50,25 +50,20 @@ router.get('/readings/stats', async (req, res) => {
       bySpreadType,
       recentReadings,
     });
-  } catch (error) {
-    console.error('Error fetching reading stats:', error);
-    res.status(500).json({ error: 'Failed to fetch reading stats' });
-  }
-});
+  })
+);
 
 // ============================================
 // ANALYTICS
 // ============================================
 
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const adminAnalyticsService = req.container.resolve('adminAnalyticsService');
     const analytics = await adminAnalyticsService.getAnalytics(7);
     res.json(analytics);
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    res.status(500).json({ error: 'Failed to fetch analytics' });
-  }
-});
+  })
+);
 
 export default router;
