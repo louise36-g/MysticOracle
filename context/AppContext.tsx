@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
@@ -344,24 +344,30 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setAchievementNotifications([]);
   }, []);
 
+  const contextValue = useMemo<AppContextType>(() => ({
+    user,
+    language,
+    isLoading,
+    setLanguage,
+    t,
+    refreshTranslationsCache,
+    logout,
+    refreshUser,
+    addCredits,
+    canAfford,
+    history,
+    addToHistory,
+    achievementNotifications,
+    clearAchievementNotifications,
+    claimDailyBonus,
+  }), [
+    user, language, isLoading, setLanguage, t, refreshTranslationsCache,
+    logout, refreshUser, addCredits, canAfford, history, addToHistory,
+    achievementNotifications, clearAchievementNotifications, claimDailyBonus,
+  ]);
+
   return (
-    <AppContext.Provider value={{
-      user,
-      language,
-      isLoading,
-      setLanguage,
-      t,
-      refreshTranslationsCache,
-      logout,
-      refreshUser,
-      addCredits,
-      canAfford,
-      history,
-      addToHistory,
-      achievementNotifications,
-      clearAchievementNotifications,
-      claimDailyBonus,
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

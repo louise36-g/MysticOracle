@@ -397,6 +397,11 @@ function scheduleHoroscopeCleanup(): void {
   );
 }
 
+// Catch unhandled promise rejections (prevents silent crashes)
+process.on('unhandledRejection', (reason, _promise) => {
+  console.error('[FATAL] Unhandled Promise Rejection:', reason);
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🔮 CelestiArcana API running on port ${PORT}`);

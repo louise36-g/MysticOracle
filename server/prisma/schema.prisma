@@ -107,6 +107,7 @@ model Reading {
   normalizedCards ReadingCard[]
 
   @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([createdAt])
   @@index([spreadType])
 }
@@ -362,6 +363,7 @@ model Transaction {
   createdAt       DateTime @default(now())
 
   @@index([userId])
+  @@index([userId, paymentStatus])
   @@index([paymentId])
   @@index([createdAt])
   @@index([type])
@@ -794,6 +796,7 @@ model AuditLog {
   @@index([userId])
   @@index([adminUserId])
   @@index([action])
+  @@index([action, createdAt])
   @@index([createdAt])
   @@index([entityType, entityId])
 
