@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 import { formatHtmlContent } from '../birthCardUtils';
 import type { PersonalityCardData, SoulCardData, PairData, UnifiedCardData } from '../birthCardTypes';
 
@@ -29,10 +28,6 @@ interface DynamicTabProps {
   zodiacSign: ZodiacInfo;
   personalityAssociation: ElementAssociation | undefined;
   soulAssociation: ElementAssociation | undefined;
-  synthesisInterpretation: string | null;
-  isGeneratingSynthesis: boolean;
-  synthesisError: string | null;
-  onRetrySynthesis: () => void;
   onEnlargeImage: (url: string, alt: string) => void;
   onImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => void;
 }
@@ -50,14 +45,15 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
   zodiacSign,
   personalityAssociation,
   soulAssociation,
-  synthesisInterpretation,
-  isGeneratingSynthesis,
-  synthesisError,
-  onRetrySynthesis,
   onEnlargeImage,
   onImageError,
 }) => {
   if (depth < 2) return null;
+
+  // Get the pair description content (pre-written, instant)
+  const pairDescription = !isUnified && pairData
+    ? (language === 'en' ? pairData.dynamicEn : pairData.dynamicFr)
+    : null;
 
   return (
     <motion.div
@@ -139,7 +135,7 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
         )}
       </div>
 
-      {/* Description - AI-generated for pairs, static for unified */}
+      {/* Description - Pre-written content for both unified and pairs */}
       <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
         {isUnified && unifiedData?.descriptionEn ? (
           <div
@@ -148,46 +144,11 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
               __html: formatHtmlContent(language === 'en' ? unifiedData.descriptionEn : unifiedData.descriptionFr),
             }}
           />
-        ) : !isUnified ? (
-          <>
-            {isGeneratingSynthesis ? (
-              <div className="flex flex-col items-center justify-center py-8">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  className="mb-4"
-                >
-                  <Loader2 className="w-8 h-8 text-violet-400" />
-                </motion.div>
-                <p className="text-white/60 text-sm">
-                  {language === 'en'
-                    ? 'Weaving together your cards, zodiac, and elemental energies...'
-                    : 'Tissage de vos cartes, zodiaque et énergies élémentaires...'}
-                </p>
-              </div>
-            ) : synthesisError ? (
-              <div className="text-center py-4">
-                <p className="text-red-400 mb-4">{synthesisError}</p>
-                <button
-                  onClick={onRetrySynthesis}
-                  className="px-4 py-2 bg-violet-500/20 text-violet-300 rounded-lg hover:bg-violet-500/30 transition-colors"
-                >
-                  {language === 'en' ? 'Try Again' : 'Réessayer'}
-                </button>
-              </div>
-            ) : synthesisInterpretation ? (
-              <div
-                className="max-w-none text-white/90 leading-relaxed birth-card-content"
-                dangerouslySetInnerHTML={{ __html: formatHtmlContent(synthesisInterpretation) }}
-              />
-            ) : (
-              <p className="text-white/60 italic text-center">
-                {language === 'en'
-                  ? 'Your personalized reading will appear here...'
-                  : 'Votre lecture personnalisée apparaîtra ici...'}
-              </p>
-            )}
-          </>
+        ) : pairDescription ? (
+          <div
+            className="max-w-none text-white/90 leading-relaxed birth-card-content"
+            dangerouslySetInnerHTML={{ __html: formatHtmlContent(pairDescription) }}
+          />
         ) : (
           <p className="text-white/60 italic text-center">
             {language === 'en' ? 'Content coming soon...' : 'Contenu à venir...'}
@@ -196,7 +157,7 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
       </div>
 
       {/* Zodiac & Elemental Info - Show for non-unified pairs */}
-      {!isUnified && synthesisInterpretation && (
+      {!isUnified && pairDescription && (
         <div className="bg-black/20 backdrop-blur-sm rounded-xl p-4 border border-white/10">
           <div className="flex flex-wrap justify-center gap-3 text-sm">
             <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">

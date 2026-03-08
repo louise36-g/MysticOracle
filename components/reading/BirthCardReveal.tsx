@@ -15,7 +15,6 @@ import { SpreadType } from '../../types';
 import { calculateBirthCards, getZodiacSign, getMajorArcanaAssociation } from '../../constants/birthCardMeanings';
 import { getCardImageUrl } from '../../constants/cardImages';
 import {
-  generateBirthCardSynthesis,
   getCurrentYearEnergy,
   generatePersonalYearReading,
   type YearEnergyResponse,
@@ -91,11 +90,6 @@ const BirthCardReveal: React.FC = () => {
   const [isGeneratingYear, setIsGeneratingYear] = useState(false);
   const [yearError, setYearError] = useState<string | null>(null);
   const [personalYearNumber, setPersonalYearNumber] = useState<number | null>(calculatedPersonalYear);
-
-  // AI-generated synthesis interpretation state (for depth 2 Dynamic tab)
-  const [synthesisInterpretation, setSynthesisInterpretation] = useState<string | null>(null);
-  const [isGeneratingSynthesis, setIsGeneratingSynthesis] = useState(false);
-  const [synthesisError, setSynthesisError] = useState<string | null>(null);
 
   // Enlarged image modal state
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; alt: string } | null>(null);
@@ -257,87 +251,6 @@ const BirthCardReveal: React.FC = () => {
     }
   }, [activeTab, depth, universalYearEnergy, isLoadingYearEnergy, fetchYearEnergy, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
 
-  // Function to generate AI birth card synthesis interpretation (for depth 2)
-  const generateSynthesisInterpretation = useCallback(async () => {
-    if (depth < 2 || isUnified || synthesisInterpretation || isGeneratingSynthesis || !birthDate) return;
-
-    setIsGeneratingSynthesis(true);
-    setSynthesisError(null);
-
-    try {
-      const token = await getToken();
-      if (!token) {
-        setSynthesisError(language === 'en' ? 'Please sign in to view your personalized reading' : 'Veuillez vous connecter pour voir votre lecture personnalisée');
-        return;
-      }
-
-      console.log('[BirthCardReveal] Generating birth card synthesis...');
-      const response = await generateBirthCardSynthesis(token, {
-        birthDate: birthDateISO,
-        personalityCard: {
-          cardId: personalityCardId,
-          cardName: personalityData?.cardName || '',
-          cardNameFr: personalityData?.cardNameFr || '',
-          description: language === 'en'
-            ? personalityData?.descriptionEn || ''
-            : personalityData?.descriptionFr || '',
-          element: personalityAssociation?.element || 'Spirit',
-          elementFr: personalityAssociation?.elementFr || 'Esprit',
-          planet: personalityAssociation?.planet || '',
-          planetFr: personalityAssociation?.planetFr || '',
-          keywords: language === 'en'
-            ? personalityAssociation?.keywords || []
-            : personalityAssociation?.keywordsFr || [],
-        },
-        soulCard: {
-          cardId: soulCardId,
-          cardName: soulData?.cardName || '',
-          cardNameFr: soulData?.cardNameFr || '',
-          description: language === 'en'
-            ? soulData?.descriptionEn || ''
-            : soulData?.descriptionFr || '',
-          element: soulAssociation?.element || 'Spirit',
-          elementFr: soulAssociation?.elementFr || 'Esprit',
-          planet: soulAssociation?.planet || '',
-          planetFr: soulAssociation?.planetFr || '',
-          keywords: language === 'en'
-            ? soulAssociation?.keywords || []
-            : soulAssociation?.keywordsFr || [],
-        },
-        zodiac: {
-          name: zodiacSign.name,
-          nameFr: zodiacSign.nameFr,
-          element: zodiacSign.element,
-          elementFr: zodiacSign.elementFr,
-          quality: zodiacSign.quality,
-          qualityFr: zodiacSign.qualityFr,
-          rulingPlanet: zodiacSign.rulingPlanet,
-          rulingPlanetFr: zodiacSign.rulingPlanetFr,
-        },
-        isUnified,
-        language,
-      });
-
-      setSynthesisInterpretation(response.interpretation);
-    } catch (error) {
-      console.error('[BirthCardReveal] Error generating synthesis interpretation:', error);
-      setSynthesisError(
-        language === 'en'
-          ? 'Unable to generate your personalized reading. Please try again.'
-          : 'Impossible de générer votre lecture personnalisée. Veuillez réessayer.'
-      );
-    } finally {
-      setIsGeneratingSynthesis(false);
-    }
-  }, [depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, getToken, language, personalityCardId, soulCardId, personalityData, soulData, personalityAssociation, soulAssociation, zodiacSign, birthDateISO, birthDate]);
-
-  // Generate synthesis interpretation when dynamic tab is selected (depth 2 only, non-unified)
-  useEffect(() => {
-    if (activeTab === 'dynamic' && depth >= 2 && !isUnified && !synthesisInterpretation && !isGeneratingSynthesis) {
-      generateSynthesisInterpretation();
-    }
-  }, [activeTab, depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, generateSynthesisInterpretation]);
-
   // Early returns AFTER all hooks
   if (!state?.birthDate || !jsonData) {
     return null;
@@ -410,11 +323,6 @@ const BirthCardReveal: React.FC = () => {
   );
 
   // Render Dynamic/Unified Tab (for depth >= 2)
-  const handleRetrySynthesis = () => {
-    setSynthesisError(null);
-    generateSynthesisInterpretation();
-  };
-
   const renderDynamicTab = () => (
     <DynamicTab
       depth={depth}
@@ -429,10 +337,6 @@ const BirthCardReveal: React.FC = () => {
       zodiacSign={zodiacSign}
       personalityAssociation={personalityAssociation}
       soulAssociation={soulAssociation}
-      synthesisInterpretation={synthesisInterpretation}
-      isGeneratingSynthesis={isGeneratingSynthesis}
-      synthesisError={synthesisError}
-      onRetrySynthesis={handleRetrySynthesis}
       onEnlargeImage={openEnlargedImage}
       onImageError={handleImageError}
     />
@@ -630,7 +534,7 @@ const BirthCardReveal: React.FC = () => {
         readingText={
           isUnified
             ? (language === 'en' ? unifiedData?.descriptionEn : unifiedData?.descriptionFr)
-            : synthesisInterpretation || undefined
+            : (language === 'en' ? pairData?.dynamicEn : pairData?.dynamicFr) || undefined
         }
       />
     </div>
