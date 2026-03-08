@@ -21,17 +21,6 @@ Integration tests added (`rateLimiting.integration.test.ts`) verifying 429 enfor
 
 ---
 
-### 3. Dual Content Systems (Blog + Tarot Articles)
-
-**Priority:** Medium
-**Status:** Not started
-
-Two separate content systems exist with overlapping functionality. Blog has richer features (rich text editor, media management, featured posts, view counts, sitemap). Tarot articles add card-specific fields (cardType, cardNumber, schemaJson). Both have independent sortOrder, caching, and admin interfaces, which led to the category sort order bug (Feb 2026).
-
-**Recommendation:** Consolidate into one system by extending the blog system with optional tarot-specific fields. Migrate existing tarot articles into blog posts.
-
-**When to do it:** Not urgent — both systems work. Best triggered when a pain point surfaces (e.g., wanting view counts on tarot articles, needing the rich text editor for card meanings, or another ordering/caching discrepancy).
-
 ---
 
 ### 4. Hardcoded Strings
@@ -51,7 +40,7 @@ All user-facing components now use the `t()` translation system (~95% coverage).
 |-------|----------|--------|-------|
 | Prisma v5 → v7 | Medium | Done | v7.4.2 with adapter-pg, prisma-client generator |
 | Rate limiting load test | Medium | Done | Integration tests + autocannon load test script |
-| Dual content systems | Medium | Not started | Consolidate blog + tarot articles when pain point arises |
+| Dual content systems | Medium | Done | Consolidated — tarot articles use BlogPost table with contentType='TAROT_ARTICLE' |
 | Hardcoded strings | Low | Done (user-facing) | ~95% user-facing coverage; admin strings remain |
 | localStorage fallback removal | Medium | Done | Ghost keys removed; all remaining usage legitimate |
 
@@ -63,7 +52,7 @@ For reference, the following were all resolved prior to or during March 2026:
 
 - Horoscope system overhaul (AI model, post-processing, formatting)
 - Card image standardization (10 images resized to 256x384)
-- Content system refactoring (9 phases, unified taxonomy)
+- Content system consolidation (tarot articles merged into BlogPost table, 9-phase taxonomy unification)
 - API versioning (`/api/v1/` prefix on all routes)
 - Stripe v14 → v20 upgrade
 - Clerk Backend v1 → v2 upgrade (bumped to v2.32.2)
