@@ -123,69 +123,54 @@ const BirthCardReveal: React.FC = () => {
     return () => { cancelled = true; };
   }, [state, navigate]);
 
-  if (!state?.birthDate || !jsonData) {
-    return null;
-  }
+  // Derive data from state and JSON (safe defaults when not yet loaded)
+  const birthDate = state?.birthDate;
+  const depth = state?.depth ?? 1;
+  const day = birthDate ? parseInt(birthDate.day, 10) : 0;
+  const month = birthDate ? parseInt(birthDate.month, 10) : 0;
+  const year = birthDate ? parseInt(birthDate.year, 10) : 0;
 
-  const { birthDate, depth } = state;
-  const day = parseInt(birthDate.day, 10);
-  const month = parseInt(birthDate.month, 10);
-  const year = parseInt(birthDate.year, 10);
-
-  // Calculate birth cards using corrected logic
-  const { soulCard: soulCardId, personalityCard: personalityCardId } = calculateBirthCards(day, month, year);
+  const { soulCard: soulCardId, personalityCard: personalityCardId } = day && month && year
+    ? calculateBirthCards(day, month, year)
+    : { soulCard: 0, personalityCard: 0 };
 
   const isUnified = soulCardId === personalityCardId;
 
-  // Get data from dynamically loaded JSON
-  const personalityData = jsonData.personalityCards.find(
+  const personalityData = jsonData?.personalityCards.find(
     (c: PersonalityCardData) => c.cardId === personalityCardId
   ) as PersonalityCardData | undefined;
 
-  const soulData = jsonData.soulCards.find(
+  const soulData = jsonData?.soulCards.find(
     (c: SoulCardData) => c.cardId === soulCardId
   ) as SoulCardData | undefined;
 
-  const pairData = !isUnified
+  const pairData = !isUnified && jsonData
     ? (jsonData.birthCardPairs.find(
         (p: PairData) => p.personalityCardId === personalityCardId && p.soulCardId === soulCardId
       ) as PairData | undefined)
     : undefined;
 
-  const unifiedData = isUnified
+  const unifiedData = isUnified && jsonData
     ? (jsonData.unifiedBirthCards.find((u: UnifiedCardData) => u.cardId === soulCardId) as UnifiedCardData | undefined)
     : undefined;
 
-  // Get year energy data for current year (defaults to 2026, the current cycle start)
-  const yearData = (jsonData.yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
-    || (jsonData.yearEnergyCycle as YearEnergyData[])[0]; // Fallback to 2026 if not found
+  const yearData = jsonData
+    ? ((jsonData.yearEnergyCycle as YearEnergyData[]).find(y => y.year === currentYear)
+      || (jsonData.yearEnergyCycle as YearEnergyData[])[0])
+    : undefined;
 
-  // Build image URLs
-  const personalityImageUrl = getCardImageUrl(personalityCardId);
-  const soulImageUrl = getCardImageUrl(soulCardId);
+  const personalityImageUrl = personalityCardId ? getCardImageUrl(personalityCardId) : '';
+  const soulImageUrl = soulCardId ? getCardImageUrl(soulCardId) : '';
   const yearPrimaryImageUrl = depth >= 3 && yearData ? getCardImageUrl(yearData.primaryCardId) : '';
 
-  // Handle image load error
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
-    console.error(`[BirthCardReveal] Failed to load image for ${cardName}:`, e.currentTarget.src);
-  };
+  // Get zodiac sign and elemental associations
+  const zodiacSign = day && month ? getZodiacSign(month, day) : getZodiacSign(1, 1);
+  const personalityAssociation = personalityCardId ? getMajorArcanaAssociation(personalityCardId) : undefined;
+  const soulAssociation = soulCardId ? getMajorArcanaAssociation(soulCardId) : undefined;
 
-  // Open enlarged image modal
-  const openEnlargedImage = (url: string, alt: string) => {
-    setEnlargedImage({ url, alt });
-  };
-
-  // Close enlarged image modal
-  const closeEnlargedImage = () => {
-    setEnlargedImage(null);
-  };
-
-  // Format birth date for display
-  const formattedDate = `${birthDate.day}/${birthDate.month}/${birthDate.year}`;
-
-  const handleBack = () => {
-    navigate(`/reading/birth-cards/${depth}`);
-  };
+  const birthDateISO = birthDate
+    ? `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`
+    : '';
 
   // Function to fetch universal year energy from API
   const fetchYearEnergy = useCallback(async () => {
@@ -197,7 +182,6 @@ const BirthCardReveal: React.FC = () => {
       setUniversalYearEnergy(energy);
     } catch (error) {
       console.error('[BirthCardReveal] Error fetching year energy:', error);
-      // Fall back to static data if API fails
     } finally {
       setIsLoadingYearEnergy(false);
     }
@@ -205,7 +189,7 @@ const BirthCardReveal: React.FC = () => {
 
   // Function to generate AI year energy interpretation using new API
   const generateYearInterpretation = useCallback(async () => {
-    if (depth < 3 || yearInterpretation || isGeneratingYear) return;
+    if (depth < 3 || yearInterpretation || isGeneratingYear || !birthDate) return;
 
     setIsGeneratingYear(true);
     setYearError(null);
@@ -216,15 +200,6 @@ const BirthCardReveal: React.FC = () => {
         setYearError(language === 'en' ? 'Please sign in to view your personalized year reading' : 'Veuillez vous connecter pour voir votre lecture annuelle personnalisée');
         return;
       }
-
-      const currentYear = new Date().getFullYear();
-      const birthDateISO = `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`;
-
-      // Always call the generate endpoint - it handles caching internally
-      // and properly checks if birth cards match before returning cached data
-      const zodiacSign = getZodiacSign(month, day);
-      const personalityAssociation = getMajorArcanaAssociation(personalityCardId);
-      const soulAssociation = getMajorArcanaAssociation(soulCardId);
 
       const response = await generatePersonalYearReading(token, {
         personalityCard: {
@@ -264,7 +239,7 @@ const BirthCardReveal: React.FC = () => {
     } finally {
       setIsGeneratingYear(false);
     }
-  }, [depth, yearInterpretation, isGeneratingYear, getToken, language, birthDate, month, day, personalityCardId, soulCardId, personalityData, soulData]);
+  }, [depth, yearInterpretation, isGeneratingYear, getToken, language, birthDate, birthDateISO, personalityCardId, soulCardId, personalityData, soulData, personalityAssociation, soulAssociation, zodiacSign, currentYear]);
 
   // Fetch year energy and generate interpretation when year tab is selected
   useEffect(() => {
@@ -278,17 +253,9 @@ const BirthCardReveal: React.FC = () => {
     }
   }, [activeTab, depth, universalYearEnergy, isLoadingYearEnergy, fetchYearEnergy, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
 
-  // Get zodiac sign and elemental associations for synthesis
-  const zodiacSign = getZodiacSign(month, day);
-  const personalityAssociation = getMajorArcanaAssociation(personalityCardId);
-  const soulAssociation = getMajorArcanaAssociation(soulCardId);
-
-  // Format birth date as ISO string for API
-  const birthDateISO = `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}`;
-
   // Function to generate AI birth card synthesis interpretation (for depth 2)
   const generateSynthesisInterpretation = useCallback(async () => {
-    if (depth < 2 || isUnified || synthesisInterpretation || isGeneratingSynthesis) return;
+    if (depth < 2 || isUnified || synthesisInterpretation || isGeneratingSynthesis || !birthDate) return;
 
     setIsGeneratingSynthesis(true);
     setSynthesisError(null);
@@ -300,8 +267,6 @@ const BirthCardReveal: React.FC = () => {
         return;
       }
 
-      // Always generate new synthesis (charges 2 credits)
-      // Users can view past readings in their history instead of regenerating
       console.log('[BirthCardReveal] Generating birth card synthesis...');
       const response = await generateBirthCardSynthesis(token, {
         birthDate: birthDateISO,
@@ -360,7 +325,7 @@ const BirthCardReveal: React.FC = () => {
     } finally {
       setIsGeneratingSynthesis(false);
     }
-  }, [depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, getToken, language, personalityCardId, soulCardId, personalityData, soulData, personalityAssociation, soulAssociation, zodiacSign, birthDateISO]);
+  }, [depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, getToken, language, personalityCardId, soulCardId, personalityData, soulData, personalityAssociation, soulAssociation, zodiacSign, birthDateISO, birthDate]);
 
   // Generate synthesis interpretation when dynamic tab is selected (depth 2 only, non-unified)
   useEffect(() => {
@@ -368,6 +333,11 @@ const BirthCardReveal: React.FC = () => {
       generateSynthesisInterpretation();
     }
   }, [activeTab, depth, isUnified, synthesisInterpretation, isGeneratingSynthesis, generateSynthesisInterpretation]);
+
+  // Early returns AFTER all hooks
+  if (!state?.birthDate || !jsonData) {
+    return null;
+  }
 
   // Loading animation
   if (isLoading) {
@@ -393,6 +363,24 @@ const BirthCardReveal: React.FC = () => {
       </div>
     );
   }
+
+  const formattedDate = `${birthDate.day}/${birthDate.month}/${birthDate.year}`;
+
+  const handleBack = () => {
+    navigate(`/reading/birth-cards/${depth}`);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => {
+    console.error(`[BirthCardReveal] Failed to load image for ${cardName}:`, e.currentTarget.src);
+  };
+
+  const openEnlargedImage = (url: string, alt: string) => {
+    setEnlargedImage({ url, alt });
+  };
+
+  const closeEnlargedImage = () => {
+    setEnlargedImage(null);
+  };
 
   // Render Personality Tab
   const renderPersonalityTab = () => (
