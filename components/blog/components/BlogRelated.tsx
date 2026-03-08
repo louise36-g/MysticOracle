@@ -46,6 +46,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
                   src={optimizeCloudinaryUrl(related.coverImage, IMAGE_SIZES.related)}
                   alt={language === 'en' ? related.titleEn : related.titleFr}
                   className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-500"
+                  loading="lazy"
                 />
               </div>
             )}

@@ -41,6 +41,7 @@ const SoulTab: React.FC<SoulTabProps> = ({
             src={soulImageUrl}
             alt={soulData?.cardName || 'Soul Card'}
             className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
+            loading="lazy"
             onError={(e) => onImageError(e, soulData?.cardName || 'Soul Card')}
           />
         </button>

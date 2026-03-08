@@ -45,12 +45,12 @@ async function flushViewCounts(): Promise<void> {
 
 // Flush every 60 seconds
 setInterval(() => {
-  flushViewCounts().catch(() => {});
+  flushViewCounts().catch(err => logger.error('[ViewCount] Interval flush error:', err));
 }, 60_000);
 
 // Also flush on process exit
 process.on('beforeExit', () => {
-  flushViewCounts().catch(() => {});
+  flushViewCounts().catch(err => logger.error('[ViewCount] Exit flush error:', err));
 });
 
 // List published posts with pagination

@@ -83,6 +83,7 @@ const YearTab: React.FC<YearTabProps> = ({
                   src={yearCardImageUrl}
                   alt={yearEnergy?.yearCard.name || 'Year Card'}
                   className="w-40 h-60 md:w-48 md:h-72 object-contain bg-black/20"
+                  loading="lazy"
                   onError={(e) => onImageError(e, yearEnergy?.yearCard.name || 'Year Card')}
                 />
               </div>
@@ -105,6 +106,7 @@ const YearTab: React.FC<YearTabProps> = ({
                     src={personalYearCardImageUrl}
                     alt={personalYearCardName?.en || 'Personal Year Card'}
                     className="w-40 h-60 md:w-48 md:h-72 object-contain bg-black/20"
+                    loading="lazy"
                     onError={(e) => onImageError(e, 'Personal Year Card')}
                   />
                 </div>

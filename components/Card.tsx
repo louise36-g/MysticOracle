@@ -107,6 +107,7 @@ const Card: React.FC<CardProps> = ({
                       src={imageUrl}
                       alt={language === 'en' ? card.nameEn : card.nameFr}
                       className="w-full h-full object-cover opacity-90"
+                      loading="lazy"
                       onError={(e) => {
                         // Fallback to original image if custom fails
                         const target = e.target as HTMLImageElement;
@@ -120,6 +121,7 @@ const Card: React.FC<CardProps> = ({
                       src={card.image}
                       alt={language === 'en' ? card.nameEn : card.nameFr}
                       className="w-full h-full object-cover opacity-90"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 relative overflow-hidden">

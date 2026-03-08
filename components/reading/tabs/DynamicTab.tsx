@@ -75,6 +75,7 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
               src={personalityImageUrl}
               alt={unifiedData?.cardName || 'Unified Card'}
               className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
+              loading="lazy"
               onError={(e) => onImageError(e, unifiedData?.cardName || 'Unified Card')}
             />
           </button>
@@ -89,6 +90,7 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
                 src={personalityImageUrl}
                 alt={personalityData?.cardName || 'Personality'}
                 className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
+                loading="lazy"
                 onError={(e) => onImageError(e, personalityData?.cardName || 'Personality')}
               />
             </button>
@@ -101,6 +103,7 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
                 src={soulImageUrl}
                 alt={soulData?.cardName || 'Soul'}
                 className="w-36 h-54 md:w-44 md:h-66 object-contain bg-black/20"
+                loading="lazy"
                 onError={(e) => onImageError(e, soulData?.cardName || 'Soul')}
               />
             </button>

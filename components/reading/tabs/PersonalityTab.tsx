@@ -36,6 +36,7 @@ const PersonalityTab: React.FC<PersonalityTabProps> = ({
           src={personalityImageUrl}
           alt={personalityData?.cardName || 'Personality Card'}
           className="w-48 h-72 md:w-56 md:h-84 object-contain bg-black/20"
+          loading="lazy"
           onError={(e) => onImageError(e, personalityData?.cardName || 'Personality Card')}
         />
       </button>
