@@ -30,31 +30,30 @@ const BirthCardEntry: React.FC = () => {
 
   // Handle day input with auto-advance to month
   const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/\D/g, '').slice(0, 2);
     setBirthDate({ ...birthDate, day: value });
 
-    // Auto-advance to month when day is complete
-    // Advance if: 2 digits entered, OR first digit is 4-9 (can only be single digit day)
-    if (value.length === 2 || (value.length === 1 && parseInt(value) > 3)) {
+    // Auto-advance to month only when 2 digits are entered
+    if (value.length === 2) {
       monthRef.current?.focus();
     }
   };
 
   // Handle month input with auto-advance to year
   const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/\D/g, '').slice(0, 2);
     setBirthDate({ ...birthDate, month: value });
 
-    // Auto-advance to year when month is complete
-    // Advance if: 2 digits entered, OR first digit is 2-9 (can only be single digit month)
-    if (value.length === 2 || (value.length === 1 && parseInt(value) > 1)) {
+    // Auto-advance to year only when 2 digits are entered
+    if (value.length === 2) {
       yearRef.current?.focus();
     }
   };
 
   // Handle year input
   const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBirthDate({ ...birthDate, year: e.target.value });
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setBirthDate({ ...birthDate, year: value });
   };
 
   const cost = depthOption?.cost || 1;
@@ -210,9 +209,9 @@ const BirthCardEntry: React.FC = () => {
                   <input
                     id="birth-day"
                     ref={dayRef}
-                    type="number"
-                    min="1"
-                    max="31"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="DD"
                     value={birthDate.day}
                     onChange={handleDayChange}
@@ -228,9 +227,9 @@ const BirthCardEntry: React.FC = () => {
                   <input
                     id="birth-month"
                     ref={monthRef}
-                    type="number"
-                    min="1"
-                    max="12"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="MM"
                     value={birthDate.month}
                     onChange={handleMonthChange}
@@ -246,9 +245,9 @@ const BirthCardEntry: React.FC = () => {
                   <input
                     id="birth-year"
                     ref={yearRef}
-                    type="number"
-                    min="1900"
-                    max={new Date().getFullYear()}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="YYYY"
                     value={birthDate.year}
                     onChange={handleYearChange}
