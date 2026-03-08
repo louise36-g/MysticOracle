@@ -6,15 +6,13 @@
 
 ## Vision
 
-CelestiArcana serves two purposes:
-1. **Standalone Product:** Monetized tarot readings and horoscopes
-2. **Mobile Funnel:** Gateway to Tarot Saga mobile game
+CelestiArcana is a standalone product offering monetized tarot readings, daily horoscopes, and tarot education content.
 
 ---
 
-## Current Phase: Stabilization ✅
+## Stabilization — Complete ✅
 
-**Goal:** Fix known issues, ensure reliability before mobile launch.
+**Goal:** Fix known issues, ensure reliability.
 
 ### Immediate Tasks
 - [x] Verify horoscope generation with valid API key
@@ -31,70 +29,50 @@ CelestiArcana serves two purposes:
 - [x] Stripe v14 → v20
 - [x] Clerk Backend v1 → v2
 - [x] React Router v6 → v7
-- [x] Prisma v5 → v6 (v1.2-prisma-v6, Feb 28 2026)
-- [ ] Prisma v6 → v7 (deferred — requires Dockerfile + adapter-pg for Coolify)
+- [x] Prisma v5 → v7 (v7.4.2 with adapter-pg, prisma-client generator)
 
 ### Quality & Observability
 - [x] ESLint 9 + Prettier configured (0 lint issues)
-- [x] 509 tests across 30 test files
+- [x] 509 backend tests across 30 test files
+- [x] 38 E2E tests across 7 test files
 - [x] Sentry error tracking + performance monitoring
 - [x] Environment variable validation at startup
 
----
-
-## Next Phase: Mobile Funnel
-
-**Goal:** Create compelling preview of Tarot Saga to drive app downloads.
-
-### Tarot Saga Preview
-- [ ] Design Fool's Journey teaser (web version)
-- [ ] Implement 2-3 "chapters" as taste of full experience
-- [ ] Create cliffhanger moment → "Continue in the app"
-- [ ] Track conversion from preview to download
-
-### App Store Integration
-- [ ] Add smart app banners (iOS Safari)
-- [ ] Create dedicated download landing page
-- [ ] Implement deep linking for "Continue your journey"
-- [ ] A/B test CTA placement and messaging
+### Tech Debt Cleared
+- [x] Content systems consolidated (BlogPost table with contentType)
+- [x] localStorage ghost keys removed
+- [x] useAdminCrud hook adopted across 6 admin components
+- [x] Dead code removal, large component splits, DB indexes
 
 ---
 
-## Future Phase: Shared Backend
+## Platform Enhancements — Future
 
-**Goal:** Prepare Express API for mobile app consumption.
+Ideas for when the time is right. No timeline or commitment.
 
-### New Endpoints
-- [ ] `POST /api/game/progress` - Save saga progress
-- [ ] `GET /api/game/progress` - Load saga progress
-- [ ] `POST /api/game/chapters/:id/complete` - Mark chapter complete
-- [ ] `GET /api/game/achievements` - Game-specific achievements
-
-### Database Extensions
-- [ ] Add SagaProgress model
-- [ ] Add GameChapter model
-- [ ] Add cross-platform sync logic
-
-### Mobile Considerations
-- [x] API versioning (`/api/v1/`) — implemented
-- [ ] Add mobile-specific rate limits
-- [ ] Implement offline sync queue support
-
----
-
-## Long-term: Feature Expansion
-
-### New Divination Tools
-- [ ] Rune Readings
-- [ ] Birth Chart / Natal Chart
-- [ ] I Ching
-- [ ] Numerology
-
-### Platform Enhancements
 - [ ] Reading sharing (social)
 - [ ] Journaling features
 - [ ] Guided learning paths
-- [ ] Community features (carefully considered)
+- [ ] Numerology
+
+---
+
+## On Hold
+
+These are paused until the relevant projects progress further.
+
+### Tarot Saga Mobile Funnel
+Mobile game is not currently in development. When it resumes:
+- Design Fool's Journey teaser (web preview)
+- Smart app banners, download landing page, deep linking
+- Shared backend endpoints (`/api/game/progress`, chapters, achievements)
+- New Prisma models (SagaProgress, GameChapter)
+
+### New Divination Tools
+Not planned for the website at this time:
+- Rune Readings
+- Birth Chart / Natal Chart
+- I Ching
 
 ---
 
@@ -114,7 +92,6 @@ Things we're explicitly **not** doing:
 
 | Metric | Target |
 |--------|--------|
-| Web → App conversion | 15%+ of preview completers |
 | Daily active users | Grow 10% month-over-month |
 | Reading completion rate | 80%+ |
 | Credit purchase rate | 5%+ of active users |
@@ -122,4 +99,4 @@ Things we're explicitly **not** doing:
 
 ---
 
-*Roadmap updated: February 2026*
+*Roadmap updated: March 2026*

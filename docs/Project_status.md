@@ -1,7 +1,7 @@
 # CelestiArcana - Project Status
 
 **Last Updated:** March 2026
-**Current Phase:** 1 - Stabilization
+**Current Phase:** Stabilization complete
 **Health:** 🟢 Stable and deployed
 
 ---
@@ -10,10 +10,10 @@
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| Phase 1: Stabilization | 🔄 Active | 90% |
-| Phase 2: Mobile Funnel | ⏳ Pending | 0% |
-| Phase 3: Shared Backend | ⏳ Pending | 0% |
-| Phase 4: New Features | ⏳ Backlog | 0% |
+| Stabilization | ✅ Complete | 100% |
+| Mobile Funnel (Tarot Saga) | ⏸️ On hold | 0% |
+| Shared Backend | ⏸️ On hold | 0% |
+| New Divination Tools | ⏸️ On hold | 0% |
 
 ---
 
@@ -94,14 +94,14 @@
 | Achievements | ✅ Working | Basic achievement system |
 | Referral System | ✅ Working | Referral codes, bonuses |
 
-### Planned Features
+### On Hold
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Tarot Saga Preview | 🔜 Phase 2 | Mobile funnel teaser |
-| Rune Readings | 🔜 Phase 4 | UI placeholder exists |
-| Birth Chart | 🔜 Phase 4 | UI placeholder exists |
-| I Ching | 🔜 Phase 4 | UI placeholder exists |
+| Tarot Saga Preview | ⏸️ On hold | Mobile game not in development |
+| Rune Readings | ⏸️ On hold | Not planned for website currently |
+| Birth Chart | ⏸️ On hold | Not planned for website currently |
+| I Ching | ⏸️ On hold | Not planned for website currently |
 
 ---
 
