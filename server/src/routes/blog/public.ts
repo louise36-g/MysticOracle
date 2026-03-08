@@ -317,4 +317,5 @@ router.get('/tags', async (req, res) => {
   }
 });
 
+export { flushViewCounts };
 export default router;

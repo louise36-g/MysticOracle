@@ -55,7 +55,7 @@ vi.mock('../../lib/logger.js', () => ({
 }));
 
 // Import after mocks
-import publicRouter from '../../routes/blog/public.js';
+import publicRouter, { flushViewCounts } from '../../routes/blog/public.js';
 import prisma from '../../db/prisma.js';
 import cacheService from '../../services/cache.js';
 
@@ -253,13 +253,28 @@ describe('Blog Public Routes', () => {
       expect(res.body.error).toBe('Post not found');
     });
 
-    it('should increment view count (non-blocking)', async () => {
+    it('should increment view count (buffered, flushed periodically)', async () => {
       const mockPost = createMockPost();
       mockedPrisma.blogPost.findFirst.mockResolvedValue(mockPost);
       mockedPrisma.blogPost.update.mockResolvedValue(mockPost);
       mockedPrisma.blogPost.findMany.mockResolvedValue([]);
 
+      // Flush any buffered counts from previous tests, then clear mocks
+      await flushViewCounts();
+      vi.clearAllMocks();
+
+      // Re-set mocks after clearing
+      mockedPrisma.blogPost.findFirst.mockResolvedValue(mockPost);
+      mockedPrisma.blogPost.update.mockResolvedValue(mockPost);
+      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
+
       await request(app).get('/blog/posts/test-post');
+
+      // View count is buffered, not written immediately
+      expect(mockedPrisma.blogPost.update).not.toHaveBeenCalled();
+
+      // Flush the buffer to trigger the DB write
+      await flushViewCounts();
 
       expect(mockedPrisma.blogPost.update).toHaveBeenCalledWith({
         where: { id: 'post-1' },
