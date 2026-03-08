@@ -382,6 +382,11 @@ export class OpenRouterService {
           /Also avoid/im,
           /avoid "[^"]+"/im,
           /^\*\*Guidance\*\*\s+We/im,
+          /^(Sure|Of course|Absolutely)[!,]/im,
+          /^Would you like me to/im,
+          /^I('d| would) (love|be happy|like) to/im,
+          /^I can (help|generate|create|write)/im,
+          /^Here'?s? (what|the reading)/im,
         ];
 
         const looksLikePlanning = planningPatterns.some(pattern => pattern.test(content));
@@ -453,10 +458,20 @@ export class OpenRouterService {
     prompt: string,
     options: { temperature?: number; maxTokens?: number } = {}
   ): Promise<string> {
-    return this.makeRequest([{ role: 'user', content: prompt }], {
-      temperature: options.temperature ?? 0.7,
-      maxTokens: options.maxTokens ?? 2500,
-    });
+    return this.makeRequest(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a professional tarot reader and spiritual guide. Generate the requested content directly and immediately. Never ask for confirmation, clarification, or permission. Never respond with "Would you like me to...", "I can help with...", "Sure!", or similar conversational phrases. Just write the content exactly as instructed in the user prompt.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      {
+        temperature: options.temperature ?? 0.7,
+        maxTokens: options.maxTokens ?? 2500,
+      }
+    );
   }
 
   /**
@@ -480,10 +495,20 @@ export class OpenRouterService {
     prompt: string,
     options: { temperature?: number; maxTokens?: number } = {}
   ): Promise<string> {
-    return this.makeRequest([{ role: 'user', content: prompt }], {
-      temperature: options.temperature ?? 0.8,
-      maxTokens: options.maxTokens ?? 1000,
-    });
+    return this.makeRequest(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a professional astrologer. Generate the requested content directly and immediately. Never ask for confirmation or permission. Just write the content exactly as instructed.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      {
+        temperature: options.temperature ?? 0.8,
+        maxTokens: options.maxTokens ?? 1000,
+      }
+    );
   }
 
   /**
