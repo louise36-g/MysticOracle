@@ -139,8 +139,6 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
         throw new ApiError(errorMessage, response.status, errorBody);
       }
 
-      console.log(`[apiRequest] Success: ${method} ${fullUrl} - Status ${response.status}`);
-
       return response.json();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));

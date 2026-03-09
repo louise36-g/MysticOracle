@@ -157,18 +157,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     const oldIndexStr = oldIndex === -1 ? posts.findIndex((p) => String(p.id) === String(active.id)) : oldIndex;
     const newIndexStr = newIndex === -1 ? posts.findIndex((p) => String(p.id) === String(over.id)) : newIndex;
 
-    const postIdFromDrag = active.id;
-    console.log('Drag ended:', {
-      postIdFromDrag,
-      typeOf: typeof postIdFromDrag,
-      oldIndex,
-      oldIndexStr,
-      newIndex,
-      newIndexStr,
-      categoryFilter,
-      postsIds: posts.slice(0, 3).map(p => ({ id: p.id, type: typeof p.id }))
-    });
-
     // Use the string-matched indices if direct match failed
     const finalOldIndex = oldIndex !== -1 ? oldIndex : oldIndexStr;
     const finalNewIndex = newIndex !== -1 ? newIndex : newIndexStr;
@@ -181,7 +169,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
 
     // Get the actual post ID from the posts array to ensure correct format
     const actualPostId = posts[finalOldIndex].id;
-    console.log('Using actual post ID from array:', actualPostId);
 
     // Save original order for revert
     const originalPosts = [...posts];
@@ -198,14 +185,10 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         return;
       }
 
-      console.log('Calling reorderBlogPost API with postId:', actualPostId);
-      const result = await reorderBlogPost(token, actualPostId, categoryFilter || null, statusFilter || null, finalNewIndex, contentTypeFilter || null);
-      console.log('Reorder API response:', result);
+      await reorderBlogPost(token, actualPostId, categoryFilter || null, statusFilter || null, finalNewIndex, contentTypeFilter || null);
 
       // Reload posts to get updated sortOrder from server
-      console.log('Reloading posts...');
       await loadPosts();
-      console.log('Posts reloaded successfully');
     } catch (err) {
       // Revert on error
       console.error('Reorder error:', err);

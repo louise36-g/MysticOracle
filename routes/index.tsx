@@ -20,9 +20,13 @@ const PageLoader = () => (
 );
 
 // Error boundary for route errors
+// Outside app context, so use browser language directly
+const isFr = () => navigator.language.startsWith('fr');
+
 function RouteErrorBoundary() {
   const error = useRouteError();
   console.error('Route error:', error);
+  const fr = isFr();
 
   if (isRouteErrorResponse(error)) {
     return (
@@ -30,12 +34,12 @@ function RouteErrorBoundary() {
         <div className="text-center max-w-md">
           <div className="text-8xl font-heading text-purple-500/30 mb-4">{error.status}</div>
           <h1 className="text-3xl font-heading text-white mb-4">{error.statusText}</h1>
-          <p className="text-slate-400 mb-6">{error.data || 'Something went wrong'}</p>
+          <p className="text-slate-400 mb-6">{error.data || (fr ? 'Une erreur est survenue' : 'Something went wrong')}</p>
           <a
             href={ROUTES.HOME}
             className="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
-            Go Home
+            {fr ? 'Accueil' : 'Go Home'}
           </a>
         </div>
       </div>
@@ -45,16 +49,16 @@ function RouteErrorBoundary() {
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-8">
       <div className="text-center max-w-md">
-        <div className="text-8xl font-heading text-red-500/30 mb-4">Error</div>
-        <h1 className="text-3xl font-heading text-white mb-4">Something went wrong</h1>
+        <div className="text-8xl font-heading text-red-500/30 mb-4">{fr ? 'Erreur' : 'Error'}</div>
+        <h1 className="text-3xl font-heading text-white mb-4">{fr ? 'Une erreur est survenue' : 'Something went wrong'}</h1>
         <p className="text-slate-400 mb-6">
-          {error instanceof Error ? error.message : 'An unexpected error occurred'}
+          {error instanceof Error ? error.message : (fr ? 'Une erreur inattendue est survenue' : 'An unexpected error occurred')}
         </p>
         <a
           href={ROUTES.HOME}
           className="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
         >
-          Go Home
+          {fr ? 'Accueil' : 'Go Home'}
         </a>
       </div>
     </div>
@@ -83,19 +87,20 @@ const NotFound = () => {
     console.warn('[Router] 404 - No route matched for:', window.location.pathname);
   }
 
+  const fr = isFr();
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-8">
       <div className="text-center max-w-md">
         <div className="text-8xl font-heading text-purple-500/30 mb-4">404</div>
-        <h1 className="text-3xl font-heading text-white mb-4">Page Not Found</h1>
+        <h1 className="text-3xl font-heading text-white mb-4">{fr ? 'Page introuvable' : 'Page Not Found'}</h1>
         <p className="text-slate-400 mb-6">
-          The page you're looking for doesn't exist or has been moved.
+          {fr ? 'La page que vous recherchez n\'existe pas ou a été déplacée.' : 'The page you\'re looking for doesn\'t exist or has been moved.'}
         </p>
         <a
           href={ROUTES.HOME}
           className="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
         >
-          Go Home
+          {fr ? 'Accueil' : 'Go Home'}
         </a>
       </div>
     </div>

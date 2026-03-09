@@ -431,11 +431,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [drawnCards.length, deck, spread.positions, setPhase]);
 
   const startReading = useCallback(async () => {
-    console.log('[Reading] startReading called at', new Date().toISOString());
-
     // Prevent multiple simultaneous saves
     if (isSavingReading) {
-      console.warn('[Reading] Already saving, ignoring duplicate call');
       return;
     }
     setIsSavingReading(true);
@@ -486,18 +483,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         if (!token) {
           throw new Error('Not authenticated');
         }
-        console.log('[Reading] Saving to backend with spreadType:', spread.id);
-        console.log('[Reading] Card data:', drawnCards.map((item, idx) => ({
-          cardId: String(item.card.id),
-          position: idx,
-          isReversed: item.isReversed,
-        })));
-        console.log('[Reading] Saving reading:', {
-          displayCost, // For reference only - backend calculates actual cost
-          spreadType: spread.id,
-          isAdvanced,
-          hasExtendedQuestion: extendedQuestionPaid,
-        });
         const savedReading = await createReading(token, {
           spreadType: spread.id,
           interpretationStyle: isAdvanced && selectedStyles.length > 0
@@ -512,21 +497,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           interpretation: result.interpretation,
           hasExtendedQuestion: extendedQuestionPaid,
         });
-        console.log('[Reading] Saved successfully! Reading:', savedReading);
         setBackendReadingId(savedReading.id);
         // Track reading completion
         trackCompleteReading(spread.id, category || 'general');
         // Refresh user to get updated credit balance from backend
         await refreshUser();
-        console.log('[Reading] User refreshed after credit deduction');
       } catch (saveError) {
-        // Log the full error for debugging
-        console.error('[Reading] FAILED to save reading to backend:', saveError);
-        if (saveError instanceof Error) {
-          console.error('[Reading] Error message:', saveError.message);
-          console.error('[Reading] Error stack:', saveError.stack);
-        }
-        console.error('[Reading] Full error object:', JSON.stringify(saveError, null, 2));
+        console.error('[Reading] Failed to save reading to backend:', saveError);
         // Note: Reading still works locally, but credits weren't deducted
       }
     } catch (error) {
@@ -536,7 +513,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, displayCost, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
+  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {

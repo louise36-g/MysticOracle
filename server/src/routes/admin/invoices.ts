@@ -496,9 +496,9 @@ router.get(
     });
 
     // Transform data for export
-    const exportData = invoices.map((tx, index) => {
+    const exportData = invoices.map(tx => {
       const year = tx.createdAt.getFullYear();
-      const invoiceNumber = `MO-${year}-${String(index + 1).padStart(5, '0')}`;
+      const invoiceNumber = `MO-${year}-${tx.id.slice(-5).toUpperCase()}`;
 
       return {
         invoiceNumber,

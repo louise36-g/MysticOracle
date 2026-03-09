@@ -127,7 +127,6 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
 
   // Fetch user from backend
   const fetchUserFromBackend = useCallback(async (skipHistory = false) => {
-    console.log('[AppContext] fetchUserFromBackend called, isSignedIn:', isSignedIn);
     if (!isSignedIn) {
       setUser(null);
       setIsLoading(false);
@@ -137,15 +136,12 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     try {
       const token = await getToken();
       if (!token) {
-        console.log('[AppContext] No token available');
         setUser(null);
         setIsLoading(false);
         return;
       }
 
-      console.log('[AppContext] Fetching user profile...');
       const profile = await api.fetchUserProfile(token);
-      console.log('[AppContext] Profile received, credits:', profile.credits);
 
       // Map API response to frontend User type
       const mappedUser: User = {
@@ -170,7 +166,6 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         spreadsUsed: [], // TODO: Add to backend if needed
       };
 
-      console.log('[AppContext] Setting user with credits:', mappedUser.credits);
       setUser(mappedUser);
       setLanguageState(mappedUser.language);
       setTranslationLanguage(mappedUser.language);
@@ -199,7 +194,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       }
 
     } catch (error) {
-      console.warn('[AppContext] Error fetching user from backend:', error);
+      console.error('[AppContext] Error fetching user from backend:', error);
       // User might not exist in our DB yet (Clerk webhook will create them)
       // Only create a temporary user object if we don't already have user data
       // This prevents overwriting valid credits (e.g., 76) with fallback (3) on refresh failures
@@ -210,12 +205,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
         setUser((prevUser) => {
           // If we already have user data with credits, preserve it instead of overwriting
           if (prevUser && prevUser.id === clerkUser.id && prevUser.credits !== undefined) {
-            console.log('[AppContext] Preserving existing user data, credits:', prevUser.credits);
             return prevUser;
           }
 
           // Only use fallback for brand new users (no existing data)
-          console.log('[AppContext] Creating temporary user (new user, webhook pending)');
           return {
             id: clerkUser.id,
             email: clerkUser.primaryEmailAddress?.emailAddress || '',
@@ -248,10 +241,8 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   }, [clerkLoaded, isSignedIn, fetchUserFromBackend]);
 
   const refreshUser = useCallback(async () => {
-    console.log('[AppContext] refreshUser called');
     // Skip history fetch for faster credit updates
     await fetchUserFromBackend(true);
-    console.log('[AppContext] refreshUser completed');
   }, [fetchUserFromBackend]);
 
   // Note: Referral code auto-redeem removed — handled by WelcomeModal (first step).

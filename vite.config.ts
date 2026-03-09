@@ -1,11 +1,10 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
+export default defineConfig(() => {
     return {
       server: {
         port: 3000,
@@ -82,6 +81,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('node_modules/@clerk/')) return 'vendor-clerk';
               if (id.includes('node_modules/lucide-react') || id.includes('node_modules/dompurify') || id.includes('node_modules/@dr.pogodin/react-helmet')) return 'vendor-ui';
               if (id.includes('node_modules/@sentry/')) return 'vendor-sentry';
+              if (id.includes('node_modules/@tiptap/') || id.includes('node_modules/prosemirror')) return 'vendor-tiptap';
             }
           }
         }

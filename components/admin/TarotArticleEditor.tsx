@@ -180,16 +180,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
         _visualEditorMode: true,
       };
 
-      console.log('[TarotArticleEditor] Saving article:', {
-        id: article.id,
-        title: article.title,
-        status,
-        hasToken: !!token,
-      });
-
       await updateTarotArticle(token, article.id, updateData);
-
-      console.log('[TarotArticleEditor] Save successful');
       clearErrors();
       setArticle(prev => prev ? { ...prev, status } : prev);
       handleSaved();

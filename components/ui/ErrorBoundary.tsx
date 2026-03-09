@@ -7,8 +7,12 @@ interface Props {
   compact?: boolean;
 }
 
+// Error boundaries render outside normal app context, so use browser language directly
+const isFr = () => navigator.language.startsWith('fr');
+
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   console.error('Uncaught error:', error);
+  const fr = isFr();
 
   return (
     <div className="min-h-[50vh] flex items-center justify-center">
@@ -29,16 +33,16 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
           </svg>
         </div>
         <h2 className="text-xl font-heading text-red-200 mb-2">
-          Something went wrong
+          {fr ? 'Une erreur est survenue' : 'Something went wrong'}
         </h2>
         <p className="text-slate-400 text-sm mb-6">
-          The spirits encountered an unexpected disturbance. Please try again.
+          {fr ? 'Les esprits ont rencontré une perturbation inattendue. Veuillez réessayer.' : 'The spirits encountered an unexpected disturbance. Please try again.'}
         </p>
         <button
           onClick={resetErrorBoundary}
           className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors"
         >
-          Try Again
+          {fr ? 'Réessayer' : 'Try Again'}
         </button>
       </div>
     </div>
@@ -47,6 +51,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 
 function CompactErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   console.error('Uncaught error:', error);
+  const fr = isFr();
 
   return (
     <div className="flex items-center justify-center py-12">
@@ -67,16 +72,16 @@ function CompactErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
           </svg>
         </div>
         <h3 className="text-base font-heading text-red-200 mb-1">
-          Something went wrong
+          {fr ? 'Une erreur est survenue' : 'Something went wrong'}
         </h3>
         <p className="text-slate-400 text-xs mb-4">
-          This section encountered an error.
+          {fr ? 'Cette section a rencontré une erreur.' : 'This section encountered an error.'}
         </p>
         <button
           onClick={resetErrorBoundary}
           className="px-4 py-1.5 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors"
         >
-          Try Again
+          {fr ? 'Réessayer' : 'Try Again'}
         </button>
       </div>
     </div>

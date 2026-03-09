@@ -46,12 +46,9 @@ const PaymentResult: React.FC = () => {
           paymentResult = await capturePayPalOrder(token, paypalOrderId);
         } else if (sessionId) {
           // Verify Stripe payment (also adds credits as backup to webhook)
-          console.log('[PaymentResult] Verifying Stripe session:', sessionId);
           paymentResult = await verifyStripePayment(token, sessionId);
-          console.log('[PaymentResult] Stripe result:', paymentResult);
         } else {
           // No payment to verify - redirect home
-          console.log('[PaymentResult] No session_id or token found in URL');
           setResult({ success: false, error: 'no_payment' });
           setLoading(false);
           return;
