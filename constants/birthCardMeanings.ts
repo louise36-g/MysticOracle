@@ -449,22 +449,21 @@ function reduceToTarot(num: number): number {
 /**
  * Calculate Birth Cards from a birth date
  *
- * The calculation process:
+ * Standard numerological method:
+ * 1. Sum all individual digits of the full birth date
+ * 2. Reduce until the sum is ≤ 22
+ * 3. If 10-21: personality = sum (double-digit arcana), soul = single-digit reduction
+ * 4. If 1-9: unified card (personality and soul are the same)
+ * 5. If 22: The Fool (0) paired with The Emperor (4)
  *
- * PERSONALITY CARD - How you show up in the world
- * - Calculated from the DAY OF BIRTH ONLY
- * - Reduced to a Major Arcana card (1-22)
- * - Represents your outward expression, habits, learned responses, and social self
- *
- * SOUL CARD - What you are here to grow into
- * - Calculated from the FULL BIRTHDATE (day + month + year)
- * - Reduced to a Major Arcana card (1-22)
- * - Represents your deeper motivation, inner truth, and soul-level learning
+ * This produces the 13 standard birth card pairs:
+ *   10+1, 11+2, 12+3, 13+4, 14+5, 15+6, 16+7, 17+8, 18+9,
+ *   19+1, 20+2, 21+3, 22/0+4
  *
  * Examples:
- * - Day = 15 → Personality = The Devil (15)
- * - Day = 28 → Personality = 2+8 = 10 = Wheel of Fortune
- * - Full date 15/03/1990 → Soul = 1+5+0+3+1+9+9+0 = 28 → 2+8 = 10 = Wheel of Fortune
+ * - 05/15/1980: 0+5+1+5+1+9+8+0 = 29 → 2+9 = 11 → Justice (11) + High Priestess (2)
+ * - 12/02/1965: 1+2+0+2+1+9+6+5 = 26 → 2+6 = 8 → Unified Strength (8)
+ * - 03/14/1995: 0+3+1+4+1+9+9+5 = 32 → 3+2 = 5 → Unified Hierophant (5)
  *
  * @param day - Day of birth (1-31)
  * @param month - Month of birth (1-12)
@@ -479,30 +478,31 @@ export function calculateBirthCards(
   soulCard: number;
   personalityCard: number;
 } {
-  // PERSONALITY CARD: from day of birth only
-  // Day can be 1-31, reduce to 1-22 range
-  let personalitySum = day;
-  if (personalitySum > 22) {
-    // Reduce days 23-31 by summing digits
-    personalitySum = personalitySum
-      .toString()
-      .split('')
-      .reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+  // Sum all individual digits of the full birth date
+  const fullDateStr = `${month}${day}${year}`;
+  let sum = fullDateStr.split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+
+  // Reduce until ≤ 22
+  while (sum > 22) {
+    sum = sum.toString().split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
   }
-  // Convert 22 to 0 for The Fool
-  const personalityCard = personalitySum === 22 ? 0 : personalitySum;
 
-  // SOUL CARD: from full birthdate (day + month + year)
-  const fullDateStr = `${day}${month}${year}`;
-  let soulSum = fullDateStr.split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+  if (sum >= 10 && sum <= 21) {
+    // Two-card pair: personality is the double-digit arcana, soul is the reduction
+    let soul = sum;
+    while (soul > 9) {
+      soul = soul.toString().split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+    }
+    return { personalityCard: sum, soulCard: soul };
+  }
 
-  // Reduce to tarot range (1-22)
-  soulSum = reduceToTarot(soulSum);
+  if (sum === 22) {
+    // Special case: The Fool (0) paired with The Emperor (4)
+    return { personalityCard: 0, soulCard: 4 };
+  }
 
-  // Convert 22 to 0 for The Fool
-  const soulCard = soulSum === 22 ? 0 : soulSum;
-
-  return { soulCard, personalityCard };
+  // Single digit (1-9): unified card — personality and soul are the same
+  return { personalityCard: sum, soulCard: sum };
 }
 
 /**
