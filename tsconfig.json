@@ -26,7 +26,13 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+
+    /* Strict sub-flags (incremental enablement) */
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true
   },
   "exclude": [
     "server/scripts/archive",
