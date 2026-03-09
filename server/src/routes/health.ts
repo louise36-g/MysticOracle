@@ -6,82 +6,105 @@ import { logger } from '../lib/logger.js';
 import { captureMessage } from '../config/sentry.js';
 
 const router = Router();
+const startedAt = Date.now();
 
-// Lightweight ping for uptime monitors (no DB query)
+// DB check with timeout to avoid hanging health checks
+const DB_CHECK_TIMEOUT_MS = 3000;
+
+async function checkDatabase(): Promise<{ ok: boolean; latencyMs: number; error?: string }> {
+  const start = Date.now();
+  try {
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database check timed out')), DB_CHECK_TIMEOUT_MS)
+      ),
+    ]);
+    return { ok: true, latencyMs: Date.now() - start };
+  } catch (err) {
+    return {
+      ok: false,
+      latencyMs: Date.now() - start,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}
+
+// ─── Liveness probe ──────────────────────────────────────────
+// Is the process alive? No external dependency checks.
+// Use this for uptime monitors and container liveness probes.
+router.get('/livez', (_req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor((Date.now() - startedAt) / 1000),
+  });
+});
+
+// Keep /ping as alias for backward compatibility
 router.get('/ping', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });
 });
 
-/**
- * @openapi
- * /api/v1/health:
- *   get:
- *     tags:
- *       - Health
- *     summary: Health check endpoint
- *     description: Check if the API and database are healthy and responding
- *     responses:
- *       200:
- *         description: Service is healthy
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: healthy
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- *                 services:
- *                   type: object
- *                   properties:
- *                     database:
- *                       type: string
- *                       example: connected
- *                     api:
- *                       type: string
- *                       example: running
- *       503:
- *         description: Service is unhealthy
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: unhealthy
- *                 services:
- *                   type: object
- *                 error:
- *                   type: string
- */
-router.get('/', async (req, res) => {
-  try {
-    // Check database connection
-    await prisma.$queryRaw`SELECT 1`;
+// ─── Readiness probe ─────────────────────────────────────────
+// Can the service handle traffic? Checks database connectivity.
+// Returns 503 if not ready — load balancers should stop routing traffic.
+router.get('/readyz', async (_req, res) => {
+  const db = await checkDatabase();
 
-    res.json({
-      status: 'healthy',
+  if (!db.ok) {
+    res.status(503).json({
+      status: 'not_ready',
       timestamp: new Date().toISOString(),
-      services: {
-        database: 'connected',
-        api: 'running',
+      checks: {
+        database: { status: 'fail', latencyMs: db.latencyMs, error: db.error },
       },
     });
-  } catch (error) {
+    return;
+  }
+
+  res.json({
+    status: 'ready',
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: { status: 'pass', latencyMs: db.latencyMs },
+    },
+  });
+});
+
+// ─── Combined health (backward compatible) ───────────────────
+// Existing endpoint kept for current monitors and admin dashboard.
+router.get('/', async (_req, res) => {
+  const db = await checkDatabase();
+
+  if (!db.ok) {
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
+      uptime: Math.floor((Date.now() - startedAt) / 1000),
       services: {
         database: 'disconnected',
         api: 'running',
       },
-      error: error instanceof Error ? error.message : 'Unknown error',
+      checks: {
+        database: { status: 'fail', latencyMs: db.latencyMs, error: db.error },
+      },
     });
+    return;
   }
+
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor((Date.now() - startedAt) / 1000),
+    services: {
+      database: 'connected',
+      api: 'running',
+    },
+    checks: {
+      database: { status: 'pass', latencyMs: db.latencyMs },
+    },
+  });
 });
 
 // CSP violation reporting endpoint

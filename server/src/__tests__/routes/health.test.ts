@@ -1,6 +1,6 @@
 /**
  * Health Routes Tests
- * Tests for GET /, POST /bootstrap, GET /admin-status
+ * Tests for GET /livez, GET /readyz, GET /, POST /bootstrap, GET /admin-status
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
@@ -56,7 +56,78 @@ describe('Health Routes', () => {
   });
 
   // ============================================
-  // GET / — Health check
+  // GET /livez — Liveness probe
+  // ============================================
+  describe('GET /livez', () => {
+    it('should return 200 with status ok', async () => {
+      const res = await request(app).get('/livez');
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('ok');
+    });
+
+    it('should include uptime in seconds', async () => {
+      const res = await request(app).get('/livez');
+
+      expect(res.body.uptime).toBeTypeOf('number');
+      expect(res.body.uptime).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should include ISO timestamp', async () => {
+      const res = await request(app).get('/livez');
+
+      expect(res.body.timestamp).toBeDefined();
+      expect(new Date(res.body.timestamp).toISOString()).toBe(res.body.timestamp);
+    });
+
+    it('should not query the database', async () => {
+      await request(app).get('/livez');
+
+      expect(mockedPrisma.$queryRaw).not.toHaveBeenCalled();
+    });
+  });
+
+  // ============================================
+  // GET /readyz — Readiness probe
+  // ============================================
+  describe('GET /readyz', () => {
+    it('should return 200 ready when DB is connected', async () => {
+      mockedPrisma.$queryRaw.mockResolvedValue([{ '?column?': 1 }]);
+
+      const res = await request(app).get('/readyz');
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('ready');
+      expect(res.body.checks.database.status).toBe('pass');
+      expect(res.body.checks.database.latencyMs).toBeTypeOf('number');
+    });
+
+    it('should return 503 not_ready when DB fails', async () => {
+      mockedPrisma.$queryRaw.mockRejectedValue(new Error('Connection refused'));
+
+      const res = await request(app).get('/readyz');
+
+      expect(res.status).toBe(503);
+      expect(res.body.status).toBe('not_ready');
+      expect(res.body.checks.database.status).toBe('fail');
+      expect(res.body.checks.database.error).toBe('Connection refused');
+    });
+
+    it('should return 503 when DB check times out', async () => {
+      mockedPrisma.$queryRaw.mockImplementation(
+        () => new Promise(resolve => setTimeout(resolve, 5000))
+      );
+
+      const res = await request(app).get('/readyz');
+
+      expect(res.status).toBe(503);
+      expect(res.body.status).toBe('not_ready');
+      expect(res.body.checks.database.error).toBe('Database check timed out');
+    }, 10000);
+  });
+
+  // ============================================
+  // GET / — Combined health check (backward compatible)
   // ============================================
   describe('GET /', () => {
     it('should return 200 healthy when DB is connected', async () => {
@@ -68,6 +139,16 @@ describe('Health Routes', () => {
       expect(res.body.status).toBe('healthy');
       expect(res.body.services.database).toBe('connected');
       expect(res.body.services.api).toBe('running');
+    });
+
+    it('should include uptime and checks in response', async () => {
+      mockedPrisma.$queryRaw.mockResolvedValue([{ '?column?': 1 }]);
+
+      const res = await request(app).get('/');
+
+      expect(res.body.uptime).toBeTypeOf('number');
+      expect(res.body.checks.database.status).toBe('pass');
+      expect(res.body.checks.database.latencyMs).toBeTypeOf('number');
     });
 
     it('should include a timestamp in ISO format', async () => {
@@ -88,7 +169,7 @@ describe('Health Routes', () => {
       expect(res.body.status).toBe('unhealthy');
       expect(res.body.services.database).toBe('disconnected');
       expect(res.body.services.api).toBe('running');
-      expect(res.body.error).toBe('Connection refused');
+      expect(res.body.checks.database.error).toBe('Connection refused');
     });
 
     it('should return response shape with all required fields', async () => {
@@ -98,7 +179,9 @@ describe('Health Routes', () => {
 
       expect(res.body).toHaveProperty('status');
       expect(res.body).toHaveProperty('timestamp');
+      expect(res.body).toHaveProperty('uptime');
       expect(res.body).toHaveProperty('services');
+      expect(res.body).toHaveProperty('checks');
       expect(res.body.services).toHaveProperty('database');
       expect(res.body.services).toHaveProperty('api');
     });
