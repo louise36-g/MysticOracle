@@ -151,7 +151,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
     const offset = index - centerIndex;
 
     switch (shufflePhase) {
-      case 0: // Arc spread
+      case 0: {
         const arcPos = getArcPosition(index, NUM_CARDS, 120, 70);
         return {
           x: [0, arcPos.x, 0],
@@ -159,6 +159,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           rotate: [0, arcPos.rotation, 0],
           scale: [1, 1.05, 1],
         };
+      }
 
       case 1: // Cascade/waterfall
         return {
@@ -168,7 +169,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           scale: [1, 1, 1],
         };
 
-      case 2: // Riffle interleave
+      case 2: {
         const isLeft = index % 2 === 0;
         return {
           x: [0, isLeft ? -40 : 40, 0],
@@ -176,6 +177,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           rotate: [0, isLeft ? -10 : 10, 0],
           scale: [1, 1.02, 1],
         };
+      }
 
       default:
         return { x: 0, y: 0, rotate: 0, scale: 1 };

@@ -22,6 +22,7 @@ import {
   transformArticleResponse,
   transformListItem,
 } from './shared.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
@@ -160,9 +161,7 @@ router.get(
  * GET /api/tarot-articles
  * List published tarot articles with pagination and filters
  */
-const listArticlesSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+const listArticlesFilterSchema = z.object({
   cardType: z
     .enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'])
     .optional(),
@@ -180,11 +179,11 @@ const listArticlesSchema = z.object({
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status } = params;
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 20, 100);
+    const { cardType, status } = listArticlesFilterSchema.parse(req.query);
 
     // Check cache first
-    const cacheKey = `tarot:list:${page}:${limit}:${cardType || ''}:${status || ''}`;
+    const cacheKey = `tarot:list:${paginationParams.page}:${paginationParams.limit}:${cardType || ''}:${status || ''}`;
     const cached = await cacheService.get<unknown>(cacheKey);
     if (cached) {
       return res.json(cached);
@@ -206,20 +205,15 @@ router.get(
         where,
         select: articleListSelect,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
       }),
       prisma.blogPost.count({ where }),
     ]);
 
     const response = {
       articles: articles.map(transformListItem),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: createPaginationMeta(paginationParams, total),
       // Legacy response shape compatibility
       total,
     };

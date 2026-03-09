@@ -4,6 +4,7 @@
 
 import { Router, z, Prisma, prisma } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
@@ -14,10 +15,9 @@ const router = Router();
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const params = z
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 50, 100);
+    const filters = z
       .object({
-        page: z.coerce.number().min(1).default(1),
-        limit: z.coerce.number().min(1).max(100).default(50),
         type: z
           .enum([
             'PURCHASE',
@@ -33,8 +33,8 @@ router.get(
       .parse(req.query);
 
     const where: Prisma.TransactionWhereInput = {};
-    if (params.type) {
-      where.type = params.type;
+    if (filters.type) {
+      where.type = filters.type;
     }
 
     const [transactions, total] = await Promise.all([
@@ -44,20 +44,15 @@ router.get(
           user: { select: { username: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
-        skip: (params.page - 1) * params.limit,
-        take: params.limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
       }),
       prisma.transaction.count({ where }),
     ]);
 
     res.json({
       transactions,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
+      pagination: createPaginationMeta(paginationParams, total),
     });
   })
 );

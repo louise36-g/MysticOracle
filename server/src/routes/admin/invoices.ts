@@ -12,6 +12,7 @@ import { Router, z, prisma, Prisma } from './shared.js';
 import { invoiceService } from '../../services/invoiceService.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
@@ -19,9 +20,7 @@ const router = Router();
 // SCHEMAS
 // ============================================
 
-const listInvoicesSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+const listInvoicesFilterSchema = z.object({
   search: z.string().optional(), // Search by username, email, or invoice number
   dateFrom: z.string().optional(), // ISO date string
   dateTo: z.string().optional(), // ISO date string
@@ -92,18 +91,9 @@ const listInvoicesSchema = z.object({
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const {
-      page,
-      limit,
-      search,
-      dateFrom,
-      dateTo,
-      minAmount,
-      maxAmount,
-      paymentProvider,
-      sortBy,
-      sortOrder,
-    } = listInvoicesSchema.parse(req.query);
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 20, 100);
+    const { search, dateFrom, dateTo, minAmount, maxAmount, paymentProvider, sortBy, sortOrder } =
+      listInvoicesFilterSchema.parse(req.query);
 
     // Build where clause for completed purchases only
     const where: Prisma.TransactionWhereInput = {
@@ -171,8 +161,8 @@ router.get(
       prisma.transaction.findMany({
         where,
         orderBy,
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
         include: {
           user: {
             select: {
@@ -206,12 +196,7 @@ router.get(
 
     res.json({
       data: invoiceList,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: createPaginationMeta(paginationParams, total),
     });
   })
 );

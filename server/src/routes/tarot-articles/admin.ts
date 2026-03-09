@@ -27,13 +27,12 @@ import {
   mapBlogPostToTarotFields,
 } from './shared.js';
 import { handleReorder } from '../shared/reorderUtils.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
-// Validation schema for list query params
-const listArticlesSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+// Validation schema for list filter params (page/limit handled by parsePaginationParams)
+const listArticlesFilterSchema = z.object({
   cardType: z
     .enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'])
     .optional(),
@@ -270,8 +269,8 @@ router.post(
 router.get(
   '/list',
   asyncHandler(async (req, res) => {
-    const params = listArticlesSchema.parse(req.query);
-    const { page, limit, cardType, status, search, deleted } = params;
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 20, 100);
+    const { cardType, status, search, deleted } = listArticlesFilterSchema.parse(req.query);
 
     const where: Prisma.BlogPostWhereInput = {
       contentType: 'TAROT_ARTICLE',
@@ -323,8 +322,8 @@ router.get(
           metaTitleFr: true,
           metaDescFr: true,
         },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.blogPost.count({ where }),
@@ -335,12 +334,16 @@ router.get(
       mapBlogPostToTarotFields(a as unknown as Record<string, unknown>)
     );
 
+    const paginationMeta = createPaginationMeta(paginationParams, total);
+
     res.json({
       articles: transformedArticles,
+      pagination: paginationMeta,
+      // Legacy flat fields for backward compatibility
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: paginationParams.page,
+      limit: paginationParams.limit,
+      totalPages: paginationMeta.totalPages,
     });
   })
 );

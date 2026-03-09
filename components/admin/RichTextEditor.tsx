@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 import { useEditor, EditorContent } from '@tiptap/react';
-import { fetchAdminBlogMedia, BlogMedia } from '../../services/api';
+import { useMediaLibrary } from '../../hooks/admin/useMediaLibrary';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -39,13 +38,6 @@ import {
   Loader,
   HelpCircle,
 } from 'lucide-react';
-
-// Folder configuration for media library
-const MEDIA_FOLDERS = [
-  { id: 'all', label: 'All' },
-  { id: 'blog', label: 'Blog' },
-  { id: 'tarot', label: 'Tarot' },
-];
 
 interface RichTextEditorProps {
   content: string;
@@ -94,56 +86,33 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   onBlur,
   placeholder = 'Start writing...',
-  mediaLibrary = [],
+  mediaLibrary: _mediaLibrary = [],
   onMediaUpload,
   onMediaDelete,
 }) => {
-  const { getToken } = useAuth();
   const [showImageModal, setShowImageModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [showFontSizeMenu, setShowFontSizeMenu] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [deletingMedia, setDeletingMedia] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalFileInputRef = useRef<HTMLInputElement>(null);
   const fontSizeRef = useRef<HTMLDivElement>(null);
 
-  // Media library state - fetch independently for reliability
-  const [modalMedia, setModalMedia] = useState<BlogMedia[]>([]);
-  const [mediaLoading, setMediaLoading] = useState(false);
-  const [activeFolder, setActiveFolder] = useState<string>('all');
-
-  // Fetch media when modal opens
-  useEffect(() => {
-    if (showImageModal) {
-      loadModalMedia();
-    }
-  }, [showImageModal]);
-
-  const loadModalMedia = async () => {
-    try {
-      setMediaLoading(true);
-      const token = await getToken();
-      if (!token) return;
-      const folderFilter = activeFolder === 'all' ? undefined : activeFolder;
-      const result = await fetchAdminBlogMedia(token, folderFilter);
-      setModalMedia(result.media);
-    } catch (err) {
-      console.error('Failed to load media:', err);
-    } finally {
-      setMediaLoading(false);
-    }
-  };
-
-  // Reload media when folder changes (only if modal is open)
-  useEffect(() => {
-    if (showImageModal) {
-      loadModalMedia();
-    }
-  }, [activeFolder]);
+  // Media library hook
+  const {
+    mediaItems,
+    mediaLoading,
+    activeFolder,
+    uploading,
+    deletingMedia,
+    folders,
+    setActiveFolder,
+    uploadMedia,
+    deleteMedia,
+    handleModalFileSelect: mediaHandleModalFileSelect,
+  } = useMediaLibrary({ onMediaUpload, onMediaDelete });
 
   const editor = useEditor({
     extensions: [
@@ -233,19 +202,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const handleImageUpload = useCallback(async (file: File) => {
     if (!onMediaUpload || !editor) return;
 
-    setUploading(true);
-    try {
-      const url = await onMediaUpload(file);
+    const url = await uploadMedia(file);
+    if (url) {
       (editor.chain().focus() as unknown as { setResizableImage: (opts: { src: string; alt: string; align: string }) => { run: () => void } })
         .setResizableImage({ src: url, alt: file.name, align: 'center' })
         .run();
-    } catch (err) {
-      console.error('Failed to upload image:', err);
+    } else {
       alert('Failed to upload image');
-    } finally {
-      setUploading(false);
     }
-  }, [onMediaUpload, editor]);
+  }, [onMediaUpload, editor, uploadMedia]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -257,41 +222,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  const handleModalFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onMediaUpload) {
-      setUploading(true);
-      try {
-        const url = await onMediaUpload(file);
-        setImageUrl(url);
-        setImageAlt(file.name.replace(/\.[^/.]+$/, ''));
-        // Reload media library after successful upload
-        await loadModalMedia();
-      } catch (err) {
-        console.error('Failed to upload image:', err);
-      } finally {
-        setUploading(false);
-      }
-    }
-    if (modalFileInputRef.current) {
-      modalFileInputRef.current.value = '';
-    }
-  };
-
-  const handleMediaDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onMediaDelete) return;
-
-    setDeletingMedia(id);
-    try {
-      await onMediaDelete(id);
-      // Reload media library after deletion
-      await loadModalMedia();
-    } catch (err) {
-      console.error('Failed to delete media:', err);
-    } finally {
-      setDeletingMedia(null);
-    }
+  const handleModalFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    mediaHandleModalFileSelect(e, setImageUrl, setImageAlt);
   };
 
   const insertImage = () => {
@@ -673,7 +605,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
                 {/* Folder Tabs */}
                 <div className="flex items-center gap-1 mb-3 bg-slate-800/50 p-1 rounded-lg">
-                  {MEDIA_FOLDERS.map((folder) => (
+                  {folders.map((folder) => (
                     <button
                       key={folder.id}
                       onClick={() => setActiveFolder(folder.id)}
@@ -693,9 +625,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                   <div className="flex items-center justify-center py-8 bg-slate-800/50 rounded-lg">
                     <Loader className="w-6 h-6 text-purple-400 animate-spin" />
                   </div>
-                ) : modalMedia.length > 0 ? (
+                ) : mediaItems.length > 0 ? (
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[280px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
-                    {modalMedia.map((item) => (
+                    {mediaItems.map((item) => (
                       <div
                         key={item.id}
                         className="relative group"
@@ -723,7 +655,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                         {/* Delete button */}
                         {onMediaDelete && (
                           <button
-                            onClick={(e) => handleMediaDelete(item.id, e)}
+                            onClick={(e) => deleteMedia(item.id, e)}
                             disabled={deletingMedia === item.id}
                             className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                             title="Delete image"

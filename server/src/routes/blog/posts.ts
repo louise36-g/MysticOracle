@@ -22,6 +22,7 @@ import {
 import { handleReorder } from '../shared/reorderUtils.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
@@ -79,10 +80,9 @@ router.get(
 router.get(
   '/posts',
   asyncHandler(async (req, res) => {
-    const params = z
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 20, 100);
+    const filters = z
       .object({
-        page: z.coerce.number().min(1).default(1),
-        limit: z.coerce.number().min(1).max(100).default(20),
         status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
         search: z.string().optional(),
         deleted: z.coerce.boolean().optional(), // true = show trash, false/undefined = show active
@@ -93,33 +93,33 @@ router.get(
 
     const where: Prisma.BlogPostWhereInput = {};
 
-    if (params.contentType) {
-      where.contentType = params.contentType;
+    if (filters.contentType) {
+      where.contentType = filters.contentType;
     }
 
     // Filter by deleted status
-    if (params.deleted) {
+    if (filters.deleted) {
       where.deletedAt = { not: null };
     } else {
       where.deletedAt = null;
     }
 
-    if (params.status) where.status = params.status;
-    if (params.search) {
+    if (filters.status) where.status = filters.status;
+    if (filters.search) {
       where.OR = [
-        { titleEn: { contains: params.search, mode: 'insensitive' } },
-        { titleFr: { contains: params.search, mode: 'insensitive' } },
-        { slug: { contains: params.search, mode: 'insensitive' } },
+        { titleEn: { contains: filters.search, mode: 'insensitive' } },
+        { titleFr: { contains: filters.search, mode: 'insensitive' } },
+        { slug: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    if (params.category) {
-      where.categories = { some: { category: { slug: params.category } } };
+    if (filters.category) {
+      where.categories = { some: { category: { slug: filters.category } } };
     }
 
     // When filtering by category, order by sortOrder for drag-and-drop
     // createdAt tiebreaker ensures deterministic order when sortOrder values match
     // Otherwise, order by updatedAt
-    const orderBy = params.category
+    const orderBy = filters.category
       ? [{ sortOrder: 'asc' as const }, { createdAt: 'asc' as const }]
       : { updatedAt: 'desc' as const };
 
@@ -128,8 +128,8 @@ router.get(
         where,
         include: includeCategoriesAndTags,
         orderBy,
-        skip: (params.page - 1) * params.limit,
-        take: params.limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
       }),
       prisma.blogPost.count({ where }),
     ]);
@@ -140,12 +140,7 @@ router.get(
         categories: flattenCategories(p.categories),
         tags: flattenTags(p.tags),
       })),
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
+      pagination: createPaginationMeta(paginationParams, total),
     });
   })
 );

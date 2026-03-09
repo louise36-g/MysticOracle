@@ -345,7 +345,7 @@ function isWholeWord(content: string, position: number, length: number): boolean
   const before = position > 0 ? content[position - 1] : ' ';
   const after = position + length < content.length ? content[position + length] : ' ';
 
-  const wordBoundary = /[\s\.,;:!?\-\(\)\[\]"'<>\/]/;
+  const wordBoundary = /[\s.,;:!?\-()[\]"'<>/]/;
   return wordBoundary.test(before) && wordBoundary.test(after);
 }
 

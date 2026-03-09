@@ -50,7 +50,7 @@ export function getUrlForType(type: LinkType, slug: string): string {
       return `/tarot/${slug}`;
     case 'blog':
       return `/blog/${slug}`;
-    case 'spread':
+    case 'spread': {
       // Category slugs (suits, arcana) route to /tarot/cards/{slug}
       if (CATEGORY_SLUGS.has(slug)) {
         return `/tarot/cards/${slug}`;
@@ -62,6 +62,7 @@ export function getUrlForType(type: LinkType, slug: string): string {
       }
       // Fallback for unknown spread slugs
       return `/reading`;
+    }
     case 'horoscope':
       return `/horoscopes/${slug}`;
     default:

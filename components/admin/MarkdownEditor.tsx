@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { marked } from 'marked';
+import { useMediaLibrary } from '../../hooks/admin/useMediaLibrary';
 import {
   Eye,
-  EyeOff,
   Bold,
   Italic,
   Heading1,
@@ -18,10 +18,10 @@ import {
   Upload,
   Columns,
   Maximize2,
-  Minimize2,
   Check,
   X,
   HelpCircle,
+  Loader,
 } from 'lucide-react';
 
 interface MarkdownEditorProps {
@@ -43,7 +43,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   content,
   onChange,
   placeholder = 'Write your content in Markdown...',
-  mediaLibrary = [],
+  mediaLibrary: _mediaLibrary = [],
   onMediaUpload,
   onMediaDelete,
 }) => {
@@ -125,13 +125,25 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [deletingMedia, setDeletingMedia] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalFileInputRef = useRef<HTMLInputElement>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  // Media library hook
+  const {
+    mediaItems,
+    mediaLoading,
+    activeFolder,
+    uploading,
+    deletingMedia,
+    folders,
+    setActiveFolder,
+    uploadMedia,
+    deleteMedia,
+    handleModalFileSelect: mediaHandleModalFileSelect,
+  } = useMediaLibrary({ onMediaUpload, onMediaDelete });
 
   // Convert markdown to HTML for preview
   const htmlOutput = useMemo(() => {
@@ -236,9 +248,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const handleImageUpload = async (file: File) => {
     if (!onMediaUpload) return;
 
-    setUploading(true);
-    try {
-      const url = await onMediaUpload(file);
+    const url = await uploadMedia(file);
+    if (url) {
       const alt = file.name.replace(/\.[^/.]+$/, '');
       const textarea = textareaRef.current;
       if (textarea) {
@@ -249,11 +260,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           markdown.substring(start);
         handleMarkdownChange(newMarkdown);
       }
-    } catch (err) {
-      console.error('Failed to upload image:', err);
+    } else {
       alert('Failed to upload image');
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -267,37 +275,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     }
   };
 
-  const handleModalFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onMediaUpload) {
-      setUploading(true);
-      try {
-        const url = await onMediaUpload(file);
-        setImageUrl(url);
-        setImageAlt(file.name.replace(/\.[^/.]+$/, ''));
-      } catch (err) {
-        console.error('Failed to upload image:', err);
-      } finally {
-        setUploading(false);
-      }
-    }
-    if (modalFileInputRef.current) {
-      modalFileInputRef.current.value = '';
-    }
-  };
-
-  const handleMediaDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onMediaDelete) return;
-
-    setDeletingMedia(id);
-    try {
-      await onMediaDelete(id);
-    } catch (err) {
-      console.error('Failed to delete media:', err);
-    } finally {
-      setDeletingMedia(null);
-    }
+  const handleModalFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    mediaHandleModalFileSelect(e, setImageUrl, setImageAlt);
   };
 
   const MenuButton: React.FC<{
@@ -604,22 +583,46 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                 />
               </div>
 
-              {mediaLibrary.length > 0 && (
-                <div>
-                  <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
+              {/* Media Library with Folder Tabs */}
+              <div>
+                <label className="block text-sm text-slate-400 mb-2">Or select from Media Library</label>
+
+                {/* Folder Tabs */}
+                <div className="flex items-center gap-1 mb-3 bg-slate-800/50 p-1 rounded-lg">
+                  {folders.map((folder) => (
+                    <button
+                      key={folder.id}
+                      onClick={() => setActiveFolder(folder.id)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        activeFolder === folder.id
+                          ? 'bg-purple-600 text-white'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                      }`}
+                    >
+                      {folder.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Media Grid */}
+                {mediaLoading ? (
+                  <div className="flex items-center justify-center py-8 bg-slate-800/50 rounded-lg">
+                    <Loader className="w-6 h-6 text-purple-400 animate-spin" />
+                  </div>
+                ) : mediaItems.length > 0 ? (
                   <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 bg-slate-800/50 rounded-lg">
-                    {mediaLibrary.map((item) => (
+                    {mediaItems.map((item) => (
                       <div key={item.id} className="relative group">
                         <button
                           onClick={() => {
                             setImageUrl(item.url);
-                            setImageAlt(item.originalName);
+                            setImageAlt(item.originalName || '');
                           }}
                           className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors w-full ${
                             imageUrl === item.url ? 'border-purple-500' : 'border-transparent hover:border-purple-500/50'
                           }`}
                         >
-                          <img src={item.url} alt={item.originalName} className="w-full h-full object-cover" />
+                          <img src={item.url} alt={item.originalName || 'Media'} className="w-full h-full object-cover" />
                           {imageUrl === item.url && (
                             <div className="absolute inset-0 bg-purple-500/30 flex items-center justify-center">
                               <Check className="w-6 h-6 text-white" />
@@ -629,7 +632,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                         {/* Delete button */}
                         {onMediaDelete && (
                           <button
-                            onClick={(e) => handleMediaDelete(item.id, e)}
+                            onClick={(e) => deleteMedia(item.id, e)}
                             disabled={deletingMedia === item.id}
                             className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                             title="Delete image"
@@ -644,8 +647,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8 bg-slate-800/50 rounded-lg">
+                    <ImageIcon className="w-10 h-10 mx-auto mb-2 text-slate-600" />
+                    <p className="text-sm text-slate-500">
+                      {activeFolder === 'all'
+                        ? 'No images uploaded yet'
+                        : `No images in ${activeFolder} folder`}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <div className="flex gap-3">
                 <button

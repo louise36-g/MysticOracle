@@ -14,6 +14,7 @@ import {
 } from '../shared/queryUtils.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
+import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
 const router = Router();
 
@@ -57,10 +58,9 @@ process.on('beforeExit', () => {
 router.get(
   '/posts',
   asyncHandler(async (req, res) => {
-    const params = z
+    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 12, 50);
+    const filters = z
       .object({
-        page: z.coerce.number().min(1).default(1),
-        limit: z.coerce.number().min(1).max(50).default(12),
         category: z.string().optional(),
         tag: z.string().optional(),
         featured: z.coerce.boolean().optional(),
@@ -69,11 +69,11 @@ router.get(
 
     // Build cache key from sorted params
     const cacheKey = `blog:posts:${JSON.stringify({
-      p: params.page,
-      l: params.limit,
-      c: params.category || '',
-      t: params.tag || '',
-      f: params.featured ?? '',
+      p: paginationParams.page,
+      l: paginationParams.limit,
+      c: filters.category || '',
+      t: filters.tag || '',
+      f: filters.featured ?? '',
     })}`;
 
     // Check cache first
@@ -89,14 +89,14 @@ router.get(
       deletedAt: null,
     };
 
-    if (params.category) {
-      where.categories = { some: { category: { slug: params.category } } };
+    if (filters.category) {
+      where.categories = { some: { category: { slug: filters.category } } };
     }
-    if (params.tag) {
-      where.tags = { some: { tag: { slug: params.tag } } };
+    if (filters.tag) {
+      where.tags = { some: { tag: { slug: filters.tag } } };
     }
-    if (params.featured !== undefined) {
-      where.featured = params.featured;
+    if (filters.featured !== undefined) {
+      where.featured = filters.featured;
     }
 
     const [posts, total] = await Promise.all([
@@ -128,11 +128,11 @@ router.get(
             include: { tag: { select: { slug: true, nameEn: true, nameFr: true } } },
           },
         },
-        orderBy: params.category
+        orderBy: filters.category
           ? [{ sortOrder: 'asc' }, { publishedAt: 'desc' }]
           : [{ featured: 'desc' }, { publishedAt: 'desc' }],
-        skip: (params.page - 1) * params.limit,
-        take: params.limit,
+        skip: paginationParams.skip,
+        take: paginationParams.take,
       }),
       prisma.blogPost.count({ where }),
     ]);
@@ -144,12 +144,7 @@ router.get(
         categories: flattenCategories(p.categories),
         tags: flattenTags(p.tags),
       })),
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
+      pagination: createPaginationMeta(paginationParams, total),
     };
 
     // Cache for 5 minutes

@@ -11,6 +11,7 @@ import Button from './Button';
 import CreditShop from './CreditShop';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface HeaderProps {
   // Props no longer needed - navigation handled via React Router
 }

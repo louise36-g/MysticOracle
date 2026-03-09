@@ -23,8 +23,6 @@ test.describe('Blog', () => {
     // Wait for content to load
     await page.waitForLoadState('networkidle');
 
-    // Categories should be visible (may vary based on content)
-    const categoryLinks = page.locator('[data-testid="category-filter"], .category, nav a');
     // Just verify the page has navigation/filter elements
     await expect(page.locator('main')).toBeVisible();
   });

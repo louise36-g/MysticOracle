@@ -28,7 +28,7 @@ export function initializeAnalytics(): void {
 
   // Standard gtag implementation that pushes arguments directly
   window.gtag = function(...args: unknown[]) {
-    window.dataLayer.push(arguments);
+    window.dataLayer.push(args);
   };
 
   window.gtag('js', new Date());

@@ -156,11 +156,6 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     navigate(ROUTES.READING);
   }, [navigate]);
 
-  // Don't render if no spread
-  if (!spread) {
-    return null;
-  }
-
   // Question input hook
   const {
     question,
@@ -306,14 +301,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     window.scrollTo(0, 0);
   }, [phase]);
 
-  // Regenerate reading when language changes (if one is already displayed)
-  useEffect(() => {
-    if (phase === 'reading' && readingText && readingLanguage !== language && !isGenerating) {
-      regenerateReading();
-    }
-  }, [language, phase, readingText, readingLanguage, isGenerating, regenerateReading]);
-
   const regenerateReading = useCallback(async () => {
+    if (!spread) return;
     const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
@@ -342,6 +331,13 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
   }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
+
+  // Regenerate reading when language changes (if one is already displayed)
+  useEffect(() => {
+    if (phase === 'reading' && readingText && readingLanguage !== language && !isGenerating) {
+      regenerateReading();
+    }
+  }, [language, phase, readingText, readingLanguage, isGenerating, regenerateReading]);
 
   // Cycle loading messages
   useEffect(() => {
@@ -375,21 +371,24 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   // Display cost for UI only - backend calculates actual cost
   const displayCost = useMemo(() => {
+    if (!spread) return 0;
     // For single card, advanced options cost +1 total (not per style)
     if (spread.id === SpreadType.SINGLE) {
       return spread.cost + (isAdvanced && selectedStyles.length > 0 ? 1 : 0);
     }
     // Other spreads: base + style + extended
     return spread.cost + (isAdvanced ? 1 : 0) + (extendedQuestionPaid ? 1 : 0);
-  }, [spread.id, spread.cost, isAdvanced, selectedStyles.length, extendedQuestionPaid]);
+  }, [spread, isAdvanced, selectedStyles.length, extendedQuestionPaid]);
 
   // Wrapper for handleUseFullQuestion to pass current credits and base cost
   const handleUseFullQuestionWrapper = useCallback(() => {
+    if (!spread) return;
     const baseCost = spread.cost + (isAdvanced ? 1 : 0);
     handleUseFullQuestion(user?.credits || 0, baseCost);
-  }, [handleUseFullQuestion, spread.cost, isAdvanced, user?.credits]);
+  }, [handleUseFullQuestion, spread, isAdvanced, user?.credits]);
 
   const startShuffleAnimation = useCallback(() => {
+    if (!spread) return;
     // Validate user can afford the reading (actual deduction happens on backend)
     if (!validateBeforeStart(displayCost)) {
       return;
@@ -410,7 +409,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
     setPhase('animating_shuffle');
     // User controls when to stop shuffling via ReadingShufflePhase
-  }, [validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhase]);
+  }, [spread, validateBeforeStart, displayCost, canAfford, setValidationMessage, t, setPhase]);
 
   // Handle shuffle stop - transitions to drawing phase
   const handleShuffleStop = useCallback(() => {
@@ -418,7 +417,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   }, [setPhase]);
 
   const handleCardDraw = useCallback(() => {
-    if (drawnCards.length >= spread.positions) return;
+    if (!spread || drawnCards.length >= spread.positions) return;
 
     const newCard = deck[drawnCards.length];
     const isReversed = Math.random() < 0.10;
@@ -428,9 +427,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     if (drawnCards.length + 1 === spread.positions) {
       setTimeout(() => setPhase('revealing'), 1000);
     }
-  }, [drawnCards.length, deck, spread.positions, setPhase]);
+  }, [drawnCards.length, deck, spread, setPhase]);
 
   const startReading = useCallback(async () => {
+    if (!spread) return;
     // Prevent multiple simultaneous saves
     if (isSavingReading) {
       return;
@@ -513,7 +513,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [generateReading, drawnCards, spread, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
+  }, [spread, generateReading, drawnCards, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -586,6 +586,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   const handleChatInputChange = useCallback((value: string) => {
     setChatInput(value);
   }, [setChatInput]);
+
+  // Don't render if no spread (redirect already fires via useEffect)
+  if (!spread) {
+    return null;
+  }
 
   // Render phase content
   const renderPhaseContent = () => {
