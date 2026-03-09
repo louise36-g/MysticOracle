@@ -176,7 +176,9 @@ router.post(
     });
 
     // Invalidate cache and bump version (non-fatal if cache fails)
-    await invalidateTranslationCache().catch(() => {});
+    await invalidateTranslationCache().catch(err =>
+      debug.log('[Translations] Cache invalidation failed:', err)
+    );
 
     res.json({ success: true, translation });
   })
@@ -206,7 +208,9 @@ router.post(
     await prisma.$transaction(operations);
 
     // Invalidate cache and bump version (non-fatal if cache fails)
-    await invalidateTranslationCache().catch(() => {});
+    await invalidateTranslationCache().catch(err =>
+      debug.log('[Translations] Cache invalidation failed:', err)
+    );
 
     res.json({ success: true, count: Object.keys(translations).length });
   })
@@ -222,7 +226,9 @@ router.delete(
     await prisma.translation.delete({ where: { id } });
 
     // Invalidate cache and bump version (non-fatal if cache fails)
-    await invalidateTranslationCache().catch(() => {});
+    await invalidateTranslationCache().catch(err =>
+      debug.log('[Translations] Cache invalidation failed:', err)
+    );
 
     res.json({ success: true });
   })
@@ -308,7 +314,9 @@ router.post(
     }
 
     // Invalidate cache and bump version (non-fatal if cache fails)
-    await invalidateTranslationCache().catch(() => {});
+    await invalidateTranslationCache().catch(err =>
+      debug.log('[Translations] Cache invalidation failed:', err)
+    );
 
     res.json({
       success: true,

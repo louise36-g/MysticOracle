@@ -121,7 +121,6 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
     logger.error('User ID:', req.auth?.userId);
     return res.status(403).json({
       error: 'Admin verification failed',
-      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 }

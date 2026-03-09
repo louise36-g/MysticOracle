@@ -6,7 +6,6 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { idempotent } from '../middleware/idempotency.js';
@@ -187,77 +186,7 @@ router.patch(
   })
 );
 
-// ============================================================
-// Horoscope endpoints (kept in readings.ts for now, will be
-// extracted to separate use cases in a future refactoring)
-// ============================================================
-
-// Get or create cached horoscope
-router.get(
-  '/horoscope/:sign',
-  requireAuth,
-  asyncHandler(async (req, res) => {
-    const { sign } = req.params;
-    const { language = 'en' } = req.query;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const cached = await prisma.horoscopeCache.findUnique({
-      where: {
-        sign_language_date: {
-          sign,
-          language: language as string,
-          date: today,
-        },
-      },
-      include: {
-        questions: true,
-      },
-    });
-
-    if (cached) {
-      return res.json(cached);
-    }
-
-    // Return special response so frontend knows to trigger generation
-    res.status(404).json({ needsGeneration: true });
-  })
-);
-
-// Cache a generated horoscope
-router.post(
-  '/horoscope/:sign',
-  requireAuth,
-  asyncHandler(async (req, res) => {
-    const { sign } = req.params;
-    const { language, horoscope } = req.body;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Note: userId removed - horoscopes are public content cached by sign/language/date
-    const cached = await prisma.horoscopeCache.upsert({
-      where: {
-        sign_language_date: {
-          sign,
-          language,
-          date: today,
-        },
-      },
-      update: {
-        horoscope,
-      },
-      create: {
-        sign,
-        language,
-        date: today,
-        horoscope,
-      },
-    });
-
-    res.json(cached);
-  })
-);
+// Legacy horoscope endpoints removed — superseded by /api/horoscopes/:sign
+// See server/src/routes/horoscopes/routes.ts for current implementation
 
 export default router;

@@ -13,7 +13,7 @@
  * - debug.ts: Debug endpoints for testing
  */
 
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { requireAuth, requireAdmin } from '../../middleware/auth.js';
 import { logger } from '../../lib/logger.js';
 
@@ -62,71 +62,25 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// Revenue (shortcut - also available at /transactions/revenue)
-router.get('/revenue', async (req, res) => {
-  // Forward to transactions module
-  req.url = '/revenue';
-  transactionsRoutes(req, res, () => {});
-});
+// Helper to forward requests to sub-routers with proper error handling
+const forward =
+  (targetRouter: Router, url: string) => (req: Request, res: Response, next: NextFunction) => {
+    req.url = url;
+    targetRouter(req, res, next);
+  };
 
-// Readings stats (shortcut)
-router.get('/readings/stats', async (req, res) => {
-  // Forward to analytics module
-  req.url = '/readings/stats';
-  analyticsRoutes(req, res, () => {});
-});
-
-// Services (shortcut)
-router.get('/services', async (req, res) => {
-  req.url = '/services';
-  settingsRoutes(req, res, () => {});
-});
-
-// Health (shortcut)
-router.get('/health', async (req, res) => {
-  req.url = '/health';
-  settingsRoutes(req, res, () => {});
-});
-
-// AI Config (shortcut)
-router.get('/config/ai', async (req, res) => {
-  req.url = '/config/ai';
-  settingsRoutes(req, res, () => {});
-});
-
-// Cache stats (shortcut)
-router.get('/cache/stats', async (req, res) => {
-  req.url = '/cache/stats';
-  maintenanceRoutes(req, res, () => {});
-});
-
-// Cache purge (shortcut)
-router.post('/cache/purge', async (req, res) => {
-  req.url = '/cache/purge';
-  maintenanceRoutes(req, res, () => {});
-});
-
-// Error logs (shortcut)
-router.get('/error-logs', (req, res) => {
-  req.url = '/error-logs';
-  maintenanceRoutes(req, res, () => {});
-});
-
-router.delete('/error-logs', (req, res) => {
-  req.url = '/error-logs';
-  maintenanceRoutes(req, res, () => {});
-});
-
-// Seed endpoints (shortcuts)
-router.post('/seed/packages', async (req, res) => {
-  req.url = '/seed';
-  packagesRoutes(req, res, () => {});
-});
-
-router.post('/seed/email-templates', async (req, res) => {
-  req.url = '/seed';
-  templatesRoutes(req, res, () => {});
-});
+// Shortcut routes that forward to sub-modules
+router.get('/revenue', forward(transactionsRoutes, '/revenue'));
+router.get('/readings/stats', forward(analyticsRoutes, '/readings/stats'));
+router.get('/services', forward(settingsRoutes, '/services'));
+router.get('/health', forward(settingsRoutes, '/health'));
+router.get('/config/ai', forward(settingsRoutes, '/config/ai'));
+router.get('/cache/stats', forward(maintenanceRoutes, '/cache/stats'));
+router.post('/cache/purge', forward(maintenanceRoutes, '/cache/purge'));
+router.get('/error-logs', forward(maintenanceRoutes, '/error-logs'));
+router.delete('/error-logs', forward(maintenanceRoutes, '/error-logs'));
+router.post('/seed/packages', forward(packagesRoutes, '/seed'));
+router.post('/seed/email-templates', forward(templatesRoutes, '/seed'));
 
 // Re-export logError for use by other modules
 export { logError } from './maintenance.js';

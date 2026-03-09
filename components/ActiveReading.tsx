@@ -311,7 +311,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     if (phase === 'reading' && readingText && readingLanguage !== language && !isGenerating) {
       regenerateReading();
     }
-  }, [language]);
+  }, [language, phase, readingText, readingLanguage, isGenerating, regenerateReading]);
 
   const regenerateReading = useCallback(async () => {
     const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);

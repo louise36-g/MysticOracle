@@ -36,26 +36,25 @@ const router = Router();
 // ============================================
 
 router.post('/stripe', raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'] as string;
-  const processPaymentWebhookUseCase = req.container.resolve('processPaymentWebhookUseCase');
+  try {
+    const sig = req.headers['stripe-signature'] as string;
+    const processPaymentWebhookUseCase = req.container.resolve('processPaymentWebhookUseCase');
 
-  const result = await processPaymentWebhookUseCase.execute({
-    provider: 'stripe',
-    payload: req.body,
-    signature: sig,
-  });
+    const result = await processPaymentWebhookUseCase.execute({
+      provider: 'stripe',
+      payload: req.body,
+      signature: sig,
+    });
 
-  if (!result.success && !result.processed) {
-    return res.status(400).json({ error: result.error });
+    if (!result.success && !result.processed) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    logger.error('[Webhook] Stripe processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
   }
-
-  // Send purchase confirmation email for completed payments
-  if (result.eventType === 'payment.completed') {
-    // Email sending is handled asynchronously - we don't wait for it
-    // The webhook processor already added credits
-  }
-
-  res.json({ received: true });
 });
 
 // ============================================
@@ -174,28 +173,33 @@ router.post('/clerk', raw({ type: 'application/json' }), async (req, res) => {
 // ============================================
 
 router.post('/paypal', json(), async (req, res) => {
-  const headers: Record<string, string> = {
-    'paypal-auth-algo': (req.headers['paypal-auth-algo'] as string) || '',
-    'paypal-cert-url': (req.headers['paypal-cert-url'] as string) || '',
-    'paypal-transmission-id': (req.headers['paypal-transmission-id'] as string) || '',
-    'paypal-transmission-sig': (req.headers['paypal-transmission-sig'] as string) || '',
-    'paypal-transmission-time': (req.headers['paypal-transmission-time'] as string) || '',
-  };
+  try {
+    const headers: Record<string, string> = {
+      'paypal-auth-algo': (req.headers['paypal-auth-algo'] as string) || '',
+      'paypal-cert-url': (req.headers['paypal-cert-url'] as string) || '',
+      'paypal-transmission-id': (req.headers['paypal-transmission-id'] as string) || '',
+      'paypal-transmission-sig': (req.headers['paypal-transmission-sig'] as string) || '',
+      'paypal-transmission-time': (req.headers['paypal-transmission-time'] as string) || '',
+    };
 
-  const processPaymentWebhookUseCase = req.container.resolve('processPaymentWebhookUseCase');
+    const processPaymentWebhookUseCase = req.container.resolve('processPaymentWebhookUseCase');
 
-  const result = await processPaymentWebhookUseCase.execute({
-    provider: 'paypal',
-    payload: JSON.stringify(req.body),
-    signature: '', // PayPal uses headers for verification
-    headers,
-  });
+    const result = await processPaymentWebhookUseCase.execute({
+      provider: 'paypal',
+      payload: JSON.stringify(req.body),
+      signature: '', // PayPal uses headers for verification
+      headers,
+    });
 
-  if (!result.success && !result.processed) {
-    return res.status(400).json({ error: result.error });
+    if (!result.success && !result.processed) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    logger.error('[Webhook] PayPal processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
   }
-
-  res.json({ received: true });
 });
 
 // Helper function to generate referral code
