@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Coins, CheckCircle, Flame, BookOpen, Award } from 'lucide-react';
+import { formatDateLocale } from '../../utils/dateFormatters';
 
 interface ProfileHeaderProps {
   displayUser: {
@@ -20,6 +21,7 @@ interface ProfileHeaderProps {
   totalReadings: number;
   onCreditsClick: () => void;
   t: (key: string, fallback: string) => string;
+  language: 'en' | 'fr';
 }
 
 const SECTION_CLASSES =
@@ -30,6 +32,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   totalReadings,
   onCreditsClick,
   t,
+  language,
 }) => {
   return (
     <motion.section
@@ -65,7 +68,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <Calendar className="w-4 h-4" />
             <span>
               {t('UserProfile.tsx.UserProfile.member_since', 'Member since')}{' '}
-              {new Date(displayUser.joinDate).toLocaleDateString()}
+              {formatDateLocale(displayUser.joinDate, language)}
             </span>
           </div>
         </div>

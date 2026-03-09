@@ -13,9 +13,10 @@ import {
 import { Search, Shield, ShieldOff, Plus, Check, X, Crown, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { formatDateLocale, formatDateTime } from '../../utils/dateFormatters';
 
 const AdminUsers: React.FC = () => {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const { getToken } = useAuth();
 
   const [data, setData] = useState<AdminUserList | null>(null);
@@ -260,7 +261,7 @@ const AdminUsers: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-4 text-slate-400 text-sm">
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          {formatDateLocale(user.createdAt, language)}
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
@@ -439,7 +440,7 @@ const AdminUsers: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">{t('admin.AdminUsers.last_login', 'Last Login')}</span>
-                <span className="text-slate-200">{new Date(selectedUser.lastLoginDate).toLocaleString()}</span>
+                <span className="text-slate-200">{formatDateTime(selectedUser.lastLoginDate, language)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">{t('admin.AdminUsers.achievements', 'Achievements')}</span>

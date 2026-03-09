@@ -47,6 +47,7 @@ import { CSS } from '@dnd-kit/utilities';
 import BlogPostEditor from '../BlogPostEditor';
 import TarotArticleEditor from '../TarotArticleEditor';
 import type { BlogPost, Pagination } from './types';
+import { formatDateLocale } from '../../../utils/dateFormatters';
 
 interface BlogPostsTabProps {
   onLoadCategories: () => Promise<void>;
@@ -437,7 +438,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
 
         {/* Updated */}
         <td className="px-4 py-3 text-sm text-slate-400">
-          {new Date(post.updatedAt).toLocaleDateString()}
+          {formatDateLocale(post.updatedAt, language)}
         </td>
 
         {/* Actions */}

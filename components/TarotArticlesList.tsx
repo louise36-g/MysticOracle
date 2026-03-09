@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
-import { Search, ImageOff, AlertCircle, RefreshCw } from 'lucide-react';
+import { Search, AlertCircle, RefreshCw } from 'lucide-react';
 import { fetchTarotArticles, TarotArticle } from '../services/api';
 import { buildRoute, ROUTES } from '../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../utils/cloudinaryUrl';
+import FallbackImage from './ui/FallbackImage';
 
 interface TarotArticlesListProps {
   defaultCategory?: string; // Slug like 'major-arcana', 'wands', etc. (can also come from URL params)
@@ -192,26 +193,13 @@ const TarotArticlesList: React.FC<TarotArticlesListProps> = ({ defaultCategory }
                 className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
-                  {article.featuredImage ? (
-                    <img
-                      src={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.thumbnail)}
-                      alt={article.featuredImageAlt || article.title}
-                      className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-200"
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
-                        if (placeholder) placeholder.classList.remove('hidden');
-                      }}
-                    />
-                  ) : null}
-                  <div className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}>
-                    <div className="text-center">
-                      <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
-                      <span className="text-xs text-purple-300/50">No Image</span>
-                    </div>
-                  </div>
+                  <FallbackImage
+                    src={article.featuredImage ? optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.thumbnail) : undefined}
+                    alt={article.featuredImageAlt || article.title}
+                    className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-200"
+                    loading="lazy"
+                    language={language}
+                  />
                 </div>
                 <div className="p-3">
                   {/* Category label */}

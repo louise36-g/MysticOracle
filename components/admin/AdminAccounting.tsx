@@ -16,6 +16,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatDateNumeric } from '../../utils/dateFormatters';
 
 interface Invoice {
   id: string;
@@ -64,7 +65,7 @@ interface AccountingStats {
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api$/, '');
 
 const AdminAccounting: React.FC = () => {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const { getToken } = useAuth();
 
   // Stats state
@@ -209,14 +210,6 @@ const AdminAccounting: React.FC = () => {
       style: 'currency',
       currency,
     }).format(amount);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
   };
 
   return (
@@ -540,7 +533,7 @@ const AdminAccounting: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-4 text-slate-300">
-                        {formatDate(invoice.createdAt)}
+                        {formatDateNumeric(invoice.createdAt, language)}
                       </td>
                       <td className="p-4">
                         <div>

@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 import { SEOTags } from '../../utils/seo';
+import { formatDate } from '../../utils/dateFormatters';
 
 // Unified article type for display
 interface DisplayArticle {
@@ -125,14 +126,6 @@ const BlogList: React.FC = () => {
       setSearchParams({});
     }
     setPage(1);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
   };
 
   return (
@@ -343,7 +336,7 @@ const BlogList: React.FC = () => {
                       <div className="flex items-center gap-4 text-xs text-slate-500">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {formatDate(article.publishedAt)}
+                          {formatDate(article.publishedAt, language)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />

@@ -4,6 +4,7 @@ import { useTranslation } from '../../context/TranslationContext';
 import { QuickNavChips } from './QuickNavChips';
 import { ArticleHeaderProps } from './types';
 import { AuthorAvatar } from '../shared/AuthorAvatar';
+import { formatDate } from '../../utils/dateFormatters';
 
 /**
  * Article header with title, meta info, badges, and quick navigation
@@ -23,10 +24,7 @@ export function ArticleHeader({
 }: ArticleHeaderProps) {
   const { t } = useTranslation();
 
-  const formattedDate = new Date(dateModified).toLocaleDateString(
-    language === 'en' ? 'en-US' : 'fr-FR',
-    { month: 'long', day: 'numeric', year: 'numeric' }
-  );
+  const formattedDate = formatDate(dateModified, language as 'en' | 'fr');
 
   return (
     <motion.header

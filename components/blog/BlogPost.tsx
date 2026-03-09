@@ -9,6 +9,7 @@ import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArt
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
+import { formatDate } from '../../utils/dateFormatters';
 
 interface BlogPostProps {
   previewId?: string;
@@ -79,15 +80,6 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [post, slug, isPreview]);
-
-  // Utility functions
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   const handleShare = async (platform: string) => {
     const url = window.location.href;
@@ -169,7 +161,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         title={title}
         language={language}
         copied={copied}
-        formatDate={formatDate}
+        formatDate={(dateString: string) => formatDate(dateString, language)}
         handleShare={handleShare}
         t={t}
       />

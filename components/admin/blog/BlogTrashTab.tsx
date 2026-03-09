@@ -9,6 +9,7 @@ import {
 } from '../../../services/api';
 import { Trash2, Trash, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BlogPost, Pagination } from './types';
+import { formatDateLocale } from '../../../utils/dateFormatters';
 
 interface BlogTrashTabProps {
   onLoadPosts: () => Promise<void>;
@@ -199,7 +200,7 @@ const BlogTrashTab: React.FC<BlogTrashTabProps> = ({
                       {post.originalSlug || post.slug.replace(/^_deleted_\d+_/, '')}
                     </td>
                     <td className="p-4 text-slate-400 text-sm">
-                      {post.deletedAt ? new Date(post.deletedAt).toLocaleDateString() : '-'}
+                      {post.deletedAt ? formatDateLocale(post.deletedAt, language) : '-'}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">

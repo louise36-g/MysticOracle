@@ -5,6 +5,7 @@ import { Shield, Download, AlertTriangle, Info, Coffee, X, ChevronDown, ChevronU
 import { useSpendingLimits, SpendingLimits } from '../context/SpendingLimitsContext';
 import { useApp } from '../context/AppContext';
 import Button from './Button';
+import { formatDateLocale } from '../utils/dateFormatters';
 
 interface SpendingLimitsSettingsProps {
   isOpen: boolean;
@@ -250,7 +251,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                   </h3>
                   <p className="text-sm text-red-200/80 mt-1">
                     {selfExclusion.endDate
-                      ? `${t('spending.paused_until', 'Purchases paused until')} ${new Date(selfExclusion.endDate).toLocaleDateString()}`
+                      ? `${t('spending.paused_until', 'Purchases paused until')} ${formatDateLocale(new Date(selfExclusion.endDate).toISOString(), language)}`
                       : t('spending.paused_indefinitely', 'Purchases paused indefinitely')}
                   </p>
                 </div>
@@ -373,7 +374,7 @@ const SpendingLimitsSettings: React.FC<SpendingLimitsSettingsProps> = ({ isOpen,
                           </p>
                           {selfExclusion.endDate && (
                             <p className="text-sm text-slate-400 mt-2">
-                              {t('spending.ends', 'Ends')}: {new Date(selfExclusion.endDate).toLocaleDateString()}
+                              {t('spending.ends', 'Ends')}: {formatDateLocale(new Date(selfExclusion.endDate).toISOString(), language)}
                             </p>
                           )}
                         </div>

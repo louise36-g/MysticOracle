@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ImageOff } from 'lucide-react';
 import { TarotOverviewCard } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 import { useApp } from '../../context/AppContext';
+import FallbackImage from '../ui/FallbackImage';
 
 interface TarotCardPreviewProps {
   card: TarotOverviewCard;
@@ -40,32 +40,13 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
       >
         {/* Image */}
         <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
-          {card.featuredImage ? (
-            <img
-              src={card.featuredImage}
-              alt={imageAlt || title}
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-              loading="lazy"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
-                if (placeholder) placeholder.classList.remove('hidden');
-              }}
-            />
-          ) : null}
-          <div
-            className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${
-              card.featuredImage ? 'hidden' : ''
-            }`}
-          >
-            <div className="text-center">
-              <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
-              <span className="text-xs text-purple-300/50">
-                {language === 'fr' ? 'Pas d\'image' : 'No Image'}
-              </span>
-            </div>
-          </div>
+          <FallbackImage
+            src={card.featuredImage || undefined}
+            alt={imageAlt || title}
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+            loading="lazy"
+            language={language}
+          />
         </div>
 
         {/* Content */}

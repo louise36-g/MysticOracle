@@ -5,6 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Check, AlertTriangle, X, Code, Upload, Eye, Loader } from 'lucide-react';
 import { fetchAdminTarotArticle, updateTarotArticle } from '../../services/api';
+import FallbackImage from '../ui/FallbackImage';
 
 interface ValidationStats {
   wordCount: number;
@@ -771,15 +772,12 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
 
                 {/* Featured Image */}
                 {previewData.featuredImage && (
-                  <div className="rounded-lg overflow-hidden border border-purple-500/20">
-                    <img
+                  <div className="rounded-lg overflow-hidden border border-purple-500/20 relative h-64">
+                    <FallbackImage
                       src={previewData.featuredImage}
                       alt={previewData.featuredImageAlt}
                       className="w-full h-64 object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder-card.png';
-                      }}
+                      language={language}
                     />
                   </div>
                 )}

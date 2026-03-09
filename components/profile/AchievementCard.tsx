@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
+import { formatDateShort } from '../../utils/dateFormatters';
 
 interface Achievement {
     id: string;
@@ -137,10 +138,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
     const isNew = unlockedAt ? calculateHoursSinceUnlock(unlockedAt) < HOURS_FOR_NEW_BADGE : false;
 
     // Format unlock date (shorter format for card back)
-    const formattedUnlockDate = unlockedAt ? new Date(unlockedAt).toLocaleDateString(
-        language === 'en' ? 'en-US' : 'fr-FR',
-        { month: 'short', day: 'numeric', year: 'numeric' }
-    ) : null;
+    const formattedUnlockDate = unlockedAt ? formatDateShort(unlockedAt, language) : null;
 
     const iconConfig = ACHIEVEMENT_ICONS[achievement.id] || DEFAULT_ICON_CONFIG;
 

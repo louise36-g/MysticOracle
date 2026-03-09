@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { fetchAdminHealth, fetchAdminErrorLogs, clearAdminErrorLogs, SystemHealth, ErrorLogEntry } from '../../services/api';
 import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw, Database, CreditCard, Mail, Bot, Users, Trash2, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatDateTime } from '../../utils/dateFormatters';
 
 // Type for service health info from SystemHealth.services
 type ServiceInfo = { status: string; message?: string };
@@ -398,7 +399,7 @@ const AdminHealth: React.FC<AdminHealthProps> = ({ onServiceClick }) => {
                               </span>
                               <span className="text-xs text-slate-500">{log.source}</span>
                               <span className="text-xs text-slate-600">
-                                {new Date(log.timestamp).toLocaleString()}
+                                {formatDateTime(log.timestamp, language)}
                               </span>
                             </div>
                             <p className="text-sm text-slate-300 truncate">{log.message}</p>

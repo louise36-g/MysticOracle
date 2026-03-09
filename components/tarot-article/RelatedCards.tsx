@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ImageOff } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { fetchTarotArticles, TarotArticle } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
+import FallbackImage from '../ui/FallbackImage';
 
 interface RelatedCardsProps {
   cards: string[];
@@ -134,31 +134,16 @@ export function RelatedCards({ cards }: RelatedCardsProps) {
                   className="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-colors"
                 >
                   <div className="aspect-[3/4] overflow-hidden bg-slate-900 relative">
-                    {article.featuredImage ? (
-                      <img
-                        src={optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.related)}
-                        alt={language === 'fr' && article.featuredImageAltFr ? article.featuredImageAltFr : (article.featuredImageAlt || article.title)}
-                        width={200}
-                        height={267}
-                        className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const placeholder = target.parentElement?.querySelector('.placeholder-fallback');
-                          if (placeholder) placeholder.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className={`placeholder-fallback absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/50 to-slate-900 ${article.featuredImage ? 'hidden' : ''}`}
-                    >
-                      <div className="text-center">
-                        <ImageOff className="w-8 h-8 text-purple-400/50 mx-auto mb-1" />
-                        <span className="text-xs text-purple-300/50">No Image</span>
-                      </div>
-                    </div>
+                    <FallbackImage
+                      src={article.featuredImage ? optimizeCloudinaryUrl(article.featuredImage, IMAGE_SIZES.related) : undefined}
+                      alt={language === 'fr' && article.featuredImageAltFr ? article.featuredImageAltFr : (article.featuredImageAlt || article.title)}
+                      width={200}
+                      height={267}
+                      className="w-full h-full object-cover group-hover:scale-150 transition-transform duration-300"
+                      loading="lazy"
+                      decoding="async"
+                      language={language}
+                    />
                   </div>
                   <div className="p-3">
                     <h3 className="font-heading text-sm text-purple-100 text-center line-clamp-2 group-hover:text-white transition-colors">

@@ -5,6 +5,7 @@ import { fetchAdminTransactions, fetchRevenueMonths } from '../../services/api';
 import { ChevronLeft, ChevronRight, Filter, Download, Calendar, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { formatDateTime } from '../../utils/dateFormatters';
 
 interface TransactionWithUser {
   id: string;
@@ -26,7 +27,7 @@ interface RevenueMonth {
 }
 
 const AdminTransactions: React.FC = () => {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const { getToken } = useAuth();
 
   const [transactions, setTransactions] = useState<TransactionWithUser[]>([]);
@@ -247,7 +248,7 @@ const AdminTransactions: React.FC = () => {
                         className="border-b border-purple-500/10 hover:bg-slate-800/30"
                       >
                         <td className="p-4 text-slate-400 text-sm">
-                          {new Date(tx.createdAt).toLocaleString()}
+                          {formatDateTime(tx.createdAt, language)}
                         </td>
                         <td className="p-4">
                           <p className="text-slate-200 text-sm">{tx.user.username}</p>

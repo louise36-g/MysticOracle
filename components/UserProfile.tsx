@@ -11,6 +11,7 @@ import { ACHIEVEMENTS } from '../types';
 import { ReadingTypeFilter, AchievementCard, TransactionFilters, MonthlyReadingAccordion, MonthlyTransactionAccordion, EmptyState, ReferralSection } from './profile';
 import { getAchievementsWithProgress } from '../utils/achievementService';
 import { useProfileData } from '../hooks';
+import { formatDateLocale } from '../utils/dateFormatters';
 
 // Constants
 const SECTION_CLASSES = "bg-slate-900/70 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-4 sm:p-6";
@@ -169,7 +170,7 @@ const UserProfile: React.FC = () => {
                             <p className="text-sm text-slate-400 truncate">{displayUser.email}</p>
                             <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                                 <Calendar className="w-3 h-3" />
-                                {t('UserProfile.tsx.UserProfile.member_since', 'Member since')} {new Date(displayUser.joinDate).toLocaleDateString()}
+                                {t('UserProfile.tsx.UserProfile.member_since', 'Member since')} {formatDateLocale(displayUser.joinDate, language as 'en' | 'fr')}
                             </p>
                         </div>
 
