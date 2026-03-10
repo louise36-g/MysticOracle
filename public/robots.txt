@@ -15,6 +15,7 @@ Disallow: /admin/*
 Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
+Disallow: /reading/
 
 # Auth pages (Clerk) — no value in search results
 Disallow: /sign-in

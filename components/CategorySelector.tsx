@@ -3,6 +3,7 @@
 // Enhanced "Arcana Sanctum" design with immersive effects
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, PanInfo } from 'framer-motion';
 import { ChevronLeft, Coins, Sparkles, ChevronRight } from 'lucide-react';
@@ -230,6 +231,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
   return (
     <div className={`w-full relative flex-grow flex flex-col ${className}`}>
+      <Helmet>
+        <title>{language === 'fr' ? 'Choisir votre tirage – CelestiArcana' : 'Choose Your Reading – CelestiArcana'}</title>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Ambient glow */}
