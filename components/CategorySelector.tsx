@@ -232,8 +232,21 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
   return (
     <div className={`w-full relative flex-grow flex flex-col ${className}`}>
       <Helmet>
-        <title>{language === 'fr' ? 'Choisir votre tirage – CelestiArcana' : 'Choose Your Reading – CelestiArcana'}</title>
-        <meta name="robots" content="noindex, follow" />
+        <title>{language === 'fr'
+          ? 'Tirages de Tarot Personnalisés – Amour, Carrière & Guidance Spirituelle | CelestiArcana'
+          : 'Personalized Tarot Readings – Love, Career & Spiritual Guidance | CelestiArcana'}</title>
+        <meta name="description" content={language === 'fr'
+          ? 'Choisissez parmi six thèmes de tirage de tarot — amour & relations, carrière, croissance spirituelle, développement personnel & plus. Tirages personnalisés avec des spreads classiques du tarot.'
+          : 'Choose from six tarot reading themes — love & relationships, career, spiritual growth, personal development & more. Personalized readings with classic tarot spreads. Start your reading now.'} />
+        <link rel="canonical" href="https://celestiarcana.com/reading" />
+        <meta property="og:title" content={language === 'fr'
+          ? 'Tirages de Tarot Personnalisés | CelestiArcana'
+          : 'Personalized Tarot Readings | CelestiArcana'} />
+        <meta property="og:description" content={language === 'fr'
+          ? 'Explorez nos tirages de tarot personnalisés à travers six thèmes. Guidance pour l\'amour, la carrière et la croissance spirituelle.'
+          : 'Explore our personalized tarot card readings across six themes. Guidance for love, career, and spiritual growth.'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://celestiarcana.com/reading" />
       </Helmet>
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -261,16 +274,16 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-3 tracking-wide">
+        <h1 className="text-2xl md:text-4xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-3 tracking-wide">
           {language === 'fr'
-            ? "Par où souhaitez-vous commencer ?"
-            : 'Where would you like to begin?'}
-        </h2>
+            ? 'Choisissez Votre Tirage de Tarot'
+            : 'Choose Your Tarot Reading'}
+        </h1>
 
-        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-8">
+        <p className="text-purple-200/80 text-sm md:text-base max-w-xl mx-auto leading-relaxed mb-8">
           {language === 'fr'
-            ? 'Six thèmes à explorer. La profondeur vous appartient.'
-            : 'Six themes to explore. Insight at the depth you choose.'}
+            ? 'Explorez nos tirages de tarot personnalisés à travers six thèmes. Que vous cherchiez des réponses sur l\'amour, la carrière ou la croissance spirituelle, choisissez le spread qui parle à votre question.'
+            : 'Explore our personalized tarot card readings across six themes. Whether you\'re seeking insight on love, career, or spiritual growth, choose a spread that speaks to your question.'}
         </p>
 
         {/* Decorative divider before buttons */}

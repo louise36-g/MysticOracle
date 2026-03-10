@@ -42,6 +42,7 @@ const STATIC_PAGES = [
   { path: '/privacy', title: 'Privacy Policy', description: 'Learn how CelestiArcana protects your privacy and handles your data.' },
   { path: '/terms', title: 'Terms of Service', description: 'Read the terms and conditions for using CelestiArcana.' },
   { path: '/cookies', title: 'Cookie Policy', description: 'Understand how CelestiArcana uses cookies.' },
+  { path: '/reading', title: 'Personalized Tarot Readings – Love, Career & Spiritual Guidance', description: 'Choose from six tarot reading themes — love & relationships, career, spiritual growth, personal development & more. Personalized readings with classic tarot spreads. Start your reading now.' },
   { path: '/contact', title: 'Contact Us', description: 'Get in touch with CelestiArcana. Send us a message about tarot readings, billing, feedback, or general enquiries.' },
   { path: '/how-credits-work', title: 'How Credits Work – Pricing & Free Credits', description: 'Learn how CelestiArcana credits work. Reading costs, free daily bonuses, referral rewards, and payment options. No subscriptions.' },
   { path: '/horoscopes', title: 'Daily Horoscopes', description: 'Read your free daily horoscope for all 12 zodiac signs. Personalized celestial guidance powered by AI for love, career, and wellbeing.' },
@@ -501,6 +502,7 @@ Allow: /blog/*
 Allow: /tarot
 Allow: /tarot/*
 Allow: /horoscopes
+Allow: /reading
 
 # Disallow admin and private areas
 Disallow: /admin

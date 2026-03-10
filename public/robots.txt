@@ -8,6 +8,7 @@ Allow: /blog/*
 Allow: /tarot
 Allow: /tarot/*
 Allow: /horoscopes
+Allow: /reading
 
 # Disallow admin and private areas
 Disallow: /admin
