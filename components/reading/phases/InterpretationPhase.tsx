@@ -520,12 +520,6 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                   </motion.div>
                 )}
 
-                {/* Actions */}
-                <div className="mt-8 pt-6 border-t border-white/10 flex justify-center">
-                  <Button onClick={onFinish} variant="secondary">
-                    {language === 'en' ? 'Start New Reading' : 'Nouvelle Lecture'}
-                  </Button>
-                </div>
               </div>
             </motion.div>
 
@@ -546,6 +540,13 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
               onInputChange={onChatInputChange}
               onSendMessage={onSendMessage}
             />
+
+            {/* Start New Reading - at the very end so users see reflection + oracle first */}
+            <div className="mt-8 flex justify-center">
+              <Button onClick={onFinish} variant="secondary">
+                {language === 'en' ? 'Start New Reading' : 'Nouvelle Lecture'}
+              </Button>
+            </div>
           </>
         )}
 
