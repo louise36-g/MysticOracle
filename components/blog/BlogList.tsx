@@ -185,7 +185,9 @@ const BlogList: React.FC = () => {
             {featuredPosts.map((post, index) => (
               <Link
                 key={post.id}
-                to={buildRoute(ROUTES.BLOG_POST, { slug: post.slug })}
+                to={post.contentType === 'TAROT_ARTICLE'
+                  ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: post.slug })
+                  : buildRoute(ROUTES.BLOG_POST, { slug: post.slug })}
                 state={{ fromCategory: selectedCategory }}
                 className="group cursor-pointer bg-gradient-to-br from-purple-900/40 to-slate-900/60 rounded-2xl overflow-hidden border border-amber-500/20 hover:border-amber-500/40 transition-all hover:shadow-xl hover:shadow-purple-500/10 block w-[250px] flex-shrink-0"
               >

@@ -41,6 +41,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const scrollMilestonesRef = useRef<Set<number>>(new Set());
   const articleContainerRef = useRef<HTMLElement>(null);
 
+  // Redirect tarot articles from /blog/:slug to /tarot/:slug (SEO: prevent duplicate content)
+  useEffect(() => {
+    if (post && slug && !isPreview && post.contentType === 'TAROT_ARTICLE') {
+      navigate(`/tarot/${slug}`, { replace: true });
+    }
+  }, [post, slug, isPreview, navigate]);
+
   // Track article view when post loads
   useEffect(() => {
     if (post && slug && !isPreview) {

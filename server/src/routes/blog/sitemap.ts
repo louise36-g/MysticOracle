@@ -134,7 +134,7 @@ router.get('/sitemap.xml', async (req, res) => {
     for (const article of tarotArticles) {
       const lastmod = article.updatedAt.toISOString().split('T')[0];
       xml += `  <url>
-    <loc>${baseUrl}/tarot/articles/${article.slug}</loc>
+    <loc>${baseUrl}/tarot/${article.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
