@@ -16,6 +16,10 @@ Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
 
+# Auth pages (Clerk) — no value in search results
+Disallow: /sign-in
+Disallow: /sign-up
+
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 

@@ -326,6 +326,23 @@ const FAQ: React.FC = () => {
       <Helmet>
         <title>FAQ - CelestiArcana</title>
         <meta name="description" content="Frequently asked questions about CelestiArcana tarot readings, credits, spreads, horoscopes, privacy, and billing. Find answers to common questions." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: [
+            { '@type': 'Question', name: t.gettingStarted.q1, acceptedAnswer: { '@type': 'Answer', text: t.gettingStarted.a1 } },
+            { '@type': 'Question', name: t.gettingStarted.q2, acceptedAnswer: { '@type': 'Answer', text: t.gettingStarted.a2 } },
+            { '@type': 'Question', name: t.gettingStarted.q3, acceptedAnswer: { '@type': 'Answer', text: t.gettingStarted.a3 } },
+            { '@type': 'Question', name: t.gettingStarted.q4, acceptedAnswer: { '@type': 'Answer', text: t.gettingStarted.a4 } },
+            { '@type': 'Question', name: t.gettingStarted.q5, acceptedAnswer: { '@type': 'Answer', text: t.gettingStarted.a5 } },
+            { '@type': 'Question', name: t.credits.q1, acceptedAnswer: { '@type': 'Answer', text: t.credits.a1 } },
+            { '@type': 'Question', name: t.credits.q3, acceptedAnswer: { '@type': 'Answer', text: t.credits.a3 } },
+            { '@type': 'Question', name: t.credits.q4, acceptedAnswer: { '@type': 'Answer', text: t.credits.a4 } },
+            { '@type': 'Question', name: t.privacy.q1, acceptedAnswer: { '@type': 'Answer', text: `${t.privacy.a1} Privacy Policy ${t.privacy.a1b}` } },
+            { '@type': 'Question', name: t.privacy.q2, acceptedAnswer: { '@type': 'Answer', text: t.privacy.a2 } },
+            { '@type': 'Question', name: t.privacy.q4, acceptedAnswer: { '@type': 'Answer', text: t.privacy.a4 } },
+          ],
+        })}</script>
       </Helmet>
       <SEOTags path="/faq" />
       {/* Hero Section */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { SignIn } from '@clerk/clerk-react';
 import AuthLayout from './AuthLayout';
 
@@ -60,6 +61,9 @@ const SignInPage: React.FC = () => {
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Sign in heading */}
       <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">
         {language === 'fr' ? 'Se connecter' : 'Sign in'}

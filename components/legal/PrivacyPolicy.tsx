@@ -431,8 +431,8 @@ Nous nous efforçons de répondre à toutes les demandes sous 30 jours.`
       <Helmet>
         <title>Privacy Policy - CelestiArcana</title>
         <meta name="description" content="CelestiArcana privacy policy. Learn how we collect, use, and protect your personal data. GDPR compliant, EU-hosted." />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
-      <SEOTags path="/privacy" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

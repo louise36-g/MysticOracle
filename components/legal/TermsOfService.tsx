@@ -285,8 +285,8 @@ Délai de réponse : Sous 48 heures les jours ouvrables`
       <Helmet>
         <title>Terms of Service - CelestiArcana</title>
         <meta name="description" content="CelestiArcana terms of service. Read our terms covering account usage, credits, payments, content policies, and user responsibilities." />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
-      <SEOTags path="/terms" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

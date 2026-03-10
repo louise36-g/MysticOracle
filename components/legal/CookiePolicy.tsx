@@ -263,8 +263,8 @@ Nous nous efforçons de répondre à toutes les demandes relatives aux cookies d
       <Helmet>
         <title>Cookie Policy - CelestiArcana</title>
         <meta name="description" content="CelestiArcana cookie policy. Learn about the cookies we use, how to manage your preferences, and your privacy rights under GDPR." />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
-      <SEOTags path="/cookies" />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
