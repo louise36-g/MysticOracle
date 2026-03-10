@@ -78,7 +78,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               {t('reading.tarot_reading', 'Tarot Reading')}
             </h3>
             <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
-              {t('reading.tarot_reading_desc', 'Classic card spreads for deep insights.')}
+              {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
             </p>
           </Link>
         </motion.div>
@@ -104,7 +104,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               {t('reading.daily_energy', 'Daily Energy')}
             </h3>
             <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
-              {t('reading.daily_energy_desc', 'Today\'s Major Arcana card.')}
+              {t('reading.daily_energy_desc', 'Free daily Major Arcana draw.')}
             </p>
           </Link>
         </motion.div>
@@ -130,7 +130,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             {t('reading.daily_horoscope', 'Daily Horoscope')}
           </h3>
           <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
-            {t('reading.daily_horoscope_desc', 'What the stars have in store for you today.')}
+            {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
           </p>
         </motion.div>
       </motion.div>
