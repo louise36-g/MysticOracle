@@ -95,7 +95,10 @@ export function interpolatePrompt(template: string, variables: Record<string, st
  */
 function getSectionHeaders(language: 'en' | 'fr', spreadLayoutGuidance: string): string {
   if (language === 'en') {
-    return `**The Spread Layout**
+    return `**Key Themes**
+In 3-4 sentences, summarize the core message of this reading. What is the central story the cards are telling? Name the key energies, tensions, or opportunities that emerged. This section should give the reader immediate insight before they explore the detail below. Write it as a confident, grounded overview, as if answering "what do I need to know?"
+
+**The Spread Layout**
 ${spreadLayoutGuidance}
 
 **Individual Card Meanings**
@@ -107,7 +110,10 @@ Write ONE concise paragraph that synthesizes the cards into a unified narrative.
 **Conclusion**
 Actionable guidance and advice drawn from the complete reading. Weave the themes from the user's question throughout this section using vocabulary specific to their situation.`;
   } else {
-    return `**La Disposition du Tirage**
+    return `**Thèmes Clés**
+En 3-4 phrases, résumez le message central de ce tirage. Quelle est l'histoire principale que les cartes racontent ? Nommez les énergies, tensions ou opportunités clés qui ont émergé. Cette section doit donner au lecteur un aperçu immédiat avant d'explorer les détails ci-dessous. Rédigez comme un résumé confiant et ancré, comme si vous répondiez à "que dois-je savoir ?"
+
+**La Disposition du Tirage**
 ${spreadLayoutGuidance}
 
 **Signification de Chaque Carte**

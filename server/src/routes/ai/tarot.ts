@@ -294,16 +294,16 @@ ${synthesisInstructions}`;
       });
 
       // Calculate max tokens based on spread size
-      // Base tokens for each spread size
+      // Base tokens for each spread size (+200 for Key Themes summary)
       const baseTokens =
         {
           1: 600,
-          2: 1000,
-          3: 1500, // Increased from 1200 for better coverage
-          5: 2000,
-          7: 2200,
-          10: 2800,
-        }[spread.positions] || 1500;
+          2: 1200,
+          3: 1700,
+          5: 2200,
+          7: 2400,
+          10: 3000,
+        }[spread.positions] || 1700;
 
       // Add 300 tokens per style option for synthesis sections (100-150 words each)
       const styleBonus = style.length > 0 ? style.length * 300 : 0;
