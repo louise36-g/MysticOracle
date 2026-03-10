@@ -42,8 +42,17 @@ const STATIC_PAGES = [
   { path: '/privacy', title: 'Privacy Policy', description: 'Learn how CelestiArcana protects your privacy and handles your data.' },
   { path: '/terms', title: 'Terms of Service', description: 'Read the terms and conditions for using CelestiArcana.' },
   { path: '/cookies', title: 'Cookie Policy', description: 'Understand how CelestiArcana uses cookies.' },
-  { path: '/blog', title: 'Tarot Blog', description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.' },
+  { path: '/contact', title: 'Contact Us', description: 'Get in touch with CelestiArcana. Send us a message about tarot readings, billing, feedback, or general enquiries.' },
+  { path: '/how-credits-work', title: 'How Credits Work – Pricing & Free Credits', description: 'Learn how CelestiArcana credits work. Reading costs, free daily bonuses, referral rewards, and payment options. No subscriptions.' },
+  { path: '/horoscopes', title: 'Daily Horoscopes', description: 'Read your free daily horoscope for all 12 zodiac signs. Personalized celestial guidance powered by AI for love, career, and wellbeing.' },
+  { path: '/blog', title: 'Mystic Insights Blog', description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.' },
   { path: '/tarot', title: 'Tarot Card Meanings', description: 'Explore the meanings of all 78 tarot cards in the Rider-Waite deck.' },
+  { path: '/tarot/cards', title: 'All 78 Tarot Card Meanings – Complete Guide', description: 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.' },
+  { path: '/tarot/cards/major-arcana', title: 'Major Arcana Tarot Card Meanings – Complete Guide', description: 'Explore every Major Arcana tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
+  { path: '/tarot/cards/wands', title: 'Suit of Wands Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Wands tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
+  { path: '/tarot/cards/cups', title: 'Suit of Cups Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Cups tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
+  { path: '/tarot/cards/swords', title: 'Suit of Swords Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Swords tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
+  { path: '/tarot/cards/pentacles', title: 'Suit of Pentacles Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Pentacles tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
 ];
 
 async function main() {
@@ -103,7 +112,7 @@ async function prerenderStaticPages(template) {
 
   // Add horoscope page
   sitemapData.pages.push({
-    loc: SITE_URL + '/horoscope',
+    loc: SITE_URL + '/horoscopes',
     lastmod: today,
     changefreq: 'daily',
     priority: '0.9',
@@ -485,9 +494,13 @@ Disallow: /
     const productionRobots = `# CelestiArcana Robots.txt
 # https://www.robotstxt.org/
 
-# Allow all search engines
 User-agent: *
 Allow: /
+Allow: /blog
+Allow: /blog/*
+Allow: /tarot
+Allow: /tarot/*
+Allow: /horoscopes
 
 # Disallow admin and private areas
 Disallow: /admin
@@ -495,14 +508,16 @@ Disallow: /admin/*
 Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
+Disallow: /reading/
 
-# Disallow query parameters that duplicate content
-Disallow: /*?*
+# Auth pages (Clerk) — no value in search results
+Disallow: /sign-in
+Disallow: /sign-up
 
-# Crawl-delay for polite crawling (seconds)
+# Crawl-delay for polite crawling
 Crawl-delay: 1
 
-# Sitemap location
+# Sitemap
 Sitemap: https://celestiarcana.com/sitemap.xml
 `;
     fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), productionRobots);
