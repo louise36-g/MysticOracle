@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,10 +7,13 @@ import { useApp } from '../context/AppContext';
 import { MAJOR_ARCANA } from '../constants';
 import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
-import { getArticleUrl } from '../constants/majorArcanaArticles';
+import { fetchBlogPosts, BlogPost } from '../services/api/blog';
 import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
 import Button from './Button';
+
+// Category slug for Major Arcana energy articles
+const ENERGY_CATEGORY_SLUG = 'tarot-astrology';
 
 type Phase = 'intro' | 'shuffling' | 'drawing' | 'revealed';
 
@@ -84,6 +87,27 @@ const DailyTarotEnergy: React.FC = () => {
   const [showParticleBurst, setShowParticleBurst] = useState(false);
   const [drawnCard, setDrawnCard] = useState<typeof MAJOR_ARCANA[0] | null>(null);
   const [isCardRevealed, setIsCardRevealed] = useState(false);
+  const [articleUrl, setArticleUrl] = useState<string | null>(null);
+  const articlesCache = useRef<BlogPost[]>([]);
+
+  // Fetch articles from the Tarot & Astrology category once
+  useEffect(() => {
+    fetchBlogPosts({ category: ENERGY_CATEGORY_SLUG, limit: 50 })
+      .then(res => { articlesCache.current = res.posts; })
+      .catch(() => { /* Non-blocking — link just won't appear */ });
+  }, []);
+
+  // When a card is revealed, find matching article
+  useEffect(() => {
+    if (!drawnCard || !isCardRevealed) return;
+    const cardNameLower = drawnCard.nameEn.toLowerCase();
+    const match = articlesCache.current.find(post => {
+      const titleLower = post.titleEn.toLowerCase();
+      const slugLower = post.slug.toLowerCase();
+      return titleLower.includes(cardNameLower) || slugLower.includes(cardNameLower.replace(/\s+/g, '-'));
+    });
+    setArticleUrl(match ? `/blog/${match.slug}` : null);
+  }, [drawnCard, isCardRevealed]);
 
   // Shuffle animation cycling
   useEffect(() => {
@@ -126,6 +150,7 @@ const DailyTarotEnergy: React.FC = () => {
     setPhase('intro');
     setDrawnCard(null);
     setIsCardRevealed(false);
+    setArticleUrl(null);
     setCanDraw(false);
     setShufflePhase(0);
   }, []);
@@ -160,7 +185,6 @@ const DailyTarotEnergy: React.FC = () => {
     }
   };
 
-  const articleUrl = drawnCard ? getArticleUrl(drawnCard.id) : null;
   const cardImageUrl = drawnCard ? getCardImageUrl(drawnCard.id) : '';
   const cardName = drawnCard ? (language === 'en' ? drawnCard.nameEn : drawnCard.nameFr) : '';
   const cardKeywords = drawnCard ? (language === 'en' ? drawnCard.keywordsEn : drawnCard.keywordsFr) : [];
