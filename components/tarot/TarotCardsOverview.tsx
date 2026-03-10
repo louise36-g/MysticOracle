@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Helmet } from '@dr.pogodin/react-helmet';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -23,10 +24,13 @@ interface TarotCardsOverviewProps {
   selectedCategory?: CategoryType | null;
 }
 
+const SITE_URL = 'https://celestiarcana.com';
+
 const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   selectedCategory: propSelectedCategory,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { category: urlCategory } = useParams<{ category?: string }>();
 
   // Determine selected category from URL or props
@@ -37,6 +41,34 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   const [data, setData] = useState<TarotOverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // SEO meta — unique per page/category
+  const seo = useMemo(() => {
+    const canonicalUrl = `${SITE_URL}${location.pathname}`;
+    if (selectedCategory) {
+      const cfg = CATEGORY_CONFIG[selectedCategory];
+      const nameEn = cfg.nameEn;
+      const nameFr = cfg.nameFr;
+      return {
+        title: language === 'fr'
+          ? `${nameFr} – Significations des Cartes | CelestiArcana`
+          : `${nameEn} Tarot Card Meanings – Complete Guide | CelestiArcana`,
+        description: language === 'fr'
+          ? `Découvrez la signification de chaque carte des ${nameFr}. Symbolisme, mots-clés et conseils de lecture.`
+          : `Explore every ${nameEn} tarot card meaning. Symbolism, keywords, and reading guidance for each card.`,
+        canonicalUrl,
+      };
+    }
+    return {
+      title: language === 'fr'
+        ? 'Les 78 Cartes du Tarot – Guide Complet | CelestiArcana'
+        : 'All 78 Tarot Card Meanings – Complete Guide | CelestiArcana',
+      description: language === 'fr'
+        ? 'Explorez la signification des 78 cartes du tarot : Arcanes Majeurs, Bâtons, Coupes, Épées et Pentacles. Guide complet avec symbolisme et conseils.'
+        : 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.',
+      canonicalUrl,
+    };
+  }, [selectedCategory, language, location.pathname]);
 
   // Category filter options
   const categoryFilters: { id: CategoryType | null; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
@@ -155,6 +187,20 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
 
   return (
     <div className="pb-20">
+      {/* SEO Head Tags */}
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <link rel="canonical" href={seo.canonicalUrl} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <link rel="alternate" hrefLang="en" href={seo.canonicalUrl} />
+        <link rel="alternate" hrefLang="fr" href={seo.canonicalUrl} />
+        <link rel="alternate" hrefLang="x-default" href={seo.canonicalUrl} />
+      </Helmet>
+
       {/* Hero Section */}
       <div className="relative py-16 px-4 text-center overflow-hidden">
         {/* Background glow */}
