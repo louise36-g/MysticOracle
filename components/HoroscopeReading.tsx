@@ -10,7 +10,6 @@ import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle } fro
 import { useApp } from '../context/AppContext';
 import { fetchHoroscope, ApiError } from '../services/api';
 import Button from './Button';
-import { SEOTags } from '../utils/seo';
 
 // Enhanced zodiac data with symbols, elements, dates, and taglines
 const zodiacData = [
@@ -566,10 +565,22 @@ const HoroscopeReading: React.FC = () => {
   return (
     <div className="relative max-w-5xl mx-auto px-4">
       <Helmet>
-        <title>Daily Horoscopes - CelestiArcana</title>
-        <meta name="description" content="Read your free daily horoscope for all 12 zodiac signs. Personalized celestial guidance powered by AI for love, career, and wellbeing." />
+        <title>{language === 'fr'
+          ? 'Horoscope du Jour pour Chaque Signe du Zodiaque | CelestiArcana'
+          : 'Daily Horoscopes for Every Zodiac Sign | CelestiArcana'}</title>
+        <meta name="description" content={language === 'fr'
+          ? "Lisez votre horoscope du jour gratuit pour votre signe du zodiaque. Prévisions astrologiques personnalisées pour Bélier, Taureau, Gémeaux et les 12 signes. Mis à jour quotidiennement."
+          : "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily."} />
+        <link rel="canonical" href="https://celestiarcana.com/horoscopes" />
+        <meta property="og:title" content={language === 'fr'
+          ? 'Horoscope du Jour | CelestiArcana'
+          : 'Daily Horoscopes | CelestiArcana'} />
+        <meta property="og:description" content={language === 'fr'
+          ? "Découvrez votre horoscope du jour pour chaque signe du zodiaque. Mis à jour quotidiennement."
+          : "Discover your daily horoscope for every zodiac sign. Updated daily for all twelve signs."} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://celestiarcana.com/horoscopes" />
       </Helmet>
-      <SEOTags path="/horoscopes" />
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[100px]" />
@@ -610,16 +621,24 @@ const HoroscopeReading: React.FC = () => {
           <div className="h-px w-16 bg-gradient-to-l from-transparent via-amber-500/40 to-amber-500/60" />
         </div>
 
-        <h2 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-4 tracking-wide">
-          {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
-        </h2>
+        <h1 className="text-3xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-purple-200 mb-2 tracking-wide">
+          {language === 'fr'
+            ? 'Horoscope du Jour par Signe du Zodiaque'
+            : 'Daily Horoscope by Zodiac Sign'}
+        </h1>
 
-        <p className="text-purple-200/80 text-sm md:text-base max-w-lg mx-auto leading-relaxed mb-6">
-          {t('horoscope.HoroscopeReading.subtitle', 'Twelve signs. One cosmos. Insight into the energies shaping your day.')}
+        <p className="text-purple-300/60 text-sm uppercase tracking-[0.2em] mb-5">
+          {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
+        </p>
+
+        <p className="text-purple-200/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-4">
+          {language === 'fr'
+            ? "D\u00e9couvrez votre horoscope du jour pour chaque signe du zodiaque. Nos lectures d'astrologie offrent un aper\u00e7u symbolique des th\u00e8mes qui fa\u00e7onnent votre journ\u00e9e \u2014 mis \u00e0 jour quotidiennement pour les douze signes, du B\u00e9lier aux Poissons."
+            : 'Discover your daily horoscope for every zodiac sign. Our astrology readings offer a symbolic snapshot of the themes shaping your day \u2014 updated daily for all twelve signs from Aries to Pisces.'}
         </p>
 
         <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
-          {t('horoscope.HoroscopeReading.disclaimer', 'Astrology offers a symbolic snapshot of the themes that may be active around you today. Let your daily horoscope offer perspective rather than prediction.')}
+          {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
         </p>
       </motion.div>
 

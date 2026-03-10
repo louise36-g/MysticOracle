@@ -45,7 +45,7 @@ const STATIC_PAGES = [
   { path: '/reading', title: 'Personalized Tarot Readings – Love, Career & Spiritual Guidance', description: 'Choose from six tarot reading themes — love & relationships, career, spiritual growth, personal development & more. Personalized readings with classic tarot spreads. Start your reading now.' },
   { path: '/contact', title: 'Contact Us', description: 'Get in touch with CelestiArcana. Send us a message about tarot readings, billing, feedback, or general enquiries.' },
   { path: '/how-credits-work', title: 'How Credits Work – Pricing & Free Credits', description: 'Learn how CelestiArcana credits work. Reading costs, free daily bonuses, referral rewards, and payment options. No subscriptions.' },
-  { path: '/horoscopes', title: 'Daily Horoscopes', description: 'Read your free daily horoscope for all 12 zodiac signs. Personalized celestial guidance powered by AI for love, career, and wellbeing.' },
+  { path: '/horoscopes', title: 'Daily Horoscopes for Every Zodiac Sign', description: "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily." },
   { path: '/blog', title: 'Mystic Insights Blog', description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.' },
   { path: '/tarot', title: 'Tarot Card Meanings', description: 'Explore the meanings of all 78 tarot cards in the Rider-Waite deck.' },
   { path: '/tarot/cards', title: 'All 78 Tarot Card Meanings – Complete Guide', description: 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.' },
