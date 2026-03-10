@@ -257,7 +257,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   }
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://celestiarcana.com';
-  const canonicalUrl = `${siteUrl}/tarot/articles/${article.slug}`;
+  const canonicalUrl = `${siteUrl}/tarot/${article.slug}`;
 
   return (
     <div className="relative min-h-screen">
