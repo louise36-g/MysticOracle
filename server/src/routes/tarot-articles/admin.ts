@@ -28,6 +28,7 @@ import {
 } from './shared.js';
 import { handleReorder } from '../shared/reorderUtils.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
+import { notifyTarotArticle } from '../../services/indexNowService.js';
 
 const router = Router();
 
@@ -648,6 +649,11 @@ router.patch(
 
       await cacheService.invalidateTarotArticle(existingArticle.slug, blogPostData.slug);
 
+      // Notify search engines via IndexNow if published
+      if (updatedArticle.status === 'PUBLISHED' && updatedArticle.slug) {
+        notifyTarotArticle(updatedArticle.slug);
+      }
+
       return res.json({
         ...mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>),
         _warnings: warningMessages,
@@ -675,6 +681,11 @@ router.patch(
     });
 
     await cacheService.invalidateTarotArticle(existingArticle.slug);
+
+    // Notify search engines via IndexNow if published
+    if (updatedArticle.status === 'PUBLISHED' && updatedArticle.slug) {
+      notifyTarotArticle(updatedArticle.slug);
+    }
 
     res.json(mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>));
   })

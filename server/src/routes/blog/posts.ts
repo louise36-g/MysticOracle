@@ -23,6 +23,7 @@ import { handleReorder } from '../shared/reorderUtils.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
+import { notifyBlogPost } from '../../services/indexNowService.js';
 
 const router = Router();
 
@@ -221,6 +222,11 @@ router.post(
     // Invalidate blog cache
     await cacheService.flushPattern('blog:');
 
+    // Notify search engines via IndexNow if published on creation
+    if (post.status === 'PUBLISHED' && post.slug) {
+      notifyBlogPost(post.slug);
+    }
+
     res.json({ success: true, post });
   })
 );
@@ -339,6 +345,11 @@ router.patch(
 
     // Invalidate blog cache
     await cacheService.flushPattern('blog:');
+
+    // Notify search engines via IndexNow if published
+    if (post.status === 'PUBLISHED' && post.slug) {
+      notifyBlogPost(post.slug);
+    }
 
     res.json({ success: true, post });
   })
