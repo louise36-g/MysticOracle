@@ -79,6 +79,29 @@ const CardBack: React.FC<{ style?: React.CSSProperties; className?: string }> = 
   </div>
 );
 
+// localStorage key for daily draw limit
+const DAILY_DRAW_KEY = 'celestiarcana_daily_draw';
+
+function getTodayString(): string {
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function getSavedDraw(): { date: string; cardId: number } | null {
+  try {
+    const raw = localStorage.getItem(DAILY_DRAW_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data.date === getTodayString() && typeof data.cardId === 'number') return data;
+    return null; // Different day — expired
+  } catch { return null; }
+}
+
+function saveDraw(cardId: number): void {
+  try {
+    localStorage.setItem(DAILY_DRAW_KEY, JSON.stringify({ date: getTodayString(), cardId }));
+  } catch { /* Storage full or unavailable — non-blocking */ }
+}
+
 const DailyTarotEnergy: React.FC = () => {
   const { language } = useApp();
   const [phase, setPhase] = useState<Phase>('intro');
@@ -88,7 +111,22 @@ const DailyTarotEnergy: React.FC = () => {
   const [drawnCard, setDrawnCard] = useState<typeof MAJOR_ARCANA[0] | null>(null);
   const [isCardRevealed, setIsCardRevealed] = useState(false);
   const [articleUrl, setArticleUrl] = useState<string | null>(null);
+  const [alreadyDrawnToday, setAlreadyDrawnToday] = useState(false);
   const articlesCache = useRef<BlogPost[]>([]);
+
+  // On mount, check if user already drew today and restore that card
+  useEffect(() => {
+    const saved = getSavedDraw();
+    if (saved) {
+      const card = MAJOR_ARCANA.find(c => c.id === saved.cardId);
+      if (card) {
+        setDrawnCard(card);
+        setIsCardRevealed(true);
+        setPhase('revealed');
+        setAlreadyDrawnToday(true);
+      }
+    }
+  }, []);
 
   // Fetch articles from the Tarot & Astrology category once
   useEffect(() => {
@@ -138,6 +176,8 @@ const DailyTarotEnergy: React.FC = () => {
     const card = shuffled[0];
     setDrawnCard(card);
     setPhase('drawing');
+    saveDraw(card.id);
+    setAlreadyDrawnToday(true);
 
     // Brief pause then reveal
     setTimeout(() => {
@@ -576,15 +616,24 @@ const DailyTarotEnergy: React.FC = () => {
                       </Link>
                     </div>
 
-                    {/* Draw again */}
+                    {/* Draw again or already-drawn message */}
                     <div className="mt-8">
-                      <button
-                        onClick={handleReset}
-                        className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-purple-300 transition-colors"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        {language === 'en' ? 'Draw again' : 'Tirer à nouveau'}
-                      </button>
+                      {alreadyDrawnToday ? (
+                        <p className="text-slate-400/90 text-sm italic max-w-sm mx-auto leading-relaxed">
+                          {language === 'en'
+                            ? "You've already drawn your card for today. Sit with its message a little longer — the meaning often deepens as the day unfolds."
+                            : "Vous avez déjà tiré votre carte du jour. Restez avec son message un peu plus longtemps — le sens s'approfondit souvent au fil de la journée."
+                          }
+                        </p>
+                      ) : (
+                        <button
+                          onClick={handleReset}
+                          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-purple-300 transition-colors"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          {language === 'en' ? 'Draw again' : 'Tirer à nouveau'}
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 )}
