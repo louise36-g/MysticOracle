@@ -211,6 +211,12 @@ export const router = createBrowserRouter(
         element: <TarotArticleRedirect />,
       },
 
+      // Daily Tarot Energy - single Major Arcana draw
+      {
+        path: ROUTES.DAILY_TAROT,
+        element: lazyLoad(() => import('../components/DailyTarotEnergy')),
+      },
+
       // Horoscope route - unified experience
       {
         path: ROUTES.HOROSCOPES,

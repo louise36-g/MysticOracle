@@ -67,6 +67,8 @@ const HomePage: React.FC = () => {
   const handleReadingModeSelect = (mode: string) => {
     if (mode === 'tarot') {
       navigate(ROUTES.READING);
+    } else if (mode === 'daily-tarot') {
+      navigate(ROUTES.DAILY_TAROT);
     } else if (mode === 'horoscope') {
       navigate(ROUTES.HOROSCOPES);
     }

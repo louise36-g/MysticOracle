@@ -2,13 +2,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Layers, Sparkles } from 'lucide-react';
+import { Layers, Sparkles, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getTodaysQuote } from '../constants/dailyQuotes';
 import { ROUTES } from '../routes/routes';
 
 interface ReadingModeSelectorProps {
-  onSelect: (mode: 'tarot' | 'horoscope') => void;
+  onSelect: (mode: 'tarot' | 'horoscope' | 'daily-tarot') => void;
 }
 
 const containerVariants = {
@@ -50,45 +50,61 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         </h2>
       </motion.div>
 
-      {/* Two action cards - centered, compact */}
+      {/* Three action cards */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 gap-8 max-w-xl mx-auto"
+        className="grid grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto"
       >
         {/* Tarot Reading Card */}
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-5 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
+            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
           >
-            {/* Shimmer effect on hover */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-
-            {/* Animated border gradient on hover */}
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-
-            {/* Subtle glow ring */}
             <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-
-            {/* Floating particles effect */}
             <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
               <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
               <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
             </div>
-
-            {/* Centered icon */}
             <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
               <Layers className="w-5 h-5 text-white" />
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
-
-            <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+            <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
               {t('reading.tarot_reading', 'Tarot Reading')}
             </h3>
-            <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
+            <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
               {t('reading.tarot_reading_desc', 'Classic card spreads for deep insights.')}
+            </p>
+          </Link>
+        </motion.div>
+
+        {/* Daily Tarot Energy Card */}
+        <motion.div variants={cardVariants}>
+          <Link
+            to={ROUTES.DAILY_TAROT}
+            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
+          >
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+            <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
+            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+              <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+              <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1.3s' }} />
+            </div>
+            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Sun className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+            </div>
+            <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+              {t('reading.daily_energy', 'Daily Energy')}
+            </h3>
+            <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
+              {t('reading.daily_energy_desc', 'Today\'s Major Arcana card.')}
             </p>
           </Link>
         </motion.div>
@@ -97,33 +113,23 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div
           variants={cardVariants}
           onClick={() => onSelect('horoscope')}
-          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-5 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
+          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
         >
-          {/* Shimmer effect on hover */}
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-
-          {/* Animated border gradient on hover */}
           <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-
-          {/* Subtle glow ring */}
           <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-
-          {/* Floating particles effect */}
           <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
             <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
             <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
-
-          {/* Centered icon */}
           <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
             <Sparkles className="w-5 h-5 text-white" />
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
           </div>
-
-          <h3 className="text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+          <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
             {t('reading.daily_horoscope', 'Daily Horoscope')}
           </h3>
-          <p className="text-slate-400 text-sm leading-snug group-hover:text-slate-300 transition-colors">
+          <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
             {t('reading.daily_horoscope_desc', 'What the stars have in store for you today.')}
           </p>
         </motion.div>

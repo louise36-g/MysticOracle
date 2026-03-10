@@ -4,12 +4,14 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import ReactMarkdown from 'react-markdown';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle, Sun, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { fetchHoroscope, ApiError } from '../services/api';
 import Button from './Button';
+import { ROUTES } from '../routes/routes';
 
 // Enhanced zodiac data with symbols, elements, dates, and taglines
 const zodiacData = [
@@ -640,6 +642,40 @@ const HoroscopeReading: React.FC = () => {
         <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
           {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
         </p>
+      </motion.div>
+
+      {/* Today's Collective Energy - link to Daily Tarot */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="mb-8"
+      >
+        <Link
+          to={ROUTES.DAILY_TAROT}
+          className="group relative block rounded-2xl overflow-hidden backdrop-blur-sm px-6 py-5 bg-gradient-to-r from-violet-600/15 via-purple-600/10 to-violet-600/15 border border-amber-500/30 hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10"
+        >
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                <Sun className="w-5 h-5 text-amber-300" />
+              </div>
+              <div>
+                <h3 className="text-sm md:text-base font-heading text-amber-200/90 mb-0.5">
+                  {language === 'fr' ? 'Énergie Collective du Jour' : "Today's Collective Energy"}
+                </h3>
+                <p className="text-xs md:text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
+                  {language === 'fr'
+                    ? 'Tirez une carte des Arcanes Majeurs pour découvrir le thème du jour'
+                    : 'Draw a Major Arcana card to discover today\'s theme'
+                  }
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5 text-purple-400/60 group-hover:text-amber-300 group-hover:translate-x-1 transition-all flex-shrink-0" />
+          </div>
+        </Link>
       </motion.div>
 
       {/* Zodiac grid - unified styling */}
