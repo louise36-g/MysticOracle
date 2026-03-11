@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Sparkles } from 'lucide-react';
+import { Hand, Sparkles, Star } from 'lucide-react';
 import { Language, SpreadType, ReadingCategory } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { getCategory } from '../../constants/categoryConfig';
 
 // Unified color theme - matching HomePage, CategorySelector, HoroscopeReading
 const unifiedTheme = {
@@ -90,11 +89,14 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   category,
 }) => {
   const { t } = useApp();
+  const [isShuffling, setIsShuffling] = useState(false);
   const [canStop, setCanStop] = useState(false);
   const [shufflePhase, setShufflePhase] = useState(0);
   const [showParticleBurst, setShowParticleBurst] = useState(false);
 
+  // Min duration timer only starts when shuffling begins
   useEffect(() => {
+    if (!isShuffling) return;
     const timer = setTimeout(() => {
       setCanStop(true);
       setShowParticleBurst(true);
@@ -102,15 +104,16 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
       setTimeout(() => setShowParticleBurst(false), 1000);
     }, minDuration);
     return () => clearTimeout(timer);
-  }, [minDuration]);
+  }, [isShuffling, minDuration]);
 
-  // Cycle through shuffle phases for variety
+  // Cycle through shuffle phases for variety (only when shuffling)
   useEffect(() => {
+    if (!isShuffling) return;
     const interval = setInterval(() => {
       setShufflePhase((prev) => (prev + 1) % 3);
     }, 2400);
     return () => clearInterval(interval);
-  }, []);
+  }, [isShuffling]);
 
   const handleStop = useCallback(() => {
     if (canStop && onStop) onStop();
@@ -225,11 +228,11 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           transition={{ duration: 0.5 }}
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/30 border border-amber-500/30 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Star className="w-3 h-3 text-amber-400/50" />
             <span className="text-xs text-purple-200/80 uppercase tracking-wider font-medium">
               {language === 'en' ? 'Preparing Your Reading' : 'Préparation de Votre Tirage'}
             </span>
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Star className="w-3 h-3 text-amber-400/50" />
           </div>
         </motion.div>
 
@@ -252,137 +255,227 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
           />
         </div>
 
-        {/* Floating sparkles around cards */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute pointer-events-none"
-            style={{
-              left: `${25 + i * 10}%`,
-              top: `${30 + (i % 3) * 12}%`,
-            }}
-            animate={{
-              y: [0, -15, 0],
-              opacity: [0.2, 0.5, 0.2],
-              scale: [0.8, 1.1, 0.8],
-            }}
-            transition={{
-              duration: 2.5 + i * 0.3,
-              repeat: Infinity,
-              delay: i * 0.3,
-              ease: 'easeInOut',
-            }}
-          >
-            <Sparkles className="w-3 h-3 text-amber-400/40" />
-          </motion.div>
-        ))}
-
-        {/* Card deck animation */}
-        <div className="relative h-40 w-64 mb-8 mt-8 md:mt-16">
-          {/* Shadow underneath deck */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-6 w-24 h-6 bg-black/20 rounded-full blur-lg" />
-
-          {/* Animated cards */}
-          {[...Array(NUM_CARDS)].map((_, index) => (
+        <AnimatePresence mode="wait">
+          {/* ============ PRE-SHUFFLE INTRO ============ */}
+          {!isShuffling && (
             <motion.div
-              key={index}
-              className="absolute left-1/2 top-1/2"
-              style={{
-                zIndex: index,
-                marginLeft: '-28px',
-                marginTop: '-40px',
-              }}
-              initial={{ x: 0, y: 0, rotate: 0 }}
-              animate={getCardAnimation(index)}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                repeatType: 'reverse',
-                ease: [0.45, 0.05, 0.55, 0.95],
-                delay: index * 0.05,
-              }}
+              key="pre-shuffle"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center"
             >
-              <CardBack
-                className="transition-shadow duration-300 hover:border-amber-400/60"
+              {/* Decorative card fan */}
+              <div className="relative h-36 w-56 mb-8 mt-8 md:mt-16">
+                {[...Array(5)].map((_, i) => {
+                  const angle = (i - 2) * 12;
+                  const yOffset = Math.abs(i - 2) * 4;
+                  return (
+                    <motion.div
+                      key={i}
+                      className="absolute left-1/2 top-1/2"
+                      style={{ marginLeft: '-28px', marginTop: '-40px', zIndex: i }}
+                      initial={{ rotate: 0, y: 0 }}
+                      animate={{ rotate: angle, y: -yOffset }}
+                      transition={{ duration: 0.6, delay: i * 0.08 }}
+                    >
+                      <CardBack
+                        style={{
+                          boxShadow: `0 4px 12px rgba(0,0,0,0.3), 0 0 ${20 + i * 5}px ${unifiedTheme.glow}15`,
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Decorative divider */}
+              <motion.div
+                className="flex items-center justify-center gap-4 mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/30" />
+                <motion.div
+                  animate={{ rotate: [0, 5, 0, -5, 0], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <svg className="w-4 h-4 text-amber-400/60" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
+                  </svg>
+                </motion.div>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
+              </motion.div>
+
+              <p className="text-slate-400 text-sm mb-6 text-center max-w-sm">
+                {language === 'en'
+                  ? 'Take a breath, set your intention, and shuffle the deck.'
+                  : 'Prenez une respiration, posez votre intention, et mélangez le jeu.'
+                }
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsShuffling(true)}
+                className="group relative px-8 py-3 rounded-xl text-white font-bold transition-all duration-300 overflow-hidden"
                 style={{
-                  boxShadow: `0 ${4 + index}px ${8 + index * 2}px rgba(0, 0, 0, 0.3), 0 0 ${20 + index * 5}px ${unifiedTheme.glow}15`,
+                  background: `linear-gradient(135deg, ${unifiedTheme.glow}, ${unifiedTheme.accent})`,
+                  boxShadow: `0 10px 30px ${unifiedTheme.glow}40, 0 0 0 1px ${unifiedTheme.border}40`,
                 }}
-              />
+              >
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <span className="relative flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>{language === 'en' ? 'Shuffle the Deck' : 'Mélanger le Jeu'}</span>
+                </span>
+              </motion.button>
             </motion.div>
-          ))}
-        </div>
+          )}
 
-        {/* Decorative divider */}
-        <motion.div
-          className="flex items-center justify-center gap-4 mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/30" />
-          <motion.div
-            animate={{ rotate: [0, 5, 0, -5, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <svg className="w-4 h-4 text-amber-400/60" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
-            </svg>
-          </motion.div>
-          <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
-        </motion.div>
-
-        {/* Text and button */}
-        <div className="text-center relative z-10">
-          <motion.h3
-            className="text-xl md:text-2xl font-heading text-purple-200 mb-2"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            {t('reading.ReadingShufflePhase.shuffling_the_deck', 'Shuffling the deck...')}
-          </motion.h3>
-
-          <p className="text-sm text-slate-400 mb-8 max-w-xs mx-auto">
-            {t('reading.ReadingShufflePhase.focus_on_your', 'Focus on your question as the cards align with your energy')}
-          </p>
-
-          <div className="relative">
-            {/* Particle burst when button appears */}
-            {showParticleBurst && <ParticleBurst />}
-
-            <AnimatePresence mode="wait">
-              {canStop && (
-                <motion.button
-                  key="stop-btn"
-                  initial={{ opacity: 0, y: 15, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleStop}
-                  className="group relative px-8 py-3 rounded-xl text-white font-bold transition-all duration-300 overflow-hidden"
+          {/* ============ SHUFFLING PHASE ============ */}
+          {isShuffling && (
+            <motion.div
+              key="shuffling"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center"
+            >
+              {/* Floating sparkles around cards */}
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute pointer-events-none"
                   style={{
-                    background: `linear-gradient(135deg, ${unifiedTheme.glow}, ${unifiedTheme.accent})`,
-                    boxShadow: `0 10px 30px ${unifiedTheme.glow}40, 0 0 0 1px ${unifiedTheme.border}40`,
+                    left: `${25 + i * 10}%`,
+                    top: `${30 + (i % 3) * 12}%`,
+                  }}
+                  animate={{
+                    y: [0, -15, 0],
+                    opacity: [0.2, 0.5, 0.2],
+                    scale: [0.8, 1.1, 0.8],
+                  }}
+                  transition={{
+                    duration: 2.5 + i * 0.3,
+                    repeat: Infinity,
+                    delay: i * 0.3,
+                    ease: 'easeInOut',
                   }}
                 >
-                  {/* Shimmer effect on hover */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <Sparkles className="w-3 h-3 text-amber-400/40" />
+                </motion.div>
+              ))}
 
-                  {/* Button glow on hover */}
-                  <div
-                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"
-                    style={{ background: `linear-gradient(135deg, ${unifiedTheme.glow}, ${unifiedTheme.accent})` }}
-                  />
+              {/* Card deck animation */}
+              <div className="relative h-40 w-64 mb-8 mt-8 md:mt-16">
+                {/* Shadow underneath deck */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-6 w-24 h-6 bg-black/20 rounded-full blur-lg" />
 
-                  <span className="relative flex items-center gap-2">
-                    <Hand className="w-5 h-5 text-amber-300" />
-                    <span>{t('reading.ReadingShufflePhase.draw_cards', 'Draw Cards')}</span>
-                  </span>
-                </motion.button>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+                {/* Animated cards */}
+                {[...Array(NUM_CARDS)].map((_, index) => (
+                  <motion.div
+                    key={index}
+                    className="absolute left-1/2 top-1/2"
+                    style={{
+                      zIndex: index,
+                      marginLeft: '-28px',
+                      marginTop: '-40px',
+                    }}
+                    initial={{ x: 0, y: 0, rotate: 0 }}
+                    animate={getCardAnimation(index)}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                      ease: [0.45, 0.05, 0.55, 0.95],
+                      delay: index * 0.05,
+                    }}
+                  >
+                    <CardBack
+                      className="transition-shadow duration-300 hover:border-amber-400/60"
+                      style={{
+                        boxShadow: `0 ${4 + index}px ${8 + index * 2}px rgba(0, 0, 0, 0.3), 0 0 ${20 + index * 5}px ${unifiedTheme.glow}15`,
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Decorative divider */}
+              <motion.div
+                className="flex items-center justify-center gap-4 mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/30" />
+                <motion.div
+                  animate={{ rotate: [0, 5, 0, -5, 0], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <svg className="w-4 h-4 text-amber-400/60" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
+                  </svg>
+                </motion.div>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
+              </motion.div>
+
+              {/* Text and button */}
+              <div className="text-center relative z-10">
+                <motion.h3
+                  className="text-xl md:text-2xl font-heading text-purple-200 mb-2"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {t('reading.ReadingShufflePhase.shuffling_the_deck', 'Shuffling the deck...')}
+                </motion.h3>
+
+                <p className="text-sm text-slate-400 mb-8 max-w-xs mx-auto">
+                  {t('reading.ReadingShufflePhase.focus_on_your', 'Focus on your question as the cards align with your energy')}
+                </p>
+
+                <div className="relative">
+                  {/* Particle burst when button appears */}
+                  {showParticleBurst && <ParticleBurst />}
+
+                  <AnimatePresence mode="wait">
+                    {canStop && (
+                      <motion.button
+                        key="stop-btn"
+                        initial={{ opacity: 0, y: 15, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleStop}
+                        className="group relative px-8 py-3 rounded-xl text-white font-bold transition-all duration-300 overflow-hidden"
+                        style={{
+                          background: `linear-gradient(135deg, ${unifiedTheme.glow}, ${unifiedTheme.accent})`,
+                          boxShadow: `0 10px 30px ${unifiedTheme.glow}40, 0 0 0 1px ${unifiedTheme.border}40`,
+                        }}
+                      >
+                        {/* Shimmer effect on hover */}
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                        {/* Button glow on hover */}
+                        <div
+                          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"
+                          style={{ background: `linear-gradient(135deg, ${unifiedTheme.glow}, ${unifiedTheme.accent})` }}
+                        />
+
+                        <span className="relative flex items-center gap-2">
+                          <Hand className="w-5 h-5 text-amber-300" />
+                          <span>{t('reading.ReadingShufflePhase.draw_cards', 'Draw Cards')}</span>
+                        </span>
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
