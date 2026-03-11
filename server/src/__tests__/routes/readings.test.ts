@@ -1,7 +1,7 @@
 /**
  * Readings Routes Tests
  * Tests for POST /, GET /:id, POST /:id/follow-up, PATCH /:id,
- * GET /horoscope/:sign, POST /horoscope/:sign
+ * GET /horoscope/:sign (via horoscopes router)
  */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
@@ -12,6 +12,9 @@ import express from 'express';
 vi.mock('../../middleware/auth.js', () => ({
   requireAuth: vi.fn((_req: any, _res: any, next: any) => {
     _req.auth = { userId: 'test-user-123', sessionId: 'test-session' };
+    next();
+  }),
+  optionalAuth: vi.fn((_req: any, _res: any, next: any) => {
     next();
   }),
 }));
@@ -34,11 +37,49 @@ vi.mock('../../db/prisma.js', () => ({
 // Mock logger
 vi.mock('../../lib/logger.js', () => ({
   debug: { log: vi.fn() },
-  logger: { info: vi.fn() },
+  logger: { info: vi.fn(), error: vi.fn() },
+}));
+
+// Mock cache service
+vi.mock('../../services/cache.js', () => ({
+  default: {
+    get: vi.fn(),
+    set: vi.fn(),
+  },
+}));
+
+// Mock horoscope generation
+vi.mock('../../routes/horoscopes/generate.js', () => ({
+  generateHoroscope: vi.fn(),
+}));
+
+// Mock prompt service
+vi.mock('../../services/promptService.js', () => ({
+  getHoroscopePrompt: vi.fn(),
+  getHoroscopeFollowUpPrompt: vi.fn(),
+}));
+
+// Mock openRouterService
+vi.mock('../../services/openRouterService.js', () => ({
+  openRouterService: {
+    generateHoroscope: vi.fn(),
+    generateHoroscopeFollowUp: vi.fn(),
+  },
+}));
+
+// Mock planetaryCalculationService
+vi.mock('../../services/planetaryCalculationService.js', () => ({
+  PlanetaryCalculationService: vi.fn().mockImplementation(() => ({
+    calculatePlanetaryData: vi.fn(),
+    formatForPrompt: vi.fn(),
+  })),
 }));
 
 import readingsRouter from '../../routes/readings.js';
+import horoscopesRouter from '../../routes/horoscopes/index.js';
 import prisma from '../../db/prisma.js';
+import cacheService from '../../services/cache.js';
+import { generateHoroscope } from '../../routes/horoscopes/generate.js';
 
 const mockedPrisma = prisma as unknown as {
   horoscopeCache: {
@@ -46,6 +87,13 @@ const mockedPrisma = prisma as unknown as {
     upsert: Mock;
   };
 };
+
+const mockedCacheService = cacheService as unknown as {
+  get: Mock;
+  set: Mock;
+};
+
+const mockedGenerateHoroscope = generateHoroscope as Mock;
 
 // DI Container mock
 const mockUseCases: Record<string, Record<string, Mock>> = {
@@ -319,46 +367,76 @@ describe('Readings Routes', () => {
       expect(res.status).toBe(500);
     });
   });
+});
+
+// ============================================
+// Horoscope Routes (separate router)
+// ============================================
+describe('Horoscope Routes', () => {
+  let horoscopeApp: express.Application;
+
+  beforeEach(() => {
+    horoscopeApp = express();
+    horoscopeApp.use(express.json());
+    horoscopeApp.use('/', horoscopesRouter);
+
+    // Error handler for tests
+    horoscopeApp.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || 500;
+      res.status(status).json({ error: err.message || 'Internal server error' });
+    });
+
+    vi.clearAllMocks();
+    mockedCacheService.get.mockResolvedValue(null);
+    mockedCacheService.set.mockResolvedValue(undefined);
+  });
 
   // ============================================
-  // GET /horoscope/:sign — Cached horoscope
+  // GET /:sign — Cached horoscope
   // ============================================
-  describe('GET /horoscope/:sign', () => {
-    it('should return cached horoscope when found', async () => {
+  describe('GET /:sign', () => {
+    it('should return cached horoscope from DB when found', async () => {
       const cached = {
         id: 'cache-1',
-        sign: 'aries',
+        sign: 'Aries',
         language: 'en',
         horoscope: 'Today is good',
-        questions: [],
+        createdAt: new Date('2026-03-11T00:00:00Z'),
       };
       mockedPrisma.horoscopeCache.findUnique.mockResolvedValue(cached);
 
-      const res = await request(app).get('/horoscope/aries');
+      const res = await request(horoscopeApp).get('/Aries');
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(cached);
+      expect(res.body.horoscope).toBe('Today is good');
+      expect(res.body.cached).toBe(true);
     });
 
-    it('should return 404 when no cached horoscope', async () => {
+    it('should generate horoscope when no cache exists', async () => {
       mockedPrisma.horoscopeCache.findUnique.mockResolvedValue(null);
+      mockedGenerateHoroscope.mockResolvedValue('A fresh horoscope');
+      mockedPrisma.horoscopeCache.upsert.mockResolvedValue({});
 
-      const res = await request(app).get('/horoscope/aries');
+      const res = await request(horoscopeApp).get('/Aries');
 
-      expect(res.status).toBe(404);
-      expect(res.body.needsGeneration).toBe(true);
+      expect(res.status).toBe(200);
+      expect(res.body.horoscope).toBe('A fresh horoscope');
+      expect(res.body.cached).toBe(false);
+      expect(mockedGenerateHoroscope).toHaveBeenCalledWith('Aries', 'en');
     });
 
     it('should pass language query param to prisma', async () => {
       mockedPrisma.horoscopeCache.findUnique.mockResolvedValue(null);
+      mockedGenerateHoroscope.mockResolvedValue('Un horoscope');
+      mockedPrisma.horoscopeCache.upsert.mockResolvedValue({});
 
-      await request(app).get('/horoscope/aries?language=fr');
+      await request(horoscopeApp).get('/Aries?language=fr');
 
       expect(mockedPrisma.horoscopeCache.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             sign_language_date: expect.objectContaining({
-              sign: 'aries',
+              sign: 'Aries',
               language: 'fr',
             }),
           },
@@ -366,52 +444,53 @@ describe('Readings Routes', () => {
       );
     });
 
-    it('should return 500 on DB error', async () => {
+    it('should return 500 on DB error with fallback attempt', async () => {
       mockedPrisma.horoscopeCache.findUnique.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/horoscope/aries');
+      const res = await request(horoscopeApp).get('/Aries');
       expect(res.status).toBe(500);
+      expect(res.body.error).toBe('DB error');
     });
   });
 
   // ============================================
-  // POST /horoscope/:sign — Cache horoscope
+  // GET /:sign — Generation and caching
   // ============================================
-  describe('POST /horoscope/:sign', () => {
-    it('should upsert and return cached horoscope', async () => {
-      const cached = { id: 'cache-1', sign: 'leo', horoscope: 'Great day!' };
-      mockedPrisma.horoscopeCache.upsert.mockResolvedValue(cached);
+  describe('GET /:sign (generation)', () => {
+    it('should upsert generated horoscope to DB cache', async () => {
+      mockedPrisma.horoscopeCache.findUnique.mockResolvedValue(null);
+      mockedGenerateHoroscope.mockResolvedValue('Great day!');
+      mockedPrisma.horoscopeCache.upsert.mockResolvedValue({});
 
-      const res = await request(app)
-        .post('/horoscope/leo')
-        .send({ language: 'en', horoscope: 'Great day!' });
+      const res = await request(horoscopeApp).get('/Leo');
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(cached);
+      expect(res.body.horoscope).toBe('Great day!');
       expect(mockedPrisma.horoscopeCache.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             sign_language_date: expect.objectContaining({
-              sign: 'leo',
+              sign: 'Leo',
               language: 'en',
             }),
           },
-          update: { horoscope: 'Great day!' },
           create: expect.objectContaining({
-            sign: 'leo',
+            sign: 'Leo',
             language: 'en',
             horoscope: 'Great day!',
           }),
+          update: { horoscope: 'Great day!' },
         })
       );
     });
 
-    it('should return 500 on DB error', async () => {
-      mockedPrisma.horoscopeCache.upsert.mockRejectedValue(new Error('DB error'));
+    it('should return 500 when generation fails', async () => {
+      mockedPrisma.horoscopeCache.findUnique.mockResolvedValue(null);
+      mockedGenerateHoroscope.mockRejectedValue(new Error('AI service down'));
+      // Fallback lookup also fails
+      mockedPrisma.horoscopeCache.findUnique.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app)
-        .post('/horoscope/leo')
-        .send({ language: 'en', horoscope: 'Great day!' });
+      const res = await request(horoscopeApp).get('/Leo');
 
       expect(res.status).toBe(500);
     });

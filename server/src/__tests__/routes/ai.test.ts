@@ -323,7 +323,7 @@ describe('AI Routes', () => {
           'Generated tarot prompt',
           expect.objectContaining({
             temperature: 0.7,
-            maxTokens: 2100, // 3 positions = 1500 base + 2 styles * 300 = 2100 tokens
+            maxTokens: 2300, // 3 positions = 1700 base + 2 styles * 300 = 2300 tokens
           })
         );
       });
@@ -344,7 +344,7 @@ describe('AI Routes', () => {
 
         expect(mockGenerateTarotReading).toHaveBeenCalledWith(
           expect.any(String),
-          expect.objectContaining({ maxTokens: 2000 }) // 5 positions = 2000 base, no style bonus
+          expect.objectContaining({ maxTokens: 2200 }) // 5 positions = 2200 base, no style bonus
         );
       });
     });

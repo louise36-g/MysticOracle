@@ -157,6 +157,8 @@ describe('Blog Public Routes', () => {
         limit: 12,
         total: 1,
         totalPages: 1,
+        hasMore: false,
+        hasPrevious: false,
       });
     });
 

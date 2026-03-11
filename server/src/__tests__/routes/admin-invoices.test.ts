@@ -173,6 +173,8 @@ describe('GET / — List invoices', () => {
       limit: 20,
       total: 1,
       totalPages: 1,
+      hasMore: false,
+      hasPrevious: false,
     });
   });
 
@@ -290,11 +292,14 @@ describe('GET / — List invoices', () => {
     expect(res.body.error).toBe('Validation failed');
   });
 
-  it('returns 400 when page is less than 1', async () => {
+  it('coerces page=0 to page=1 and returns 200', async () => {
+    mockedPrisma.transaction.findMany.mockResolvedValue([]);
+    mockedPrisma.transaction.count.mockResolvedValue(0);
+
     const res = await request(app).get('/?page=0');
 
-    expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Validation failed');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
   });
 
   it('returns 500 when prisma throws', async () => {

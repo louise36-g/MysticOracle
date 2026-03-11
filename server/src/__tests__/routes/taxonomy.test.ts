@@ -50,7 +50,7 @@ import taxonomyRouter from '../../routes/taxonomy.js';
 import { taxonomyService } from '../../services/TaxonomyService.js';
 
 // Cast to typed mocks for IDE support
-const mockedService = taxonomyService as {
+const mockedService = taxonomyService as unknown as {
   listCategories: Mock;
   createCategory: Mock;
   updateCategory: Mock;
