@@ -290,8 +290,8 @@ const DailyTarotEnergy: React.FC = () => {
 
           <p className="text-slate-300/90 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
             {language === 'en'
-              ? 'Draw a single card from the 22 Major Arcana to discover today\'s tarot energy. Each archetype carries a unique cosmic message — a lens through which to view your day with clarity and intention.'
-              : 'Tirez une seule carte parmi les 22 Arcanes Majeurs pour découvrir l\'énergie tarot du jour. Chaque archétype porte un message cosmique unique — une lentille à travers laquelle voir votre journée avec clarté et intention.'
+              ? 'Draw your free daily tarot card from the Major Arcana and discover the energy guiding your day. Each card carries a unique astral message — a lens for clarity, reflection and intention.'
+              : 'Tirez votre carte de tarot quotidienne gratuite parmi les Arcanes Majeurs et découvrez l\'énergie qui guide votre journée. Chaque carte porte un message astral unique — une lentille de clarté, de réflexion et d\'intention.'
             }
           </p>
 
