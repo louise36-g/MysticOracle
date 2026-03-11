@@ -67,6 +67,28 @@ window.onunhandledrejection = (event) => {
   }
 };
 
+// Register service worker for offline support and automatic updates
+// When a new version is deployed, the SW updates silently and reloads on next navigation
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((registration) => {
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+              // New version available — reload to pick it up
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }).catch((err) => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
+
 const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(
