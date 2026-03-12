@@ -809,20 +809,8 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   margin-bottom: 1rem;
   padding-top: 2.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  border-bottom: none;
   text-align: center;
-  position: relative;
-}
-.prose h2::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50%;
-  max-width: 200px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
 }
 .prose h3 {
   font-family: 'Cinzel', serif;
@@ -857,6 +845,18 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   font-size: 1.125rem;
   line-height: 1.9;
   overflow: hidden; /* Contain floated images properly */
+}
+
+/* Section divider stars — override prose paragraph defaults */
+.prose .section-divider,
+.prose p.section-divider {
+  text-align: center !important;
+  color: #C9A84C !important;
+  font-size: 22px;
+  letter-spacing: 16px;
+  margin: 50px auto;
+  display: block;
+  width: 100%;
 }
 
 /* Text element colors */
