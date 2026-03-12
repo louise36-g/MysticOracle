@@ -71,6 +71,9 @@ export class ContentProcessor {
     // Remove static CTA banner
     this.removeCTABanner(doc);
 
+    // Auto-add section-divider class to star divider paragraphs
+    this.processSectionDividers(doc);
+
     // Add section breaks for Tarot Numerology
     if (isTarotNumerology) {
       this.addSectionBreaks(doc);
@@ -198,6 +201,20 @@ export class ContentProcessor {
     if (staticCta) {
       staticCta.remove();
     }
+  }
+
+  /**
+   * Auto-add section-divider class to paragraphs containing only star (✦) characters
+   */
+  private processSectionDividers(doc: Document): void {
+    doc.querySelectorAll('p').forEach(p => {
+      if (p.classList.contains('section-divider')) return;
+      const text = p.textContent?.trim() || '';
+      // Match paragraphs that contain only ✦ characters, spaces, and nbsp
+      if (text.length > 0 && /^[\s\u00a0✦]+$/.test(text) && text.includes('✦')) {
+        p.classList.add('section-divider');
+      }
+    });
   }
 
   /**
