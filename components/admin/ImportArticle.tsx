@@ -188,7 +188,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/validate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tarot-articles/admin/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -258,7 +258,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
       let response;
       if (isEditMode && editingArticleId) {
         // Update existing article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/${editingArticleId}${forceParam}`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tarot-articles/admin/${editingArticleId}${forceParam}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -268,7 +268,7 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
         });
       } else {
         // Import new article
-        response = await fetch(`${import.meta.env.VITE_API_URL}/tarot-articles/admin/import${forceParam}`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tarot-articles/admin/import${forceParam}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
