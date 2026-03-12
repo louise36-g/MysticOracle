@@ -27,23 +27,25 @@
 		Cache-Control "no-cache, must-revalidate"
 	}
 
-	# --- Hashed assets: immutable forever ---
+	# --- Hashed assets: immutable forever, noindex ---
 	@hashedAssets {
 		path /assets/*.js /assets/*.css
 	}
 	header @hashedAssets {
 		Cache-Control "public, max-age=31536000, immutable"
+		X-Robots-Tag "noindex, nofollow"
 	}
 
-	# --- Self-hosted fonts: 1 year cache ---
+	# --- Self-hosted fonts: 1 year cache, noindex ---
 	@fonts {
 		path /fonts/*
 	}
 	header @fonts {
 		Cache-Control "public, max-age=31536000, immutable"
+		X-Robots-Tag "noindex, nofollow"
 	}
 
-	# --- Static images: 30 days + stale-while-revalidate ---
+	# --- Static images: 30 days + stale-while-revalidate, noindex ---
 	@images {
 		path /background-celestiarcana.*
 		path /logos/*
@@ -55,6 +57,7 @@
 	}
 	header @images {
 		Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+		X-Robots-Tag "noindex, nofollow"
 	}
 
 	# --- Metadata files: 1 hour + stale-while-revalidate ---
