@@ -517,6 +517,16 @@ Disallow: /reading/
 Disallow: /sign-in
 Disallow: /sign-up
 
+# Static assets — don't waste crawl budget
+Disallow: /fonts/
+Disallow: /assets/
+Disallow: /icons/
+Disallow: /logos/
+Disallow: /screenshots/
+Disallow: /sw.js
+Disallow: /workbox-*
+Disallow: /manifest.json
+
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 
