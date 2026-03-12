@@ -45,10 +45,8 @@ export const TarotArticleCoreSchema = z.object({
     .string({ required_error: 'Content is required' })
     .min(100, 'Content must be at least 100 characters'),
   cardType: CardTypeEnum,
-  cardNumber: z
-    .string({ required_error: 'Card number is required' })
-    .min(1, 'Card number is required'),
-  element: ElementEnum,
+  cardNumber: z.string().optional(),
+  element: ElementEnum.optional(),
   author: z.string({ required_error: 'Author is required' }).min(1, 'Author is required'),
 
   // Optional slug (will be auto-generated if not provided)
@@ -424,9 +422,9 @@ export const TarotArticleSchema = z.object({
 
   // Card metadata
   cardType: CardTypeEnum,
-  cardNumber: z.string().min(1).max(20),
-  astrologicalCorrespondence: z.string().min(2).max(50),
-  element: ElementEnum,
+  cardNumber: z.string().min(1).max(20).optional(),
+  astrologicalCorrespondence: z.string().min(2).max(50).optional(),
+  element: ElementEnum.optional(),
 
   // Taxonomy (stored as string arrays in Prisma)
   categories: z.array(z.string()).min(1).max(5),
@@ -902,9 +900,9 @@ export function convertToPrismaFormat(data: TarotArticleInput) {
 
     // Card metadata - convert to Prisma enum keys
     cardType: mapCardTypeToPrisma(data.cardType) as PrismaCardType,
-    cardNumber: data.cardNumber,
-    astrologicalCorrespondence: data.astrologicalCorrespondence,
-    element: data.element, // Element enum doesn't use @map, so no conversion needed
+    cardNumber: data.cardNumber || '',
+    astrologicalCorrespondence: data.astrologicalCorrespondence || '',
+    element: data.element || null,
 
     // Taxonomy (arrays)
     categories: data.categories,
