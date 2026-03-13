@@ -270,7 +270,7 @@ export const importArticleSchema = z.object({
     .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   author: z.string().optional(),
   read_time: z.union([z.string(), z.number()]).optional(),
-  readTime: z.string().optional(), // Alternative field name
+  readTime: z.union([z.string(), z.number()]).optional(),
   image_alt_text: z.string().optional(),
   featuredImage: z.string().optional(),
   featuredImageAlt: z.string().optional(),
