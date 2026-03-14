@@ -21,6 +21,8 @@ export interface ReadingGenerationParams {
   category?: string;
   /** For 3-card readings: the selected layout ID (e.g., past-present-future) */
   layoutId?: string;
+  /** For Interpret My Cards: user physically drew these cards */
+  interpretMode?: 'ai_dealt' | 'user_selected';
 }
 
 /**
@@ -93,7 +95,7 @@ export function useReadingGeneration(): UseReadingGenerationReturn {
   const generateReading = useCallback(async (
     params: ReadingGenerationParams
   ): Promise<ReadingGenerationResult | null> => {
-    const { spread, isAdvanced, selectedStyles, drawnCards, question, language, category, layoutId } = params;
+    const { spread, isAdvanced, selectedStyles, drawnCards, question, language, category, layoutId, interpretMode } = params;
 
     setIsGenerating(true);
     setError(null);
@@ -131,6 +133,7 @@ export function useReadingGeneration(): UseReadingGenerationReturn {
         language,
         ...(category && { category }),
         ...(layoutId && { layoutId }),
+        ...(interpretMode && { interpretMode }),
       });
 
       return result;

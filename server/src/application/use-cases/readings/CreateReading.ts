@@ -37,6 +37,7 @@ export interface CreateReadingInput {
   interpretation: string;
   idempotencyKey?: string; // Optional key to prevent duplicate charges
   hasExtendedQuestion?: boolean; // Flag for extended question cost (+1 credit)
+  isUserSelected?: boolean; // true = Interpret My Cards (user picked own cards)
 }
 
 // Output DTO
@@ -131,7 +132,25 @@ export class CreateReadingUseCase {
 
       creditCost = costBreakdown.totalCost;
 
-      logger.info('[CreateReading] Cost calculated server-side:', costBreakdown);
+      // 4b. Free first interpretation for Interpret My Cards
+      let isFirstFreeInterpretation = false;
+      if (input.isUserSelected && creditCost > 0) {
+        const user = await this.userRepository.findById(input.userId);
+        if (user && !user.hasUsedFreeInterpretation) {
+          isFirstFreeInterpretation = true;
+          creditCost = 0;
+          logger.info(
+            '[CreateReading] First free Interpret My Cards reading for user:',
+            input.userId
+          );
+        }
+      }
+
+      logger.info('[CreateReading] Cost calculated server-side:', {
+        ...costBreakdown,
+        isFirstFreeInterpretation,
+        finalCost: creditCost,
+      });
 
       // 5. Check if user exists and has sufficient credits
       const balanceCheck = await this.creditService.checkSufficientCredits(
@@ -158,40 +177,43 @@ export class CreateReadingUseCase {
 
       // 6. DEDUCT CREDITS FIRST (before creating reading)
       // This ensures we never give away free readings
-      // Build descriptive transaction description
-      const descriptionParts: string[] = [spreadType.name];
-      if (isAdvancedStyle && input.interpretationStyle) {
-        // Format style name nicely (e.g., PSYCHO_EMOTIONAL -> Psycho-Emotional)
-        const styleName = input.interpretationStyle
-          .toLowerCase()
-          .replace(/_/g, '-')
-          .replace(/\b\w/g, c => c.toUpperCase());
-        descriptionParts.push(`+ ${styleName}`);
-      }
-      if (input.hasExtendedQuestion) {
-        descriptionParts.push('+ Extended');
-      }
-      const transactionDescription = descriptionParts.join(' ');
+      // Skip deduction if cost is 0 (first free interpretation)
+      if (creditCost > 0) {
+        // Build descriptive transaction description
+        const descriptionParts: string[] = [spreadType.name];
+        if (isAdvancedStyle && input.interpretationStyle) {
+          // Format style name nicely (e.g., PSYCHO_EMOTIONAL -> Psycho-Emotional)
+          const styleName = input.interpretationStyle
+            .toLowerCase()
+            .replace(/_/g, '-')
+            .replace(/\b\w/g, c => c.toUpperCase());
+          descriptionParts.push(`+ ${styleName}`);
+        }
+        if (input.hasExtendedQuestion) {
+          descriptionParts.push('+ Extended');
+        }
+        const transactionDescription = descriptionParts.join(' ');
 
-      const deductResult = await this.creditService.deductCredits({
-        userId: input.userId,
-        amount: creditCost,
-        type: 'READING',
-        description: transactionDescription,
-      });
+        const deductResult = await this.creditService.deductCredits({
+          userId: input.userId,
+          amount: creditCost,
+          type: 'READING',
+          description: transactionDescription,
+        });
 
-      if (!deductResult.success) {
-        // Credit deduction failed - do NOT create reading
-        logger.error(`[CreateReading] Credit deduction failed: ${deductResult.error}`);
-        return {
-          success: false,
-          error: deductResult.error || 'Failed to process credits',
-          errorCode: 'CREDIT_DEDUCTION_FAILED',
-        };
+        if (!deductResult.success) {
+          // Credit deduction failed - do NOT create reading
+          logger.error(`[CreateReading] Credit deduction failed: ${deductResult.error}`);
+          return {
+            success: false,
+            error: deductResult.error || 'Failed to process credits',
+            errorCode: 'CREDIT_DEDUCTION_FAILED',
+          };
+        }
+
+        // Store transaction ID for potential refund
+        transactionId = deductResult.transactionId;
       }
-
-      // Store transaction ID for potential refund
-      transactionId = deductResult.transactionId;
 
       // 7. Create the reading (credits already deducted)
       let reading: Reading;
@@ -204,6 +226,7 @@ export class CreateReadingUseCase {
           cards: input.cards,
           interpretation: input.interpretation,
           creditCost,
+          isUserSelected: input.isUserSelected,
         });
       } catch (readingError) {
         // Reading creation failed - REFUND the credits
@@ -249,6 +272,21 @@ export class CreateReadingUseCase {
       } catch (updateError) {
         // Log but don't fail - reading was created successfully
         logger.warn(`[CreateReading] Failed to update user reading count:`, updateError);
+      }
+
+      // 8b. Mark first free interpretation as used (non-critical)
+      if (isFirstFreeInterpretation) {
+        try {
+          await this.userRepository.update(input.userId, {
+            hasUsedFreeInterpretation: true,
+          });
+          logger.info(
+            '[CreateReading] Marked hasUsedFreeInterpretation = true for user:',
+            input.userId
+          );
+        } catch (flagError) {
+          logger.warn('[CreateReading] Failed to mark free interpretation as used:', flagError);
+        }
       }
 
       // 9. Check and unlock achievements (non-critical, don't fail if this fails)

@@ -53,6 +53,7 @@ describe('CreateReadingUseCase', () => {
     clarificationCard: null,
     clarificationCard2: null,
     hasClarification: false,
+    isUserSelected: false,
   };
 
   beforeEach(() => {

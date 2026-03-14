@@ -46,6 +46,7 @@ export class PrismaReadingRepository implements IReadingRepository {
         cards: data.cards as unknown as Prisma.InputJsonValue,
         interpretation: data.interpretation,
         creditCost: data.creditCost,
+        isUserSelected: data.isUserSelected ?? false,
         // Create normalized cards for RAG queries
         normalizedCards: {
           create: data.cards.map((card, index) => ({

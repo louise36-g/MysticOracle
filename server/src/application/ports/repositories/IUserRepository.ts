@@ -28,6 +28,7 @@ export interface UpdateUserDTO {
   loginStreak?: number;
   lastLoginDate?: Date;
   welcomeCompleted?: boolean;
+  hasUsedFreeInterpretation?: boolean;
   accountStatus?: AccountStatus;
   isAdmin?: boolean;
 }

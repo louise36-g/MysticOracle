@@ -26,6 +26,7 @@ import {
   getOpenAIClient,
   getCardElement,
   getCardNumber,
+  getInterpretMyCardsPrompt,
   layoutPositions,
   styleDescriptions,
   styleMap,
@@ -174,8 +175,10 @@ router.post(
   '/tarot/generate',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { spread, style, cards, question, language, category, layoutId } =
+    const { spread, style, cards, question, language, category, layoutId, interpretMode } =
       generateTarotSchema.parse(req.body);
+
+    const isUserSelected = interpretMode === 'user_selected';
 
     debug.log('[Tarot Generate] Request:', {
       userId: req.auth.userId,
@@ -284,14 +287,25 @@ ${synthesisInstructions}`;
         .join('\n');
 
       // Get prompt from service (with caching and fallback to defaults)
-      prompt = await getTarotReadingPrompt({
-        spreadType,
-        styleInstructions,
-        question,
-        cardsDescription,
-        language,
-        layoutId,
-      });
+      if (isUserSelected) {
+        prompt = await getInterpretMyCardsPrompt({
+          spreadType,
+          styleInstructions,
+          question,
+          cardsDescription,
+          language,
+          layoutId,
+        });
+      } else {
+        prompt = await getTarotReadingPrompt({
+          spreadType,
+          styleInstructions,
+          question,
+          cardsDescription,
+          language,
+          layoutId,
+        });
+      }
 
       // Calculate max tokens based on spread size
       // Base tokens for each spread size (+200 for Key Themes summary)
@@ -307,7 +321,9 @@ ${synthesisInstructions}`;
 
       // Add 300 tokens per style option for synthesis sections (100-150 words each)
       const styleBonus = style.length > 0 ? style.length * 300 : 0;
-      maxTokens = baseTokens + styleBonus;
+      // Add extra tokens for teaching content in interpret mode
+      const interpretBonus = isUserSelected ? 300 : 0;
+      maxTokens = baseTokens + styleBonus + interpretBonus;
       debug.log('[Tarot Generate] Token calculation:', { baseTokens, styleBonus, maxTokens });
     }
 

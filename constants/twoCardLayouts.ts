@@ -5,7 +5,8 @@ export type TwoCardLayoutId =
   | 'challenge_strength'
   | 'light_shadow'
   | 'question_answer'
-  | 'inner_outer';
+  | 'inner_outer'
+  | 'for_and_against';
 
 export interface TwoCardLayout {
   id: TwoCardLayoutId;
@@ -107,6 +108,21 @@ export const TWO_CARD_LAYOUTS: Record<TwoCardLayoutId, TwoCardLayout> = {
       fr: ['Intérieur', 'Extérieur'],
     },
   },
+  for_and_against: {
+    id: 'for_and_against',
+    labelEn: 'For & Against',
+    labelFr: 'Pour & Contre',
+    taglineEn: 'Explore the energies supporting and resisting a decision. Tarot does not predict fixed outcomes but can illuminate the forces around a choice.',
+    taglineFr: 'Explorez les énergies qui soutiennent et résistent à une décision. Le tarot ne prédit pas des résultats fixes mais peut éclairer les forces autour d\'un choix.',
+    positions: {
+      en: ['Energy For', 'Energy Against'],
+      fr: ['Énergie Pour', 'Énergie Contre'],
+    },
+    shortPositions: {
+      en: ['For', 'Against'],
+      fr: ['Pour', 'Contre'],
+    },
+  },
 };
 
 // Suggested questions per layout (3 per layout)
@@ -135,5 +151,10 @@ export const TWO_CARD_LAYOUT_QUESTIONS: Record<TwoCardLayoutId, TwoCardQuestion[
     { id: 'tc_io1', textEn: 'How are my inner feelings shaping my outer world?', textFr: 'Comment mes sentiments intérieurs façonnent-ils mon monde extérieur ?' },
     { id: 'tc_io2', textEn: 'What lives inside me and how does it show up in my life?', textFr: 'Qu\'est-ce qui vit en moi et comment cela se manifeste-t-il dans ma vie ?' },
     { id: 'tc_io3', textEn: 'Where is there a gap between how I feel and what I show the world?', textFr: 'Où y a-t-il un écart entre ce que je ressens et ce que je montre au monde ?' },
+  ],
+  for_and_against: [
+    { id: 'tc_fa1', textEn: 'What energies support and resist this decision?', textFr: 'Quelles énergies soutiennent et résistent à cette décision ?' },
+    { id: 'tc_fa2', textEn: 'What is working for me and what is working against me right now?', textFr: 'Qu\'est-ce qui joue en ma faveur et qu\'est-ce qui joue contre moi en ce moment ?' },
+    { id: 'tc_fa3', textEn: 'What forces are pulling me forward and what is holding me back?', textFr: 'Quelles forces me tirent en avant et qu\'est-ce qui me retient ?' },
   ],
 };

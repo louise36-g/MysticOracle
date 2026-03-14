@@ -134,6 +134,7 @@ const TWO_CARD_LAYOUT_GUIDANCE_MAP: Record<string, string> = {
   light_shadow: 'SPREAD_GUIDANCE_TWO_CARD_LIGHT_SHADOW',
   question_answer: 'SPREAD_GUIDANCE_TWO_CARD_QUESTION_ANSWER',
   inner_outer: 'SPREAD_GUIDANCE_TWO_CARD_INNER_OUTER',
+  for_and_against: 'SPREAD_GUIDANCE_TWO_CARD_FOR_AND_AGAINST',
 };
 
 // Mapping from 5-card layoutId to prompt key
@@ -436,6 +437,54 @@ export async function getBirthCardSynthesisPrompt(params: {
 }
 
 /**
+ * Get assembled Interpret My Cards prompt (user-drawn cards with teaching focus)
+ */
+export async function getInterpretMyCardsPrompt(params: {
+  spreadType: string;
+  styleInstructions: string;
+  question: string;
+  cardsDescription: string;
+  language: 'en' | 'fr';
+  layoutId?: string;
+}): Promise<string> {
+  try {
+    const basePrompt = await getPrompt('PROMPT_INTERPRET_MY_CARDS');
+
+    // Determine spread guidance key (reuse existing guidance)
+    let spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
+
+    if (params.spreadType.toUpperCase() === 'TWO_CARD' && params.layoutId) {
+      const guidanceKey = TWO_CARD_LAYOUT_GUIDANCE_MAP[params.layoutId];
+      if (guidanceKey) {
+        spreadGuidanceKey = guidanceKey;
+      }
+    }
+
+    if (params.spreadType.toUpperCase() === 'THREE_CARD' && params.layoutId) {
+      const layoutKey = params.layoutId.toUpperCase();
+      spreadGuidanceKey = `SPREAD_GUIDANCE_THREE_CARD_${layoutKey}`;
+    }
+
+    const spreadGuidance = await getPrompt(spreadGuidanceKey);
+    const languageName = params.language === 'en' ? 'English' : 'French';
+    const sectionHeaders = getSectionHeaders(params.language, spreadGuidance);
+
+    const variables = {
+      language: languageName,
+      styleInstructions: params.styleInstructions,
+      question: params.question,
+      cardsDescription: params.cardsDescription,
+      sectionHeaders: sectionHeaders,
+    };
+
+    return interpolatePrompt(basePrompt, variables);
+  } catch (error) {
+    logger.error('[PromptService] Error assembling interpret my cards prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Get clarification card prompt
  */
 export async function getClarificationCardPrompt(params: {
@@ -532,6 +581,7 @@ export function getPromptService() {
     getPrompt,
     getTarotReadingPrompt,
     getSingleCardReadingPrompt,
+    getInterpretMyCardsPrompt,
     getTarotFollowUpPrompt,
     getClarificationCardPrompt,
     getHoroscopePrompt,
@@ -549,6 +599,7 @@ export default {
   getPrompt,
   getTarotReadingPrompt,
   getSingleCardReadingPrompt,
+  getInterpretMyCardsPrompt,
   getTarotFollowUpPrompt,
   getClarificationCardPrompt,
   getHoroscopePrompt,

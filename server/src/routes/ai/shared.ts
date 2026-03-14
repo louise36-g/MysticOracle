@@ -16,6 +16,7 @@ import {
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
   getClarificationCardPrompt,
+  getInterpretMyCardsPrompt,
   getYearEnergyReadingPrompt,
   getBirthCardSynthesisPrompt,
 } from '../../services/promptService.js';
@@ -34,6 +35,7 @@ export {
   getTarotFollowUpPrompt,
   getSingleCardReadingPrompt,
   getClarificationCardPrompt,
+  getInterpretMyCardsPrompt,
   getYearEnergyReadingPrompt,
   getBirthCardSynthesisPrompt,
 };
@@ -119,6 +121,7 @@ export const generateTarotSchema = z.object({
   language: z.enum(['en', 'fr']),
   category: z.string().optional(),
   layoutId: z.string().optional(),
+  interpretMode: z.enum(['ai_dealt', 'user_selected']).optional(),
 });
 
 // Schema for tarot follow-up questions
@@ -224,6 +227,10 @@ export const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
   inner_outer: {
     en: ['Your Inner World', 'Your Outer Reality'],
     fr: ['Votre Monde Intérieur', 'Votre Réalité Extérieure'],
+  },
+  for_and_against: {
+    en: ['Energy For', 'Energy Against'],
+    fr: ['Énergie Pour', 'Énergie Contre'],
   },
   // Three-card layouts
   past_present_future: {

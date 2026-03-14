@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
-import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles, Plus, Mail } from 'lucide-react';
+import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles, Plus, Mail, Hand } from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
@@ -223,6 +223,15 @@ const Header: React.FC<HeaderProps> = () => {
               >
                 <Sparkles className="w-5 h-5" />
                 {t('header.new_reading', 'New Reading')}
+              </Link>
+
+              <Link
+                to={ROUTES.INTERPRET}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.INTERPRET) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                <Hand className="w-5 h-5" />
+                {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
               </Link>
 
               <Link

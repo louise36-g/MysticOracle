@@ -255,6 +255,7 @@ export async function createReading(
     cards: Array<{ cardId: string; position: number; isReversed?: boolean }>;
     interpretation: string;
     hasExtendedQuestion?: boolean;
+    isUserSelected?: boolean;
   }
 ): Promise<ReadingData> {
   // Use idempotency key to prevent duplicate charges on network retries

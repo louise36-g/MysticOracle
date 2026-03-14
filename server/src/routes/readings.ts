@@ -30,6 +30,7 @@ const createReadingSchema = z.object({
     .min(1, 'At least one card is required'),
   interpretation: z.string().min(1, 'Interpretation is required'),
   hasExtendedQuestion: z.boolean().optional(), // Flag for extended question cost (+1 credit)
+  isUserSelected: z.boolean().optional(), // Flag for Interpret My Cards readings
 });
 
 const followUpSchema = z.object({

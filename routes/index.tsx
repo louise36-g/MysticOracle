@@ -285,6 +285,11 @@ export const router = createBrowserRouter(
             path: ROUTES.PROFILE,
             element: lazyLoad(() => import('../components/UserProfile')),
           },
+          // Interpret My Cards
+          {
+            path: ROUTES.INTERPRET,
+            element: lazyLoad(() => import('../components/interpret/InterpretMyCards')),
+          },
           // Reading with category and depth
           {
             path: ROUTES.READING_CATEGORY_DEPTH,

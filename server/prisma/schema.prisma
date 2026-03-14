@@ -36,6 +36,7 @@ model User {
   loginStreak       Int      @default(1)
   lastLoginDate     DateTime @default(now())
   welcomeCompleted  Boolean  @default(false)
+  hasUsedFreeInterpretation Boolean @default(false)
 
   // Referral System
   referralCode      String   @unique
@@ -98,6 +99,7 @@ model Reading {
 
   // Metadata
   creditCost      Int
+  isUserSelected  Boolean  @default(false) // true = Interpret My Cards (user picked own cards)
   createdAt       DateTime @default(now())
 
   // Follow-up questions

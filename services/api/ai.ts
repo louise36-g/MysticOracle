@@ -53,6 +53,7 @@ export async function generateTarotReading(
     language: 'en' | 'fr';
     category?: string; // For single card readings: general, love, career, decision, healing
     layoutId?: string; // For 3-card and 5-card readings with specific layouts
+    interpretMode?: 'ai_dealt' | 'user_selected'; // For Interpret My Cards feature
   }
 ): Promise<{ interpretation: string; creditsRequired: number }> {
   return apiRequest('/api/v1/ai/tarot/generate', {

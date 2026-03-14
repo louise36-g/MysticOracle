@@ -14,7 +14,8 @@ import {
   User,
   Layers,
   Home,
-  Mail
+  Mail,
+  Hand
 } from 'lucide-react';
 
 interface DropdownItem {
@@ -227,6 +228,19 @@ const SubNav: React.FC = () => {
           >
             <Sparkles className="w-4 h-4" />
             <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
+          </Link>
+
+          {/* Interpret My Cards Link */}
+          <Link
+            to={ROUTES.INTERPRET}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              isActive('/interpret')
+                ? 'text-amber-300 bg-amber-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Hand className="w-4 h-4" />
+            <span>{language === 'fr' ? 'Mes Cartes' : 'My Cards'}</span>
           </Link>
 
           {/* Horoscope Link */}

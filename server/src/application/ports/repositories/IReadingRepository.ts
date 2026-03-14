@@ -27,6 +27,7 @@ export interface CreateReadingDTO {
   cards: CardPosition[];
   interpretation: string;
   creditCost: number;
+  isUserSelected?: boolean;
 }
 
 export interface UpdateReadingDTO {
