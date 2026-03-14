@@ -151,11 +151,8 @@ const InterpretMyCards: React.FC = () => {
   // Whether this is the user's first free interpretation
   const isFirstFree = user ? !user.hasUsedFreeInterpretation : false;
 
-  // Credit cost calculation — styles don't add extra cost
-  const creditCost = useMemo(() => {
-    if (!spreadConfig) return 0;
-    return spreadConfig.cost;
-  }, [spreadConfig]);
+  // Interpret My Cards always costs 1 credit regardless of card count
+  const creditCost = 1;
 
   // Max cards for current spread
   const maxCards = useMemo(() => {
@@ -208,7 +205,7 @@ const InterpretMyCards: React.FC = () => {
     setSelectedCards([]);
     setSelectedLayout(null);
     if (spreadType === SpreadType.SINGLE) {
-      setStep('cards'); // Skip layout for single card
+      setStep('question'); // Skip layout for single card, go to question
     } else {
       setStep('layout');
     }
@@ -217,6 +214,11 @@ const InterpretMyCards: React.FC = () => {
   // Handle layout selection
   const handleSelectLayout = useCallback((layoutId: string) => {
     setSelectedLayout(layoutId);
+    setStep('question');
+  }, []);
+
+  // Handle proceeding from question to cards
+  const handleQuestionComplete = useCallback(() => {
     setStep('cards');
   }, []);
 
@@ -225,10 +227,7 @@ const InterpretMyCards: React.FC = () => {
     setStep('style');
   }, []);
 
-  // Handle style selection and proceed to question
-  const handleStyleComplete = useCallback(() => {
-    setStep('question');
-  }, []);
+  // Style is the last step before generating — button calls handleGenerate directly
 
   // Generate the interpretation
   const handleGenerate = useCallback(async () => {
@@ -242,7 +241,7 @@ const InterpretMyCards: React.FC = () => {
       isAdvanced,
       selectedStyles: isAdvanced ? [selectedStyle] : [InterpretationStyle.CLASSIC],
       drawnCards: selectedCards,
-      question: question.trim() || (language === 'fr' ? 'Que me disent ces cartes ?' : 'What do these cards tell me?'),
+      question: question.trim(),
       language,
       layoutId: selectedLayout || undefined,
       interpretMode: 'user_selected',
@@ -279,7 +278,7 @@ const InterpretMyCards: React.FC = () => {
       }
     } else {
       setError(genError || (language === 'fr' ? 'Échec de la génération' : 'Generation failed'));
-      setStep('question');
+      setStep('style');
     }
   }, [
     spreadConfig, user, selectedCards, selectedStyle, isAdvanced,
@@ -287,24 +286,24 @@ const InterpretMyCards: React.FC = () => {
     refreshUser, genError,
   ]);
 
-  // Go back one step
+  // Go back one step (flow: spread → layout → question → cards → style)
   const handleBack = useCallback(() => {
     switch (step) {
       case 'layout':
         setStep('spread');
         break;
-      case 'cards':
+      case 'question':
         if (needsLayout) {
           setStep('layout');
         } else {
           setStep('spread');
         }
         break;
+      case 'cards':
+        setStep('question');
+        break;
       case 'style':
         setStep('cards');
-        break;
-      case 'question':
-        setStep('style');
         break;
       case 'result':
         navigate(ROUTES.INTERPRET);
@@ -335,7 +334,7 @@ const InterpretMyCards: React.FC = () => {
         {/* Step indicators */}
         {step !== 'result' && step !== 'generating' && (
           <div className="flex items-center justify-center gap-2 mb-8">
-            {['spread', ...(needsLayout ? ['layout'] : []), 'cards', 'style', 'question'].map((s, i) => (
+            {['spread', ...(needsLayout ? ['layout'] : []), 'question', 'cards', 'style'].map((s, i) => (
               <div
                 key={s}
                 className={`w-2 h-2 rounded-full transition-colors ${
@@ -396,7 +395,7 @@ const InterpretMyCards: React.FC = () => {
                       ) : (
                         <>
                           <Coins className="w-4 h-4 text-amber-400/80" />
-                          <span className="text-amber-400/80">{SPREADS[spread.id]?.cost || 1}</span>
+                          <span className="text-amber-400/80">1</span>
                         </>
                       )}
                     </div>
@@ -444,7 +443,49 @@ const InterpretMyCards: React.FC = () => {
             </motion.div>
           )}
 
-          {/* STEP 3: Card Selection */}
+          {/* STEP 3: Question (required — asked before cards for personalised reading) */}
+          {step === 'question' && (
+            <motion.div
+              key="question"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <h2 className="text-lg font-medium text-white">
+                {language === 'fr' ? 'Quelle est votre question ?' : 'What is your question?'}
+              </h2>
+              <p className="text-sm text-slate-400">
+                {language === 'fr'
+                  ? 'Votre question permet à l\'interprétation d\'être personnalisée et ciblée plutôt que générique.'
+                  : 'Your question allows the interpretation to be personalised and focused rather than generic.'}
+              </p>
+
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                maxLength={1000}
+                rows={3}
+                placeholder={language === 'fr'
+                  ? 'Ex: Que me disent ces cartes sur ma situation actuelle ?'
+                  : 'E.g. What do these cards tell me about my current situation?'}
+                className="w-full px-4 py-3 bg-slate-800/60 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 resize-none"
+              />
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleQuestionComplete}
+                  disabled={!question.trim()}
+                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>{language === 'fr' ? 'Continuer' : 'Continue'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 4: Card Selection */}
           {step === 'cards' && (
             <motion.div
               key="cards"
@@ -482,7 +523,7 @@ const InterpretMyCards: React.FC = () => {
             </motion.div>
           )}
 
-          {/* STEP 4: Style Selection */}
+          {/* STEP 5: Style Selection + Cost Summary + Generate */}
           {step === 'style' && (
             <motion.div
               key="style"
@@ -543,47 +584,6 @@ const InterpretMyCards: React.FC = () => {
                 })}
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  onClick={handleStyleComplete}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors"
-                >
-                  <span>{language === 'fr' ? 'Continuer' : 'Continue'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* STEP 5: Question (optional) */}
-          {step === 'question' && (
-            <motion.div
-              key="question"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <h2 className="text-lg font-medium text-white">
-                {language === 'fr' ? 'Votre question (optionnel)' : 'Your question (optional)'}
-              </h2>
-              <p className="text-sm text-slate-400">
-                {language === 'fr'
-                  ? 'Ajoutez une question pour une interprétation plus ciblée, ou laissez vide pour une lecture générale.'
-                  : 'Add a question for a more focused interpretation, or leave blank for a general reading.'}
-              </p>
-
-              <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                maxLength={1000}
-                rows={3}
-                placeholder={language === 'fr'
-                  ? 'Ex: Que me disent ces cartes sur ma situation actuelle ?'
-                  : 'E.g. What do these cards tell me about my current situation?'}
-                className="w-full px-4 py-3 bg-slate-800/60 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 resize-none"
-              />
-
               {/* Cost summary */}
               <div className="bg-slate-800/40 border border-white/5 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -599,7 +599,7 @@ const InterpretMyCards: React.FC = () => {
                       <Coins className="w-4 h-4 text-amber-400" />
                       <span className="text-white font-medium">{creditCost}</span>
                       <span className="text-slate-500 text-sm">
-                        {language === 'fr' ? 'crédits' : 'credits'}
+                        {language === 'fr' ? 'crédit' : 'credit'}
                       </span>
                     </div>
                   )}

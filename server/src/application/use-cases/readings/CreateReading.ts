@@ -132,6 +132,11 @@ export class CreateReadingUseCase {
 
       creditCost = costBreakdown.totalCost;
 
+      // 4a. Interpret My Cards always costs 1 credit regardless of spread
+      if (input.isUserSelected) {
+        creditCost = 1;
+      }
+
       // 4b. Free first interpretation for Interpret My Cards
       let isFirstFreeInterpretation = false;
       if (input.isUserSelected && creditCost > 0) {
