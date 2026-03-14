@@ -18,7 +18,8 @@ import {
   TarotCard,
 } from '../../types';
 import { useReadingGeneration } from '../../hooks/useReadingGeneration';
-import { createReading } from '../../services/api';
+import { createReading, updateReadingReflection } from '../../services/api';
+import ReflectionPrompt from '../reading/ReflectionPrompt';
 import { TWO_CARD_LAYOUTS, TwoCardLayoutId } from '../../constants/twoCardLayouts';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../constants/threeCardLayouts';
 import CardSelector from './CardSelector';
@@ -132,6 +133,7 @@ const InterpretMyCards: React.FC = () => {
   const [interpretation, setInterpretation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
+  const [savedReadingId, setSavedReadingId] = useState<string | null>(null);
 
   // Rotate loading messages
   React.useEffect(() => {
@@ -261,7 +263,7 @@ const InterpretMyCards: React.FC = () => {
             isReversed: sc.isReversed,
           }));
 
-          await createReading(token, {
+          const savedReading = await createReading(token, {
             spreadType: spreadConfig.id,
             interpretationStyle: isAdvanced ? selectedStyle : InterpretationStyle.CLASSIC,
             question: question.trim() || undefined,
@@ -269,6 +271,10 @@ const InterpretMyCards: React.FC = () => {
             interpretation: result.interpretation,
             isUserSelected: true,
           });
+
+          if (savedReading?.id) {
+            setSavedReadingId(savedReading.id);
+          }
 
           // Refresh user to update credits
           await refreshUser();
@@ -285,6 +291,15 @@ const InterpretMyCards: React.FC = () => {
     question, language, selectedLayout, generateReading, getToken,
     refreshUser, genError,
   ]);
+
+  // Save reflection for the reading
+  const handleSaveReflection = useCallback(async (reflection: string) => {
+    if (!savedReadingId) return;
+    const token = await getToken();
+    if (token) {
+      await updateReadingReflection(token, savedReadingId, reflection);
+    }
+  }, [savedReadingId, getToken]);
 
   // Go back one step (flow: spread → layout → question → cards → style)
   const handleBack = useCallback(() => {
@@ -698,6 +713,12 @@ const InterpretMyCards: React.FC = () => {
                 <div dangerouslySetInnerHTML={{ __html: interpretation.replace(/\n/g, '<br />') }} />
               </div>
 
+              {/* Reflection prompt */}
+              <ReflectionPrompt
+                readingId={savedReadingId}
+                onSave={handleSaveReflection}
+              />
+
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
@@ -710,6 +731,7 @@ const InterpretMyCards: React.FC = () => {
                     setInterpretation('');
                     setIsAdvanced(false);
                     setSelectedStyle(InterpretationStyle.CLASSIC);
+                    setSavedReadingId(null);
                   }}
                   className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
                 >
