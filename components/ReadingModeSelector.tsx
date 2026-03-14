@@ -127,7 +127,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
       {/* Interpret My Cards CTA */}
       <motion.div
         variants={cardVariants}
-        className="mt-4 max-w-2xl mx-auto"
+        className="mt-4 max-w-xl mx-auto"
       >
         <Link
           to={ROUTES.INTERPRET}
