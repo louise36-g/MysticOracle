@@ -457,8 +457,8 @@ const InterpretMyCards: React.FC = () => {
               </h2>
               <p className="text-sm text-white/85">
                 {language === 'fr'
-                  ? 'Votre question permet à l\'interprétation d\'être personnalisée et ciblée plutôt que générique.'
-                  : 'Your question allows the interpretation to be personalised and focused rather than generic.'}
+                  ? 'Que demandiez-vous aux cartes lorsque vous les avez tirées ? Votre intention est la clé pour comprendre ce qu\'elles vous disent.'
+                  : 'What were you asking the cards when you drew them? Your intention is the key to understanding what they are telling you.'}
               </p>
 
               <textarea
