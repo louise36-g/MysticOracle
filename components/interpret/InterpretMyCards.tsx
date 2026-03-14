@@ -324,7 +324,7 @@ const InterpretMyCards: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-heading text-white mb-3">
             {language === 'fr' ? 'Interpréter mes cartes' : 'Interpret My Cards'}
           </h1>
-          <p className="text-slate-400 max-w-xl mx-auto">
+          <p className="text-white/85 max-w-xl mx-auto">
             {language === 'fr'
               ? 'Vous avez tiré vos cartes physiquement ? Dites-nous lesquelles et recevez une interprétation détaillée.'
               : 'Drew your own physical cards? Tell us which ones and receive a detailed interpretation.'}
@@ -383,7 +383,7 @@ const InterpretMyCards: React.FC = () => {
                       <p className="text-white font-medium">
                         {language === 'fr' ? spread.labelFr : spread.labelEn}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-white/85">
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>
                     </div>
@@ -427,7 +427,7 @@ const InterpretMyCards: React.FC = () => {
                     <p className="text-white font-medium mb-1">
                       {language === 'fr' ? layout.labelFr : layout.labelEn}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-white/85">
                       {language === 'fr' ? layout.taglineFr : layout.taglineEn}
                     </p>
                     <div className="flex gap-2 mt-2">
@@ -455,7 +455,7 @@ const InterpretMyCards: React.FC = () => {
               <h2 className="text-lg font-medium text-white">
                 {language === 'fr' ? 'Quelle est votre question ?' : 'What is your question?'}
               </h2>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-white/85">
                 {language === 'fr'
                   ? 'Votre question permet à l\'interprétation d\'être personnalisée et ciblée plutôt que générique.'
                   : 'Your question allows the interpretation to be personalised and focused rather than generic.'}
@@ -535,7 +535,7 @@ const InterpretMyCards: React.FC = () => {
               <h2 className="text-lg font-medium text-white">
                 {language === 'fr' ? 'Style d\'interprétation' : 'Interpretation Style'}
               </h2>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-white/85">
                 {language === 'fr'
                   ? 'Choisissez le style qui correspond le mieux à votre question.'
                   : 'Choose the style that best fits your question.'}
@@ -575,7 +575,7 @@ const InterpretMyCards: React.FC = () => {
                         <p className="text-sm font-medium text-white">
                           {language === 'fr' ? style.labelFr : style.labelEn}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-white/85">
                           {language === 'fr' ? style.descFr : style.descEn}
                         </p>
                       </div>
@@ -598,7 +598,7 @@ const InterpretMyCards: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <Coins className="w-4 h-4 text-amber-400" />
                       <span className="text-white font-medium">{creditCost}</span>
-                      <span className="text-slate-500 text-sm">
+                      <span className="text-slate-400 text-sm">
                         {language === 'fr' ? 'crédit' : 'credit'}
                       </span>
                     </div>
@@ -606,7 +606,7 @@ const InterpretMyCards: React.FC = () => {
                 </div>
                 {user && !isFirstFree && (
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">
+                    <span className="text-slate-400">
                       {language === 'fr' ? 'Votre solde' : 'Your balance'}
                     </span>
                     <span className={user.credits >= creditCost ? 'text-green-400' : 'text-red-400'}>
