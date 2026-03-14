@@ -62,6 +62,7 @@ interface User {
   achievements: string[];
   achievementsData?: Array<{ achievementId: string; unlockedAt: string }>;
   spreadsUsed: SpreadType[];
+  hasUsedFreeInterpretation: boolean;
 }
 
 interface AchievementNotification {
@@ -164,6 +165,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
           unlockedAt: a.unlockedAt,
         })),
         spreadsUsed: [], // TODO: Add to backend if needed
+        hasUsedFreeInterpretation: profile.hasUsedFreeInterpretation ?? false,
       };
 
       setUser(mappedUser);
@@ -225,6 +227,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
             language: 'en',
             achievements: [],
             spreadsUsed: [],
+            hasUsedFreeInterpretation: false,
           };
         });
       }

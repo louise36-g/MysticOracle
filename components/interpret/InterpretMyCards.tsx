@@ -148,13 +148,14 @@ const InterpretMyCards: React.FC = () => {
     return SPREADS[selectedSpread] || null;
   }, [selectedSpread]);
 
-  // Credit cost calculation
+  // Whether this is the user's first free interpretation
+  const isFirstFree = user ? !user.hasUsedFreeInterpretation : false;
+
+  // Credit cost calculation — styles don't add extra cost
   const creditCost = useMemo(() => {
     if (!spreadConfig) return 0;
-    let cost = spreadConfig.cost;
-    if (isAdvanced) cost += 1;
-    return cost;
-  }, [spreadConfig, isAdvanced]);
+    return spreadConfig.cost;
+  }, [spreadConfig]);
 
   // Max cards for current spread
   const maxCards = useMemo(() => {
@@ -387,9 +388,17 @@ const InterpretMyCards: React.FC = () => {
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-amber-400/80">
-                      <Coins className="w-4 h-4" />
-                      <span>{SPREADS[spread.id]?.cost || 1}</span>
+                    <div className="flex items-center gap-1 text-sm">
+                      {isFirstFree ? (
+                        <span className="text-green-400 font-medium">
+                          {language === 'fr' ? 'Gratuit' : 'Free'}
+                        </span>
+                      ) : (
+                        <>
+                          <Coins className="w-4 h-4 text-amber-400/80" />
+                          <span className="text-amber-400/80">{SPREADS[spread.id]?.cost || 1}</span>
+                        </>
+                      )}
                     </div>
                   </button>
                 ))}
@@ -487,8 +496,8 @@ const InterpretMyCards: React.FC = () => {
               </h2>
               <p className="text-sm text-slate-400">
                 {language === 'fr'
-                  ? 'Le style classique est inclus. Les styles avancés ajoutent +1 crédit.'
-                  : 'Classic style is included. Advanced styles add +1 credit.'}
+                  ? 'Choisissez le style qui correspond le mieux à votre question.'
+                  : 'Choose the style that best fits your question.'}
               </p>
 
               <div className="grid gap-2">
@@ -524,9 +533,6 @@ const InterpretMyCards: React.FC = () => {
                       <div className="flex-1">
                         <p className="text-sm font-medium text-white">
                           {language === 'fr' ? style.labelFr : style.labelEn}
-                          {!isClassic && (
-                            <span className="ml-2 text-xs text-amber-400/70">+1</span>
-                          )}
                         </p>
                         <p className="text-xs text-slate-500">
                           {language === 'fr' ? style.descFr : style.descEn}
@@ -584,15 +590,21 @@ const InterpretMyCards: React.FC = () => {
                   <span className="text-sm text-slate-400">
                     {language === 'fr' ? 'Coût' : 'Cost'}
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    <Coins className="w-4 h-4 text-amber-400" />
-                    <span className="text-white font-medium">{creditCost}</span>
-                    <span className="text-slate-500 text-sm">
-                      {language === 'fr' ? 'crédits' : 'credits'}
+                  {isFirstFree ? (
+                    <span className="text-sm font-medium text-green-400">
+                      {language === 'fr' ? '1ère interprétation gratuite !' : '1st Interpretation Free!'}
                     </span>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <Coins className="w-4 h-4 text-amber-400" />
+                      <span className="text-white font-medium">{creditCost}</span>
+                      <span className="text-slate-500 text-sm">
+                        {language === 'fr' ? 'crédits' : 'credits'}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                {user && (
+                {user && !isFirstFree && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-500">
                       {language === 'fr' ? 'Votre solde' : 'Your balance'}
@@ -613,7 +625,7 @@ const InterpretMyCards: React.FC = () => {
               <div className="flex justify-end">
                 <button
                   onClick={handleGenerate}
-                  disabled={!canAfford(creditCost) || isGenerating}
+                  disabled={(!isFirstFree && !canAfford(creditCost)) || isGenerating}
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/20"
                 >
                   <Sparkles className="w-4 h-4" />

@@ -24,6 +24,7 @@ export interface UserProfile {
   referralCode: string;
   referredById: string | null;
   isAdmin: boolean;
+  hasUsedFreeInterpretation: boolean;
   accountStatus: string;
   createdAt: string;
   achievements: { achievementId: string; unlockedAt: string }[];

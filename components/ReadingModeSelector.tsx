@@ -126,25 +126,27 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
 
       {/* Interpret My Cards CTA */}
       <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="mt-6 max-w-2xl mx-auto"
+        variants={cardVariants}
+        className="mt-4 max-w-2xl mx-auto"
       >
         <Link
           to={ROUTES.INTERPRET}
-          className="group relative block bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-800/80 rounded-xl border border-amber-500/25 hover:border-amber-400/50 transition-all duration-500 hover:shadow-lg hover:shadow-amber-500/10 overflow-hidden"
+          className="group relative block bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 rounded-xl border-2 border-amber-500/40 backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
         >
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
+          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+            <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }} />
+            <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1.6s' }} />
+          </div>
           <div className="relative flex items-center gap-4 px-5 py-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
               <Hand className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-amber-400/80 font-medium mb-0.5">
-                {language === 'en' ? 'Already have your cards in hand?' : 'Vous avez déjà vos cartes en main ?'}
-              </p>
-              <h3 className="text-base md:text-lg font-heading text-white group-hover:text-amber-100 transition-colors">
+              <h3 className="text-base md:text-lg font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400 group-hover:from-amber-200 group-hover:to-amber-300 transition-colors">
                 {language === 'en' ? 'Interpret My Cards' : 'Interpréter mes cartes'}
               </h3>
               <p className="text-xs md:text-sm text-slate-400 leading-snug group-hover:text-slate-300 transition-colors mt-0.5">
