@@ -461,7 +461,15 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         onToggle={() => setShowCategories(!showCategories)}
       >
         <TaxonomySelector
-          items={categories.map(c => ({ id: c.id, nameEn: c.name, nameFr: c.nameFr }))}
+          items={categories.flatMap(c => [
+            { id: c.id, nameEn: c.name, nameFr: c.nameFr },
+            ...(c.children || []).map(child => ({
+              id: child.id,
+              nameEn: child.name,
+              nameFr: child.nameFr,
+              depth: 1,
+            })),
+          ])}
           selectedIds={post.categoryIds || []}
           onChange={(ids) => setPost({ ...post, categoryIds: ids })}
           language={language}

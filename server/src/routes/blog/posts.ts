@@ -247,14 +247,15 @@ router.patch('/posts/reorder', (req, res) => {
           where: { id },
           include: { categories: { include: { category: true } } },
         }),
-      buildWhereClause: body => {
+      buildWhereClause: async body => {
         const where: Prisma.BlogPostWhereInput = { deletedAt: null };
         const { contentType, categorySlug, status } = body as Record<string, string>;
         if (contentType && ['BLOG_POST', 'TAROT_ARTICLE'].includes(contentType)) {
           where.contentType = contentType as Prisma.BlogPostWhereInput['contentType'];
         }
         if (categorySlug) {
-          where.categories = { some: { category: { slug: categorySlug } } };
+          const slugs = await taxonomyService.getCategorySlugsWithChildren(categorySlug);
+          where.categories = { some: { category: { slug: { in: slugs } } } };
         }
         if (status && ['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
           where.status = status as Prisma.BlogPostWhereInput['status'];

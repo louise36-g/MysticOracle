@@ -21,7 +21,9 @@ interface ReorderConfig {
   /** Optional extra validation after finding the item. Return error string or null. */
   validateItem?: (item: Record<string, unknown>, body: Record<string, unknown>) => string | null;
   /** Build the Prisma where clause matching the admin list endpoint filters */
-  buildWhereClause: (body: Record<string, unknown>) => Prisma.BlogPostWhereInput;
+  buildWhereClause: (
+    body: Record<string, unknown>
+  ) => Prisma.BlogPostWhereInput | Promise<Prisma.BlogPostWhereInput>;
   /** Invalidate relevant caches after reorder */
   invalidateCache: () => Promise<void>;
 }
@@ -54,7 +56,7 @@ export async function handleReorder(config: ReorderConfig, req: Request, res: Re
       }
     }
 
-    const whereClause = config.buildWhereClause(req.body);
+    const whereClause = await config.buildWhereClause(req.body);
 
     // Deterministic ordering: sortOrder ASC with createdAt tiebreaker
     const allItems = await prisma.blogPost.findMany({

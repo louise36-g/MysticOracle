@@ -102,6 +102,76 @@ function tagFromUnified(t: UnifiedTag): TagFormData {
 // Sortable category components
 // ============================================
 
+/** A draggable child category item */
+const SortableChildItem: React.FC<{
+  child: CategoryFormData;
+  parentColor?: string;
+  language: string;
+  onEdit: (cat: CategoryFormData) => void;
+  onDelete: (id: string) => void;
+}> = ({ child, parentColor, language, onEdit, onDelete }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: child.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const color = child.color || parentColor;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3 ${isDragging ? 'shadow-xl shadow-purple-500/10' : ''}`}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-purple-400 transition-colors"
+      >
+        <GripVertical className="w-4 h-4" />
+      </div>
+      <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
+      <div
+        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: `${color}20` }}
+      >
+        <Folder className="w-4 h-4" style={{ color }} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h5 className="text-slate-300 text-sm font-medium truncate">
+          {language === 'en' ? child.nameEn : child.nameFr}
+        </h5>
+        <p className="text-slate-500 text-xs truncate">{child.slug}</p>
+      </div>
+      <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-400 flex-shrink-0">
+        {child.blogPostCount || 0}
+      </span>
+      <button
+        onClick={() => onEdit(child)}
+        className="p-1.5 text-slate-400 hover:text-purple-400 hover:bg-slate-800 rounded"
+      >
+        <Edit2 className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => onDelete(child.id)}
+        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+};
+
 /** A draggable parent category block (card + its children) */
 const SortableParentBlock: React.FC<{
   parent: CategoryFormData;
@@ -109,7 +179,10 @@ const SortableParentBlock: React.FC<{
   language: string;
   onEdit: (cat: CategoryFormData) => void;
   onDelete: (id: string) => void;
-}> = ({ parent, children, language, onEdit, onDelete }) => {
+  onChildDragEnd: (event: DragEndEvent, parentId: string) => void;
+  sensors: ReturnType<typeof useSensors>;
+  childDndKey: number;
+}> = ({ parent, children, language, onEdit, onDelete, onChildDragEnd, sensors, childDndKey }) => {
   const {
     attributes,
     listeners,
@@ -184,47 +257,31 @@ const SortableParentBlock: React.FC<{
         </div>
       </div>
 
-      {/* Children indented underneath (not draggable for now) */}
+      {/* Children indented underneath — draggable within parent */}
       {children.length > 0 && (
-        <div className="ml-6 mt-1 space-y-1 border-l-2 border-purple-500/15 pl-4">
-          {children.map(child => {
-            const color = child.color || parent.color;
-            return (
-              <div
-                key={child.id}
-                className="flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3"
-              >
-                <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
-                <div
-                  className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${color}20` }}
-                >
-                  <Folder className="w-4 h-4" style={{ color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h5 className="text-slate-300 text-sm font-medium truncate">
-                    {language === 'en' ? child.nameEn : child.nameFr}
-                  </h5>
-                  <p className="text-slate-500 text-xs truncate">{child.slug}</p>
-                </div>
-                <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-400 flex-shrink-0">
-                  {child.blogPostCount || 0}
-                </span>
-                <button
-                  onClick={() => onEdit(child)}
-                  className="p-1.5 text-slate-400 hover:text-purple-400 hover:bg-slate-800 rounded"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => onDelete(child.id)}
-                  className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+        <div className="ml-6 mt-1 border-l-2 border-purple-500/15 pl-4">
+          <DndContext
+            key={`child-${parent.id}-${childDndKey}`}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={(event) => onChildDragEnd(event, parent.id)}
+          >
+            <SortableContext items={children.map(c => c.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-1">
+                {children.map(child => (
+                  <SortableChildItem
+                    key={child.id}
+                    child={child}
+                    parentColor={parent.color}
+                    language={language}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
+                ))}
               </div>
-            );
-          })}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
     </div>
@@ -426,6 +483,42 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
     });
   };
 
+  const handleChildDragEnd = async (event: DragEndEvent, parentId: string) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const children = categories.filter(c => c.parentId === parentId);
+    const oldIndex = children.findIndex(c => c.id === active.id);
+    const newIndex = children.findIndex(c => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Save original for revert
+    const original = [...categories];
+
+    // Optimistically reorder children in the flat list
+    const reorderedChildren = arrayMove(children, oldIndex, newIndex);
+    const updated = categories.map(c => {
+      if (c.parentId !== parentId) return c;
+      const idx = reorderedChildren.findIndex(rc => rc.id === c.id);
+      return idx !== -1 ? reorderedChildren[idx] : c;
+    });
+    setCategories(updated);
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        setCategories(original);
+        return;
+      }
+      await reorderUnifiedCategory(token, String(active.id), newIndex);
+      setDndKey(k => k + 1);
+    } catch (err) {
+      setCategories(original);
+      const message = err instanceof Error ? err.message : 'Failed to reorder';
+      onError(message);
+    }
+  };
+
   const handleEditCategory = (cat: CategoryFormData) => {
     setEditingCategory(cat);
     setIsNewCategory(false);
@@ -532,6 +625,9 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                     language={language}
                     onEdit={handleEditCategory}
                     onDelete={handleDeleteCategory}
+                    onChildDragEnd={handleChildDragEnd}
+                    sensors={sensors}
+                    childDndKey={dndKey}
                   />
                 ))}
               </div>

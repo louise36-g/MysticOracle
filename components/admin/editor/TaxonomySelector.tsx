@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaxonomySelectorProps } from './types';
+import { TaxonomyItem, TaxonomySelectorProps } from './types';
 
 const TaxonomySelector: React.FC<TaxonomySelectorProps> = ({
   items,
@@ -51,7 +51,7 @@ const TaxonomySelector: React.FC<TaxonomySelectorProps> = ({
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {items.map((item) => (
+      {items.map((item: TaxonomyItem) => (
         <button
           key={item.id}
           onClick={() => handleToggle(item)}
@@ -59,9 +59,9 @@ const TaxonomySelector: React.FC<TaxonomySelectorProps> = ({
             isItemSelected(item)
               ? 'bg-purple-600 text-white'
               : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-          }`}
+          } ${item.depth ? 'ml-3' : ''}`}
         >
-          {getDisplayName(item)}
+          {item.depth ? '— ' : ''}{getDisplayName(item)}
         </button>
       ))}
     </div>

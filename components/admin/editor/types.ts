@@ -46,6 +46,7 @@ export interface TaxonomyItem {
   name?: string;
   nameEn?: string;
   nameFr?: string;
+  depth?: number;
 }
 
 export interface TaxonomySelectorProps {

@@ -545,11 +545,16 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
         >
           <option value="">{language === 'en' ? 'All Categories' : 'Toutes les catégories'}</option>
-          {categories.map((cat) => (
+          {categories.flatMap((cat) => [
             <option key={cat.id} value={cat.slug}>
               {language === 'en' ? cat.name : cat.nameFr}
-            </option>
-          ))}
+            </option>,
+            ...(cat.children || []).map(child => (
+              <option key={child.id} value={child.slug}>
+                {'\u00A0\u00A0\u00A0— '}{language === 'en' ? child.name : child.nameFr}
+              </option>
+            )),
+          ])}
         </select>
         <select
           value={contentTypeFilter}
