@@ -33,6 +33,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 // Local editing types — map unified API fields to form fields
 interface CategoryFormData {
@@ -263,9 +264,12 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
 
   const [saving, setSaving] = useState(false);
 
+  // Counter to force DndContext remount after reorder (resets internal position tracking)
+  const [dndKey, setDndKey] = useState(0);
+
   // Drag-and-drop sensors for parent categories
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -392,8 +396,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         return;
       }
       await reorderUnifiedCategory(token, String(active.id), newIndex);
-      // Optimistic state is already correct — no need to reload
-      // (reloading triggers loading spinner which unmounts/remounts DndContext)
+      // Force DndContext to remount so it remeasures item positions
+      setDndKey(k => k + 1);
     } catch (err) {
       setCategories(original);
       const message = err instanceof Error ? err.message : 'Failed to reorder';
@@ -512,8 +516,10 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
           </div>
         ) : (
           <DndContext
+            key={dndKey}
             sensors={sensors}
             collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleParentDragEnd}
           >
             <SortableContext items={parents.map(p => p.id)} strategy={verticalListSortingStrategy}>
