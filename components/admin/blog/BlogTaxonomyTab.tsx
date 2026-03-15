@@ -392,8 +392,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         return;
       }
       await reorderUnifiedCategory(token, String(active.id), newIndex);
-      // Reload to get authoritative order from server
-      loadCategories();
+      // Optimistic state is already correct — no need to reload
+      // (reloading triggers loading spinner which unmounts/remounts DndContext)
     } catch (err) {
       setCategories(original);
       const message = err instanceof Error ? err.message : 'Failed to reorder';

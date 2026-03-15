@@ -147,9 +147,9 @@ const BlogList: React.FC = () => {
 
       {/* Category Navigation — parent categories as pills, children as sub-tabs */}
       {(() => {
-        // Only show parent categories (no parentId) with posts (own or in children)
+        // Show all parent categories (no parentId)
         const parentCategories = categories.filter(
-          (cat) => !cat.parentId && (cat.postCount || 0) > 0
+          (cat) => !cat.parentId
         );
 
         if (parentCategories.length === 0) return null;
@@ -161,7 +161,7 @@ const BlogList: React.FC = () => {
         });
 
         // Get children of the active parent
-        const activeChildren = activeParent?.children?.filter(c => (c.postCount || 0) > 0) || [];
+        const activeChildren = activeParent?.children || [];
 
         return (
           <section className="mb-10 space-y-4">
