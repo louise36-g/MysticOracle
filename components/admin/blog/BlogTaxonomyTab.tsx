@@ -14,8 +14,24 @@ import {
   deleteUnifiedTag,
 } from '../../../services/api';
 import type { UnifiedCategory, UnifiedTag } from '../../../services/api/taxonomy';
-import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight, GripVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // Local editing types — map unified API fields to form fields
 interface CategoryFormData {
@@ -80,6 +96,211 @@ function tagFromUnified(t: UnifiedTag): TagFormData {
   };
 }
 
+// ============================================
+// Sortable category components
+// ============================================
+
+/** A draggable parent category block (card + its children) */
+const SortableParentBlock: React.FC<{
+  parent: CategoryFormData;
+  children: CategoryFormData[];
+  language: string;
+  onEdit: (cat: CategoryFormData) => void;
+  onDelete: (id: string) => void;
+  onReorderChild: (categoryId: string, newPosition: number) => void;
+}> = ({ parent, children, language, onEdit, onDelete, onReorderChild }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: parent.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const FolderIcon = children.length > 0 ? FolderOpen : Folder;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleChildDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = children.findIndex(c => c.id === active.id);
+    const newIndex = children.findIndex(c => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    onReorderChild(String(active.id), newIndex);
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {/* Parent card */}
+      <div className={`bg-slate-900/60 rounded-xl border border-purple-500/20 p-4 ${isDragging ? 'shadow-2xl shadow-purple-500/20' : ''}`}>
+        <div className="flex items-center gap-3 mb-3">
+          {/* Drag handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-purple-400 transition-colors"
+          >
+            <GripVertical className="w-5 h-5" />
+          </div>
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: `${parent.color}20` }}
+          >
+            <FolderIcon className="w-5 h-5" style={{ color: parent.color }} />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-slate-200 font-medium">
+              {language === 'en' ? parent.nameEn : parent.nameFr}
+            </h4>
+            <p className="text-slate-500 text-sm">{parent.slug}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
+              {parent.blogPostCount || 0} posts
+            </span>
+            {children.length > 0 && (
+              <span className="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">
+                {children.length} {language === 'en' ? 'sub' : 'sous'}
+              </span>
+            )}
+          </div>
+        </div>
+        {(parent.descEn || parent.descFr) && (
+          <p className="text-slate-400 text-sm mb-3 line-clamp-2">
+            {language === 'en' ? parent.descEn : parent.descFr}
+          </p>
+        )}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(parent)}
+            className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
+          >
+            {language === 'en' ? 'Edit' : 'Modifier'}
+          </button>
+          <button
+            onClick={() => onDelete(parent.id)}
+            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Children indented underneath — separate drag context */}
+      {children.length > 0 && (
+        <div className="ml-6 mt-1 space-y-1 border-l-2 border-purple-500/15 pl-4">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleChildDragEnd}
+          >
+            <SortableContext items={children.map(c => c.id)} strategy={verticalListSortingStrategy}>
+              {children.map(child => (
+                <SortableChildRow
+                  key={child.id}
+                  child={child}
+                  parentColor={parent.color}
+                  language={language}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** A draggable child category row */
+const SortableChildRow: React.FC<{
+  child: CategoryFormData;
+  parentColor?: string;
+  language: string;
+  onEdit: (cat: CategoryFormData) => void;
+  onDelete: (id: string) => void;
+}> = ({ child, parentColor, language, onEdit, onDelete }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: child.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const color = child.color || parentColor;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3 ${isDragging ? 'shadow-xl shadow-purple-500/10 z-50' : ''}`}
+    >
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-purple-400 transition-colors"
+      >
+        <GripVertical className="w-4 h-4" />
+      </div>
+      <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
+      <div
+        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: `${color}20` }}
+      >
+        <Folder className="w-4 h-4" style={{ color }} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h5 className="text-slate-300 text-sm font-medium truncate">
+          {language === 'en' ? child.nameEn : child.nameFr}
+        </h5>
+        <p className="text-slate-500 text-xs truncate">{child.slug}</p>
+      </div>
+      <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-400 flex-shrink-0">
+        {child.blogPostCount || 0}
+      </span>
+      <button
+        onClick={() => onEdit(child)}
+        className="p-1.5 text-slate-400 hover:text-purple-400 hover:bg-slate-800 rounded"
+      >
+        <Edit2 className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => onDelete(child.id)}
+        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+};
+
+// ============================================
+// Main component
+// ============================================
+
 interface BlogTaxonomyTabProps {
   type: 'categories' | 'tags';
   onShowConfirmModal: (config: {
@@ -108,6 +329,12 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
   const [isNewTag, setIsNewTag] = useState(false);
 
   const [saving, setSaving] = useState(false);
+
+  // Drag-and-drop sensors for parent categories
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   // Load categories
   const loadCategories = useCallback(async () => {
@@ -201,15 +428,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
     }
   };
 
-  const handleMoveCategory = async (categoryId: string, direction: 'up' | 'down') => {
-    // Find current position among siblings
-    const cat = categories.find(c => c.id === categoryId);
-    if (!cat) return;
-    const siblings = categories.filter(c => c.parentId === cat.parentId);
-    const currentIndex = siblings.findIndex(c => c.id === categoryId);
-    const newPosition = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newPosition < 0 || newPosition >= siblings.length) return;
-
+  const handleReorderCategory = async (categoryId: string, newPosition: number) => {
     try {
       const token = await getToken();
       if (!token) return;
@@ -219,6 +438,17 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
       const message = err instanceof Error ? err.message : 'Failed to reorder';
       onError(message);
     }
+  };
+
+  const handleParentDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const parents = categories.filter(c => !c.parentId);
+    const newIndex = parents.findIndex(c => c.id === over.id);
+    if (newIndex === -1) return;
+
+    handleReorderCategory(String(active.id), newIndex);
   };
 
   const handleDeleteCategory = (id: string) => {
@@ -240,6 +470,11 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         }
       },
     });
+  };
+
+  const handleEditCategory = (cat: CategoryFormData) => {
+    setEditingCategory(cat);
+    setIsNewCategory(false);
   };
 
   // Tag handlers
@@ -307,6 +542,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
 
   // Render Categories
   if (type === 'categories') {
+    const parents = categories.filter(c => !c.parentId);
+
     return (
       <div>
         <div className="flex justify-end mb-4">
@@ -324,152 +561,27 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="space-y-3">
-            {/* Parent categories (no parentId) */}
-            {(() => {
-              const parents = categories.filter(c => !c.parentId);
-              return parents.map((parent, parentIdx) => {
-              const children = categories.filter(c => c.parentId === parent.id);
-              const FolderIcon = children.length > 0 ? FolderOpen : Folder;
-
-              return (
-                <div key={parent.id}>
-                  {/* Parent card */}
-                  <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      {/* Sort arrows */}
-                      <div className="flex flex-col gap-0.5">
-                        <button
-                          onClick={() => handleMoveCategory(parent.id, 'up')}
-                          disabled={parentIdx === 0}
-                          className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
-                          title="Move up"
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleMoveCategory(parent.id, 'down')}
-                          disabled={parentIdx === parents.length - 1}
-                          className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
-                          title="Move down"
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${parent.color}20` }}
-                      >
-                        <FolderIcon className="w-5 h-5" style={{ color: parent.color }} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-slate-200 font-medium">
-                          {language === 'en' ? parent.nameEn : parent.nameFr}
-                        </h4>
-                        <p className="text-slate-500 text-sm">{parent.slug}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
-                          {parent.blogPostCount || 0} posts
-                        </span>
-                        {children.length > 0 && (
-                          <span className="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">
-                            {children.length} {language === 'en' ? 'sub' : 'sous'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {(parent.descEn || parent.descFr) && (
-                      <p className="text-slate-400 text-sm mb-3 line-clamp-2">
-                        {language === 'en' ? parent.descEn : parent.descFr}
-                      </p>
-                    )}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingCategory(parent);
-                          setIsNewCategory(false);
-                        }}
-                        className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
-                      >
-                        {language === 'en' ? 'Edit' : 'Modifier'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCategory(parent.id)}
-                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Children indented underneath */}
-                  {children.length > 0 && (
-                    <div className="ml-6 mt-1 space-y-1 border-l-2 border-purple-500/15 pl-4">
-                      {children.map((child, childIdx) => (
-                        <div
-                          key={child.id}
-                          className="flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3"
-                        >
-                          {/* Child sort arrows */}
-                          <div className="flex flex-col gap-0.5">
-                            <button
-                              onClick={() => handleMoveCategory(child.id, 'up')}
-                              disabled={childIdx === 0}
-                              className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
-                              title="Move up"
-                            >
-                              <ChevronUp className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleMoveCategory(child.id, 'down')}
-                              disabled={childIdx === children.length - 1}
-                              className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
-                              title="Move down"
-                            >
-                              <ChevronDown className="w-3 h-3" />
-                            </button>
-                          </div>
-                          <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
-                          <div
-                            className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: `${child.color || parent.color}20` }}
-                          >
-                            <Folder className="w-4 h-4" style={{ color: child.color || parent.color }} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h5 className="text-slate-300 text-sm font-medium truncate">
-                              {language === 'en' ? child.nameEn : child.nameFr}
-                            </h5>
-                            <p className="text-slate-500 text-xs truncate">{child.slug}</p>
-                          </div>
-                          <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-400 flex-shrink-0">
-                            {child.blogPostCount || 0}
-                          </span>
-                          <button
-                            onClick={() => {
-                              setEditingCategory(child);
-                              setIsNewCategory(false);
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-purple-400 hover:bg-slate-800 rounded"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCategory(child.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            });
-            })()}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleParentDragEnd}
+          >
+            <SortableContext items={parents.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-3">
+                {parents.map(parent => (
+                  <SortableParentBlock
+                    key={parent.id}
+                    parent={parent}
+                    children={categories.filter(c => c.parentId === parent.id)}
+                    language={language}
+                    onEdit={handleEditCategory}
+                    onDelete={handleDeleteCategory}
+                    onReorderChild={handleReorderCategory}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
 
         {/* Category Editor Modal */}
