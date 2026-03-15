@@ -305,34 +305,6 @@ const BlogList: React.FC = () => {
       )}
 
 
-      {/* Filter indicator */}
-      {selectedCategory && (
-        <div className="mb-6 flex items-center gap-2">
-          <span className="text-slate-400">
-            {t('blog.BlogList.filtering_by', 'Filtering by:')}
-          </span>
-          <button
-            onClick={() => handleCategoryChange('')}
-            className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm flex items-center gap-1"
-          >
-            {(() => {
-              // Find category name — check parents and their children
-              for (const cat of categories) {
-                if (cat.slug === selectedCategory) return language === 'en' ? cat.nameEn : cat.nameFr;
-                const child = cat.children?.find(c => c.slug === selectedCategory);
-                if (child) {
-                  const parentName = language === 'en' ? cat.nameEn : cat.nameFr;
-                  const childName = language === 'en' ? child.nameEn : child.nameFr;
-                  return `${parentName} › ${childName}`;
-                }
-              }
-              return selectedCategory;
-            })()}
-            <span className="ml-1">&times;</span>
-          </button>
-        </div>
-      )}
-
       {/* All Posts Grid */}
       <section>
         <h2 className="text-2xl font-heading text-purple-200 mb-6">
