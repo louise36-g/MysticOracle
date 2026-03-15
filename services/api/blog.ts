@@ -22,8 +22,10 @@ export interface BlogCategory {
   color?: string;
   icon?: string;
   sortOrder: number;
+  parentId?: string | null;
   postCount?: number;
   _count?: { posts: number };
+  children?: BlogCategory[];
 }
 
 export interface BlogTag {

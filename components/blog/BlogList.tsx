@@ -145,31 +145,86 @@ const BlogList: React.FC = () => {
         </p>
       </div>
 
-      {/* Category Filter Dropdown */}
+      {/* Category Navigation — parent categories as pills, children as sub-tabs */}
       {(() => {
-        // Only show categories with published articles
-        const filteredCategories = categories.filter((cat) => (cat.postCount || 0) > 0);
+        // Only show parent categories (no parentId) with posts (own or in children)
+        const parentCategories = categories.filter(
+          (cat) => !cat.parentId && (cat.postCount || 0) > 0
+        );
 
-        return filteredCategories.length > 0 && (
-          <section className="mb-10">
-            <div className="relative inline-block">
-              <Folder className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none z-10" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="appearance-none pl-12 pr-8 py-3 rounded-lg bg-slate-800/60 border border-purple-500/20 text-purple-200 font-heading text-lg hover:bg-slate-700 hover:border-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer"
+        if (parentCategories.length === 0) return null;
+
+        // Find the active parent: either directly selected, or a parent whose child is selected
+        const activeParent = parentCategories.find(p => {
+          if (p.slug === selectedCategory) return true;
+          return p.children?.some(c => c.slug === selectedCategory);
+        });
+
+        // Get children of the active parent
+        const activeChildren = activeParent?.children?.filter(c => (c.postCount || 0) > 0) || [];
+
+        return (
+          <section className="mb-10 space-y-4">
+            {/* Parent category pills */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <Folder className="w-5 h-5 text-purple-400 flex-shrink-0" />
+              <button
+                onClick={() => handleCategoryChange('')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  !selectedCategory
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 border border-purple-500/20'
+                }`}
               >
-                <option value="">
-                  {t('blog.BlogList.browse_by_category', 'Browse by Category')}
-                </option>
-                {filteredCategories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
+                {t('blog.BlogList.all', 'All')}
+              </button>
+              {parentCategories.map((cat) => {
+                const isActive = cat.slug === selectedCategory || cat.children?.some(c => c.slug === selectedCategory);
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.slug)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      isActive
+                        ? 'text-white'
+                        : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 border border-purple-500/20'
+                    }`}
+                    style={isActive ? { backgroundColor: cat.color || '#7c3aed' } : undefined}
+                  >
                     {language === 'en' ? cat.nameEn : cat.nameFr}
-                  </option>
-                ))}
-              </select>
-              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none rotate-90" />
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Child category sub-tabs (when a parent with children is selected) */}
+            {activeParent && activeChildren.length > 0 && (
+              <div className="flex flex-wrap gap-2 pl-8">
+                <button
+                  onClick={() => handleCategoryChange(activeParent.slug)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    selectedCategory === activeParent.slug
+                      ? 'bg-slate-700 text-white'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  {t('blog.BlogList.all', 'All')} ({activeParent.postCount})
+                </button>
+                {activeChildren.map((child) => (
+                  <button
+                    key={child.id}
+                    onClick={() => handleCategoryChange(child.slug)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      selectedCategory === child.slug
+                        ? 'bg-slate-700 text-white'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    }`}
+                  >
+                    {language === 'en' ? child.nameEn : child.nameFr} ({child.postCount})
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
         );
       })()}
@@ -255,10 +310,22 @@ const BlogList: React.FC = () => {
             {t('blog.BlogList.filtering_by', 'Filtering by:')}
           </span>
           <button
-            onClick={() => setSelectedCategory('')}
+            onClick={() => handleCategoryChange('')}
             className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm flex items-center gap-1"
           >
-            {categories.find((c) => c.slug === selectedCategory)?.[language === 'en' ? 'nameEn' : 'nameFr']}
+            {(() => {
+              // Find category name — check parents and their children
+              for (const cat of categories) {
+                if (cat.slug === selectedCategory) return language === 'en' ? cat.nameEn : cat.nameFr;
+                const child = cat.children?.find(c => c.slug === selectedCategory);
+                if (child) {
+                  const parentName = language === 'en' ? cat.nameEn : cat.nameFr;
+                  const childName = language === 'en' ? child.nameEn : child.nameFr;
+                  return `${parentName} › ${childName}`;
+                }
+              }
+              return selectedCategory;
+            })()}
             <span className="ml-1">&times;</span>
           </button>
         </div>

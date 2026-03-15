@@ -15,6 +15,7 @@ import {
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
+import { taxonomyService } from '../../services/TaxonomyService.js';
 
 const router = Router();
 
@@ -90,7 +91,9 @@ router.get(
     };
 
     if (filters.category) {
-      where.categories = { some: { category: { slug: filters.category } } };
+      // Include posts from child categories when filtering by a parent
+      const slugs = await taxonomyService.getCategorySlugsWithChildren(filters.category);
+      where.categories = { some: { category: { slug: { in: slugs } } } };
     }
     if (filters.tag) {
       where.tags = { some: { tag: { slug: filters.tag } } };
@@ -230,7 +233,7 @@ router.get(
   })
 );
 
-// List all categories
+// List all categories (tree structure with parentId and children)
 router.get(
   '/categories',
   asyncHandler(async (_req, res) => {
@@ -259,11 +262,40 @@ router.get(
       },
     });
 
+    // Build flat list first
+    const flat = categories.map(c => ({
+      ...c,
+      postCount: c._count.posts,
+    }));
+
+    // Build tree: nest children under parents
+    const childrenByParent = new Map<string, typeof flat>();
+    const roots: typeof flat = [];
+
+    for (const cat of flat) {
+      if (cat.parentId) {
+        const siblings = childrenByParent.get(cat.parentId) || [];
+        siblings.push(cat);
+        childrenByParent.set(cat.parentId, siblings);
+      } else {
+        roots.push(cat);
+      }
+    }
+
+    // Attach children and calculate total post counts (own + children)
     const response = {
-      categories: categories.map(c => ({
-        ...c,
-        postCount: c._count.posts,
-      })),
+      categories: roots.map(root => {
+        const children = childrenByParent.get(root.id) || [];
+        const childPostCount = children.reduce((sum, c) => sum + c.postCount, 0);
+        return {
+          ...root,
+          postCount: root.postCount + childPostCount,
+          children: children.map(c => ({
+            ...c,
+            children: undefined, // no deeper nesting
+          })),
+        };
+      }),
     };
 
     await cacheService.set('blog:categories', response, CacheService.TTL.CATEGORIES);

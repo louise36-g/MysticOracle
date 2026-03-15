@@ -19,8 +19,10 @@ export interface Category {
   color?: string | null;
   icon?: string | null;
   sortOrder: number;
+  parentId?: string | null;
   blogPostCount: number;
   tarotArticleCount: number;
+  children?: Category[];
 }
 
 export interface Tag {
@@ -40,6 +42,7 @@ export interface CreateCategoryInput {
   descriptionFr?: string;
   color?: string;
   icon?: string;
+  parentId?: string | null;
 }
 
 export interface CreateTagInput {
@@ -78,6 +81,66 @@ class TaxonomyService {
       },
     });
 
+    // Build flat list with parentId
+    const flat: Category[] = categories.map(cat => ({
+      id: cat.id,
+      name: cat.nameEn,
+      nameFr: cat.nameFr,
+      slug: cat.slug,
+      description: cat.descEn,
+      descriptionFr: cat.descFr,
+      color: cat.color,
+      icon: cat.icon,
+      sortOrder: cat.sortOrder,
+      parentId: cat.parentId,
+      blogPostCount: cat._count.posts,
+      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
+    }));
+
+    // Build tree: nest children under parents
+    const childrenByParent = new Map<string, Category[]>();
+    const roots: Category[] = [];
+
+    for (const cat of flat) {
+      if (cat.parentId) {
+        const siblings = childrenByParent.get(cat.parentId) || [];
+        siblings.push(cat);
+        childrenByParent.set(cat.parentId, siblings);
+      } else {
+        roots.push(cat);
+      }
+    }
+
+    // Attach children to parents and sum child counts into parent
+    for (const root of roots) {
+      const children = childrenByParent.get(root.id) || [];
+      root.children = children;
+    }
+
+    await cacheService.set(cacheKey, roots, this.cacheTTL);
+
+    return roots;
+  }
+
+  /**
+   * List all categories flat (no tree nesting) - used for selectors
+   */
+  async listCategoriesFlat(): Promise<Category[]> {
+    const cacheKey = `${this.cachePrefix}:categories:flat`;
+    const cached = await cacheService.get<Category[]>(cacheKey);
+    if (cached) return cached;
+
+    const categories = await prisma.blogCategory.findMany({
+      orderBy: { sortOrder: 'asc' },
+      include: {
+        _count: {
+          select: {
+            posts: { where: { post: { deletedAt: null } } },
+          },
+        },
+      },
+    });
+
     const result = categories.map(cat => ({
       id: cat.id,
       name: cat.nameEn,
@@ -88,8 +151,9 @@ class TaxonomyService {
       color: cat.color,
       icon: cat.icon,
       sortOrder: cat.sortOrder,
+      parentId: cat.parentId,
       blogPostCount: cat._count.posts,
-      tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
+      tarotArticleCount: 0,
     }));
 
     await cacheService.set(cacheKey, result, this.cacheTTL);
@@ -124,6 +188,7 @@ class TaxonomyService {
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
+      parentId: category.parentId,
       blogPostCount: category._count.posts,
       tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
@@ -142,6 +207,7 @@ class TaxonomyService {
         descFr: input.descriptionFr,
         color: input.color,
         icon: input.icon,
+        parentId: input.parentId ?? null,
       },
       include: {
         _count: {
@@ -164,6 +230,7 @@ class TaxonomyService {
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
+      parentId: category.parentId,
       blogPostCount: category._count.posts,
       tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
@@ -182,6 +249,7 @@ class TaxonomyService {
     if (input.descriptionFr !== undefined) updateData.descFr = input.descriptionFr;
     if (input.color !== undefined) updateData.color = input.color;
     if (input.icon !== undefined) updateData.icon = input.icon;
+    if (input.parentId !== undefined) updateData.parentId = input.parentId;
 
     const category = await prisma.blogCategory.update({
       where: { id },
@@ -207,6 +275,7 @@ class TaxonomyService {
       color: category.color,
       icon: category.icon,
       sortOrder: category.sortOrder,
+      parentId: category.parentId,
       blogPostCount: category._count.posts,
       tarotArticleCount: 0, // Now included in blogPostCount via BlogPostCategory
     };
@@ -389,12 +458,25 @@ class TaxonomyService {
     return !existing;
   }
 
+  /**
+   * Get a category slug and all its child slugs (for inclusive filtering)
+   */
+  async getCategorySlugsWithChildren(slug: string): Promise<string[]> {
+    const category = await prisma.blogCategory.findUnique({
+      where: { slug },
+      include: { children: { select: { slug: true } } },
+    });
+    if (!category) return [slug];
+    return [slug, ...category.children.map(c => c.slug)];
+  }
+
   // ============================================
   // Cache Management
   // ============================================
 
   private async invalidateCategoryCache(): Promise<void> {
     await cacheService.del(`${this.cachePrefix}:categories`);
+    await cacheService.del(`${this.cachePrefix}:categories:flat`);
   }
 
   private async invalidateTagCache(): Promise<void> {

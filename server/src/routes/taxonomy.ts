@@ -56,6 +56,7 @@ router.post(
       descriptionFr: z.string().max(500).optional(),
       color: z.string().max(20).optional(),
       icon: z.string().max(50).optional(),
+      parentId: z.string().nullable().optional(),
     });
 
     const data = schema.parse(req.body) as CreateCategoryInput;
@@ -93,6 +94,7 @@ router.patch(
       descriptionFr: z.string().max(500).optional(),
       color: z.string().max(20).optional(),
       icon: z.string().max(50).optional(),
+      parentId: z.string().nullable().optional(),
     });
 
     const data = schema.parse(req.body);

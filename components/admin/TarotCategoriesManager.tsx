@@ -10,7 +10,7 @@ import {
   UnifiedCategory,
 } from '../../services/api';
 import { useAdminCrud } from '../../hooks';
-import { Plus, Trash2, Folder, X, FileText, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Folder, FolderOpen, X, FileText, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TarotCategoriesManagerProps {
@@ -26,7 +26,70 @@ interface EditingCategory {
   description: string;
   color: string;
   icon: string;
+  parentId: string | null;
 }
+
+// Category card component (reused for parents and children)
+const CategoryCard: React.FC<{
+  cat: UnifiedCategory;
+  language: string;
+  isChild?: boolean;
+  onEdit: (cat: UnifiedCategory) => void;
+  onDelete: (id: string) => void;
+}> = ({ cat, language, isChild, onEdit, onDelete }) => {
+  const totalPosts = cat.blogPostCount + cat.tarotArticleCount;
+  const childCount = cat.children?.length || 0;
+  const childPostTotal = cat.children?.reduce((sum, c) => sum + c.blogPostCount + c.tarotArticleCount, 0) || 0;
+
+  return (
+    <div
+      className={`bg-slate-900/60 rounded-xl border p-4 ${
+        isChild
+          ? 'border-slate-700/30'
+          : 'border-purple-500/20'
+      }`}
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: cat.color ? `${cat.color}30` : 'rgba(168, 85, 247, 0.2)' }}
+        >
+          {childCount > 0 ? (
+            <FolderOpen className="w-4 h-4" style={{ color: cat.color || '#a855f7' }} />
+          ) : (
+            <Folder className="w-4 h-4" style={{ color: cat.color || '#a855f7' }} />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-slate-200 font-medium text-sm truncate">{cat.name}</h4>
+          <p className="text-slate-500 text-xs truncate">{cat.slug}</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-500 flex-shrink-0">
+          <span className="flex items-center gap-1">
+            <FileText className="w-3 h-3" />
+            {totalPosts}{childCount > 0 ? ` (+${childPostTotal})` : ''}
+          </span>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => onEdit(cat)}
+          className="flex-1 py-1.5 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-xs"
+        >
+          {language === 'en' ? 'Edit' : 'Modifier'}
+        </button>
+        <button
+          onClick={() => onDelete(cat.id)}
+          disabled={totalPosts > 0}
+          className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+          title={totalPosts > 0 ? (language === 'en' ? 'Cannot delete: category in use' : 'Impossible de supprimer: catégorie utilisée') : ''}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCategoriesChange }) => {
   const { language } = useApp();
@@ -55,9 +118,26 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
     loadCategories();
   }, [loadCategories]);
 
-  const handleNew = () => {
-    setEditingCategory({ id: '', name: '', nameFr: '', slug: '', description: '', color: '', icon: '' });
+  const handleNew = (parentId?: string) => {
+    setEditingCategory({
+      id: '', name: '', nameFr: '', slug: '', description: '', color: '', icon: '',
+      parentId: parentId || null,
+    });
     setIsNew(true);
+  };
+
+  const handleEdit = (cat: UnifiedCategory) => {
+    setEditingCategory({
+      id: cat.id,
+      name: cat.name,
+      nameFr: cat.nameFr || '',
+      slug: cat.slug,
+      description: cat.description || '',
+      color: cat.color || '',
+      icon: cat.icon || '',
+      parentId: cat.parentId || null,
+    });
+    setIsNew(false);
   };
 
   const handleSave = async () => {
@@ -74,6 +154,7 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
         description: editingCategory.description || undefined,
         color: editingCategory.color || undefined,
         icon: editingCategory.icon || undefined,
+        parentId: editingCategory.parentId || null,
       };
 
       if (isNew) {
@@ -101,6 +182,17 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
     }, { resetOnSuccess: false, errorPrefix: 'Failed to delete category' });
   };
 
+  // Build list of possible parents for the selector (exclude self and own children)
+  const getParentOptions = (): UnifiedCategory[] => {
+    const editId = editingCategory?.id;
+    return categories.filter(cat => {
+      if (cat.id === editId) return false;
+      // Don't allow selecting own children as parent
+      if (cat.children?.some(c => c.id === editId)) return false;
+      return true;
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -113,7 +205,7 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
     <div>
       <div className="flex justify-end mb-4">
         <button
-          onClick={handleNew}
+          onClick={() => handleNew()}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
         >
           <Plus className="w-4 h-4" />
@@ -127,68 +219,50 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {categories.map((cat) => (
-          <div
-            key={cat.id}
-            className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-4"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: cat.color ? `${cat.color}30` : 'rgba(168, 85, 247, 0.2)' }}
-              >
-                <Folder className="w-5 h-5" style={{ color: cat.color || '#a855f7' }} />
+      {/* Tree display: parents with nested children */}
+      <div className="space-y-6">
+        {categories.map((parent) => (
+          <div key={parent.id}>
+            {/* Parent category */}
+            <CategoryCard
+              cat={parent}
+              language={language}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+
+            {/* Children */}
+            {parent.children && parent.children.length > 0 && (
+              <div className="ml-8 mt-2 space-y-2 border-l-2 border-purple-500/10 pl-4">
+                {parent.children.map((child) => (
+                  <div key={child.id} className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-purple-500/30 mt-4 flex-shrink-0" />
+                    <div className="flex-1">
+                      <CategoryCard
+                        cat={child}
+                        language={language}
+                        isChild
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="flex-1">
-                <h4 className="text-slate-200 font-medium">{cat.name}</h4>
-                <p className="text-slate-500 text-sm">{cat.slug}</p>
-              </div>
-            </div>
-            {cat.description && (
-              <p className="text-slate-400 text-sm mb-3 line-clamp-2">{cat.description}</p>
             )}
-            <div className="flex gap-3 text-xs text-slate-500 mb-4">
-              <span className="flex items-center gap-1">
-                <FileText className="w-3.5 h-3.5" />
-                {cat.blogPostCount} {language === 'en' ? 'posts' : 'articles'}
-              </span>
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" />
-                {cat.tarotArticleCount} tarot
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setEditingCategory({
-                    id: cat.id,
-                    name: cat.name,
-                    nameFr: cat.nameFr || '',
-                    slug: cat.slug,
-                    description: cat.description || '',
-                    color: cat.color || '',
-                    icon: cat.icon || '',
-                  });
-                  setIsNew(false);
-                }}
-                className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
-              >
-                {language === 'en' ? 'Edit' : 'Modifier'}
-              </button>
-              <button
-                onClick={() => handleDelete(cat.id)}
-                disabled={cat.blogPostCount > 0 || cat.tarotArticleCount > 0}
-                className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
-                title={cat.blogPostCount > 0 || cat.tarotArticleCount > 0 ? (language === 'en' ? 'Cannot delete: category in use' : 'Impossible de supprimer: catégorie utilisée') : ''}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
+
+            {/* Add child button */}
+            <button
+              onClick={() => handleNew(parent.id)}
+              className="ml-8 mt-2 flex items-center gap-1.5 text-xs text-slate-500 hover:text-purple-400 transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+              {language === 'en' ? 'Add subcategory' : 'Ajouter sous-catégorie'}
+            </button>
           </div>
         ))}
         {categories.length === 0 && (
-          <div className="col-span-full text-center py-12 text-slate-400">
+          <div className="text-center py-12 text-slate-400">
             {language === 'en' ? 'No categories yet' : 'Aucune catégorie'}
           </div>
         )}
@@ -213,6 +287,23 @@ const TarotCategoriesManager: React.FC<TarotCategoriesManagerProps> = ({ onCateg
                 </button>
               </div>
               <div className="space-y-4">
+                {/* Parent selector */}
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1">
+                    {language === 'en' ? 'Parent Category' : 'Catégorie parente'}
+                  </label>
+                  <select
+                    value={editingCategory.parentId || ''}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, parentId: e.target.value || null })}
+                    className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
+                  >
+                    <option value="">{language === 'en' ? '— None (top-level)' : '— Aucun (niveau supérieur)'}</option>
+                    {getParentOptions().map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm text-slate-400 mb-1">🇬🇧 {language === 'en' ? 'Name' : 'Nom'}</label>

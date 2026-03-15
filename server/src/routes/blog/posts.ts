@@ -115,7 +115,9 @@ router.get(
       ];
     }
     if (filters.category) {
-      where.categories = { some: { category: { slug: filters.category } } };
+      // Include posts from child categories when filtering by a parent
+      const slugs = await taxonomyService.getCategorySlugsWithChildren(filters.category);
+      where.categories = { some: { category: { slug: { in: slugs } } } };
     }
 
     // When filtering by category, order by sortOrder for drag-and-drop

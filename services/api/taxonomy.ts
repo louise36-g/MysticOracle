@@ -21,8 +21,10 @@ export interface UnifiedCategory {
   color?: string | null;
   icon?: string | null;
   sortOrder: number;
+  parentId?: string | null;
   blogPostCount: number;
   tarotArticleCount: number;
+  children?: UnifiedCategory[];
 }
 
 /**
@@ -45,6 +47,7 @@ export interface CategoryInput {
   descriptionFr?: string;
   color?: string;
   icon?: string;
+  parentId?: string | null;
 }
 
 export interface TagInput {
