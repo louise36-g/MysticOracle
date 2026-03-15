@@ -123,45 +123,6 @@ class TaxonomyService {
   }
 
   /**
-   * List all categories flat (no tree nesting) - used for selectors
-   */
-  async listCategoriesFlat(): Promise<Category[]> {
-    const cacheKey = `${this.cachePrefix}:categories:flat`;
-    const cached = await cacheService.get<Category[]>(cacheKey);
-    if (cached) return cached;
-
-    const categories = await prisma.blogCategory.findMany({
-      orderBy: { sortOrder: 'asc' },
-      include: {
-        _count: {
-          select: {
-            posts: { where: { post: { deletedAt: null } } },
-          },
-        },
-      },
-    });
-
-    const result = categories.map(cat => ({
-      id: cat.id,
-      name: cat.nameEn,
-      nameFr: cat.nameFr,
-      slug: cat.slug,
-      description: cat.descEn,
-      descriptionFr: cat.descFr,
-      color: cat.color,
-      icon: cat.icon,
-      sortOrder: cat.sortOrder,
-      parentId: cat.parentId,
-      blogPostCount: cat._count.posts,
-      tarotArticleCount: 0,
-    }));
-
-    await cacheService.set(cacheKey, result, this.cacheTTL);
-
-    return result;
-  }
-
-  /**
    * Get a single category by ID
    */
   async getCategoryById(id: string): Promise<Category | null> {
@@ -516,7 +477,6 @@ class TaxonomyService {
 
   private async invalidateCategoryCache(): Promise<void> {
     await cacheService.del(`${this.cachePrefix}:categories`);
-    await cacheService.del(`${this.cachePrefix}:categories:flat`);
   }
 
   private async invalidateTagCache(): Promise<void> {

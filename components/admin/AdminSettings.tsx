@@ -14,7 +14,7 @@ import {
 } from '../../services/api';
 import {
   Bot, Key, CheckCircle, AlertCircle, ExternalLink, Server, Database,
-  CreditCard, Mail, Users, Settings, Save, Eye, EyeOff, Download, FileText
+  CreditCard, Mail, Users, Settings, EyeOff, Download, FileText
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

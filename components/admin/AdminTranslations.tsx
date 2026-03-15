@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useTranslation } from '../../context/TranslationContext';
 import { useAdminCrud } from '../../hooks';
-import { Languages, Search, ChevronDown, ChevronRight, Plus, Download, Globe, Edit2, Trash2, Check, X, Save } from 'lucide-react';
+import { Languages, Search, ChevronDown, ChevronRight, Plus, Download, Globe, Edit2, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api$/, '');

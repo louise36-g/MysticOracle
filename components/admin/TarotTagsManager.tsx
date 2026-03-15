@@ -10,7 +10,7 @@ import {
   UnifiedTag,
 } from '../../services/api';
 import { useAdminCrud } from '../../hooks';
-import { Plus, Edit2, Trash2, Tag, X, FileText, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TarotTagsManagerProps {

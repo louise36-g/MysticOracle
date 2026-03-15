@@ -186,9 +186,6 @@ export async function fetchBlogCategories(): Promise<{ categories: BlogCategory[
   return apiRequest('/api/blog/categories');
 }
 
-export async function fetchBlogTags(): Promise<{ tags: BlogTag[] }> {
-  return apiRequest('/api/blog/tags');
-}
 
 // ============================================
 // ADMIN POST ENDPOINTS
@@ -307,9 +304,6 @@ export async function emptyBlogTrash(token: string): Promise<{ success: boolean;
 // SEEDING & IMPORT
 // ============================================
 
-export async function seedBlogData(token: string): Promise<{ success: boolean; categories: number; tags: number }> {
-  return apiRequest('/api/blog/admin/seed', { method: 'POST', token });
-}
 
 export async function importBlogArticles(
   token: string,

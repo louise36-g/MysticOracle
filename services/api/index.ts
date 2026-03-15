@@ -162,7 +162,6 @@ export {
   fetchBlogPosts,
   fetchBlogPost,
   fetchBlogCategories,
-  fetchBlogTags,
   fetchBlogPostPreview,
   fetchAdminBlogPosts,
   fetchAdminBlogPost,
@@ -176,7 +175,6 @@ export {
   restoreBlogPost,
   permanentlyDeleteBlogPost,
   emptyBlogTrash,
-  seedBlogData,
   importBlogArticles,
 } from './blog';
 export type {
