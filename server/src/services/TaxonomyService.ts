@@ -72,7 +72,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -106,7 +106,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -146,7 +146,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -189,7 +189,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -253,7 +253,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -282,7 +282,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -313,7 +313,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },
@@ -347,7 +347,7 @@ class TaxonomyService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: { where: { post: { deletedAt: null } } },
           },
         },
       },

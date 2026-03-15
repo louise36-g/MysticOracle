@@ -12,6 +12,7 @@ import {
   processBlogContent,
   createPostSchema,
 } from './shared.js';
+import { taxonomyService } from '../../services/TaxonomyService.js';
 import {
   includeCategoriesAndTags,
   flattenCategories,
@@ -219,8 +220,9 @@ router.post(
       include: includeCategoriesAndTags,
     });
 
-    // Invalidate blog cache
+    // Invalidate blog + taxonomy cache (counts changed)
     await cacheService.flushPattern('blog:');
+    await taxonomyService.invalidateAll();
 
     // Notify search engines via IndexNow if published on creation
     if (post.status === 'PUBLISHED' && post.slug) {
@@ -343,8 +345,11 @@ router.patch(
       include: includeCategoriesAndTags,
     });
 
-    // Invalidate blog cache
+    // Invalidate blog + taxonomy cache (counts may have changed)
     await cacheService.flushPattern('blog:');
+    if (categoryIds !== undefined || tagIds !== undefined) {
+      await taxonomyService.invalidateAll();
+    }
 
     // Notify search engines via IndexNow if published
     if (post.status === 'PUBLISHED' && post.slug) {

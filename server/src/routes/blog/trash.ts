@@ -5,6 +5,7 @@
 import { prisma, cacheService } from './shared.js';
 import { TrashConfig } from '../../services/content/TrashUtils.js';
 import { createTrashRouter } from '../shared/trashRouterFactory.js';
+import { taxonomyService } from '../../services/TaxonomyService.js';
 
 const blogTrashConfig: TrashConfig = {
   entityName: 'Post',
@@ -19,9 +20,11 @@ const blogTrashConfig: TrashConfig = {
     }),
   onAfterSoftDelete: async () => {
     await cacheService.flushPattern('blog:');
+    await taxonomyService.invalidateAll();
   },
   onAfterRestore: async () => {
     await cacheService.flushPattern('blog:');
+    await taxonomyService.invalidateAll();
   },
 };
 
