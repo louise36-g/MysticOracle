@@ -200,29 +200,31 @@ const BlogList: React.FC = () => {
             {/* Child category sub-tabs (when a parent with children is selected) */}
             {activeParent && activeChildren.length > 0 && (
               <div className="flex flex-wrap gap-2 pl-8">
-                <button
-                  onClick={() => handleCategoryChange(activeParent.slug)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    selectedCategory === activeParent.slug
-                      ? 'bg-slate-700 text-white'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  }`}
-                >
-                  {t('blog.BlogList.all', 'All')} ({activeParent.postCount})
-                </button>
-                {activeChildren.map((child) => (
-                  <button
-                    key={child.id}
-                    onClick={() => handleCategoryChange(child.slug)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      selectedCategory === child.slug
-                        ? 'bg-slate-700 text-white'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                    }`}
-                  >
-                    {language === 'en' ? child.nameEn : child.nameFr} ({child.postCount})
-                  </button>
-                ))}
+                {activeChildren.map((child) => {
+                  const isChildActive = selectedCategory === child.slug;
+                  const parentColor = activeParent.color || '#7c3aed';
+                  return (
+                    <button
+                      key={child.id}
+                      onClick={() => handleCategoryChange(child.slug)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                        isChildActive
+                          ? 'text-white border-transparent'
+                          : 'text-slate-300 hover:text-white border-purple-500/30 hover:border-purple-500/50'
+                      }`}
+                      style={
+                        isChildActive
+                          ? { backgroundColor: parentColor }
+                          : { backgroundColor: `${parentColor}15` }
+                      }
+                    >
+                      {language === 'en' ? child.nameEn : child.nameFr}
+                      <span className={`ml-1.5 ${isChildActive ? 'text-white/70' : 'text-slate-500'}`}>
+                        ({child.postCount})
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
