@@ -14,7 +14,7 @@ import {
 } from '../services/TaxonomyService.js';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { NotFoundError, ValidationError } from '../shared/errors/ApplicationError.js';
+import { ValidationError } from '../shared/errors/ApplicationError.js';
 
 const router = Router();
 
@@ -113,16 +113,18 @@ router.patch(
 /**
  * DELETE /api/v1/taxonomy/categories/:id
  * Delete a category (fails if used by blog posts)
+ * Idempotent: returns success if category already gone (clears stale cache)
  */
 router.delete(
   '/categories/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    // Check if category is used by blog posts
     const category = await taxonomyService.getCategoryById(id);
     if (!category) {
-      throw new NotFoundError('Category', id);
+      // Category already gone — clear cache so ghost entries disappear
+      await taxonomyService.invalidateAll();
+      return res.json({ success: true });
     }
 
     if (category.blogPostCount > 0) {
@@ -220,16 +222,18 @@ router.patch(
 /**
  * DELETE /api/v1/taxonomy/tags/:id
  * Delete a tag (fails if used by blog posts)
+ * Idempotent: returns success if tag already gone (clears stale cache)
  */
 router.delete(
   '/tags/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    // Check if tag is used by blog posts
     const tag = await taxonomyService.getTagById(id);
     if (!tag) {
-      throw new NotFoundError('Tag', id);
+      // Tag already gone — clear cache so ghost entries disappear
+      await taxonomyService.invalidateAll();
+      return res.json({ success: true });
     }
 
     if (tag.blogPostCount > 0) {
