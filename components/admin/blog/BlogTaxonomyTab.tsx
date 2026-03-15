@@ -27,6 +27,7 @@ interface CategoryFormData {
   color?: string;
   icon?: string;
   sortOrder: number;
+  parentId?: string | null;
   blogPostCount?: number;
 }
 
@@ -49,8 +50,23 @@ function categoryFromUnified(c: UnifiedCategory): CategoryFormData {
     color: c.color ?? undefined,
     icon: c.icon ?? undefined,
     sortOrder: c.sortOrder,
+    parentId: c.parentId,
     blogPostCount: c.blogPostCount,
   };
+}
+
+/** Flatten tree response: parents + their children into a single list */
+function flattenCategoryTree(cats: UnifiedCategory[]): CategoryFormData[] {
+  const result: CategoryFormData[] = [];
+  for (const cat of cats) {
+    result.push(categoryFromUnified(cat));
+    if (cat.children) {
+      for (const child of cat.children) {
+        result.push(categoryFromUnified(child));
+      }
+    }
+  }
+  return result;
 }
 
 function tagFromUnified(t: UnifiedTag): TagFormData {
@@ -100,7 +116,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
       if (!token) return;
 
       const result = await fetchUnifiedCategories(token);
-      setCategories(result.categories.map(categoryFromUnified));
+      setCategories(flattenCategoryTree(result.categories));
     } catch (err) {
       console.error('Failed to load categories:', err);
     } finally {
@@ -164,6 +180,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         descriptionFr: editingCategory.descFr,
         color: editingCategory.color,
         icon: editingCategory.icon,
+        parentId: editingCategory.parentId || null,
       };
 
       if (isNewCategory) {
@@ -354,6 +371,28 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                       : 'Modifier categorie'}
                 </h3>
                 <div className="space-y-4">
+                  {/* Parent Category selector */}
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">
+                      {language === 'en' ? 'Parent Category' : 'Catégorie parente'}
+                    </label>
+                    <select
+                      value={editingCategory.parentId || ''}
+                      onChange={e =>
+                        setEditingCategory({ ...editingCategory, parentId: e.target.value || null })
+                      }
+                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/20 rounded-lg text-slate-200"
+                    >
+                      <option value="">{language === 'en' ? '— None (top-level)' : '— Aucun (niveau supérieur)'}</option>
+                      {categories
+                        .filter(c => !c.parentId && c.id !== editingCategory.id)
+                        .map(c => (
+                          <option key={c.id} value={c.id}>
+                            {language === 'en' ? c.nameEn : c.nameFr}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-slate-400 mb-1">Slug</label>
