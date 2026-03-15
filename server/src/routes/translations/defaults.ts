@@ -255,16 +255,16 @@ export const defaultTranslations: Record<string, TranslationValue> = {
 
   // Reflection
   'reflection.header': {
-    en: 'How does this reading resonate with you?',
-    fr: 'Comment cette lecture vous parle-t-elle?',
+    en: 'Your Tarot Journal',
+    fr: 'Votre Journal de Tarot',
   },
   'reflection.tooltip': {
-    en: 'Your reflections help personalize future readings',
-    fr: 'Vos réflexions aident à personnaliser les lectures futures',
+    en: 'Your notes become part of your healing journey',
+    fr: 'Vos notes font partie de votre chemin de guérison',
   },
   'reflection.placeholder': {
-    en: 'Share your thoughts, feelings, or insights about this reading...',
-    fr: 'Partagez vos pensées, sentiments ou intuitions sur cette lecture...',
+    en: 'Note here what came up for you. What felt true?',
+    fr: "Notez ici ce qui est remonté pour vous. Qu'est-ce qui sonnait juste ?",
   },
   'reflection.save': { en: 'Save Reflection', fr: 'Enregistrer' },
   'reflection.skip': { en: 'Skip', fr: 'Passer' },

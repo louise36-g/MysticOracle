@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Info, Check, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookHeart, Check, Loader2 } from 'lucide-react';
 import { useTranslation } from '../../context/TranslationContext';
 import Button from '../Button';
 
@@ -22,7 +22,6 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
   const [reflection, setReflection] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const charCount = reflection.length;
   const charColor = charCount > MAX_REFLECTION_LENGTH * 0.9
@@ -82,30 +81,12 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
           className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/30 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <span className="text-purple-200 font-medium text-sm md:text-base">
-              {t('reflection.header', 'Capture your thoughts')}
+            <BookHeart className="w-5 h-5 text-amber-400/80" />
+            <span className="text-base md:text-lg font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400">
+              {t('reflection.header', 'Your Tarot Journal')}
             </span>
 
-            {/* Info tooltip */}
-            <div
-              className="relative"
-              onMouseEnter={() => setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
-            >
-              <Info className="w-4 h-4 text-slate-500 hover:text-slate-400 transition-colors" />
-              <AnimatePresence>
-                {showTooltip && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    className="absolute left-0 top-full mt-2 z-10 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 whitespace-nowrap"
-                  >
-                    {t('reflection.tooltip', 'Private to your account — only you can see this')}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <span className="text-xs text-slate-400 italic hidden md:inline">{t('reflection.tooltip', 'Your notes become part of your healing journey')}</span>
 
             {/* Saved indicator */}
             {isSaved && (
@@ -145,7 +126,7 @@ const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
                   <textarea
                     value={reflection}
                     onChange={handleChange}
-                    placeholder={t('reflection.placeholder', 'What came up for you? Note what you noticed, felt, or understood — for later reflection...')}
+                    placeholder={t('reflection.placeholder', 'Note here what came up for you. What felt true?')}
                     maxLength={MAX_REFLECTION_LENGTH}
                     disabled={isSaving}
                     className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 resize-none min-h-[120px] text-sm disabled:opacity-50 transition-colors"
