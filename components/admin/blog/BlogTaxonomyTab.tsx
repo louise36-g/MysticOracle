@@ -13,7 +13,7 @@ import {
   deleteUnifiedTag,
 } from '../../../services/api';
 import type { UnifiedCategory, UnifiedTag } from '../../../services/api/taxonomy';
-import { Plus, Folder, Tag, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Local editing types — map unified API fields to form fields
@@ -303,51 +303,110 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {categories.map(cat => (
-              <div
-                key={cat.id}
-                className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-4"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${cat.color}20` }}
-                  >
-                    <Folder className="w-5 h-5" style={{ color: cat.color }} />
+          <div className="space-y-3">
+            {/* Parent categories (no parentId) */}
+            {categories.filter(c => !c.parentId).map(parent => {
+              const children = categories.filter(c => c.parentId === parent.id);
+              const FolderIcon = children.length > 0 ? FolderOpen : Folder;
+
+              return (
+                <div key={parent.id}>
+                  {/* Parent card */}
+                  <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${parent.color}20` }}
+                      >
+                        <FolderIcon className="w-5 h-5" style={{ color: parent.color }} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-slate-200 font-medium">
+                          {language === 'en' ? parent.nameEn : parent.nameFr}
+                        </h4>
+                        <p className="text-slate-500 text-sm">{parent.slug}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
+                          {parent.blogPostCount || 0} posts
+                        </span>
+                        {children.length > 0 && (
+                          <span className="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">
+                            {children.length} {language === 'en' ? 'sub' : 'sous'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {(parent.descEn || parent.descFr) && (
+                      <p className="text-slate-400 text-sm mb-3 line-clamp-2">
+                        {language === 'en' ? parent.descEn : parent.descFr}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingCategory(parent);
+                          setIsNewCategory(false);
+                        }}
+                        className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
+                      >
+                        {language === 'en' ? 'Edit' : 'Modifier'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(parent.id)}
+                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-slate-200 font-medium">
-                      {language === 'en' ? cat.nameEn : cat.nameFr}
-                    </h4>
-                    <p className="text-slate-500 text-sm">{cat.slug}</p>
-                  </div>
-                  <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
-                    {cat.blogPostCount || 0} posts
-                  </span>
+
+                  {/* Children indented underneath */}
+                  {children.length > 0 && (
+                    <div className="ml-6 mt-1 space-y-1 border-l-2 border-purple-500/15 pl-4">
+                      {children.map(child => (
+                        <div
+                          key={child.id}
+                          className="flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3"
+                        >
+                          <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
+                          <div
+                            className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: `${child.color || parent.color}20` }}
+                          >
+                            <Folder className="w-4 h-4" style={{ color: child.color || parent.color }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="text-slate-300 text-sm font-medium truncate">
+                              {language === 'en' ? child.nameEn : child.nameFr}
+                            </h5>
+                            <p className="text-slate-500 text-xs truncate">{child.slug}</p>
+                          </div>
+                          <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-400 flex-shrink-0">
+                            {child.blogPostCount || 0}
+                          </span>
+                          <button
+                            onClick={() => {
+                              setEditingCategory(child);
+                              setIsNewCategory(false);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-purple-400 hover:bg-slate-800 rounded"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(child.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-                  {language === 'en' ? cat.descEn : cat.descFr}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setEditingCategory(cat);
-                      setIsNewCategory(false);
-                    }}
-                    className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
-                  >
-                    {language === 'en' ? 'Edit' : 'Modifier'}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
