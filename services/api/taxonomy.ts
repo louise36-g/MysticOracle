@@ -106,6 +106,21 @@ export async function deleteUnifiedCategory(token: string, id: string): Promise<
   });
 }
 
+/**
+ * Reorder a category within its sibling group
+ */
+export async function reorderUnifiedCategory(
+  token: string,
+  categoryId: string,
+  newPosition: number
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest('/api/v1/taxonomy/categories/reorder', {
+    method: 'PATCH',
+    token,
+    body: { categoryId, newPosition },
+  });
+}
+
 // ============================================
 // TAG ENDPOINTS
 // ============================================

@@ -73,6 +73,26 @@ router.post(
 );
 
 /**
+ * PATCH /api/v1/taxonomy/categories/reorder
+ * Reorder a category within its sibling group
+ * NOTE: Must be defined BEFORE /:id to avoid :id matching "reorder"
+ */
+router.patch(
+  '/categories/reorder',
+  asyncHandler(async (req, res) => {
+    const schema = z.object({
+      categoryId: z.string().min(1),
+      newPosition: z.number().int().min(0),
+    });
+
+    const { categoryId, newPosition } = schema.parse(req.body);
+    await taxonomyService.reorderCategory(categoryId, newPosition);
+
+    res.json({ success: true, message: 'Category reordered successfully' });
+  })
+);
+
+/**
  * PATCH /api/v1/taxonomy/categories/:id
  * Update a category
  */

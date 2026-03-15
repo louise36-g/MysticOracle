@@ -202,6 +202,7 @@ export {
   createUnifiedTag,
   updateUnifiedTag,
   deleteUnifiedTag,
+  reorderUnifiedCategory,
 } from './taxonomy';
 export type {
   UnifiedCategory,

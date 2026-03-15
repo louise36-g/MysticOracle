@@ -7,13 +7,14 @@ import {
   createUnifiedCategory,
   updateUnifiedCategory,
   deleteUnifiedCategory,
+  reorderUnifiedCategory,
   fetchUnifiedTags,
   createUnifiedTag,
   updateUnifiedTag,
   deleteUnifiedTag,
 } from '../../../services/api';
 import type { UnifiedCategory, UnifiedTag } from '../../../services/api/taxonomy';
-import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight } from 'lucide-react';
+import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight, ChevronUp, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Local editing types — map unified API fields to form fields
@@ -200,6 +201,26 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
     }
   };
 
+  const handleMoveCategory = async (categoryId: string, direction: 'up' | 'down') => {
+    // Find current position among siblings
+    const cat = categories.find(c => c.id === categoryId);
+    if (!cat) return;
+    const siblings = categories.filter(c => c.parentId === cat.parentId);
+    const currentIndex = siblings.findIndex(c => c.id === categoryId);
+    const newPosition = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newPosition < 0 || newPosition >= siblings.length) return;
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+      await reorderUnifiedCategory(token, categoryId, newPosition);
+      loadCategories();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to reorder';
+      onError(message);
+    }
+  };
+
   const handleDeleteCategory = (id: string) => {
     onShowConfirmModal({
       title: language === 'en' ? 'Delete Category' : 'Supprimer la catégorie',
@@ -305,7 +326,9 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         ) : (
           <div className="space-y-3">
             {/* Parent categories (no parentId) */}
-            {categories.filter(c => !c.parentId).map(parent => {
+            {(() => {
+              const parents = categories.filter(c => !c.parentId);
+              return parents.map((parent, parentIdx) => {
               const children = categories.filter(c => c.parentId === parent.id);
               const FolderIcon = children.length > 0 ? FolderOpen : Folder;
 
@@ -314,6 +337,25 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                   {/* Parent card */}
                   <div className="bg-slate-900/60 rounded-xl border border-purple-500/20 p-4">
                     <div className="flex items-center gap-3 mb-3">
+                      {/* Sort arrows */}
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          onClick={() => handleMoveCategory(parent.id, 'up')}
+                          disabled={parentIdx === 0}
+                          className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleMoveCategory(parent.id, 'down')}
+                          disabled={parentIdx === parents.length - 1}
+                          className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </div>
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center"
                         style={{ backgroundColor: `${parent.color}20` }}
@@ -364,11 +406,30 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                   {/* Children indented underneath */}
                   {children.length > 0 && (
                     <div className="ml-6 mt-1 space-y-1 border-l-2 border-purple-500/15 pl-4">
-                      {children.map(child => (
+                      {children.map((child, childIdx) => (
                         <div
                           key={child.id}
                           className="flex items-center gap-3 bg-slate-900/40 rounded-lg border border-slate-700/30 p-3"
                         >
+                          {/* Child sort arrows */}
+                          <div className="flex flex-col gap-0.5">
+                            <button
+                              onClick={() => handleMoveCategory(child.id, 'up')}
+                              disabled={childIdx === 0}
+                              className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move up"
+                            >
+                              <ChevronUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => handleMoveCategory(child.id, 'down')}
+                              disabled={childIdx === children.length - 1}
+                              className="p-0.5 text-slate-500 hover:text-purple-400 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move down"
+                            >
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
+                          </div>
                           <CornerDownRight className="w-4 h-4 text-purple-500/40 flex-shrink-0" />
                           <div
                             className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
@@ -406,7 +467,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                   )}
                 </div>
               );
-            })}
+            });
+            })()}
           </div>
         )}
 

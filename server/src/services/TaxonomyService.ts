@@ -459,6 +459,46 @@ class TaxonomyService {
   }
 
   /**
+   * Reorder a category within its sibling group (parents among parents, children within same parent)
+   */
+  async reorderCategory(categoryId: string, newPosition: number): Promise<void> {
+    const category = await prisma.blogCategory.findUnique({ where: { id: categoryId } });
+    if (!category) throw new Error('Category not found');
+
+    // Get siblings: same parentId
+    const siblings = await prisma.blogCategory.findMany({
+      where: { parentId: category.parentId },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      select: { id: true, sortOrder: true },
+    });
+
+    if (newPosition < 0 || newPosition >= siblings.length) {
+      throw new Error(`newPosition (${newPosition}) out of range (0-${siblings.length - 1})`);
+    }
+
+    const oldIndex = siblings.findIndex(s => s.id === categoryId);
+    if (oldIndex === -1) throw new Error('Category not found in sibling list');
+    if (oldIndex === newPosition) return;
+
+    // Splice-and-insert
+    const [moved] = siblings.splice(oldIndex, 1);
+    siblings.splice(newPosition, 0, moved);
+
+    await prisma.$transaction(
+      siblings.map((s, index) =>
+        prisma.blogCategory.update({
+          where: { id: s.id },
+          data: { sortOrder: index },
+        })
+      )
+    );
+
+    await this.invalidateCategoryCache();
+    // Also flush public blog category cache
+    await cacheService.flushPattern('blog:categories');
+  }
+
+  /**
    * Get a category slug and all its child slugs (for inclusive filtering)
    */
   async getCategorySlugsWithChildren(slug: string): Promise<string[]> {
