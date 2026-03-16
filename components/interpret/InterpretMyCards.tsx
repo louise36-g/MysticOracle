@@ -39,24 +39,24 @@ const INTERPRET_SPREADS: { id: SpreadType; count: number; labelEn: string; label
     count: 1,
     labelEn: '1 Card',
     labelFr: '1 Carte',
-    descEn: 'Quick insight into a single card you drew',
-    descFr: 'Aperçu rapide d\'une carte que vous avez tirée',
+    descEn: 'A focused reading for one card and one question.',
+    descFr: 'Une lecture ciblée pour une carte et une question.',
   },
   {
     id: SpreadType.TWO_CARD,
     count: 2,
     labelEn: '2 Cards',
     labelFr: '2 Cartes',
-    descEn: 'Explore the relationship between two cards',
-    descFr: 'Explorez la relation entre deux cartes',
+    descEn: 'Weigh two energies, two paths, or two possibilities.',
+    descFr: 'Pesez deux énergies, deux chemins ou deux possibilités.',
   },
   {
     id: SpreadType.THREE_CARD,
     count: 3,
     labelEn: '3 Cards',
     labelFr: '3 Cartes',
-    descEn: 'A deeper reading with three cards',
-    descFr: 'Une lecture plus profonde avec trois cartes',
+    descEn: 'The most versatile spread in tarot — past, present and future or situation, action and outcome.',
+    descFr: 'Le tirage le plus polyvalent — passé, présent et futur ou situation, action et résultat.',
   },
 ];
 
@@ -327,7 +327,7 @@ const InterpretMyCards: React.FC = () => {
   }, [step, needsLayout, navigate]);
 
   return (
-    <div className="min-h-[60vh] py-4 px-4">
+    <div className="min-h-[60vh] pt-8 pb-4 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
@@ -341,9 +341,17 @@ const InterpretMyCards: React.FC = () => {
           </h1>
           <p className="text-white/85 text-sm max-w-md mx-auto">
             {language === 'fr'
-              ? 'Dites-nous quelles cartes vous avez tirées et recevez une interprétation détaillée.'
-              : 'Tell us which cards you drew and receive a detailed interpretation.'}
+              ? 'Vous avez tiré les cartes. Laissez-nous vous aider à entendre ce qu\'elles vous disent.'
+              : 'You drew the cards. Now let us help you hear what they are saying.'}
           </p>
+          <p className="text-[#C9A84C] text-sm italic mt-2 max-w-md mx-auto">
+            {language === 'fr'
+              ? 'Fonctionne avec les decks Rider-Waite-Smith. Votre première interprétation est notre cadeau.'
+              : 'Works with Rider-Waite-Smith decks. Your first interpretation is our gift.'}
+          </p>
+          <div className="text-[#C9A84C] text-xs tracking-[0.3em] mt-4">
+            ✦ &nbsp; ✦ &nbsp; ✦
+          </div>
         </div>
 
         {/* Step indicators */}
@@ -382,16 +390,35 @@ const InterpretMyCards: React.FC = () => {
               className="space-y-4"
             >
               <h2 className="text-base font-medium text-white mb-3">
-                {language === 'fr' ? 'Combien de cartes avez-vous tiré ?' : 'How many cards did you draw?'}
+                {language === 'fr' ? 'Combien de cartes avez-vous tiré aujourd\'hui ?' : 'How many cards did you draw today?'}
               </h2>
               <div className="grid gap-2">
                 {INTERPRET_SPREADS.map((spread) => (
                   <button
                     key={spread.id}
                     onClick={() => handleSelectSpread(spread.id)}
-                    className="flex items-center gap-3 p-3 bg-slate-800/60 border border-white/5 rounded-xl hover:border-purple-500/30 hover:bg-slate-800/80 transition-all text-left group"
+                    className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
+                    style={{
+                      background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+                      border: '1.5px solid #C9A84C',
+                      boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#E8C96A';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(201, 168, 76, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#C9A84C';
+                      e.currentTarget.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5)';
+                    }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-base font-bold group-hover:bg-purple-500/20 transition-colors">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-[#1A0A2E] text-base font-bold flex-shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, #C9A84C, #E8C96A)',
+                        boxShadow: '0 2px 8px rgba(201, 168, 76, 0.4)',
+                      }}
+                    >
                       {spread.count}
                     </div>
                     <div className="flex-1">
@@ -404,7 +431,7 @@ const InterpretMyCards: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-1 text-sm">
                       {isFirstFree ? (
-                        <span className="text-green-400 font-medium">
+                        <span className="text-[#C9A84C] font-semibold">
                           {language === 'fr' ? 'Gratuit' : 'Free'}
                         </span>
                       ) : (

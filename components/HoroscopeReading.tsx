@@ -653,9 +653,9 @@ const HoroscopeReading: React.FC = () => {
       >
         <Link
           to={ROUTES.DAILY_TAROT}
-          className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5"
+          className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 max-w-[600px] mx-auto"
           style={{
-            background: 'linear-gradient(135deg, #C9A84C, #E8C96A)',
+            background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8C96A)',
             boxShadow: '0 4px 20px rgba(201, 168, 76, 0.35)',
           }}
         >

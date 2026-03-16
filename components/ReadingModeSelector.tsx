@@ -109,30 +109,34 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         {/* Horoscope Card */}
         <motion.div
           variants={cardVariants}
-          onClick={() => onSelect('horoscope')}
-          className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
-            boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
-          }}
+          className="group relative"
         >
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
-            <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
-            <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+          <div
+            onClick={() => onSelect('horoscope')}
+            className="relative px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+            }}
+          >
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+            <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
+            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+              <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
+              <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+            </div>
+            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Sparkles className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+            </div>
+            <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
+              {t('reading.daily_horoscope', 'Daily Horoscope')}
+            </h3>
+            <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
+              {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
+            </p>
           </div>
-          <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <Sparkles className="w-5 h-5 text-white" />
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
-          </div>
-          <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
-            {t('reading.daily_horoscope', 'Daily Horoscope')}
-          </h3>
-          <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
-            {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
-          </p>
         </motion.div>
       </motion.div>
 
@@ -147,7 +151,6 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           style={{
             background: 'linear-gradient(135deg, #2A1245, #4A2570)',
             border: '1.5px solid #C9A84C',
-            borderLeft: '4px solid #C9A84C',
             boxShadow: '0 4px 20px rgba(201, 168, 76, 0.15)',
           }}
         >

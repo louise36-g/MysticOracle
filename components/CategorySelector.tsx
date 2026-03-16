@@ -718,7 +718,17 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 px-6 md:px-12"
           >
-            {CATEGORIES.map((category, index) => (
+            {(() => {
+              // Reorder: Love first (top-left), General second (top-centre), then rest
+              const orderedCategories = [
+                CATEGORIES.find(c => c.id === 'love')!,
+                CATEGORIES.find(c => c.id === 'general')!,
+                ...CATEGORIES.filter(c => c.id !== 'love' && c.id !== 'general'),
+              ];
+              return orderedCategories;
+            })().map((category, index) => {
+              const isGeneral = category.id === 'general';
+              return (
               <motion.div
                 key={category.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -733,8 +743,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   onClick={() => handleCategoryClick(category.id)}
                   className="group w-full relative overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-md"
                   style={{
-                    background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+                    background: isGeneral
+                      ? 'linear-gradient(135deg, #4A2570, #6B3A9E)'
+                      : 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                     border: `1.5px solid ${unifiedTheme.border}`,
+                    borderLeft: isGeneral ? '4px solid #C9A84C' : undefined,
                     boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
                   }}
                   whileHover={{
@@ -794,7 +807,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
 
                   {/* Content */}
-                  <div className="relative px-3 py-3 flex items-center gap-2.5">
+                  <div className={`relative px-3 flex items-center gap-2.5 ${isGeneral ? 'py-[15px]' : 'py-3'}`}>
                     {/* Icon/Symbol container */}
                     <div className="relative flex-shrink-0">
                       <div
@@ -815,17 +828,25 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
                     {/* Text content */}
                     <div className="flex-1 min-w-0">
+                      {isGeneral && (
+                        <span className="text-[10px] font-heading font-semibold tracking-[0.15em] uppercase text-[#C9A84C] mb-0.5 block">
+                          {language === 'en' ? 'Start Here' : 'Commencez ici'}
+                        </span>
+                      )}
                       <h3 className="font-heading text-sm text-white group-hover:text-white transition-colors mb-0.5">
                         {getLabel(category)}
                       </h3>
                       <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">
-                        {getTagline(category)}
+                        {isGeneral
+                          ? (language === 'en' ? 'Not sure where to start? Begin here.' : 'Vous ne savez pas par où commencer ? C\'est ici.')
+                          : getTagline(category)}
                       </p>
                     </div>
                   </div>
                 </motion.button>
               </motion.div>
-            ))}
+            );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
