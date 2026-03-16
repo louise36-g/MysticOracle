@@ -250,51 +250,41 @@ const HomePage: React.FC = () => {
             </Link>
           </div>
 
-          {/* Feature cards - horizontal compact layout */}
-          <div className="grid md:grid-cols-3 gap-4 mt-10">
+          {/* Trust indicators */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 mt-12 mb-16"
+          >
             {[
               {
                 icon: Star,
                 title: language === 'en' ? 'Intuitive Wisdom' : 'Sagesse Intuitive',
                 description: language === 'en' ? 'Readings that speak to your soul' : 'Des tirages qui parlent à votre âme',
-                gradient: 'from-violet-500 to-purple-600',
               },
               {
                 icon: Shield,
                 title: language === 'en' ? 'Sacred Space' : 'Espace Sacré',
                 description: language === 'en' ? 'Your journey remains yours alone' : 'Votre voyage vous appartient',
-                gradient: 'from-emerald-500 to-teal-600',
               },
               {
                 icon: Zap,
                 title: language === 'en' ? 'Celestial Guidance' : 'Guidance Céleste',
                 description: language === 'en' ? 'Clarity when you need it most' : 'La clarté quand vous en avez besoin',
-                gradient: 'from-amber-500 to-orange-600',
               }
             ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                className="group relative bg-slate-900/40 p-4 rounded-xl border border-white/5 backdrop-blur-sm hover:border-purple-500/20 transition-all duration-300"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${feature.gradient} rounded-lg flex items-center justify-center shadow-lg flex-shrink-0`}>
-                    <feature.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-heading text-purple-100 mb-0.5">
-                      {feature.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-tight truncate">
-                      {feature.description}
-                    </p>
-                  </div>
+              <div key={index} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                  <feature.icon className="w-4 h-4 text-amber-400/80" />
                 </div>
-              </motion.div>
+                <div>
+                  <p className="text-sm font-medium text-purple-200">{feature.title}</p>
+                  <p className="text-xs text-slate-400">{feature.description}</p>
+                </div>
+              </div>
             ))}
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </div>
