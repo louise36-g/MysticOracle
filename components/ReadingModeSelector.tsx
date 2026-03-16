@@ -44,38 +44,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto"
+        className="grid grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto items-center"
       >
-        {/* Tarot Reading Card */}
-        <motion.div variants={cardVariants}>
-          <Link
-            to={ROUTES.READING}
-            className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
-            style={{
-              background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
-              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
-            }}
-          >
-            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-            <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
-              <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
-              <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-            </div>
-            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Layers className="w-5 h-5 text-white" />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
-            </div>
-            <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
-              {t('reading.tarot_reading', 'Tarot Reading')}
-            </h3>
-            <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
-              {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
-            </p>
-          </Link>
-        </motion.div>
-
         {/* Daily Tarot Energy Card */}
         <motion.div variants={cardVariants}>
           <Link
@@ -102,6 +72,36 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             </h3>
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_energy_desc', 'Free daily Major Arcana draw.')}
+            </p>
+          </Link>
+        </motion.div>
+
+        {/* Tarot Reading Card — centre, taller, brighter */}
+        <motion.div variants={cardVariants}>
+          <Link
+            to={ROUTES.READING}
+            className="group relative h-full px-4 py-5 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            style={{
+              background: 'linear-gradient(135deg, #4A2570, #6B3A9E)',
+              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+            }}
+          >
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+            <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
+            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+              <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
+              <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+            </div>
+            <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Layers className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
+            </div>
+            <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
+              {t('reading.tarot_reading', 'Tarot Reading')}
+            </h3>
+            <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
+              {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
             </p>
           </Link>
         </motion.div>
