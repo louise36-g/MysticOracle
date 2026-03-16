@@ -36,6 +36,7 @@ vi.mock('../../services/TaxonomyService.js', () => ({
     deleteTag: vi.fn(),
     getTagById: vi.fn(),
     isTagSlugAvailable: vi.fn(),
+    invalidateAll: vi.fn(),
   },
 }));
 
@@ -63,6 +64,7 @@ const mockedService = taxonomyService as unknown as {
   deleteTag: Mock;
   getTagById: Mock;
   isTagSlugAvailable: Mock;
+  invalidateAll: Mock;
 };
 
 // Build the Express app under test
@@ -344,14 +346,15 @@ describe('Taxonomy Routes', () => {
       expect(mockedService.deleteCategory).toHaveBeenCalledWith('cat-1');
     });
 
-    it('returns 404 when the category does not exist', async () => {
+    it('returns success (idempotent) when the category does not exist', async () => {
       mockedService.getCategoryById.mockResolvedValue(null);
 
       const res = await request(app).delete('/categories/nonexistent');
 
-      expect(res.status).toBe(404);
-      expect(res.body.error).toMatch(/not found/i);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
       expect(mockedService.deleteCategory).not.toHaveBeenCalled();
+      expect(mockedService.invalidateAll).toHaveBeenCalled();
     });
 
     it('returns 400 when the category is used by one or more blog posts', async () => {
@@ -597,14 +600,15 @@ describe('Taxonomy Routes', () => {
       expect(mockedService.deleteTag).toHaveBeenCalledWith('tag-1');
     });
 
-    it('returns 404 when the tag does not exist', async () => {
+    it('returns success (idempotent) when the tag does not exist', async () => {
       mockedService.getTagById.mockResolvedValue(null);
 
       const res = await request(app).delete('/tags/nonexistent');
 
-      expect(res.status).toBe(404);
-      expect(res.body.error).toMatch(/not found/i);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
       expect(mockedService.deleteTag).not.toHaveBeenCalled();
+      expect(mockedService.invalidateAll).toHaveBeenCalled();
     });
 
     it('returns 400 when the tag is used by one or more blog posts', async () => {

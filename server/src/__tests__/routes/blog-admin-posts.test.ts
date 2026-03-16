@@ -67,6 +67,19 @@ vi.mock('../../utils/urlReplacer.js', () => ({
   })),
 }));
 
+// Mock TaxonomyService
+vi.mock('../../services/TaxonomyService.js', () => ({
+  taxonomyService: {
+    invalidateAll: vi.fn(),
+    getCategorySlugsWithChildren: vi.fn((slug: string) => [slug]),
+  },
+}));
+
+// Mock IndexNow service
+vi.mock('../../services/indexNowService.js', () => ({
+  notifyBlogPost: vi.fn(),
+}));
+
 // Import after mocks
 import postsRouter from '../../routes/blog/posts.js';
 import prisma from '../../db/prisma.js';
