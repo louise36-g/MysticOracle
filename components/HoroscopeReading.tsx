@@ -761,17 +761,15 @@ const HoroscopeReading: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Zodiac symbol */}
+                {/* Zodiac illustration */}
                 <div className="relative flex-shrink-0">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
-                  >
-                    <span className="text-2xl text-white">
-                      {zodiac.symbol}
-                    </span>
-                  </div>
+                  <img
+                    src={`/zodiac/${zodiac.en}.png`}
+                    alt={zodiac.en}
+                    className="w-14 h-14 rounded-full object-cover group-hover:scale-110 transition-all duration-300 shadow-lg"
+                  />
                   {/* Glow behind symbol */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-full bg-purple-500 opacity-40 blur-md -z-10 group-hover:opacity-70 transition-opacity duration-300" />
                 </div>
               </div>
 
