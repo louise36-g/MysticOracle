@@ -34,8 +34,8 @@ const unifiedTheme = {
   accent: '#a78bfa',      // Purple-400
   glow: '#8b5cf6',        // Purple-500
   ambient: '#c4b5fd',     // Purple-300
-  border: '#f59e0b',      // Amber-500
-  borderHover: '#fbbf24', // Amber-400
+  border: '#C9A84C',      // Gold primary
+  borderHover: '#E8C96A', // Gold light
 };
 
 // For backwards compatibility
@@ -653,19 +653,23 @@ const HoroscopeReading: React.FC = () => {
       >
         <Link
           to={ROUTES.DAILY_TAROT}
-          className="group relative block rounded-2xl overflow-hidden backdrop-blur-sm px-6 py-5 bg-gradient-to-r from-violet-600/15 via-purple-600/10 to-violet-600/15 border border-amber-500/30 hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10"
+          className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5"
+          style={{
+            background: 'linear-gradient(135deg, #C9A84C, #E8C96A)',
+            boxShadow: '0 4px 20px rgba(201, 168, 76, 0.35)',
+          }}
         >
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                <Sun className="w-5 h-5 text-amber-300" />
+              <div className="w-10 h-10 rounded-xl bg-[#1A0A2E] flex items-center justify-center shadow-lg flex-shrink-0">
+                <Sun className="w-5 h-5 text-[#C9A84C]" />
               </div>
               <div>
-                <h3 className="text-sm md:text-base font-heading text-amber-200/90 mb-0.5">
+                <h3 className="text-sm md:text-base font-heading text-[#1A0A2E] mb-0.5">
                   {language === 'fr' ? 'Énergie Collective du Jour' : "Today's Collective Energy"}
                 </h3>
-                <p className="text-xs md:text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
+                <p className="text-xs md:text-sm text-[#1A0A2E]/70">
                   {language === 'fr'
                     ? 'Tirez une carte des Arcanes Majeurs pour découvrir le thème du jour'
                     : 'Draw a Major Arcana card to discover today\'s theme'
@@ -673,7 +677,7 @@ const HoroscopeReading: React.FC = () => {
                 </p>
               </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-purple-400/60 group-hover:text-amber-300 group-hover:translate-x-1 transition-all flex-shrink-0" />
+            <ArrowRight className="w-5 h-5 text-[#1A0A2E] group-hover:translate-x-1 transition-all flex-shrink-0" />
           </div>
         </Link>
       </motion.div>
@@ -700,16 +704,11 @@ const HoroscopeReading: React.FC = () => {
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               onClick={() => handleSignSelect(signName, index)}
-              className="group relative py-4 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25"
+              className="group relative py-4 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
               style={{
-                borderWidth: 2,
-                borderStyle: 'solid',
-                borderColor: `${unifiedTheme.border}66`,
-                boxShadow: `
-                  0 8px 25px rgba(0,0,0,0.3),
-                  0 0 15px ${unifiedTheme.glow}25,
-                  0 0 30px ${unifiedTheme.glow}10
-                `,
+                background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+                border: `1.5px solid ${unifiedTheme.border}`,
+                boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
               }}
               whileHover={{
                 scale: 1.05,
@@ -720,24 +719,14 @@ const HoroscopeReading: React.FC = () => {
                 const el = e.target as HTMLElement;
                 if (el?.style) {
                   el.style.borderColor = unifiedTheme.borderHover;
-                  el.style.boxShadow = `
-                    0 25px 50px rgba(0,0,0,0.5),
-                    0 0 20px ${unifiedTheme.glow}50,
-                    0 0 40px ${unifiedTheme.border}35,
-                    0 0 80px ${unifiedTheme.glow}20,
-                    inset 0 0 30px ${unifiedTheme.glow}15
-                  `;
+                  el.style.boxShadow = '0 4px 16px rgba(91, 45, 158, 0.6), inset 0 0 25px rgba(201, 168, 76, 0.12)';
                 }
               }}
               onHoverEnd={(e) => {
                 const el = e.target as HTMLElement;
                 if (el?.style) {
-                  el.style.borderColor = `${unifiedTheme.border}66`;
-                  el.style.boxShadow = `
-                    0 8px 25px rgba(0,0,0,0.3),
-                    0 0 15px ${unifiedTheme.glow}25,
-                    0 0 30px ${unifiedTheme.glow}10
-                  `;
+                  el.style.borderColor = unifiedTheme.border;
+                  el.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)';
                 }
               }}
             >

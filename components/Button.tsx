@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({
     secondary: "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-bold shadow-lg shadow-amber-900/50 hover:shadow-amber-500/40 hover:shadow-xl hover:-translate-y-0.5",
     outline: "border-2 border-purple-500/50 text-purple-200 hover:bg-purple-900/30 hover:border-purple-400 hover:text-white backdrop-blur-sm",
     ghost: "text-purple-300 hover:text-white hover:bg-white/10",
-    mystical: "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-500 hover:via-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-900/60 border border-purple-300/30 hover:shadow-purple-500/50 hover:shadow-2xl hover:-translate-y-1",
+    mystical: "bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] hover:from-[#D4B55C] hover:to-[#F0D47A] text-[#1A0A2E] font-bold shadow-[0_4px_15px_rgba(201,168,76,0.4)] border-none hover:shadow-[0_6px_20px_rgba(201,168,76,0.5)] hover:-translate-y-0.5",
   };
 
   const sizes = {

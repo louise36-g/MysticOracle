@@ -50,7 +50,11 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
+            className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            style={{
+              background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+            }}
           >
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
@@ -63,10 +67,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               <Layers className="w-5 h-5 text-white" />
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
-            <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+            <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
               {t('reading.tarot_reading', 'Tarot Reading')}
             </h3>
-            <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
+            <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
             </p>
           </Link>
@@ -76,7 +80,11 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.DAILY_TAROT}
-            className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden block"
+            className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            style={{
+              background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+            }}
           >
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
@@ -89,10 +97,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               <Sun className="w-5 h-5 text-white" />
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
             </div>
-            <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+            <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
               {t('reading.daily_energy', 'Daily Energy')}
             </h3>
-            <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
+            <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_energy_desc', 'Free daily Major Arcana draw.')}
             </p>
           </Link>
@@ -102,7 +110,11 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div
           variants={cardVariants}
           onClick={() => onSelect('horoscope')}
-          className="group relative h-full bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 px-4 py-3 rounded-xl border-2 border-amber-500/40 text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
+          className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+            boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+          }}
         >
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
           <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
@@ -115,10 +127,10 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <Sparkles className="w-5 h-5 text-white" />
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />
           </div>
-          <h3 className="text-base md:text-lg font-heading text-white mb-0.5 group-hover:text-purple-100 transition-colors">
+          <h3 className="text-base md:text-lg font-heading text-[#F5E6C8] mb-0.5 group-hover:text-white transition-colors">
             {t('reading.daily_horoscope', 'Daily Horoscope')}
           </h3>
-          <p className="text-slate-400 text-xs md:text-sm leading-snug group-hover:text-slate-300 transition-colors">
+          <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
             {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
           </p>
         </motion.div>
@@ -131,7 +143,13 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
       >
         <Link
           to={ROUTES.INTERPRET}
-          className="group relative block bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 rounded-xl border-2 border-amber-500/40 backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:border-amber-400/60 hover:shadow-amber-500/20 overflow-hidden"
+          className="group relative block rounded-xl backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #2A1245, #4A2570)',
+            border: '1.5px solid #C9A84C',
+            borderLeft: '4px solid #C9A84C',
+            boxShadow: '0 4px 20px rgba(201, 168, 76, 0.15)',
+          }}
         >
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
           <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/50 via-purple-500/50 to-fuchsia-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />

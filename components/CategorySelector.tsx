@@ -36,8 +36,8 @@ const unifiedTheme = {
   accent: '#a78bfa',      // Purple-400
   glow: '#8b5cf6',        // Purple-500
   ambient: '#c4b5fd',     // Purple-300
-  border: '#f59e0b',      // Amber-500
-  borderHover: '#fbbf24', // Amber-400
+  border: '#C9A84C',      // Gold primary
+  borderHover: '#E8C96A', // Gold light
 };
 
 // Unified ambient pattern for expanded view - subtle mystical stars
@@ -376,9 +376,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               />
 
               <div
-                className="relative overflow-hidden rounded-3xl border-2 backdrop-blur-xl bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25 mx-4 md:mx-8 mb-8"
+                className="relative overflow-hidden rounded-3xl backdrop-blur-xl mx-4 md:mx-8 mb-8"
                 style={{
-                  borderColor: `${unifiedTheme.border}66`,
+                  background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+                  border: `1.5px solid ${unifiedTheme.border}`,
                   boxShadow: `
                     0 25px 60px rgba(0,0,0,0.4),
                     0 0 20px ${unifiedTheme.glow}30,
@@ -728,14 +729,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
               >
                 <motion.button
                   onClick={() => handleCategoryClick(category.id)}
-                  className="group w-full relative overflow-hidden rounded-2xl border-2 transition-all duration-300 backdrop-blur-md bg-gradient-to-br from-violet-600/25 via-purple-600/20 to-fuchsia-600/25"
+                  className="group w-full relative overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-md"
                   style={{
-                    borderColor: `${unifiedTheme.border}66`,
-                    boxShadow: `
-                      0 8px 25px rgba(0,0,0,0.3),
-                      0 0 15px ${unifiedTheme.glow}25,
-                      0 0 30px ${unifiedTheme.glow}10
-                    `,
+                    background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
+                    border: `1.5px solid ${unifiedTheme.border}`,
+                    boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
                   }}
                   whileHover={{
                     scale: 1.05,
@@ -746,24 +744,14 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                     const el = e.target as HTMLElement | null;
                     if (el?.style) {
                       el.style.borderColor = unifiedTheme.borderHover;
-                      el.style.boxShadow = `
-                        0 25px 50px rgba(0,0,0,0.5),
-                        0 0 20px ${unifiedTheme.glow}50,
-                        0 0 40px ${unifiedTheme.border}35,
-                        0 0 80px ${unifiedTheme.glow}20,
-                        inset 0 0 30px ${unifiedTheme.glow}15
-                      `;
+                      el.style.boxShadow = '0 4px 16px rgba(91, 45, 158, 0.6), inset 0 0 25px rgba(201, 168, 76, 0.12)';
                     }
                   }}
                   onHoverEnd={(e, info) => {
                     const el = e.target as HTMLElement | null;
                     if (el?.style) {
-                      el.style.borderColor = `${unifiedTheme.border}66`;
-                      el.style.boxShadow = `
-                        0 8px 25px rgba(0,0,0,0.3),
-                        0 0 15px ${unifiedTheme.glow}25,
-                        0 0 30px ${unifiedTheme.glow}10
-                      `;
+                      el.style.borderColor = unifiedTheme.border;
+                      el.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)';
                     }
                   }}
                 >
