@@ -15,7 +15,6 @@ import {
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
-import { taxonomyService } from '../../services/TaxonomyService.js';
 
 const router = Router();
 
@@ -91,9 +90,7 @@ router.get(
     };
 
     if (filters.category) {
-      // Include posts from child categories when filtering by a parent
-      const slugs = await taxonomyService.getCategorySlugsWithChildren(filters.category);
-      where.categories = { some: { category: { slug: { in: slugs } } } };
+      where.categories = { some: { category: { slug: filters.category } } };
     }
     if (filters.tag) {
       where.tags = { some: { tag: { slug: filters.tag } } };
@@ -282,14 +279,12 @@ router.get(
       }
     }
 
-    // Attach children and calculate total post counts (own + children)
+    // Attach children (parent postCount stays its own, not aggregated)
     const response = {
       categories: roots.map(root => {
         const children = childrenByParent.get(root.id) || [];
-        const childPostCount = children.reduce((sum, c) => sum + c.postCount, 0);
         return {
           ...root,
-          postCount: root.postCount + childPostCount,
           children: children.map(c => ({
             ...c,
             children: undefined, // no deeper nesting
