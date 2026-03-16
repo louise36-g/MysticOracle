@@ -133,12 +133,12 @@ export function RootLayout() {
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 80% 50% at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 60% at 75% 15%, rgba(124, 58, 237, 0.2) 0%, transparent 55%),
-            radial-gradient(ellipse 90% 40% at 50% 80%, rgba(67, 20, 110, 0.3) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 70% at 85% 60%, rgba(109, 40, 217, 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse 70% 50% at 10% 70%, rgba(76, 29, 149, 0.25) 0%, transparent 55%),
-            radial-gradient(ellipse 120% 80% at 50% 50%, rgba(49, 10, 101, 0.4) 0%, transparent 70%),
+            radial-gradient(ellipse 80% 50% at 20% 20%, rgba(88, 28, 135, 0.55) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 60% at 75% 15%, rgba(124, 58, 237, 0.35) 0%, transparent 55%),
+            radial-gradient(ellipse 90% 40% at 50% 80%, rgba(67, 20, 110, 0.45) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 70% at 85% 60%, rgba(109, 40, 217, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse 70% 50% at 10% 70%, rgba(76, 29, 149, 0.4) 0%, transparent 55%),
+            radial-gradient(ellipse 120% 80% at 50% 50%, rgba(49, 10, 101, 0.5) 0%, transparent 70%),
             linear-gradient(to bottom, #0f0c29 0%, #1a0e3a 40%, #160d33 70%, #120a2e 100%)
           `,
         }}

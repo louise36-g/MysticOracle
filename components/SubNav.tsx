@@ -196,9 +196,9 @@ const SubNav: React.FC = () => {
     </motion.div>
   );
 
-  const isTarotActive = isActive('/reading') || isActive('/tarot');
+  const isTarotActive = isActive('/reading');
   const isHoroscopeActive = isActive('/horoscopes');
-  const isLearnActive = isActive('/blog') || isActive('/faq') || isActive('/how-credits-work') || isActive('/about') || location.pathname.startsWith('/tarot/cards');
+  const isLearnActive = isActive('/blog') || isActive('/faq') || isActive('/how-credits-work') || isActive('/about') || isActive('/tarot');
 
   return (
     <nav className="hidden md:block bg-slate-900/60 backdrop-blur-md border-b border-white/5 relative z-40">

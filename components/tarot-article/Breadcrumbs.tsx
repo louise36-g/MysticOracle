@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ROUTES, buildRoute } from '../../routes/routes';
+import { useApp } from '../../context/AppContext';
 
 interface BreadcrumbsProps {
   category: string;
@@ -8,9 +9,10 @@ interface BreadcrumbsProps {
 
 /**
  * Breadcrumb navigation component
- * Shows: Home / Category / Card Name
+ * Shows: Home / The Arcanas / Category / Card Name
  */
 export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
+  const { t } = useApp();
   const cardName = title.split(':')[0].trim();
   const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
   const categoryUrl = buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categorySlug });
@@ -24,6 +26,15 @@ export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
             className="hover:text-purple-400 transition-colors duration-200"
           >
             Home
+          </Link>
+        </li>
+        <li className="text-slate-600">/</li>
+        <li>
+          <Link
+            to={ROUTES.TAROT_CARDS}
+            className="hover:text-purple-400 transition-colors duration-200"
+          >
+            {t('tarot.breadcrumbs.arcanas', 'The Arcanas')}
           </Link>
         </li>
         <li className="text-slate-600">/</li>
