@@ -749,20 +749,9 @@ const HoroscopeReading: React.FC = () => {
               <CornerDecoration position="tl" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <CornerDecoration position="br" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-              {/* Content */}
-              <div className="relative flex items-center justify-between gap-3">
-                {/* Sign info */}
-                <div className="flex flex-col items-start min-w-0">
-                  <h3 className="text-lg md:text-xl font-heading font-semibold text-white group-hover:text-white transition-colors">
-                    {signName}
-                  </h3>
-                  <p className="text-xs md:text-sm text-white/50 group-hover:text-white/70 transition-colors">
-                    {dates}
-                  </p>
-                </div>
-
-                {/* Zodiac illustration */}
-                <div className="relative flex-shrink-0">
+              {/* Zodiac illustration — fixed top-right */}
+              <div className="absolute top-3 right-3 z-10">
+                <div className="relative">
                   <img
                     src={`/zodiac/${zodiac.en}.png`}
                     alt={zodiac.en}
@@ -774,6 +763,19 @@ const HoroscopeReading: React.FC = () => {
                     className="absolute inset-0 rounded-full opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300"
                     style={{ backgroundColor: ec.border }}
                   />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="relative pr-16">
+                {/* Sign info */}
+                <div className="flex flex-col items-start min-w-0">
+                  <h3 className="text-lg md:text-xl font-heading font-semibold text-white group-hover:text-white transition-colors">
+                    {signName}
+                  </h3>
+                  <p className="text-xs md:text-sm text-white/50 group-hover:text-white/70 transition-colors">
+                    {dates}
+                  </p>
                 </div>
               </div>
 
