@@ -1,37 +1,60 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useRef, useCallback, memo, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
-import { Menu, X, Shield, User, Coins, BookOpen, HelpCircle, CreditCard, Home, Sparkles, Plus, Mail, Hand } from 'lucide-react';
+import {
+  Menu, X, Shield, User, Coins, ChevronDown, Plus,
+  BookOpen, HelpCircle, CreditCard, Layers, Home,
+  Sparkles, Hand, Moon, Mail
+} from 'lucide-react';
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
 import CreditShop from './CreditShop';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface HeaderProps {
-  // Props no longer needed - navigation handled via React Router
+interface DropdownItem {
+  id: string;
+  labelEn: string;
+  labelFr: string;
+  descriptionEn?: string;
+  descriptionFr?: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  href: string;
 }
 
-const Header: React.FC<HeaderProps> = () => {
+const Header: React.FC = () => {
   const { user, language, setLanguage, t } = useApp();
   const { user: clerkUser, isSignedIn } = useUser();
   const { hasStartedReading, clearReading } = useReading();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showAuthToast, setShowAuthToast] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const authToastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
   const userCredits = user?.credits ?? 3;
   const isAdmin = user?.isAdmin || false;
 
+  useEffect(() => {
+    return () => {
+      if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
+  // --- Handlers ---
+
   const toggleLanguage = useCallback(() => {
-    const newLang = language === 'en' ? 'fr' : 'en';
-    setLanguage(newLang);
+    setLanguage(language === 'en' ? 'fr' : 'en');
   }, [language, setLanguage]);
 
   const toggleMobileMenu = useCallback(() => {
@@ -43,14 +66,11 @@ const Header: React.FC<HeaderProps> = () => {
   }, []);
 
   const handleMobileLanguage = useCallback(() => {
-    const newLang = language === 'en' ? 'fr' : 'en';
-    setLanguage(newLang);
+    setLanguage(language === 'en' ? 'fr' : 'en');
     setIsMobileMenuOpen(false);
   }, [language, setLanguage]);
 
-  // Handle "New Reading" with confirmation if mid-reading
   const handleNewReading = useCallback((e: React.MouseEvent) => {
-    // If on reading page with in-progress reading, confirm before reset
     if (location.pathname.startsWith('/reading') && hasStartedReading()) {
       e.preventDefault();
       const message = t('header.new_reading_confirm', 'Start a new reading? Current progress will be lost.');
@@ -59,74 +79,328 @@ const Header: React.FC<HeaderProps> = () => {
         navigate(ROUTES.READING);
       }
     }
-    // Otherwise let normal Link behavior happen
   }, [location.pathname, hasStartedReading, clearReading, navigate, language]);
 
-  // Helper to check if path is active
   const isActive = useCallback((path: string) => {
-    if (path === ROUTES.HOME) {
-      return location.pathname === '/';
-    }
+    if (path === ROUTES.HOME) return location.pathname === '/';
     return location.pathname.startsWith(path);
   }, [location.pathname]);
 
+  // --- Dropdown handlers ---
+
+  const handleMouseEnter = (name: string) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setOpenDropdown(name);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150);
+  };
+
+  const handleItemClick = () => {
+    setOpenDropdown(null);
+  };
+
+  const handleDropdownKeyDown = (name: string) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setOpenDropdown(name);
+      requestAnimationFrame(() => {
+        const dropdown = document.getElementById(`${name}-dropdown`);
+        const firstLink = dropdown?.querySelector<HTMLElement>('a');
+        firstLink?.focus();
+      });
+    }
+    if (e.key === 'Escape') {
+      setOpenDropdown(null);
+    }
+  };
+
+  const handleDropdownItemKeyDown = (name: string, index: number, total: number) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpenDropdown(null);
+      document.getElementById(`${name}-trigger`)?.focus();
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const dropdown = document.getElementById(`${name}-dropdown`);
+      const links = dropdown?.querySelectorAll<HTMLElement>('a');
+      if (links && index < total - 1) links[index + 1]?.focus();
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (index === 0) {
+        setOpenDropdown(null);
+        document.getElementById(`${name}-trigger`)?.focus();
+      } else {
+        const dropdown = document.getElementById(`${name}-dropdown`);
+        const links = dropdown?.querySelectorAll<HTMLElement>('a');
+        if (links) links[index - 1]?.focus();
+      }
+    }
+  };
+
+  // --- Learn dropdown items ---
+
+  const learnItems: DropdownItem[] = [
+    {
+      id: 'about',
+      labelEn: 'About Me',
+      labelFr: 'À Propos de Moi',
+      descriptionEn: 'My story',
+      descriptionFr: 'Mon histoire',
+      icon: <User className="w-4 h-4 text-pink-400" />,
+      iconBg: 'bg-pink-500/20',
+      href: ROUTES.ABOUT,
+    },
+    {
+      id: 'tarot-cards',
+      labelEn: 'The Arcanas',
+      labelFr: 'Les Arcanes',
+      descriptionEn: 'Explore all 78 cards',
+      descriptionFr: 'Explorez les 78 cartes',
+      icon: <Layers className="w-4 h-4 text-purple-400" />,
+      iconBg: 'bg-purple-500/20',
+      href: ROUTES.TAROT_CARDS,
+    },
+    {
+      id: 'blog',
+      labelEn: 'Blog',
+      labelFr: 'Blog',
+      descriptionEn: 'Articles & guides',
+      descriptionFr: 'Articles & guides',
+      icon: <BookOpen className="w-4 h-4 text-purple-400" />,
+      iconBg: 'bg-purple-500/20',
+      href: ROUTES.BLOG,
+    },
+    {
+      id: 'how-credits-work',
+      labelEn: 'How Credits Work',
+      labelFr: 'Comment fonctionnent les crédits',
+      descriptionEn: 'Pricing & packages',
+      descriptionFr: 'Tarifs & forfaits',
+      icon: <CreditCard className="w-4 h-4 text-amber-400" />,
+      iconBg: 'bg-amber-500/20',
+      href: ROUTES.HOW_CREDITS_WORK,
+    },
+    {
+      id: 'faq',
+      labelEn: 'Help & FAQ',
+      labelFr: 'Aide & FAQ',
+      descriptionEn: 'Get answers',
+      descriptionFr: 'Trouvez des réponses',
+      icon: <HelpCircle className="w-4 h-4 text-blue-400" />,
+      iconBg: 'bg-blue-500/20',
+      href: ROUTES.FAQ,
+    }
+  ];
+
+  const isLearnActive = isActive('/blog') || isActive('/faq') || isActive('/how-credits-work') || isActive('/about') || isActive('/tarot');
+
+  // --- Render helpers ---
+
+  const renderDropdown = (name: string, items: DropdownItem[]) => (
+    <motion.div
+      id={`${name}-dropdown`}
+      role="menu"
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      transition={{ duration: 0.15 }}
+      className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
+    >
+      <div className="p-2 max-h-[400px] overflow-y-auto">
+        {items.map((item, index) => (
+          <Link
+            key={item.id}
+            to={item.href}
+            role="menuitem"
+            onClick={handleItemClick}
+            onKeyDown={handleDropdownItemKeyDown(name, index, items.length)}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all hover:bg-white/5 hover:scale-[1.02] cursor-pointer"
+          >
+            <div className={`w-9 h-9 rounded-lg ${item.iconBg} flex items-center justify-center flex-shrink-0`}>
+              {item.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm text-slate-200">
+                {language === 'fr' ? item.labelFr : item.labelEn}
+              </span>
+              {(item.descriptionEn || item.descriptionFr) && (
+                <div className="text-xs text-slate-500 truncate">
+                  {language === 'fr' ? item.descriptionFr : item.descriptionEn}
+                </div>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  // Nav link style helper
+  const linkClass = (active: boolean) =>
+    `relative px-3 h-full flex items-center text-sm font-medium transition-colors ${
+      active ? 'text-white' : 'text-slate-400 hover:text-white'
+    }`;
+
+  const activeBar = <span className="absolute bottom-0 inset-x-2 h-0.5 bg-amber-400 rounded-full" />;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-purple-500/20 bg-[#0f0c29]/90 backdrop-blur-md" role="banner">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-14 flex items-center">
         {/* Logo */}
         <Link
           to={ROUTES.HOME}
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 flex-shrink-0"
           aria-label="CelestiArcana - Go to homepage"
         >
           <img
             src="/logos/celestiarcana-moon.webp"
             alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 object-cover"
+            width={36}
+            height={36}
+            className="h-9 w-9 object-cover"
             aria-hidden="true"
           />
-          <span className="text-xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
+          <span className="text-lg font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             CelestiArcana
           </span>
         </Link>
 
-        {/* Desktop Nav - Simplified */}
-        <nav className="hidden md:flex items-center gap-3" role="navigation" aria-label="Main navigation">
-          {isSignedIn && (
-            <>
+        {/* Desktop Nav Links — text only, no icons */}
+        <nav className="hidden lg:flex items-center justify-center flex-1 h-full gap-0.5 mx-4" role="navigation" aria-label="Main navigation">
+          <Link to={ROUTES.HOME} className={linkClass(isActive(ROUTES.HOME))}>
+            {language === 'fr' ? 'Accueil' : 'Home'}
+            {isActive(ROUTES.HOME) && activeBar}
+          </Link>
+
+          <Link
+            to={ROUTES.READING}
+            onClick={handleNewReading}
+            className={linkClass(isActive('/reading'))}
+          >
+            {language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}
+            {isActive('/reading') && activeBar}
+          </Link>
+
+          {/* My Cards — auth-gated */}
+          {isSignedIn ? (
+            <Link to={ROUTES.INTERPRET} className={linkClass(isActive('/interpret'))}>
+              {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
+              {isActive('/interpret') && activeBar}
+            </Link>
+          ) : (
+            <div className="relative h-full">
               <button
-                onClick={() => setShowCreditShop(true)}
-                data-credit-counter
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
+                onClick={() => {
+                  setShowAuthToast(true);
+                  if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
+                  authToastTimeoutRef.current = setTimeout(() => setShowAuthToast(false), 4000);
+                }}
+                className={`${linkClass(false)} cursor-pointer`}
               >
-                <Coins className="w-4 h-4 text-amber-400" />
-                <span className="text-sm font-bold text-purple-100">{userCredits}</span>
+                {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
               </button>
-              <button
-                onClick={() => setShowCreditShop(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/50 hover:border-purple-400 hover:bg-purple-900/30 transition-colors text-purple-200 hover:text-white text-sm"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{t('header.buy_credits', 'Buy Credits')}</span>
-              </button>
-            </>
+              <AnimatePresence>
+                {showAuthToast && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl p-3 text-center z-[100]"
+                  >
+                    <p className="text-sm text-slate-300 mb-2">
+                      {language === 'fr'
+                        ? 'Pour interpréter vos cartes, veuillez vous connecter.'
+                        : 'To interpret your cards, please sign in.'}
+                    </p>
+                    <Link
+                      to={ROUTES.SIGN_IN}
+                      onClick={() => setShowAuthToast(false)}
+                      className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                    >
+                      {language === 'fr' ? 'Se connecter' : 'Sign in'}
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
+
+          <Link to={ROUTES.HOROSCOPES} className={linkClass(isActive('/horoscopes'))}>
+            Horoscopes
+            {isActive('/horoscopes') && activeBar}
+          </Link>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-white/10 mx-1" />
+
+          {/* Learn Dropdown */}
+          <div
+            className="relative h-full"
+            onMouseEnter={() => handleMouseEnter('learn')}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              id="learn-trigger"
+              aria-expanded={openDropdown === 'learn'}
+              aria-controls="learn-dropdown"
+              aria-haspopup="true"
+              onKeyDown={handleDropdownKeyDown('learn')}
+              className={`relative px-3 h-full flex items-center gap-1 text-sm font-medium transition-colors cursor-pointer ${
+                isLearnActive || openDropdown === 'learn' ? 'text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {language === 'fr' ? 'Apprendre' : 'Learn'}
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
+              {isLearnActive && activeBar}
+            </button>
+            <AnimatePresence>
+              {openDropdown === 'learn' && renderDropdown('learn', learnItems)}
+            </AnimatePresence>
+          </div>
+
+          <Link to={ROUTES.CONTACT} className={linkClass(isActive('/contact'))}>
+            Contact
+            {isActive('/contact') && activeBar}
+          </Link>
+        </nav>
+
+        {/* Desktop Utility Items */}
+        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+          <SignedIn>
+            <button
+              onClick={() => setShowCreditShop(true)}
+              data-credit-counter
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/30 hover:bg-purple-800/40 hover:border-purple-400/50 transition-colors cursor-pointer"
+            >
+              <Coins className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-sm font-bold text-purple-100">{userCredits}</span>
+            </button>
+          </SignedIn>
 
           {isAdmin && (
             <Link
               to={ROUTES.ADMIN}
-              className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
+              className={`text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
+                isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
             >
-              <Shield className="w-4 h-4" />
               Admin
             </Link>
           )}
 
           <button
             onClick={toggleLanguage}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-300 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 transition-colors"
             aria-label={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english', 'Switch to English')}
             title={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english_fr', 'Passer en anglais')}
           >
@@ -141,28 +415,19 @@ const Header: React.FC<HeaderProps> = () => {
             </Link>
           </SignedOut>
           <SignedIn>
-            <div className="flex items-center gap-3">
-              <Link
-                to={ROUTES.PROFILE}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${isActive(ROUTES.PROFILE) ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
-              >
-                <User className="w-4 h-4" />
-                <span className="text-sm hidden lg:inline">{displayName}</span>
-              </Link>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-8 h-8'
-                  }
-                }}
-              />
-            </div>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8'
+                }
+              }}
+            />
           </SignedIn>
-        </nav>
+        </div>
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300"
+          className="lg:hidden ml-auto p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300"
           onClick={toggleMobileMenu}
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-menu"
@@ -180,7 +445,7 @@ const Header: React.FC<HeaderProps> = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0f0c29] border-b border-purple-500/20 overflow-hidden"
+            className="lg:hidden bg-[#0f0c29] border-b border-purple-500/20 overflow-hidden"
             role="navigation"
             aria-label="Mobile navigation"
           >
@@ -219,7 +484,7 @@ const Header: React.FC<HeaderProps> = () => {
               <Link
                 to={ROUTES.READING}
                 onClick={(e) => { handleNewReading(e); closeMobileMenu(); }}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.READING) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/reading') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Sparkles className="w-5 h-5" />
                 {t('header.new_reading', 'New Reading')}
@@ -228,10 +493,19 @@ const Header: React.FC<HeaderProps> = () => {
               <Link
                 to={ROUTES.INTERPRET}
                 onClick={closeMobileMenu}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.INTERPRET) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/interpret') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Hand className="w-5 h-5" />
                 {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
+              </Link>
+
+              <Link
+                to={ROUTES.HOROSCOPES}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/horoscopes') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                <Moon className="w-5 h-5" />
+                Horoscopes
               </Link>
 
               <Link
@@ -264,7 +538,7 @@ const Header: React.FC<HeaderProps> = () => {
               <Link
                 to={ROUTES.CONTACT}
                 onClick={closeMobileMenu}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.CONTACT) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/contact') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Mail className="w-5 h-5" />
                 Contact

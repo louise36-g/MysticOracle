@@ -2,7 +2,6 @@ import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
-import SubNav from '../SubNav';
 import Footer from '../Footer';
 import CookieConsent from '../CookieConsent';
 const WelcomeModal = lazy(() => import('../WelcomeModal'));
@@ -155,7 +154,6 @@ export function RootLayout() {
       </a>
 
       <Header />
-      <SubNav />
       <main id="main-content" className="relative z-10 flex-grow">
         <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
