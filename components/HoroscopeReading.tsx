@@ -768,8 +768,11 @@ const HoroscopeReading: React.FC = () => {
                     alt={zodiac.en}
                     className="w-14 h-14 rounded-full object-cover group-hover:scale-110 transition-all duration-300 shadow-lg"
                   />
-                  {/* Glow behind symbol */}
-                  <div className="absolute inset-0 rounded-full bg-purple-500 opacity-40 blur-md -z-10 group-hover:opacity-70 transition-opacity duration-300" />
+                  {/* Element-coloured glow behind symbol */}
+                  <div
+                    className="absolute inset-0 rounded-full opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity duration-300"
+                    style={{ backgroundColor: ec.border }}
+                  />
                 </div>
               </div>
 
