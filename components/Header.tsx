@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = () => {
   }, [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-purple-500/20 bg-[#28174e]/95 backdrop-blur-md" role="banner">
+    <header className="sticky top-0 z-50 w-full border-b border-purple-500/20 bg-[#0f0c29]/90 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#28174e] border-b border-purple-500/20 overflow-hidden"
+            className="md:hidden bg-[#0f0c29] border-b border-purple-500/20 overflow-hidden"
             role="navigation"
             aria-label="Mobile navigation"
           >

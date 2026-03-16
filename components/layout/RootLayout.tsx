@@ -139,7 +139,7 @@ export function RootLayout() {
             radial-gradient(ellipse 50% 70% at 85% 60%, rgba(109, 40, 217, 0.15) 0%, transparent 50%),
             radial-gradient(ellipse 70% 50% at 10% 70%, rgba(76, 29, 149, 0.25) 0%, transparent 55%),
             radial-gradient(ellipse 120% 80% at 50% 50%, rgba(49, 10, 101, 0.4) 0%, transparent 70%),
-            linear-gradient(to bottom, #0f0c29 0%, #1a0e3a 40%, #130b2e 70%, #0d0a23 100%)
+            linear-gradient(to bottom, #0f0c29 0%, #1a0e3a 40%, #160d33 70%, #120a2e 100%)
           `,
         }}
       />

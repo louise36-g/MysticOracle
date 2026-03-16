@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative z-10 border-t border-purple-500/20 bg-[#28174e]/95 backdrop-blur-md mt-auto">
+    <footer className="relative z-10 border-t border-purple-500/20 bg-[#0f0c29]/90 backdrop-blur-md mt-auto">
       <div className="container mx-auto px-4 py-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           {/* Copyright */}
