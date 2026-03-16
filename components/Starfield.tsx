@@ -25,24 +25,26 @@ interface Star {
   warmth: number;
 }
 
-const STAR_COUNT = 280;
+const STAR_COUNT = 500;
 /** Stars fully visible until this scroll px, then fade until FADE_END */
-const FADE_START = 200;
-const FADE_END = 1200;
+const FADE_START = 300;
+const FADE_END = 1400;
 
 function createStars(width: number, height: number): Star[] {
   const stars: Star[] = [];
   for (let i = 0; i < STAR_COUNT; i++) {
-    const size = Math.random();
+    const roll = Math.random();
     stars.push({
       x: Math.random() * width,
       y: Math.random() * height,
-      // Most stars are tiny (1–1.8px), a few are larger (up to 2.5px)
-      size: size < 0.92 ? 0.8 + Math.random() * 1.0 : 1.5 + Math.random() * 1.0,
-      baseAlpha: 0.3 + Math.random() * 0.7,
+      // 70% small (1–1.8px), 20% medium (1.8–2.8px), 10% large bright (2.8–3.8px)
+      size: roll < 0.70 ? 1.0 + Math.random() * 0.8
+        : roll < 0.90 ? 1.8 + Math.random() * 1.0
+        : 2.8 + Math.random() * 1.0,
+      baseAlpha: 0.5 + Math.random() * 0.5,
       phase: Math.random() * Math.PI * 2,
       speed: 0.3 + Math.random() * 1.2,
-      drift: 0.02 + Math.random() * 0.08,
+      drift: 0.02 + Math.random() * 0.06,
       // Most stars white, some warm (gold), some cool (blue-purple)
       warmth: (Math.random() - 0.4) * 40,
     });
@@ -89,10 +91,10 @@ export default function Starfield() {
     for (let i = 0; i < stars.length; i++) {
       const star = stars[i];
 
-      // Twinkle: sinusoidal brightness oscillation
+      // Twinkle: sinusoidal brightness oscillation (floor at 60% so stars stay visible)
       const twinkle = reduced
         ? star.baseAlpha
-        : star.baseAlpha * (0.5 + 0.5 * Math.sin(t * star.speed + star.phase));
+        : star.baseAlpha * (0.6 + 0.4 * Math.sin(t * star.speed + star.phase));
 
       const alpha = twinkle * globalAlpha;
       if (alpha < 0.01) continue;
@@ -115,11 +117,17 @@ export default function Starfield() {
       ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
       ctx.fill();
 
-      // Larger stars get a soft glow
-      if (star.size > 1.3 && alpha > 0.3) {
+      // Medium stars get a soft glow, large stars get a stronger one
+      if (star.size > 1.5 && alpha > 0.2) {
         ctx.beginPath();
-        ctx.arc(star.x, y, star.size * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.12})`;
+        ctx.arc(star.x, y, star.size * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.18})`;
+        ctx.fill();
+      }
+      if (star.size > 2.5 && alpha > 0.3) {
+        ctx.beginPath();
+        ctx.arc(star.x, y, star.size * 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.08})`;
         ctx.fill();
       }
     }
