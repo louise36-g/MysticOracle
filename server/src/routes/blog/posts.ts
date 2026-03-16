@@ -115,9 +115,7 @@ router.get(
       ];
     }
     if (filters.category) {
-      // Include posts from child categories when filtering by a parent
-      const slugs = await taxonomyService.getCategorySlugsWithChildren(filters.category);
-      where.categories = { some: { category: { slug: { in: slugs } } } };
+      where.categories = { some: { category: { slug: filters.category } } };
     }
 
     // When filtering by category, order by sortOrder for drag-and-drop
@@ -247,15 +245,14 @@ router.patch('/posts/reorder', (req, res) => {
           where: { id },
           include: { categories: { include: { category: true } } },
         }),
-      buildWhereClause: async body => {
+      buildWhereClause: body => {
         const where: Prisma.BlogPostWhereInput = { deletedAt: null };
         const { contentType, categorySlug, status } = body as Record<string, string>;
         if (contentType && ['BLOG_POST', 'TAROT_ARTICLE'].includes(contentType)) {
           where.contentType = contentType as Prisma.BlogPostWhereInput['contentType'];
         }
         if (categorySlug) {
-          const slugs = await taxonomyService.getCategorySlugsWithChildren(categorySlug);
-          where.categories = { some: { category: { slug: { in: slugs } } } };
+          where.categories = { some: { category: { slug: categorySlug } } };
         }
         if (status && ['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
           where.status = status as Prisma.BlogPostWhereInput['status'];
