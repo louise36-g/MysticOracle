@@ -747,7 +747,6 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       ? 'linear-gradient(135deg, #4A2570, #6B3A9E)'
                       : 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                     border: `1.5px solid ${unifiedTheme.border}`,
-                    borderLeft: isGeneral ? '4px solid #C9A84C' : undefined,
                     boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
                   }}
                   whileHover={{

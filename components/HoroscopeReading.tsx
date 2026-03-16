@@ -633,12 +633,6 @@ const HoroscopeReading: React.FC = () => {
           {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
         </p>
 
-        <p className="text-purple-200/80 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-4">
-          {language === 'fr'
-            ? "D\u00e9couvrez votre horoscope du jour pour chaque signe du zodiaque. Nos lectures d'astrologie offrent un aper\u00e7u symbolique des th\u00e8mes qui fa\u00e7onnent votre journ\u00e9e \u2014 mis \u00e0 jour quotidiennement pour les douze signes, du B\u00e9lier aux Poissons."
-            : 'Discover your daily horoscope for every zodiac sign. Our astrology readings offer a symbolic snapshot of the themes shaping your day \u2014 updated daily for all twelve signs from Aries to Pisces.'}
-        </p>
-
         <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
           {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
         </p>
@@ -692,6 +686,13 @@ const HoroscopeReading: React.FC = () => {
         {zodiacData.map((zodiac, index) => {
           const signName = language === 'fr' ? zodiac.fr : zodiac.en;
           const dates = language === 'fr' ? zodiac.datesFr : zodiac.datesEn;
+          const elementColors: Record<string, { border: string; glow: string }> = {
+            fire:  { border: '#C9621A', glow: 'rgba(201, 98, 26, 0.35)' },
+            earth: { border: '#8B7D2E', glow: 'rgba(139, 125, 46, 0.35)' },
+            air:   { border: '#7AB3C9', glow: 'rgba(122, 179, 201, 0.35)' },
+            water: { border: '#2E7D8B', glow: 'rgba(46, 125, 139, 0.35)' },
+          };
+          const ec = elementColors[zodiac.element] || elementColors.fire;
 
           return (
             <motion.button
@@ -707,8 +708,8 @@ const HoroscopeReading: React.FC = () => {
               className="group relative py-4 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
-                border: `1.5px solid ${unifiedTheme.border}`,
-                boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+                border: `1.5px solid ${ec.border}`,
+                boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5)',
               }}
               whileHover={{
                 scale: 1.05,
@@ -718,26 +719,21 @@ const HoroscopeReading: React.FC = () => {
               onHoverStart={(e) => {
                 const el = e.target as HTMLElement;
                 if (el?.style) {
-                  el.style.borderColor = unifiedTheme.borderHover;
-                  el.style.boxShadow = '0 4px 16px rgba(91, 45, 158, 0.6), inset 0 0 25px rgba(201, 168, 76, 0.12)';
+                  el.style.boxShadow = `0 4px 20px ${ec.glow}, 0 2px 12px rgba(91, 45, 158, 0.5)`;
                 }
               }}
               onHoverEnd={(e) => {
                 const el = e.target as HTMLElement;
                 if (el?.style) {
-                  el.style.borderColor = unifiedTheme.border;
-                  el.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)';
+                  el.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5)';
                 }
               }}
             >
-              {/* Subtle glow ring */}
-              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-amber-500/20 via-purple-500/20 to-amber-500/20 -z-10 opacity-60" />
-
               {/* Border glow pulse on hover */}
               <motion.div
                 className="absolute -inset-[2px] rounded-2xl opacity-0 group-hover:opacity-100 -z-10"
                 style={{
-                  background: `linear-gradient(135deg, ${unifiedTheme.border}60, ${unifiedTheme.glow}40, ${unifiedTheme.border}60)`,
+                  background: `linear-gradient(135deg, ${ec.border}60, transparent, ${ec.border}60)`,
                 }}
                 initial={false}
                 whileHover={{
@@ -790,43 +786,6 @@ const HoroscopeReading: React.FC = () => {
         })}
       </motion.div>
 
-      {/* Element legend - aligned under columns */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="relative grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mt-2 mb-8"
-      >
-        {[
-          { element: 'fire', label: language === 'fr' ? 'Feu' : 'Fire', signs: '♈ ♌ ♐', color: '#f97316' },
-          { element: 'earth', label: language === 'fr' ? 'Terre' : 'Earth', signs: '♉ ♍ ♑', color: '#84cc16' },
-          { element: 'air', label: language === 'fr' ? 'Air' : 'Air', signs: '♊ ♎ ♒', color: '#38bdf8' },
-          { element: 'water', label: language === 'fr' ? 'Eau' : 'Water', signs: '♋ ♏ ♓', color: '#a78bfa' },
-        ].map(({ element, label, signs, color }) => (
-          <motion.div
-            key={element}
-            whileHover={{ scale: 1.02 }}
-            className="flex flex-col items-center justify-center py-3 px-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm"
-            style={{
-              boxShadow: `0 0 25px ${color}20, inset 0 0 20px ${color}10`,
-              borderColor: `${color}30`,
-            }}
-          >
-            <span
-              className="text-2xl md:text-3xl tracking-widest mb-1"
-              style={{ color }}
-            >
-              {signs}
-            </span>
-            <span
-              className="text-base md:text-lg font-semibold tracking-wide"
-              style={{ color }}
-            >
-              {label}
-            </span>
-          </motion.div>
-        ))}
-      </motion.div>
     </div>
   );
 };
