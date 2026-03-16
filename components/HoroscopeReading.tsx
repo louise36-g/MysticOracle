@@ -632,10 +632,6 @@ const HoroscopeReading: React.FC = () => {
         <p className="text-purple-300/60 text-sm uppercase tracking-[0.2em] mb-5">
           {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
         </p>
-
-        <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
-          {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
-        </p>
       </motion.div>
 
       {/* Today's Collective Energy - link to Daily Tarot */}
