@@ -12,6 +12,7 @@ import { CATEGORIES, getDepthsForCategory, type CategoryConfig, type DepthOption
 import type { ReadingCategory } from '../types';
 import CreditShop from './CreditShop';
 import DepthVisual from './reading/DepthVisual';
+import { getTodaysQuote } from '../constants/dailyQuotes';
 
 interface CategorySelectorProps {
   className?: string;
@@ -148,6 +149,7 @@ const ParticleBurst: React.FC = () => {
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) => {
   const { language, user, t } = useApp();
+  const quote = getTodaysQuote();
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as LocationState | null;
@@ -848,12 +850,20 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <div className="h-px w-20 bg-gradient-to-l from-transparent via-purple-500/30 to-purple-500/50" />
         </div>
 
-        {/* Mystical quote */}
-        <p className="text-purple-200/80 text-sm md:text-base text-center px-4 leading-relaxed whitespace-nowrap">
-          {language === 'fr'
-            ? '"Le tarot ne donne pas de réponses — il éveille la conscience."'
-            : '"Tarot is not about answers — it is about awareness."'}
-        </p>
+        {/* Thought for Today */}
+        <h3 className="text-sm font-heading font-medium tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300/80 via-purple-300/80 to-amber-300/80 mb-4">
+          {t('reading.thought_for_today', 'Thought for Today')}
+        </h3>
+        <blockquote className="max-w-xl mx-auto">
+          <p className="text-slate-300/90 text-sm md:text-base italic leading-relaxed">
+            "{language === 'en' ? quote.textEn : quote.textFr}"
+          </p>
+          <footer className="mt-2">
+            <cite className="text-amber-400/70 text-sm not-italic font-medium">
+              — {quote.author}
+            </cite>
+          </footer>
+        </blockquote>
       </motion.div>
 
       {/* Credit Shop Modal */}

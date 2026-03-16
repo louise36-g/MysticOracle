@@ -327,28 +327,28 @@ const InterpretMyCards: React.FC = () => {
   }, [step, needsLayout, navigate]);
 
   return (
-    <div className="min-h-[60vh] py-8 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-[60vh] py-4 px-4">
+      <div className="max-w-2xl mx-auto">
 
         {/* Header */}
-        <div className="text-center mb-8 mt-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-xs font-medium mb-3">
+        <div className="text-center mb-4 mt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-xs font-medium mb-2">
             <Hand className="w-3.5 h-3.5" />
             <span>{language === 'fr' ? 'Vos cartes, notre interprétation' : 'Your cards, our interpretation'}</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-heading text-white mb-3">
+          <h1 className="text-2xl md:text-3xl font-heading text-white mb-2">
             {language === 'fr' ? 'Interpréter mes cartes' : 'Interpret My Cards'}
           </h1>
-          <p className="text-white/85 max-w-xl mx-auto">
+          <p className="text-white/85 text-sm max-w-md mx-auto">
             {language === 'fr'
-              ? 'Vous avez tiré vos cartes physiquement ? Dites-nous lesquelles et recevez une interprétation détaillée.'
-              : 'Drew your own physical cards? Tell us which ones and receive a detailed interpretation.'}
+              ? 'Dites-nous quelles cartes vous avez tirées et recevez une interprétation détaillée.'
+              : 'Tell us which cards you drew and receive a detailed interpretation.'}
           </p>
         </div>
 
         {/* Step indicators */}
         {step !== 'result' && step !== 'generating' && (
-          <div className="flex items-center justify-center gap-2 mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
             {['spread', ...(needsLayout ? ['layout'] : []), 'question', 'cards', 'style'].map((s, i) => (
               <div
                 key={s}
@@ -364,7 +364,7 @@ const InterpretMyCards: React.FC = () => {
         {step !== 'spread' && step !== 'generating' && (
           <button
             onClick={handleBack}
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-6"
+            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             {language === 'fr' ? 'Retour' : 'Back'}
@@ -381,24 +381,24 @@ const InterpretMyCards: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4"
             >
-              <h2 className="text-lg font-medium text-white mb-4">
+              <h2 className="text-base font-medium text-white mb-3">
                 {language === 'fr' ? 'Combien de cartes avez-vous tiré ?' : 'How many cards did you draw?'}
               </h2>
-              <div className="grid gap-3">
+              <div className="grid gap-2">
                 {INTERPRET_SPREADS.map((spread) => (
                   <button
                     key={spread.id}
                     onClick={() => handleSelectSpread(spread.id)}
-                    className="flex items-center gap-4 p-4 bg-slate-800/60 border border-white/5 rounded-xl hover:border-purple-500/30 hover:bg-slate-800/80 transition-all text-left group"
+                    className="flex items-center gap-3 p-3 bg-slate-800/60 border border-white/5 rounded-xl hover:border-purple-500/30 hover:bg-slate-800/80 transition-all text-left group"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-lg font-bold group-hover:bg-purple-500/20 transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-base font-bold group-hover:bg-purple-500/20 transition-colors">
                       {spread.count}
                     </div>
                     <div className="flex-1">
-                      <p className="text-white font-medium">
+                      <p className="text-sm text-white font-medium">
                         {language === 'fr' ? spread.labelFr : spread.labelEn}
                       </p>
-                      <p className="text-sm text-white/85">
+                      <p className="text-xs text-white/85">
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>
                     </div>
@@ -429,17 +429,17 @@ const InterpretMyCards: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4"
             >
-              <h2 className="text-lg font-medium text-white mb-4">
+              <h2 className="text-base font-medium text-white mb-3">
                 {language === 'fr' ? 'Choisissez un type de lecture' : 'Choose a reading layout'}
               </h2>
-              <div className="grid gap-3">
+              <div className="grid gap-2">
                 {availableLayouts.map((layout) => (
                   <button
                     key={layout.id}
                     onClick={() => handleSelectLayout(layout.id)}
-                    className="p-4 bg-slate-800/60 border border-white/5 rounded-xl hover:border-purple-500/30 hover:bg-slate-800/80 transition-all text-left"
+                    className="p-3 bg-slate-800/60 border border-white/5 rounded-xl hover:border-purple-500/30 hover:bg-slate-800/80 transition-all text-left"
                   >
-                    <p className="text-white font-medium mb-1">
+                    <p className="text-sm text-white font-medium mb-0.5">
                       {language === 'fr' ? layout.labelFr : layout.labelEn}
                     </p>
                     <p className="text-sm text-white/85">
@@ -467,10 +467,10 @@ const InterpretMyCards: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <h2 className="text-lg font-medium text-white">
+              <h2 className="text-base font-medium text-white">
                 {language === 'fr' ? 'Quelle est votre question ?' : 'What is your question?'}
               </h2>
-              <p className="text-sm text-white/85">
+              <p className="text-xs text-white/85">
                 {language === 'fr'
                   ? 'Que demandiez-vous aux cartes lorsque vous les avez tirées ? Votre intention est la clé pour comprendre ce qu\'elles vous disent.'
                   : 'What were you asking the cards when you drew them? Your intention is the key to understanding what they are telling you.'}
@@ -509,7 +509,7 @@ const InterpretMyCards: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <h2 className="text-lg font-medium text-white">
+              <h2 className="text-base font-medium text-white">
                 {language === 'fr' ? 'Quelles cartes avez-vous tiré ?' : 'Which cards did you draw?'}
               </h2>
 
@@ -547,10 +547,10 @@ const InterpretMyCards: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <h2 className="text-lg font-medium text-white">
+              <h2 className="text-base font-medium text-white">
                 {language === 'fr' ? 'Style d\'interprétation' : 'Interpretation Style'}
               </h2>
-              <p className="text-sm text-white/85">
+              <p className="text-xs text-white/85">
                 {language === 'fr'
                   ? 'Choisissez le style qui correspond le mieux à votre question.'
                   : 'Choose the style that best fits your question.'}
