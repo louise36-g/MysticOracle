@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="pb-12 relative z-10">
+    <div className="relative z-10 flex-grow flex flex-col justify-center min-h-[calc(100dvh-8rem)]">
       <Helmet>
         <title>Personalized Tarot Readings & Daily Horoscopes - CelestiArcana</title>
         <meta name="description" content="Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads and more. Free daily horoscopes." />

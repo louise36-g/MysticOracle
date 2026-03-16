@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback, memo } from 'react';
+import React, { useState, useRef, useCallback, memo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,9 +32,18 @@ interface DropdownItem {
 
 const SubNav: React.FC = () => {
   const { language } = useApp();
+  const { isSignedIn } = useUser();
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showAuthToast, setShowAuthToast] = useState(false);
+  const authToastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
+    };
+  }, []);
 
   const handleMouseEnter = (name: string) => {
     if (closeTimeoutRef.current) {
@@ -231,17 +241,57 @@ const SubNav: React.FC = () => {
           </Link>
 
           {/* Interpret My Cards Link */}
-          <Link
-            to={ROUTES.INTERPRET}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              isActive('/interpret')
-                ? 'text-amber-300 bg-amber-500/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Hand className="w-4 h-4" />
-            <span>{language === 'fr' ? 'Mes Cartes' : 'My Cards'}</span>
-          </Link>
+          {isSignedIn ? (
+            <Link
+              to={ROUTES.INTERPRET}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/interpret')
+                  ? 'text-amber-300 bg-amber-500/10'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Hand className="w-4 h-4" />
+              <span>{language === 'fr' ? 'Mes Cartes' : 'My Cards'}</span>
+            </Link>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowAuthToast(true);
+                  if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
+                  authToastTimeoutRef.current = setTimeout(() => setShowAuthToast(false), 4000);
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5"
+              >
+                <Hand className="w-4 h-4" />
+                <span>{language === 'fr' ? 'Mes Cartes' : 'My Cards'}</span>
+              </button>
+              <AnimatePresence>
+                {showAuthToast && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl p-3 text-center z-[100]"
+                  >
+                    <p className="text-sm text-slate-300 mb-2">
+                      {language === 'fr'
+                        ? 'Pour interpréter vos cartes, veuillez vous connecter.'
+                        : 'To interpret your cards, please sign in.'}
+                    </p>
+                    <Link
+                      to={ROUTES.SIGN_IN}
+                      onClick={() => setShowAuthToast(false)}
+                      className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                    >
+                      {language === 'fr' ? 'Se connecter' : 'Sign in'}
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* Horoscope Link */}
           <Link

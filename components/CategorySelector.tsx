@@ -230,7 +230,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
     language === 'fr' ? depth.labelFr : depth.labelEn;
 
   return (
-    <div className={`w-full relative flex-grow flex flex-col ${className}`}>
+    <div className={`w-full relative flex-grow flex flex-col max-w-5xl mx-auto ${className}`}>
       <Helmet>
         <title>{language === 'fr'
           ? 'Tirages de Tarot Personnalisés – Amour, Carrière & Guidance Spirituelle | CelestiArcana'
@@ -713,7 +713,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, y: -20, filter: "blur(8px)" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-4 md:px-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 px-6 md:px-12"
           >
             {CATEGORIES.map((category, index) => (
               <motion.div
@@ -804,11 +804,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
 
                   {/* Content */}
-                  <div className="relative px-3 py-4 flex items-center gap-3">
+                  <div className="relative px-3 py-3 flex items-center gap-2.5">
                     {/* Icon/Symbol container */}
                     <div className="relative flex-shrink-0">
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 border border-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg"
                       >
                         {/* Mystical symbol */}
                         <span
@@ -825,7 +825,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
                     {/* Text content */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-heading text-base text-white group-hover:text-white transition-colors mb-0.5">
+                      <h3 className="font-heading text-sm text-white group-hover:text-white transition-colors mb-0.5">
                         {getLabel(category)}
                       </h3>
                       <p className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">

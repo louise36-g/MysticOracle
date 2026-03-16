@@ -54,6 +54,7 @@ export default function Starfield() {
   const reducedMotionRef = useRef(false);
   const lastTimeRef = useRef(0);
   const sizeRef = useRef({ w: 0, h: 0 });
+  const startTimeRef = useRef<number>(0);
 
   const draw = useCallback((time: number) => {
     const canvas = canvasRef.current;
@@ -97,9 +98,12 @@ export default function Starfield() {
     for (let i = 0; i < stars.length; i++) {
       const star = stars[i];
 
-      // Move star outward from center
+      // Move star outward from center (decelerate to stop after 10s)
       if (!reduced && dt > 0) {
-        star.dist += BASE_SPEED * star.speed * dt;
+        if (startTimeRef.current === 0) startTimeRef.current = time;
+        const elapsed = (time - startTimeRef.current) * 0.001;
+        const speedMultiplier = elapsed < 10 ? 1 : elapsed < 13 ? 1 - (elapsed - 10) / 3 : 0;
+        star.dist += BASE_SPEED * star.speed * dt * speedMultiplier;
 
         // When star reaches edge, respawn near center
         if (star.dist > 1) {
