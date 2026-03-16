@@ -688,9 +688,9 @@ const HoroscopeReading: React.FC = () => {
           const dates = language === 'fr' ? zodiac.datesFr : zodiac.datesEn;
           const elementColors: Record<string, { border: string; glow: string }> = {
             fire:  { border: '#C9621A', glow: 'rgba(201, 98, 26, 0.35)' },
-            earth: { border: '#8B7D2E', glow: 'rgba(139, 125, 46, 0.35)' },
+            earth: { border: '#B8962E', glow: 'rgba(184, 150, 46, 0.35)' },
             air:   { border: '#7AB3C9', glow: 'rgba(122, 179, 201, 0.35)' },
-            water: { border: '#2E7D8B', glow: 'rgba(46, 125, 139, 0.35)' },
+            water: { border: '#1A5C6B', glow: 'rgba(26, 92, 107, 0.35)' },
           };
           const ec = elementColors[zodiac.element] || elementColors.fire;
 
