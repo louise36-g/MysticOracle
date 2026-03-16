@@ -128,27 +128,8 @@ export function RootLayout() {
   return (
     <MotionConfig reducedMotion="user">
     <div className="min-h-dvh text-slate-200 selection:bg-purple-500/30 relative overflow-hidden flex flex-col">
-      {/* Cosmic Background Image */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          backgroundImage: `image-set(url("/background-celestiarcana.avif") type("image/avif"), url("/background-celestiarcana.webp") type("image/webp"))`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
-
-      {/* Animated Starfield — fades out on scroll */}
+      {/* Animated Starfield over solid deep-indigo background */}
       <Starfield />
-
-      {/* Deep purple gradient fade — improves readability as user scrolls past hero */}
-      <div
-        className="fixed inset-0 z-[2] pointer-events-none"
-        style={{
-          background: 'linear-gradient(to bottom, transparent 0%, transparent 30%, rgba(13, 10, 35, 0.55) 60%, rgba(13, 10, 35, 0.85) 100%)',
-        }}
-      />
 
       {/* Skip to main content link for keyboard/screen reader users */}
       <a
