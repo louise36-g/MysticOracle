@@ -14,6 +14,7 @@ import { useApp } from '../../context/AppContext';
 import { trackPageView } from '../../utils/analytics';
 import { Coins, AlertTriangle, X } from 'lucide-react';
 import PWAUpdatePrompt from '../PWAUpdatePrompt';
+import Starfield from '../Starfield';
 
 // Low credits threshold
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
@@ -135,6 +136,17 @@ export function RootLayout() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+        }}
+      />
+
+      {/* Animated Starfield — fades out on scroll */}
+      <Starfield />
+
+      {/* Deep purple gradient fade — improves readability as user scrolls past hero */}
+      <div
+        className="fixed inset-0 z-[2] pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 30%, rgba(13, 10, 35, 0.55) 60%, rgba(13, 10, 35, 0.85) 100%)',
         }}
       />
 
