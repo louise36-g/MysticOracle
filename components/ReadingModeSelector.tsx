@@ -211,7 +211,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           <p className="text-slate-300/90 text-base md:text-lg italic leading-relaxed">
             "{language === 'en' ? quote.textEn : quote.textFr}"
           </p>
-          <footer className="mt-3">
+          <footer className="mt-3 text-center">
             <cite className="text-amber-400/70 text-sm not-italic font-medium">
               — {quote.author}
             </cite>

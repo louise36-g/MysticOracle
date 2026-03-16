@@ -878,7 +878,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           <p className="text-slate-300/90 text-sm md:text-base italic leading-relaxed">
             "{language === 'en' ? quote.textEn : quote.textFr}"
           </p>
-          <footer className="mt-2">
+          <footer className="mt-2 text-center">
             <cite className="text-amber-400/70 text-sm not-italic font-medium">
               — {quote.author}
             </cite>

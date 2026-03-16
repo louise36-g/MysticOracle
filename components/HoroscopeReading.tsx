@@ -767,6 +767,7 @@ const HoroscopeReading: React.FC = () => {
                     src={`/zodiac/${zodiac.en}.png`}
                     alt={zodiac.en}
                     className="w-14 h-14 rounded-full object-cover group-hover:scale-110 transition-all duration-300 shadow-lg"
+                    style={{ border: `2px solid ${ec.border}` }}
                   />
                   {/* Element-coloured glow behind symbol */}
                   <div
