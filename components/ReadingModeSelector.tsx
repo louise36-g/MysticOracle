@@ -185,7 +185,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
-        className="mt-8 text-center relative"
+        className="mt-8 mb-16 text-center relative"
       >
         {/* Decorative divider */}
         <div className="flex items-center justify-center gap-4 mb-4">

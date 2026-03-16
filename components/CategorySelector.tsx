@@ -855,7 +855,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="flex-grow flex flex-col items-center justify-center min-h-[120px] mt-8"
+        className="flex-grow flex flex-col items-center justify-center min-h-[120px] mt-8 mb-16"
       >
         {/* Decorative divider */}
         <div className="flex items-center justify-center gap-4 mb-6">
