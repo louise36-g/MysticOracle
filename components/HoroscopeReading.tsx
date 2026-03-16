@@ -647,7 +647,7 @@ const HoroscopeReading: React.FC = () => {
       >
         <Link
           to={ROUTES.DAILY_TAROT}
-          className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 max-w-[600px] mx-auto"
+          className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 md:max-w-[calc(50%+0.625rem)] mx-auto"
           style={{
             background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8C96A)',
             boxShadow: '0 4px 20px rgba(201, 168, 76, 0.35)',
@@ -705,10 +705,10 @@ const HoroscopeReading: React.FC = () => {
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               onClick={() => handleSignSelect(signName, index)}
-              className="group relative py-4 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
+              className="group relative py-3 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
-                border: `1.5px solid ${ec.border}`,
+                border: `2px solid ${ec.border}`,
                 boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5)',
               }}
               whileHover={{
