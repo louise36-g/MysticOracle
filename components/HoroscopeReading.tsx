@@ -793,6 +793,9 @@ const HoroscopeReading: React.FC = () => {
                   {language === 'fr' ? zodiac.taglineFr : zodiac.taglineEn}
                 </p>
               </div>
+              <span className="absolute bottom-2 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+                {language === 'en' ? 'Explore' : 'Explorer'} →
+              </span>
             </motion.button>
           );
         })}

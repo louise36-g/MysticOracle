@@ -73,6 +73,9 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_energy_desc', 'Free daily Major Arcana draw.')}
             </p>
+            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+              {language === 'en' ? 'Explore' : 'Explorer'} →
+            </span>
           </Link>
         </motion.div>
 
@@ -103,6 +106,9 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
             </p>
+            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+              {language === 'en' ? 'Explore' : 'Explorer'} →
+            </span>
           </Link>
         </motion.div>
 
@@ -136,6 +142,9 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
             </p>
+            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+              {language === 'en' ? 'Explore' : 'Explorer'} →
+            </span>
           </div>
         </motion.div>
       </motion.div>
@@ -177,6 +186,9 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               </p>
             </div>
           </div>
+          <span className="absolute bottom-2 right-4 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+            {language === 'en' ? 'Explore' : 'Explorer'} →
+          </span>
         </Link>
       </motion.div>
 

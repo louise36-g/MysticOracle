@@ -842,6 +842,9 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       </p>
                     </div>
                   </div>
+                  <span className="absolute bottom-2 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+                    {language === 'en' ? 'Explore' : 'Explorer'} →
+                  </span>
                 </motion.button>
               </motion.div>
             );

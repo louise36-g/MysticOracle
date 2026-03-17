@@ -397,7 +397,7 @@ const InterpretMyCards: React.FC = () => {
                   <button
                     key={spread.id}
                     onClick={() => handleSelectSpread(spread.id)}
-                    className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
+                    className="relative flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
                     style={{
                       background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                       border: '1.5px solid #C9A84C',
@@ -441,6 +441,9 @@ const InterpretMyCards: React.FC = () => {
                         </>
                       )}
                     </div>
+                    <span className="absolute bottom-1.5 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
+                      {language === 'en' ? 'Explore' : 'Explorer'} →
+                    </span>
                   </button>
                 ))}
               </div>
