@@ -668,7 +668,7 @@ const HoroscopeReading: React.FC = () => {
                 <Sun className="w-5 h-5 text-[#C9A84C]" />
               </div>
               <div>
-                <h3 className="text-sm md:text-base font-heading text-[#1A0A2E] mb-0.5">
+                <h3 className="text-sm md:text-base font-heading font-bold text-[#1A0A2E] mb-0.5 text-center">
                   {language === 'fr' ? 'Énergie Collective du Jour' : "Today's Collective Energy"}
                 </h3>
                 <p className="text-xs md:text-sm text-[#1A0A2E]/70">
