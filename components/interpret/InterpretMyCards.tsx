@@ -55,8 +55,8 @@ const INTERPRET_SPREADS: { id: SpreadType; count: number; labelEn: string; label
     count: 3,
     labelEn: '3 Cards',
     labelFr: '3 Cartes',
-    descEn: 'The most versatile spread in tarot — past, present and future or situation, action and outcome.',
-    descFr: 'Le tirage le plus polyvalent — passé, présent et futur ou situation, action et résultat.',
+    descEn: 'The most versatile spread in tarot.',
+    descFr: 'Le tirage le plus polyvalent du tarot.',
   },
 ];
 
@@ -397,7 +397,7 @@ const InterpretMyCards: React.FC = () => {
                   <button
                     key={spread.id}
                     onClick={() => handleSelectSpread(spread.id)}
-                    className="relative flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
+                    className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
                     style={{
                       background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                       border: '1.5px solid #C9A84C',
@@ -422,26 +422,26 @@ const InterpretMyCards: React.FC = () => {
                       {spread.count}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-white font-medium">
-                        {language === 'fr' ? spread.labelFr : spread.labelEn}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-white font-medium">
+                          {language === 'fr' ? spread.labelFr : spread.labelEn}
+                        </p>
+                        {isFirstFree ? (
+                          <span className="text-xs text-[#C9A84C] font-semibold">
+                            {language === 'fr' ? '· Gratuit' : '· Free'}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs">
+                            <Coins className="w-3 h-3 text-amber-400/80" />
+                            <span className="text-amber-400/80">1</span>
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-white/85">
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      {isFirstFree ? (
-                        <span className="text-[#C9A84C] font-semibold">
-                          {language === 'fr' ? 'Gratuit' : 'Free'}
-                        </span>
-                      ) : (
-                        <>
-                          <Coins className="w-4 h-4 text-amber-400/80" />
-                          <span className="text-amber-400/80">1</span>
-                        </>
-                      )}
-                    </div>
-                    <span className="absolute bottom-1.5 right-3 text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+                    <span className="text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide flex-shrink-0">
                       {language === 'en' ? 'Select →' : 'Choisir →'}
                     </span>
                   </button>

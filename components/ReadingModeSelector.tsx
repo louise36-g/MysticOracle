@@ -83,7 +83,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            className="group relative h-full px-4 py-4 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            className="group relative h-full px-4 py-5 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
               background: 'linear-gradient(135deg, #4A2570, #6B3A9E)',
               boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
@@ -170,7 +170,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <div className="absolute top-2 right-2 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }} />
             <div className="absolute bottom-3 right-4 w-0.5 h-0.5 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1.6s' }} />
           </div>
-          <div className="relative flex items-center gap-4 px-5 py-4">
+          <div className="relative flex items-center gap-4 px-5 py-5">
             <div className="relative w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
               <Hand className="w-5 h-5 text-white" />
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 opacity-50 blur-md -z-10 group-hover:opacity-80 transition-opacity" />

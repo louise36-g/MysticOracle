@@ -843,7 +843,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                     </div>
                   </div>
                   <span className="absolute bottom-2.5 right-3 text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
-                    {language === 'en' ? 'Choose this path →' : 'Choisir cette voie →'}
+                    {language === 'en' ? 'Begin your reading →' : 'Commencez votre tirage →'}
                   </span>
                 </motion.button>
               </motion.div>
