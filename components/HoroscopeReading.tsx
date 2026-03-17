@@ -299,22 +299,24 @@ const HoroscopeReading: React.FC = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="relative z-10 text-center"
         >
-          {/* Pulsing zodiac symbol */}
+          {/* Pulsing zodiac icon */}
           {selectedZodiac && (
             <motion.div
-              className="text-7xl mb-6"
-              style={{ color: unifiedTheme.border }}
+              className="mb-6"
               animate={{
                 scale: [1, 1.1, 1],
                 opacity: [0.7, 1, 0.7],
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span style={{
-                textShadow: `0 0 40px ${unifiedTheme.border}99, 0 0 80px ${unifiedTheme.border}66`,
-              }}>
-                {selectedZodiac.symbol}
-              </span>
+              <img
+                src={`/zodiac/${selectedZodiac.en}.png`}
+                alt={selectedZodiac.en}
+                className="w-20 h-20 mx-auto rounded-full object-cover"
+                style={{
+                  filter: `drop-shadow(0 0 20px ${unifiedTheme.border}99) drop-shadow(0 0 40px ${unifiedTheme.border}66)`,
+                }}
+              />
             </motion.div>
           )}
 
@@ -370,12 +372,16 @@ const HoroscopeReading: React.FC = () => {
           }}
         >
           <motion.div
-            className="text-5xl mb-4"
-            style={{ color: unifiedTheme.border }}
+            className="mb-4"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            {selectedZodiac.symbol}
+            <img
+              src={`/zodiac/${selectedZodiac.en}.png`}
+              alt={selectedZodiac.en}
+              className="w-16 h-16 mx-auto rounded-full object-cover"
+              style={{ filter: `drop-shadow(0 0 15px ${unifiedTheme.border}99)` }}
+            />
           </motion.div>
 
           <AlertTriangle className="w-8 h-8 text-amber-400/70 mx-auto mb-3" />
@@ -465,19 +471,21 @@ const HoroscopeReading: React.FC = () => {
 
           {/* Inner content */}
           <div className="relative px-6 sm:px-8 md:px-10 pt-8 pb-5">
-            {/* Header with symbol */}
+            {/* Header with icon */}
             <div className="text-center mb-1">
               <motion.div
-                className="inline-block text-5xl mb-1"
-                style={{ color: unifiedTheme.border }}
+                className="inline-block mb-1"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
-                <span style={{
-                  textShadow: `0 0 30px ${unifiedTheme.border}99, 0 0 60px ${unifiedTheme.border}66`,
-                }}>
-                  {selectedZodiac.symbol}
-                </span>
+                <img
+                  src={`/zodiac/${selectedZodiac.en}.png`}
+                  alt={selectedZodiac.en}
+                  className="w-16 h-16 mx-auto rounded-full object-cover"
+                  style={{
+                    filter: `drop-shadow(0 0 15px ${unifiedTheme.border}99) drop-shadow(0 0 30px ${unifiedTheme.border}66)`,
+                  }}
+                />
               </motion.div>
 
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 mb-0.5">
@@ -631,6 +639,10 @@ const HoroscopeReading: React.FC = () => {
 
         <p className="text-purple-300/60 text-sm uppercase tracking-[0.2em] mb-5">
           {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
+        </p>
+
+        <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
+          {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
         </p>
       </motion.div>
 
