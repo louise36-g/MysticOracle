@@ -13,7 +13,7 @@ import {
   fetchLinkRegistry,
   LinkRegistry,
 } from '../../services/api';
-import { ROUTES } from '../../routes/routes';
+import { ROUTES, buildRoute } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
@@ -328,7 +328,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             transition={{ duration: 0.3 }}
           >
             <Link
-              to={ROUTES.TAROT_CARDS}
+              to={article.breadcrumbCategory
+                ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
+                : ROUTES.TAROT_CARDS}
               className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2 group text-sm"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
