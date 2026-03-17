@@ -125,7 +125,7 @@ export function createAppContainer(): AwilixContainer<ContainerDependencies> {
     readingRepository: asClass(PrismaReadingRepository).singleton(),
     transactionRepository: asClass(PrismaTransactionRepository).singleton(),
     creditPackageRepository: asClass(PrismaCreditPackageRepository).singleton(),
-    emailTemplateRepository: asClass(PrismaEmailTemplateRepository).singleton(),
+    templateRepository: asClass(PrismaEmailTemplateRepository).singleton(),
     systemSettingRepository: asClass(PrismaSystemSettingRepository).singleton(),
     auditLogRepository: asClass(PrismaAuditLogRepository).singleton(),
   });

@@ -17,7 +17,10 @@ router.get(
   asyncHandler(async (req, res) => {
     const listTemplatesUseCase = req.container.resolve('listTemplatesUseCase');
     const result = await listTemplatesUseCase.execute();
-    res.json(result);
+    res.json({
+      ...result,
+      brevoConfigured: !!process.env.BREVO_API_KEY,
+    });
   })
 );
 

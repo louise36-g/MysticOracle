@@ -89,7 +89,7 @@ export interface ContainerDependencies {
   readingRepository: IReadingRepository;
   transactionRepository: ITransactionRepository;
   creditPackageRepository: ICreditPackageRepository;
-  emailTemplateRepository: IEmailTemplateRepository;
+  templateRepository: IEmailTemplateRepository;
   systemSettingRepository: ISystemSettingRepository;
 
   // Services
