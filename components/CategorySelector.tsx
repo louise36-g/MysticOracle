@@ -806,7 +806,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
 
                   {/* Content */}
-                  <div className={`relative px-3 flex items-center gap-2.5 ${isGeneral ? 'py-[15px]' : 'py-3'}`}>
+                  <div className={`relative px-3 pb-8 flex items-center gap-2.5 ${isGeneral ? 'pt-[15px]' : 'pt-3'}`}>
                     {/* Icon/Symbol container */}
                     <div className="relative flex-shrink-0">
                       <div
@@ -842,8 +842,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                       </p>
                     </div>
                   </div>
-                  <span className="absolute bottom-2 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-                    {language === 'en' ? 'Explore' : 'Explorer'} →
+                  <span className="absolute bottom-2.5 right-3 text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+                    {language === 'en' ? 'Choose this path →' : 'Choisir cette voie →'}
                   </span>
                 </motion.button>
               </motion.div>

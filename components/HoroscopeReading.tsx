@@ -713,7 +713,7 @@ const HoroscopeReading: React.FC = () => {
                 ease: [0.25, 0.46, 0.45, 0.94]
               }}
               onClick={() => handleSignSelect(signName, index)}
-              className="group relative py-3 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
+              className="group relative pt-3 pb-8 px-4 rounded-2xl cursor-pointer overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                 border: `2px solid ${ec.border}`,
@@ -793,8 +793,8 @@ const HoroscopeReading: React.FC = () => {
                   {language === 'fr' ? zodiac.taglineFr : zodiac.taglineEn}
                 </p>
               </div>
-              <span className="absolute bottom-2 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-                {language === 'en' ? 'Explore' : 'Explorer'} →
+              <span className="absolute bottom-2.5 right-3 text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+                {language === 'en' ? 'Read your stars →' : 'Lisez vos étoiles →'}
               </span>
             </motion.button>
           );

@@ -441,8 +441,8 @@ const InterpretMyCards: React.FC = () => {
                         </>
                       )}
                     </div>
-                    <span className="absolute bottom-1.5 right-3 text-[10px] text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-                      {language === 'en' ? 'Explore' : 'Explorer'} →
+                    <span className="absolute bottom-1.5 right-3 text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+                      {language === 'en' ? 'Select →' : 'Choisir →'}
                     </span>
                   </button>
                 ))}

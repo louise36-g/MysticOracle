@@ -50,7 +50,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.DAILY_TAROT}
-            className="group relative h-full px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            className="group relative h-full px-4 py-4 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
               background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
               boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
@@ -73,8 +73,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_energy_desc', 'Free daily Major Arcana draw.')}
             </p>
-            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-              {language === 'en' ? 'Explore' : 'Explorer'} →
+            <span className="block mt-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+              {language === 'en' ? 'Draw your card →' : 'Tirez votre carte →'}
             </span>
           </Link>
         </motion.div>
@@ -83,7 +83,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         <motion.div variants={cardVariants}>
           <Link
             to={ROUTES.READING}
-            className="group relative h-full px-4 py-5 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            className="group relative h-full px-4 py-4 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
               background: 'linear-gradient(135deg, #4A2570, #6B3A9E)',
               boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
@@ -106,8 +106,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.tarot_reading_desc', 'Tarot readings personalised for you.')}
             </p>
-            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-              {language === 'en' ? 'Explore' : 'Explorer'} →
+            <span className="block mt-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+              {language === 'en' ? 'Begin your reading →' : 'Commencez votre tirage →'}
             </span>
           </Link>
         </motion.div>
@@ -119,7 +119,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         >
           <div
             onClick={() => onSelect('horoscope')}
-            className="relative px-4 py-3 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            className="relative px-4 py-4 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
               boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
@@ -142,8 +142,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <p className="text-[#F5E6C8]/70 text-xs md:text-sm leading-snug group-hover:text-[#F5E6C8] transition-colors">
               {t('reading.daily_horoscope_desc', 'Your personalised daily horoscope.')}
             </p>
-            <span className="absolute bottom-1.5 right-3 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-              {language === 'en' ? 'Explore' : 'Explorer'} →
+            <span className="block mt-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+              {language === 'en' ? 'Read your stars →' : 'Lisez vos étoiles →'}
             </span>
           </div>
         </motion.div>
@@ -186,8 +186,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               </p>
             </div>
           </div>
-          <span className="absolute bottom-2 right-4 text-[10px] md:text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors font-medium tracking-wide">
-            {language === 'en' ? 'Explore' : 'Explorer'} →
+          <span className="absolute bottom-2.5 right-4 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
+            {language === 'en' ? 'Interpret your spread →' : 'Interprétez votre tirage →'}
           </span>
         </Link>
       </motion.div>
