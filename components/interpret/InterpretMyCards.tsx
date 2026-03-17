@@ -442,7 +442,7 @@ const InterpretMyCards: React.FC = () => {
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>
                     </div>
-                    <span className="text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide flex-shrink-0">
+                    <span className="absolute bottom-2 right-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
                       {language === 'en' ? 'Select →' : 'Choisir →'}
                     </span>
                   </button>
