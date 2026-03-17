@@ -415,7 +415,7 @@ const InterpretMyCards: React.FC = () => {
                     {/* Free / Cost badge — top-right corner */}
                     <span className="absolute top-2 right-3">
                       {isFirstFree ? (
-                        <span className="text-xs text-[#C9A84C] font-semibold">
+                        <span className="text-sm text-[#C9A84C] font-semibold">
                           {language === 'fr' ? 'Gratuit' : 'Free'}
                         </span>
                       ) : (
