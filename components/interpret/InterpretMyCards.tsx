@@ -397,7 +397,7 @@ const InterpretMyCards: React.FC = () => {
                   <button
                     key={spread.id}
                     onClick={() => handleSelectSpread(spread.id)}
-                    className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
+                    className="relative flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group cursor-pointer hover:-translate-y-0.5"
                     style={{
                       background: 'linear-gradient(135deg, #3D1F6E, #5B2D9E)',
                       border: '1.5px solid #C9A84C',
@@ -412,6 +412,19 @@ const InterpretMyCards: React.FC = () => {
                       e.currentTarget.style.boxShadow = '0 2px 12px rgba(91, 45, 158, 0.5)';
                     }}
                   >
+                    {/* Free / Cost badge — top-right corner */}
+                    <span className="absolute top-2 right-3">
+                      {isFirstFree ? (
+                        <span className="text-xs text-[#C9A84C] font-semibold">
+                          {language === 'fr' ? 'Gratuit' : 'Free'}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-xs">
+                          <Coins className="w-3 h-3 text-amber-400/80" />
+                          <span className="text-amber-400/80 font-semibold">1 {language === 'fr' ? 'crédit' : 'credit'}</span>
+                        </span>
+                      )}
+                    </span>
                     <div
                       className="w-9 h-9 rounded-full flex items-center justify-center text-[#1A0A2E] text-base font-bold flex-shrink-0"
                       style={{
@@ -422,21 +435,9 @@ const InterpretMyCards: React.FC = () => {
                       {spread.count}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-white font-medium">
-                          {language === 'fr' ? spread.labelFr : spread.labelEn}
-                        </p>
-                        {isFirstFree ? (
-                          <span className="text-xs text-[#C9A84C] font-semibold">
-                            {language === 'fr' ? '· Gratuit' : '· Free'}
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-xs">
-                            <Coins className="w-3 h-3 text-amber-400/80" />
-                            <span className="text-amber-400/80">1</span>
-                          </span>
-                        )}
-                      </div>
+                      <p className="text-sm text-white font-medium">
+                        {language === 'fr' ? spread.labelFr : spread.labelEn}
+                      </p>
                       <p className="text-xs text-white/85">
                         {language === 'fr' ? spread.descFr : spread.descEn}
                       </p>

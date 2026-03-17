@@ -181,8 +181,8 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
               </h3>
               <p className="text-xs md:text-sm text-slate-400 leading-snug group-hover:text-slate-300 transition-colors mt-0.5">
                 {language === 'en'
-                  ? 'Drew your own spread? Tell us what you pulled and we\'ll help you understand what the cards are saying together.'
-                  : 'Vous avez tiré vos propres cartes ? Dites-nous lesquelles et nous vous aiderons à comprendre ce qu\'elles vous disent ensemble.'}
+                  ? 'Drew your own spread? We\'ll help you understand what the cards are saying.'
+                  : 'Vous avez tiré vos propres cartes ? Nous vous aiderons à comprendre ce qu\'elles disent.'}
               </p>
             </div>
           </div>
