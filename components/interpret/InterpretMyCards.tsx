@@ -327,7 +327,7 @@ const InterpretMyCards: React.FC = () => {
   }, [step, needsLayout, navigate]);
 
   return (
-    <div className="min-h-[60vh] pt-8 pb-4 px-4">
+    <div className="min-h-[calc(100dvh-6rem)] flex flex-col justify-center py-12 md:py-16 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
