@@ -2,6 +2,15 @@ import { Link } from 'react-router-dom';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { useApp } from '../../context/AppContext';
 
+// Map breadcrumbCategory names to canonical URL slugs
+const categoryToSlug: Record<string, string> = {
+  'Major Arcana': 'major-arcana',
+  'Suit of Wands': 'wands',
+  'Suit of Cups': 'cups',
+  'Suit of Swords': 'swords',
+  'Suit of Pentacles': 'pentacles',
+};
+
 interface BreadcrumbsProps {
   category: string;
   title: string;
@@ -14,7 +23,7 @@ interface BreadcrumbsProps {
 export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
   const { t } = useApp();
   const cardName = title.split(':')[0].trim();
-  const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+  const categorySlug = categoryToSlug[category] || category.toLowerCase().replace(/\s+/g, '-');
   const categoryUrl = buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categorySlug });
 
   return (

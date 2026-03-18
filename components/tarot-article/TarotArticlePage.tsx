@@ -17,6 +17,15 @@ import { ROUTES, buildRoute } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
+// Map breadcrumbCategory names to canonical URL slugs used by TarotCardsOverview
+const categoryToSlug: Record<string, string> = {
+  'Major Arcana': 'major-arcana',
+  'Suit of Wands': 'wands',
+  'Suit of Cups': 'cups',
+  'Suit of Swords': 'swords',
+  'Suit of Pentacles': 'pentacles',
+};
+
 // Sub-components
 import { ArticleSkeleton } from './ArticleSkeleton';
 import { ReadingProgress } from './ReadingProgress';
@@ -329,7 +338,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
           >
             <Link
               to={article.breadcrumbCategory
-                ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
+                ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categoryToSlug[article.breadcrumbCategory] || article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
                 : ROUTES.TAROT_CARDS}
               className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2 group text-sm"
             >

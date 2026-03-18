@@ -17,6 +17,11 @@ const slugToCategory: Record<string, CategoryType> = {
   'cups': 'cups',
   'swords': 'swords',
   'pentacles': 'pentacles',
+  // Full slugs used by article breadcrumbCategory (e.g. "Suit of Wands" → "suit-of-wands")
+  'suit-of-wands': 'wands',
+  'suit-of-cups': 'cups',
+  'suit-of-swords': 'swords',
+  'suit-of-pentacles': 'pentacles',
 };
 
 interface TarotCardsOverviewProps {
