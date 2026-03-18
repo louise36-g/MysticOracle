@@ -67,22 +67,25 @@ window.onunhandledrejection = (event) => {
   }
 };
 
-// Register service worker for offline support and automatic updates
-// When a new version is deployed, the SW updates silently and reloads on next navigation
+// Register service worker for offline support and silent auto-updates
+// The SW uses skipWaiting + clientsClaim so new versions take effect immediately.
+// We check for updates every hour so mobile users don't get stuck on stale cache.
 if ('serviceWorker' in navigator) {
+  // Reload once when a new service worker takes control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then((registration) => {
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-              // New version available — reload to pick it up
-              window.location.reload();
-            }
-          });
-        }
-      });
+      // Check for updates every 60 minutes
+      setInterval(() => {
+        registration.update();
+      }, 60 * 60 * 1000);
     }).catch((err) => {
       console.warn('SW registration failed:', err);
     });
