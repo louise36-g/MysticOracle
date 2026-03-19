@@ -210,13 +210,13 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     linkRegistry,
   });
 
-  // Extract "What Does ... Mean" overview section to render before the image (SEO)
-  // Source HTML: <h3>What Does ... Mean?</h3><blockquote><p>...</p></blockquote>
-  // Output: H2 heading + plain paragraph (no blockquote) for featured snippet eligibility
+  // Extract overview section to render before the image (SEO/featured snippets)
+  // Source HTML: <h3>The XXX Tarot Meaning (Overview)</h3><blockquote><p>...</p></blockquote>
+  // Output: H2 heading + plain paragraph (no blockquote)
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    const overviewRegex = /<h3[^>]*>([^<]*what does[^<]*mean[^<]*)<\/h3>\s*(<blockquote[\s\S]*?<\/blockquote>)/i;
+    const overviewRegex = /<h3[^>]*>([^<]*tarot meaning \(overview\)[^<]*)<\/h3>\s*(<blockquote[\s\S]*?<\/blockquote>)/i;
     const match = sanitizedContent.match(overviewRegex);
 
     if (!match) return { overviewHtml: '', remainingHtml: sanitizedContent };
