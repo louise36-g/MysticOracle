@@ -211,19 +211,25 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   });
 
   // Extract "What Does ... Mean" overview section to render before the image (SEO)
-  // The heading is an H3 followed by a blockquote in the article HTML
+  // Source HTML: <h3>What Does ... Mean?</h3><blockquote><p>...</p></blockquote>
+  // Output: H2 heading + plain paragraph (no blockquote) for featured snippet eligibility
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    // Use regex to extract the H3 + blockquote without a DOMParser round-trip
-    // (DOMParser can subtly change HTML and break styling)
     const overviewRegex = /<h3[^>]*>([^<]*what does[^<]*mean[^<]*)<\/h3>\s*(<blockquote[\s\S]*?<\/blockquote>)/i;
     const match = sanitizedContent.match(overviewRegex);
 
     if (!match) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    const overviewOut = match[0];
-    const remaining = sanitizedContent.replace(overviewOut, '');
+    // Promote H3 to H2 and unwrap blockquote to plain paragraph
+    const headingText = match[1].trim();
+    const blockquoteInner = match[2]
+      .replace(/<blockquote[^>]*>/i, '')
+      .replace(/<\/blockquote>/i, '')
+      .trim();
+
+    const overviewOut = `<h2>${headingText}</h2>${blockquoteInner}`;
+    const remaining = sanitizedContent.replace(match[0], '');
 
     return { overviewHtml: overviewOut, remainingHtml: remaining };
   }, [sanitizedContent]);
@@ -396,16 +402,16 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             language={language}
           />
 
-          {/* ===== OVERVIEW SECTION (moved above image for SEO) ===== */}
+          {/* ===== OVERVIEW SECTION (moved above image for SEO/featured snippets) ===== */}
           {overviewHtml && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
-              className="article-content-wrapper"
+              className="mb-8"
             >
               <div
-                className="prose prose-invert prose-purple max-w-none"
+                className="max-w-none [&>h2]:text-2xl [&>h2]:md:text-3xl [&>h2]:font-heading [&>h2]:font-bold [&>h2]:text-purple-200 [&>h2]:mb-4 [&>p]:text-lg [&>p]:text-slate-300 [&>p]:leading-relaxed"
                 dangerouslySetInnerHTML={overviewHtmlProp}
               />
             </motion.div>
