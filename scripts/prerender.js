@@ -397,20 +397,30 @@ function generateStaticHtml(template, options) {
     );
   }
 
-  // SSR-lite: Replace generic shell content with article-specific preview (no image — it's lazy-loaded by React)
+  // SSR-lite: Replace generic shell with article content so it paints at FCP (before JS loads)
   if (options.articleTitle && options.type === 'article') {
     const excerptTag = options.articleExcerpt
-      ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto">${escapeHtml(options.articleExcerpt)}</p>`
+      ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto 2rem">${escapeHtml(options.articleExcerpt)}</p>`
       : '';
+
+    // Include article body content so it paints immediately (becomes LCP instead of waiting for JS)
+    let contentHtml = '';
+    if (options.articleData?.content) {
+      // Lazy-load all content images so they don't compete for bandwidth
+      contentHtml = options.articleData.content.replace(/<img /g, '<img loading="lazy" ');
+    }
 
     const articleShell = `<main style="position:relative;z-index:10;flex:1">
           <div style="padding:1.5rem 1rem 1rem;position:relative">
-            <div style="max-width:56rem;margin:0 auto;text-align:center">
-              <h1 style="position:relative;text-align:center;font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem;line-height:1.1">
-                <span style="background:linear-gradient(to bottom,#fde68a,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${escapeHtml(options.articleTitle)}</span>
-              </h1>
-              ${excerptTag}
-            </div>
+            <article style="max-width:56rem;margin:0 auto">
+              <div style="text-align:center">
+                <h1 style="position:relative;text-align:center;font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem;line-height:1.1">
+                  <span style="background:linear-gradient(to bottom,#fde68a,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${escapeHtml(options.articleTitle)}</span>
+                </h1>
+                ${excerptTag}
+              </div>
+              <div class="prose prose-invert prose-purple max-w-none">${contentHtml}</div>
+            </article>
           </div>
         </main>`;
 
