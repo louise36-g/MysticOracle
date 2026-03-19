@@ -370,12 +370,12 @@ function generateStaticHtml(template, options) {
     );
   }
 
-  // Preload the LCP image so the browser fetches it immediately (before JS/API)
+  // Preload the cover image on desktop only (mobile LCP should be title text, not image)
   if (options.image && options.type === 'article') {
     const preloadUrl = buildCloudinaryPreloadUrl(options.image);
     html = html.replace(
       '</head>',
-      `  <link rel="preload" as="image" href="${preloadUrl}" fetchpriority="high" />\n  </head>`
+      `  <link rel="preload" as="image" href="${preloadUrl}" fetchpriority="high" media="(min-width: 769px)" />\n  </head>`
     );
   }
 
@@ -397,12 +397,8 @@ function generateStaticHtml(template, options) {
     );
   }
 
-  // SSR-lite: Replace generic shell content with article-specific preview
+  // SSR-lite: Replace generic shell content with article-specific preview (no image — it's lazy-loaded by React)
   if (options.articleTitle && options.type === 'article') {
-    const imageUrl = options.image ? buildCloudinaryPreloadUrl(options.image) : '';
-    const imageTag = imageUrl
-      ? `<div style="max-width:56rem;margin:1.5rem auto 0;text-align:center"><img src="${imageUrl}" alt="${escapeHtml(options.articleTitle)}" style="max-width:100%;height:auto;border-radius:1rem;aspect-ratio:16/9;object-fit:cover" width="1200" height="675" /></div>`
-      : '';
     const excerptTag = options.articleExcerpt
       ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto">${escapeHtml(options.articleExcerpt)}</p>`
       : '';
@@ -415,7 +411,6 @@ function generateStaticHtml(template, options) {
               </h1>
               ${excerptTag}
             </div>
-            ${imageTag}
           </div>
         </main>`;
 
