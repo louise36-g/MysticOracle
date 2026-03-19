@@ -211,25 +211,52 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   });
 
   // Extract overview section to render before the image (SEO/featured snippets)
-  // Source HTML: <h3>The XXX Tarot Meaning (Overview)</h3><blockquote><p>...</p></blockquote>
-  // Output: H2 heading + plain paragraph (no blockquote)
+  // Articles have varying HTML structures — handle all patterns:
+  // 1. <h3>overview</h3><blockquote><p>...</p></blockquote>
+  // 2. <blockquote><h3>overview</h3><p>...</p></blockquote>
+  // 3. <h3>overview</h3><h3>description</h3>
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    const overviewRegex = /<h3[^>]*>([^<]*tarot meaning \(overview\)[^<]*)<\/h3>\s*(<blockquote[\s\S]*?<\/blockquote>)/i;
-    const match = sanitizedContent.match(overviewRegex);
+    // Match heading text: "XXX Tarot Meaning (Overview)" or "What Does XXX Mean"
+    const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean)';
 
-    if (!match) return { overviewHtml: '', remainingHtml: sanitizedContent };
+    // Pattern 1: <blockquote><h3>overview</h3><p>...</p></blockquote>
+    const p1 = new RegExp(`<blockquote[^>]*>\\s*<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*(<p[\\s\\S]*?)<\\/blockquote>`, 'i');
+    // Pattern 2: <h3>overview</h3><blockquote>...</blockquote>
+    const p2 = new RegExp(`<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*(<blockquote[\\s\\S]*?<\\/blockquote>)`, 'i');
+    // Pattern 3: <h3>overview</h3><h3>description</h3> (description wrongly in H3)
+    const p3 = new RegExp(`<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*<h3[^>]*>([^<]+)<\\/h3>`, 'i');
 
-    // Promote H3 to H2 and unwrap blockquote to plain paragraph
-    const headingText = match[1].trim();
-    const blockquoteInner = match[2]
-      .replace(/<blockquote[^>]*>/i, '')
-      .replace(/<\/blockquote>/i, '')
-      .trim();
+    let headingText = '';
+    let bodyHtml = '';
+    let fullMatch = '';
 
-    const overviewOut = `<h2>${headingText}</h2>${blockquoteInner}`;
-    const remaining = sanitizedContent.replace(match[0], '');
+    const m1 = sanitizedContent.match(p1);
+    const m2 = sanitizedContent.match(p2);
+    const m3 = sanitizedContent.match(p3);
+
+    if (m1) {
+      fullMatch = m1[0];
+      headingText = m1[1].trim();
+      bodyHtml = m1[2].trim();
+    } else if (m2) {
+      fullMatch = m2[0];
+      headingText = m2[1].trim();
+      bodyHtml = m2[2]
+        .replace(/<blockquote[^>]*>/i, '')
+        .replace(/<\/blockquote>/i, '')
+        .trim();
+    } else if (m3) {
+      fullMatch = m3[0];
+      headingText = m3[1].trim();
+      bodyHtml = `<p>${m3[2].trim()}</p>`;
+    }
+
+    if (!fullMatch) return { overviewHtml: '', remainingHtml: sanitizedContent };
+
+    const overviewOut = `<h2>${headingText}</h2>${bodyHtml}`;
+    const remaining = sanitizedContent.replace(fullMatch, '');
 
     return { overviewHtml: overviewOut, remainingHtml: remaining };
   }, [sanitizedContent]);
