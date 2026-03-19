@@ -35,6 +35,22 @@ function processContent(html: string): string {
     link.setAttribute('rel', 'noopener noreferrer');
   });
 
+  // Optimize Cloudinary images: add auto-format, compression, width limit, and lazy loading
+  const images = doc.querySelectorAll('img');
+  images.forEach((img) => {
+    const src = img.getAttribute('src');
+    if (src) {
+      const cloudinaryMatch = src.match(/^(https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(.*)/);
+      if (cloudinaryMatch) {
+        const [, base, rest] = cloudinaryMatch;
+        // Strip existing transforms if present (e.g. v1234/...) and re-apply
+        img.setAttribute('src', `${base}f_auto,q_auto:good,w_800,c_limit/${rest}`);
+      }
+      // Lazy-load all content images (featured image is separate with eager loading)
+      img.setAttribute('loading', 'lazy');
+    }
+  });
+
   // Strip inline styles from containers (not images) - includes hr for consistent break markers
   // But preserve text-align: center on paragraphs (for Keywords sections)
   const containersToStrip = doc.querySelectorAll(
