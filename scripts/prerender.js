@@ -183,7 +183,7 @@ async function prerenderTarotArticles(template) {
           description: article.metaDescription || article.excerpt || `Discover the meaning of ${article.title} in tarot readings.`,
           url: `https://celestiarcana.com/tarot/${article.slug}`,
           path: `/tarot/${article.slug}`,
-          image: article.imageUrl,
+          image: article.featuredImage || article.imageUrl,
           type: 'article',
           structuredData: generateTarotArticleSchema(article),
         });
@@ -355,6 +355,15 @@ function generateStaticHtml(template, options) {
     );
   }
 
+  // Preload the LCP image so the browser fetches it immediately (before JS/API)
+  if (options.image && options.type === 'article') {
+    const preloadUrl = buildCloudinaryPreloadUrl(options.image);
+    html = html.replace(
+      '</head>',
+      `  <link rel="preload" as="image" href="${preloadUrl}" fetchpriority="high" />\n  </head>`
+    );
+  }
+
   // Add structured data if provided (append, as this is new content)
   if (options.structuredData) {
     html = html.replace(
@@ -392,6 +401,18 @@ function generateTarotArticleSchema(article) {
       '@id': `https://celestiarcana.com/tarot/${article.slug}`,
     },
   };
+}
+
+/**
+ * Build an optimized Cloudinary URL for preloading the LCP image.
+ * Matches the transform used by FeaturedImage.tsx (600px CSS → 1200px retina, auto format).
+ */
+function buildCloudinaryPreloadUrl(url) {
+  if (!url) return url;
+  const match = url.match(/^(https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(.*)/);
+  if (!match) return url;
+  const [, base, rest] = match;
+  return `${base}f_auto,q_auto:best,w_1200,c_limit/${rest}`;
 }
 
 function getOutputPath(urlPath) {
@@ -493,64 +514,7 @@ Disallow: /
     console.log('✓');
   } else {
     process.stdout.write('  Generating robots.txt (production)... ');
-    const productionRobots = `# As a condition of accessing this website, you agree to abide by the following
-# content signals:
-
-# (a)  If a Content-Signal = yes, you may collect content for the corresponding
-#      use.
-# (b)  If a Content-Signal = no, you may not collect content for the
-#      corresponding use.
-# (c)  If the website operator does not include a Content-Signal for a
-#      corresponding use, the website operator neither grants nor restricts
-#      permission via Content-Signal with respect to the corresponding use.
-
-# The content signals and their meanings are:
-
-# search:   building a search index and providing search results (e.g., returning
-#           hyperlinks and short excerpts from your website's contents). Search does not
-#           include providing AI-generated search summaries.
-# ai-input: inputting content into one or more AI models (e.g., retrieval
-#           augmented generation, grounding, or other real-time taking of content for
-#           generative AI search answers).
-# ai-train: training or fine-tuning AI models.
-
-# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF
-# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT
-# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.
-
-# BEGIN Cloudflare Managed content
-
-User-agent: *
-Content-Signal: search=yes,ai-train=no
-Allow: /
-
-User-agent: Amazonbot
-Disallow: /
-
-User-agent: Applebot-Extended
-Disallow: /
-
-User-agent: Bytespider
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-User-agent: ClaudeBot
-Disallow: /
-
-User-agent: Google-Extended
-Disallow: /
-
-User-agent: GPTBot
-Disallow: /
-
-User-agent: meta-externalagent
-Disallow: /
-
-# END Cloudflare Managed Content
-
-# CelestiArcana Robots.txt
+    const productionRobots = `# CelestiArcana Robots.txt
 # https://www.robotstxt.org/
 
 User-agent: *
@@ -589,6 +553,34 @@ Crawl-delay: 1
 
 # Sitemap
 Sitemap: https://celestiarcana.com/sitemap.xml
+
+# Block AI training bots
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# Content-Signal: search=yes,ai-train=no
+# Express reservation of rights under Article 4, EU Directive 2019/790
 `;
     fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), productionRobots);
     console.log('✓');

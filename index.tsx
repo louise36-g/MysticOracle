@@ -9,16 +9,13 @@ import { ReadingProvider } from './context/ReadingContext';
 import App from './App';
 import './styles/main.css';
 
-// Defer Sentry initialization until after first paint to reduce FCP
-// Sentry's ~50KB vendor chunk won't block initial render
+// Defer Sentry initialization until well after LCP to avoid competing for bandwidth
+// Sentry's ~150KB vendor chunk must not load during the critical rendering window
 const sentryModule = () => import('./config/sentry');
 if (typeof window !== 'undefined') {
   const initFn = () => sentryModule().then(m => m.initSentry());
-  if ('requestIdleCallback' in window) {
-    (window as Window).requestIdleCallback(() => initFn());
-  } else {
-    setTimeout(() => initFn(), 2000);
-  }
+  // Wait 5 seconds — LCP should be complete by then on even slow connections
+  setTimeout(() => initFn(), 5000);
 }
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
