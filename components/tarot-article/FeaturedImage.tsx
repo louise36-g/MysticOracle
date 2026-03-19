@@ -1,6 +1,10 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ZoomIn } from 'lucide-react';
-import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
+import { optimizeCloudinaryUrl } from '../../utils/cloudinaryUrl';
+
+/** Widths for responsive srcset (CSS pixels, doubled for retina inside optimizeCloudinaryUrl) */
+const SRCSET_WIDTHS = [400, 600, 800] as const;
 
 interface FeaturedImageProps {
   src: string;
@@ -13,6 +17,17 @@ interface FeaturedImageProps {
  * Includes hover effects and zoom indicator
  */
 export function FeaturedImage({ src, alt, onClick }: FeaturedImageProps) {
+  const { defaultSrc, srcSet } = useMemo(() => {
+    const opts = { crop: 'limit' as const, quality: 'auto:best' as const };
+    const set = SRCSET_WIDTHS
+      .map(w => `${optimizeCloudinaryUrl(src, { ...opts, width: w })} ${w * 2}w`)
+      .join(', ');
+    return {
+      defaultSrc: optimizeCloudinaryUrl(src, { ...opts, width: 600 }),
+      srcSet: set,
+    };
+  }, [src]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -22,7 +37,9 @@ export function FeaturedImage({ src, alt, onClick }: FeaturedImageProps) {
       onClick={onClick}
     >
       <img
-        src={optimizeCloudinaryUrl(src, IMAGE_SIZES.cover)}
+        src={defaultSrc}
+        srcSet={srcSet}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 896px"
         alt={alt}
         width={896}
         height={504}

@@ -3,17 +3,19 @@ import { Suspense, lazy, useState, useEffect } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
 import Footer from '../Footer';
-import CookieConsent from '../CookieConsent';
-const WelcomeModal = lazy(() => import('../WelcomeModal'));
-import CreditShop from '../CreditShop';
-import { DailyBonusPopup } from '../rewards';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import Button from '../Button';
 import { useApp } from '../../context/AppContext';
 import { trackPageView } from '../../utils/analytics';
 import { Coins, AlertTriangle, X } from 'lucide-react';
-import PWAUpdatePrompt from '../PWAUpdatePrompt';
-import Starfield from '../Starfield';
+
+// Lazy-load non-critical components to reduce initial bundle
+const CookieConsent = lazy(() => import('../CookieConsent'));
+const WelcomeModal = lazy(() => import('../WelcomeModal'));
+const CreditShop = lazy(() => import('../CreditShop'));
+const DailyBonusPopup = lazy(() => import('../rewards/DailyBonusPopup'));
+const PWAUpdatePrompt = lazy(() => import('../PWAUpdatePrompt'));
+const Starfield = lazy(() => import('../Starfield'));
 
 // Low credits threshold
 const LOW_CREDITS_WARNING_THRESHOLD = 5;
@@ -143,7 +145,9 @@ export function RootLayout() {
       />
 
       {/* Animated Starfield */}
-      <Starfield />
+      <Suspense fallback={null}>
+        <Starfield />
+      </Suspense>
 
       {/* Skip to main content link for keyboard/screen reader users */}
       <a
@@ -162,13 +166,17 @@ export function RootLayout() {
         </ErrorBoundary>
       </main>
       <Footer />
-      <CookieConsent />
+      <Suspense fallback={null}>
+        <CookieConsent />
+      </Suspense>
 
       {/* Scroll Restoration for React Router */}
       <ScrollRestoration />
 
       {/* PWA Update Prompt */}
-      <PWAUpdatePrompt />
+      <Suspense fallback={null}>
+        <PWAUpdatePrompt />
+      </Suspense>
 
       {/* Welcome Modal */}
       <Suspense fallback={null}>
@@ -182,10 +190,14 @@ export function RootLayout() {
       </Suspense>
 
       {/* Credit Shop Modal */}
-      <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
+      <Suspense fallback={null}>
+        <CreditShop isOpen={showCreditShop} onClose={() => setShowCreditShop(false)} />
+      </Suspense>
 
       {/* Daily Bonus Popup */}
-      <DailyBonusPopup isOpen={showDailyBonusPopup} onClose={() => setShowDailyBonusPopup(false)} />
+      <Suspense fallback={null}>
+        <DailyBonusPopup isOpen={showDailyBonusPopup} onClose={() => setShowDailyBonusPopup(false)} />
+      </Suspense>
 
       {/* Low Credits Warning Modal */}
       <AnimatePresence>

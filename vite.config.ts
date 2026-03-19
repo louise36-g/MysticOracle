@@ -27,6 +27,9 @@ export default defineConfig(() => {
               '**/TranslationToolbar*.js',
               '**/WithdrawalForm*.js',
               '**/stats.html',
+              '**/birthCard*.js',       // Birth card JSON data — loaded on demand
+              '**/unifiedBirth*.js',    // Unified birth card data — loaded on demand
+              '**/vendor-tiptap*.js',   // Rich text editor — admin only
             ],
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
             runtimeCaching: [

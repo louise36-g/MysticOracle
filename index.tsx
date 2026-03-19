@@ -1,7 +1,3 @@
-// Initialize Sentry first (before any other code runs)
-import { initSentry, captureException } from './config/sentry';
-initSentry();
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
@@ -13,6 +9,18 @@ import { ReadingProvider } from './context/ReadingContext';
 import App from './App';
 import './styles/main.css';
 
+// Defer Sentry initialization until after first paint to reduce FCP
+// Sentry's ~50KB vendor chunk won't block initial render
+const sentryModule = () => import('./config/sentry');
+if (typeof window !== 'undefined') {
+  const initFn = () => sentryModule().then(m => m.initSentry());
+  if ('requestIdleCallback' in window) {
+    (window as Window).requestIdleCallback(() => initFn());
+  } else {
+    setTimeout(() => initFn(), 2000);
+  }
+}
+
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 // Global error handler to catch render errors
@@ -22,9 +30,9 @@ window.onerror = (message, source, lineno, colno, error) => {
   const log = isNetworkError ? console.warn : console.error;
   log('Global error:', { message, source, lineno, colno, error });
 
-  // Capture in Sentry
+  // Capture in Sentry (lazy — module may not be loaded yet on very early errors)
   if (error) {
-    captureException(error, { source, lineno, colno });
+    sentryModule().then(m => m.captureException(error, { source, lineno, colno })).catch(() => {});
   }
 
   const root = document.getElementById('root');
@@ -61,9 +69,9 @@ window.onunhandledrejection = (event) => {
   const isNetworkError = event.reason instanceof TypeError && event.reason.message?.includes('Failed to fetch');
   const log = isNetworkError ? console.warn : console.error;
   log('Unhandled promise rejection:', event.reason);
-  // Capture in Sentry
+  // Capture in Sentry (lazy)
   if (event.reason instanceof Error) {
-    captureException(event.reason);
+    sentryModule().then(m => m.captureException(event.reason as Error)).catch(() => {});
   }
 };
 
