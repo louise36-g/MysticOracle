@@ -178,6 +178,18 @@ async function prerenderTarotArticles(template) {
       try {
         process.stdout.write(`  Generating /tarot/${article.slug}... `);
 
+        // SSR-lite: fetch full article data to embed in HTML (eliminates API round-trip)
+        let articleData = null;
+        try {
+          const articleResponse = await fetchWithTimeout(`${API_BASE}/api/v1/tarot-articles/${article.slug}`);
+          if (articleResponse.ok) {
+            articleData = await articleResponse.json();
+          }
+        } catch (fetchErr) {
+          // Non-fatal: page still works without embedded data (falls back to API fetch)
+          process.stdout.write('(no embed) ');
+        }
+
         const html = generateStaticHtml(template, {
           title: `${article.title} | CelestiArcana`,
           description: article.metaDescription || article.excerpt || `Discover the meaning of ${article.title} in tarot readings.`,
@@ -186,6 +198,9 @@ async function prerenderTarotArticles(template) {
           image: article.featuredImage || article.imageUrl,
           type: 'article',
           structuredData: generateTarotArticleSchema(article),
+          articleData,
+          articleTitle: article.title,
+          articleExcerpt: article.excerpt || article.metaDescription,
         });
 
         const outputPath = getOutputPath(`/tarot/${article.slug}`);
@@ -369,6 +384,44 @@ function generateStaticHtml(template, options) {
     html = html.replace(
       '</head>',
       `  <script type="application/ld+json">${JSON.stringify(options.structuredData)}</script>\n  </head>`
+    );
+  }
+
+  // SSR-lite: Embed full article data as JSON so React skips the API fetch
+  if (options.articleData) {
+    // Escape </ sequences to prevent premature script tag closing
+    const safeJson = JSON.stringify(options.articleData).replace(/<\//g, '<\\/');
+    html = html.replace(
+      '</body>',
+      `  <script type="application/json" id="__ARTICLE_DATA__">${safeJson}</script>\n  </body>`
+    );
+  }
+
+  // SSR-lite: Replace generic shell content with article-specific preview
+  if (options.articleTitle && options.type === 'article') {
+    const imageUrl = options.image ? buildCloudinaryPreloadUrl(options.image) : '';
+    const imageTag = imageUrl
+      ? `<div style="max-width:56rem;margin:1.5rem auto 0;text-align:center"><img src="${imageUrl}" alt="${escapeHtml(options.articleTitle)}" style="max-width:100%;height:auto;border-radius:1rem;aspect-ratio:16/9;object-fit:cover" width="1200" height="675" /></div>`
+      : '';
+    const excerptTag = options.articleExcerpt
+      ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto">${escapeHtml(options.articleExcerpt)}</p>`
+      : '';
+
+    const articleShell = `<main style="position:relative;z-index:10;flex:1">
+          <div style="padding:1.5rem 1rem 1rem;position:relative">
+            <div style="max-width:56rem;margin:0 auto;text-align:center">
+              <h1 style="position:relative;text-align:center;font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem;line-height:1.1">
+                <span style="background:linear-gradient(to bottom,#fde68a,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${escapeHtml(options.articleTitle)}</span>
+              </h1>
+              ${excerptTag}
+            </div>
+            ${imageTag}
+          </div>
+        </main>`;
+
+    html = html.replace(
+      /<main style="[^"]*">[\s\S]*?<\/main>/,
+      articleShell
     );
   }
 

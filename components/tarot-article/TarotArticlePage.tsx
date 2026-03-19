@@ -17,6 +17,25 @@ import { ROUTES, buildRoute } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
+/**
+ * SSR-lite: Read pre-embedded article data from the HTML.
+ * The prerender script injects a <script type="application/json" id="__ARTICLE_DATA__">
+ * with the full article JSON, so we can skip the API fetch on initial page load.
+ */
+function getEmbeddedArticleData(slug: string | undefined): TarotArticle | null {
+  if (typeof document === 'undefined' || !slug) return null;
+  const el = document.getElementById('__ARTICLE_DATA__');
+  if (!el?.textContent) return null;
+  try {
+    const data = JSON.parse(el.textContent) as TarotArticle;
+    // Only use if the slug matches (prevents stale data on client-side navigation)
+    if (data.slug === slug) return data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // Map breadcrumbCategory names to canonical URL slugs used by TarotCardsOverview
 const categoryToSlug: Record<string, string> = {
   'Major Arcana': 'major-arcana',
@@ -69,9 +88,17 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { language, t } = useApp();
   const { getToken } = useAuth();
 
-  // State
-  const [article, setArticle] = useState<TarotArticle | null>(null);
-  const [loading, setLoading] = useState(true);
+  // SSR-lite: check for pre-embedded article data on initial mount
+  const hasEmbeddedData = useRef(false);
+
+  // State - initialize from embedded data if available (SSR-lite)
+  const [article, setArticle] = useState<TarotArticle | null>(() => {
+    if (previewId) return null;
+    const data = getEmbeddedArticleData(slug);
+    if (data) hasEmbeddedData.current = true;
+    return data;
+  });
+  const [loading, setLoading] = useState(!hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
@@ -81,6 +108,12 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
 
   // Load article data
   const loadArticle = useCallback(async () => {
+    // SSR-lite: skip fetch if embedded data was used on initial mount
+    if (hasEmbeddedData.current) {
+      hasEmbeddedData.current = false; // Reset so subsequent navigations fetch normally
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
