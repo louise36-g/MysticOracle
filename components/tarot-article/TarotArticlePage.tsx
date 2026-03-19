@@ -210,15 +210,54 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     linkRegistry,
   });
 
-  // Memoize the prop object to prevent React from replacing DOM on re-renders
+  // Extract "What Does ... Mean" overview section to render before the image (SEO)
+  const { overviewHtml, remainingHtml } = useMemo(() => {
+    if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${sanitizedContent}</div>`, 'text/html');
+    const wrapper = doc.body.firstElementChild;
+    if (!wrapper) return { overviewHtml: '', remainingHtml: sanitizedContent };
+
+    // Find the H2 containing "What Does ... Mean"
+    const headings = wrapper.querySelectorAll('h2');
+    let overviewH2: Element | null = null;
+    headings.forEach((h) => {
+      if (/what does.*mean/i.test(h.textContent || '')) {
+        overviewH2 = h;
+      }
+    });
+
+    if (!overviewH2) return { overviewHtml: '', remainingHtml: sanitizedContent };
+
+    // Collect the H2 and all siblings until the next H2
+    const overviewElements: Element[] = [overviewH2];
+    let sibling = overviewH2.nextElementSibling;
+    while (sibling && sibling.tagName !== 'H2') {
+      overviewElements.push(sibling);
+      sibling = sibling.nextElementSibling;
+    }
+
+    // Build overview HTML and remove those elements from the wrapper
+    const overviewOut = overviewElements.map(el => el.outerHTML).join('');
+    overviewElements.forEach(el => el.remove());
+
+    return { overviewHtml: overviewOut, remainingHtml: wrapper.innerHTML };
+  }, [sanitizedContent]);
+
+  // Memoize the prop objects to prevent React from replacing DOM on re-renders
   // Content is sanitized via DOMPurify in useContentProcessor
+  const overviewHtmlProp = useMemo(
+    () => ({ __html: overviewHtml }),
+    [overviewHtml]
+  );
   const contentHtmlProp = useMemo(
-    () => ({ __html: sanitizedContent }),
-    [sanitizedContent]
+    () => ({ __html: remainingHtml }),
+    [remainingHtml]
   );
 
   const { sections, activeSection, scrollToSection } = useSectionNavigation({
-    content: localizedContent,
+    content: remainingHtml,
     contentRef: contentRef as React.RefObject<HTMLDivElement>,
   });
 
@@ -373,6 +412,21 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             onSectionClick={scrollToSection}
             language={language}
           />
+
+          {/* ===== OVERVIEW SECTION (moved above image for SEO) ===== */}
+          {overviewHtml && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="article-content-wrapper"
+            >
+              <div
+                className="prose prose-invert prose-purple max-w-none"
+                dangerouslySetInnerHTML={overviewHtmlProp}
+              />
+            </motion.div>
+          )}
 
           {/* ===== FEATURED IMAGE ===== */}
           {article.featuredImage && (
