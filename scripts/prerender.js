@@ -428,6 +428,20 @@ function generateStaticHtml(template, options) {
       /<main style="[^"]*">[\s\S]*?<\/main>/,
       articleShell
     );
+
+    // Defer JS loading until user interaction — the static content is fully readable
+    // without React. This prevents React's createRoot from triggering a new LCP paint.
+    const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+    if (scriptMatch) {
+      const mainSrc = scriptMatch[1];
+      // Replace eager script with interaction-triggered loader + 10s fallback
+      html = html.replace(
+        scriptMatch[0],
+        `<script type="module">const s="${mainSrc}",l=()=>import(s);["scroll","click","touchstart","keydown"].forEach(e=>addEventListener(e,()=>l(),{once:!0,passive:!0}));setTimeout(l,1e4)</script>`
+      );
+      // Remove modulepreload hints — they'd trigger early JS downloads in the trace
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
+    }
   }
 
   return html;
