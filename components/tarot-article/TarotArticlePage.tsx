@@ -211,38 +211,21 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   });
 
   // Extract "What Does ... Mean" overview section to render before the image (SEO)
+  // The heading is an H3 followed by a blockquote in the article HTML
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<div>${sanitizedContent}</div>`, 'text/html');
-    const wrapper = doc.body.firstElementChild;
-    if (!wrapper) return { overviewHtml: '', remainingHtml: sanitizedContent };
+    // Use regex to extract the H3 + blockquote without a DOMParser round-trip
+    // (DOMParser can subtly change HTML and break styling)
+    const overviewRegex = /<h3[^>]*>([^<]*what does[^<]*mean[^<]*)<\/h3>\s*(<blockquote[\s\S]*?<\/blockquote>)/i;
+    const match = sanitizedContent.match(overviewRegex);
 
-    // Find the H2 containing "What Does ... Mean"
-    const headings = wrapper.querySelectorAll('h2');
-    let overviewH2: Element | null = null;
-    headings.forEach((h) => {
-      if (/what does.*mean/i.test(h.textContent || '')) {
-        overviewH2 = h;
-      }
-    });
+    if (!match) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    if (!overviewH2) return { overviewHtml: '', remainingHtml: sanitizedContent };
+    const overviewOut = match[0];
+    const remaining = sanitizedContent.replace(overviewOut, '');
 
-    // Collect the H2 and all siblings until the next H2
-    const overviewElements: Element[] = [overviewH2];
-    let sibling = overviewH2.nextElementSibling;
-    while (sibling && sibling.tagName !== 'H2') {
-      overviewElements.push(sibling);
-      sibling = sibling.nextElementSibling;
-    }
-
-    // Build overview HTML and remove those elements from the wrapper
-    const overviewOut = overviewElements.map(el => el.outerHTML).join('');
-    overviewElements.forEach(el => el.remove());
-
-    return { overviewHtml: overviewOut, remainingHtml: wrapper.innerHTML };
+    return { overviewHtml: overviewOut, remainingHtml: remaining };
   }, [sanitizedContent]);
 
   // Memoize the prop objects to prevent React from replacing DOM on re-renders
