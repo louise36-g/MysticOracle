@@ -385,6 +385,14 @@ const Header: React.FC = () => {
               <Coins className="w-3.5 h-3.5 text-amber-400" />
               <span className="text-sm font-bold text-purple-100">{userCredits}</span>
             </button>
+            <Link
+              to={ROUTES.PROFILE}
+              className={`text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
+                isActive(ROUTES.PROFILE) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {t('header.my_account', 'My Account')}
+            </Link>
           </SignedIn>
 
           {isAdmin && (
