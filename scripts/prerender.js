@@ -431,13 +431,14 @@ function generateStaticHtml(template, options) {
 
     // Defer JS loading until user interaction — the static content is fully readable
     // without React. This prevents React's createRoot from triggering a new LCP paint.
+    // Uses an external loader file (not inline) to comply with CSP script-src policy.
     const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
     if (scriptMatch) {
       const mainSrc = scriptMatch[1];
-      // Replace eager script with interaction-triggered loader + 10s fallback
+      // Store the entry point URL in a meta tag, load via external CSP-safe script
       html = html.replace(
         scriptMatch[0],
-        `<script type="module">const s="${mainSrc}",l=()=>import(s);["scroll","click","touchstart","keydown"].forEach(e=>addEventListener(e,()=>l(),{once:!0,passive:!0}));setTimeout(l,1e4)</script>`
+        `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
       );
       // Remove modulepreload hints — they'd trigger early JS downloads in the trace
       html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
