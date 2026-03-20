@@ -75,7 +75,7 @@
 		not path /assets/* /fonts/* /logos/* /icons/* /screenshots/*
 		not path /background-celestiarcana.* /favicon.png /apple-touch-icon.png
 		not path /og-image.jpg /manifest.json /robots.txt /sitemap.xml
-		not path /sw.js
+		not path /sw.js /deferred-loader.js
 	}
 	header @notStaticFile {
 		Cache-Control "public, max-age=0, must-revalidate"
