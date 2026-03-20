@@ -46,22 +46,15 @@ interface UseBlogPostReturn {
 export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPostReturn {
   const { getToken } = useAuth();
 
-  // SSR-lite: read embedded data to skip API fetch on pre-rendered pages
-  const hasEmbeddedData = useRef(false);
-  const [post, setPost] = useState<BlogPostType | null>(() => {
-    if (previewId) return null;
-    const embedded = getEmbeddedBlogData(slug);
-    if (embedded) {
-      hasEmbeddedData.current = true;
-      return embedded.post;
-    }
-    return null;
-  });
-  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>(() => {
-    if (previewId) return [];
-    const embedded = getEmbeddedBlogData(slug);
-    return embedded?.relatedPosts || [];
-  });
+  // SSR-lite: read embedded data once to skip API fetch on pre-rendered pages
+  const embeddedRef = useRef(previewId ? null : getEmbeddedBlogData(slug));
+  const hasEmbeddedData = useRef(!!embeddedRef.current);
+  const [post, setPost] = useState<BlogPostType | null>(
+    () => embeddedRef.current?.post || null
+  );
+  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>(
+    () => embeddedRef.current?.relatedPosts || []
+  );
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
   const [loading, setLoading] = useState(!hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);

@@ -65,6 +65,9 @@
 		path /manifest.json
 		path /robots.txt
 		path /sitemap.xml
+		path /sitemap-pages.xml
+		path /sitemap-cards.xml
+		path /sitemap-blog.xml
 	}
 	header @metadata {
 		Cache-Control "public, max-age=3600, stale-while-revalidate=86400"

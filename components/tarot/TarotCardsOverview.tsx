@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -49,7 +49,6 @@ const SITE_URL = 'https://celestiarcana.com';
 const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   selectedCategory: propSelectedCategory,
 }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { category: urlCategory } = useParams<{ category?: string }>();
 
@@ -209,13 +208,6 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
     swords: data.swords?.length ?? 0,
     pentacles: data.pentacles?.length ?? 0,
   };
-
-  const totalCards =
-    counts.majorArcana +
-    counts.wands +
-    counts.cups +
-    counts.swords +
-    counts.pentacles;
 
   return (
     <div className="pb-20">

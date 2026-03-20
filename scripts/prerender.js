@@ -553,10 +553,9 @@ async function prerenderBlogPosts(template) {
       page++;
     }
 
-    const posts = allPosts;
-    console.log(`fetched ${posts.length} posts`);
+    console.log(`fetched ${allPosts.length} posts`);
 
-    for (const post of posts) {
+    for (const post of allPosts) {
       try {
         process.stdout.write(`  Generating /blog/${post.slug}... `);
 
