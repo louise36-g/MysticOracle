@@ -47,7 +47,7 @@ const STATIC_PAGES = [
   { path: '/how-credits-work', title: 'How Credits Work – Pricing & Free Credits', description: 'Learn how CelestiArcana credits work. Reading costs, free daily bonuses, referral rewards, and payment options. No subscriptions.' },
   { path: '/daily-tarot', title: 'Daily Tarot Card Draw — Today\'s Tarot & Astrology Energy', description: 'Draw your daily tarot card from the 22 Major Arcana. Discover today\'s tarot and astrological energy with a free single card draw. Tarot card of the day.' },
   { path: '/horoscopes', title: 'Daily Horoscopes for Every Zodiac Sign', description: "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily." },
-  { path: '/blog', title: 'Mystic Insights Blog', description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.' },
+  // /blog is handled separately in prerenderBlogListPage (SSR-lite with embedded data)
   { path: '/tarot', title: 'Tarot Card Meanings', description: 'Explore the meanings of all 78 tarot cards in the Rider-Waite deck.' },
   // /tarot/cards is handled separately in prerenderTarotCardsPage (SSR-lite with embedded data)
   { path: '/tarot/cards/major-arcana', title: 'Major Arcana Tarot Card Meanings – Complete Guide', description: 'Explore every Major Arcana tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
@@ -91,6 +91,11 @@ async function main() {
   console.log('');
   console.log('[Phase 2] Tarot articles...');
   await prerenderTarotArticles(template);
+
+  // Phase 2.5: Blog listing page (SSR-lite with embedded post data)
+  console.log('');
+  console.log('[Phase 2.5] Blog listing page...');
+  await prerenderBlogListPage(template);
 
   // Phase 3: Blog posts (requires API)
   console.log('');
@@ -393,6 +398,133 @@ async function prerenderTarotArticles(template) {
     console.log('✗');
     console.log(`  ERROR fetching tarot articles: ${error.message}`);
     results.push({ success: false, path: '/tarot/* (fetch)', error: error.message });
+  }
+}
+
+async function prerenderBlogListPage(template) {
+  const pagePath = '/blog';
+
+  try {
+    // Fetch posts (page 1), categories, and featured posts in parallel
+    process.stdout.write('  Fetching blog list data... ');
+    const [postsRes, catsRes, featuredRes] = await Promise.all([
+      fetchWithTimeout(`${API_BASE}/api/blog/posts?page=1&limit=12`),
+      fetchWithTimeout(`${API_BASE}/api/blog/categories`),
+      fetchWithTimeout(`${API_BASE}/api/blog/posts?featured=true&limit=3`),
+    ]);
+
+    if (!postsRes.ok) throw new Error(`Posts API returned ${postsRes.status}`);
+    const postsData = await postsRes.json();
+    const catsData = catsRes.ok ? await catsRes.json() : { categories: [] };
+    const featuredData = featuredRes.ok ? await featuredRes.json() : { posts: [] };
+    console.log(`✓ (${postsData.posts?.length || 0} posts, ${catsData.categories?.length || 0} categories)`);
+
+    process.stdout.write(`  Generating ${pagePath}... `);
+
+    let html = generateStaticHtml(template, {
+      title: 'Mystic Insights Blog | CelestiArcana',
+      description: 'Explore the mystical world of tarot, astrology, and spiritual growth through curated articles on card meanings, spreads, and celestial guidance.',
+      url: `${SITE_URL}${pagePath}`,
+      path: pagePath,
+    });
+
+    // Embed all list data so React skips the three API fetches
+    const listData = {
+      posts: postsData,
+      categories: catsData,
+      featured: featuredData,
+    };
+    const safeJson = JSON.stringify(listData).replace(/<\//g, '<\\/');
+    html = html.replace(
+      '</body>',
+      `  <script type="application/json" id="__BLOG_LIST_DATA__">${safeJson}</script>\n  </body>`
+    );
+
+    // Build static article grid HTML
+    const posts = postsData.posts || [];
+    let cardsHtml = '';
+    for (const post of posts) {
+      const postTitle = post.titleEn || post.title || '';
+      const postExcerpt = post.excerptEn || post.excerpt || '';
+      const imgSrc = post.coverImage ? buildCloudinaryThumbnailUrl(post.coverImage) : '';
+      const imgAlt = escapeHtml(post.coverImageAlt || postTitle);
+      const slug = post.contentType === 'TAROT_ARTICLE' ? `/tarot/${post.slug}` : `/blog/${post.slug}`;
+
+      cardsHtml += `<a href="${slug}" style="display:block;width:250px;flex-shrink:0;text-decoration:none">
+          <div style="background:rgba(15,23,42,0.6);border-radius:0.75rem;overflow:hidden;border:1px solid rgba(168,85,247,0.2)">
+            ${imgSrc ? `<div style="aspect-ratio:16/9;overflow:hidden"><img src="${imgSrc}" alt="${imgAlt}" width="250" height="141" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div>` : ''}
+            <div style="padding:1.25rem">
+              <h3 style="font-family:'Cinzel',serif;font-size:1.125rem;color:#fff;margin:0 0 0.5rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(postTitle)}</h3>
+              <p style="font-size:0.875rem;color:#94a3b8;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(postExcerpt)}</p>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    const total = postsData.pagination?.total || posts.length;
+    const blogShell = `<main style="position:relative;z-index:10;flex:1">
+      <div style="max-width:80rem;margin:0 auto;padding:3rem 1rem">
+        <div style="text-align:center;margin-bottom:3rem">
+          <h1 style="font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem">
+            <span style="background:linear-gradient(to bottom,#fef3c7,#d8b4fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Mystic Insights</span>
+          </h1>
+          <p style="font-size:1.125rem;color:#94a3b8;max-width:42rem;margin:0 auto">Explore the mystical world of tarot, astrology, and spiritual growth through our curated articles.</p>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-family:'Cinzel',serif;font-size:1.5rem;color:#e9d5ff;margin:0 0 1.5rem">All Articles <span style="color:#64748b;font-size:1.125rem">(${total})</span></h2>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center">
+          ${cardsHtml}
+        </div>
+      </div>
+    </main>`;
+
+    html = html.replace(
+      /<main style="[^"]*">[\s\S]*?<\/main>/,
+      blogShell
+    );
+
+    // Defer JS loading
+    const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+    if (scriptMatch) {
+      const mainSrc = scriptMatch[1];
+      html = html.replace(
+        scriptMatch[0],
+        `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
+      );
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
+    }
+
+    const outputPath = getOutputPath(pagePath);
+    ensureDirectoryExists(path.dirname(outputPath));
+    fs.writeFileSync(outputPath, html);
+
+    results.push({ success: true, path: pagePath });
+    console.log('✓');
+
+    sitemapData.pages.push({
+      loc: `${SITE_URL}${pagePath}`,
+      lastmod: new Date().toISOString().split('T')[0],
+      changefreq: 'daily',
+      priority: '0.9',
+    });
+  } catch (error) {
+    console.log('✗');
+    console.log(`  ERROR: ${error.message}`);
+    results.push({ success: false, path: pagePath, error: error.message });
+
+    // Fallback: basic static page
+    try {
+      const html = generateStaticHtml(template, {
+        title: 'Mystic Insights Blog | CelestiArcana',
+        description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.',
+        url: `${SITE_URL}${pagePath}`,
+        path: pagePath,
+      });
+      const outputPath = getOutputPath(pagePath);
+      ensureDirectoryExists(path.dirname(outputPath));
+      fs.writeFileSync(outputPath, html);
+    } catch { /* ignore fallback error */ }
   }
 }
 

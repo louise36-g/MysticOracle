@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
@@ -7,6 +7,7 @@ import {
   fetchBlogCategories,
   BlogPost,
   BlogCategory,
+  BlogPostListResponse,
 } from '../../services/api';
 import { Calendar, Clock, Eye, ChevronLeft, ChevronRight, Folder, Star, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,6 +15,25 @@ import { ROUTES, buildRoute } from '../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 import { SEOTags } from '../../utils/seo';
 import { formatDate } from '../../utils/dateFormatters';
+
+/**
+ * Read pre-rendered blog list data embedded in the HTML by the prerender script.
+ * Contains posts (page 1), categories, and featured posts.
+ */
+function getEmbeddedBlogListData(): {
+  posts: BlogPostListResponse;
+  categories: { categories: BlogCategory[] };
+  featured: { posts: BlogPost[] };
+} | null {
+  if (typeof document === 'undefined') return null;
+  const el = document.getElementById('__BLOG_LIST_DATA__');
+  if (!el?.textContent) return null;
+  try {
+    return JSON.parse(el.textContent);
+  } catch {
+    return null;
+  }
+}
 
 // Unified article type for display
 interface DisplayArticle {
@@ -38,14 +58,43 @@ const BlogList: React.FC = () => {
   // Get category from URL params
   const categoryFromUrl = searchParams.get('category') || '';
 
-  const [articles, setArticles] = useState<DisplayArticle[]>([]);
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  // SSR-lite: read embedded data to skip API fetches on pre-rendered page
+  const embeddedData = useRef(getEmbeddedBlogListData());
+  const hasEmbedded = !!embeddedData.current && !categoryFromUrl;
+
+  const [articles, setArticles] = useState<DisplayArticle[]>(() => {
+    if (!hasEmbedded) return [];
+    const posts = embeddedData.current!.posts.posts || [];
+    return posts.map((post: BlogPost): DisplayArticle => ({
+      id: post.id,
+      slug: post.slug,
+      title: language === 'en' ? post.titleEn : post.titleFr,
+      excerpt: language === 'en' ? post.excerptEn : post.excerptFr,
+      coverImage: post.coverImage,
+      coverImageAlt: post.coverImageAlt,
+      categories: post.categories,
+      readTimeMinutes: post.readTimeMinutes,
+      publishedAt: post.publishedAt || post.createdAt,
+      viewCount: post.viewCount,
+      createdAt: post.createdAt,
+      type: post.contentType === 'TAROT_ARTICLE' ? 'tarot' : 'blog',
+    }));
+  });
+  const [categories, setCategories] = useState<BlogCategory[]>(
+    () => hasEmbedded ? (embeddedData.current!.categories.categories || []) : []
+  );
+  const [loading, setLoading] = useState(!hasEmbedded);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(
+    () => hasEmbedded ? (embeddedData.current!.posts.pagination?.totalPages || 1) : 1
+  );
+  const [total, setTotal] = useState(
+    () => hasEmbedded ? (embeddedData.current!.posts.pagination?.total || 0) : 0
+  );
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
-  const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
+  const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>(
+    () => hasEmbedded ? (embeddedData.current!.featured.posts || []) : []
+  );
 
   // Convert blog post to display article
   const blogPostToArticle = (post: BlogPost): DisplayArticle => ({
@@ -105,12 +154,16 @@ const BlogList: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Skip initial fetch if we have embedded data (no category filter active)
+    if (hasEmbedded && page === 1 && !selectedCategory) return;
     loadPosts();
   }, [loadPosts]);
 
   useEffect(() => {
-    loadCategories();
-    loadFeatured();
+    if (!hasEmbedded) {
+      loadCategories();
+      loadFeatured();
+    }
   }, [loadCategories, loadFeatured]);
 
   // Sync selectedCategory with URL category param
