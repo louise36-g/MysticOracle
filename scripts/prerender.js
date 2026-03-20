@@ -293,7 +293,7 @@ async function prerenderTarotCardsPage(template) {
         scriptMatch[0],
         `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
       );
-      // Keep modulepreload hints — they pre-download chunks so import() is instant
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
     }
 
     const outputPath = getOutputPath(pagePath);
@@ -492,7 +492,7 @@ async function prerenderBlogListPage(template) {
         scriptMatch[0],
         `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
       );
-      // Keep modulepreload hints — they pre-download chunks so import() is instant
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
     }
 
     const outputPath = getOutputPath(pagePath);
@@ -746,7 +746,7 @@ function generateStaticHtml(template, options) {
         scriptMatch[0],
         `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
       );
-      // Keep modulepreload hints — they pre-download chunks so import() is instant
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
     }
   }
 
@@ -803,8 +803,7 @@ function generateStaticHtml(template, options) {
         scriptMatch[0],
         `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
       );
-      // Remove modulepreload hints — they'd trigger early JS downloads in the trace
-      // Keep modulepreload hints — they pre-download chunks so import() is instant
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
     }
   }
 
