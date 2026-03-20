@@ -5,6 +5,7 @@ import { TarotOverviewCard } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
 import { useApp } from '../../context/AppContext';
 import FallbackImage from '../ui/FallbackImage';
+import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 interface TarotCardPreviewProps {
   card: TarotOverviewCard;
@@ -41,10 +42,12 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
         {/* Image */}
         <div className="aspect-[4/3] overflow-hidden bg-slate-900 relative">
           <FallbackImage
-            src={card.featuredImage || undefined}
+            src={card.featuredImage ? optimizeCloudinaryUrl(card.featuredImage, IMAGE_SIZES.thumbnail) : undefined}
             alt={imageAlt || title}
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
             loading="lazy"
+            width={250}
+            height={188}
             language={language}
           />
         </div>
