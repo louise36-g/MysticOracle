@@ -49,7 +49,7 @@ const STATIC_PAGES = [
   { path: '/horoscopes', title: 'Daily Horoscopes for Every Zodiac Sign', description: "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily." },
   { path: '/blog', title: 'Mystic Insights Blog', description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.' },
   { path: '/tarot', title: 'Tarot Card Meanings', description: 'Explore the meanings of all 78 tarot cards in the Rider-Waite deck.' },
-  { path: '/tarot/cards', title: 'All 78 Tarot Card Meanings – Complete Guide', description: 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.' },
+  // /tarot/cards is handled separately in prerenderTarotCardsPage (SSR-lite with embedded data)
   { path: '/tarot/cards/major-arcana', title: 'Major Arcana Tarot Card Meanings – Complete Guide', description: 'Explore every Major Arcana tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
   { path: '/tarot/cards/wands', title: 'Suit of Wands Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Wands tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
   { path: '/tarot/cards/cups', title: 'Suit of Cups Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Cups tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
@@ -81,6 +81,11 @@ async function main() {
   // Phase 1: Static pages (no API needed)
   console.log('[Phase 1] Static pages...');
   await prerenderStaticPages(template);
+
+  // Phase 1.5: Tarot cards overview page (SSR-lite with embedded card data)
+  console.log('');
+  console.log('[Phase 1.5] Tarot cards overview...');
+  await prerenderTarotCardsPage(template);
 
   // Phase 2: Tarot articles (requires API)
   console.log('');
@@ -158,6 +163,165 @@ async function prerenderStaticPages(template) {
       results.push({ success: false, path: page.path, error: error.message });
       console.log('✗');
     }
+  }
+}
+
+// Category config for static HTML rendering (mirrors CATEGORY_CONFIG from React)
+const CATEGORY_STATIC = [
+  { key: 'majorArcana', name: 'Major Arcana', color: '#a78bfa', slug: 'major-arcana' },
+  { key: 'wands', name: 'Suit of Wands', color: '#f97316', slug: 'wands' },
+  { key: 'cups', name: 'Suit of Cups', color: '#06b6d4', slug: 'cups' },
+  { key: 'swords', name: 'Suit of Swords', color: '#94a3b8', slug: 'swords' },
+  { key: 'pentacles', name: 'Suit of Pentacles', color: '#22c55e', slug: 'pentacles' },
+];
+
+function buildCloudinaryThumbnailUrl(url) {
+  if (!url) return '';
+  const match = url.match(/^(https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(.*)/);
+  if (!match) return url;
+  const [, base, rest] = match;
+  // 250px CSS * 2x retina = 500px, auto format, good quality, fill crop
+  return `${base}f_auto,q_auto:good,w_500,c_fill/${rest}`;
+}
+
+function generateTarotCardsShell(overviewData) {
+  let sectionsHtml = '';
+
+  for (const cat of CATEGORY_STATIC) {
+    const cards = overviewData[cat.key] || [];
+    if (cards.length === 0) continue;
+
+    let cardsHtml = '';
+    for (const card of cards) {
+      const imgSrc = card.featuredImage ? buildCloudinaryThumbnailUrl(card.featuredImage) : '';
+      const imgAlt = escapeHtml(card.featuredImageAlt || card.title);
+      const cardNum = card.cardNumber != null && card.cardNumber !== ''
+        ? `<span style="font-weight:700;color:${cat.color}">${escapeHtml(String(card.cardNumber))}</span> - `
+        : '';
+
+      cardsHtml += `<a href="/tarot/${escapeHtml(card.slug)}" style="display:block;flex-shrink:0;width:220px;text-decoration:none">
+          <div style="background:rgba(30,41,59,0.5);border-radius:0.5rem;overflow:hidden;border:1px solid rgba(168,85,247,0.2)">
+            <div style="aspect-ratio:4/3;overflow:hidden;background:#0f172a">
+              ${imgSrc ? `<img src="${imgSrc}" alt="${imgAlt}" width="250" height="188" loading="lazy" style="width:100%;height:100%;object-fit:cover" />` : ''}
+            </div>
+            <div style="padding:0.75rem">
+              <h3 style="font-family:'Cinzel',serif;font-size:0.875rem;color:#e9d5ff;margin:0 0 0.375rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${cardNum}${escapeHtml(card.title)}</h3>
+              <p style="font-size:0.75rem;color:#94a3b8;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(card.excerpt || '')}</p>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    sectionsHtml += `<section style="margin-bottom:2.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding:0 1rem">
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;background:${cat.color}20;color:${cat.color}"></div>
+            <div>
+              <h2 style="font-family:'Cinzel',serif;font-size:1.25rem;color:#fff;margin:0">${escapeHtml(cat.name)}</h2>
+              <div style="height:2px;width:4rem;border-radius:9999px;margin-top:0.25rem;background:${cat.color}"></div>
+            </div>
+          </div>
+          <a href="/tarot/cards/${cat.slug}" style="font-size:0.875rem;color:#94a3b8;text-decoration:none">View All ${cards.length} &#8250;</a>
+        </div>
+        <div style="display:flex;gap:1rem;overflow-x:auto;padding:0.5rem 1rem;scrollbar-width:none;-ms-overflow-style:none">
+          ${cardsHtml}
+        </div>
+      </section>`;
+  }
+
+  return `<main style="position:relative;z-index:10;flex:1">
+      <div style="padding-bottom:5rem">
+        <div style="position:relative;padding:4rem 1rem;text-align:center;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:1rem">
+            <span style="color:#a78bfa;font-size:0.875rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em">Complete Guide</span>
+          </div>
+          <h1 style="font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem">
+            <span style="background:linear-gradient(to bottom,#fff,#e9d5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">The Tarot Deck</span>
+          </h1>
+          <p style="font-size:1.125rem;color:#cbd5e1;max-width:42rem;margin:0 auto 2rem">Explore the ancient wisdom of all 78 cards. Discover their meanings, symbolism, and guidance for your journey.</p>
+        </div>
+        <div style="max-width:80rem;margin:0 auto">
+          ${sectionsHtml}
+        </div>
+      </div>
+    </main>`;
+}
+
+async function prerenderTarotCardsPage(template) {
+  const pagePath = '/tarot/cards';
+
+  try {
+    process.stdout.write('  Fetching tarot overview data... ');
+    const response = await fetchWithTimeout(`${API_BASE}/api/v1/tarot-articles/overview`);
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+    const overviewData = await response.json();
+    console.log('✓');
+
+    process.stdout.write(`  Generating ${pagePath}... `);
+
+    let html = generateStaticHtml(template, {
+      title: 'All 78 Tarot Card Meanings – Complete Guide | CelestiArcana',
+      description: 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.',
+      url: `${SITE_URL}${pagePath}`,
+      path: pagePath,
+    });
+
+    // Embed overview data so React skips the API fetch
+    const safeJson = JSON.stringify(overviewData).replace(/<\//g, '<\\/');
+    html = html.replace(
+      '</body>',
+      `  <script type="application/json" id="__TAROT_OVERVIEW__">${safeJson}</script>\n  </body>`
+    );
+
+    // Replace main content with pre-rendered card grid
+    const cardGridHtml = generateTarotCardsShell(overviewData);
+    html = html.replace(
+      /<main style="[^"]*">[\s\S]*?<\/main>/,
+      cardGridHtml
+    );
+
+    // Defer JS loading (same pattern as article pages)
+    const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+    if (scriptMatch) {
+      const mainSrc = scriptMatch[1];
+      html = html.replace(
+        scriptMatch[0],
+        `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
+      );
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
+    }
+
+    const outputPath = getOutputPath(pagePath);
+    ensureDirectoryExists(path.dirname(outputPath));
+    fs.writeFileSync(outputPath, html);
+
+    results.push({ success: true, path: pagePath });
+    console.log('✓');
+
+    // Add to sitemap
+    sitemapData.pages.push({
+      loc: `${SITE_URL}${pagePath}`,
+      lastmod: new Date().toISOString().split('T')[0],
+      changefreq: 'weekly',
+      priority: '0.9',
+    });
+  } catch (error) {
+    console.log('✗');
+    console.log(`  ERROR: ${error.message}`);
+    results.push({ success: false, path: pagePath, error: error.message });
+
+    // Fallback: generate without overview data (basic static page)
+    try {
+      const html = generateStaticHtml(template, {
+        title: 'All 78 Tarot Card Meanings – Complete Guide | CelestiArcana',
+        description: 'Explore all 78 tarot card meanings.',
+        url: `${SITE_URL}${pagePath}`,
+        path: pagePath,
+      });
+      const outputPath = getOutputPath(pagePath);
+      ensureDirectoryExists(path.dirname(outputPath));
+      fs.writeFileSync(outputPath, html);
+    } catch { /* ignore fallback error */ }
   }
 }
 

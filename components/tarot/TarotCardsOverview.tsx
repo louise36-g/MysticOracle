@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,6 +9,21 @@ import TarotCategorySection, { CategoryType, CATEGORY_CONFIG } from './TarotCate
 import TarotCardPreview from './TarotCardPreview';
 import Button from '../Button';
 import { buildRoute, ROUTES } from '../../routes/routes';
+
+/**
+ * Read pre-rendered overview data embedded in the HTML by the prerender script.
+ * This eliminates the API round-trip on initial page load.
+ */
+function getEmbeddedOverviewData(): TarotOverviewData | null {
+  if (typeof document === 'undefined') return null;
+  const el = document.getElementById('__TAROT_OVERVIEW__');
+  if (!el?.textContent) return null;
+  try {
+    return JSON.parse(el.textContent) as TarotOverviewData;
+  } catch {
+    return null;
+  }
+}
 
 // Map URL slugs to CategoryType
 const slugToCategory: Record<string, CategoryType> = {
@@ -43,8 +58,18 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
     ? slugToCategory[urlCategory] || null
     : propSelectedCategory ?? null;
   const { language } = useApp();
-  const [data, setData] = useState<TarotOverviewData | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  // SSR-lite: read embedded data to skip API fetch on pre-rendered pages
+  const hasEmbeddedData = useRef(false);
+  const [data, setData] = useState<TarotOverviewData | null>(() => {
+    const embedded = getEmbeddedOverviewData();
+    if (embedded) {
+      hasEmbeddedData.current = true;
+      return embedded;
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(!hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
 
   // SEO meta — unique per page/category
@@ -86,7 +111,9 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
   ];
 
   useEffect(() => {
-    loadOverview();
+    if (!hasEmbeddedData.current) {
+      loadOverview();
+    }
   }, []);
 
   async function loadOverview() {
