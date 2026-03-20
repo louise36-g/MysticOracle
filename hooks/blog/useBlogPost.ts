@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import {
   fetchBlogPost,
@@ -7,6 +7,23 @@ import {
   BlogPost as BlogPostType,
   LinkRegistry
 } from '../../services/api';
+
+/**
+ * Read pre-rendered blog post data embedded in the HTML by the prerender script.
+ * This eliminates the API round-trip on initial page load.
+ */
+function getEmbeddedBlogData(slug: string | undefined): { post: BlogPostType; relatedPosts: BlogPostType[] } | null {
+  if (typeof document === 'undefined' || !slug) return null;
+  const el = document.getElementById('__BLOG_POST_DATA__');
+  if (!el?.textContent) return null;
+  try {
+    const data = JSON.parse(el.textContent) as { post: BlogPostType; relatedPosts: BlogPostType[] };
+    if (data.post?.slug === slug) return data;
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 interface UseBlogPostParams {
   slug?: string;
@@ -28,10 +45,25 @@ interface UseBlogPostReturn {
  */
 export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPostReturn {
   const { getToken } = useAuth();
-  const [post, setPost] = useState<BlogPostType | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
+
+  // SSR-lite: read embedded data to skip API fetch on pre-rendered pages
+  const hasEmbeddedData = useRef(false);
+  const [post, setPost] = useState<BlogPostType | null>(() => {
+    if (previewId) return null;
+    const embedded = getEmbeddedBlogData(slug);
+    if (embedded) {
+      hasEmbeddedData.current = true;
+      return embedded.post;
+    }
+    return null;
+  });
+  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>(() => {
+    if (previewId) return [];
+    const embedded = getEmbeddedBlogData(slug);
+    return embedded?.relatedPosts || [];
+  });
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
 
   const loadPost = useCallback(async () => {
@@ -68,8 +100,10 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
   }, [slug, previewId, getToken]);
 
   useEffect(() => {
-    loadPost();
-    // Fetch link registry for shortcode processing
+    if (!hasEmbeddedData.current) {
+      loadPost();
+    }
+    // Fetch link registry for shortcode processing (always needed)
     fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, [loadPost]);
 

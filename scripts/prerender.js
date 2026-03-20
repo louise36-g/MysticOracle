@@ -433,6 +433,18 @@ async function prerenderBlogPosts(template) {
         const description = post.metaDescriptionEn || post.excerptEn || post.excerpt || title;
         const image = post.coverImage || post.featuredImage;
 
+        // SSR-lite: fetch full blog post data to embed in HTML (eliminates API round-trip)
+        let blogData = null;
+        try {
+          const postResponse = await fetchWithTimeout(`${API_BASE}/api/blog/posts/${post.slug}`);
+          if (postResponse.ok) {
+            blogData = await postResponse.json();
+          }
+        } catch (fetchErr) {
+          // Non-fatal: page still works without embedded data (falls back to API fetch)
+          process.stdout.write('(no embed) ');
+        }
+
         const html = generateStaticHtml(template, {
           title: `${title} | CelestiArcana Blog`,
           description: description,
@@ -440,6 +452,10 @@ async function prerenderBlogPosts(template) {
           path: `/blog/${post.slug}`,
           image: image,
           type: 'article',
+          blogData,
+          blogTitle: title,
+          blogExcerpt: post.excerptEn || post.excerpt,
+          blogContent: blogData?.post?.contentEn,
         });
 
         const outputPath = getOutputPath(`/blog/${post.slug}`);
@@ -549,6 +565,57 @@ function generateStaticHtml(template, options) {
       '</head>',
       `  <script type="application/ld+json">${JSON.stringify(options.structuredData)}</script>\n  </head>`
     );
+  }
+
+  // SSR-lite: Embed full blog post data as JSON so React skips the API fetch
+  if (options.blogData) {
+    const safeJson = JSON.stringify(options.blogData).replace(/<\//g, '<\\/');
+    html = html.replace(
+      '</body>',
+      `  <script type="application/json" id="__BLOG_POST_DATA__">${safeJson}</script>\n  </body>`
+    );
+  }
+
+  // SSR-lite: Replace generic shell with blog post content so it paints at FCP (before JS loads)
+  if (options.blogTitle && options.blogData && options.path?.startsWith('/blog/')) {
+    const excerptTag = options.blogExcerpt
+      ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto 2rem">${escapeHtml(options.blogExcerpt)}</p>`
+      : '';
+
+    let contentHtml = '';
+    if (options.blogContent) {
+      contentHtml = options.blogContent.replace(/<img /g, '<img loading="lazy" ');
+    }
+
+    const blogShell = `<main style="position:relative;z-index:10;flex:1">
+          <div style="padding:1.5rem 1rem 1rem;position:relative">
+            <article style="max-width:56rem;margin:0 auto">
+              <div style="text-align:center">
+                <h1 style="position:relative;text-align:center;font-size:2.25rem;font-family:'Cinzel',serif;font-weight:700;margin:0 0 1rem;line-height:1.1">
+                  <span style="background:linear-gradient(to bottom,#fde68a,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${escapeHtml(options.blogTitle)}</span>
+                </h1>
+                ${excerptTag}
+              </div>
+              <div class="prose prose-invert prose-purple max-w-none">${contentHtml}</div>
+            </article>
+          </div>
+        </main>`;
+
+    html = html.replace(
+      /<main style="[^"]*">[\s\S]*?<\/main>/,
+      blogShell
+    );
+
+    // Defer JS loading — same pattern as tarot articles
+    const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+    if (scriptMatch) {
+      const mainSrc = scriptMatch[1];
+      html = html.replace(
+        scriptMatch[0],
+        `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
+      );
+      html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
+    }
   }
 
   // SSR-lite: Embed full article data as JSON so React skips the API fetch
