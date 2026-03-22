@@ -48,7 +48,7 @@ const STATIC_PAGES = [
   { path: '/daily-tarot', title: 'Daily Tarot Card Draw — Today\'s Tarot & Astrology Energy', description: 'Draw your daily tarot card from the 22 Major Arcana. Discover today\'s tarot and astrological energy with a free single card draw. Tarot card of the day.' },
   { path: '/horoscopes', title: 'Daily Horoscopes for Every Zodiac Sign', description: "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily." },
   // /blog is handled separately in prerenderBlogListPage (SSR-lite with embedded data)
-  { path: '/tarot', title: 'Tarot Card Meanings', description: 'Explore the meanings of all 78 tarot cards in the Rider-Waite deck.' },
+  // /tarot redirects to /tarot/cards via Caddyfile (avoids duplicate page in Google)
   // /tarot/cards is handled separately in prerenderTarotCardsPage (SSR-lite with embedded data)
   { path: '/tarot/cards/major-arcana', title: 'Major Arcana Tarot Card Meanings – Complete Guide', description: 'Explore every Major Arcana tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },
   { path: '/tarot/cards/wands', title: 'Suit of Wands Tarot Card Meanings – Complete Guide', description: 'Explore every Suit of Wands tarot card meaning. Symbolism, keywords, and reading guidance for each card.' },

@@ -8,6 +8,9 @@
 
 	root * ../app/{$NIXPACKS_SPA_OUTPUT_DIR}
 
+	# --- Redirects: consolidate duplicate pages ---
+	redir /tarot /tarot/cards 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
