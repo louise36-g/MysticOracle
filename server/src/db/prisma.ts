@@ -15,6 +15,9 @@ const pool = new pg.Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
   allowExitOnIdle: false,
+  // Prevent Render from silently dropping idle connections
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 const adapter = new PrismaPg(pool);
