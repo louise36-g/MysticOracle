@@ -194,6 +194,18 @@ function publicRoutes(): RouteObject[] {
   ];
 }
 
+// Protected route children (shared between English and French)
+function protectedRouteChildren() {
+  return [
+    { path: '/profile', element: lazyLoad(() => import('../components/UserProfile')) },
+    { path: '/interpret', element: lazyLoad(() => import('../components/interpret/InterpretMyCards')) },
+    { path: '/reading/:category/:depth', element: <ReadingLayout /> },
+    { path: '/reading/birth-cards/reveal', element: lazyLoad(() => import('../components/reading/BirthCardReveal')) },
+    { path: '/reading/birth-cards/:depth', element: lazyLoad(() => import('../components/reading/BirthCardEntry')) },
+    { path: '/reading/view/:id', element: lazyLoad(() => import('../components/UserProfile')) },
+  ];
+}
+
 // Convert absolute paths to relative (for /fr prefix children)
 function relativize(routes: RouteObject[]): RouteObject[] {
   return routes.map(r => ({
@@ -225,36 +237,8 @@ export const router = createBrowserRouter(
         children: [
           ...publicRoutes(),
 
-          // Protected Routes (English only — not indexed by search engines)
-          {
-            element: <ProtectedRoute />,
-            children: [
-              {
-                path: ROUTES.PROFILE,
-                element: lazyLoad(() => import('../components/UserProfile')),
-              },
-              {
-                path: ROUTES.INTERPRET,
-                element: lazyLoad(() => import('../components/interpret/InterpretMyCards')),
-              },
-              {
-                path: ROUTES.READING_CATEGORY_DEPTH,
-                element: <ReadingLayout />,
-              },
-              {
-                path: ROUTES.READING_BIRTH_CARDS_REVEAL,
-                element: lazyLoad(() => import('../components/reading/BirthCardReveal')),
-              },
-              {
-                path: ROUTES.READING_BIRTH_CARDS,
-                element: lazyLoad(() => import('../components/reading/BirthCardEntry')),
-              },
-              {
-                path: ROUTES.READING_VIEW,
-                element: lazyLoad(() => import('../components/UserProfile')),
-              },
-            ],
-          },
+          // Protected Routes
+          { element: <ProtectedRoute />, children: protectedRouteChildren() },
 
           // Admin Routes (English only)
           {
@@ -311,6 +295,7 @@ export const router = createBrowserRouter(
         errorElement: <RouteErrorBoundary />,
         children: [
           ...relativize(publicRoutes()),
+          { element: <ProtectedRoute />, children: relativize(protectedRouteChildren()) },
           { path: '*', element: <NotFound /> },
         ],
       }],
