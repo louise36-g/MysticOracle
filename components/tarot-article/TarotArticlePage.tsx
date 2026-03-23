@@ -245,21 +245,23 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
 
   // Extract overview section to render before the image (SEO/featured snippets)
   // Articles have varying HTML structures — handle all patterns:
-  // 1. <h3>overview</h3><blockquote><p>...</p></blockquote>
-  // 2. <blockquote><h3>overview</h3><p>...</p></blockquote>
-  // 3. <h3>overview</h3><h3>description</h3>
+  // 1. <h2|h3>overview</h2|h3><blockquote><p>...</p></blockquote>
+  // 2. <blockquote><h2|h3>overview</h2|h3><p>...</p></blockquote>
+  // 3. <h2|h3>overview</h2|h3><h2|h3>description</h2|h3>
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
     // Match heading text: "XXX Tarot Meaning (Overview)" or "What Does XXX Mean"
     const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean)';
+    // Accept both h2 and h3 for the overview heading
+    const h = 'h[23]';
 
-    // Pattern 1: <blockquote><h3>overview</h3><p>...</p></blockquote>
-    const p1 = new RegExp(`<blockquote[^>]*>\\s*<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*(<p[\\s\\S]*?)<\\/blockquote>`, 'i');
-    // Pattern 2: <h3>overview</h3><blockquote>...</blockquote>
-    const p2 = new RegExp(`<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*(<blockquote[\\s\\S]*?<\\/blockquote>)`, 'i');
-    // Pattern 3: <h3>overview</h3><h3>description</h3> (description wrongly in H3)
-    const p3 = new RegExp(`<h3[^>]*>([^<]*${headingPattern}[^<]*)<\\/h3>\\s*<h3[^>]*>([^<]+)<\\/h3>`, 'i');
+    // Pattern 1: <blockquote><h2|h3>overview</h2|h3><p>...</p></blockquote>
+    const p1 = new RegExp(`<blockquote[^>]*>\\s*<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<p[\\s\\S]*?)<\\/blockquote>`, 'i');
+    // Pattern 2: <h2|h3>overview</h2|h3><blockquote>...</blockquote>
+    const p2 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<blockquote[\\s\\S]*?<\\/blockquote>)`, 'i');
+    // Pattern 3: <h2|h3>overview</h2|h3><h2|h3>description</h2|h3>
+    const p3 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*<${h}[^>]*>([^<]+)<\\/${h}>`, 'i');
 
     let headingText = '';
     let bodyHtml = '';
