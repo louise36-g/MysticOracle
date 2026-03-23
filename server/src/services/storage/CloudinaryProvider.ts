@@ -43,15 +43,10 @@ export class CloudinaryProvider implements StorageService {
     const filename = options.filename || this.generateFilename(originalName);
 
     try {
-      // Normalize EXIF orientation before upload: rotate pixels to match
-      // EXIF orientation tag, then strip the tag. This prevents Cloudinary
-      // from double-rotating images that were edited without clearing EXIF.
-      let uploadBuffer: Buffer;
-      if (Buffer.isBuffer(file)) {
-        uploadBuffer = await sharp(file).rotate().toBuffer();
-      } else {
-        uploadBuffer = await sharp(file).rotate().toBuffer();
-      }
+      // Override EXIF orientation to "normal" before upload. This prevents
+      // Cloudinary from auto-rotating based on stale/incorrect EXIF tags.
+      // The raw pixels are preserved exactly as they appear on the user's screen.
+      const uploadBuffer = await sharp(file).withMetadata({ orientation: 1 }).toBuffer();
 
       // Always upload from normalized buffer
       const result = await new Promise<UploadApiResponse>((resolve, reject) => {
