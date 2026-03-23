@@ -1,3 +1,5 @@
+import type { Language } from '../utils/language';
+
 // Route path constants - single source of truth
 export const ROUTES = {
   HOME: '/',
@@ -84,11 +86,26 @@ export const ROUTES = {
   ADMIN_BLOG_PREVIEW: '/admin/blog/preview/:id',
 } as const;
 
-// Helper to build dynamic routes
-export function buildRoute(route: string, params: Record<string, string>): string {
+// Helper to build dynamic routes with optional language prefix
+export function buildRoute(
+  route: string,
+  params: Record<string, string>,
+  lang?: Language
+): string {
   let result = route;
   for (const [key, value] of Object.entries(params)) {
     result = result.replace(`:${key}`, value);
   }
+  if (lang === 'fr') {
+    return result === '/' ? '/fr' : `/fr${result}`;
+  }
   return result;
+}
+
+// Build a localized version of a static route constant
+export function localizedRoute(route: string, lang: Language): string {
+  if (lang === 'fr') {
+    return route === '/' ? '/fr' : `/fr${route}`;
+  }
+  return route;
 }
