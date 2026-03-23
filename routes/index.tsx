@@ -1,7 +1,9 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, useRouteError, isRouteErrorResponse, Navigate, useParams } from 'react-router-dom';
+import type { RouteObject } from 'react-router-dom';
 import { ROUTES } from './routes';
 import { RootLayout } from '../components/layout/RootLayout';
+import { LanguageLayout } from '../components/layout/LanguageLayout';
 import { ProtectedRoute } from '../components/routing/ProtectedRoute';
 import { AdminRoute } from '../components/routing/AdminRoute';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
@@ -148,10 +150,61 @@ const TarotArticleRedirect = () => {
   return <Navigate to={`/tarot/${slug}`} replace />;
 };
 
+// =====================
+// Public route definitions (shared between English and French)
+// =====================
+function publicRoutes(): RouteObject[] {
+  return [
+    { path: '/', element: lazyLoad(() => import('../components/HomePage')) },
+
+    // Blog
+    { path: '/blog', element: lazyLoad(() => import('../components/blog/BlogList')) },
+    { path: '/blog/:slug', element: lazyLoad(() => import('../components/blog/BlogPost')) },
+
+    // Tarot cards
+    { path: '/tarot/cards', element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')) },
+    { path: '/tarot/cards/all', element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')) },
+    { path: '/tarot/cards/:category', element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')) },
+    { path: '/tarot/cards/:category/:card', element: lazyLoad(() => import('../components/TarotArticlePage')) },
+    { path: '/tarot/:slug', element: lazyLoad(() => import('../components/TarotArticlePage')) },
+    { path: '/tarot/articles/:slug', element: <TarotArticleRedirect /> },
+
+    // Daily Tarot & Horoscopes
+    { path: '/daily-tarot', element: lazyLoad(() => import('../components/DailyTarotEnergy')) },
+    { path: '/horoscopes', element: lazyLoad(() => import('../components/HoroscopeReading')) },
+
+    // Legal
+    { path: '/privacy', element: lazyLoad(() => import('../components/legal/PrivacyPolicy')) },
+    { path: '/terms', element: lazyLoad(() => import('../components/legal/TermsOfService')) },
+    { path: '/cookies', element: lazyLoad(() => import('../components/legal/CookiePolicy')) },
+    { path: '/withdrawal', element: lazyLoad(() => import('../components/legal/WithdrawalForm')) },
+
+    // Info
+    { path: '/faq', element: lazyLoad(() => import('../components/FAQ')) },
+    { path: '/about', element: lazyLoad(() => import('../components/AboutUs')) },
+    { path: '/how-credits-work', element: lazyLoad(() => import('../components/HowCreditsWork')) },
+    { path: '/contact', element: lazyLoad(() => import('../components/Contact')) },
+
+    // Payment results
+    { path: '/payment/success', element: lazyLoad(() => import('../components/PaymentResult')) },
+    { path: '/payment/cancelled', element: lazyLoad(() => import('../components/PaymentResult')) },
+
+    // Reading selector (public)
+    { path: '/reading', element: lazyLoad(() => import('../components/CategorySelector')) },
+  ];
+}
+
+// Convert absolute paths to relative (for /fr prefix children)
+function relativize(routes: RouteObject[]): RouteObject[] {
+  return routes.map(r => ({
+    ...r,
+    path: r.path === '/' ? '' : r.path?.replace(/^\//, ''),
+  }));
+}
+
 export const router = createBrowserRouter(
   [
     // Auth routes - OUTSIDE RootLayout to avoid re-renders.
-    // Uses hash routing to prevent Clerk SDK bug that sends duplicate verification emails.
     {
       path: '/sign-up',
       element: <Suspense fallback={<PageLoader />}><SignUpPage /></Suspense>,
@@ -161,291 +214,106 @@ export const router = createBrowserRouter(
       element: <Suspense fallback={<PageLoader />}><SignInPage /></Suspense>,
     },
 
+    // =====================
+    // English routes (no prefix)
+    // =====================
     {
-    // Root layout wraps all public routes
-    element: <RootLayout />,
-    errorElement: <RouteErrorBoundary />,
-    children: [
-      // =====================
-      // Public Routes
-      // =====================
-      {
-        path: ROUTES.HOME,
-        element: lazyLoad(() => import('../components/HomePage')),
-      },
-
-      // Blog routes
-      {
-        path: ROUTES.BLOG,
-        element: lazyLoad(() => import('../components/blog/BlogList')),
-      },
-      {
-        path: ROUTES.BLOG_POST,
-        element: lazyLoad(() => import('../components/blog/BlogPost')),
-      },
-
-      // Tarot cards routes
-      {
-        path: ROUTES.TAROT_CARDS,
-        element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')),
-      },
-      {
-        path: ROUTES.TAROT_CARDS_ALL,
-        element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')),
-      },
-      {
-        path: ROUTES.TAROT_CARDS_CATEGORY,
-        element: lazyLoad(() => import('../components/tarot/TarotCardsOverview')),
-      },
-      {
-        path: ROUTES.TAROT_CARD,
-        element: lazyLoad(() => import('../components/TarotArticlePage')),
-      },
-      {
-        path: ROUTES.TAROT_ARTICLE,
-        element: lazyLoad(() => import('../components/TarotArticlePage')),
-      },
-      // Legacy URL redirect: /tarot/articles/:slug -> /tarot/:slug
-      {
-        path: ROUTES.TAROT_ARTICLE_LEGACY,
-        element: <TarotArticleRedirect />,
-      },
-
-      // Daily Tarot Energy - single Major Arcana draw
-      {
-        path: ROUTES.DAILY_TAROT,
-        element: lazyLoad(() => import('../components/DailyTarotEnergy')),
-      },
-
-      // Horoscope route - unified experience
-      {
-        path: ROUTES.HOROSCOPES,
-        element: lazyLoad(() => import('../components/HoroscopeReading')),
-      },
-
-      // Legal routes
-      {
-        path: ROUTES.PRIVACY,
-        element: lazyLoad(() => import('../components/legal/PrivacyPolicy')),
-      },
-      {
-        path: ROUTES.TERMS,
-        element: lazyLoad(() => import('../components/legal/TermsOfService')),
-      },
-      {
-        path: ROUTES.COOKIES,
-        element: lazyLoad(() => import('../components/legal/CookiePolicy')),
-      },
-      {
-        path: ROUTES.WITHDRAWAL,
-        element: lazyLoad(() => import('../components/legal/WithdrawalForm')),
-      },
-
-      // Info routes
-      {
-        path: ROUTES.FAQ,
-        element: lazyLoad(() => import('../components/FAQ')),
-      },
-      {
-        path: ROUTES.ABOUT,
-        element: lazyLoad(() => import('../components/AboutUs')),
-      },
-      {
-        path: ROUTES.HOW_CREDITS_WORK,
-        element: lazyLoad(() => import('../components/HowCreditsWork')),
-      },
-      {
-        path: ROUTES.CONTACT,
-        element: lazyLoad(() => import('../components/Contact')),
-      },
-
-      // Payment result routes
-      {
-        path: ROUTES.PAYMENT_SUCCESS,
-        element: lazyLoad(() => import('../components/PaymentResult')),
-      },
-      {
-        path: ROUTES.PAYMENT_CANCELLED,
-        element: lazyLoad(() => import('../components/PaymentResult')),
-      },
-
-      // Reading - category selector (public, like horoscopes)
-      {
-        path: ROUTES.READING,
-        element: lazyLoad(() => import('../components/CategorySelector')),
-      },
-
-      // =====================
-      // Protected Routes (require authentication)
-      // =====================
-      {
-        element: <ProtectedRoute />,
+      element: <LanguageLayout lang="en" />,
+      children: [{
+        element: <RootLayout />,
+        errorElement: <RouteErrorBoundary />,
         children: [
-          {
-            path: ROUTES.PROFILE,
-            element: lazyLoad(() => import('../components/UserProfile')),
-          },
-          // Interpret My Cards
-          {
-            path: ROUTES.INTERPRET,
-            element: lazyLoad(() => import('../components/interpret/InterpretMyCards')),
-          },
-          // Reading with category and depth
-          {
-            path: ROUTES.READING_CATEGORY_DEPTH,
-            element: <ReadingLayout />,
-          },
-          // Birth card reveal/result (must be before :depth to ensure matching)
-          {
-            path: ROUTES.READING_BIRTH_CARDS_REVEAL,
-            element: lazyLoad(() => import('../components/reading/BirthCardReveal')),
-          },
-          // Birth cards entry with depth parameter
-          {
-            path: ROUTES.READING_BIRTH_CARDS,
-            element: lazyLoad(() => import('../components/reading/BirthCardEntry')),
-          },
-          // View saved reading
-          {
-            path: ROUTES.READING_VIEW,
-            element: lazyLoad(() => import('../components/UserProfile')),
-          },
-        ],
-      },
+          ...publicRoutes(),
 
-      // =====================
-      // Admin Routes (require authentication + admin role)
-      // =====================
-      {
-        element: <AdminRoute />,
-        children: [
+          // Protected Routes (English only — not indexed by search engines)
           {
-            element: <Suspense fallback={<PageLoader />}><AdminLayout /></Suspense>,
-            errorElement: <RouteErrorBoundary />,
+            element: <ProtectedRoute />,
             children: [
-              // Admin overview (index route)
               {
-                path: ROUTES.ADMIN,
-                element: lazyLoad(() => import('../components/admin/AdminOverview')),
+                path: ROUTES.PROFILE,
+                element: lazyLoad(() => import('../components/UserProfile')),
               },
               {
-                path: ROUTES.ADMIN_USERS,
-                element: lazyLoad(() => import('../components/admin/AdminUsers')),
+                path: ROUTES.INTERPRET,
+                element: lazyLoad(() => import('../components/interpret/InterpretMyCards')),
               },
               {
-                path: ROUTES.ADMIN_TRANSACTIONS,
-                element: lazyLoad(() => import('../components/admin/AdminTransactions')),
+                path: ROUTES.READING_CATEGORY_DEPTH,
+                element: <ReadingLayout />,
               },
               {
-                path: ROUTES.ADMIN_ANALYTICS,
-                element: lazyLoad(() => import('../components/admin/AdminAnalytics')),
+                path: ROUTES.READING_BIRTH_CARDS_REVEAL,
+                element: lazyLoad(() => import('../components/reading/BirthCardReveal')),
               },
               {
-                path: ROUTES.ADMIN_PACKAGES,
-                element: lazyLoad(() => import('../components/admin/AdminPackages')),
+                path: ROUTES.READING_BIRTH_CARDS,
+                element: lazyLoad(() => import('../components/reading/BirthCardEntry')),
               },
               {
-                path: ROUTES.ADMIN_EMAIL_TEMPLATES,
-                element: lazyLoad(() => import('../components/admin/AdminEmailTemplates')),
-              },
-              {
-                path: ROUTES.ADMIN_TRANSLATIONS,
-                element: lazyLoad(() => import('../components/admin/AdminTranslations')),
-              },
-              {
-                path: ROUTES.ADMIN_SETTINGS,
-                element: lazyLoad(() => import('../components/admin/AdminSettings')),
-              },
-              {
-                path: ROUTES.ADMIN_HEALTH,
-                element: lazyLoad(() => import('../components/admin/AdminHealth')),
-              },
-              {
-                path: ROUTES.ADMIN_ACCOUNTING,
-                element: lazyLoad(() => import('../components/admin/AdminAccounting')),
-              },
-              {
-                path: ROUTES.ADMIN_PROMPTS,
-                element: lazyLoad(() => import('../components/admin/AdminPrompts')),
-              },
-
-              // Admin Blog routes
-              {
-                path: ROUTES.ADMIN_BLOG,
-                element: lazyLoad(() => import('../components/admin/AdminBlog')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_NEW,
-                element: lazyLoad(() => import('../components/admin/BlogPostEditor')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_EDIT,
-                element: lazyLoad(() => import('../components/admin/BlogPostEditor')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_CATEGORIES,
-                element: lazyLoad(() => import('../components/admin/AdminBlog')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_TAGS,
-                element: lazyLoad(() => import('../components/admin/AdminBlog')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_MEDIA,
-                element: lazyLoad(() => import('../components/admin/AdminBlog')),
-              },
-              {
-                path: ROUTES.ADMIN_BLOG_TRASH,
-                element: lazyLoad(() => import('../components/admin/AdminBlog')),
-              },
-
-              // Admin Tarot Articles routes - redirect to unified Content tab
-              {
-                path: ROUTES.ADMIN_TAROT,
-                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
-              },
-              {
-                path: ROUTES.ADMIN_TAROT_NEW,
-                element: lazyLoad(() => import('../components/admin/TarotArticleEditor')),
-              },
-              {
-                path: ROUTES.ADMIN_TAROT_EDIT,
-                element: lazyLoad(() => import('../components/admin/TarotArticleEditor')),
-              },
-              {
-                path: ROUTES.ADMIN_TAROT_CATEGORIES,
-                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
-              },
-              {
-                path: ROUTES.ADMIN_TAROT_TAGS,
-                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
-              },
-              {
-                path: ROUTES.ADMIN_TAROT_TRASH,
-                element: <Navigate to={ROUTES.ADMIN_BLOG} replace />,
+                path: ROUTES.READING_VIEW,
+                element: lazyLoad(() => import('../components/UserProfile')),
               },
             ],
           },
-          // Preview routes - outside AdminLayout for full-width display
-          {
-            path: ROUTES.ADMIN_TAROT_PREVIEW,
-            element: <TarotArticlePreview />,
-          },
-          {
-            path: ROUTES.ADMIN_BLOG_PREVIEW,
-            element: <BlogPostPreview />,
-          },
-        ],
-      },
 
-      // =====================
-      // 404 Fallback
-      // =====================
-      {
-        path: '*',
-        element: <NotFound />,
-      },
-    ],
-  },
-]
+          // Admin Routes (English only)
+          {
+            element: <AdminRoute />,
+            children: [
+              {
+                element: <Suspense fallback={<PageLoader />}><AdminLayout /></Suspense>,
+                errorElement: <RouteErrorBoundary />,
+                children: [
+                  { path: ROUTES.ADMIN, element: lazyLoad(() => import('../components/admin/AdminOverview')) },
+                  { path: ROUTES.ADMIN_USERS, element: lazyLoad(() => import('../components/admin/AdminUsers')) },
+                  { path: ROUTES.ADMIN_TRANSACTIONS, element: lazyLoad(() => import('../components/admin/AdminTransactions')) },
+                  { path: ROUTES.ADMIN_ANALYTICS, element: lazyLoad(() => import('../components/admin/AdminAnalytics')) },
+                  { path: ROUTES.ADMIN_PACKAGES, element: lazyLoad(() => import('../components/admin/AdminPackages')) },
+                  { path: ROUTES.ADMIN_EMAIL_TEMPLATES, element: lazyLoad(() => import('../components/admin/AdminEmailTemplates')) },
+                  { path: ROUTES.ADMIN_TRANSLATIONS, element: lazyLoad(() => import('../components/admin/AdminTranslations')) },
+                  { path: ROUTES.ADMIN_SETTINGS, element: lazyLoad(() => import('../components/admin/AdminSettings')) },
+                  { path: ROUTES.ADMIN_HEALTH, element: lazyLoad(() => import('../components/admin/AdminHealth')) },
+                  { path: ROUTES.ADMIN_ACCOUNTING, element: lazyLoad(() => import('../components/admin/AdminAccounting')) },
+                  { path: ROUTES.ADMIN_PROMPTS, element: lazyLoad(() => import('../components/admin/AdminPrompts')) },
+                  { path: ROUTES.ADMIN_BLOG, element: lazyLoad(() => import('../components/admin/AdminBlog')) },
+                  { path: ROUTES.ADMIN_BLOG_NEW, element: lazyLoad(() => import('../components/admin/BlogPostEditor')) },
+                  { path: ROUTES.ADMIN_BLOG_EDIT, element: lazyLoad(() => import('../components/admin/BlogPostEditor')) },
+                  { path: ROUTES.ADMIN_BLOG_CATEGORIES, element: lazyLoad(() => import('../components/admin/AdminBlog')) },
+                  { path: ROUTES.ADMIN_BLOG_TAGS, element: lazyLoad(() => import('../components/admin/AdminBlog')) },
+                  { path: ROUTES.ADMIN_BLOG_MEDIA, element: lazyLoad(() => import('../components/admin/AdminBlog')) },
+                  { path: ROUTES.ADMIN_BLOG_TRASH, element: lazyLoad(() => import('../components/admin/AdminBlog')) },
+                  { path: ROUTES.ADMIN_TAROT, element: <Navigate to={ROUTES.ADMIN_BLOG} replace /> },
+                  { path: ROUTES.ADMIN_TAROT_NEW, element: lazyLoad(() => import('../components/admin/TarotArticleEditor')) },
+                  { path: ROUTES.ADMIN_TAROT_EDIT, element: lazyLoad(() => import('../components/admin/TarotArticleEditor')) },
+                  { path: ROUTES.ADMIN_TAROT_CATEGORIES, element: <Navigate to={ROUTES.ADMIN_BLOG} replace /> },
+                  { path: ROUTES.ADMIN_TAROT_TAGS, element: <Navigate to={ROUTES.ADMIN_BLOG} replace /> },
+                  { path: ROUTES.ADMIN_TAROT_TRASH, element: <Navigate to={ROUTES.ADMIN_BLOG} replace /> },
+                ],
+              },
+              { path: ROUTES.ADMIN_TAROT_PREVIEW, element: <TarotArticlePreview /> },
+              { path: ROUTES.ADMIN_BLOG_PREVIEW, element: <BlogPostPreview /> },
+            ],
+          },
+
+          { path: '*', element: <NotFound /> },
+        ],
+      }],
+    },
+
+    // =====================
+    // French routes (/fr prefix)
+    // =====================
+    {
+      path: '/fr',
+      element: <LanguageLayout lang="fr" />,
+      children: [{
+        element: <RootLayout />,
+        errorElement: <RouteErrorBoundary />,
+        children: [
+          ...relativize(publicRoutes()),
+          { path: '*', element: <NotFound /> },
+        ],
+      }],
+    },
+  ]
 );
