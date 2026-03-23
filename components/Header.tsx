@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { useReading } from '../context/ReadingContext';
 import { ROUTES } from '../routes/routes';
+import { getAlternatePath } from '../utils/language';
 import {
   Menu, X, Shield, User, Coins, ChevronDown, Plus,
   BookOpen, HelpCircle, CreditCard, Layers, Home,
@@ -27,7 +28,7 @@ interface DropdownItem {
 }
 
 const Header: React.FC = () => {
-  const { user, language, setLanguage, t } = useApp();
+  const { user, language, t } = useApp();
   const { user: clerkUser, isSignedIn } = useUser();
   const { hasStartedReading, clearReading } = useReading();
   const navigate = useNavigate();
@@ -54,8 +55,9 @@ const Header: React.FC = () => {
   // --- Handlers ---
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(language === 'en' ? 'fr' : 'en');
-  }, [language, setLanguage]);
+    const alternatePath = getAlternatePath(location.pathname);
+    navigate(alternatePath + location.search + location.hash);
+  }, [location, navigate]);
 
   const toggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(prev => !prev);
@@ -66,9 +68,10 @@ const Header: React.FC = () => {
   }, []);
 
   const handleMobileLanguage = useCallback(() => {
-    setLanguage(language === 'en' ? 'fr' : 'en');
+    const alternatePath = getAlternatePath(location.pathname);
+    navigate(alternatePath + location.search + location.hash);
     setIsMobileMenuOpen(false);
-  }, [language, setLanguage]);
+  }, [location, navigate]);
 
   const handleNewReading = useCallback((e: React.MouseEvent) => {
     if (location.pathname.startsWith('/reading') && hasStartedReading()) {
