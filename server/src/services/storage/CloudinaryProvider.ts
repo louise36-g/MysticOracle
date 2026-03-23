@@ -54,6 +54,8 @@ export class CloudinaryProvider implements StorageService {
               resource_type: 'image',
               overwrite: false,
               unique_filename: true,
+              // Ignore EXIF orientation — tarot card art should display as-is
+              angle: 0,
             },
             (error, uploadResult) => {
               if (error) {
@@ -76,6 +78,8 @@ export class CloudinaryProvider implements StorageService {
           resource_type: 'image',
           overwrite: false,
           unique_filename: true,
+          // Ignore EXIF orientation — tarot card art should display as-is
+          angle: 0,
         });
       }
 
