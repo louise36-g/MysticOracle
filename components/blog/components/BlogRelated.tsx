@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import LocalizedLink from '../../LocalizedLink';
 import { BlogPost } from '../../../services/api';
 import { ROUTES, buildRoute } from '../../../routes/routes';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../../utils/cloudinaryUrl';
@@ -35,7 +35,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
       </h2>
       <div className="grid md:grid-cols-3 gap-6">
         {relatedPosts.map((related) => (
-          <Link
+          <LocalizedLink
             key={related.id}
             to={buildRoute(ROUTES.BLOG_POST, { slug: related.slug })}
             className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all block"
@@ -58,7 +58,7 @@ export const BlogRelated: React.FC<BlogRelatedProps> = ({
                 {language === 'en' ? related.excerptEn : related.excerptFr}
               </p>
             </div>
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
     </motion.section>

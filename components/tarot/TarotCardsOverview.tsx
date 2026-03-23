@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
+import LocalizedLink from '../LocalizedLink';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -264,7 +265,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: CATEGORY_CONFIG[filter.id].slug })
               : ROUTES.TAROT_CARDS;
             return (
-              <Link
+              <LocalizedLink
                 key={filter.id ?? 'all'}
                 to={targetPath}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -275,7 +276,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               >
                 {filter.icon}
                 <span>{language === 'fr' ? filter.labelFr : filter.labelEn}</span>
-              </Link>
+              </LocalizedLink>
             );
           })}
         </div>
@@ -362,11 +363,11 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               {language === 'fr' ? 'Prêt pour une lecture ?' : 'Ready for a reading?'}
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={ROUTES.READING}>
+              <LocalizedLink to={ROUTES.READING}>
                 <Button variant="primary" size="lg">
                   {language === 'fr' ? 'Tirer les cartes' : 'Get a Reading'}
                 </Button>
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

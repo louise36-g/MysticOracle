@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import {
   fetchBlogPosts,
@@ -293,7 +294,7 @@ const BlogList: React.FC = () => {
           </h2>
           <div className="flex flex-wrap gap-6 justify-center">
             {featuredPosts.map((post, index) => (
-              <Link
+              <LocalizedLink
                 key={post.id}
                 to={post.contentType === 'TAROT_ARTICLE'
                   ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: post.slug })
@@ -351,7 +352,7 @@ const BlogList: React.FC = () => {
                     </div>
                   </div>
                 </motion.div>
-              </Link>
+              </LocalizedLink>
             ))}
           </div>
         </section>
@@ -384,7 +385,7 @@ const BlogList: React.FC = () => {
                 : buildRoute(ROUTES.BLOG_POST, { slug: article.slug });
 
               return (
-                <Link
+                <LocalizedLink
                   key={article.id}
                   to={articlePath}
                   state={{ fromCategory: selectedCategory }}
@@ -441,7 +442,7 @@ const BlogList: React.FC = () => {
                       </div>
                     </div>
                   </motion.div>
-                </Link>
+                </LocalizedLink>
               );
             })}
           </div>

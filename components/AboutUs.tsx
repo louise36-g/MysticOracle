@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import LocalizedLink from './LocalizedLink';
 import { Sparkles, Heart, Brain, Compass, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../routes/routes';
@@ -347,12 +347,12 @@ const AboutUs: React.FC = () => {
           <p className="text-slate-400 mb-4">
             {t.readyToBegin}
           </p>
-          <Link to={ROUTES.READING}>
+          <LocalizedLink to={ROUTES.READING}>
             <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-amber-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-amber-500 transition-all shadow-lg hover:shadow-purple-500/25">
               <Sparkles className="w-5 h-5" />
               {t.startReading}
             </button>
-          </Link>
+          </LocalizedLink>
         </motion.div>
       </div>
     </div>

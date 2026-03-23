@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/api';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
@@ -127,12 +128,12 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           {t('blog.BlogPost.article_not_found', 'Article Not Found')}
         </h2>
         <p className="text-slate-400 mb-8">{error}</p>
-        <Link to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG}>
+        <LocalizedLink to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG}>
           <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors">
             <ArrowLeft className="w-4 h-4 inline mr-2" />
             {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
           </button>
-        </Link>
+        </LocalizedLink>
       </div>
     );
   }
@@ -157,10 +158,10 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       )}
 
       {/* Back Button */}
-      <Link to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG} className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
+      <LocalizedLink to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG} className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
-      </Link>
+      </LocalizedLink>
 
       {/* Header */}
       <BlogHeader
@@ -233,13 +234,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
               {t('blog.BlogPost.tags', 'Tags:')}
             </span>
             {post.tags.map((tag) => (
-              <Link
+              <LocalizedLink
                 key={tag.id}
                 to={`${ROUTES.BLOG}?tag=${tag.slug}`}
                 className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-sm hover:bg-purple-600 hover:text-white transition-colors"
               >
                 #{language === 'en' ? tag.nameEn : tag.nameFr}
-              </Link>
+              </LocalizedLink>
             ))}
           </div>
         </motion.section>

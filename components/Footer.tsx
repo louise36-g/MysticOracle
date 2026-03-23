@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
+import LocalizedLink from './LocalizedLink';
 
 const Footer: React.FC = () => {
   const { language } = useApp();
@@ -19,30 +19,30 @@ const Footer: React.FC = () => {
 
           {/* Legal Links */}
           <nav className="flex items-center gap-5">
-            <Link
+            <LocalizedLink
               to={ROUTES.PRIVACY}
               className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               {language === 'fr' ? 'Confidentialité' : 'Privacy'}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               to={ROUTES.TERMS}
               className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               {language === 'fr' ? 'Conditions' : 'Terms'}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               to={ROUTES.COOKIES}
               className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               Cookies
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               to={ROUTES.FAQ}
               className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"
             >
               FAQ
-            </Link>
+            </LocalizedLink>
             <a
               href="mailto:contact@celestiarcana.com"
               className="text-slate-300 hover:text-purple-300 transition-colors underline decoration-slate-600 underline-offset-2 hover:decoration-purple-400"

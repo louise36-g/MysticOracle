@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import LocalizedLink from '../LocalizedLink';
 import { motion } from 'framer-motion';
 import { TarotOverviewCard } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
@@ -29,7 +29,7 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
   const excerpt = language === 'fr' && card.excerptFr ? card.excerptFr : card.excerpt;
   const imageAlt = language === 'fr' && card.featuredImageAltFr ? card.featuredImageAltFr : card.featuredImageAlt;
   return (
-    <Link
+    <LocalizedLink
       to={buildRoute(ROUTES.TAROT_ARTICLE, { slug: card.slug })}
       className={`block ${fullWidth ? 'w-full' : 'flex-shrink-0 w-[220px]'}`}
     >
@@ -74,7 +74,7 @@ const TarotCardPreview: React.FC<TarotCardPreviewProps> = ({
           <p className="text-xs text-slate-400 line-clamp-2">{excerpt}</p>
         </div>
       </motion.div>
-    </Link>
+    </LocalizedLink>
   );
 };
 

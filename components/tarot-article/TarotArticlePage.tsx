@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import { ArrowLeft } from 'lucide-react';
 
+import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import {
   fetchTarotArticle,
@@ -343,13 +344,13 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
           <p className="text-slate-400 mb-8 leading-relaxed">
             {error || 'The mystical knowledge you seek has not been revealed.'}
           </p>
-          <Link
+          <LocalizedLink
             to={ROUTES.TAROT_CARDS}
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl hover:from-purple-500 hover:to-fuchsia-500 transition-all inline-flex items-center gap-2 shadow-lg shadow-purple-500/20 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('tarot.TarotArticlePage.back', 'Back')}
-          </Link>
+          </LocalizedLink>
         </motion.div>
       </div>
     );
@@ -426,7 +427,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Link
+            <LocalizedLink
               to={article.breadcrumbCategory
                 ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categoryToSlug[article.breadcrumbCategory] || article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
                 : ROUTES.TAROT_CARDS}
@@ -434,7 +435,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               {t('tarot.TarotArticlePage.back', 'Back')}
-            </Link>
+            </LocalizedLink>
           </motion.div>
 
           {/* ===== BREADCRUMBS ===== */}
@@ -523,12 +524,12 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
               <p className="text-white/90 mb-4 max-w-xl mx-auto text-sm relative z-10">
                 {t('tarot.TarotArticlePage.cta_description', 'Let the tarot illuminate your journey with gentle guidance.')}
               </p>
-              <Link
+              <LocalizedLink
                 to={ROUTES.READING}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-purple-700 rounded-lg hover:bg-purple-50 transition-all font-medium text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 relative z-10"
               >
                 {t('tarot.TarotArticlePage.cta_button', 'Get your reading now')}
-              </Link>
+              </LocalizedLink>
             </div>
           </motion.section>
 

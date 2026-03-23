@@ -9,6 +9,7 @@ import { SpreadType } from '../types';
 import Button from './Button';
 import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
+import LocalizedLink from './LocalizedLink';
 
 // Follow-up question cost (same as backend)
 const FOLLOW_UP_CREDIT_COST = 1;
@@ -311,14 +312,14 @@ const FAQ: React.FC = () => {
   const horseshoeCost = SPREADS[SpreadType.HORSESHOE]?.cost ?? 7;
   const celticCrossCost = SPREADS[SpreadType.CELTIC_CROSS]?.cost ?? 10;
 
-  // Helper to create styled links
+  // Helper to create styled links (public routes use LocalizedLink)
   const StyledLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
-    <Link
+    <LocalizedLink
       to={to}
       className="text-purple-400 hover:text-purple-300 underline underline-offset-2 transition-colors"
     >
       {children}
-    </Link>
+    </LocalizedLink>
   );
 
   return (
@@ -517,7 +518,7 @@ const FAQ: React.FC = () => {
               answer={
                 <span>
                   {t.readings.a1}{' '}
-                  <StyledLink to={ROUTES.PROFILE}>{t.readings.profile}</StyledLink>.
+                  <Link to={ROUTES.PROFILE} className="text-purple-400 hover:text-purple-300 underline underline-offset-2 transition-colors">{t.readings.profile}</Link>.
                 </span>
               }
               isOpen={openItems.has('yr-1')}

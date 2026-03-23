@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import LocalizedLink from '../LocalizedLink';
 import { motion } from 'framer-motion';
 import { ChevronRight, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -145,13 +145,13 @@ const TarotCategorySection: React.FC<TarotCategorySectionProps> = ({
           </div>
         </div>
 
-        <Link
+        <LocalizedLink
           to={buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: config.slug })}
           className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
         >
           {language === 'fr' ? `Voir les ${count}` : `View All ${count}`}
           <ChevronRight className="w-4 h-4" />
-        </Link>
+        </LocalizedLink>
       </div>
 
       {/* Scrollable Cards */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import { fetchBlogPosts, BlogPost } from '../../services/api';
 import { buildRoute, ROUTES } from '../../routes/routes';
@@ -75,7 +75,7 @@ export function RelatedBlogPosts({ cardType, articleId }: RelatedBlogPostsProps)
       </h2>
       <div className="grid md:grid-cols-3 gap-6">
         {posts.map((post) => (
-          <Link
+          <LocalizedLink
             key={post.id}
             to={buildRoute(ROUTES.BLOG_POST, { slug: post.slug })}
             className="group cursor-pointer bg-slate-900/60 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all block"
@@ -98,7 +98,7 @@ export function RelatedBlogPosts({ cardType, articleId }: RelatedBlogPostsProps)
                 {language === 'en' ? post.excerptEn : post.excerptFr}
               </p>
             </div>
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
     </motion.section>

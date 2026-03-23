@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { useApp } from '../../context/AppContext';
+import LocalizedLink from '../LocalizedLink';
 
 // Map breadcrumbCategory names to canonical URL slugs
 const categoryToSlug: Record<string, string> = {
@@ -30,30 +30,30 @@ export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
     <nav aria-label="Breadcrumb" className="text-sm text-slate-400 mb-6">
       <ol className="flex items-center flex-wrap gap-x-2 gap-y-1">
         <li>
-          <Link
+          <LocalizedLink
             to={ROUTES.HOME}
             className="hover:text-purple-400 transition-colors duration-200"
           >
             Home
-          </Link>
+          </LocalizedLink>
         </li>
         <li className="text-slate-600">/</li>
         <li>
-          <Link
+          <LocalizedLink
             to={ROUTES.TAROT_CARDS}
             className="hover:text-purple-400 transition-colors duration-200"
           >
             {t('tarot.breadcrumbs.arcanas', 'The Arcanas')}
-          </Link>
+          </LocalizedLink>
         </li>
         <li className="text-slate-600">/</li>
         <li>
-          <Link
+          <LocalizedLink
             to={categoryUrl}
             className="hover:text-purple-400 transition-colors duration-200"
           >
             {category}
-          </Link>
+          </LocalizedLink>
         </li>
         <li className="text-slate-600">/</li>
         <li className="text-purple-200 font-medium">{cardName}</li>

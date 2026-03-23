@@ -1,7 +1,8 @@
 import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
+import LocalizedLink from './LocalizedLink';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
 import Button from './Button';
@@ -243,11 +244,11 @@ const HomePage: React.FC = () => {
                 : "La sagesse ancestrale du Tarot rencontre l'intuition moderne. Laissez les cartes illuminer votre chemin et révéler les murmures du cosmos."}
             </p>
 
-            <Link to={ROUTES.SIGN_IN}>
+            <LocalizedLink to={ROUTES.SIGN_IN}>
               <Button size="lg" variant="mystical" glow>
                 {t('app.App.start_your_reading', 'Start Your Reading')}
               </Button>
-            </Link>
+            </LocalizedLink>
           </div>
 
           {/* Trust indicators */}

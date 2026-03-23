@@ -13,6 +13,7 @@ import {
 import FlagFR from './icons/FlagFR';
 import FlagEN from './icons/FlagEN';
 import Button from './Button';
+import LocalizedLink from './LocalizedLink';
 import CreditShop from './CreditShop';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -220,7 +221,7 @@ const Header: React.FC = () => {
     >
       <div className="p-2 max-h-[400px] overflow-y-auto">
         {items.map((item, index) => (
-          <Link
+          <LocalizedLink
             key={item.id}
             to={item.href}
             role="menuitem"
@@ -241,7 +242,7 @@ const Header: React.FC = () => {
                 </div>
               )}
             </div>
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
     </motion.div>
@@ -259,7 +260,7 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-50 w-full border-b border-purple-500/20 bg-[#0f0c29]/90 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-14 flex items-center">
         {/* Logo */}
-        <Link
+        <LocalizedLink
           to={ROUTES.HOME}
           className="flex items-center gap-2 flex-shrink-0"
           aria-label="CelestiArcana - Go to homepage"
@@ -275,23 +276,23 @@ const Header: React.FC = () => {
           <span className="text-lg font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
             CelestiArcana
           </span>
-        </Link>
+        </LocalizedLink>
 
         {/* Desktop Nav Links — text only, no icons */}
         <nav className="hidden lg:flex items-center justify-center flex-1 h-full gap-0.5 mx-4" role="navigation" aria-label="Main navigation">
-          <Link to={ROUTES.HOME} className={linkClass(isActive(ROUTES.HOME))}>
+          <LocalizedLink to={ROUTES.HOME} className={linkClass(isActive(ROUTES.HOME))}>
             {language === 'fr' ? 'Accueil' : 'Home'}
             {isActive(ROUTES.HOME) && activeBar}
-          </Link>
+          </LocalizedLink>
 
-          <Link
+          <LocalizedLink
             to={ROUTES.READING}
             onClick={handleNewReading}
             className={linkClass(isActive('/reading'))}
           >
             {language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}
             {isActive('/reading') && activeBar}
-          </Link>
+          </LocalizedLink>
 
           {/* My Cards — auth-gated */}
           {isSignedIn ? (
@@ -338,10 +339,10 @@ const Header: React.FC = () => {
             </div>
           )}
 
-          <Link to={ROUTES.HOROSCOPES} className={linkClass(isActive('/horoscopes'))}>
+          <LocalizedLink to={ROUTES.HOROSCOPES} className={linkClass(isActive('/horoscopes'))}>
             Horoscopes
             {isActive('/horoscopes') && activeBar}
-          </Link>
+          </LocalizedLink>
 
           {/* Divider */}
           <div className="w-px h-5 bg-white/10 mx-1" />
@@ -371,10 +372,10 @@ const Header: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          <Link to={ROUTES.CONTACT} className={linkClass(isActive('/contact'))}>
+          <LocalizedLink to={ROUTES.CONTACT} className={linkClass(isActive('/contact'))}>
             Contact
             {isActive('/contact') && activeBar}
-          </Link>
+          </LocalizedLink>
         </nav>
 
         {/* Desktop Utility Items */}
@@ -483,23 +484,23 @@ const Header: React.FC = () => {
                 </button>
               )}
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.HOME}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOME) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Home className="w-5 h-5" />
                 {t('nav.home', 'Home')}
-              </Link>
+              </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.READING}
                 onClick={(e) => { handleNewReading(e); closeMobileMenu(); }}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/reading') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Sparkles className="w-5 h-5" />
                 {t('header.new_reading', 'New Reading')}
-              </Link>
+              </LocalizedLink>
 
               <Link
                 to={ROUTES.INTERPRET}
@@ -510,50 +511,50 @@ const Header: React.FC = () => {
                 {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
               </Link>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.HOROSCOPES}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/horoscopes') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Moon className="w-5 h-5" />
                 Horoscopes
-              </Link>
+              </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.BLOG}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.BLOG) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <BookOpen className="w-5 h-5" />
                 Blog
-              </Link>
+              </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.HOW_CREDITS_WORK}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.HOW_CREDITS_WORK) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <CreditCard className="w-5 h-5" />
                 {t('header.how_credits_work', 'How Credits Work')}
-              </Link>
+              </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.FAQ}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.FAQ) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <HelpCircle className="w-5 h-5" />
                 {t('header.help_faq', 'Help & FAQ')}
-              </Link>
+              </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.CONTACT}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/contact') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Mail className="w-5 h-5" />
                 Contact
-              </Link>
+              </LocalizedLink>
 
               {isSignedIn && (
                 <Link
