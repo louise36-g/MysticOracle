@@ -3,6 +3,7 @@
  */
 
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import sharp from 'sharp';
 import { StorageService, UploadOptions, UploadResult, DeleteResult } from './StorageService.js';
 
 export class CloudinaryProvider implements StorageService {
@@ -42,46 +43,39 @@ export class CloudinaryProvider implements StorageService {
     const filename = options.filename || this.generateFilename(originalName);
 
     try {
-      let result: UploadApiResponse;
-
+      // Normalize EXIF orientation before upload: rotate pixels to match
+      // EXIF orientation tag, then strip the tag. This prevents Cloudinary
+      // from double-rotating images that were edited without clearing EXIF.
+      let uploadBuffer: Buffer;
       if (Buffer.isBuffer(file)) {
-        // Upload from buffer
-        result = await new Promise<UploadApiResponse>((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            {
-              folder,
-              public_id: filename,
-              resource_type: 'image',
-              overwrite: false,
-              unique_filename: true,
-              // Ignore EXIF orientation — tarot card art should display as-is
-              angle: 0,
-            },
-            (error, uploadResult) => {
-              if (error) {
-                reject(error);
-              } else if (uploadResult) {
-                resolve(uploadResult);
-              } else {
-                reject(new Error('Upload failed: no result returned'));
-              }
-            }
-          );
-
-          uploadStream.end(file);
-        });
+        uploadBuffer = await sharp(file).rotate().toBuffer();
       } else {
-        // Upload from file path
-        result = await cloudinary.uploader.upload(file, {
-          folder,
-          public_id: filename,
-          resource_type: 'image',
-          overwrite: false,
-          unique_filename: true,
-          // Ignore EXIF orientation — tarot card art should display as-is
-          angle: 0,
-        });
+        uploadBuffer = await sharp(file).rotate().toBuffer();
       }
+
+      // Always upload from normalized buffer
+      const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder,
+            public_id: filename,
+            resource_type: 'image',
+            overwrite: false,
+            unique_filename: true,
+          },
+          (error, uploadResult) => {
+            if (error) {
+              reject(error);
+            } else if (uploadResult) {
+              resolve(uploadResult);
+            } else {
+              reject(new Error('Upload failed: no result returned'));
+            }
+          }
+        );
+
+        uploadStream.end(uploadBuffer);
+      });
 
       return {
         url: result.secure_url,
