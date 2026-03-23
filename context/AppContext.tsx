@@ -18,30 +18,40 @@ const LANGUAGE_STORAGE_KEY = 'celestiarcana-language';
 
 /**
  * Detect initial language preference
- * Priority: 1. localStorage (user's previous choice) 2. Browser language 3. English default
+ * Priority: 1. URL path (/fr/ prefix) 2. localStorage 3. Browser language 4. English default
  */
 const detectInitialLanguage = (): Language => {
-  // 1. Check localStorage first (user's previous choice)
+  // 1. Check URL path first — this is the source of truth for SEO
+  try {
+    const path = window.location.pathname;
+    if (path === '/fr' || path.startsWith('/fr/')) {
+      return 'fr';
+    }
+  } catch {
+    // window might not be available (SSR)
+  }
+
+  // 2. Check localStorage (user's previous choice)
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (saved === 'fr' || saved === 'en') {
       return saved;
     }
-  } catch (e) {
+  } catch {
     // localStorage might not be available
   }
 
-  // 2. Check browser language - if French, use French
+  // 3. Check browser language - if French, use French
   try {
     const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
     if (browserLang.toLowerCase().startsWith('fr')) {
       return 'fr';
     }
-  } catch (e) {
+  } catch {
     // navigator might not be available (SSR)
   }
 
-  // 3. Default to English
+  // 4. Default to English
   return 'en';
 };
 
@@ -169,14 +179,13 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       };
 
       setUser(mappedUser);
-      setLanguageState(mappedUser.language);
-      setTranslationLanguage(mappedUser.language);
-      document.documentElement.lang = mappedUser.language;
+      // Don't override language from user profile — URL path is the source of truth.
+      // LanguageLayout sets the correct language based on /fr/ prefix.
 
-      // Sync user's language preference to localStorage
+      // Sync current language to localStorage as a preference hint
       try {
-        localStorage.setItem(LANGUAGE_STORAGE_KEY, mappedUser.language);
-      } catch (e) {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+      } catch {
         // localStorage might not be available
       }
 
