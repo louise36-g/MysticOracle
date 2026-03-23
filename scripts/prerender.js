@@ -1190,23 +1190,33 @@ async function fetchWithTimeout(url) {
 async function generateSitemaps() {
   const today = new Date().toISOString().split('T')[0];
 
-  // Generate sitemap-pages.xml
+  // Auto-generate French URLs from English ones (mirror with /fr/ prefix)
+  const toFr = (urls) => urls.map(u => ({
+    ...u,
+    loc: u.loc.replace(SITE_URL, `${SITE_URL}/fr`),
+  }));
+
+  const allPages = [...sitemapData.pages, ...toFr(sitemapData.pages)];
+  const allCards = [...sitemapData.cards, ...toFr(sitemapData.cards)];
+  const allBlog = [...sitemapData.blog, ...toFr(sitemapData.blog)];
+
+  // Generate sitemap-pages.xml (EN + FR)
   process.stdout.write('  Generating sitemap-pages.xml... ');
-  const pagesXml = generateSitemapXml(sitemapData.pages);
+  const pagesXml = generateSitemapXml(allPages);
   fs.writeFileSync(path.join(DIST_DIR, 'sitemap-pages.xml'), pagesXml);
-  console.log(`✓ (${sitemapData.pages.length} URLs)`);
+  console.log(`✓ (${allPages.length} URLs)`);
 
-  // Generate sitemap-cards.xml
+  // Generate sitemap-cards.xml (EN + FR)
   process.stdout.write('  Generating sitemap-cards.xml... ');
-  const cardsXml = generateSitemapXml(sitemapData.cards);
+  const cardsXml = generateSitemapXml(allCards);
   fs.writeFileSync(path.join(DIST_DIR, 'sitemap-cards.xml'), cardsXml);
-  console.log(`✓ (${sitemapData.cards.length} URLs)`);
+  console.log(`✓ (${allCards.length} URLs)`);
 
-  // Generate sitemap-blog.xml
+  // Generate sitemap-blog.xml (EN + FR)
   process.stdout.write('  Generating sitemap-blog.xml... ');
-  const blogXml = generateSitemapXml(sitemapData.blog);
+  const blogXml = generateSitemapXml(allBlog);
   fs.writeFileSync(path.join(DIST_DIR, 'sitemap-blog.xml'), blogXml);
-  console.log(`✓ (${sitemapData.blog.length} URLs)`);
+  console.log(`✓ (${allBlog.length} URLs)`);
 
   // Generate sitemap.xml (sitemap index)
   process.stdout.write('  Generating sitemap.xml (index)... ');
@@ -1260,6 +1270,12 @@ Allow: /tarot
 Allow: /tarot/*
 Allow: /horoscopes
 Allow: /reading
+Allow: /fr/
+Allow: /fr/blog
+Allow: /fr/blog/*
+Allow: /fr/tarot
+Allow: /fr/tarot/*
+Allow: /fr/horoscopes
 
 # Disallow admin and private areas
 Disallow: /admin
@@ -1325,15 +1341,25 @@ Disallow: /
 
 function generateSitemapXml(urls) {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 
   for (const url of urls) {
+    // Determine the base path (without /fr/ prefix) for hreflang pairs
+    const locPath = new URL(url.loc).pathname;
+    const basePath = locPath.startsWith('/fr/') ? locPath.slice(3) : locPath === '/fr' ? '/' : locPath;
+    const enUrl = `${SITE_URL}${basePath === '/' ? '' : basePath}`;
+    const frUrl = `${SITE_URL}${basePath === '/' ? '/fr' : `/fr${basePath}`}`;
+
     xml += `  <url>
     <loc>${url.loc}</loc>
     <lastmod>${url.lastmod}</lastmod>
     <changefreq>${url.changefreq}</changefreq>
     <priority>${url.priority}</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="fr" href="${frUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>
 `;
   }
