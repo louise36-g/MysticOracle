@@ -296,10 +296,10 @@ const Header: React.FC = () => {
 
           {/* My Cards — auth-gated */}
           {isSignedIn ? (
-            <Link to={ROUTES.INTERPRET} className={linkClass(isActive('/interpret'))}>
+            <LocalizedLink to={ROUTES.INTERPRET} className={linkClass(isActive('/interpret'))}>
               {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
               {isActive('/interpret') && activeBar}
-            </Link>
+            </LocalizedLink>
           ) : (
             <div className="relative h-full">
               <button
@@ -389,14 +389,14 @@ const Header: React.FC = () => {
               <Coins className="w-3.5 h-3.5 text-amber-400" />
               <span className="text-sm font-bold text-purple-100">{userCredits}</span>
             </button>
-            <Link
+            <LocalizedLink
               to={ROUTES.PROFILE}
               className={`text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
                 isActive(ROUTES.PROFILE) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
               {t('header.my_account', 'My Account')}
-            </Link>
+            </LocalizedLink>
           </SignedIn>
 
           {isAdmin && (
@@ -464,9 +464,9 @@ const Header: React.FC = () => {
             <div className="p-4 space-y-2">
               {isSignedIn && (
                 <div className="flex items-center justify-between bg-purple-900/20 p-3 rounded-lg mb-4">
-                  <Link to={ROUTES.PROFILE} onClick={closeMobileMenu} className="text-slate-300 font-bold hover:text-white transition-colors">
+                  <LocalizedLink to={ROUTES.PROFILE} onClick={closeMobileMenu} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {displayName}
-                  </Link>
+                  </LocalizedLink>
                   <div className="flex items-center gap-2 text-amber-400">
                     <Coins className="w-4 h-4" />
                     <span className="font-bold">{userCredits}</span>
@@ -502,14 +502,14 @@ const Header: React.FC = () => {
                 {t('header.new_reading', 'New Reading')}
               </LocalizedLink>
 
-              <Link
+              <LocalizedLink
                 to={ROUTES.INTERPRET}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/interpret') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Hand className="w-5 h-5" />
                 {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
-              </Link>
+              </LocalizedLink>
 
               <LocalizedLink
                 to={ROUTES.HOROSCOPES}
@@ -557,14 +557,14 @@ const Header: React.FC = () => {
               </LocalizedLink>
 
               {isSignedIn && (
-                <Link
+                <LocalizedLink
                   to={ROUTES.PROFILE}
                   onClick={closeMobileMenu}
                   className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.PROFILE) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <User className="w-5 h-5" />
                   {t('header.my_account', 'My Account')}
-                </Link>
+                </LocalizedLink>
               )}
 
               {isAdmin && (
