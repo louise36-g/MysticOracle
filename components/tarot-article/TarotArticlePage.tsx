@@ -357,7 +357,11 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   }
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://celestiarcana.com';
-  const canonicalUrl = `${siteUrl}/tarot/${article.slug}`;
+  const canonicalUrl = language === 'fr'
+    ? `${siteUrl}/fr/tarot/${article.slug}`
+    : `${siteUrl}/tarot/${article.slug}`;
+  const enUrl = `${siteUrl}/tarot/${article.slug}`;
+  const frUrl = `${siteUrl}/fr/tarot/${article.slug}`;
 
   return (
     <div className="relative min-h-screen">
@@ -366,9 +370,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <title>{localizedSeoTitle} | CelestiArcana</title>
         <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="en" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="fr" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="en" href={enUrl} />
+        <link rel="alternate" hrefLang="fr" href={frUrl} />
+        <link rel="alternate" hrefLang="x-default" href={enUrl} />
         <meta name="keywords" content={article.tags.join(', ')} />
         <meta name="author" content={article.author} />
         <html lang={language} />

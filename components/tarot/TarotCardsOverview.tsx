@@ -5,6 +5,7 @@ import LocalizedLink from '../LocalizedLink';
 import { motion } from 'framer-motion';
 import { Layers, AlertCircle, RefreshCw, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getHreflangUrls } from '../../utils/language';
 import { fetchTarotOverview, TarotOverviewData } from '../../services/api';
 import TarotCategorySection, { CategoryType, CATEGORY_CONFIG } from './TarotCategorySection';
 import TarotCardPreview from './TarotCardPreview';
@@ -221,9 +222,9 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <meta property="og:description" content={seo.description} />
         <meta property="og:url" content={seo.canonicalUrl} />
         <meta property="og:type" content="website" />
-        <link rel="alternate" hrefLang="en" href={seo.canonicalUrl} />
-        <link rel="alternate" hrefLang="fr" href={seo.canonicalUrl} />
-        <link rel="alternate" hrefLang="x-default" href={seo.canonicalUrl} />
+        <link rel="alternate" hrefLang="en" href={getHreflangUrls(location.pathname).en} />
+        <link rel="alternate" hrefLang="fr" href={getHreflangUrls(location.pathname).fr} />
+        <link rel="alternate" hrefLang="x-default" href={getHreflangUrls(location.pathname).xDefault} />
       </Helmet>
 
       {/* Hero Section */}

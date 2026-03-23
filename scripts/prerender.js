@@ -96,6 +96,19 @@ async function main() {
   }
   const template = fs.readFileSync(indexPath, 'utf-8');
 
+  // Generate French SPA shell (/fr/index.html) for Caddy fallback
+  // This is used for non-pre-rendered French routes (e.g. /fr/profile)
+  process.stdout.write('  Generating /fr/index.html (French SPA shell)... ');
+  try {
+    let frShell = template.replace('<html lang="en">', '<html lang="fr">');
+    const frShellPath = path.join(DIST_DIR, 'fr', 'index.html');
+    ensureDirectoryExists(path.dirname(frShellPath));
+    fs.writeFileSync(frShellPath, frShell);
+    console.log('✓');
+  } catch (error) {
+    console.log('✗ ' + error.message);
+  }
+
   // Phase 1: Static pages (no API needed)
   console.log('[Phase 1] Static pages...');
   await prerenderStaticPages(template);

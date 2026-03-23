@@ -10,8 +10,11 @@
 
 	# --- Redirects: consolidate duplicate pages ---
 	redir /tarot /tarot/cards 301
+	redir /fr/tarot /fr/tarot/cards 301
 	@legacyTarot path_regexp slug ^/tarot/articles/(.+)$
 	redir @legacyTarot /tarot/{re.slug.1} 301
+	@legacyTarotFr path_regexp slugfr ^/fr/tarot/articles/(.+)$
+	redir @legacyTarotFr /fr/tarot/{re.slugfr.1} 301
 
 	# --- Security Headers ---
 	header {
@@ -90,6 +93,18 @@
 		Content-Type "text/html; charset=utf-8"
 	}
 
-	try_files {path} {path}/index.html /index.html
-	file_server
+	# French SPA fallback: /fr/* paths fall back to French shell
+	@frPath {
+		path /fr /fr/*
+	}
+	handle @frPath {
+		try_files {path} {path}/index.html /fr/index.html
+		file_server
+	}
+
+	# English SPA fallback: everything else falls back to English shell
+	handle {
+		try_files {path} {path}/index.html /index.html
+		file_server
+	}
 }
