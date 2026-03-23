@@ -14,6 +14,8 @@ const CoverImageSection: React.FC<CoverImageSectionProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
+  // Cache-bust key forces browser to re-fetch after upload
+  const [cacheBust, setCacheBust] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isUploading = externalUploading || uploading;
@@ -27,6 +29,7 @@ const CoverImageSection: React.FC<CoverImageSectionProps> = ({
       const url = await onMediaUpload(file);
       const alt = file.name.replace(/\.[^/.]+$/, '');
       onImageChange(url, alt);
+      setCacheBust(Date.now());
     } catch (err) {
       console.error('Failed to upload image:', err);
     } finally {
@@ -52,7 +55,7 @@ const CoverImageSection: React.FC<CoverImageSectionProps> = ({
       {/* Preview */}
       {imageUrl && (
         <img
-          src={imageUrl}
+          src={cacheBust ? `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}cb=${cacheBust}` : imageUrl}
           alt={imageAlt || 'Cover'}
           className="w-full h-32 object-cover rounded-lg"
         />
