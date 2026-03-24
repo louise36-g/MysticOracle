@@ -136,8 +136,9 @@ router.get(
       prisma.blogPost.count({ where }),
     ]);
 
+    // Strip heavy content fields from list response (loaded individually when editing)
     res.json({
-      posts: posts.map(p => ({
+      posts: posts.map(({ contentEn: _ce, contentFr: _cf, ...p }) => ({
         ...p,
         categories: flattenCategories(p.categories),
         tags: flattenTags(p.tags),

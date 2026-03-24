@@ -303,8 +303,7 @@ router.get(
           slug: true,
           excerptEn: true,
           excerptFr: true,
-          contentEn: true,
-          contentFr: true,
+          // contentEn/contentFr excluded from list — too large, loaded individually when editing
           coverImage: true,
           coverImageAlt: true,
           coverImageAltFr: true,
