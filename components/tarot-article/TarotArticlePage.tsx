@@ -252,8 +252,10 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { overviewHtml, remainingHtml } = useMemo(() => {
     if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
 
-    // Match heading text: "XXX Tarot Meaning (Overview)" or "What Does XXX Mean"
-    const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean)';
+    // Match heading text in English or French:
+    // EN: "XXX Tarot Meaning (Overview)" or "What Does XXX Mean"
+    // FR: "Signification de XXX (Aperçu)" or similar with (Aperçu)
+    const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean|\\(aperçu\\)|\\(Aperçu\\))';
     // Accept both h2 and h3 for the overview heading
     const h = 'h[23]';
 
