@@ -16,7 +16,8 @@ import {
   Layers,
   Home,
   Mail,
-  Hand
+  Hand,
+  CircleHelp
 } from 'lucide-react';
 
 interface DropdownItem {
@@ -238,6 +239,19 @@ const SubNav: React.FC = () => {
           >
             <Sparkles className="w-4 h-4" />
             <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
+          </Link>
+
+          {/* Yes/No Reading Link */}
+          <Link
+            to={ROUTES.YES_NO}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              isActive('/yes-no')
+                ? 'text-amber-300 bg-amber-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <CircleHelp className="w-4 h-4" />
+            <span>{language === 'fr' ? 'Oui/Non' : 'Yes/No'}</span>
           </Link>
 
           {/* Interpret My Cards Link */}

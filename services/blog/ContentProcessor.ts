@@ -41,10 +41,10 @@ export class ContentProcessor {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
-        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
+        'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'nav'
       ],
       ALLOWED_ATTR: [
-        'href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel',
+        'href', 'src', 'alt', 'title', 'class', 'id', 'style', 'target', 'rel',
         'width', 'height', 'loading', 'data-link-type'
       ],
       ALLOW_DATA_ATTR: true,
@@ -96,6 +96,9 @@ export class ContentProcessor {
     const isFr = typeof document !== 'undefined' && document.documentElement.lang === 'fr';
 
     doc.querySelectorAll('a').forEach((link) => {
+      const href = link.getAttribute('href') || '';
+      // Skip anchor links (e.g. #major-arcana) — they navigate within the page
+      if (href.startsWith('#')) return;
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
 

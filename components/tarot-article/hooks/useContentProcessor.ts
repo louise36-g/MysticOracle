@@ -8,11 +8,11 @@ const SANITIZE_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'figure',
-    'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'cite',
+    'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'cite', 'nav',
     'svg', 'path', 'circle', 'rect', 'g',
   ],
   ALLOWED_ATTR: [
-    'href', 'src', 'alt', 'title', 'class', 'target', 'rel',
+    'href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel',
     'width', 'height', 'loading', 'data-width', 'data-align', 'data-link-type',
     'data-section-type', 'data-expanded', 'data-faq-index',
     'viewBox', 'fill', 'd', 'xmlns', 'stroke', 'stroke-width',

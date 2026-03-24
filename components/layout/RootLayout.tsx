@@ -72,13 +72,22 @@ export function RootLayout() {
     }
   }, [user?.credits, user?.welcomeCompleted, hasShownLowCreditsWarning]);
 
-  // Show welcome modal for new users (once per session, not on auth pages)
+  // Show welcome modal for genuinely new users only (first session after sign-up)
   useEffect(() => {
     const isAuthPage = location.pathname.startsWith('/sign-up') || location.pathname.startsWith('/sign-in');
     if (isAuthPage) return;
 
     const hasShownWelcomeThisSession = sessionStorage.getItem('welcome_modal_shown');
     if (user && !user.welcomeCompleted && user.totalReadings === 0 && !hasShownWelcomeThisSession) {
+      // Skip for existing users — if they've logged in before today, they're not new
+      if (user.lastLoginDate) {
+        const lastLogin = new Date(user.lastLoginDate).getTime();
+        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        if (lastLogin < oneDayAgo) {
+          sessionStorage.setItem('welcome_modal_shown', 'true');
+          return;
+        }
+      }
       setShowWelcomeModal(true);
       sessionStorage.setItem('welcome_modal_shown', 'true');
     }

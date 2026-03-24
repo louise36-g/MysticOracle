@@ -60,6 +60,7 @@ export const CREDIT_COSTS = {
   DAILY_BONUS_BASE: 2,
   WEEKLY_STREAK_BONUS: 5,
   REFERRAL_BONUS: 5,
+  YES_NO_THREE_CARD: 1,
 } as const;
 
 class CreditService {

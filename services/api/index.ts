@@ -209,6 +209,10 @@ export type {
   TagInput,
 } from './taxonomy';
 
+// Yes/No API
+export { fetchYesNoCards, purchaseThreeCardSpread } from './yesNo';
+export type { YesNoCardData, YesNoCardMap, ThreeCardResponse } from './yesNo';
+
 // Links API
 export { fetchLinkRegistry } from './links';
 export type {

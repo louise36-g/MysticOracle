@@ -91,6 +91,7 @@ import promptRoutes from './routes/prompts.js';
 import internalLinksRoutes from './routes/internal-links.js';
 import yearEnergyRoutes from './routes/yearEnergy/index.js';
 import contactRoutes from './routes/contact.js';
+import yesNoRoutes from './routes/yes-no/index.js';
 import { cleanupOldHoroscopes } from './jobs/cleanupHoroscopeCache.js';
 import { preGenerateHoroscopes } from './jobs/preGenerateHoroscopes.js';
 import { createVersionedRouter } from './shared/versioning/createVersionedRouter.js';
@@ -229,8 +230,8 @@ app.use(scopePerRequest(container));
 // Webhook routes need raw body (before express.json())
 app.use('/api/webhooks', webhookRoutes);
 
-// Parse JSON bodies
-app.use(express.json());
+// Parse JSON bodies (default 100kb is too small for bilingual article content)
+app.use(express.json({ limit: '5mb' }));
 
 // Apply general rate limiting to all routes
 app.use(generalLimiter);
@@ -344,6 +345,7 @@ v1Router.use('/ai', strictLimiter, aiRoutes);
 v1Router.use('/year-energy', generalLimiter, yearEnergyRoutes);
 v1Router.use('/internal-links', generalLimiter, internalLinksRoutes);
 v1Router.use('/contact', strictLimiter, contactRoutes);
+v1Router.use('/yes-no', generalLimiter, yesNoRoutes);
 
 // Mount v1 at /api/v1
 app.use('/api/v1', v1Router);

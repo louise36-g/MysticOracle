@@ -158,7 +158,9 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     }
   };
 
-  const handleSave = async (publish: boolean = false) => {
+  const handleSave = async (action: boolean | 'publish' | 'unpublish' = false) => {
+    const publish = action === 'publish' || action === true;
+    const unpublish = action === 'unpublish';
     if (!post) return;
     if (!post.slug || !post.titleEn || !post.authorName) {
       setError('Please fill in required fields: Slug, Title (EN), and Author Name');
@@ -187,7 +189,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         metaDescFr: post.metaDescFr,
         ogImage: post.ogImage,
         authorName: post.authorName,
-        status: publish ? 'PUBLISHED' : post.status,
+        status: publish ? 'PUBLISHED' : unpublish ? 'DRAFT' : post.status,
         featured: post.featured,
         readTimeMinutes: post.readTimeMinutes,
         categoryIds: post.categoryIds || [],
@@ -265,8 +267,8 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
       onEditorModeChange={setEditorMode}
       previewUrl={previewUrl}
       isPublished={post.status === 'PUBLISHED'}
-      showPublish={post.status !== 'PUBLISHED'}
-      onPublish={() => handleSave(true)}
+      showPublish={true}
+      onPublish={() => handleSave(post.status === 'PUBLISHED' ? 'unpublish' : 'publish')}
     />
   );
 

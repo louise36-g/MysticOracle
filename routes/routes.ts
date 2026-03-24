@@ -22,6 +22,9 @@ export const ROUTES = {
   // Daily Tarot Energy
   DAILY_TAROT: '/daily-tarot',
 
+  // Yes/No Reading
+  YES_NO: '/yes-no',
+
   // Horoscopes
   HOROSCOPES: '/horoscopes',
 

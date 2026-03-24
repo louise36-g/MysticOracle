@@ -26,7 +26,7 @@ const CTA_SHORTCODE_REGEX = /\[\[cta:([^\]|]+)(?:\|([^\]]+))?\]\]/g;
  */
 const CTA_DEFINITIONS: Record<string, { url: string; textEn: string; textFr: string; emoji: string }> = {
   'yes-no': {
-    url: '/daily-tarot',
+    url: '/yes-no',
     textEn: 'Try a Free Yes/No Reading',
     textFr: 'Essayez un Tirage Oui/Non Gratuit',
     emoji: '🔮',

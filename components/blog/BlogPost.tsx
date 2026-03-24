@@ -7,6 +7,7 @@ import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArticles, BlogLightbox } from './components';
+import { ScrollToTop } from '../tarot-article/ScrollToTop';
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
@@ -258,6 +259,9 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
       {/* Lightbox Modal */}
       {lightboxImage && <BlogLightbox imageUrl={lightboxImage} onClose={() => setLightboxImage(null)} />}
+
+      {/* Scroll to top button */}
+      <ScrollToTop />
     </article>
   );
 };

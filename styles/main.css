@@ -1178,6 +1178,78 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   margin-bottom: 0;
 }
 
+/* ─── Suit Navigation Bar (Yes/No Hub Page) ─── */
+/* Hidden initially; fades in via JS when scrolled past hero */
+.suit-nav {
+  position: sticky;
+  top: 3.5rem; /* sits below h-14 header */
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: rgba(15, 12, 41, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  overflow-x: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+  transition: opacity 0.35s ease;
+}
+.suit-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+.suit-nav.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.suit-nav a {
+  flex-shrink: 0;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: #cbd5e1;                  /* slate-300 */
+  background: rgba(30, 27, 75, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.suit-nav a:hover {
+  color: #e9d5ff;                  /* purple-200 */
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.45);
+}
+.suit-nav a.active {
+  color: #fcd34d;                  /* amber-300 */
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
+}
+
+/* Desktop: slightly larger pills */
+@media (min-width: 768px) {
+  .suit-nav a {
+    padding: 0.4375rem 1.125rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Yes/No Answer Labels (used in key-takeaways content) */
+.answer-label {
+  font-weight: bold;
+  margin-right: 6px;
+}
+.answer-label.yes         { color: #6ee7b7; } /* emerald-300 */
+.answer-label.no          { color: #fca5a5; } /* red-300 */
+.answer-label.conditional { color: #fcd34d; } /* amber-300 */
+.answer-label.not-yet     { color: #a5b4fc; } /* indigo-300 */
+.answer-label.patient-yes { color: #86efac; } /* green-300 */
+
 /* Quick Reference Table */
 .prose .quick-reference {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(45, 35, 60, 0.3));
