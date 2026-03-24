@@ -248,6 +248,11 @@ export function useContentProcessor({
   content,
   linkRegistry,
 }: UseContentProcessorProps): string {
+  // Get language to prefix internal links with /fr/ on French pages
+  const lang = typeof document !== 'undefined'
+    ? (document.documentElement.lang || 'en')
+    : 'en';
+
   return useMemo(() => {
     if (!content) return '';
 
@@ -258,8 +263,18 @@ export function useContentProcessor({
     html = DOMPurify.sanitize(html, SANITIZE_CONFIG);
 
     // Process structure
-    return processContent(html);
-  }, [content, linkRegistry]);
+    html = processContent(html);
+
+    // Prefix internal links with /fr/ on French pages
+    if (lang === 'fr') {
+      html = html.replace(
+        /href="(https:\/\/celestiarcana\.com)(\/(?:tarot|blog|horoscopes|daily-tarot|about|faq|contact|reading|privacy|terms|cookies|how-credits-work)[^"]*)/g,
+        'href="$1/fr$2'
+      );
+    }
+
+    return html;
+  }, [content, linkRegistry, lang]);
 }
 
 // useContentInteractions has been moved to its own file for better separation

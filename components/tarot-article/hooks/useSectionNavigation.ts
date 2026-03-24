@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, RefObject } from 'react';
+import { useApp } from '../../../context/AppContext';
 import { Section } from '../types';
 
 interface UseSectionNavigationProps {
@@ -14,44 +15,58 @@ interface UseSectionNavigationReturn {
 
 /**
  * Fixed navigation sections in desired order
- * Each has a label and patterns to match headings
+ * Each has EN/FR labels and patterns to match headings in both languages
  */
 const FIXED_NAV_SECTIONS = [
   {
-    shortLabel: 'Takeaways',
-    match: (title: string) => title.toLowerCase().includes('key takeaways'),
-  },
-  {
-    shortLabel: 'Overview',
-    // Match main card section (H2 with colon pattern like "The Fool: The Spirit of Beginning")
+    labelEn: 'Takeaways',
+    labelFr: 'À retenir',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      const excluded = ['reversed', 'key takeaways', 'faq', 'frequently', 'guidance', 'upright', 'symbol'];
+      return lower.includes('key takeaways') || lower.includes('à retenir');
+    },
+  },
+  {
+    labelEn: 'Overview',
+    labelFr: 'Aperçu',
+    // Match main card section (H2 with colon pattern)
+    match: (title: string) => {
+      const lower = title.toLowerCase();
+      const excluded = ['reversed', 'key takeaways', 'faq', 'frequently', 'guidance', 'upright', 'symbol',
+        'à retenir', 'questions', 'à l\'endroit', 'à l\'envers', 'symboli'];
       return title.includes(':') && !excluded.some(e => lower.includes(e));
     },
   },
   {
-    shortLabel: 'Upright',
-    // Match H3 like "When The Fool Appears Upright"
-    match: (title: string) => title.toLowerCase().includes('upright'),
-  },
-  {
-    shortLabel: 'Reversed',
-    match: (title: string) => title.toLowerCase().includes('reversed'),
-  },
-  {
-    shortLabel: 'Symbols',
-    // Match H3 like "Symbols in The Fool"
+    labelEn: 'Upright',
+    labelFr: 'À l\'endroit',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('symbol') || lower.includes('imagery');
+      return lower.includes('upright') || (lower.includes('à l\'endroit') && lower.includes('signification'));
     },
   },
   {
-    shortLabel: 'FAQ',
+    labelEn: 'Reversed',
+    labelFr: 'À l\'envers',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('faq') || lower.includes('frequently asked') || lower.includes('frequently asked questions');
+      return lower.includes('reversed') || (lower.includes('à l\'envers') && lower.includes('signification'));
+    },
+  },
+  {
+    labelEn: 'Symbols',
+    labelFr: 'Symboles',
+    match: (title: string) => {
+      const lower = title.toLowerCase();
+      return lower.includes('symbol') || lower.includes('imagery') || lower.includes('symbolisme');
+    },
+  },
+  {
+    labelEn: 'FAQ',
+    labelFr: 'FAQ',
+    match: (title: string) => {
+      const lower = title.toLowerCase();
+      return lower.includes('faq') || lower.includes('frequently asked') || lower.includes('questions fréquentes') || lower.includes('questions posées');
     },
   },
 ];
@@ -64,6 +79,7 @@ export function useSectionNavigation({
   content,
   contentRef,
 }: UseSectionNavigationProps): UseSectionNavigationReturn {
+  const { language } = useApp();
   const [sections, setSections] = useState<Section[]>([]);
   const [activeSection, setActiveSection] = useState('');
 
@@ -94,36 +110,38 @@ export function useSectionNavigation({
         return navSection.match(title);
       });
 
+      const shortLabel = language === 'fr' ? navSection.labelFr : navSection.labelEn;
+
       if (matchIndex !== -1) {
         const h = h2Headings[matchIndex];
-        const title = h.textContent?.replace(/[^\w\s&:'-]/g, '').trim() || '';
+        const title = h.textContent?.replace(/[^\w\s&:'-àâéèêëïîôùûüç]/g, '').trim() || '';
         foundSections.push({
           id: `h2-${matchIndex}`,
           title,
-          shortLabel: navSection.shortLabel,
+          shortLabel,
         });
         continue;
       }
 
       // If not found in H2, try H3 headings (for Upright, Symbols)
       matchIndex = h3Headings.findIndex((h) => {
-        const title = h.textContent?.replace(/[^\w\s&:'-]/g, '').trim() || '';
+        const title = h.textContent?.replace(/[^\w\s&:'-àâéèêëïîôùûüç]/g, '').trim() || '';
         return navSection.match(title);
       });
 
       if (matchIndex !== -1) {
         const h = h3Headings[matchIndex];
-        const title = h.textContent?.replace(/[^\w\s&:'-]/g, '').trim() || '';
+        const title = h.textContent?.replace(/[^\w\s&:'-àâéèêëïîôùûüç]/g, '').trim() || '';
         foundSections.push({
           id: `h3-${matchIndex}`,
           title,
-          shortLabel: navSection.shortLabel,
+          shortLabel,
         });
       }
     }
 
     setSections(foundSections);
-  }, [content]);
+  }, [content, language]);
 
   // Track active section on scroll
   useEffect(() => {
