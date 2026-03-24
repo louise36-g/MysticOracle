@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Upload, X, Check, AlertCircle } from 'lucide-react';
+import { Download, Upload, X, Check, AlertCircle, Scissors } from 'lucide-react';
 
 interface TranslationData {
   title: string;
@@ -9,6 +9,34 @@ interface TranslationData {
   seoMetaDescription?: string;
   seoFocusKeyword?: string;
   featuredImageAlt?: string;
+}
+
+const MAX_CHUNK_SIZE = 10000;
+
+/**
+ * Split HTML content into safe chunks for ChatGPT translation.
+ * Splits by <h2> first, then by <h3> if a chunk exceeds MAX_CHUNK_SIZE.
+ */
+function splitContentIntoChunks(content: string): string[] {
+  if (content.length <= MAX_CHUNK_SIZE) return [content];
+
+  // Split by <h2> tags (keep the tag at the start of each chunk)
+  const h2Parts = content.split(/(?=<h2[\s>])/i).filter(Boolean);
+
+  const chunks: string[] = [];
+  for (const part of h2Parts) {
+    if (part.length <= MAX_CHUNK_SIZE) {
+      chunks.push(part);
+    } else {
+      // Split further by <h3> tags
+      const h3Parts = part.split(/(?=<h3[\s>])/i).filter(Boolean);
+      for (const subPart of h3Parts) {
+        chunks.push(subPart);
+      }
+    }
+  }
+
+  return chunks;
 }
 
 interface TranslationToolbarProps {
@@ -79,6 +107,34 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const handleExportChunked = () => {
+    const contentParts = splitContentIntoChunks(englishData.content || '');
+
+    const dataToExport: Record<string, unknown> = {
+      title: englishData.title || '',
+      excerpt: englishData.excerpt || '',
+      content_parts: contentParts,
+      _chunk_info: `${contentParts.length} chunks (rejoin content_parts into "content" after translation)`,
+    };
+
+    if (englishData.seoMetaTitle) dataToExport.seoMetaTitle = englishData.seoMetaTitle;
+    if (englishData.seoMetaDescription) dataToExport.seoMetaDescription = englishData.seoMetaDescription;
+    if (englishData.seoFocusKeyword) dataToExport.seoFocusKeyword = englishData.seoFocusKeyword;
+    if (englishData.featuredImageAlt) dataToExport.featuredImageAlt = englishData.featuredImageAlt;
+
+    const jsonString = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filenamePrefix}-en-chunked.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleImportFR = () => {
     setImportText('');
     setImportError(null);
@@ -97,12 +153,17 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
 
       const parsed = JSON.parse(importText);
 
+      // Support both "content" (single) and "content_parts" (chunked) formats
+      const content = parsed.content_parts
+        ? (parsed.content_parts as string[]).join('')
+        : parsed.content;
+
       // Validate required fields
-      if (!parsed.title || !parsed.excerpt || !parsed.content) {
+      if (!parsed.title || !parsed.excerpt || !content) {
         setImportError(
           language === 'en'
-            ? 'JSON must contain title, excerpt, and content fields'
-            : 'Le JSON doit contenir les champs title, excerpt et content'
+            ? 'JSON must contain title, excerpt, and content (or content_parts) fields'
+            : 'Le JSON doit contenir les champs title, excerpt et content (ou content_parts)'
         );
         return;
       }
@@ -111,7 +172,7 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
       onImportFrench({
         title: parsed.title,
         excerpt: parsed.excerpt,
-        content: parsed.content,
+        content,
         seoMetaTitle: parsed.seoMetaTitle || '',
         seoMetaDescription: parsed.seoMetaDescription || '',
         seoFocusKeyword: parsed.seoFocusKeyword || '',
@@ -152,6 +213,15 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
         >
           <Download className="w-4 h-4" />
           {language === 'en' ? 'Export EN' : 'Exporter EN'}
+        </button>
+
+        <button
+          onClick={handleExportChunked}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-amber-700 hover:bg-amber-600 text-white rounded-lg transition-colors"
+          title="Split content into smaller chunks for ChatGPT translation"
+        >
+          <Scissors className="w-4 h-4" />
+          {language === 'en' ? 'Chunked' : 'Découpé'}
         </button>
 
         <button
