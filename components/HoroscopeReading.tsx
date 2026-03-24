@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import ReactMarkdown from 'react-markdown';
-import { Link } from 'react-router-dom';
+import LocalizedLink from './LocalizedLink';
 import { useAuth } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Stars, ChevronLeft, RefreshCw, AlertTriangle, Sun, ArrowRight } from 'lucide-react';
@@ -653,7 +653,7 @@ const HoroscopeReading: React.FC = () => {
         transition={{ delay: 0.3, duration: 0.5 }}
         className="mb-8"
       >
-        <Link
+        <LocalizedLink
           to={ROUTES.DAILY_TAROT}
           className="group relative block rounded-2xl overflow-hidden px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 md:max-w-[calc(50%+0.625rem)] mx-auto"
           style={{
@@ -681,7 +681,7 @@ const HoroscopeReading: React.FC = () => {
             </div>
             <ArrowRight className="w-5 h-5 text-[#1A0A2E] group-hover:translate-x-1 transition-all flex-shrink-0" />
           </div>
-        </Link>
+        </LocalizedLink>
       </motion.div>
 
       {/* Zodiac grid - unified styling */}

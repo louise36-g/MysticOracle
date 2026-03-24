@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
+import { frFR } from '@clerk/localizations';
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { AppProvider } from './context/AppContext';
 import { SpendingLimitsProvider } from './context/SpendingLimitsContext';
 import { TranslationProvider } from './context/TranslationContext';
 import { ReadingProvider } from './context/ReadingContext';
+import { detectLanguageFromPath } from './utils/language';
 import App from './App';
 import './styles/main.css';
 
@@ -104,13 +106,23 @@ if (root) {
       <ClerkProvider
         publishableKey={PUBLISHABLE_KEY}
         afterSignOutUrl="/"
-        localization={{
-          unstable__errors: {
-            form_identifier_not_found: 'This email address was not found. Please check and try again.',
-            form_password_incorrect: 'Incorrect password. Please try again.',
-            not_allowed_access: 'This is not a valid email address. Please check and try again.',
-          },
-        }}
+        localization={detectLanguageFromPath(window.location.pathname) === 'fr'
+          ? {
+              ...frFR,
+              unstable__errors: {
+                form_identifier_not_found: 'Cette adresse e-mail est introuvable. Veuillez vérifier et réessayer.',
+                form_password_incorrect: 'Mot de passe incorrect. Veuillez réessayer.',
+                not_allowed_access: 'Cette adresse e-mail n\'est pas valide. Veuillez vérifier et réessayer.',
+              },
+            }
+          : {
+              unstable__errors: {
+                form_identifier_not_found: 'This email address was not found. Please check and try again.',
+                form_password_incorrect: 'Incorrect password. Please try again.',
+                not_allowed_access: 'This is not a valid email address. Please check and try again.',
+              },
+            }
+        }
       >
         <TranslationProvider>
           <AppProvider>
