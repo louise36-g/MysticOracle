@@ -68,6 +68,16 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
 
+  // Multi-chunk import state
+  const [showChunkModal, setShowChunkModal] = useState(false);
+  const [chunkText, setChunkText] = useState('');
+  const [collectedChunks, setCollectedChunks] = useState<string[]>([]);
+  const [chunkTitle, setChunkTitle] = useState('');
+  const [chunkExcerpt, setChunkExcerpt] = useState('');
+  const [chunkSeoTitle, setChunkSeoTitle] = useState('');
+  const [chunkSeoDesc, setChunkSeoDesc] = useState('');
+  const [chunkImageAlt, setChunkImageAlt] = useState('');
+
   // Only show when in French mode
   if (editLanguage !== 'fr') {
     return null;
@@ -133,6 +143,56 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  // --- Multi-chunk import ---
+  const handleOpenChunkImport = () => {
+    setChunkText('');
+    setCollectedChunks([]);
+    setChunkTitle('');
+    setChunkExcerpt('');
+    setChunkSeoTitle('');
+    setChunkSeoDesc('');
+    setChunkImageAlt('');
+    setImportError(null);
+    setImportSuccess(false);
+    setShowChunkModal(true);
+  };
+
+  const handleAddChunk = () => {
+    if (!chunkText.trim()) return;
+    setCollectedChunks(prev => [...prev, chunkText.trim()]);
+    setChunkText('');
+  };
+
+  const handleRemoveLastChunk = () => {
+    setCollectedChunks(prev => prev.slice(0, -1));
+  };
+
+  const handleFinaliseChunks = () => {
+    if (collectedChunks.length === 0) {
+      setImportError('Add at least one content chunk');
+      return;
+    }
+    if (!chunkTitle.trim() || !chunkExcerpt.trim()) {
+      setImportError('Title and excerpt are required');
+      return;
+    }
+
+    onImportFrench({
+      title: chunkTitle.trim(),
+      excerpt: chunkExcerpt.trim(),
+      content: collectedChunks.join(''),
+      seoMetaTitle: chunkSeoTitle || '',
+      seoMetaDescription: chunkSeoDesc || '',
+      featuredImageAlt: chunkImageAlt || '',
+    });
+
+    setImportSuccess(true);
+    setTimeout(() => {
+      setShowChunkModal(false);
+      setImportSuccess(false);
+    }, 1500);
   };
 
   const handleImportFR = () => {
@@ -231,6 +291,15 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
           <Upload className="w-4 h-4" />
           {language === 'en' ? 'Import FR' : 'Importer FR'}
         </button>
+
+        <button
+          onClick={handleOpenChunkImport}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-700 hover:bg-green-600 text-white rounded-lg transition-colors"
+          title="Paste translated chunks one at a time"
+        >
+          <Upload className="w-4 h-4" />
+          {language === 'en' ? 'Chunk Import' : 'Import par morceaux'}
+        </button>
       </div>
 
       {/* Import Modal */}
@@ -302,6 +371,140 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
               >
                 <Check className="w-4 h-4" />
                 {language === 'en' ? 'Import' : 'Importer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chunk Import Modal */}
+      {showChunkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-slate-700">
+              <h3 className="text-lg font-heading text-white">
+                Import by Chunks — Paste one chunk at a time
+              </h3>
+              <button
+                onClick={() => setShowChunkModal(false)}
+                className="p-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 flex-1 overflow-auto space-y-4">
+              {/* Title & Excerpt (first time only) */}
+              {collectedChunks.length === 0 && (
+                <div className="space-y-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <p className="text-amber-300 text-sm font-medium">Step 1: Enter title & excerpt first</p>
+                  <input
+                    type="text"
+                    value={chunkTitle}
+                    onChange={(e) => setChunkTitle(e.target.value)}
+                    placeholder="Translated title..."
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white"
+                  />
+                  <input
+                    type="text"
+                    value={chunkExcerpt}
+                    onChange={(e) => setChunkExcerpt(e.target.value)}
+                    placeholder="Translated excerpt..."
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white"
+                  />
+                  <input
+                    type="text"
+                    value={chunkSeoTitle}
+                    onChange={(e) => setChunkSeoTitle(e.target.value)}
+                    placeholder="SEO meta title (optional)..."
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white"
+                  />
+                  <input
+                    type="text"
+                    value={chunkSeoDesc}
+                    onChange={(e) => setChunkSeoDesc(e.target.value)}
+                    placeholder="SEO meta description (optional)..."
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white"
+                  />
+                  <input
+                    type="text"
+                    value={chunkImageAlt}
+                    onChange={(e) => setChunkImageAlt(e.target.value)}
+                    placeholder="Featured image alt text (optional)..."
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white"
+                  />
+                </div>
+              )}
+
+              {/* Collected chunks indicator */}
+              {collectedChunks.length > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-green-400 font-medium">
+                    {collectedChunks.length} chunk{collectedChunks.length > 1 ? 's' : ''} added
+                  </span>
+                  <span className="text-slate-500">
+                    ({collectedChunks.reduce((sum, c) => sum + c.length, 0).toLocaleString()} chars total)
+                  </span>
+                  <button
+                    onClick={handleRemoveLastChunk}
+                    className="text-red-400 hover:text-red-300 text-xs ml-2"
+                  >
+                    Undo last
+                  </button>
+                </div>
+              )}
+
+              {/* Paste area for next chunk */}
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">
+                  {collectedChunks.length === 0
+                    ? 'Step 2: Paste translated content chunk 1'
+                    : `Paste chunk ${collectedChunks.length + 1} (or click Finish if done)`}
+                </label>
+                <textarea
+                  value={chunkText}
+                  onChange={(e) => setChunkText(e.target.value)}
+                  className="w-full h-48 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                  placeholder="Paste the translated HTML content chunk here..."
+                />
+              </div>
+
+              {importError && (
+                <div className="flex items-center gap-2 text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{importError}</span>
+                </div>
+              )}
+
+              {importSuccess && (
+                <div className="flex items-center gap-2 text-green-400 text-sm">
+                  <Check className="w-4 h-4" />
+                  <span>Import successful!</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 p-4 border-t border-slate-700">
+              <button
+                onClick={() => setShowChunkModal(false)}
+                className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddChunk}
+                disabled={!chunkText.trim()}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                + Add Chunk
+              </button>
+              <button
+                onClick={handleFinaliseChunks}
+                disabled={collectedChunks.length === 0 || importSuccess}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+                Finish ({collectedChunks.length} chunks)
               </button>
             </div>
           </div>
