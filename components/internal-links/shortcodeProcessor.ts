@@ -10,10 +10,46 @@ import type { LinkRegistry } from '../../services/api';
 export type LinkType = 'tarot' | 'blog' | 'spread' | 'horoscope';
 
 /**
- * Regex to match shortcodes
+ * Regex to match link shortcodes
  * Captures: type, slug, optional custom text
  */
 const SHORTCODE_REGEX = /\[\[(tarot|blog|spread|horoscope):([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+
+/**
+ * Regex to match CTA shortcodes: [[cta:id]] or [[cta:id|Custom Text]]
+ */
+const CTA_SHORTCODE_REGEX = /\[\[cta:([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+
+/**
+ * Pre-defined CTA buttons that can be embedded in article content.
+ * Add new CTAs here as needed.
+ */
+const CTA_DEFINITIONS: Record<string, { url: string; textEn: string; textFr: string; emoji: string }> = {
+  'yes-no': {
+    url: '/daily-tarot',
+    textEn: 'Try a Free Yes/No Reading',
+    textFr: 'Essayez un Tirage Oui/Non Gratuit',
+    emoji: '🔮',
+  },
+  'reading': {
+    url: '/reading',
+    textEn: 'Get Your Tarot Reading',
+    textFr: 'Obtenez Votre Tirage de Tarot',
+    emoji: '✨',
+  },
+  'horoscope': {
+    url: '/horoscopes',
+    textEn: 'Read Your Daily Horoscope',
+    textFr: 'Lisez Votre Horoscope du Jour',
+    emoji: '⭐',
+  },
+  'birth-cards': {
+    url: '/reading/birth-cards/1',
+    textEn: 'Discover Your Birth Cards',
+    textFr: 'Découvrez Vos Cartes de Naissance',
+    emoji: '🎂',
+  },
+};
 
 /**
  * Category slugs that should route to /tarot/cards/{slug}
@@ -106,11 +142,26 @@ function getTitleFromRegistry(type: LinkType, slug: string, registry: LinkRegist
  * @returns Content with shortcodes replaced by HTML anchor tags
  */
 export function processShortcodes(content: string, registry: LinkRegistry | null = null): string {
-  return content.replace(SHORTCODE_REGEX, (match, type: LinkType, slug: string, customText?: string) => {
+  // Process link shortcodes
+  let result = content.replace(SHORTCODE_REGEX, (match, type: LinkType, slug: string, customText?: string) => {
     const url = getUrlForType(type, slug);
     const text = customText || getTitleFromRegistry(type, slug, registry);
     return `<a href="${url}" class="internal-link" data-link-type="${type}" target="_blank" rel="noopener noreferrer">${text}</a>`;
   });
+
+  // Process CTA shortcodes
+  const isFr = typeof document !== 'undefined' && document.documentElement.lang === 'fr';
+  result = result.replace(CTA_SHORTCODE_REGEX, (_match, id: string, customText?: string) => {
+    const cta = CTA_DEFINITIONS[id.trim()];
+    if (!cta) return _match; // Unknown CTA, leave as-is
+
+    const text = customText || (isFr ? cta.textFr : cta.textEn);
+    const url = isFr ? `/fr${cta.url}` : cta.url;
+
+    return `<div style="text-align:center;margin:2rem 0"><a href="${url}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;border-radius:14px;font-family:'Cinzel',serif;font-weight:700;text-decoration:none;font-size:1.1rem;box-shadow:0 4px 15px rgba(124,58,237,0.4);transition:all 0.3s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(124,58,237,0.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 15px rgba(124,58,237,0.4)'">${cta.emoji} ${text}</a></div>`;
+  });
+
+  return result;
 }
 
 /**
