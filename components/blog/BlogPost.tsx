@@ -141,6 +141,19 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
   const title = language === 'en' ? post.titleEn : post.titleFr;
 
+  // For the yes-or-no hub article: split overview above the fold (before cover image)
+  const isYesNoHub = slug === 'yes-or-no-tarot';
+  let overviewHtml = '';
+  let mainContentHtml = contentBeforeFAQ;
+  if (isYesNoHub && contentBeforeFAQ) {
+    // Split at the first <h2> — everything before it is the overview + suit-nav
+    const firstH2 = contentBeforeFAQ.indexOf('<h2');
+    if (firstH2 > 0) {
+      overviewHtml = contentBeforeFAQ.substring(0, firstH2);
+      mainContentHtml = contentBeforeFAQ.substring(firstH2);
+    }
+  }
+
   return (
     <article ref={articleContainerRef} className="max-w-4xl mx-auto px-4 py-12">
       {/* Preview Banner */}
@@ -175,6 +188,18 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         t={t}
       />
 
+      {/* Overview above the fold (yes-or-no hub article only) */}
+      {isYesNoHub && overviewHtml && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
+          dangerouslySetInnerHTML={{ __html: overviewHtml }}
+          style={{ lineHeight: '1.8' }}
+        />
+      )}
+
       {/* Cover Image */}
       {post.coverImage && (
         <motion.div
@@ -200,7 +225,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
       {/* Content */}
       <BlogContent
-        contentBeforeFAQ={contentBeforeFAQ}
+        contentBeforeFAQ={isYesNoHub ? mainContentHtml : contentBeforeFAQ}
         contentAfterFAQ={contentAfterFAQ}
         contentRef={contentRef}
         onImageClick={setLightboxImage}
