@@ -77,6 +77,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
   }, [isOpen, getToken]);
 
   const markComplete = useCallback(async () => {
+    // Permanent localStorage guard so it never shows again even if API fails
+    localStorage.setItem('celestiarcana_welcome_done', 'true');
     try {
       const token = await getToken();
       if (token) {

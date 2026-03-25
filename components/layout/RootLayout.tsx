@@ -77,17 +77,17 @@ export function RootLayout() {
     const isAuthPage = location.pathname.startsWith('/sign-up') || location.pathname.startsWith('/sign-in');
     if (isAuthPage) return;
 
+    // Never show for admins or users who already completed it
+    if (!user || user.welcomeCompleted || user.isAdmin) return;
+
+    // Never show for users with any activity — they're clearly not new
+    if (user.totalReadings > 0 || user.loginStreak > 1) return;
+
+    // Permanent localStorage guard — once dismissed, never again
+    if (localStorage.getItem('celestiarcana_welcome_done')) return;
+
     const hasShownWelcomeThisSession = sessionStorage.getItem('welcome_modal_shown');
-    if (user && !user.welcomeCompleted && user.totalReadings === 0 && !hasShownWelcomeThisSession) {
-      // Skip for existing users — if they've logged in before today, they're not new
-      if (user.lastLoginDate) {
-        const lastLogin = new Date(user.lastLoginDate).getTime();
-        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-        if (lastLogin < oneDayAgo) {
-          sessionStorage.setItem('welcome_modal_shown', 'true');
-          return;
-        }
-      }
+    if (!hasShownWelcomeThisSession) {
       setShowWelcomeModal(true);
       sessionStorage.setItem('welcome_modal_shown', 'true');
     }
