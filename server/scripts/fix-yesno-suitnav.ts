@@ -107,20 +107,22 @@ function fixBoldAnswers(content: string): { content: string; count: number } {
 
   // Map answer words to CSS classes
   const answerMap: Record<string, string> = {
+    'CONDITIONAL YES': 'conditional',
+    'PATIENT YES': 'patient-yes',
+    'NOT YET': 'not-yet',
     YES: 'yes',
     NO: 'no',
     MAYBE: 'conditional',
     UNCLEAR: 'conditional',
     WAIT: 'not-yet',
-    'NOT YET': 'not-yet',
-    'PATIENT YES': 'patient-yes',
     // French
+    'OUI CONDITIONNEL': 'conditional',
+    'PAS ENCORE': 'not-yet',
     OUI: 'yes',
     NON: 'no',
     'PEUT-ÊTRE': 'conditional',
     INCERTAIN: 'conditional',
     ATTENDEZ: 'not-yet',
-    'PAS ENCORE': 'not-yet',
   };
 
   // Build alternation pattern for all answer labels (longest first to match "NOT YET" before "NO")
