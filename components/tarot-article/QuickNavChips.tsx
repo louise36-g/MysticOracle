@@ -11,6 +11,16 @@ import { QuickNavChipsProps } from './types';
  * - Smooth horizontal scrolling on mobile
  * - Staggered entrance animation
  */
+// Color palette for section pills — each section gets a distinct color
+const CHIP_COLORS = [
+  { text: 'text-amber-300',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30',   numBg: 'bg-amber-500/20',  numText: 'text-amber-300',   hoverBorder: 'hover:border-amber-400/50' },
+  { text: 'text-purple-300',  bg: 'bg-purple-500/10',  border: 'border-purple-500/30',  numBg: 'bg-purple-500/20', numText: 'text-purple-300',  hoverBorder: 'hover:border-purple-400/50' },
+  { text: 'text-emerald-300', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', numBg: 'bg-emerald-500/20', numText: 'text-emerald-300', hoverBorder: 'hover:border-emerald-400/50' },
+  { text: 'text-rose-300',    bg: 'bg-rose-500/10',    border: 'border-rose-500/30',    numBg: 'bg-rose-500/20',   numText: 'text-rose-300',    hoverBorder: 'hover:border-rose-400/50' },
+  { text: 'text-cyan-300',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    numBg: 'bg-cyan-500/20',   numText: 'text-cyan-300',    hoverBorder: 'hover:border-cyan-400/50' },
+  { text: 'text-violet-300',  bg: 'bg-violet-500/10',  border: 'border-violet-500/30',  numBg: 'bg-violet-500/20', numText: 'text-violet-300',  hoverBorder: 'hover:border-violet-400/50' },
+];
+
 export function QuickNavChips({ sections, onSectionClick }: QuickNavChipsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -79,28 +89,24 @@ export function QuickNavChips({ sections, onSectionClick }: QuickNavChipsProps) 
         ref={scrollRef}
         className="flex justify-center gap-2 overflow-x-auto scrollbar-hide py-3 px-4"
       >
-        {sections.map((section, index) => (
-          <motion.button
-            key={section.id}
-            onClick={() => onSectionClick(section.id)}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.04, duration: 0.3 }}
-            className="group relative flex-shrink-0"
-          >
-            {/* Background gradient on hover */}
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/15 to-fuchsia-500/15 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-
-            {/* Button content - rectangular with soft corners */}
-            <div className="relative px-3.5 py-1.5 bg-slate-800/60 hover:bg-slate-800/80 border border-slate-700/50 hover:border-purple-500/30 rounded-lg text-sm text-slate-400 hover:text-purple-200 whitespace-nowrap transition-all duration-200 flex items-center gap-2">
-              {/* Number badge - square with soft corners */}
-              <span className="w-5 h-5 rounded bg-slate-700/60 text-slate-400 text-xs font-medium flex items-center justify-center group-hover:bg-purple-500/20 group-hover:text-purple-300 transition-colors">
+        {sections.map((section, index) => {
+          const color = CHIP_COLORS[index % CHIP_COLORS.length];
+          return (
+            <motion.button
+              key={section.id}
+              onClick={() => onSectionClick(section.id)}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04, duration: 0.3 }}
+              className={`group relative flex-shrink-0 px-4 py-1.5 rounded-full ${color.bg} border ${color.border} ${color.hoverBorder} ${color.text} text-sm font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5 flex items-center gap-2`}
+            >
+              <span className={`w-5 h-5 rounded-full ${color.numBg} ${color.numText} text-xs font-semibold flex items-center justify-center`}>
                 {index + 1}
               </span>
-              <span className="font-medium">{section.shortLabel}</span>
-            </div>
-          </motion.button>
-        ))}
+              <span>{section.shortLabel}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Mobile scroll hint */}
