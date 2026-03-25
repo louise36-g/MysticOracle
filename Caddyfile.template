@@ -93,6 +93,15 @@
 		Content-Type "text/html; charset=utf-8"
 	}
 
+	# Static assets: serve directly, NO SPA fallback
+	# Prevents Cloudflare from caching index.html as a JS file during deploys
+	handle /assets/* {
+		file_server
+	}
+	handle /fonts/* {
+		file_server
+	}
+
 	# French SPA fallback: /fr/* paths fall back to French shell
 	@frPath {
 		path /fr /fr/*

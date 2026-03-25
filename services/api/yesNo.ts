@@ -29,6 +29,15 @@ export interface ThreeCardResponse {
   newBalance: number;
 }
 
+export interface InterpretResponse {
+  interpretation: string | null;
+  verdict: string;
+}
+
+export interface ThreeCardInterpretResponse {
+  interpretation: string | null;
+}
+
 /**
  * Fetch the full yes/no card data map (public, no auth)
  */
@@ -37,7 +46,7 @@ export async function fetchYesNoCards(): Promise<YesNoCardMap> {
 }
 
 /**
- * Purchase a 3-card yes/no spread (1 credit)
+ * Purchase a 3-card yes/no spread (1 credit, fast — no AI)
  */
 export async function purchaseThreeCardSpread(
   token: string,
@@ -48,5 +57,39 @@ export async function purchaseThreeCardSpread(
     token,
     body: { cardKeys },
     idempotencyKey: generateIdempotencyKey(),
+  });
+}
+
+/**
+ * Get AI interpretation for a single yes/no card (free, rate limited)
+ */
+export async function interpretYesNoCard(params: {
+  question: string;
+  cardKey: string;
+  isReversed: boolean;
+  language: 'en' | 'fr';
+}): Promise<InterpretResponse> {
+  return apiRequest<InterpretResponse>('/api/v1/yes-no/interpret', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+/**
+ * Get AI interpretation for a 3-card yes/no spread (auth required, no extra credit)
+ */
+export async function interpretThreeCardSpread(
+  token: string,
+  params: {
+    question: string;
+    cardKeys: string[];
+    isReversed: boolean[];
+    language: 'en' | 'fr';
+  }
+): Promise<ThreeCardInterpretResponse> {
+  return apiRequest<ThreeCardInterpretResponse>('/api/v1/yes-no/interpret-three-card', {
+    method: 'POST',
+    token,
+    body: params,
   });
 }

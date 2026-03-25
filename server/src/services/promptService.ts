@@ -521,6 +521,70 @@ export async function getClarificationCardPrompt(params: {
 }
 
 /**
+ * Get assembled Yes/No single card interpretation prompt
+ */
+export async function getYesNoSinglePrompt(params: {
+  question: string;
+  cardName: string;
+  isReversed: boolean;
+  verdict: string;
+  articleContext: string;
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const template = await getPrompt('PROMPT_YESNO_SINGLE');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const orientationContext = params.isReversed
+      ? 'The card was drawn REVERSED. Interpret using reversed meanings.'
+      : 'The card was drawn UPRIGHT. Interpret using upright meanings.';
+
+    const variables = {
+      language: languageName,
+      question: params.question,
+      cardName: params.cardName,
+      orientationContext,
+      verdict: params.verdict,
+      articleContext: params.articleContext,
+    };
+
+    return interpolatePrompt(template, variables);
+  } catch (error) {
+    logger.error('[PromptService] Error assembling yes/no single prompt:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get assembled Yes/No 3-card spread interpretation prompt
+ */
+export async function getYesNoThreeCardPrompt(params: {
+  question: string;
+  cardDescriptions: string;
+  articleContext: string;
+  language: 'en' | 'fr';
+}): Promise<string> {
+  try {
+    const template = await getPrompt('PROMPT_YESNO_THREE_CARD');
+
+    const languageName = params.language === 'en' ? 'English' : 'French';
+
+    const variables = {
+      language: languageName,
+      question: params.question,
+      cardDescriptions: params.cardDescriptions,
+      articleContext: params.articleContext,
+    };
+
+    return interpolatePrompt(template, variables);
+  } catch (error) {
+    logger.error('[PromptService] Error assembling yes/no three-card prompt:', error);
+    throw error;
+  }
+}
+
+/**
  * Clear the prompt cache (call after prompt updates)
  */
 export function clearCache(): void {
@@ -588,6 +652,8 @@ export function getPromptService() {
     getHoroscopeFollowUpPrompt,
     getYearEnergyReadingPrompt,
     getBirthCardSynthesisPrompt,
+    getYesNoSinglePrompt,
+    getYesNoThreeCardPrompt,
     interpolatePrompt,
     clearCache,
     seedPrompts,
@@ -606,6 +672,8 @@ export default {
   getHoroscopeFollowUpPrompt,
   getYearEnergyReadingPrompt,
   getBirthCardSynthesisPrompt,
+  getYesNoSinglePrompt,
+  getYesNoThreeCardPrompt,
   interpolatePrompt,
   clearCache,
   seedPrompts,

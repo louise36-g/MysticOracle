@@ -1241,14 +1241,16 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 /* Yes/No Answer Labels (used in key-takeaways content) */
 .answer-label {
-  font-weight: bold;
+  font-weight: 700;
   margin-right: 6px;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
 }
-.answer-label.yes         { color: #6ee7b7; } /* emerald-300 */
-.answer-label.no          { color: #fca5a5; } /* red-300 */
-.answer-label.conditional { color: #fcd34d; } /* amber-300 */
-.answer-label.not-yet     { color: #a5b4fc; } /* indigo-300 */
-.answer-label.patient-yes { color: #86efac; } /* green-300 */
+.answer-label.yes         { color: #34d399; } /* emerald-400 — vivid green */
+.answer-label.no          { color: #f87171; } /* red-400 — warm coral */
+.answer-label.conditional { color: #fbbf24; } /* amber-400 — rich gold */
+.answer-label.not-yet     { color: #818cf8; } /* indigo-400 — bright periwinkle */
+.answer-label.patient-yes { color: #4ade80; } /* green-400 — bright lime-green */
 
 /* Quick Reference Table */
 .prose .quick-reference {

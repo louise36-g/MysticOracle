@@ -32,16 +32,18 @@ logger.info('✅ Environment validated, DI container initialized');
 
 // Shared rate limiter options for Render reverse proxy
 const proxyValidation = { validate: { xForwardedForHeader: false } };
+const isDev = process.env.NODE_ENV === 'development';
 
 // Rate limiting configurations
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+  max: 5000, // 5000 requests per 15 min per IP — generous for real users, safe from bots
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
   // Skip for admin routes — they have their own adminLimiter
-  skip: req => req.path.includes('/admin'),
+  // Skip entirely in development to avoid hitting limits during local testing
+  skip: req => isDev || req.path.includes('/admin'),
   ...proxyValidation,
 });
 
@@ -51,15 +53,17 @@ const paymentLimiter = rateLimit({
   message: { error: 'Too many payment requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isDev,
   ...proxyValidation,
 });
 
 const strictLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 10, // Very strict for sensitive operations
+  max: 30, // Strict but reasonable for AI generation endpoints
   message: { error: 'Rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isDev,
   ...proxyValidation,
 });
 
@@ -69,6 +73,7 @@ const adminLimiter = rateLimit({
   message: { error: 'Admin rate limit exceeded, please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isDev,
   ...proxyValidation,
 });
 
@@ -233,28 +238,27 @@ app.use('/api/webhooks', webhookRoutes);
 // Parse JSON bodies (default 100kb is too small for bilingual article content)
 app.use(express.json({ limit: '5mb' }));
 
-// Apply general rate limiting to all routes
-app.use(generalLimiter);
-
-// Static uploads with long cache (files are immutable - include hash/timestamp)
+// Static assets served BEFORE rate limiter (images should never be rate limited)
 app.use(
   '/uploads',
-  (req, res, next) => {
+  (_req, res, next) => {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     next();
   },
   express.static(path.join(process.cwd(), 'public', 'uploads'))
 );
 
-// Static card images with long cache (optimized WebP images)
 app.use(
   '/cards',
-  (req, res, next) => {
+  (_req, res, next) => {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     next();
   },
   express.static(path.join(process.cwd(), 'public', 'cards'))
 );
+
+// Apply general rate limiting to all routes (after static assets)
+app.use(generalLimiter);
 
 // Add middleware for API cache headers (before routes)
 app.use('/api', (req, res, next) => {
