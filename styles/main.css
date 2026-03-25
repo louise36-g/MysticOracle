@@ -1178,58 +1178,42 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   margin-bottom: 0;
 }
 
-/* ─── Suit Navigation Bar (Yes/No Hub Page) ─── */
-/* Hidden initially; fades in via JS when scrolled past hero */
+/* ─── Suit Navigation Pills (Yes/No Hub Page) ─── */
 .suit-nav {
-  position: sticky;
-  top: 3.5rem; /* sits below h-14 header */
-  z-index: 40;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: rgba(15, 12, 41, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-  overflow-x: auto;
-  scrollbar-width: none;          /* Firefox */
-  -ms-overflow-style: none;       /* IE/Edge */
-  transition: opacity 0.35s ease;
-}
-.suit-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
-
-.suit-nav.visible {
-  opacity: 1;
-  pointer-events: auto;
+  padding: 0.5rem 0;
+  margin: 1.5rem 0;
 }
 
 .suit-nav a {
   flex-shrink: 0;
-  padding: 0.375rem 0.875rem;
+  padding: 0.4rem 1rem;
   border-radius: 9999px;
   font-family: 'Cinzel', serif;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  color: #cbd5e1;                  /* slate-300 */
-  background: rgba(30, 27, 75, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.25);
   text-decoration: none;
   transition: all 0.2s ease;
+  /* Default: purple (Major Arcana) */
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }
 .suit-nav a:hover {
-  color: #e9d5ff;                  /* purple-200 */
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.45);
+  transform: translateY(-1px);
+  filter: brightness(1.15);
 }
-.suit-nav a.active {
-  color: #fcd34d;                  /* amber-300 */
-  background: rgba(139, 92, 246, 0.25);
-  border-color: rgba(251, 191, 36, 0.5);
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
-}
+
+/* Suit-specific pill colors */
+.suit-nav a[href="#wands"]     { color: #f97316; background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.3); }
+.suit-nav a[href="#cups"]      { color: #06b6d4; background: rgba(6, 182, 212, 0.1);  border-color: rgba(6, 182, 212, 0.3); }
+.suit-nav a[href="#swords"]    { color: #94a3b8; background: rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.3); }
+.suit-nav a[href="#pentacles"] { color: #22c55e; background: rgba(34, 197, 94, 0.1);  border-color: rgba(34, 197, 94, 0.3); }
 
 /* Desktop: slightly larger pills */
 @media (min-width: 768px) {
