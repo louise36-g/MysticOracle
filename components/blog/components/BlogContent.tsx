@@ -32,33 +32,20 @@ export const BlogContent: React.FC<BlogContentProps> = ({
   // Uses vanilla DOM listener because these are injected via dangerouslySetInnerHTML
   useEffect(() => {
     const container = contentRef.current;
-    console.log('[SuitNav] useEffect running, container:', !!container);
     if (!container) return;
 
-    const pills = container.querySelectorAll('[data-scroll-to]');
-    console.log('[SuitNav] Found', pills.length, 'pills with data-scroll-to');
-
-    const targets = container.querySelectorAll('[data-section-id]');
-    console.log('[SuitNav] Found', targets.length, 'headings with data-section-id');
-
     const handleClick = (e: MouseEvent) => {
-      console.log('[SuitNav] Click detected on:', (e.target as HTMLElement).tagName, (e.target as HTMLElement).textContent?.slice(0, 20));
       const pill = (e.target as HTMLElement).closest('[data-scroll-to]') as HTMLElement | null;
-      if (!pill) {
-        console.log('[SuitNav] No data-scroll-to found on clicked element');
-        return;
-      }
+      if (!pill) return;
 
       e.preventDefault();
       e.stopPropagation();
 
       const targetId = pill.getAttribute('data-scroll-to');
-      console.log('[SuitNav] Scrolling to:', targetId);
+      if (!targetId) return;
 
-      const el = document.getElementById(targetId!)
+      const el = document.getElementById(targetId)
         || document.querySelector(`[data-section-id="${targetId}"]`);
-      console.log('[SuitNav] Target element found:', !!el);
-
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }

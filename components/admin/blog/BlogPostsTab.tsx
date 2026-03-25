@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
 import {
@@ -113,6 +113,13 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     }
   }, [getToken]);
 
+  // Use refs for page/limit to avoid dependency cycle
+  // (setPagination creates a new object → invalidates useCallback → triggers useEffect → loop)
+  const pageRef = useRef(pagination.page);
+  const limitRef = useRef(pagination.limit);
+  pageRef.current = pagination.page;
+  limitRef.current = pagination.limit;
+
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -120,8 +127,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       if (!token) return;
 
       const result = await fetchAdminBlogPosts(token, {
-        page: pagination.page,
-        limit: pagination.limit,
+        page: pageRef.current,
+        limit: limitRef.current,
         status: statusFilter || undefined,
         search: search || undefined,
         category: categoryFilter || undefined,
@@ -136,11 +143,17 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [getToken, pagination.page, pagination.limit, statusFilter, search, categoryFilter, contentTypeFilter, onError]);
+  }, [getToken, statusFilter, search, categoryFilter, contentTypeFilter, onError]);
 
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  // Reload when page changes (page is tracked via ref to avoid the dependency cycle)
+  useEffect(() => {
+    loadPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page]);
 
   useEffect(() => {
     loadCategories();
