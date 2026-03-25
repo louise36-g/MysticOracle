@@ -912,7 +912,7 @@ const YesNoReading: React.FC = () => {
                             {language === 'en' ? 'Your Personalized Insight' : 'Votre Interprétation Personnalisée'}
                           </span>
                         </div>
-                        <p className="text-slate-200/90 text-sm leading-relaxed whitespace-pre-line">
+                        <p className="text-slate-300/90 text-sm leading-relaxed whitespace-pre-line font-normal">
                           {aiInterpretation}
                         </p>
                       </motion.div>
@@ -1000,14 +1000,23 @@ const YesNoReading: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Secondary links */}
+                    {/* Secondary links — styled as buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
-                      <Link to={ROUTES.HOROSCOPES} className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors">
-                        {language === 'en' ? 'View today\'s horoscope →' : 'Voir l\'horoscope du jour →'}
+                      <Link
+                        to={ROUTES.READING}
+                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-400/70" />
+                        {language === 'en' ? 'Full tarot reading' : 'Tirage complet'}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Link>
-                      <span className="hidden sm:inline text-slate-600">·</span>
-                      <Link to={ROUTES.READING} className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors">
-                        {language === 'en' ? 'Full tarot reading →' : 'Tirage complet →'}
+                      <Link
+                        to={ROUTES.HOROSCOPES}
+                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                      >
+                        <Star className="w-4 h-4 text-amber-400/70" />
+                        {language === 'en' ? 'Today\'s horoscope' : 'Horoscope du jour'}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Link>
                     </div>
                   </motion.div>
@@ -1116,8 +1125,8 @@ const YesNoReading: React.FC = () => {
                           transition={{ delay: 0.4 }}
                           className="text-center max-w-xs"
                         >
-                          {/* Show verdict only on card 3 — flip YES↔NO when reversed */}
-                          {i === 2 && (() => {
+                          {/* Show verdict badge under every card — flip YES↔NO when reversed */}
+                          {(() => {
                             const v = tc.isReversed
                               ? (tc.info.verdict === 'YES' ? 'NO' : tc.info.verdict === 'NO' ? 'YES' : tc.info.verdict)
                               : tc.info.verdict;
@@ -1131,7 +1140,7 @@ const YesNoReading: React.FC = () => {
                             );
                           })()}
 
-                          {i === 2 && tcYesNo && (
+                          {tcYesNo && (
                             <p className="text-amber-300/90 text-sm font-medium mb-2">{tcYesNo}</p>
                           )}
 
@@ -1186,7 +1195,7 @@ const YesNoReading: React.FC = () => {
                       {language === 'en' ? 'Your Complete Reading' : 'Votre Lecture Complète'}
                     </span>
                   </div>
-                  <p className="text-slate-200/90 text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-slate-300/90 text-sm leading-relaxed whitespace-pre-line font-normal">
                     {threeCardInterpretation}
                   </p>
                 </motion.div>
@@ -1206,12 +1215,21 @@ const YesNoReading: React.FC = () => {
                     <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
                   </div>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Link to={ROUTES.READING} className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors">
-                      {language === 'en' ? 'Full tarot reading →' : 'Tirage complet →'}
+                    <Link
+                      to={ROUTES.READING}
+                      className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-400/70" />
+                      {language === 'en' ? 'Full tarot reading' : 'Tirage complet'}
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
-                    <span className="hidden sm:inline text-slate-600">·</span>
-                    <Link to={ROUTES.HOROSCOPES} className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors">
-                      {language === 'en' ? 'View today\'s horoscope →' : 'Voir l\'horoscope du jour →'}
+                    <Link
+                      to={ROUTES.HOROSCOPES}
+                      className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                    >
+                      <Star className="w-4 h-4 text-amber-400/70" />
+                      {language === 'en' ? 'Today\'s horoscope' : 'Horoscope du jour'}
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </motion.div>
