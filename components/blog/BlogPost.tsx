@@ -142,15 +142,16 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const title = language === 'en' ? post.titleEn : post.titleFr;
 
   // For the yes-or-no hub article: split overview above the fold (before cover image)
+  // Only the suit-nav + overview blockquote go above; everything else stays below
   const isYesNoHub = slug === 'yes-or-no-tarot';
   let overviewHtml = '';
   let mainContentHtml = contentBeforeFAQ;
   if (isYesNoHub && contentBeforeFAQ) {
-    // Split at the first <h2> — everything before it is the overview + suit-nav
-    const firstH2 = contentBeforeFAQ.indexOf('<h2');
-    if (firstH2 > 0) {
-      overviewHtml = contentBeforeFAQ.substring(0, firstH2);
-      mainContentHtml = contentBeforeFAQ.substring(firstH2);
+    const blockquoteEnd = contentBeforeFAQ.indexOf('</blockquote>');
+    if (blockquoteEnd > 0) {
+      const splitAt = blockquoteEnd + '</blockquote>'.length;
+      overviewHtml = contentBeforeFAQ.substring(0, splitAt);
+      mainContentHtml = contentBeforeFAQ.substring(splitAt);
     }
   }
 
