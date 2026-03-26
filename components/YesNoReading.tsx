@@ -20,11 +20,14 @@ import Button from './Button';
 
 type Phase =
   | 'question'
+  | 'pre-shuffle'
   | 'shuffling'
   | 'drawing'
   | 'revealed'
   | 'three-card-intro'
+  | 'three-card-pre-shuffle'
   | 'three-card-shuffling'
+  | 'three-card-drawing'
   | 'three-card-revealed';
 
 const theme = {
@@ -34,7 +37,7 @@ const theme = {
 };
 
 const NUM_SHUFFLE_CARDS = 7;
-const SHUFFLE_DURATION = 4000;
+const SHUFFLE_DURATION = 5000;
 
 const DAILY_DRAW_KEY = 'celestiarcana_yesno_draw';
 
@@ -192,6 +195,7 @@ const YesNoReading: React.FC = () => {
   const [threeCardError, setThreeCardError] = useState('');
   const [isLoadingThreeCard, setIsLoadingThreeCard] = useState(false);
   const [threeCardInterpretation, setThreeCardInterpretation] = useState<string | null>(null);
+  const [threeCardDrawCount, setThreeCardDrawCount] = useState(0);
 
   // ── Fetch card data on mount ──
   useEffect(() => {
@@ -317,29 +321,40 @@ const YesNoReading: React.FC = () => {
   // ── Handlers ──
 
   const handleAskCards = useCallback(() => {
-    setPhase('shuffling');
-    setCanDraw(false);
-    setShowParticleBurst(false);
+    setPhase('pre-shuffle');
     setAiInterpretation(null);
     setIsRestoredDraw(false);
     setThreeCardInterpretation(null);
   }, []);
 
+  const handleStartShuffle = useCallback((target: 'shuffling' | 'three-card-shuffling') => {
+    setPhase(target);
+    setCanDraw(false);
+    setShowParticleBurst(false);
+  }, []);
+
   const handleDraw = useCallback(() => {
+    setPhase('drawing');
+    setDrawnCard(null);
+    setIsCardRevealed(false);
+  }, []);
+
+  const handleDeckClick = useCallback(() => {
+    if (drawnCard) return; // Already drawn
     const shuffled = shuffleDeck([...FULL_DECK]);
     const card = shuffled[0];
     const reversed = Math.random() < 0.10;
 
     setDrawnCard(card);
     setIsReversed(reversed);
-    setPhase('drawing');
     saveDraw(card.id, reversed, question);
 
+    // After card springs into slot (800ms), flip and reveal
     setTimeout(() => {
       setIsCardRevealed(true);
       setPhase('revealed');
-    }, 600);
-  }, [question]);
+    }, 800);
+  }, [question, drawnCard]);
 
   const handleGoDeeper = useCallback(async () => {
     if (!isSignedIn) {
@@ -378,9 +393,8 @@ const YesNoReading: React.FC = () => {
       refreshUser();
       setRevealedCount(0);
       setThreeCardInterpretation(null);
-      setPhase('three-card-shuffling');
-      setCanDraw(false);
-      setShowParticleBurst(false);
+      setThreeCardDrawCount(0);
+      setPhase('three-card-pre-shuffle');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       console.error('[YesNo 3-card] Error:', message);
@@ -398,36 +412,52 @@ const YesNoReading: React.FC = () => {
     }
   }, [isSignedIn, drawnCard, getToken, navigate, language, refreshUser]);
 
-  // Draw the 3 cards after shuffle completes
+  // Transition to drawing phase where user taps the deck
   const handleDrawThreeCards = useCallback(() => {
-    setPhase('three-card-revealed');
-    // Reveal each card with a delay
-    [0, 1, 2].forEach((i) => {
-      setTimeout(() => setRevealedCount(i + 1), i * 800);
-    });
+    setThreeCardDrawCount(0);
+    setRevealedCount(0);
+    setPhase('three-card-drawing');
+  }, []);
 
-    // Fetch AI interpretation in background after cards drawn
-    (async () => {
-      try {
-        const token = await getToken();
-        if (!token || !question.trim()) return;
+  // User taps the deck to draw one card at a time (3-card spread)
+  const handleThreeCardDeckClick = useCallback(() => {
+    if (threeCardDrawCount >= 3) return; // All drawn
+    const next = threeCardDrawCount + 1;
+    setThreeCardDrawCount(next);
 
-        const cardKeys = threeCards.map(tc => cardIdToArticleKey(tc.card.id));
-        const reversedFlags = threeCards.map(tc => tc.isReversed);
-
-        const result = await interpretThreeCardSpread(token, {
-          question,
-          cardKeys,
-          isReversed: reversedFlags,
-          language: language as 'en' | 'fr',
+    // After 3rd card drawn, wait 1s then reveal all sequentially
+    if (next === 3) {
+      setTimeout(() => {
+        setPhase('three-card-revealed');
+        // Reveal each card with a delay
+        [0, 1, 2].forEach((i) => {
+          setTimeout(() => setRevealedCount(i + 1), i * 800);
         });
 
-        setThreeCardInterpretation(result.interpretation);
-      } catch {
-        // Graceful degradation — static data still shows
-      }
-    })();
-  }, [getToken, question, threeCards, language]);
+        // Fetch AI interpretation in background
+        (async () => {
+          try {
+            const token = await getToken();
+            if (!token || !question.trim()) return;
+
+            const cardKeys = threeCards.map(tc => cardIdToArticleKey(tc.card.id));
+            const reversedFlags = threeCards.map(tc => tc.isReversed);
+
+            const result = await interpretThreeCardSpread(token, {
+              question,
+              cardKeys,
+              isReversed: reversedFlags,
+              language: language as 'en' | 'fr',
+            });
+
+            setThreeCardInterpretation(result.interpretation);
+          } catch {
+            // Graceful degradation — static data still shows
+          }
+        })();
+      }, 1000);
+    }
+  }, [threeCardDrawCount, getToken, question, threeCards, language]);
 
   // ── Derived values ──
 
@@ -625,6 +655,72 @@ const YesNoReading: React.FC = () => {
             </motion.div>
           )}
 
+          {/* ══════════ PRE-SHUFFLE PHASE ══════════ */}
+          {(phase === 'pre-shuffle' || phase === 'three-card-pre-shuffle') && (
+            <motion.div
+              key="pre-shuffle"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center"
+            >
+              {/* Static card fan */}
+              <div className="relative h-36 w-56 mb-8">
+                {[...Array(5)].map((_, i) => {
+                  const angle = (i - 2) * 12;
+                  const yOffset = Math.abs(i - 2) * 4;
+                  return (
+                    <motion.div
+                      key={i}
+                      className="absolute left-1/2 top-1/2"
+                      style={{ marginLeft: '-28px', marginTop: '-40px', zIndex: i }}
+                      initial={{ rotate: 0, y: 0 }}
+                      animate={{ rotate: angle, y: -yOffset }}
+                      transition={{ duration: 0.6, delay: i * 0.08 }}
+                    >
+                      <CardBack
+                        style={{ boxShadow: `0 4px 12px rgba(0,0,0,0.3), 0 0 ${20 + i * 5}px ${theme.glow}15` }}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Divider with star */}
+              <div className="flex items-center justify-center gap-4 mb-5">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-500/40" />
+                <svg className="w-4 h-4 text-amber-400/70" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" />
+                </svg>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-500/40" />
+              </div>
+
+              {/* Instruction text */}
+              <p className="text-slate-300/90 text-base md:text-lg max-w-sm mx-auto text-center leading-relaxed mb-6">
+                {language === 'en'
+                  ? 'Take a breath, set your intention, and shuffle the deck.'
+                  : 'Prenez une inspiration, fixez votre intention, et m\u00e9langez le jeu.'}
+              </p>
+
+              {/* Shuffle the Deck button */}
+              <Button
+                onClick={() => handleStartShuffle(phase === 'pre-shuffle' ? 'shuffling' : 'three-card-shuffling')}
+                variant="mystical"
+                glow
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {language === 'en' ? 'Shuffle the Deck' : 'M\u00e9langer le Jeu'}
+              </Button>
+
+              {/* Show the question */}
+              {question.trim() && (
+                <p className="text-amber-300/70 text-sm italic mt-6 max-w-sm mx-auto text-center">
+                  &ldquo;{question}&rdquo;
+                </p>
+              )}
+            </motion.div>
+          )}
+
           {/* ══════════ SHUFFLING PHASE ══════════ */}
           {(phase === 'shuffling' || phase === 'three-card-shuffling') && (
             <motion.div
@@ -736,8 +832,102 @@ const YesNoReading: React.FC = () => {
             </motion.div>
           )}
 
-          {/* ══════════ DRAWING + REVEALED PHASE ══════════ */}
-          {(phase === 'drawing' || phase === 'revealed') && drawnCard && (
+          {/* ══════════ DRAWING PHASE (single card) ══════════ */}
+          {phase === 'drawing' && (
+            <motion.div
+              key="draw-single"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center"
+            >
+              {/* Instruction */}
+              <motion.h3
+                className="text-xl md:text-2xl font-heading text-purple-200 mb-6"
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                {language === 'en' ? 'Tap the deck to draw your card' : 'Touchez le jeu pour tirer votre carte'}
+              </motion.h3>
+
+              {/* Clickable deck — stack of 3 card backs */}
+              <motion.button
+                onClick={handleDeckClick}
+                disabled={!!drawnCard}
+                className="relative mb-10 cursor-pointer disabled:cursor-default group"
+                whileHover={!drawnCard ? { scale: 1.05, y: -4 } : {}}
+                whileTap={!drawnCard ? { scale: 0.95 } : {}}
+              >
+                {/* Shadow cards behind */}
+                <div className="absolute -left-1 -top-1 z-0">
+                  <CardBack style={{ opacity: 0.4, boxShadow: `0 6px 16px rgba(0,0,0,0.4)` }} />
+                </div>
+                <div className="absolute left-0.5 top-0.5 z-10">
+                  <CardBack style={{ opacity: 0.6, boxShadow: `0 6px 16px rgba(0,0,0,0.3)` }} />
+                </div>
+                {/* Main card with moon logo */}
+                <div className="relative z-20">
+                  <CardBack style={{ boxShadow: `0 8px 24px rgba(0,0,0,0.4), 0 0 30px ${theme.glow}30` }} />
+                  {/* "Draw a card" overlay text */}
+                  {!drawnCard && (
+                    <motion.div
+                      className="absolute inset-0 flex items-end justify-center pb-1.5 pointer-events-none"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <span className="text-[10px] md:text-xs text-amber-300/90 font-heading tracking-wide">
+                        {language === 'en' ? 'Draw a card' : 'Tirer'}
+                      </span>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.button>
+
+              {/* Card slot */}
+              <div className="relative w-[200px] h-[333px] md:w-[240px] md:h-[400px]">
+                {/* Empty slot with dashed border */}
+                <div className="absolute inset-0 rounded-xl border-2 border-dashed border-amber-500/40 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-heading text-amber-500/20 mb-2">1</span>
+                  {!drawnCard && (
+                    <p className="text-xs text-slate-500/60 text-center px-4 max-w-[160px]">
+                      {question.trim() ? `"${question}"` : ''}
+                    </p>
+                  )}
+                </div>
+
+                {/* Card springs into slot when drawn */}
+                {drawnCard && (
+                  <motion.div
+                    className="absolute inset-0"
+                    initial={{ y: -200, scale: 0.6, opacity: 0 }}
+                    animate={{ y: 0, scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  >
+                    <div
+                      className="w-full h-full rounded-xl shadow-2xl overflow-hidden"
+                      style={{
+                        backgroundImage: 'linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%)',
+                        border: '2px solid #fbbf24',
+                      }}
+                    >
+                      <div className="absolute inset-2 border border-amber-500/30 rounded-lg" />
+                      <div className="absolute inset-4 border border-amber-500/20 rounded-md" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 rotate-45 border-2 border-amber-500/40 bg-purple-900/50 flex items-center justify-center">
+                          <div className="w-10 h-10 border border-amber-500/30 bg-indigo-900/50 flex items-center justify-center">
+                            <div className="w-4 h-4 bg-amber-500/50 rotate-45" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ══════════ REVEALED PHASE ══════════ */}
+          {phase === 'revealed' && drawnCard && (
             <motion.div
               key="result"
               initial={{ opacity: 0, y: 20 }}
@@ -1022,6 +1212,121 @@ const YesNoReading: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </motion.div>
+          )}
+
+          {/* ══════════ THREE-CARD DRAWING PHASE ══════════ */}
+          {phase === 'three-card-drawing' && threeCards.length === 3 && (
+            <motion.div
+              key="draw-three"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center"
+            >
+              {/* Header */}
+              <h2 className="text-xl md:text-2xl font-heading text-purple-200 mb-1 text-center">
+                {language === 'en' ? 'Draw Your Cards' : 'Tirez Vos Cartes'}
+              </h2>
+              <p className="text-sm text-amber-300/70 mb-6">
+                {language === 'en'
+                  ? `${3 - threeCardDrawCount} remaining`
+                  : `${3 - threeCardDrawCount} restante${3 - threeCardDrawCount > 1 ? 's' : ''}`}
+              </p>
+
+              {/* Clickable deck */}
+              {threeCardDrawCount < 3 && (
+                <motion.button
+                  onClick={handleThreeCardDeckClick}
+                  className="relative mb-10 cursor-pointer group"
+                  whileHover={{ scale: 1.05, y: -4 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="absolute -left-1 -top-1 z-0">
+                    <CardBack style={{ opacity: 0.4, boxShadow: `0 6px 16px rgba(0,0,0,0.4)` }} />
+                  </div>
+                  <div className="absolute left-0.5 top-0.5 z-10">
+                    <CardBack style={{ opacity: 0.6, boxShadow: `0 6px 16px rgba(0,0,0,0.3)` }} />
+                  </div>
+                  <div className="relative z-20">
+                    <CardBack style={{ boxShadow: `0 8px 24px rgba(0,0,0,0.4), 0 0 30px ${theme.glow}30` }} />
+                    <motion.div
+                      className="absolute inset-0 flex items-end justify-center pb-1.5 pointer-events-none"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <span className="text-[10px] md:text-xs text-amber-300/90 font-heading tracking-wide">
+                        {language === 'en' ? 'Draw a card' : 'Tirer'}
+                      </span>
+                    </motion.div>
+                  </div>
+                </motion.button>
+              )}
+
+              {/* 3 card slots */}
+              <div className="grid grid-cols-3 gap-3 md:gap-5 w-full max-w-lg">
+                {threeCards.map((tc, i) => {
+                  const isDrawn = i < threeCardDrawCount;
+                  const isActive = i === threeCardDrawCount;
+                  const label = language === 'en' ? THREE_CARD_LABELS.en[i] : THREE_CARD_LABELS.fr[i];
+                  return (
+                    <div key={i} className="flex flex-col items-center">
+                      {/* Slot */}
+                      <div
+                        className={`relative w-[90px] h-[150px] md:w-[120px] md:h-[200px] rounded-lg border-2 border-dashed transition-colors duration-300 ${
+                          isActive
+                            ? 'border-amber-500/60'
+                            : isDrawn
+                              ? 'border-transparent'
+                              : 'border-slate-600/40'
+                        }`}
+                      >
+                        {/* Empty slot number */}
+                        {!isDrawn && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className={`text-2xl font-heading ${isActive ? 'text-amber-500/40' : 'text-slate-600/30'}`}>
+                              {i + 1}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Card back appears when drawn */}
+                        {isDrawn && (
+                          <motion.div
+                            initial={{ y: -120, scale: 0.5, opacity: 0 }}
+                            animate={{ y: 0, scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            className="absolute inset-0 rounded-lg overflow-hidden"
+                            style={{
+                              backgroundImage: 'linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%)',
+                              border: '2px solid #fbbf24',
+                            }}
+                          >
+                            <div className="absolute inset-1 border border-amber-500/30 rounded" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <img src="/logos/card-back-moon.webp" alt="" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+
+                      {/* Label */}
+                      <p className={`text-[10px] md:text-xs text-center mt-2 uppercase tracking-wider leading-tight ${
+                        isActive ? 'text-amber-400/80' : 'text-slate-500/70'
+                      }`}>
+                        {label}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Progress */}
+              <p className="text-slate-400/60 text-xs mt-6">
+                {language === 'en'
+                  ? `${threeCardDrawCount} of 3 cards drawn`
+                  : `${threeCardDrawCount} carte${threeCardDrawCount > 1 ? 's' : ''} sur 3 tir\u00e9e${threeCardDrawCount > 1 ? 's' : ''}`}
+              </p>
             </motion.div>
           )}
 
