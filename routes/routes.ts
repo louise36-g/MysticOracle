@@ -23,7 +23,7 @@ export const ROUTES = {
   DAILY_TAROT: '/daily-tarot',
 
   // Yes/No Reading
-  YES_NO: '/yes-no',
+  YES_NO: '/tarot-yes-no',
 
   // Horoscopes
   HOROSCOPES: '/horoscopes',

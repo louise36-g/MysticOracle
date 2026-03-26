@@ -22,6 +22,10 @@
 	@oldReadingFr path /fr/reading /fr/reading/*
 	redir @oldReadingFr /fr/tarot-card-reading{uri} 301
 
+	# /yes-no → /tarot-yes-no (SEO rename)
+	redir /yes-no /tarot-yes-no 301
+	redir /fr/yes-no /fr/tarot-yes-no 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"

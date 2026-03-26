@@ -47,7 +47,7 @@ const STATIC_PAGES = [
   { path: '/how-credits-work', title: 'How Credits Work – Pricing & Free Credits', description: 'Learn how CelestiArcana credits work. Reading costs, free daily bonuses, referral rewards, and payment options. No subscriptions.' },
   { path: '/daily-tarot', title: 'Daily Tarot Card Draw — Today\'s Tarot & Astrology Energy', description: 'Draw your daily tarot card from the 22 Major Arcana. Discover today\'s tarot and astrological energy with a free single card draw. Tarot card of the day.' },
   { path: '/horoscopes', title: 'Daily Horoscopes for Every Zodiac Sign', description: "Read today's free daily horoscope for your zodiac sign. Personalized astrology insights for Aries, Taurus, Gemini & all 12 signs. Updated daily." },
-  { path: '/yes-no', title: 'Free Yes/No Tarot Reading — Get Your Answer', description: 'Ask any yes or no question and draw a tarot card for your answer. Free daily yes/no tarot card reading with optional 3-card spread for deeper insight.' },
+  { path: '/tarot-yes-no', title: 'Free Yes/No Tarot Reading — Get Your Answer', description: 'Ask any yes or no question and draw a tarot card for your answer. Free daily yes/no tarot card reading with optional 3-card spread for deeper insight.' },
   // /blog is handled separately in prerenderBlogListPage (SSR-lite with embedded data)
   // /tarot redirects to /tarot/cards via Caddyfile (avoids duplicate page in Google)
   // /tarot/cards is handled separately in prerenderTarotCardsPage (SSR-lite with embedded data)
@@ -69,7 +69,7 @@ const STATIC_PAGES_FR = {
   '/how-credits-work': { title: 'Comment Fonctionnent les Crédits – Tarifs & Crédits Gratuits', description: 'Découvrez comment fonctionnent les crédits CelestiArcana. Coûts des lectures, bonus quotidiens, récompenses de parrainage.' },
   '/daily-tarot': { title: 'Tirage de Tarot du Jour — Énergie Tarot & Astrologie', description: 'Tirez votre carte de tarot quotidienne parmi les 22 Arcanes Majeurs. Découvrez l\'énergie tarot et astrologique du jour.' },
   '/horoscopes': { title: 'Horoscopes Quotidiens pour Chaque Signe du Zodiaque', description: 'Lisez votre horoscope quotidien gratuit. Prévisions astrologiques personnalisées pour les 12 signes. Mis à jour chaque jour.' },
-  '/yes-no': { title: 'Tirage Oui/Non Tarot Gratuit — Obtenez Votre Réponse', description: 'Posez une question oui ou non et tirez une carte de tarot pour votre réponse. Tirage oui/non quotidien gratuit avec tirage à 3 cartes en option.' },
+  '/tarot-yes-no': { title: 'Tirage Oui/Non Tarot Gratuit — Obtenez Votre Réponse', description: 'Posez une question oui ou non et tirez une carte de tarot pour votre réponse. Tirage oui/non quotidien gratuit avec tirage à 3 cartes en option.' },
   '/tarot/cards/major-arcana': { title: 'Significations des Arcanes Majeurs – Guide Complet', description: 'Explorez la signification de chaque carte des Arcanes Majeurs. Symbolisme, mots-clés et conseils de lecture.' },
   '/tarot/cards/wands': { title: 'Significations des Bâtons – Guide Complet', description: 'Explorez la signification de chaque carte des Bâtons. Symbolisme, mots-clés et conseils de lecture.' },
   '/tarot/cards/cups': { title: 'Significations des Coupes – Guide Complet', description: 'Explorez la signification de chaque carte des Coupes. Symbolisme, mots-clés et conseils de lecture.' },

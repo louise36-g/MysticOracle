@@ -245,7 +245,7 @@ const SubNav: React.FC = () => {
           <Link
             to={ROUTES.YES_NO}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              isActive('/yes-no')
+              isActive('/tarot-yes-no')
                 ? 'text-amber-300 bg-amber-500/10'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}

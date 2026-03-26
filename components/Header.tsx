@@ -294,9 +294,9 @@ const Header: React.FC = () => {
             {isActive('/tarot-card-reading') && activeBar}
           </LocalizedLink>
 
-          <LocalizedLink to={ROUTES.YES_NO} className={linkClass(isActive('/yes-no'))}>
+          <LocalizedLink to={ROUTES.YES_NO} className={linkClass(isActive('/tarot-yes-no'))}>
             {language === 'fr' ? 'Oui/Non' : 'Yes/No'}
-            {isActive('/yes-no') && activeBar}
+            {isActive('/tarot-yes-no') && activeBar}
           </LocalizedLink>
 
           {/* My Cards — auth-gated */}
@@ -510,7 +510,7 @@ const Header: React.FC = () => {
               <LocalizedLink
                 to={ROUTES.YES_NO}
                 onClick={closeMobileMenu}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/yes-no') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/tarot-yes-no') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <CircleHelp className="w-5 h-5" />
                 {language === 'fr' ? 'Oui/Non' : 'Yes/No'}

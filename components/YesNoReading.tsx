@@ -500,17 +500,17 @@ const YesNoReading: React.FC = () => {
           ? 'Ask any yes or no question and draw a tarot card for your answer. Free daily yes/no tarot card reading with optional 3-card spread for deeper insight.'
           : 'Posez une question oui ou non et tirez une carte de tarot pour votre réponse. Tirage oui/non quotidien gratuit avec tirage à 3 cartes en option.'
         } />
-        <link rel="canonical" href="https://celestiarcana.com/yes-no" />
+        <link rel="canonical" href="https://celestiarcana.com/tarot-yes-no" />
         <meta property="og:title" content={language === 'en' ? 'Free Yes/No Tarot Reading | CelestiArcana' : 'Tirage Oui/Non Tarot Gratuit | CelestiArcana'} />
         <meta property="og:description" content={language === 'en'
           ? 'Ask any yes or no question and draw a tarot card for your answer.'
           : 'Posez une question oui ou non et tirez une carte de tarot.'
         } />
-        <meta property="og:url" content="https://celestiarcana.com/yes-no" />
+        <meta property="og:url" content="https://celestiarcana.com/tarot-yes-no" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
-      <SEOTags path="/yes-no" />
+      <SEOTags path="/tarot-yes-no" />
 
       {/* Background */}
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden">

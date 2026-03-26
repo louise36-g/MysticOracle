@@ -171,7 +171,7 @@ function publicRoutes(): RouteObject[] {
 
     // Daily Tarot, Yes/No & Horoscopes
     { path: '/daily-tarot', element: lazyLoad(() => import('../components/DailyTarotEnergy')) },
-    { path: '/yes-no', element: lazyLoad(() => import('../components/YesNoReading')) },
+    { path: '/tarot-yes-no', element: lazyLoad(() => import('../components/YesNoReading')) },
     { path: '/horoscopes', element: lazyLoad(() => import('../components/HoroscopeReading')) },
 
     // Legal
