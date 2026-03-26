@@ -90,6 +90,7 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
   const { method = 'GET', body, token, retry, idempotencyKey } = options;
 
   // Enable retry by default for GET requests, or for POST with idempotency key
+  // 429 (rate limit) responses are always retried regardless of method
   const hasIdempotency = !!idempotencyKey;
   const shouldRetry = retry ?? (method === 'GET' || hasIdempotency);
   const maxAttempts = shouldRetry ? RETRY_CONFIG.maxRetries : 1;
@@ -128,12 +129,23 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
         const errorBody = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
         const errorMessage = errorBody.error || `API Error: ${response.status}`;
 
-        // Check if we should retry
-        if (shouldRetry && isRetryableError(null, response.status) && attempt < maxAttempts - 1) {
+        // Always retry 429 (rate limit) regardless of method — the limit may clear between retries
+        const isRateLimited = response.status === 429;
+        const retriesLeft = attempt < RETRY_CONFIG.maxRetries - 1;
+        if (retriesLeft && (isRateLimited || (shouldRetry && isRetryableError(null, response.status)))) {
           const delay = calculateDelay(attempt);
-          console.warn(`API request failed (attempt ${attempt + 1}/${maxAttempts}), retrying in ${delay}ms...`);
+          console.warn(`API request failed (attempt ${attempt + 1}/${RETRY_CONFIG.maxRetries}), retrying in ${delay}ms...`);
           await sleep(delay);
           continue;
+        }
+
+        // Warm, human-friendly message for rate limits
+        if (isRateLimited) {
+          throw new ApiError(
+            'The cards are taking a moment to breathe. Please try again in a few seconds.',
+            429,
+            errorBody,
+          );
         }
 
         throw new ApiError(errorMessage, response.status, errorBody);

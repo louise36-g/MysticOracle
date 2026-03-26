@@ -26,10 +26,10 @@ const router = Router();
 const CACHE_KEY = 'yesno:cards';
 const CACHE_TTL = CacheService.TTL.HOROSCOPE;
 
-// Rate limiter for /interpret endpoint (3 requests per hour per IP)
+// Rate limiter for /interpret endpoint (20 requests per hour per IP)
 const interpretLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3,
+  max: 20,
   message: { error: 'Too many interpretation requests. Please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
