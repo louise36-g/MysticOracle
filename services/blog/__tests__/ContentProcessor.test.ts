@@ -85,7 +85,7 @@ describe('ContentProcessor', () => {
         <p>Content before</p>
         <div class="cta-banner">
           <h3>Get a Reading</h3>
-          <a href="/reading">Click here</a>
+          <a href="/tarot-card-reading">Click here</a>
         </div>
         <p>Content after</p>
       `;

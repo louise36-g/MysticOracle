@@ -92,7 +92,7 @@ const BirthCardEntry: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/reading');
+    navigate('/tarot-card-reading');
   };
 
   // What you'll discover based on depth

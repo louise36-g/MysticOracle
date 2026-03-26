@@ -207,7 +207,7 @@ const SubNav: React.FC = () => {
     </motion.div>
   );
 
-  const isTarotActive = isActive('/reading');
+  const isTarotActive = isActive('/tarot-card-reading');
   const isHoroscopeActive = isActive('/horoscopes');
   const isLearnActive = isActive('/blog') || isActive('/faq') || isActive('/how-credits-work') || isActive('/about') || isActive('/tarot');
 

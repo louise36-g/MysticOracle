@@ -16,6 +16,12 @@
 	@legacyTarotFr path_regexp slugfr ^/fr/tarot/articles/(.+)$
 	redir @legacyTarotFr /fr/tarot/{re.slugfr.1} 301
 
+	# /reading → /tarot-card-reading (SEO rename, preserve rankings)
+	@oldReading path /reading /reading/*
+	redir @oldReading /tarot-card-reading{uri} 301
+	@oldReadingFr path /fr/reading /fr/reading/*
+	redir @oldReadingFr /fr/tarot-card-reading{uri} 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"

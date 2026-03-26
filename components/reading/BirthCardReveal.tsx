@@ -512,7 +512,7 @@ const BirthCardReveal: React.FC = () => {
             </button>
           )}
           <Button
-            onClick={() => navigate('/reading')}
+            onClick={() => navigate('/tarot-card-reading')}
             variant="outline"
             className="text-white/70 border-white/20 hover:border-white/40"
           >

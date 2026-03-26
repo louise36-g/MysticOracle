@@ -8,7 +8,7 @@ Allow: /blog/*
 Allow: /tarot
 Allow: /tarot/*
 Allow: /horoscopes
-Allow: /reading
+Allow: /tarot-card-reading
 
 # Disallow admin and private areas
 Disallow: /admin
@@ -16,7 +16,7 @@ Disallow: /admin/*
 Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
-Disallow: /reading/
+Disallow: /tarot-card-reading/
 
 # Auth pages (Clerk) — no value in search results
 Disallow: /sign-in

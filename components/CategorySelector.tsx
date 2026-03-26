@@ -195,7 +195,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
     }
 
     const categoryPath = category.id === 'birth_cards' ? 'birth-cards' : category.id;
-    navigate(`/reading/${categoryPath}/${depth.cards}`);
+    navigate(`/tarot-card-reading/${categoryPath}/${depth.cards}`);
   }, [user?.credits, navigate]);
 
   // Close expanded category
@@ -240,7 +240,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
         <meta name="description" content={language === 'fr'
           ? 'Choisissez parmi six thèmes de tirage de tarot — amour & relations, carrière, croissance spirituelle, développement personnel & plus. Tirages personnalisés avec des spreads classiques du tarot.'
           : 'Choose from six tarot reading themes — love & relationships, career, spiritual growth, personal development & more. Personalized readings with classic tarot spreads. Start your reading now.'} />
-        <link rel="canonical" href="https://celestiarcana.com/reading" />
+        <link rel="canonical" href="https://celestiarcana.com/tarot-card-reading" />
         <meta property="og:title" content={language === 'fr'
           ? 'Tirages de Tarot Personnalisés | CelestiArcana'
           : 'Personalized Tarot Readings | CelestiArcana'} />
@@ -248,7 +248,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           ? 'Explorez nos tirages de tarot personnalisés à travers six thèmes. Guidance pour l\'amour, la carrière et la croissance spirituelle.'
           : 'Explore our personalized tarot card readings across six themes. Guidance for love, career, and spiritual growth.'} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://celestiarcana.com/reading" />
+        <meta property="og:url" content="https://celestiarcana.com/tarot-card-reading" />
       </Helmet>
       {/* Background atmosphere */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

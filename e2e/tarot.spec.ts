@@ -44,16 +44,16 @@ test.describe('Tarot Cards', () => {
 
 test.describe('Reading Category Selector', () => {
   test('should display the reading page', async ({ page }) => {
-    await page.goto('/reading');
+    await page.goto('/tarot-card-reading');
 
-    await expect(page).toHaveURL(/.*reading/);
+    await expect(page).toHaveURL(/.*tarot-card-reading/);
 
     // Should show reading categories
     await expect(page.locator('main')).toBeVisible();
   });
 
   test('should display reading categories', async ({ page }) => {
-    await page.goto('/reading');
+    await page.goto('/tarot-card-reading');
 
     await page.waitForLoadState('networkidle');
 

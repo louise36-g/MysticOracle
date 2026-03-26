@@ -105,7 +105,7 @@ export class ContentProcessor {
       // Prefix internal links with /fr/ on French pages
       if (isFr) {
         const href = link.getAttribute('href') || '';
-        const match = href.match(/^https:\/\/celestiarcana\.com(\/(?:tarot|blog|horoscopes|daily-tarot|about|faq|contact|reading|privacy|terms|cookies|how-credits-work).*)/);
+        const match = href.match(/^https:\/\/celestiarcana\.com(\/(?:tarot|blog|horoscopes|daily-tarot|about|faq|contact|tarot-card-reading|privacy|terms|cookies|how-credits-work).*)/);
         if (match && !match[1].startsWith('/fr/')) {
           link.setAttribute('href', `https://celestiarcana.com/fr${match[1]}`);
         }

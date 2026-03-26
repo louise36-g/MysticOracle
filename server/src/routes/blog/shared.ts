@@ -315,5 +315,5 @@ export const DEFAULT_BLOG_CTA = {
   heading: 'Seeking Clarity?',
   text: 'Let the cards illuminate your path forward.',
   buttonText: 'Get a Tarot Reading',
-  buttonUrl: '/reading',
+  buttonUrl: '/tarot-card-reading',
 };

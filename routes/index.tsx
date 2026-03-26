@@ -191,7 +191,7 @@ function publicRoutes(): RouteObject[] {
     { path: '/payment/cancelled', element: lazyLoad(() => import('../components/PaymentResult')) },
 
     // Reading selector (public)
-    { path: '/reading', element: lazyLoad(() => import('../components/CategorySelector')) },
+    { path: '/tarot-card-reading', element: lazyLoad(() => import('../components/CategorySelector')) },
   ];
 }
 
@@ -200,10 +200,10 @@ function protectedRouteChildren() {
   return [
     { path: '/profile', element: lazyLoad(() => import('../components/UserProfile')) },
     { path: '/interpret', element: lazyLoad(() => import('../components/interpret/InterpretMyCards')) },
-    { path: '/reading/:category/:depth', element: <ReadingLayout /> },
-    { path: '/reading/birth-cards/reveal', element: lazyLoad(() => import('../components/reading/BirthCardReveal')) },
-    { path: '/reading/birth-cards/:depth', element: lazyLoad(() => import('../components/reading/BirthCardEntry')) },
-    { path: '/reading/view/:id', element: lazyLoad(() => import('../components/UserProfile')) },
+    { path: '/tarot-card-reading/:category/:depth', element: <ReadingLayout /> },
+    { path: '/tarot-card-reading/birth-cards/reveal', element: lazyLoad(() => import('../components/reading/BirthCardReveal')) },
+    { path: '/tarot-card-reading/birth-cards/:depth', element: lazyLoad(() => import('../components/reading/BirthCardEntry')) },
+    { path: '/tarot-card-reading/view/:id', element: lazyLoad(() => import('../components/UserProfile')) },
   ];
 }
 

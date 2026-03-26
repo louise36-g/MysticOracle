@@ -75,7 +75,7 @@ const Header: React.FC = () => {
   }, [location, navigate]);
 
   const handleNewReading = useCallback((e: React.MouseEvent) => {
-    if (location.pathname.startsWith('/reading') && hasStartedReading()) {
+    if (location.pathname.startsWith('/tarot-card-reading') && hasStartedReading()) {
       e.preventDefault();
       const message = t('header.new_reading_confirm', 'Start a new reading? Current progress will be lost.');
       if (confirm(message)) {
@@ -288,10 +288,10 @@ const Header: React.FC = () => {
           <LocalizedLink
             to={ROUTES.READING}
             onClick={handleNewReading}
-            className={linkClass(isActive('/reading'))}
+            className={linkClass(isActive('/tarot-card-reading'))}
           >
             {language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}
-            {isActive('/reading') && activeBar}
+            {isActive('/tarot-card-reading') && activeBar}
           </LocalizedLink>
 
           <LocalizedLink to={ROUTES.YES_NO} className={linkClass(isActive('/yes-no'))}>
@@ -501,7 +501,7 @@ const Header: React.FC = () => {
               <LocalizedLink
                 to={ROUTES.READING}
                 onClick={(e) => { handleNewReading(e); closeMobileMenu(); }}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/reading') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/tarot-card-reading') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Sparkles className="w-5 h-5" />
                 {t('header.new_reading', 'New Reading')}

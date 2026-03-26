@@ -117,7 +117,7 @@ router.get('/sitemap.xml', async (req, res) => {
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${baseUrl}/reading</loc>
+    <loc>${baseUrl}/tarot-card-reading</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

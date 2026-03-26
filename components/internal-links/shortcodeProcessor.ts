@@ -32,7 +32,7 @@ const CTA_DEFINITIONS: Record<string, { url: string; textEn: string; textFr: str
     emoji: '🔮',
   },
   'reading': {
-    url: '/reading',
+    url: '/tarot-card-reading',
     textEn: 'Get Your Tarot Reading',
     textFr: 'Obtenez Votre Tirage de Tarot',
     emoji: '✨',
