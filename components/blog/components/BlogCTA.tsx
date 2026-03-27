@@ -9,6 +9,23 @@ interface BlogCTAProps {
   cta: CTAItem;
 }
 
+// Rewrite legacy URLs that were renamed for SEO
+const LEGACY_URL_MAP: Record<string, string> = {
+  '/reading': '/tarot-card-reading',
+  '/yes-no': '/tarot-yes-no',
+  '/interpret': '/tarot-interpret',
+};
+
+function normalizeCTAUrl(url: string): string {
+  // Check exact match first, then prefix match for sub-paths like /reading/love/3
+  for (const [oldPath, newPath] of Object.entries(LEGACY_URL_MAP)) {
+    if (url === oldPath || url.startsWith(oldPath + '/')) {
+      return url.replace(oldPath, newPath);
+    }
+  }
+  return url;
+}
+
 /**
  * BlogCTA Component
  *
@@ -31,7 +48,7 @@ export const BlogCTA: React.FC<BlogCTAProps> = ({ cta }) => {
           {t('blog.BlogCTA.text', cta.text)}
         </p>
         <Link
-          to={cta.buttonUrl}
+          to={normalizeCTAUrl(cta.buttonUrl)}
           className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-500 transition-colors font-medium text-lg shadow-lg shadow-purple-500/20"
         >
           {t('blog.BlogCTA.button_text', cta.buttonText)}
