@@ -16,8 +16,8 @@ const LEGACY_URL_MAP: Record<string, string> = {
   '/interpret': '/tarot-interpret',
 };
 
-function normalizeCTAUrl(url: string): string {
-  // Check exact match first, then prefix match for sub-paths like /reading/love/3
+function normalizeCTAUrl(url: string | null | undefined): string {
+  if (!url) return '/';
   for (const [oldPath, newPath] of Object.entries(LEGACY_URL_MAP)) {
     if (url === oldPath || url.startsWith(oldPath + '/')) {
       return url.replace(oldPath, newPath);
