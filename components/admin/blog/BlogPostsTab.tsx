@@ -48,6 +48,7 @@ import BlogPostEditor from '../BlogPostEditor';
 import TarotArticleEditor from '../TarotArticleEditor';
 import type { BlogPost, Pagination } from './types';
 import { formatDateLocale } from '../../../utils/dateFormatters';
+import { optimizeCloudinaryUrl } from '../../../utils/cloudinaryUrl';
 
 interface BlogPostsTabProps {
   onLoadCategories: () => Promise<void>;
@@ -81,7 +82,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    limit: 100, // Increased for drag-and-drop within category
+    limit: 20,
     total: 0,
     totalPages: 0,
   });
@@ -388,9 +389,10 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
             {post.coverImage ? (
               <img
-                src={post.coverImage}
+                src={optimizeCloudinaryUrl(post.coverImage, { width: 64 })}
                 alt={post.coverImageAlt || (language === 'en' ? post.titleEn : post.titleFr)}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             ) : (
               <ImageOff className="w-6 h-6 text-slate-600" />
@@ -553,7 +555,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           value={categoryFilter}
           onChange={e => {
             setCategoryFilter(e.target.value);
-            setPagination({ ...pagination, page: 1 });
+            // Use higher limit when category filter active (drag-and-drop needs all items)
+            setPagination({ ...pagination, page: 1, limit: e.target.value ? 100 : 20 });
           }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
         >

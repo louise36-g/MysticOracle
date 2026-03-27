@@ -47,7 +47,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   onCancel,
 }) => {
   const { language } = useApp();
-  const { getToken } = useAuth();
+  const { getToken, isLoaded: isAuthLoaded } = useAuth();
   const params = useParams();
   const navigate = useNavigate();
 
@@ -117,10 +117,12 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
   }, [setFieldTouched]);
 
   useEffect(() => {
-    loadArticle();
-    loadSidebarData();
-    loadMedia();
-  }, [articleId]);
+    if (isAuthLoaded) {
+      loadArticle();
+      loadSidebarData();
+      loadMedia();
+    }
+  }, [articleId, isAuthLoaded]);
 
   const loadArticle = async () => {
     try {
@@ -140,12 +142,23 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
     try {
       const token = await getToken();
       if (!token) return;
-      const [catResult, tagResult] = await Promise.all([
+
+      // Load independently so one failure doesn't block the other
+      const [catResult, tagResult] = await Promise.allSettled([
         fetchUnifiedCategories(token),
         fetchUnifiedTags(token),
       ]);
-      setCategories(catResult.categories);
-      setTags(tagResult.tags);
+
+      if (catResult.status === 'fulfilled') {
+        setCategories(catResult.value.categories);
+      } else {
+        console.error('Failed to load categories:', catResult.reason);
+      }
+      if (tagResult.status === 'fulfilled') {
+        setTags(tagResult.value.tags);
+      } else {
+        console.error('Failed to load tags:', tagResult.reason);
+      }
     } catch (err) {
       console.error('Failed to load sidebar data:', err);
     }

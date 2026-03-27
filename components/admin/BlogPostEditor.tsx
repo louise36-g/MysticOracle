@@ -64,7 +64,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   onCancel,
 }) => {
   const { language } = useApp();
-  const { getToken } = useAuth();
+  const { getToken, isLoaded: isAuthLoaded } = useAuth();
   const params = useParams();
   const navigate = useNavigate();
 
@@ -137,22 +137,33 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
   }, [params.id]);
 
   useEffect(() => {
-    loadSidebarData();
-    loadMedia();
-  }, []);
+    if (isAuthLoaded) {
+      loadSidebarData();
+      loadMedia();
+    }
+  }, [isAuthLoaded]);
 
   const loadSidebarData = async () => {
     try {
       const token = await getToken();
       if (!token) return;
 
-      const [catResult, tagResult] = await Promise.all([
+      // Load independently so one failure doesn't block the other
+      const [catResult, tagResult] = await Promise.allSettled([
         fetchUnifiedCategories(token),
         fetchUnifiedTags(token),
       ]);
 
-      setCategories(catResult.categories);
-      setTags(tagResult.tags);
+      if (catResult.status === 'fulfilled') {
+        setCategories(catResult.value.categories);
+      } else {
+        console.error('Failed to load categories:', catResult.reason);
+      }
+      if (tagResult.status === 'fulfilled') {
+        setTags(tagResult.value.tags);
+      } else {
+        console.error('Failed to load tags:', tagResult.reason);
+      }
     } catch (err) {
       console.error('Failed to load sidebar data:', err);
     }
