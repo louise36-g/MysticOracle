@@ -247,7 +247,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       const token = await getToken();
       if (!token) return;
 
-      await Promise.all([onLoadCategories(), onLoadTags()]);
+      // Load categories/tags in background - don't block editing if they fail
+      Promise.all([onLoadCategories(), onLoadTags()]).catch(() => {});
       const { post: fullPost } = await fetchAdminBlogPost(token, post.id);
       setEditingPost(fullPost);
       setIsNewPost(false);

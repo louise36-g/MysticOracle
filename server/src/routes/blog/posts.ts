@@ -128,6 +128,13 @@ router.get(
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
         where,
+        // Exclude heavy content/schema fields at DB level (loaded individually when editing)
+        omit: {
+          contentEn: true,
+          contentFr: true,
+          schemaJson: true,
+          schemaHtml: true,
+        },
         include: includeCategoriesAndTags,
         orderBy,
         skip: paginationParams.skip,
@@ -136,9 +143,8 @@ router.get(
       prisma.blogPost.count({ where }),
     ]);
 
-    // Strip heavy content fields from list response (loaded individually when editing)
     res.json({
-      posts: posts.map(({ contentEn: _ce, contentFr: _cf, ...p }) => ({
+      posts: posts.map(p => ({
         ...p,
         categories: flattenCategories(p.categories),
         tags: flattenTags(p.tags),
