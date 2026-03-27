@@ -7,13 +7,11 @@ import { useApp } from '../context/AppContext';
 import { MAJOR_ARCANA } from '../constants';
 import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
-import { fetchBlogPosts, BlogPost } from '../services/api/blog';
+import { fetchTarotArticles, TarotArticle } from '../services/api/tarotArticles';
 import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
 import Button from './Button';
 
-// Category slug for Major Arcana energy articles
-const ENERGY_CATEGORY_SLUG = 'tarot-astrology';
 
 type Phase = 'intro' | 'shuffling' | 'drawing' | 'revealed';
 
@@ -112,7 +110,7 @@ const DailyTarotEnergy: React.FC = () => {
   const [isCardRevealed, setIsCardRevealed] = useState(false);
   const [articleUrl, setArticleUrl] = useState<string | null>(null);
   const [alreadyDrawnToday, setAlreadyDrawnToday] = useState(false);
-  const articlesCache = useRef<BlogPost[]>([]);
+  const articlesCache = useRef<TarotArticle[]>([]);
 
   // On mount, check if user already drew today and restore that card
   useEffect(() => {
@@ -128,10 +126,10 @@ const DailyTarotEnergy: React.FC = () => {
     }
   }, []);
 
-  // Fetch articles from the Tarot & Astrology category once
+  // Fetch Major Arcana tarot articles once
   useEffect(() => {
-    fetchBlogPosts({ category: ENERGY_CATEGORY_SLUG, limit: 50 })
-      .then(res => { articlesCache.current = res.posts; })
+    fetchTarotArticles({ cardType: 'MAJOR_ARCANA', limit: 50 })
+      .then(res => { articlesCache.current = res.articles; })
       .catch(() => { /* Non-blocking — link just won't appear */ });
   }, []);
 
@@ -139,12 +137,12 @@ const DailyTarotEnergy: React.FC = () => {
   useEffect(() => {
     if (!drawnCard || !isCardRevealed) return;
     const cardNameLower = drawnCard.nameEn.toLowerCase();
-    const match = articlesCache.current.find(post => {
-      const titleLower = post.titleEn.toLowerCase();
-      const slugLower = post.slug.toLowerCase();
+    const match = articlesCache.current.find(article => {
+      const titleLower = article.title.toLowerCase();
+      const slugLower = article.slug.toLowerCase();
       return titleLower.includes(cardNameLower) || slugLower.includes(cardNameLower.replace(/\s+/g, '-'));
     });
-    setArticleUrl(match ? `/blog/${match.slug}` : null);
+    setArticleUrl(match ? `/tarot/${match.slug}` : null);
   }, [drawnCard, isCardRevealed]);
 
   // Shuffle animation cycling
@@ -603,14 +601,13 @@ const DailyTarotEnergy: React.FC = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
                       <Link
                         to={ROUTES.HOROSCOPES}
-                        className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:bg-purple-600/30 hover:border-purple-400/50 transition-all duration-300"
                       >
                         {language === 'en' ? 'View today\'s horoscope →' : 'Voir l\'horoscope du jour →'}
                       </Link>
-                      <span className="hidden sm:inline text-slate-600">·</span>
                       <Link
                         to={ROUTES.READING}
-                        className="text-sm text-purple-300/70 hover:text-purple-200 transition-colors"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:bg-purple-600/30 hover:border-purple-400/50 transition-all duration-300"
                       >
                         {language === 'en' ? 'Full tarot reading →' : 'Tirage complet →'}
                       </Link>
