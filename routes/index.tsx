@@ -199,7 +199,7 @@ function publicRoutes(): RouteObject[] {
 function protectedRouteChildren() {
   return [
     { path: '/profile', element: lazyLoad(() => import('../components/UserProfile')) },
-    { path: '/interpret', element: lazyLoad(() => import('../components/interpret/InterpretMyCards')) },
+    { path: '/tarot-interpret', element: lazyLoad(() => import('../components/interpret/InterpretMyCards')) },
     { path: '/tarot-card-reading/:category/:depth', element: <ReadingLayout /> },
     { path: '/tarot-card-reading/birth-cards/reveal', element: lazyLoad(() => import('../components/reading/BirthCardReveal')) },
     { path: '/tarot-card-reading/birth-cards/:depth', element: lazyLoad(() => import('../components/reading/BirthCardEntry')) },

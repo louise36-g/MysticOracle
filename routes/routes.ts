@@ -17,7 +17,7 @@ export const ROUTES = {
   READING_VIEW: '/tarot-card-reading/view/:id',  // View saved reading
 
   // Interpret My Cards
-  INTERPRET: '/interpret',
+  INTERPRET: '/tarot-interpret',
 
   // Daily Tarot Energy
   DAILY_TAROT: '/daily-tarot',

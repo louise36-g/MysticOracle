@@ -26,6 +26,10 @@
 	redir /yes-no /tarot-yes-no 301
 	redir /fr/yes-no /fr/tarot-yes-no 301
 
+	# /interpret → /tarot-interpret (SEO rename)
+	redir /interpret /tarot-interpret 301
+	redir /fr/interpret /fr/tarot-interpret 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"

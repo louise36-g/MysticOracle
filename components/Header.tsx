@@ -301,9 +301,9 @@ const Header: React.FC = () => {
 
           {/* My Cards — auth-gated */}
           {isSignedIn ? (
-            <LocalizedLink to={ROUTES.INTERPRET} className={linkClass(isActive('/interpret'))}>
+            <LocalizedLink to={ROUTES.INTERPRET} className={linkClass(isActive('/tarot-interpret'))}>
               {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
-              {isActive('/interpret') && activeBar}
+              {isActive('/tarot-interpret') && activeBar}
             </LocalizedLink>
           ) : (
             <div className="relative h-full">
@@ -519,7 +519,7 @@ const Header: React.FC = () => {
               <LocalizedLink
                 to={ROUTES.INTERPRET}
                 onClick={closeMobileMenu}
-                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/interpret') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive('/tarot-interpret') ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
               >
                 <Hand className="w-5 h-5" />
                 {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
