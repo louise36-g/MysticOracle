@@ -158,7 +158,7 @@ export function processShortcodes(content: string, registry: LinkRegistry | null
     const text = customText || (isFr ? cta.textFr : cta.textEn);
     const url = isFr ? `/fr${cta.url}` : cta.url;
 
-    return `<div style="text-align:center;margin:2rem 0"><a href="${url}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;border-radius:14px;font-family:'Cinzel',serif;font-weight:700;text-decoration:none;font-size:1.1rem;box-shadow:0 4px 15px rgba(124,58,237,0.4);transition:all 0.3s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(124,58,237,0.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 15px rgba(124,58,237,0.4)'">${cta.emoji} ${text}</a></div>`;
+    return `<div style="text-align:center;margin:2rem 0"><a href="${url}" data-cta="true" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;border-radius:14px;font-family:'Cinzel',serif;font-weight:700;text-decoration:none;font-size:1.1rem;box-shadow:0 4px 15px rgba(124,58,237,0.4);transition:all 0.3s">${cta.emoji} ${text}</a></div>`;
   });
 
   return result;

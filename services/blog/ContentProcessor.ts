@@ -45,7 +45,7 @@ export class ContentProcessor {
       ],
       ALLOWED_ATTR: [
         'href', 'src', 'alt', 'title', 'class', 'id', 'style', 'target', 'rel',
-        'width', 'height', 'loading', 'data-link-type'
+        'width', 'height', 'loading', 'data-link-type', 'data-cta'
       ],
       ALLOW_DATA_ATTR: true,
       ADD_ATTR: ['target', 'rel'],
@@ -99,6 +99,8 @@ export class ContentProcessor {
       const href = link.getAttribute('href') || '';
       // Skip anchor links (e.g. #major-arcana) — they navigate within the page
       if (href.startsWith('#')) return;
+      // Skip CTA buttons — they should use SPA navigation (same tab)
+      if (link.hasAttribute('data-cta')) return;
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
 
