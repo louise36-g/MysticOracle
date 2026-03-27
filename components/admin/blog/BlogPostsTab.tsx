@@ -80,16 +80,17 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState<Pagination>(() => ({
     page: 1,
-    limit: 20,
+    // Use higher limit when category filter is restored (drag-and-drop needs all items)
+    limit: sessionStorage.getItem('adminBlog:category') ? 100 : 20,
     total: 0,
     totalPages: 0,
-  });
+  }));
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [categoryFilter, setCategoryFilter] = useState<string>(''); // New category filter
-  const [contentTypeFilter, setContentTypeFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>(() => sessionStorage.getItem('adminBlog:status') || '');
+  const [categoryFilter, setCategoryFilter] = useState<string>(() => sessionStorage.getItem('adminBlog:category') || '');
+  const [contentTypeFilter, setContentTypeFilter] = useState<string>(() => sessionStorage.getItem('adminBlog:contentType') || '');
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingTarotId, setEditingTarotId] = useState<string | null>(null);
   const [isNewPost, setIsNewPost] = useState(false);
@@ -556,6 +557,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           value={categoryFilter}
           onChange={e => {
             setCategoryFilter(e.target.value);
+            sessionStorage.setItem('adminBlog:category', e.target.value);
             // Use higher limit when category filter active (drag-and-drop needs all items)
             setPagination({ ...pagination, page: 1, limit: e.target.value ? 100 : 20 });
           }}
@@ -577,6 +579,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
           value={contentTypeFilter}
           onChange={e => {
             setContentTypeFilter(e.target.value);
+            sessionStorage.setItem('adminBlog:contentType', e.target.value);
             setPagination({ ...pagination, page: 1 });
           }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
@@ -587,7 +590,10 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
         </select>
         <select
           value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
+          onChange={e => {
+            setStatusFilter(e.target.value);
+            sessionStorage.setItem('adminBlog:status', e.target.value);
+          }}
           className="px-4 py-2 bg-slate-800/60 border border-purple-500/20 rounded-lg text-slate-200"
         >
           <option value="">{language === 'en' ? 'All Status' : 'Tous les statuts'}</option>
