@@ -1056,7 +1056,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .blog-content-images img:hover {
-  transform: scale(1.03);
+  transform: scale(1.08);
   box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
 }
 
