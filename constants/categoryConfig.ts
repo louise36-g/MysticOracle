@@ -90,7 +90,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'iceberg',
     },
     availableLayouts: {
-      2: ['situation_guidance', 'question_answer', 'light_shadow'],
+      2: ['yes_no', 'situation_guidance', 'question_answer', 'light_shadow'],
       3: ['past_present_future', 'situation_action_outcome', 'mind_body_spirit'],
       5: ['iceberg', 'alchemy', 'seasons'],
     },
@@ -110,7 +110,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'love_relationships',
     },
     availableLayouts: {
-      2: ['inner_outer', 'light_shadow', 'challenge_strength'],
+      2: ['yes_no', 'inner_outer', 'light_shadow', 'challenge_strength'],
       3: ['you_them_connection', 'mind_body_spirit', 'inner_child_love'],
       5: ['love_relationships', 'inner_child'],
     },
@@ -130,7 +130,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'career_purpose',
     },
     availableLayouts: {
-      2: ['challenge_strength', 'situation_guidance', 'question_answer'],
+      2: ['yes_no', 'challenge_strength', 'situation_guidance', 'question_answer'],
       3: ['situation_action_outcome', 'situation_obstacle_path', 'inner_child_career'],
       5: ['career_purpose', 'values', 'inner_child_career'],
     },
@@ -150,7 +150,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'authentic_self',
     },
     availableLayouts: {
-      2: ['light_shadow', 'inner_outer', 'question_answer'],
+      2: ['yes_no', 'light_shadow', 'inner_outer', 'question_answer'],
       3: ['past_present_future', 'challenge_support_growth', 'inner_child_life_path'],
       5: ['authentic_self', 'alchemy', 'inner_child_life_path'],
     },
@@ -170,7 +170,7 @@ export const CATEGORIES: CategoryConfig[] = [
       5: 'authentic_self',
     },
     availableLayouts: {
-      2: ['challenge_strength', 'light_shadow', 'inner_outer'],
+      2: ['yes_no', 'challenge_strength', 'light_shadow', 'inner_outer'],
       3: ['challenge_support_growth', 'mind_body_spirit', 'inner_child_growth'],
       5: ['authentic_self', 'alchemy', 'values'],
     },

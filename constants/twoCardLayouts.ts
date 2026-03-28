@@ -1,6 +1,7 @@
 // constants/twoCardLayouts.ts
 
 export type TwoCardLayoutId =
+  | 'yes_no'
   | 'situation_guidance'
   | 'challenge_strength'
   | 'light_shadow'
@@ -33,6 +34,21 @@ export interface TwoCardQuestion {
 
 // Layout definitions
 export const TWO_CARD_LAYOUTS: Record<TwoCardLayoutId, TwoCardLayout> = {
+  yes_no: {
+    id: 'yes_no',
+    labelEn: 'Yes / No',
+    labelFr: 'Oui / Non',
+    taglineEn: 'A clear two-card answer to your yes-or-no question. One card leans toward yes, the other toward no — together they reveal the energy around your decision.',
+    taglineFr: 'Une réponse claire en deux cartes à votre question oui/non. L\'une penche vers oui, l\'autre vers non — ensemble elles révèlent l\'énergie autour de votre décision.',
+    positions: {
+      en: ['Leaning Yes', 'Leaning No'],
+      fr: ['Tendance Oui', 'Tendance Non'],
+    },
+    shortPositions: {
+      en: ['Yes', 'No'],
+      fr: ['Oui', 'Non'],
+    },
+  },
   situation_guidance: {
     id: 'situation_guidance',
     labelEn: 'Situation & Guidance',
@@ -127,6 +143,11 @@ export const TWO_CARD_LAYOUTS: Record<TwoCardLayoutId, TwoCardLayout> = {
 
 // Suggested questions per layout (3 per layout)
 export const TWO_CARD_LAYOUT_QUESTIONS: Record<TwoCardLayoutId, TwoCardQuestion[]> = {
+  yes_no: [
+    { id: 'tc_yn1', textEn: 'Should I move forward with this decision?', textFr: 'Dois-je avancer avec cette décision ?' },
+    { id: 'tc_yn2', textEn: 'Is this the right path for me right now?', textFr: 'Est-ce le bon chemin pour moi en ce moment ?' },
+    { id: 'tc_yn3', textEn: 'Will this choice bring me closer to what I need?', textFr: 'Ce choix me rapprochera-t-il de ce dont j\'ai besoin ?' },
+  ],
   situation_guidance: [
     { id: 'tc_sg1', textEn: 'What do I most need to see and do right now?', textFr: 'Que dois-je voir et faire en ce moment ?' },
     { id: 'tc_sg2', textEn: 'Where am I stuck and what will help me move forward?', textFr: 'Où suis-je bloqué(e) et qu\'est-ce qui m\'aidera à avancer ?' },
