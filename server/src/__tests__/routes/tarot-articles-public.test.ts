@@ -302,6 +302,7 @@ describe('Tarot Articles Public Routes', () => {
       mockedCache.get.mockResolvedValue(null);
       const mockArticle = createMockFullArticle();
       mockedPrisma.blogPost.findFirst.mockResolvedValue(mockArticle);
+      mockedPrisma.blogPost.findMany.mockResolvedValue([]); // for getAdjacentTarotCards
 
       const res = await request(app).get('/the-fool');
 
@@ -331,6 +332,7 @@ describe('Tarot Articles Public Routes', () => {
     it('should populate the cache after a database fetch', async () => {
       mockedCache.get.mockResolvedValue(null);
       mockedPrisma.blogPost.findFirst.mockResolvedValue(createMockFullArticle());
+      mockedPrisma.blogPost.findMany.mockResolvedValue([]); // for getAdjacentTarotCards
 
       await request(app).get('/the-fool');
 

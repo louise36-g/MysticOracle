@@ -129,7 +129,7 @@ const mockedValidateTarotArticle = validateTarotArticle as Mock;
 const mockedValidateArticleWithWarnings = validateArticleWithWarnings as Mock;
 const mockedConvertToPrismaFormatLenient = convertToPrismaFormatLenient as Mock;
 const mockedProcessArticleSchema = processArticleSchema as Mock;
-const mockedHandleReorder = handleReorder as Mock;
+const _mockedHandleReorder = handleReorder as Mock;
 
 // Test data factories
 const createMockArticle = (overrides: Record<string, unknown> = {}) => ({
@@ -436,120 +436,8 @@ describe('Tarot Articles Admin Routes', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // GET /list
+  // GET /list — REMOVED (use blog admin endpoint with contentType=TAROT_ARTICLE)
   // ---------------------------------------------------------------------------
-
-  describe('GET /list', () => {
-    it('should return paginated articles with defaults', async () => {
-      const mockArticles = [createMockArticle()];
-      mockedPrisma.blogPost.findMany.mockResolvedValue(mockArticles);
-      mockedPrisma.blogPost.count.mockResolvedValue(1);
-
-      const res = await request(app).get('/list');
-
-      expect(res.status).toBe(200);
-      expect(res.body.articles).toHaveLength(1);
-      expect(res.body.total).toBe(1);
-      expect(res.body.page).toBe(1);
-      expect(res.body.limit).toBe(20);
-      expect(res.body.totalPages).toBe(1);
-    });
-
-    it('should filter by cardType when provided', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
-      mockedPrisma.blogPost.count.mockResolvedValue(0);
-
-      await request(app).get('/list?cardType=MAJOR_ARCANA');
-
-      expect(mockedPrisma.blogPost.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            cardType: 'MAJOR_ARCANA',
-          }),
-        })
-      );
-    });
-
-    it('should filter by status when provided', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
-      mockedPrisma.blogPost.count.mockResolvedValue(0);
-
-      await request(app).get('/list?status=PUBLISHED');
-
-      expect(mockedPrisma.blogPost.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: 'PUBLISHED',
-          }),
-        })
-      );
-    });
-
-    it('should filter to non-deleted articles by default', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
-      mockedPrisma.blogPost.count.mockResolvedValue(0);
-
-      await request(app).get('/list');
-
-      expect(mockedPrisma.blogPost.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ deletedAt: null }),
-        })
-      );
-    });
-
-    it('should filter to deleted articles when deleted=true', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
-      mockedPrisma.blogPost.count.mockResolvedValue(0);
-
-      await request(app).get('/list?deleted=true');
-
-      expect(mockedPrisma.blogPost.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ deletedAt: { not: null } }),
-        })
-      );
-    });
-
-    it('should apply search filter across title and slug', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([]);
-      mockedPrisma.blogPost.count.mockResolvedValue(0);
-
-      await request(app).get('/list?search=fool');
-
-      expect(mockedPrisma.blogPost.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            OR: [
-              { titleEn: { contains: 'fool', mode: 'insensitive' } },
-              { slug: { contains: 'fool', mode: 'insensitive' } },
-            ],
-          }),
-        })
-      );
-    });
-
-    it('should transform BlogPost fields to TarotArticle API shape', async () => {
-      mockedPrisma.blogPost.findMany.mockResolvedValue([createMockArticle()]);
-      mockedPrisma.blogPost.count.mockResolvedValue(1);
-
-      const res = await request(app).get('/list');
-
-      expect(res.status).toBe(200);
-      // mapBlogPostToTarotFields maps titleEn -> title
-      expect(res.body.articles[0].title).toBe('The Fool');
-      expect(res.body.articles[0].slug).toBe('the-fool');
-    });
-
-    it('should return 500 on database error', async () => {
-      mockedPrisma.blogPost.findMany.mockRejectedValue(new Error('DB error'));
-
-      const res = await request(app).get('/list');
-
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('DB error');
-    });
-  });
 
   // ---------------------------------------------------------------------------
   // GET /preview/:id
@@ -653,52 +541,7 @@ describe('Tarot Articles Admin Routes', () => {
   // PATCH /reorder
   // ---------------------------------------------------------------------------
 
-  describe('PATCH /reorder', () => {
-    it('should delegate to handleReorder and return its response', async () => {
-      mockedHandleReorder.mockImplementation((_config, _req, res) => {
-        res.json({ success: true, message: 'Article reordered successfully' });
-      });
-
-      const res = await request(app).patch('/reorder').send({
-        articleId: 'article-1',
-        cardType: 'MAJOR_ARCANA',
-        newPosition: 2,
-      });
-
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(mockedHandleReorder).toHaveBeenCalledOnce();
-    });
-
-    it('should pass entityName "Article" to handleReorder', async () => {
-      mockedHandleReorder.mockImplementation((_config, _req, res) => {
-        res.json({ success: true });
-      });
-
-      await request(app).patch('/reorder').send({
-        articleId: 'article-1',
-        cardType: 'MAJOR_ARCANA',
-        newPosition: 0,
-      });
-
-      expect(mockedHandleReorder).toHaveBeenCalledWith(
-        expect.objectContaining({ entityName: 'Article' }),
-        expect.any(Object),
-        expect.any(Object)
-      );
-    });
-
-    it('should return 400 from handleReorder when required fields are missing', async () => {
-      mockedHandleReorder.mockImplementation((_config, _req, res) => {
-        res.status(400).json({ error: 'Missing required fields: articleId, newPosition' });
-      });
-
-      const res = await request(app).patch('/reorder').send({});
-
-      expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Missing required fields');
-    });
-  });
+  // PATCH /reorder tests removed — endpoint retired, use blog admin reorder
 
   // ---------------------------------------------------------------------------
   // PATCH /:id — visual editor mode

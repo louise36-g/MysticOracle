@@ -230,13 +230,14 @@ router.get(
     let prevPost = null;
     let nextPost = null;
 
-    if (primaryCategoryId) {
+    const publishedAt = post.publishedAt;
+    if (primaryCategoryId && publishedAt) {
       const categoryFilter = { categories: { some: { categoryId: primaryCategoryId } } };
       const [prev, next] = await Promise.all([
         prisma.blogPost.findFirst({
           where: {
             status: 'PUBLISHED',
-            publishedAt: { not: null, lt: post.publishedAt! },
+            publishedAt: { not: null, lt: publishedAt },
             deletedAt: null,
             id: { not: post.id },
             ...categoryFilter,
@@ -247,7 +248,7 @@ router.get(
         prisma.blogPost.findFirst({
           where: {
             status: 'PUBLISHED',
-            publishedAt: { not: null, gt: post.publishedAt! },
+            publishedAt: { not: null, gt: publishedAt },
             deletedAt: null,
             id: { not: post.id },
             ...categoryFilter,
@@ -256,7 +257,7 @@ router.get(
           orderBy: { publishedAt: 'asc' },
         }),
       ]);
-      if (prev)
+      if (prev) {
         prevPost = {
           slug: prev.slug,
           title: prev.titleEn,
@@ -264,7 +265,8 @@ router.get(
           coverImage: prev.coverImage,
           contentType: prev.contentType,
         };
-      if (next)
+      }
+      if (next) {
         nextPost = {
           slug: next.slug,
           title: next.titleEn,
@@ -272,6 +274,7 @@ router.get(
           coverImage: next.coverImage,
           contentType: next.contentType,
         };
+      }
     }
 
     const response = {
