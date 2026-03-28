@@ -341,11 +341,13 @@
   display: block;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: zoom-in;
+  position: relative;
 }
 
 .prose img:hover {
-  transform: scale(1.08);
-  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+  transform: scale(1.25);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+  z-index: 10;
 }
 
 /* Tarot card images - small constrained size */
