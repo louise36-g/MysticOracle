@@ -56,8 +56,9 @@ const BlogList: React.FC = () => {
   const { language, t } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Get category from URL params
+  // Get filters from URL params
   const categoryFromUrl = searchParams.get('category') || '';
+  const searchQuery = searchParams.get('q') || '';
 
   // SSR-lite: read embedded data to skip API fetches on pre-rendered page
   const embeddedData = useRef(getEmbeddedBlogListData());
@@ -122,6 +123,7 @@ const BlogList: React.FC = () => {
         page,
         limit: 12,
         category: selectedCategory || undefined,
+        q: searchQuery || undefined,
       });
 
       const allArticles = blogResult.posts.map(blogPostToArticle);
@@ -134,7 +136,7 @@ const BlogList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, selectedCategory, language]);
+  }, [page, selectedCategory, searchQuery, language]);
 
   const loadCategories = useCallback(async () => {
     try {

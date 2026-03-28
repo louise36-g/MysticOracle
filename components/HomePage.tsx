@@ -99,6 +99,22 @@ const HomePage: React.FC = () => {
             },
           })}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'CelestiArcana',
+            url: 'https://celestiarcana.com',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: {
+                '@type': 'EntryPoint',
+                urlTemplate: 'https://celestiarcana.com/blog?q={search_term_string}',
+              },
+              'query-input': 'required name=search_term_string',
+            },
+          })}
+        </script>
       </Helmet>
       <SEOTags path="/" />
       {/* Atmospheric background - persistent */}

@@ -64,6 +64,7 @@ router.get(
         category: z.string().optional(),
         tag: z.string().optional(),
         featured: z.coerce.boolean().optional(),
+        q: z.string().optional(),
       })
       .parse(req.query);
 
@@ -74,6 +75,7 @@ router.get(
       c: filters.category || '',
       t: filters.tag || '',
       f: filters.featured ?? '',
+      q: filters.q || '',
     })}`;
 
     // Check cache first
@@ -97,6 +99,14 @@ router.get(
     }
     if (filters.featured !== undefined) {
       where.featured = filters.featured;
+    }
+    if (filters.q) {
+      where.OR = [
+        { titleEn: { contains: filters.q, mode: 'insensitive' } },
+        { titleFr: { contains: filters.q, mode: 'insensitive' } },
+        { excerptEn: { contains: filters.q, mode: 'insensitive' } },
+        { excerptFr: { contains: filters.q, mode: 'insensitive' } },
+      ];
     }
 
     const [posts, total] = await Promise.all([

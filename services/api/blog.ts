@@ -174,6 +174,7 @@ export async function fetchBlogPosts(params: {
   category?: string;
   tag?: string;
   featured?: boolean;
+  q?: string;
 } = {}): Promise<BlogPostListResponse> {
   return apiRequest(apiEndpoint('/api/blog/posts', params as Record<string, ParamValue>));
 }
