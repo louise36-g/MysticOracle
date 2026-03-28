@@ -261,7 +261,7 @@ export async function createReading(
 ): Promise<ReadingData> {
   // Use idempotency key to prevent duplicate charges on network retries
   const idempotencyKey = generateIdempotencyKey();
-  return apiRequest('/api/readings', {
+  return apiRequest('/api/v1/readings', {
     method: 'POST',
     body: data,
     token,
@@ -277,7 +277,7 @@ export async function addFollowUpQuestion(
 ): Promise<{ id: string; question: string; answer: string; creditCost: number; createdAt: string }> {
   // Use idempotency key to prevent duplicate charges on network retries
   const idempotencyKey = generateIdempotencyKey();
-  return apiRequest(`/api/readings/${readingId}/follow-up`, {
+  return apiRequest(`/api/v1/readings/${readingId}/follow-up`, {
     method: 'POST',
     body: { question, answer },
     token,
@@ -290,7 +290,7 @@ export async function updateReadingReflection(
   readingId: string,
   userReflection: string
 ): Promise<{ success: boolean; reading: ReadingData }> {
-  return apiRequest(`/api/readings/${readingId}`, {
+  return apiRequest(`/api/v1/readings/${readingId}`, {
     method: 'PATCH',
     body: { userReflection },
     token,

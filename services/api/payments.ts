@@ -24,7 +24,7 @@ export interface CreditPackage {
 }
 
 export async function fetchCreditPackages(): Promise<CreditPackage[]> {
-  return apiRequest('/api/payments/packages');
+  return apiRequest('/api/v1/payments/packages');
 }
 
 // ============================================
@@ -36,7 +36,7 @@ export async function createStripeCheckout(
   packageId: string,
   useStripeLink = false
 ): Promise<{ sessionId: string; url: string }> {
-  return apiRequest('/api/payments/stripe/checkout', {
+  return apiRequest('/api/v1/payments/stripe/checkout', {
     method: 'POST',
     body: { packageId, useStripeLink },
     token,
@@ -47,7 +47,7 @@ export async function verifyStripePayment(
   token: string,
   sessionId: string
 ): Promise<{ success: boolean; credits?: number; status?: string }> {
-  return apiRequest(`/api/payments/stripe/verify/${sessionId}`, { token });
+  return apiRequest(`/api/v1/payments/stripe/verify/${sessionId}`, { token });
 }
 
 // ============================================
@@ -58,7 +58,7 @@ export async function createPayPalOrder(
   token: string,
   packageId: string
 ): Promise<{ orderId: string; approvalUrl: string }> {
-  return apiRequest('/api/payments/paypal/order', {
+  return apiRequest('/api/v1/payments/paypal/order', {
     method: 'POST',
     body: { packageId },
     token,
@@ -71,7 +71,7 @@ export async function capturePayPalOrder(
 ): Promise<{ success: boolean; credits?: number; captureId?: string; status?: string }> {
   // Use idempotency key to prevent double-crediting on network retries
   const idempotencyKey = generateIdempotencyKey();
-  return apiRequest('/api/payments/paypal/capture', {
+  return apiRequest('/api/v1/payments/paypal/capture', {
     method: 'POST',
     body: { orderId },
     token,
@@ -84,7 +84,7 @@ export async function capturePayPalOrder(
 // ============================================
 
 export async function fetchPurchaseHistory(token: string): Promise<Transaction[]> {
-  return apiRequest('/api/payments/history', { token });
+  return apiRequest('/api/v1/payments/history', { token });
 }
 
 // ============================================
@@ -92,5 +92,5 @@ export async function fetchPurchaseHistory(token: string): Promise<Transaction[]
 // ============================================
 
 export async function checkHealth(): Promise<{ status: string; timestamp: string }> {
-  return apiRequest('/api/health');
+  return apiRequest('/api/v1/health');
 }

@@ -173,15 +173,15 @@ export interface RevenueMonth {
 // ============================================
 
 export async function fetchAdminStats(token: string): Promise<AdminStats> {
-  return apiRequest('/api/admin/stats', { token });
+  return apiRequest('/api/v1/admin/stats', { token });
 }
 
 export async function fetchAdminRevenue(token: string): Promise<AdminRevenue> {
-  return apiRequest('/api/admin/revenue', { token });
+  return apiRequest('/api/v1/admin/revenue', { token });
 }
 
 export async function fetchAdminAnalytics(token: string): Promise<AdminAnalytics> {
-  return apiRequest('/api/admin/analytics', { token });
+  return apiRequest('/api/v1/admin/analytics', { token });
 }
 
 export async function fetchAdminReadingStats(token: string): Promise<{
@@ -194,7 +194,7 @@ export async function fetchAdminReadingStats(token: string): Promise<{
     user: { username: string };
   }>;
 }> {
-  return apiRequest('/api/admin/readings/stats', { token });
+  return apiRequest('/api/v1/admin/readings/stats', { token });
 }
 
 export async function fetchAdminAIConfig(token: string): Promise<{
@@ -202,7 +202,7 @@ export async function fetchAdminAIConfig(token: string): Promise<{
   provider: string;
   hasApiKey: boolean;
 }> {
-  return apiRequest('/api/admin/config/ai', { token });
+  return apiRequest('/api/v1/admin/config/ai', { token });
 }
 
 // ============================================
@@ -220,11 +220,11 @@ export async function fetchAdminUsers(
     sortOrder?: 'asc' | 'desc';
   } = {}
 ): Promise<AdminUserList> {
-  return apiRequest(apiEndpoint('/api/admin/users', params as Record<string, ParamValue>), { token });
+  return apiRequest(apiEndpoint('/api/v1/admin/users', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminUserDetail(token: string, userId: string): Promise<AdminUser> {
-  return apiRequest(`/api/admin/users/${userId}`, { token });
+  return apiRequest(`/api/v1/admin/users/${userId}`, { token });
 }
 
 export async function updateUserStatus(
@@ -232,7 +232,7 @@ export async function updateUserStatus(
   userId: string,
   status: 'ACTIVE' | 'FLAGGED' | 'SUSPENDED'
 ): Promise<{ success: boolean }> {
-  return apiRequest(`/api/admin/users/${userId}/status`, {
+  return apiRequest(`/api/v1/admin/users/${userId}/status`, {
     method: 'PATCH',
     body: { status },
     token,
@@ -245,7 +245,7 @@ export async function adjustUserCredits(
   amount: number,
   reason: string
 ): Promise<{ success: boolean; newBalance: number }> {
-  return apiRequest(`/api/admin/users/${userId}/credits`, {
+  return apiRequest(`/api/v1/admin/users/${userId}/credits`, {
     method: 'POST',
     body: { amount, reason },
     token,
@@ -256,7 +256,7 @@ export async function toggleUserAdmin(
   token: string,
   userId: string
 ): Promise<{ success: boolean; isAdmin: boolean }> {
-  return apiRequest(`/api/admin/users/${userId}/admin`, {
+  return apiRequest(`/api/v1/admin/users/${userId}/admin`, {
     method: 'PATCH',
     token,
   });
@@ -266,7 +266,7 @@ export async function deleteUser(
   token: string,
   userId: string
 ): Promise<{ success: boolean; message: string }> {
-  return apiRequest(`/api/admin/users/${userId}`, {
+  return apiRequest(`/api/v1/admin/users/${userId}`, {
     method: 'DELETE',
     token,
   });
@@ -283,7 +283,7 @@ export async function fetchAdminTransactions(
   transactions: Array<Transaction & { user: { username: string; email: string } }>;
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }> {
-  return apiRequest(apiEndpoint('/api/admin/transactions', params as Record<string, ParamValue>), { token });
+  return apiRequest(apiEndpoint('/api/v1/admin/transactions', params as Record<string, ParamValue>), { token });
 }
 
 // ============================================
@@ -291,14 +291,14 @@ export async function fetchAdminTransactions(
 // ============================================
 
 export async function fetchAdminPackages(token: string): Promise<{ packages: AdminCreditPackage[] }> {
-  return apiRequest('/api/admin/packages', { token });
+  return apiRequest('/api/v1/admin/packages', { token });
 }
 
 export async function createAdminPackage(
   token: string,
   data: Omit<AdminCreditPackage, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<{ success: boolean; package: AdminCreditPackage }> {
-  return apiRequest('/api/admin/packages', { method: 'POST', body: data, token });
+  return apiRequest('/api/v1/admin/packages', { method: 'POST', body: data, token });
 }
 
 export async function updateAdminPackage(
@@ -306,18 +306,18 @@ export async function updateAdminPackage(
   id: string,
   data: Partial<Omit<AdminCreditPackage, 'id' | 'createdAt' | 'updatedAt'>>
 ): Promise<{ success: boolean; package: AdminCreditPackage }> {
-  return apiRequest(`/api/admin/packages/${id}`, { method: 'PATCH', body: data, token });
+  return apiRequest(`/api/v1/admin/packages/${id}`, { method: 'PATCH', body: data, token });
 }
 
 export async function deleteAdminPackage(
   token: string,
   id: string
 ): Promise<{ success: boolean }> {
-  return apiRequest(`/api/admin/packages/${id}`, { method: 'DELETE', token });
+  return apiRequest(`/api/v1/admin/packages/${id}`, { method: 'DELETE', token });
 }
 
 export async function seedAdminPackages(token: string): Promise<{ success: boolean; packages: AdminCreditPackage[]; count: number }> {
-  return apiRequest('/api/admin/seed/packages', { method: 'POST', token });
+  return apiRequest('/api/v1/admin/seed/packages', { method: 'POST', token });
 }
 
 // ============================================
@@ -328,21 +328,21 @@ export async function fetchAdminEmailTemplates(token: string): Promise<{
   templates: EmailTemplate[];
   brevoConfigured: boolean;
 }> {
-  return apiRequest('/api/admin/config/email-templates', { token });
+  return apiRequest('/api/v1/admin/config/email-templates', { token });
 }
 
 export async function fetchAdminEmailTemplatesCRUD(token: string): Promise<{
   templates: AdminEmailTemplate[];
   brevoConfigured: boolean;
 }> {
-  return apiRequest('/api/admin/email-templates', { token });
+  return apiRequest('/api/v1/admin/email-templates', { token });
 }
 
 export async function createAdminEmailTemplate(
   token: string,
   data: Omit<AdminEmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<{ success: boolean; template: AdminEmailTemplate }> {
-  return apiRequest('/api/admin/email-templates', { method: 'POST', body: data, token });
+  return apiRequest('/api/v1/admin/email-templates', { method: 'POST', body: data, token });
 }
 
 export async function updateAdminEmailTemplate(
@@ -350,18 +350,18 @@ export async function updateAdminEmailTemplate(
   id: string,
   data: Partial<Omit<AdminEmailTemplate, 'id' | 'createdAt' | 'updatedAt'>>
 ): Promise<{ success: boolean; template: AdminEmailTemplate }> {
-  return apiRequest(`/api/admin/email-templates/${id}`, { method: 'PATCH', body: data, token });
+  return apiRequest(`/api/v1/admin/email-templates/${id}`, { method: 'PATCH', body: data, token });
 }
 
 export async function deleteAdminEmailTemplate(
   token: string,
   id: string
 ): Promise<{ success: boolean }> {
-  return apiRequest(`/api/admin/email-templates/${id}`, { method: 'DELETE', token });
+  return apiRequest(`/api/v1/admin/email-templates/${id}`, { method: 'DELETE', token });
 }
 
 export async function seedAdminEmailTemplates(token: string): Promise<{ success: boolean; templates: AdminEmailTemplate[]; count: number }> {
-  return apiRequest('/api/admin/seed/email-templates', { method: 'POST', token });
+  return apiRequest('/api/v1/admin/seed/email-templates', { method: 'POST', token });
 }
 
 // ============================================
@@ -369,7 +369,7 @@ export async function seedAdminEmailTemplates(token: string): Promise<{ success:
 // ============================================
 
 export async function fetchAdminHealth(token: string): Promise<SystemHealth> {
-  return apiRequest('/api/admin/health', { token });
+  return apiRequest('/api/v1/admin/health', { token });
 }
 
 // ============================================
@@ -380,11 +380,11 @@ export async function fetchAdminErrorLogs(
   token: string,
   params: { limit?: number; level?: string; source?: string } = {}
 ): Promise<ErrorLogsResponse> {
-  return apiRequest(apiEndpoint('/api/admin/error-logs', params as Record<string, ParamValue>), { token });
+  return apiRequest(apiEndpoint('/api/v1/admin/error-logs', params as Record<string, ParamValue>), { token });
 }
 
 export async function clearAdminErrorLogs(token: string): Promise<{ success: boolean }> {
-  return apiRequest('/api/admin/error-logs', { method: 'DELETE', token });
+  return apiRequest('/api/v1/admin/error-logs', { method: 'DELETE', token });
 }
 
 // ============================================
@@ -394,14 +394,14 @@ export async function clearAdminErrorLogs(token: string): Promise<{ success: boo
 export async function fetchAdminPrompts(token: string): Promise<{
   prompts: AdminPrompt[];
 }> {
-  return apiRequest('/api/admin/prompts', { token });
+  return apiRequest('/api/v1/admin/prompts', { token });
 }
 
 export async function fetchAdminPrompt(
   token: string,
   key: string
 ): Promise<AdminPrompt> {
-  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}`, { token });
+  return apiRequest(`/api/v1/admin/prompts/${encodeURIComponent(key)}`, { token });
 }
 
 export async function updateAdminPrompt(
@@ -409,7 +409,7 @@ export async function updateAdminPrompt(
   key: string,
   data: { value: string }
 ): Promise<{ success: boolean; prompt: AdminPrompt }> {
-  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}`, {
+  return apiRequest(`/api/v1/admin/prompts/${encodeURIComponent(key)}`, {
     method: 'PUT',
     body: data,
     token,
@@ -420,7 +420,7 @@ export async function resetAdminPrompt(
   token: string,
   key: string
 ): Promise<{ success: boolean; prompt: AdminPrompt }> {
-  return apiRequest(`/api/admin/prompts/${encodeURIComponent(key)}/reset`, {
+  return apiRequest(`/api/v1/admin/prompts/${encodeURIComponent(key)}/reset`, {
     method: 'POST',
     token,
   });
@@ -431,7 +431,7 @@ export async function seedAdminPrompts(token: string): Promise<{
   seeded: Array<{ key: string; created: boolean }>;
   count: number;
 }> {
-  return apiRequest('/api/admin/prompts/seed', { method: 'POST', token });
+  return apiRequest('/api/v1/admin/prompts/seed', { method: 'POST', token });
 }
 
 // ============================================
@@ -439,7 +439,7 @@ export async function seedAdminPrompts(token: string): Promise<{
 // ============================================
 
 export async function fetchAdminServices(token: string): Promise<{ services: ServiceConfig[] }> {
-  return apiRequest('/api/admin/services', { token });
+  return apiRequest('/api/v1/admin/services', { token });
 }
 
 // ============================================
@@ -447,7 +447,7 @@ export async function fetchAdminServices(token: string): Promise<{ services: Ser
 // ============================================
 
 export async function fetchAdminSettings(token: string): Promise<{ settings: SystemSetting[] }> {
-  return apiRequest('/api/admin/settings', { token });
+  return apiRequest('/api/v1/admin/settings', { token });
 }
 
 export async function updateAdminSetting(
@@ -455,7 +455,7 @@ export async function updateAdminSetting(
   key: string,
   value: string
 ): Promise<{ success: boolean }> {
-  return apiRequest('/api/admin/settings', { method: 'POST', body: { key, value }, token });
+  return apiRequest('/api/v1/admin/settings', { method: 'POST', body: { key, value }, token });
 }
 
 // ============================================
@@ -463,9 +463,9 @@ export async function updateAdminSetting(
 // ============================================
 
 export async function fetchRevenueMonths(token: string): Promise<{ months: RevenueMonth[] }> {
-  return apiRequest('/api/admin/revenue/months', { token });
+  return apiRequest('/api/v1/admin/revenue/months', { token });
 }
 
 export function getRevenueExportUrl(token: string, year: number, month: number): string {
-  return `${API_URL}/api/admin/revenue/export?year=${year}&month=${month}`;
+  return `${API_URL}/api/v1/admin/revenue/export?year=${year}&month=${month}`;
 }

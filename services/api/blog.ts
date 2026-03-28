@@ -176,15 +176,15 @@ export async function fetchBlogPosts(params: {
   featured?: boolean;
   q?: string;
 } = {}): Promise<BlogPostListResponse> {
-  return apiRequest(apiEndpoint('/api/blog/posts', params as Record<string, ParamValue>));
+  return apiRequest(apiEndpoint('/api/v1/blog/posts', params as Record<string, ParamValue>));
 }
 
 export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
-  return apiRequest(`/api/blog/posts/${encodeURIComponent(slug)}`);
+  return apiRequest(`/api/v1/blog/posts/${encodeURIComponent(slug)}`);
 }
 
 export async function fetchBlogCategories(): Promise<{ categories: BlogCategory[] }> {
-  return apiRequest('/api/blog/categories');
+  return apiRequest('/api/v1/blog/categories');
 }
 
 
@@ -193,25 +193,25 @@ export async function fetchBlogCategories(): Promise<{ categories: BlogCategory[
 // ============================================
 
 export async function fetchBlogPostPreview(token: string, id: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
-  return apiRequest(`/api/blog/admin/preview/${encodeURIComponent(id)}`, { token });
+  return apiRequest(`/api/v1/blog/admin/preview/${encodeURIComponent(id)}`, { token });
 }
 
 export async function fetchAdminBlogPosts(
   token: string,
   params: { page?: number; limit?: number; status?: string; search?: string; deleted?: boolean; category?: string; contentType?: string } = {}
 ): Promise<BlogPostListResponse> {
-  return apiRequest(apiEndpoint('/api/blog/admin/posts', params as Record<string, ParamValue>), { token });
+  return apiRequest(apiEndpoint('/api/v1/blog/admin/posts', params as Record<string, ParamValue>), { token });
 }
 
 export async function fetchAdminBlogPost(token: string, id: string): Promise<{ post: BlogPost }> {
-  return apiRequest(`/api/blog/admin/posts/${id}`, { token });
+  return apiRequest(`/api/v1/blog/admin/posts/${id}`, { token });
 }
 
 export async function createBlogPost(
   token: string,
   data: CreateBlogPostData
 ): Promise<{ success: boolean; post: BlogPost }> {
-  return apiRequest('/api/blog/admin/posts', { method: 'POST', body: data, token });
+  return apiRequest('/api/v1/blog/admin/posts', { method: 'POST', body: data, token });
 }
 
 export async function updateBlogPost(
@@ -219,11 +219,11 @@ export async function updateBlogPost(
   id: string,
   data: UpdateBlogPostData
 ): Promise<{ success: boolean; post: BlogPost }> {
-  return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'PATCH', body: data, token });
+  return apiRequest(`/api/v1/blog/admin/posts/${id}`, { method: 'PATCH', body: data, token });
 }
 
 export async function deleteBlogPost(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/blog/admin/posts/${id}`, { method: 'DELETE', token });
+  return apiRequest(`/api/v1/blog/admin/posts/${id}`, { method: 'DELETE', token });
 }
 
 export async function reorderBlogPost(
@@ -234,7 +234,7 @@ export async function reorderBlogPost(
   newPosition: number,
   contentType?: string | null
 ): Promise<{ success: boolean; message: string }> {
-  return apiRequest('/api/blog/admin/posts/reorder', {
+  return apiRequest('/api/v1/blog/admin/posts/reorder', {
     method: 'PATCH',
     body: { postId, categorySlug, status, newPosition, contentType },
     token,
@@ -250,7 +250,7 @@ export async function fetchAdminBlogMedia(
   folder?: string
 ): Promise<{ media: BlogMedia[] }> {
   const params = folder ? `?folder=${encodeURIComponent(folder)}` : '';
-  return apiRequest(`/api/blog/admin/media${params}`, { token });
+  return apiRequest(`/api/v1/blog/admin/media${params}`, { token });
 }
 
 export async function uploadBlogMedia(
@@ -267,7 +267,7 @@ export async function uploadBlogMedia(
   if (altText) formData.append('altText', altText);
   if (caption) formData.append('caption', caption);
 
-  const response = await fetch(`${API_URL}/api/blog/admin/upload`, {
+  const response = await fetch(`${API_URL}/api/v1/blog/admin/upload`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
@@ -282,7 +282,7 @@ export async function uploadBlogMedia(
 }
 
 export async function deleteBlogMedia(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/blog/admin/media/${id}`, { method: 'DELETE', token });
+  return apiRequest(`/api/v1/blog/admin/media/${id}`, { method: 'DELETE', token });
 }
 
 // ============================================
@@ -290,15 +290,15 @@ export async function deleteBlogMedia(token: string, id: string): Promise<{ succ
 // ============================================
 
 export async function restoreBlogPost(token: string, id: string): Promise<{ success: boolean; slug: string }> {
-  return apiRequest(`/api/blog/admin/posts/${id}/restore`, { method: 'POST', token });
+  return apiRequest(`/api/v1/blog/admin/posts/${id}/restore`, { method: 'POST', token });
 }
 
 export async function permanentlyDeleteBlogPost(token: string, id: string): Promise<{ success: boolean }> {
-  return apiRequest(`/api/blog/admin/posts/${id}/permanent`, { method: 'DELETE', token });
+  return apiRequest(`/api/v1/blog/admin/posts/${id}/permanent`, { method: 'DELETE', token });
 }
 
 export async function emptyBlogTrash(token: string): Promise<{ success: boolean; deleted: number }> {
-  return apiRequest('/api/blog/admin/posts/trash/empty', { method: 'DELETE', token });
+  return apiRequest('/api/v1/blog/admin/posts/trash/empty', { method: 'DELETE', token });
 }
 
 // ============================================
@@ -311,7 +311,7 @@ export async function importBlogArticles(
   articles: ImportArticle | ImportArticle[],
   options?: ImportOptions
 ): Promise<ImportResult> {
-  return apiRequest('/api/blog/admin/import', {
+  return apiRequest('/api/v1/blog/admin/import', {
     method: 'POST',
     token,
     body: { articles, options },

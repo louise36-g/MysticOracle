@@ -13,7 +13,7 @@ export async function summarizeQuestion(
   question: string,
   language: 'en' | 'fr'
 ): Promise<{ summary: string; creditsUsed: number }> {
-  return apiRequest('/api/ai/summarize-question', {
+  return apiRequest('/api/v1/ai/summarize-question', {
     method: 'POST',
     body: { question, language },
     token,
