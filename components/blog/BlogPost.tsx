@@ -6,7 +6,8 @@ import { FAQItem, CTAItem } from '../../services/api';
 import { ArrowLeft, Tag, AlertCircle, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
-import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArticles, BlogLightbox } from './components';
+import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArticles } from './components';
+import { Lightbox } from '../ui/Lightbox';
 import { ScrollToTop } from '../tarot-article/ScrollToTop';
 import ArticleNavigation from '../shared/ArticleNavigation';
 import { ROUTES } from '../../routes/routes';
@@ -292,7 +293,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       <RelatedTarotArticles categories={post.categories} />
 
       {/* Lightbox Modal */}
-      {lightboxImage && <BlogLightbox imageUrl={lightboxImage} onClose={() => setLightboxImage(null)} />}
+      <Lightbox image={lightboxImage} onClose={() => setLightboxImage(null)} />
 
       {/* Scroll to top button */}
       <ScrollToTop />

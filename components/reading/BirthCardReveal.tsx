@@ -22,7 +22,7 @@ import {
 import ThemedBackground from './ThemedBackground';
 import Button from '../Button';
 import { ShareBirthCardModal } from '../share';
-import EnlargedImageModal from './EnlargedImageModal';
+import { Lightbox } from '../ui/Lightbox';
 import PersonalityTab from './tabs/PersonalityTab';
 import SoulTab from './tabs/SoulTab';
 import DynamicTab from './tabs/DynamicTab';
@@ -522,7 +522,7 @@ const BirthCardReveal: React.FC = () => {
       </div>
 
       {/* Enlarged Image Modal */}
-      <EnlargedImageModal image={enlargedImage} onClose={closeEnlargedImage} />
+      <Lightbox image={enlargedImage} onClose={closeEnlargedImage} optimizeImage={false} showCaption backdropBlur />
 
       {/* Share Birth Cards Modal */}
       <ShareBirthCardModal

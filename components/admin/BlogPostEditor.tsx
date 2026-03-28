@@ -26,7 +26,7 @@ import {
   HelpCircle,
   Megaphone,
 } from 'lucide-react';
-import BlogFAQManager from './BlogFAQManager';
+import FAQManager from './FAQManager';
 import BlogCTAManager from './BlogCTAManager';
 import { LinkSuggestionModal } from '../internal-links';
 import RichTextEditor from './RichTextEditor';
@@ -497,7 +497,7 @@ const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         isOpen={showFAQ}
         onToggle={() => setShowFAQ(!showFAQ)}
       >
-        <BlogFAQManager
+        <FAQManager
           faq={post.faq || []}
           onChange={(faq) => setPost({ ...post, faq })}
         />

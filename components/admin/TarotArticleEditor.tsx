@@ -17,7 +17,8 @@ import { LinkSuggestionModal } from '../internal-links';
 import { useEditorMedia } from './editor/hooks/useEditorMedia';
 import { useEditorLinks } from './editor/hooks/useEditorLinks';
 import RichTextEditor from './RichTextEditor';
-import TarotFAQManager, { FAQItem } from './TarotFAQManager';
+import FAQManager from './FAQManager';
+import type { FAQItem } from '../../services/api';
 import {
   EditorTopBar,
   EditorLayout,
@@ -467,7 +468,7 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
         isOpen={showFAQ}
         onToggle={() => setShowFAQ(!showFAQ)}
       >
-        <TarotFAQManager
+        <FAQManager
           faq={(article.faq as FAQItem[]) || []}
           onChange={(faq) => setArticle(prev => prev ? { ...prev, faq } : prev)}
         />

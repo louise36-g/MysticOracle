@@ -11,7 +11,7 @@ export { TableOfContents } from './TableOfContents';
 export { Breadcrumbs } from './Breadcrumbs';
 export { ArticleHeader } from './ArticleHeader';
 export { FeaturedImage } from './FeaturedImage';
-export { Lightbox } from './Lightbox';
+export { Lightbox } from '../ui/Lightbox';
 export { ArticleTags } from './ArticleTags';
 export { RelatedCards } from './RelatedCards';
 

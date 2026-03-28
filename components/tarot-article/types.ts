@@ -47,11 +47,6 @@ export interface ArticleContentProps {
   onImageClick: (src: string) => void;
 }
 
-export interface LightboxProps {
-  image: string | null;
-  onClose: () => void;
-}
-
 // Navigation label mappings for short chip labels
 export const NAV_LABEL_MAP: Record<string, string> = {
   'key takeaways': 'Takeaways',

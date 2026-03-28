@@ -51,7 +51,7 @@ import { ArticleSkeleton } from './ArticleSkeleton';
 import { ReadingProgress } from './ReadingProgress';
 import { ScrollToTop } from './ScrollToTop';
 import { TableOfContents } from './TableOfContents';
-import { Lightbox } from './Lightbox';
+import { Lightbox } from '../ui/Lightbox';
 import { Breadcrumbs } from './Breadcrumbs';
 import { ArticleHeader } from './ArticleHeader';
 import { FeaturedImage } from './FeaturedImage';

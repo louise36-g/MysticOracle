@@ -1,18 +1,14 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { FAQItem } from '../../services/api';
 
-export interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-interface TarotFAQManagerProps {
+interface FAQManagerProps {
   faq: FAQItem[];
   onChange: (faq: FAQItem[]) => void;
 }
 
-const TarotFAQManager: React.FC<TarotFAQManagerProps> = ({ faq, onChange }) => {
+const FAQManager: React.FC<FAQManagerProps> = ({ faq, onChange }) => {
   const { language } = useApp();
 
   const handleAdd = () => {
@@ -89,4 +85,4 @@ const TarotFAQManager: React.FC<TarotFAQManagerProps> = ({ faq, onChange }) => {
   );
 };
 
-export default TarotFAQManager;
+export default FAQManager;

@@ -11,4 +11,3 @@ export { BlogFAQ, type FAQItem } from './BlogFAQ';
 export { BlogCTA } from './BlogCTA';
 export { BlogRelated } from './BlogRelated';
 export { RelatedTarotArticles } from './RelatedTarotArticles';
-export { BlogLightbox } from './BlogLightbox';
