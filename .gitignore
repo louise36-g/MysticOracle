@@ -40,3 +40,8 @@ server/public/
 
 # Cloudinary migration logs
 server/scripts/cloudinary-migration-*.json
+
+# Build/test artifacts
+playwright-report/
+test-results/
+server/coverage/
