@@ -342,6 +342,7 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: zoom-in;
   position: relative;
+  will-change: transform;
 }
 
 .prose img:hover {
