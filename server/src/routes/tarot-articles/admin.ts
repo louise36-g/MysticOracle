@@ -21,26 +21,13 @@ import { processArticleSchema, type TarotArticleData } from '../../lib/schema-bu
 import {
   prisma,
   cacheService,
-  z,
   articleFullInclude,
   transformArticleResponse,
   mapBlogPostToTarotFields,
 } from './shared.js';
-import { handleReorder } from '../shared/reorderUtils.js';
-import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 import { notifyTarotArticle } from '../../services/indexNowService.js';
 
 const router = Router();
-
-// Validation schema for list filter params (page/limit handled by parsePaginationParams)
-const listArticlesFilterSchema = z.object({
-  cardType: z
-    .enum(['MAJOR_ARCANA', 'SUIT_OF_WANDS', 'SUIT_OF_CUPS', 'SUIT_OF_SWORDS', 'SUIT_OF_PENTACLES'])
-    .optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
-  search: z.string().optional(),
-  deleted: z.coerce.boolean().optional(),
-});
 
 /**
  * Convert validated tarot article data to BlogPost create/update format.
@@ -263,90 +250,8 @@ router.post(
   })
 );
 
-/**
- * GET /admin/list
- * List all tarot articles (including drafts)
- */
-router.get(
-  '/list',
-  asyncHandler(async (req, res) => {
-    const paginationParams = parsePaginationParams(req.query as Record<string, unknown>, 20, 100);
-    const { cardType, status, search, deleted } = listArticlesFilterSchema.parse(req.query);
-
-    const where: Prisma.BlogPostWhereInput = {
-      contentType: 'TAROT_ARTICLE',
-    };
-
-    if (deleted === true) {
-      where.deletedAt = { not: null };
-    } else {
-      where.deletedAt = null;
-    }
-
-    if (cardType) where.cardType = cardType;
-    if (status) where.status = status;
-
-    if (search) {
-      where.OR = [
-        { titleEn: { contains: search, mode: 'insensitive' } },
-        { slug: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-
-    const [articles, total] = await Promise.all([
-      prisma.blogPost.findMany({
-        where,
-        select: {
-          id: true,
-          titleEn: true,
-          titleFr: true,
-          slug: true,
-          excerptEn: true,
-          excerptFr: true,
-          // contentEn/contentFr excluded from list — too large, loaded individually when editing
-          coverImage: true,
-          coverImageAlt: true,
-          coverImageAltFr: true,
-          cardType: true,
-          cardNumber: true,
-          datePublished: true,
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-          deletedAt: true,
-          originalSlug: true,
-          seoFocusKeyword: true,
-          metaTitleEn: true,
-          metaDescEn: true,
-          seoFocusKeywordFr: true,
-          metaTitleFr: true,
-          metaDescFr: true,
-        },
-        skip: paginationParams.skip,
-        take: paginationParams.take,
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      }),
-      prisma.blogPost.count({ where }),
-    ]);
-
-    // Transform to TarotArticle API shape
-    const transformedArticles = articles.map(a =>
-      mapBlogPostToTarotFields(a as unknown as Record<string, unknown>)
-    );
-
-    const paginationMeta = createPaginationMeta(paginationParams, total);
-
-    res.json({
-      articles: transformedArticles,
-      pagination: paginationMeta,
-      // Legacy flat fields for backward compatibility
-      total,
-      page: paginationParams.page,
-      limit: paginationParams.limit,
-      totalPages: paginationMeta.totalPages,
-    });
-  })
-);
+// NOTE: List endpoint removed — use GET /api/v1/blog/admin/posts?contentType=TAROT_ARTICLE instead
+// NOTE: Reorder endpoint removed — use PATCH /api/v1/blog/admin/posts/reorder with contentType instead
 
 /**
  * GET /admin/preview/:id
@@ -389,44 +294,6 @@ router.get(
     res.json(transformArticleResponse(article));
   })
 );
-
-/**
- * PATCH /admin/reorder
- * Reorder a tarot article within its card type
- */
-router.patch('/reorder', (req, res) => {
-  handleReorder(
-    {
-      entityName: 'Article',
-      getItemId: body => body.articleId as string | undefined,
-      findItem: id =>
-        prisma.blogPost.findFirst({
-          where: { id, contentType: 'TAROT_ARTICLE' },
-        }) as Promise<Record<string, unknown> | null>,
-      validateItem: (item, body) => {
-        const { cardType } = body as Record<string, string>;
-        if (!cardType) {
-          return 'Missing required field: cardType';
-        }
-        if (item.cardType !== cardType) {
-          return `Article cardType (${item.cardType}) does not match provided cardType (${cardType})`;
-        }
-        return null;
-      },
-      buildWhereClause: body => {
-        const { cardType } = body as Record<string, string>;
-        return {
-          contentType: 'TAROT_ARTICLE',
-          cardType: cardType as Prisma.EnumCardTypeNullableFilter['equals'],
-          deletedAt: null,
-        };
-      },
-      invalidateCache: () => cacheService.invalidateTarot(),
-    },
-    req,
-    res
-  );
-});
 
 /**
  * PATCH /admin/:id
