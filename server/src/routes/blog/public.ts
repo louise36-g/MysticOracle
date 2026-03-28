@@ -225,6 +225,55 @@ router.get(
       orderBy: { publishedAt: 'desc' },
     });
 
+    // Get prev/next posts in the same primary category
+    const primaryCategoryId = post.categories[0]?.categoryId;
+    let prevPost = null;
+    let nextPost = null;
+
+    if (primaryCategoryId) {
+      const categoryFilter = { categories: { some: { categoryId: primaryCategoryId } } };
+      const [prev, next] = await Promise.all([
+        prisma.blogPost.findFirst({
+          where: {
+            status: 'PUBLISHED',
+            publishedAt: { not: null, lt: post.publishedAt! },
+            deletedAt: null,
+            id: { not: post.id },
+            ...categoryFilter,
+          },
+          select: { slug: true, titleEn: true, titleFr: true, coverImage: true, contentType: true },
+          orderBy: { publishedAt: 'desc' },
+        }),
+        prisma.blogPost.findFirst({
+          where: {
+            status: 'PUBLISHED',
+            publishedAt: { not: null, gt: post.publishedAt! },
+            deletedAt: null,
+            id: { not: post.id },
+            ...categoryFilter,
+          },
+          select: { slug: true, titleEn: true, titleFr: true, coverImage: true, contentType: true },
+          orderBy: { publishedAt: 'asc' },
+        }),
+      ]);
+      if (prev)
+        prevPost = {
+          slug: prev.slug,
+          title: prev.titleEn,
+          titleFr: prev.titleFr,
+          coverImage: prev.coverImage,
+          contentType: prev.contentType,
+        };
+      if (next)
+        nextPost = {
+          slug: next.slug,
+          title: next.titleEn,
+          titleFr: next.titleFr,
+          coverImage: next.coverImage,
+          contentType: next.contentType,
+        };
+    }
+
     const response = {
       post: {
         ...post,
@@ -233,6 +282,8 @@ router.get(
         tags: flattenTags(post.tags),
       },
       relatedPosts,
+      prevPost,
+      nextPost,
     };
 
     await cacheService.set(cacheKey, response, 120); // 2 min cache

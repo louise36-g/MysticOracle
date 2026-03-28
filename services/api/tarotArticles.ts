@@ -62,6 +62,8 @@ export interface TarotArticle {
   originalSlug?: string;
   createdAt: string;
   updatedAt: string;
+  prevCard?: { slug: string; title: string; titleFr: string; featuredImage: string; cardType: string } | null;
+  nextCard?: { slug: string; title: string; titleFr: string; featuredImage: string; cardType: string } | null;
 }
 
 export interface TarotArticlesListResponse {

@@ -15,6 +15,77 @@ import { includeCategoriesAndTags } from '../shared/queryUtils.js';
 // Re-export for use by route modules
 export { prisma, cacheService, CacheService, z, sortByCardNumber };
 
+// Canonical tarot card order (Major Arcana first, then suits)
+const CARD_TYPE_ORDER: Record<string, number> = {
+  MAJOR_ARCANA: 0,
+  SUIT_OF_WANDS: 1,
+  SUIT_OF_CUPS: 2,
+  SUIT_OF_SWORDS: 3,
+  SUIT_OF_PENTACLES: 4,
+};
+
+export interface AdjacentCard {
+  slug: string;
+  title: string;
+  titleFr: string;
+  featuredImage: string;
+  cardType: string;
+}
+
+/**
+ * Get prev/next tarot cards relative to the given slug.
+ * Uses cached ordered list of all published tarot articles.
+ */
+export async function getAdjacentTarotCards(
+  currentSlug: string
+): Promise<{ prevCard: AdjacentCard | null; nextCard: AdjacentCard | null }> {
+  const cacheKey = 'tarot:card-order';
+  let cards = await cacheService.get<AdjacentCard[]>(cacheKey);
+
+  if (!cards) {
+    const rows = await prisma.blogPost.findMany({
+      where: { contentType: 'TAROT_ARTICLE', status: 'PUBLISHED', deletedAt: null },
+      select: {
+        slug: true,
+        titleEn: true,
+        titleFr: true,
+        coverImage: true,
+        cardType: true,
+        cardNumber: true,
+        sortOrder: true,
+        createdAt: true,
+      },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+
+    // Sort by canonical tarot order (enum sorts alphabetically, we need traditional order)
+    rows.sort((a, b) => {
+      const typeA = CARD_TYPE_ORDER[a.cardType || ''] ?? 99;
+      const typeB = CARD_TYPE_ORDER[b.cardType || ''] ?? 99;
+      if (typeA !== typeB) return typeA - typeB;
+      return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    });
+
+    cards = rows.map(r => ({
+      slug: r.slug,
+      title: r.titleEn,
+      titleFr: r.titleFr,
+      featuredImage: r.coverImage || '',
+      cardType: r.cardType || '',
+    }));
+
+    await cacheService.set(cacheKey, cards, 300); // 5 min cache
+  }
+
+  const idx = cards.findIndex(c => c.slug === currentSlug);
+  if (idx === -1) return { prevCard: null, nextCard: null };
+
+  return {
+    prevCard: idx > 0 ? cards[idx - 1] : null,
+    nextCard: idx < cards.length - 1 ? cards[idx + 1] : null,
+  };
+}
+
 // Re-export shared include config under legacy name for backwards compatibility
 export { includeCategoriesAndTags as articleFullInclude };
 

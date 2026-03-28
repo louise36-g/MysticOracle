@@ -21,6 +21,7 @@ import {
   articleFullInclude,
   transformArticleResponse,
   transformListItem,
+  getAdjacentTarotCards,
 } from './shared.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 
@@ -148,7 +149,8 @@ router.get(
       throw new NotFoundError('Article');
     }
 
-    const response = transformArticleResponse(article);
+    const { prevCard, nextCard } = await getAdjacentTarotCards(slug);
+    const response = { ...transformArticleResponse(article), prevCard, nextCard };
 
     // Cache for 10 minutes
     await cacheService.set(cacheKey, response, CacheService.TTL.ARTICLE);

@@ -8,16 +8,24 @@ import {
   LinkRegistry
 } from '../../services/api';
 
+export interface AdjacentPost {
+  slug: string;
+  title: string;
+  titleFr: string;
+  coverImage: string | null;
+  contentType: string;
+}
+
 /**
  * Read pre-rendered blog post data embedded in the HTML by the prerender script.
  * This eliminates the API round-trip on initial page load.
  */
-function getEmbeddedBlogData(slug: string | undefined): { post: BlogPostType; relatedPosts: BlogPostType[] } | null {
+function getEmbeddedBlogData(slug: string | undefined): { post: BlogPostType; relatedPosts: BlogPostType[]; prevPost?: AdjacentPost | null; nextPost?: AdjacentPost | null } | null {
   if (typeof document === 'undefined' || !slug) return null;
   const el = document.getElementById('__BLOG_POST_DATA__');
   if (!el?.textContent) return null;
   try {
-    const data = JSON.parse(el.textContent) as { post: BlogPostType; relatedPosts: BlogPostType[] };
+    const data = JSON.parse(el.textContent) as { post: BlogPostType; relatedPosts: BlogPostType[]; prevPost?: AdjacentPost | null; nextPost?: AdjacentPost | null };
     if (data.post?.slug === slug) return data;
     return null;
   } catch {
@@ -33,6 +41,8 @@ interface UseBlogPostParams {
 interface UseBlogPostReturn {
   post: BlogPostType | null;
   relatedPosts: BlogPostType[];
+  prevPost: AdjacentPost | null;
+  nextPost: AdjacentPost | null;
   linkRegistry: LinkRegistry | null;
   loading: boolean;
   error: string | null;
@@ -54,6 +64,12 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
   );
   const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>(
     () => embeddedRef.current?.relatedPosts || []
+  );
+  const [prevPost, setPrevPost] = useState<AdjacentPost | null>(
+    () => embeddedRef.current?.prevPost || null
+  );
+  const [nextPost, setNextPost] = useState<AdjacentPost | null>(
+    () => embeddedRef.current?.nextPost || null
   );
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
   const [loading, setLoading] = useState(!hasEmbeddedData.current);
@@ -85,6 +101,8 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
 
       setPost(result.post);
       setRelatedPosts(result.relatedPosts || []);
+      setPrevPost(result.prevPost || null);
+      setNextPost(result.nextPost || null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load article');
     } finally {
@@ -103,6 +121,8 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
   return {
     post,
     relatedPosts,
+    prevPost,
+    nextPost,
     linkRegistry,
     loading,
     error,

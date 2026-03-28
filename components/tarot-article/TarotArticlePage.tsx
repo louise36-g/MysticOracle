@@ -57,6 +57,7 @@ import { ArticleHeader } from './ArticleHeader';
 import { FeaturedImage } from './FeaturedImage';
 import { ArticleTags } from './ArticleTags';
 import { RelatedCards } from './RelatedCards';
+import ArticleNavigation from '../shared/ArticleNavigation';
 import { RelatedBlogPosts } from './RelatedBlogPosts';
 
 // Hooks
@@ -548,6 +549,13 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
           >
             {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+
+            {/* Prev/Next Card Navigation */}
+            <ArticleNavigation
+              prev={article.prevCard ? { slug: article.prevCard.slug, title: article.prevCard.title, titleFr: article.prevCard.titleFr } : null}
+              next={article.nextCard ? { slug: article.nextCard.slug, title: article.nextCard.title, titleFr: article.nextCard.titleFr } : null}
+              basePath="/tarot"
+            />
 
             {/* Tags Section */}
             <ArticleTags tags={article.tags} />

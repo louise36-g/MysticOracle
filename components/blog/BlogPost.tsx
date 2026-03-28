@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useBlogPost, useBlogContent, useBlogMeta } from '../../hooks/blog';
 import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArticles, BlogLightbox } from './components';
 import { ScrollToTop } from '../tarot-article/ScrollToTop';
+import ArticleNavigation from '../shared/ArticleNavigation';
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
@@ -35,7 +36,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
 
   // Custom hooks handle all complex logic
-  const { post, relatedPosts, linkRegistry, loading, error } = useBlogPost({ slug, previewId });
+  const { post, relatedPosts, prevPost, nextPost, linkRegistry, loading, error } = useBlogPost({ slug, previewId });
   const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs, contentRef } = useBlogContent({ post, linkRegistry, language });
   useBlogMeta({ post, language, isPreview });
 
@@ -246,6 +247,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
       {/* CTA Banner */}
       {post.cta && <BlogCTA cta={post.cta as CTAItem} />}
+
+      {/* Prev/Next Navigation */}
+      <ArticleNavigation
+        prev={prevPost ? { slug: prevPost.slug, title: prevPost.title, titleFr: prevPost.titleFr } : null}
+        next={nextPost ? { slug: nextPost.slug, title: nextPost.title, titleFr: nextPost.titleFr } : null}
+        basePath={post.contentType === 'TAROT_ARTICLE' ? '/tarot' : '/blog'}
+      />
 
       {/* Tags */}
       {post.tags.length > 0 && (
