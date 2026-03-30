@@ -31,7 +31,14 @@ const container = createAppContainer();
 logger.info('✅ Environment validated, DI container initialized');
 
 // Shared rate limiter options for Render reverse proxy
-const proxyValidation = { validate: { xForwardedForHeader: false } };
+const proxyValidation = {
+  validate: { xForwardedForHeader: false },
+  // Use Cloudflare's CF-Connecting-IP header for the real client IP.
+  // The request passes through 3 proxies (Cloudflare → Traefik → Caddy)
+  // so X-Forwarded-For is unreliable. CF-Connecting-IP is always correct.
+  keyGenerator: (req: { ip: string; headers: Record<string, string | string[] | undefined> }) =>
+    (req.headers['cf-connecting-ip'] as string) || req.ip,
+};
 const isDev = process.env.NODE_ENV === 'development';
 
 // Rate limiting configurations
@@ -334,22 +341,23 @@ app.get('/api-docs.json', (req, res) => {
 
 // Register v1 routes (current API as v1)
 const v1Router = Router();
+// generalLimiter is already applied globally (line 268) — only add stricter limiters here
 v1Router.use('/health', healthRoutes);
-v1Router.use('/users', generalLimiter, userRoutes);
+v1Router.use('/users', userRoutes);
 v1Router.use('/readings', strictLimiter, readingRoutes);
 v1Router.use('/payments', paymentLimiter, paymentRoutes);
 v1Router.use('/admin', adminLimiter, adminRoutes);
 v1Router.use('/admin/prompts', adminLimiter, promptRoutes);
-v1Router.use('/horoscopes', generalLimiter, horoscopeRoutes);
-v1Router.use('/translations', generalLimiter, translationRoutes);
-v1Router.use('/blog', generalLimiter, blogRoutes);
-v1Router.use('/tarot-articles', generalLimiter, tarotArticleRoutes);
+v1Router.use('/horoscopes', horoscopeRoutes);
+v1Router.use('/translations', translationRoutes);
+v1Router.use('/blog', blogRoutes);
+v1Router.use('/tarot-articles', tarotArticleRoutes);
 v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
-v1Router.use('/year-energy', generalLimiter, yearEnergyRoutes);
-v1Router.use('/internal-links', generalLimiter, internalLinksRoutes);
+v1Router.use('/year-energy', yearEnergyRoutes);
+v1Router.use('/internal-links', internalLinksRoutes);
 v1Router.use('/contact', strictLimiter, contactRoutes);
-v1Router.use('/yes-no', generalLimiter, yesNoRoutes);
+v1Router.use('/yes-no', yesNoRoutes);
 
 // Mount v1 at /api/v1
 app.use('/api/v1', v1Router);
