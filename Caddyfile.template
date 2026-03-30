@@ -30,6 +30,18 @@
 	redir /interpret /tarot-interpret 301
 	redir /fr/interpret /fr/tarot-interpret 301
 
+	# /blog?category=X → /blog/category/X (clean URL migration)
+	@blogCatQuery {
+		path /blog
+		query category=*
+	}
+	redir @blogCatQuery /blog/category/{http.request.uri.query.category} 301
+	@blogCatQueryFr {
+		path /fr/blog
+		query category=*
+	}
+	redir @blogCatQueryFr /fr/blog/category/{http.request.uri.query.category} 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"

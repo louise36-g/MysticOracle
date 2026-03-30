@@ -30,6 +30,7 @@ export const ROUTES = {
 
   // Blog
   BLOG: '/blog',
+  BLOG_CATEGORY: '/blog/category/:slug',
   BLOG_POST: '/blog/:slug',
 
   // Tarot

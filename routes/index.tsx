@@ -159,6 +159,7 @@ function publicRoutes(): RouteObject[] {
 
     // Blog
     { path: '/blog', element: lazyLoad(() => import('../components/blog/BlogList')) },
+    { path: '/blog/category/:slug', element: lazyLoad(() => import('../components/blog/BlogList')) },
     { path: '/blog/:slug', element: lazyLoad(() => import('../components/blog/BlogPost')) },
 
     // Tarot cards

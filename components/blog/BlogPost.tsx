@@ -131,7 +131,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           {t('blog.BlogPost.article_not_found', 'Article Not Found')}
         </h2>
         <p className="text-slate-400 mb-8">{error}</p>
-        <LocalizedLink to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG}>
+        <LocalizedLink to={fromCategory ? `/blog/category/${fromCategory}` : ROUTES.BLOG}>
           <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors">
             <ArrowLeft className="w-4 h-4 inline mr-2" />
             {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
@@ -175,7 +175,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       )}
 
       {/* Back Button */}
-      <LocalizedLink to={fromCategory ? `${ROUTES.BLOG}?category=${fromCategory}` : ROUTES.BLOG} className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
+      <LocalizedLink to={fromCategory ? `/blog/category/${fromCategory}` : ROUTES.BLOG} className="flex items-center gap-2 text-slate-400 hover:text-purple-300 mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         {t('blog.BlogPost.back_to_blog', 'Back to Blog')}
       </LocalizedLink>

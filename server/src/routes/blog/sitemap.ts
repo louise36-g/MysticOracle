@@ -178,10 +178,16 @@ router.get('/sitemap.xml', async (req, res) => {
 `;
     }
 
-    // Add category pages
+    // Add category pages (both EN and FR)
     for (const cat of categories) {
       xml += `  <url>
-    <loc>${baseUrl}/blog?category=${cat.slug}</loc>
+    <loc>${baseUrl}/blog/category/${cat.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/fr/blog/category/${cat.slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

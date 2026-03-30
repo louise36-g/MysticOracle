@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LocalizedLink from '../../LocalizedLink';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Eye, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
 import { BlogPost as BlogPostType } from '../../../services/api';
@@ -34,14 +35,14 @@ export const BlogHeader: React.FC<BlogHeaderProps> = ({
       {/* Categories */}
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         {post.categories.map((cat) => (
-          <Link
+          <LocalizedLink
             key={cat.id}
-            to={`${ROUTES.BLOG}?category=${cat.slug}`}
+            to={`/blog/category/${cat.slug}`}
             className="px-3 py-1 rounded-full text-sm font-medium hover:opacity-80 transition-opacity"
             style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
           >
             {language === 'en' ? cat.nameEn : cat.nameFr}
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
 

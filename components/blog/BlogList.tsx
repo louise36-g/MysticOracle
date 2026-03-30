@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import {
@@ -54,11 +54,24 @@ interface DisplayArticle {
 
 const BlogList: React.FC = () => {
   const { language, t } = useApp();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { slug: categoryParam } = useParams<{ slug?: string }>();
+  const [searchParams] = useSearchParams();
 
-  // Get filters from URL params
-  const categoryFromUrl = searchParams.get('category') || '';
+  // Support both clean paths (/blog/category/slug) and legacy query params (?category=slug)
+  const legacyCategory = searchParams.get('category') || '';
+  const categoryFromUrl = categoryParam || legacyCategory;
   const searchQuery = searchParams.get('q') || '';
+
+  // Redirect legacy ?category= to clean URL
+  useEffect(() => {
+    if (legacyCategory) {
+      const path = language === 'fr'
+        ? `/fr/blog/category/${legacyCategory}`
+        : `/blog/category/${legacyCategory}`;
+      navigate(path, { replace: true });
+    }
+  }, [legacyCategory, language, navigate]);
 
   // SSR-lite: read embedded data to skip API fetches on pre-rendered page
   const embeddedData = useRef(getEmbeddedBlogListData());
@@ -177,9 +190,10 @@ const BlogList: React.FC = () => {
 
   const handleCategoryChange = (slug: string) => {
     if (slug) {
-      setSearchParams({ category: slug });
+      const path = language === 'fr' ? `/fr/blog/category/${slug}` : `/blog/category/${slug}`;
+      navigate(path);
     } else {
-      setSearchParams({});
+      navigate(language === 'fr' ? '/fr/blog' : '/blog');
     }
     setPage(1);
   };
@@ -190,7 +204,7 @@ const BlogList: React.FC = () => {
         <title>Mystic Insights Blog - CelestiArcana</title>
         <meta name="description" content="Explore the mystical world of tarot, astrology, and spiritual growth through curated articles on card meanings, spreads, and celestial guidance." />
       </Helmet>
-      <SEOTags path="/blog" />
+      <SEOTags path={categoryFromUrl ? `/blog/category/${categoryFromUrl}` : '/blog'} />
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-100 to-purple-300 mb-4">
