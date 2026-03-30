@@ -43,8 +43,14 @@ const CTA_DEFINITIONS: Record<string, { url: string; textEn: string; textFr: str
     textFr: 'Lisez Votre Horoscope du Jour',
     emoji: '⭐',
   },
+  'interpret': {
+    url: '/tarot-interpret',
+    textEn: 'Interpret Your Own Cards',
+    textFr: 'Interprétez Vos Propres Cartes',
+    emoji: '🃏',
+  },
   'birth-cards': {
-    url: '/reading/birth-cards/1',
+    url: '/tarot-card-reading/birth-cards/1',
     textEn: 'Discover Your Birth Cards',
     textFr: 'Découvrez Vos Cartes de Naissance',
     emoji: '🎂',
