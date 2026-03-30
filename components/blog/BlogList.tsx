@@ -107,6 +107,13 @@ const BlogList: React.FC = () => {
     () => hasEmbedded ? (embeddedData.current!.posts.pagination?.total || 0) : 0
   );
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
+
+  // Sync selectedCategory when URL changes (from navigation or back button)
+  useEffect(() => {
+    setSelectedCategory(categoryFromUrl);
+    setPage(1);
+  }, [categoryFromUrl]);
+
   const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>(
     () => hasEmbedded ? (embeddedData.current!.featured.posts || []) : []
   );
