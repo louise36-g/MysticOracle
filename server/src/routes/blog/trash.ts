@@ -18,7 +18,10 @@ const blogTrashConfig: TrashConfig = {
     prisma.blogPost.deleteMany({
       where: { deletedAt: { not: null } },
     }),
-  onAfterSoftDelete: async () => {
+  onAfterSoftDelete: async item => {
+    // Remove category/tag associations so empty categories can be deleted
+    await prisma.blogPostCategory.deleteMany({ where: { postId: item.id } });
+    await prisma.blogPostTag.deleteMany({ where: { postId: item.id } });
     await cacheService.flushPattern('blog:');
     await taxonomyService.invalidateAll();
   },
