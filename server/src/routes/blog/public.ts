@@ -93,6 +93,19 @@ router.get(
 
     if (filters.category) {
       where.categories = { some: { category: { slug: filters.category } } };
+
+      // If this is a parent category, exclude articles that also belong to a child category
+      // so the parent view only shows articles not in a more specific sub-category
+      const parentCat = await prisma.blogCategory.findUnique({
+        where: { slug: filters.category },
+        include: { children: { select: { id: true } } },
+      });
+      if (parentCat && parentCat.children.length > 0) {
+        const childIds = parentCat.children.map(c => c.id);
+        where.NOT = {
+          categories: { some: { categoryId: { in: childIds } } },
+        };
+      }
     }
     if (filters.tag) {
       where.tags = { some: { tag: { slug: filters.tag } } };

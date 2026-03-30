@@ -28,6 +28,7 @@ vi.mock('../../db/prisma.js', () => ({
     },
     blogCategory: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
     blogTag: {
       findMany: vi.fn(),
@@ -180,6 +181,11 @@ describe('Blog Public Routes', () => {
       mockedCache.get.mockResolvedValue(null);
       mockedPrisma.blogPost.findMany.mockResolvedValue([]);
       mockedPrisma.blogPost.count.mockResolvedValue(0);
+      mockedPrisma.blogCategory.findUnique.mockResolvedValue({
+        id: 'cat-1',
+        slug: 'tarot-guides',
+        children: [],
+      });
 
       await request(app).get('/blog/posts?category=tarot-guides');
 
