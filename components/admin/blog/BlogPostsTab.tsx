@@ -147,13 +147,19 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     }
   }, [getToken, statusFilter, search, categoryFilter, contentTypeFilter, onError]);
 
+  // Load posts when filters change or page changes
+  // Using refs for page/limit to avoid dependency cycles
+  const isInitialMount = useRef(true);
   useEffect(() => {
     loadPosts();
+    isInitialMount.current = false;
   }, [loadPosts]);
 
-  // Reload when page changes (page is tracked via ref to avoid the dependency cycle)
   useEffect(() => {
-    loadPosts();
+    // Skip on initial mount (loadPosts already called above)
+    if (!isInitialMount.current) {
+      loadPosts();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page]);
 

@@ -134,6 +134,8 @@ router.get(
           contentFr: true,
           schemaJson: true,
           schemaHtml: true,
+          faq: true,
+          cta: true,
         },
         include: includeCategoriesAndTags,
         orderBy,
