@@ -18,7 +18,7 @@ export default defineConfig(() => {
           includeAssets: ['logos/celestiarcana-moon.webp', 'background-celestiarcana.avif', 'background-celestiarcana.webp'],
           manifest: false, // Use existing public/manifest.json
           workbox: {
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2}'],
+            globPatterns: ['**/*.{js,css,ico,png,svg,webp,avif,woff,woff2}'],
             globIgnores: [
               '**/background-celestiarcana.png', // 2MB PNG excluded — AVIF/WebP are precached instead
               '**/Admin*.js',
@@ -33,6 +33,19 @@ export default defineConfig(() => {
             ],
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
             runtimeCaching: [
+              {
+                // HTML pages — always fetch from network, cache as fallback for offline
+                urlPattern: ({ request }) => request.mode === 'navigate',
+                handler: 'NetworkFirst',
+                options: {
+                  cacheName: 'html-cache',
+                  expiration: {
+                    maxEntries: 30,
+                    maxAgeSeconds: 60 * 60 * 24, // 1 day
+                  },
+                  networkTimeoutSeconds: 5,
+                },
+              },
               {
                 // API calls — network first, fall back to cache
                 urlPattern: /\/api\//,
@@ -61,8 +74,8 @@ export default defineConfig(() => {
             ],
             clientsClaim: true,
             skipWaiting: true,
-            navigateFallback: 'index.html',
-            navigateFallbackDenylist: [/^\/api/],
+            // No navigateFallback — use NetworkFirst runtime caching for navigation instead.
+            // This ensures users always get fresh HTML after deploys.
           },
         }),
         visualizer({

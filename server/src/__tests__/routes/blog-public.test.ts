@@ -85,6 +85,7 @@ const mockedPrisma = prisma as unknown as {
   };
   blogCategory: {
     findMany: Mock;
+    findUnique: Mock;
   };
   blogTag: {
     findMany: Mock;
