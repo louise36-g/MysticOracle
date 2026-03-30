@@ -30,7 +30,7 @@ interface SelectedCard {
   isReversed: boolean;
 }
 
-type Step = 'spread' | 'layout' | 'cards' | 'style' | 'question' | 'generating' | 'result';
+type Step = 'spread' | 'layout' | 'custom_labels' | 'cards' | 'style' | 'question' | 'generating' | 'result';
 
 // Spread configs for Interpret My Cards (1, 2, 3 card)
 const INTERPRET_SPREADS: { id: SpreadType; count: number; labelEn: string; labelFr: string; descEn: string; descFr: string }[] = [
@@ -134,6 +134,7 @@ const InterpretMyCards: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [savedReadingId, setSavedReadingId] = useState<string | null>(null);
+  const [customLabels, setCustomLabels] = useState<string[]>([]);
 
   // Rotate loading messages
   React.useEffect(() => {
@@ -166,6 +167,11 @@ const InterpretMyCards: React.FC = () => {
   const positionLabels = useMemo(() => {
     if (!selectedSpread || !spreadConfig) return undefined;
 
+    // Use custom labels if the custom layout is selected and labels are filled
+    if (selectedLayout === 'custom' && customLabels.length > 0 && customLabels.every(l => l.trim())) {
+      return customLabels;
+    }
+
     if (selectedSpread === SpreadType.TWO_CARD && selectedLayout) {
       const layout = TWO_CARD_LAYOUTS[selectedLayout as TwoCardLayoutId];
       if (layout) return language === 'fr' ? layout.positions.fr : layout.positions.en;
@@ -177,7 +183,7 @@ const InterpretMyCards: React.FC = () => {
     }
 
     return language === 'fr' ? spreadConfig.positionMeaningsFr : spreadConfig.positionMeaningsEn;
-  }, [selectedSpread, selectedLayout, spreadConfig, language]);
+  }, [selectedSpread, selectedLayout, spreadConfig, language, customLabels]);
 
   // Available layouts for 2-card and 3-card spreads
   const availableLayouts = useMemo(() => {
@@ -191,7 +197,7 @@ const InterpretMyCards: React.FC = () => {
         'situation_action_outcome',
         'mind_body_spirit',
         'challenge_support_growth',
-        'option_a_b_guidance',
+        'custom',
       ];
       return layoutIds.map(id => THREE_CARD_LAYOUTS[id]);
     }
@@ -216,8 +222,15 @@ const InterpretMyCards: React.FC = () => {
   // Handle layout selection
   const handleSelectLayout = useCallback((layoutId: string) => {
     setSelectedLayout(layoutId);
-    setStep('question');
-  }, []);
+    if (layoutId === 'custom') {
+      // Initialize empty labels for the number of cards
+      const count = selectedSpread === SpreadType.TWO_CARD ? 2 : 3;
+      setCustomLabels(Array(count).fill(''));
+      setStep('custom_labels');
+    } else {
+      setStep('question');
+    }
+  }, [selectedSpread]);
 
   // Handle proceeding from question to cards
   const handleQuestionComplete = useCallback(() => {
@@ -307,8 +320,13 @@ const InterpretMyCards: React.FC = () => {
       case 'layout':
         setStep('spread');
         break;
+      case 'custom_labels':
+        setStep('layout');
+        break;
       case 'question':
-        if (needsLayout) {
+        if (selectedLayout === 'custom') {
+          setStep('custom_labels');
+        } else if (needsLayout) {
           setStep('layout');
         } else {
           setStep('spread');
@@ -486,6 +504,57 @@ const InterpretMyCards: React.FC = () => {
                   </button>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* STEP: Custom position labels */}
+          {step === 'custom_labels' && (
+            <motion.div
+              key="custom_labels"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4"
+            >
+              <h2 className="text-base font-medium text-white">
+                {language === 'fr' ? 'Nommez vos positions' : 'Name your card positions'}
+              </h2>
+              <p className="text-xs text-white/85">
+                {language === 'fr'
+                  ? 'Donnez un rôle à chaque carte. Par exemple : « Ce que je ressens », « Ce dont ce sentiment a besoin », « Prochaine étape ».'
+                  : 'Give each card a role. For example: "What I\'m feeling", "What this feeling needs", "Next step".'}
+              </p>
+              <div className="space-y-3">
+                {customLabels.map((label, i) => (
+                  <div key={i}>
+                    <label className="text-xs text-purple-300 mb-1 block">
+                      {language === 'fr' ? `Carte ${i + 1}` : `Card ${i + 1}`}
+                    </label>
+                    <input
+                      type="text"
+                      value={label}
+                      onChange={(e) => {
+                        const updated = [...customLabels];
+                        updated[i] = e.target.value;
+                        setCustomLabels(updated);
+                      }}
+                      placeholder={language === 'fr'
+                        ? ['Ce que je ressens', 'Ce dont ce sentiment a besoin', 'Prochaine étape'][i] || `Carte ${i + 1}`
+                        : ['What I\'m feeling', 'What this feeling needs', 'Next step'][i] || `Card ${i + 1}`
+                      }
+                      maxLength={50}
+                      className="w-full px-3 py-2 bg-slate-800/60 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:border-purple-500/50 focus:outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setStep('question')}
+                disabled={!customLabels.every(l => l.trim())}
+                className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                {language === 'fr' ? 'Continuer' : 'Continue'}
+              </button>
             </motion.div>
           )}
 

@@ -7,7 +7,8 @@ export type TwoCardLayoutId =
   | 'light_shadow'
   | 'question_answer'
   | 'inner_outer'
-  | 'for_and_against';
+  | 'for_and_against'
+  | 'custom';
 
 export interface TwoCardLayout {
   id: TwoCardLayoutId;
@@ -139,6 +140,21 @@ export const TWO_CARD_LAYOUTS: Record<TwoCardLayoutId, TwoCardLayout> = {
       fr: ['Pour', 'Contre'],
     },
   },
+  custom: {
+    id: 'custom',
+    labelEn: 'Your Layout',
+    labelFr: 'Votre Tirage',
+    taglineEn: 'Define your own card positions. Name each card\'s role to match the question you had in mind.',
+    taglineFr: 'Définissez vos propres positions. Nommez le rôle de chaque carte selon la question que vous aviez en tête.',
+    positions: {
+      en: ['Card 1', 'Card 2'],
+      fr: ['Carte 1', 'Carte 2'],
+    },
+    shortPositions: {
+      en: ['Card 1', 'Card 2'],
+      fr: ['Carte 1', 'Carte 2'],
+    },
+  },
 };
 
 // Suggested questions per layout (3 per layout)
@@ -177,5 +193,10 @@ export const TWO_CARD_LAYOUT_QUESTIONS: Record<TwoCardLayoutId, TwoCardQuestion[
     { id: 'tc_fa1', textEn: 'What energies support and resist this decision?', textFr: 'Quelles énergies soutiennent et résistent à cette décision ?' },
     { id: 'tc_fa2', textEn: 'What is working for me and what is working against me right now?', textFr: 'Qu\'est-ce qui joue en ma faveur et qu\'est-ce qui joue contre moi en ce moment ?' },
     { id: 'tc_fa3', textEn: 'What forces are pulling me forward and what is holding me back?', textFr: 'Quelles forces me tirent en avant et qu\'est-ce qui me retient ?' },
+  ],
+  custom: [
+    { id: 'tc_cu1', textEn: 'What do I need to understand about this situation?', textFr: 'Que dois-je comprendre de cette situation ?' },
+    { id: 'tc_cu2', textEn: 'What is my heart telling me and what is my head telling me?', textFr: 'Que me dit mon cœur et que me dit ma tête ?' },
+    { id: 'tc_cu3', textEn: 'What do I need to let go of and what do I need to embrace?', textFr: 'De quoi dois-je me libérer et qu\'est-ce que je dois accueillir ?' },
   ],
 };

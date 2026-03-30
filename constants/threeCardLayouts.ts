@@ -15,7 +15,8 @@ export type ThreeCardLayoutId =
   | 'inner_child_money'
   | 'inner_child_life_path'
   | 'inner_child_growth'
-  | 'the_circle';
+  | 'the_circle'
+  | 'custom';
 
 export interface ThreeCardLayout {
   id: ThreeCardLayoutId;
@@ -245,6 +246,21 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
     shortPositions: {
       en: ['My Role', 'Their Role', 'Balance'],
       fr: ['Mon rôle', 'Leur rôle', 'Équilibre'],
+    },
+  },
+  custom: {
+    id: 'custom',
+    labelEn: 'Your Layout',
+    labelFr: 'Votre Tirage',
+    taglineEn: 'Define your own card positions. Name each card\'s role to match the question you had in mind.',
+    taglineFr: 'Définissez vos propres positions. Nommez le rôle de chaque carte selon la question que vous aviez en tête.',
+    positions: {
+      en: ['Card 1', 'Card 2', 'Card 3'],
+      fr: ['Carte 1', 'Carte 2', 'Carte 3'],
+    },
+    shortPositions: {
+      en: ['Card 1', 'Card 2', 'Card 3'],
+      fr: ['Carte 1', 'Carte 2', 'Carte 3'],
     },
   },
 };
