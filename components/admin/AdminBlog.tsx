@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import {
@@ -24,6 +24,12 @@ const AdminBlog: React.FC = () => {
   const { getToken } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('posts');
 
+  // Stable ref for getToken — Clerk's getToken changes reference on auth
+  // state updates, which would recreate every callback and cause BlogPostsTab
+  // to re-render constantly (flickering titles, unresponsive edit buttons).
+  const getTokenRef = useRef(getToken);
+  getTokenRef.current = getToken;
+
   // Shared state
   const [error, setError] = useState<string | null>(null);
   const [trashCount, setTrashCount] = useState(0);
@@ -39,21 +45,21 @@ const AdminBlog: React.FC = () => {
     onConfirm: () => {},
   });
 
-  // Reload functions for cross-tab updates
+  // Reload functions for cross-tab updates (use getTokenRef to keep stable)
   const loadCategories = useCallback(async () => {
-    const token = await getToken();
+    const token = await getTokenRef.current();
     if (token) await fetchUnifiedCategories(token);
-  }, [getToken]);
+  }, []);
 
   const loadTags = useCallback(async () => {
-    const token = await getToken();
+    const token = await getTokenRef.current();
     if (token) await fetchUnifiedTags(token);
-  }, [getToken]);
+  }, []);
 
   const loadMedia = useCallback(async () => {
-    const token = await getToken();
+    const token = await getTokenRef.current();
     if (token) await fetchAdminBlogMedia(token);
-  }, [getToken]);
+  }, []);
 
   const loadPosts = useCallback(async () => {
     // This triggers a refresh of BlogPostsTab
@@ -61,12 +67,12 @@ const AdminBlog: React.FC = () => {
   }, []);
 
   const loadTrash = useCallback(async () => {
-    const token = await getToken();
+    const token = await getTokenRef.current();
     if (token) {
       const result = await fetchAdminBlogPosts(token, { deleted: true });
       setTrashCount(result.pagination.total);
     }
-  }, [getToken]);
+  }, []);
 
   const showConfirmModal = useCallback(
     (config: Omit<ConfirmModalState, 'show'>) => {

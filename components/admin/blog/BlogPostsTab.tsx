@@ -65,7 +65,7 @@ interface BlogPostsTabProps {
   onError: (error: string | null) => void;
 }
 
-const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
+const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   onLoadCategories,
   onLoadTags,
   onLoadTrash,
@@ -137,7 +137,13 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     }
   }, [getTokenWithTimeout]);
 
+  // Track whether a fetch is already in flight to prevent overlapping calls
+  const fetchInFlight = useRef(false);
+
   const loadPosts = useCallback(async () => {
+    // Prevent overlapping fetches (parent re-renders can re-trigger the effect)
+    if (fetchInFlight.current) return;
+    fetchInFlight.current = true;
     try {
       setLoading(true);
       const token = await getTokenWithTimeout();
@@ -153,12 +159,22 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       });
 
       setPosts(result.posts);
-      setPagination(result.pagination);
+      // Only update pagination fields that matter for UI, avoid creating
+      // new object references when values haven't changed
+      setPagination(prev => {
+        const next = result.pagination;
+        if (prev.page === next.page && prev.limit === next.limit &&
+            prev.total === next.total && prev.totalPages === next.totalPages) {
+          return prev; // same values → same reference → no re-render
+        }
+        return next;
+      });
       onError(null);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Failed to load posts');
     } finally {
       setLoading(false);
+      fetchInFlight.current = false;
     }
     // pagination.page is a primitive — safe as dependency.
     // setPagination(response) won't re-trigger if page value is unchanged.
@@ -740,6 +756,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default BlogPostsTab;
