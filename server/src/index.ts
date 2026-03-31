@@ -348,8 +348,8 @@ v1Router.use('/year-energy', yearEnergyRoutes);
 v1Router.use('/internal-links', internalLinksRoutes);
 v1Router.use('/yes-no', yesNoRoutes);
 
-// Authenticated routes — light rate limiting (Clerk auth is the real gate)
-v1Router.use('/users', generalLimiter, userRoutes);
+// User profile — no rate limiting (Clerk auth required, called on every page load)
+v1Router.use('/users', userRoutes);
 v1Router.use('/readings', strictLimiter, readingRoutes);
 v1Router.use('/payments', paymentLimiter, paymentRoutes);
 v1Router.use('/admin', adminRoutes);
