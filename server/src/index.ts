@@ -74,15 +74,8 @@ const strictLimiter = rateLimit({
   ...proxyValidation,
 });
 
-const adminLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 200, // Higher limit for admin operations
-  message: { error: 'Admin rate limit exceeded, please slow down.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: () => isDev,
-  ...proxyValidation,
-});
+// Admin routes are protected by Clerk auth — no Express rate limiting needed.
+// Cloudflare handles DDoS at the edge.
 
 // Import routes
 import healthRoutes from './routes/health.js';
@@ -355,13 +348,13 @@ v1Router.use('/year-energy', yearEnergyRoutes);
 v1Router.use('/internal-links', internalLinksRoutes);
 v1Router.use('/yes-no', yesNoRoutes);
 
-// Authenticated/sensitive routes — rate-limited
+// Authenticated routes — light rate limiting (Clerk auth is the real gate)
 v1Router.use('/users', generalLimiter, userRoutes);
 v1Router.use('/readings', strictLimiter, readingRoutes);
 v1Router.use('/payments', paymentLimiter, paymentRoutes);
-v1Router.use('/admin', adminLimiter, adminRoutes);
-v1Router.use('/admin/prompts', adminLimiter, promptRoutes);
-v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
+v1Router.use('/admin', adminRoutes);
+v1Router.use('/admin/prompts', promptRoutes);
+v1Router.use('/taxonomy', taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
 v1Router.use('/contact', strictLimiter, contactRoutes);
 
