@@ -15,14 +15,19 @@ const RETRY_CONFIG = {
   maxRetries: 3,
   baseDelayMs: 1000,
   maxDelayMs: 10000,
+  requestTimeoutMs: 30000, // Abort requests that hang longer than 30 seconds
 };
 
 /**
- * Check if an error is retryable (network errors, 5xx server errors)
+ * Check if an error is retryable (network errors, timeouts, 5xx server errors)
  */
 function isRetryableError(error: unknown, status?: number): boolean {
   // Network errors
   if (error instanceof TypeError && error.message.includes('fetch')) {
+    return true;
+  }
+  // Request timeout (AbortController)
+  if (error instanceof DOMException && error.name === 'AbortError') {
     return true;
   }
   // Server errors (5xx)
@@ -115,12 +120,22 @@ export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}):
 
       const fullUrl = `${API_URL}${endpoint}`;
 
-      const response = await fetch(fullUrl, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined,
-        credentials: 'include',
-      });
+      // Abort requests that hang too long (dead TCP connections, server stalls)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), RETRY_CONFIG.requestTimeoutMs);
+
+      let response: Response;
+      try {
+        response = await fetch(fullUrl, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          credentials: 'include',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       lastStatus = response.status;
 

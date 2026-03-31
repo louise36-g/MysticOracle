@@ -207,11 +207,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Request timeout middleware (prevents hanging requests)
+// Request timeout middleware (terminates hanging requests)
 app.use((req, res, next) => {
   const timeout = req.path.includes('/ai') || req.path.includes('/readings') ? 60000 : 30000;
   req.setTimeout(timeout);
-  res.setTimeout(timeout);
+  const timer = setTimeout(() => {
+    if (!res.headersSent) {
+      logger.warn(`[Timeout] ${req.method} ${req.path} exceeded ${timeout}ms`);
+      res.status(504).json({ error: 'Request timed out. Please try again.' });
+    }
+  }, timeout);
+  res.on('finish', () => clearTimeout(timer));
   next();
 });
 
