@@ -46,19 +46,9 @@ export default defineConfig(() => {
                   networkTimeoutSeconds: 5,
                 },
               },
-              {
-                // API calls — network first, fall back to cache
-                urlPattern: /\/api\//,
-                handler: 'NetworkFirst',
-                options: {
-                  cacheName: 'api-cache',
-                  expiration: {
-                    maxEntries: 50,
-                    maxAgeSeconds: 60 * 60, // 1 hour
-                  },
-                  networkTimeoutSeconds: 10,
-                },
-              },
+              // API calls are NOT cached by the service worker.
+              // All API calls are cross-origin (api.celestiarcana.com) and
+              // caching them causes stale auth responses and hanging admin requests.
               {
                 // Static image assets — cache first
                 urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
