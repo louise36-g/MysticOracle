@@ -8,8 +8,16 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Append statement_timeout to the connection string so PostgreSQL enforces it
+// at the session level. This prevents queries from hanging on stale/dead TCP
+// connections (~11 min OS-level keepalive wait). Using connection options instead
+// of pool.on('connect') avoids the deprecated "query during query" conflict
+// with PrismaPg adapter.
+const dbUrl = new URL(process.env.DATABASE_URL || '');
+dbUrl.searchParams.set('statement_timeout', '15000');
+
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl.toString(),
   ssl: { rejectUnauthorized: false },
   max: 10,
   min: 2,
@@ -19,13 +27,6 @@ const pool = new pg.Pool({
   // Prevent Render from silently dropping idle connections
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
-});
-
-// Set statement_timeout on every new connection so queries can't hang forever.
-// Without this, a query on a stale/dead TCP connection waits until OS-level
-// keepalive detects the failure (~11 minutes on Linux defaults).
-pool.on('connect', client => {
-  client.query('SET statement_timeout = 15000').catch(() => {});
 });
 
 // Log pool errors — prevents silent connection leaks.

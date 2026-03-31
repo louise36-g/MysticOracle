@@ -104,17 +104,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     })
   );
 
-  const loadCategories = useCallback(async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-      const result = await fetchUnifiedCategories(token);
-      setCategories(result.categories);
-    } catch (err) {
-      console.error('Failed to load categories:', err);
-    }
-  }, [getToken]);
-
   // Use refs for page/limit to avoid dependency cycle
   // (setPagination creates a new object → invalidates useCallback → triggers useEffect → loop)
   const pageRef = useRef(pagination.page);
@@ -127,12 +116,33 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
 
+  // Wrapper: getToken with a 10-second timeout to prevent infinite hangs
+  const getTokenWithTimeout = useCallback(async (): Promise<string | null> => {
+    return Promise.race([
+      getTokenRef.current(),
+      new Promise<null>((_, reject) =>
+        setTimeout(() => reject(new Error('Clerk getToken timed out after 10s — try refreshing the page')), 10000)
+      ),
+    ]);
+  }, []);
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const token = await getTokenWithTimeout();
+      if (!token) return;
+      const result = await fetchUnifiedCategories(token);
+      setCategories(result.categories);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  }, [getTokenWithTimeout]);
+
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       console.log('[BlogAdmin] loadPosts called, requesting token...');
       const t0 = performance.now();
-      const token = await getTokenRef.current();
+      const token = await getTokenWithTimeout();
       console.log('[BlogAdmin] getToken resolved in', Math.round(performance.now() - t0), 'ms, token:', token ? 'yes' : 'null');
       if (!token) return;
 
