@@ -639,6 +639,13 @@ async function prerenderBlogListPage(template) {
     }
 
     const total = postsData.pagination?.total || posts.length;
+    // Build category pill links (work without JS via plain <a> tags)
+    const categories = (catsData.categories || []).filter(c => !c.parentId && (c.postCount > 0 || (c.children || []).some(ch => ch.postCount > 0)));
+    let categoryPillsHtml = `<a href="/blog" style="display:inline-block;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:500;background:#7c3aed;color:#fff;text-decoration:none;margin:0.25rem">All</a>`;
+    for (const cat of categories) {
+      categoryPillsHtml += `<a href="/blog/category/${cat.slug}" style="display:inline-block;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:500;background:rgba(30,41,59,0.6);color:#cbd5e1;text-decoration:none;border:1px solid rgba(168,85,247,0.2);margin:0.25rem">${escapeHtml(cat.nameEn)}</a>`;
+    }
+
     const blogShell = `<main style="position:relative;z-index:10;flex:1">
       <div style="max-width:80rem;margin:0 auto;padding:3rem 1rem">
         <div style="text-align:center;margin-bottom:3rem">
@@ -647,8 +654,11 @@ async function prerenderBlogListPage(template) {
           </h1>
           <p style="font-size:1.125rem;color:#94a3b8;max-width:42rem;margin:0 auto">Explore the mystical world of tarot, astrology, and spiritual growth through our curated articles.</p>
         </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:2rem;justify-content:center">
+          ${categoryPillsHtml}
+        </div>
         <div style="margin-bottom:1.5rem">
-          <h2 style="font-family:'Cinzel',serif;font-size:1.5rem;color:#e9d5ff;margin:0 0 1.5rem">All Articles <span style="color:#64748b;font-size:1.125rem">(${total})</span></h2>
+          <h2 style="font-family:'Cinzel',serif;font-size:1.5rem;color:#e9d5ff;margin:0 0 1.5rem">Latest Articles <span style="color:#64748b;font-size:1.125rem">(${total})</span></h2>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center">
           ${cardsHtml}
@@ -725,6 +735,12 @@ async function prerenderBlogListPage(template) {
         </a>`;
       }
 
+      // Build French category pill links
+      let frCategoryPillsHtml = `<a href="/fr/blog" style="display:inline-block;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:500;background:#7c3aed;color:#fff;text-decoration:none;margin:0.25rem">Tous</a>`;
+      for (const cat of categories) {
+        frCategoryPillsHtml += `<a href="/fr/blog/category/${cat.slug}" style="display:inline-block;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:500;background:rgba(30,41,59,0.6);color:#cbd5e1;text-decoration:none;border:1px solid rgba(168,85,247,0.2);margin:0.25rem">${escapeHtml(cat.nameFr || cat.nameEn)}</a>`;
+      }
+
       const frBlogShell = `<main style="position:relative;z-index:10;flex:1">
       <div style="max-width:80rem;margin:0 auto;padding:3rem 1rem">
         <div style="text-align:center;margin-bottom:3rem">
@@ -733,8 +749,11 @@ async function prerenderBlogListPage(template) {
           </h1>
           <p style="font-size:1.125rem;color:#94a3b8;max-width:42rem;margin:0 auto">Explorez le monde mystique du tarot, de l'astrologie et de la croissance spirituelle à travers nos articles.</p>
         </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:2rem;justify-content:center">
+          ${frCategoryPillsHtml}
+        </div>
         <div style="margin-bottom:1.5rem">
-          <h2 style="font-family:'Cinzel',serif;font-size:1.5rem;color:#e9d5ff;margin:0 0 1.5rem">Tous les Articles <span style="color:#64748b;font-size:1.125rem">(${total})</span></h2>
+          <h2 style="font-family:'Cinzel',serif;font-size:1.5rem;color:#e9d5ff;margin:0 0 1.5rem">Derniers Articles <span style="color:#64748b;font-size:1.125rem">(${total})</span></h2>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center">
           ${frCardsHtml}
