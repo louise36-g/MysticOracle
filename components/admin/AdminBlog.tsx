@@ -74,6 +74,9 @@ const AdminBlog: React.FC = () => {
     }
   }, []);
 
+  // Stable getToken wrapper — never changes reference, always calls latest Clerk getToken
+  const stableGetToken = useCallback(async () => getTokenRef.current(), []);
+
   const handleShowImportModal = useCallback(() => setShowImportModal(true), []);
   const handleShowTarotImportModal = useCallback(() => setShowTarotImportModal(true), []);
 
@@ -141,6 +144,7 @@ const AdminBlog: React.FC = () => {
       {activeTab === 'posts' && (
         <BlogPostsTab
           key={postsRefreshKey}
+          getToken={stableGetToken}
           onLoadCategories={loadCategories}
           onLoadTags={loadTags}
           onLoadTrash={loadTrash}

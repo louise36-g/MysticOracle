@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../../context/AppContext';
 import {
   fetchAdminBlogPosts,
@@ -51,6 +50,7 @@ import { formatDateLocale } from '../../../utils/dateFormatters';
 import { optimizeCloudinaryUrl } from '../../../utils/cloudinaryUrl';
 
 interface BlogPostsTabProps {
+  getToken: () => Promise<string | null>;
   onLoadCategories: () => Promise<void>;
   onLoadTags: () => Promise<void>;
   onLoadTrash: () => Promise<void>;
@@ -66,6 +66,7 @@ interface BlogPostsTabProps {
 }
 
 const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
+  getToken,
   onLoadCategories,
   onLoadTags,
   onLoadTrash,
@@ -75,7 +76,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   onError,
 }) => {
   const { language } = useApp();
-  const { getToken } = useAuth();
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
@@ -111,31 +111,19 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   pageRef.current = pagination.page;
   limitRef.current = pagination.limit;
 
-  // Use ref for getToken to avoid infinite re-render loop
-  // (Clerk's getToken can change reference on auth state updates)
-  const getTokenRef = useRef(getToken);
-  getTokenRef.current = getToken;
-
-  // Wrapper: getToken with a 10-second timeout to prevent infinite hangs
-  const getTokenWithTimeout = useCallback(async (): Promise<string | null> => {
-    return Promise.race([
-      getTokenRef.current(),
-      new Promise<null>((_, reject) =>
-        setTimeout(() => reject(new Error('Clerk getToken timed out after 10s — try refreshing the page')), 10000)
-      ),
-    ]);
-  }, []);
+  // getToken prop is a stable reference from AdminBlog (never changes).
+  // No need for refs or timeout wrappers.
 
   const loadCategories = useCallback(async () => {
     try {
-      const token = await getTokenWithTimeout();
+      const token = await getToken();
       if (!token) return;
       const result = await fetchUnifiedCategories(token);
       setCategories(result.categories);
     } catch (err) {
       console.error('Failed to load categories:', err);
     }
-  }, [getTokenWithTimeout]);
+  }, [getToken]);
 
   // Track whether a fetch is already in flight to prevent overlapping calls
   const fetchInFlight = useRef(false);
@@ -146,7 +134,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
     fetchInFlight.current = true;
     try {
       setLoading(true);
-      const token = await getTokenWithTimeout();
+      const token = await getToken();
       if (!token) return;
 
       const result = await fetchAdminBlogPosts(token, {
@@ -178,7 +166,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
     }
     // pagination.page is a primitive — safe as dependency.
     // setPagination(response) won't re-trigger if page value is unchanged.
-  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError, pagination.page, getTokenWithTimeout]);
+  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError, pagination.page, getToken]);
 
   // Single effect: fires on mount and whenever filters or page change
   useEffect(() => {
