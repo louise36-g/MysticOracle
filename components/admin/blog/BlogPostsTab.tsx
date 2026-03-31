@@ -140,51 +140,34 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('[BlogAdmin] loadPosts called, requesting token...');
-      const t0 = performance.now();
       const token = await getTokenWithTimeout();
-      console.log('[BlogAdmin] getToken resolved in', Math.round(performance.now() - t0), 'ms, token:', token ? 'yes' : 'null');
       if (!token) return;
 
-      const params = {
+      const result = await fetchAdminBlogPosts(token, {
         page: pageRef.current,
         limit: limitRef.current,
         status: statusFilter || undefined,
         search: search || undefined,
         category: categoryFilter || undefined,
         contentType: contentTypeFilter || undefined,
-      };
-      console.log('[BlogAdmin] Fetching posts with params:', params);
-      const t1 = performance.now();
-      const result = await fetchAdminBlogPosts(token, params);
-      console.log('[BlogAdmin] Fetch completed in', Math.round(performance.now() - t1), 'ms, got', result.posts.length, 'posts');
+      });
 
       setPosts(result.posts);
       setPagination(result.pagination);
       onError(null);
     } catch (err) {
-      console.error('[BlogAdmin] loadPosts error:', err);
       onError(err instanceof Error ? err.message : 'Failed to load posts');
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError]);
+    // pagination.page is a primitive — safe as dependency.
+    // setPagination(response) won't re-trigger if page value is unchanged.
+  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError, pagination.page, getTokenWithTimeout]);
 
-  // Load posts when filters change or page changes
-  // Using refs for page/limit to avoid dependency cycles
-  const isInitialMount = useRef(true);
+  // Single effect: fires on mount and whenever filters or page change
   useEffect(() => {
     loadPosts();
-    isInitialMount.current = false;
   }, [loadPosts]);
-
-  useEffect(() => {
-    // Skip on initial mount (loadPosts already called above)
-    if (!isInitialMount.current) {
-      loadPosts();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page]);
 
   useEffect(() => {
     loadCategories();
