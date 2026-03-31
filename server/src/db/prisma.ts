@@ -28,4 +28,11 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
+// Keep the connection pool warm — Render suspends idle connections,
+// causing 3+ second cold starts on the first query after inactivity.
+// A lightweight ping every 30 seconds prevents this.
+setInterval(() => {
+  pool.query('SELECT 1').catch(() => {});
+}, 30_000);
+
 export default prisma;
