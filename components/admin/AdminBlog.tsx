@@ -144,6 +144,7 @@ const AdminBlog: React.FC = () => {
       {activeTab === 'posts' && (
         <BlogPostsTab
           key={postsRefreshKey}
+          language={language}
           getToken={stableGetToken}
           onLoadCategories={loadCategories}
           onLoadTags={loadTags}

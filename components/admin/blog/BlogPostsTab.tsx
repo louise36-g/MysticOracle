@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useApp } from '../../../context/AppContext';
+import type { Language } from '../../../types';
 import {
   fetchAdminBlogPosts,
   fetchAdminBlogPost,
@@ -50,6 +50,7 @@ import { formatDateLocale } from '../../../utils/dateFormatters';
 import { optimizeCloudinaryUrl } from '../../../utils/cloudinaryUrl';
 
 interface BlogPostsTabProps {
+  language: Language;
   getToken: () => Promise<string | null>;
   onLoadCategories: () => Promise<void>;
   onLoadTags: () => Promise<void>;
@@ -66,6 +67,7 @@ interface BlogPostsTabProps {
 }
 
 const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
+  language,
   getToken,
   onLoadCategories,
   onLoadTags,
@@ -75,7 +77,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   onShowConfirmModal,
   onError,
 }) => {
-  const { language } = useApp();
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<UnifiedCategory[]>([]);
