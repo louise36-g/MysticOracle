@@ -74,6 +74,9 @@ const AdminBlog: React.FC = () => {
     }
   }, []);
 
+  const handleShowImportModal = useCallback(() => setShowImportModal(true), []);
+  const handleShowTarotImportModal = useCallback(() => setShowTarotImportModal(true), []);
+
   const showConfirmModal = useCallback(
     (config: Omit<ConfirmModalState, 'show'>) => {
       setConfirmModal({ ...config, show: true });
@@ -141,8 +144,8 @@ const AdminBlog: React.FC = () => {
           onLoadCategories={loadCategories}
           onLoadTags={loadTags}
           onLoadTrash={loadTrash}
-          onShowImportModal={() => setShowImportModal(true)}
-          onShowTarotImportModal={() => setShowTarotImportModal(true)}
+          onShowImportModal={handleShowImportModal}
+          onShowTarotImportModal={handleShowTarotImportModal}
           onShowConfirmModal={showConfirmModal}
           onError={setError}
         />
