@@ -122,10 +122,15 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
   pageRef.current = pagination.page;
   limitRef.current = pagination.limit;
 
+  // Use ref for getToken to avoid infinite re-render loop
+  // (Clerk's getToken can change reference on auth state updates)
+  const getTokenRef = useRef(getToken);
+  getTokenRef.current = getToken;
+
   const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await getToken();
+      const token = await getTokenRef.current();
       if (!token) return;
 
       const result = await fetchAdminBlogPosts(token, {
@@ -145,7 +150,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [getToken, statusFilter, search, categoryFilter, contentTypeFilter, onError]);
+  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError]);
 
   // Load posts when filters change or page changes
   // Using refs for page/limit to avoid dependency cycles
