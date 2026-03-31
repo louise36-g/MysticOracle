@@ -36,8 +36,8 @@ const proxyValidation = {
   // Use Cloudflare's CF-Connecting-IP header for the real client IP.
   // The request passes through 3 proxies (Cloudflare → Traefik → Caddy)
   // so X-Forwarded-For is unreliable. CF-Connecting-IP is always correct.
-  keyGenerator: (req: { ip: string; headers: Record<string, string | string[] | undefined> }) =>
-    (req.headers['cf-connecting-ip'] as string) || req.ip,
+  keyGenerator: (req: { ip?: string; headers: Record<string, string | string[] | undefined> }) =>
+    (req.headers['cf-connecting-ip'] as string) || req.ip || 'unknown',
 };
 const isDev = process.env.NODE_ENV === 'development';
 
