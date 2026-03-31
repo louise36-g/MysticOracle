@@ -26,10 +26,9 @@ export function initializeAnalytics(): void {
   // Initialize gtag - must match Google's expected format exactly
   window.dataLayer = window.dataLayer || [];
 
-  // Standard gtag implementation that pushes arguments directly
-  window.gtag = function(...args: unknown[]) {
-    window.dataLayer.push(args);
-  };
+  // Must use 'arguments' (not spread/rest args) — gtag.js expects Arguments objects
+  // eslint-disable-next-line prefer-rest-params
+  window.gtag = function() { window.dataLayer.push(arguments); };
 
   window.gtag('js', new Date());
   window.gtag('config', GA_MEASUREMENT_ID, {
