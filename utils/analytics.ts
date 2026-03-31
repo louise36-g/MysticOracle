@@ -54,6 +54,26 @@ export function disableAnalytics(): void {
 }
 
 /**
+ * Initialize analytics from stored cookie consent (if exists and valid).
+ * Called from the main bundle so GA fires immediately without waiting
+ * for the lazy-loaded CookieConsent component.
+ */
+export function initializeAnalyticsFromStoredConsent(): void {
+  if (gaInitialized || typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem('celestiarcana_cookie_consent');
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    const thirteenMonthsMs = 13 * 30 * 24 * 60 * 60 * 1000;
+    if (parsed.timestamp && Date.now() - parsed.timestamp < thirteenMonthsMs && parsed.analytics) {
+      initializeAnalytics();
+    }
+  } catch {
+    // Invalid stored consent — CookieConsent component will handle it when it loads
+  }
+}
+
+/**
  * Check consent and initialize/disable analytics accordingly
  */
 export function updateAnalyticsConsent(hasConsent: boolean): void {

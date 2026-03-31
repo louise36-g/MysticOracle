@@ -6,7 +6,7 @@ import Footer from '../Footer';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import Button from '../Button';
 import { useApp } from '../../context/AppContext';
-import { trackPageView } from '../../utils/analytics';
+import { trackPageView, initializeAnalyticsFromStoredConsent } from '../../utils/analytics';
 import { Coins, AlertTriangle, X } from 'lucide-react';
 
 // Lazy-load non-critical components to reduce initial bundle
@@ -32,6 +32,11 @@ function PageLoader() {
 export function RootLayout() {
   const { user, refreshUser, t } = useApp();
   const location = useLocation();
+
+  // Initialize GA immediately if user has previously consented (don't wait for lazy CookieConsent)
+  useEffect(() => {
+    initializeAnalyticsFromStoredConsent();
+  }, []);
 
   // Track page views on route changes (only if user consented to analytics)
   useEffect(() => {
