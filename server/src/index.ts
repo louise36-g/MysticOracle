@@ -264,8 +264,11 @@ app.use(
   express.static(path.join(process.cwd(), 'public', 'cards'))
 );
 
-// Apply general rate limiting to all routes (after static assets)
-app.use(generalLimiter);
+// Rate limiting is applied per-route group (not globally) because:
+// 1. Cloudflare handles DDoS protection at the edge
+// 2. Public read-only endpoints (blog, tarot, health) don't need rate limiting
+// 3. The CF-Connecting-IP header may not survive all proxy hops
+// Only sensitive endpoints (auth, payments, AI, admin) are rate-limited below.
 
 // Add middleware for API cache headers (before routes)
 app.use('/api', (req, res, next) => {
@@ -341,23 +344,26 @@ app.get('/api-docs.json', (req, res) => {
 
 // Register v1 routes (current API as v1)
 const v1Router = Router();
-// generalLimiter is already applied globally (line 268) — only add stricter limiters here
+
+// Public read-only routes — no rate limiting (Cloudflare handles DDoS at the edge)
 v1Router.use('/health', healthRoutes);
-v1Router.use('/users', userRoutes);
+v1Router.use('/blog', blogRoutes);
+v1Router.use('/tarot-articles', tarotArticleRoutes);
+v1Router.use('/horoscopes', horoscopeRoutes);
+v1Router.use('/translations', translationRoutes);
+v1Router.use('/year-energy', yearEnergyRoutes);
+v1Router.use('/internal-links', internalLinksRoutes);
+v1Router.use('/yes-no', yesNoRoutes);
+
+// Authenticated/sensitive routes — rate-limited
+v1Router.use('/users', generalLimiter, userRoutes);
 v1Router.use('/readings', strictLimiter, readingRoutes);
 v1Router.use('/payments', paymentLimiter, paymentRoutes);
 v1Router.use('/admin', adminLimiter, adminRoutes);
 v1Router.use('/admin/prompts', adminLimiter, promptRoutes);
-v1Router.use('/horoscopes', horoscopeRoutes);
-v1Router.use('/translations', translationRoutes);
-v1Router.use('/blog', blogRoutes);
-v1Router.use('/tarot-articles', tarotArticleRoutes);
 v1Router.use('/taxonomy', adminLimiter, taxonomyRoutes);
 v1Router.use('/ai', strictLimiter, aiRoutes);
-v1Router.use('/year-energy', yearEnergyRoutes);
-v1Router.use('/internal-links', internalLinksRoutes);
 v1Router.use('/contact', strictLimiter, contactRoutes);
-v1Router.use('/yes-no', yesNoRoutes);
 
 // Mount v1 at /api/v1
 app.use('/api/v1', v1Router);
