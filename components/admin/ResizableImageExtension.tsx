@@ -6,11 +6,12 @@ import {
   AlignCenter,
   AlignRight,
   Trash2,
+  RotateCcw,
 } from 'lucide-react';
 
 // Custom Image Component with resize handles and controls
 const ResizableImageComponent: React.FC<NodeViewProps> = ({ node, updateAttributes, deleteNode, selected }) => {
-  const { src, alt, title, width, align = 'center' } = node.attrs;
+  const { src, alt, title, width, align = 'center', reversed = false } = node.attrs;
   const [isResizing, setIsResizing] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -96,6 +97,10 @@ const ResizableImageComponent: React.FC<NodeViewProps> = ({ node, updateAttribut
       style.width = typeof width === 'number' ? `${width}px` : width;
     }
 
+    if (reversed) {
+      style.transform = 'rotate(180deg)';
+    }
+
     return style;
   };
 
@@ -163,6 +168,21 @@ const ResizableImageComponent: React.FC<NodeViewProps> = ({ node, updateAttribut
                   {size.label}
                 </button>
               ))}
+
+              <div className="w-px h-5 bg-slate-700 mx-1" />
+
+              {/* Reversed toggle */}
+              <button
+                onClick={() => updateAttributes({ reversed: !reversed })}
+                className={`p-1.5 rounded transition-colors ${
+                  reversed
+                    ? 'bg-amber-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                }`}
+                title={reversed ? 'Reversed (click to flip upright)' : 'Upright (click to flip reversed)'}
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
 
               <div className="w-px h-5 bg-slate-700 mx-1" />
 
@@ -241,6 +261,14 @@ const ResizableImage = Node.create({
       align: {
         default: 'center',
       },
+      reversed: {
+        default: false,
+        parseHTML: (element) => element.getAttribute('data-reversed') === 'true',
+        renderHTML: (attributes) => {
+          if (!attributes.reversed) return {};
+          return { 'data-reversed': 'true' };
+        },
+      },
     };
   },
 
@@ -264,6 +292,7 @@ const ResizableImage = Node.create({
             title: element.getAttribute('title'),
             width: parsedWidth || null,
             align: element.getAttribute('data-align') || 'center',
+            reversed: element.getAttribute('data-reversed') === 'true',
           };
         },
       },
@@ -271,17 +300,21 @@ const ResizableImage = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const { width, align, ...attrs } = HTMLAttributes;
+    const { width, align, reversed, ...attrs } = HTMLAttributes;
 
     // Don't add inline styles - let CSS handle sizing via data attributes
     // This prevents !important wars between editor and presentation styles
+    const classes = [`editor-image`, `align-${align}`];
+    if (reversed) classes.push('reversed');
+
     return [
       'img',
       mergeAttributes(attrs, {
         'data-width': width,
         'data-align': align,
+        ...(reversed ? { 'data-reversed': 'true' } : {}),
         loading: 'lazy',
-        class: `editor-image align-${align}`,
+        class: classes.join(' '),
       }),
     ];
   },

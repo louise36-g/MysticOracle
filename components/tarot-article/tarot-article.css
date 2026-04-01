@@ -368,6 +368,12 @@
   width: auto;
 }
 
+/* Reversed card images — rotated via editor toggle */
+.prose img.reversed,
+.prose img[data-reversed='true'] {
+  transform: rotate(180deg);
+}
+
 /* Center images with align-center class */
 .prose img.align-center,
 .prose .editor-image.align-center {

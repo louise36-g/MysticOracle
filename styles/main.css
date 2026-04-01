@@ -1039,6 +1039,12 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 /* Tarot card images in tarot article pages only - handled via TarotArticlePage CSS */
 /* Blog images are sized via JavaScript based on aspect ratio */
 
+/* Reversed card images — rotated via editor toggle */
+.prose img.reversed,
+.prose img[data-reversed='true'] {
+  transform: rotate(180deg);
+}
+
 /* Center images with align-center class */
 .prose img.align-center,
 .prose .editor-image.align-center {
