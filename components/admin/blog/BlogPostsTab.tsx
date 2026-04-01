@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { Language } from '../../../types';
 import {
   fetchAdminBlogPosts,
@@ -105,16 +105,6 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
     })
   );
 
-  // Use refs for page/limit to avoid dependency cycle
-  // (setPagination creates a new object → invalidates useCallback → triggers useEffect → loop)
-  const pageRef = useRef(pagination.page);
-  const limitRef = useRef(pagination.limit);
-  pageRef.current = pagination.page;
-  limitRef.current = pagination.limit;
-
-  // getToken prop is a stable reference from AdminBlog (never changes).
-  // No need for refs or timeout wrappers.
-
   const loadCategories = useCallback(async () => {
     try {
       const token = await getToken();
@@ -126,21 +116,15 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
     }
   }, [getToken]);
 
-  // Track whether a fetch is already in flight to prevent overlapping calls
-  const fetchInFlight = useRef(false);
-
   const loadPosts = useCallback(async () => {
-    // Prevent overlapping fetches (parent re-renders can re-trigger the effect)
-    if (fetchInFlight.current) return;
-    fetchInFlight.current = true;
     try {
       setLoading(true);
       const token = await getToken();
       if (!token) return;
 
       const result = await fetchAdminBlogPosts(token, {
-        page: pageRef.current,
-        limit: limitRef.current,
+        page: pagination.page,
+        limit: pagination.limit,
         status: statusFilter || undefined,
         search: search || undefined,
         category: categoryFilter || undefined,
@@ -148,26 +132,14 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
       });
 
       setPosts(result.posts);
-      // Only update pagination fields that matter for UI, avoid creating
-      // new object references when values haven't changed
-      setPagination(prev => {
-        const next = result.pagination;
-        if (prev.page === next.page && prev.limit === next.limit &&
-            prev.total === next.total && prev.totalPages === next.totalPages) {
-          return prev; // same values → same reference → no re-render
-        }
-        return next;
-      });
+      setPagination(result.pagination);
       onError(null);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Failed to load posts');
     } finally {
       setLoading(false);
-      fetchInFlight.current = false;
     }
-    // pagination.page is a primitive — safe as dependency.
-    // setPagination(response) won't re-trigger if page value is unchanged.
-  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError, pagination.page, getToken]);
+  }, [statusFilter, search, categoryFilter, contentTypeFilter, onError, pagination.page, pagination.limit, getToken]);
 
   // Single effect: fires on mount and whenever filters or page change
   useEffect(() => {
