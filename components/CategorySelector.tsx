@@ -13,7 +13,6 @@ import type { ReadingCategory } from '../types';
 import CreditShop from './CreditShop';
 import DepthVisual from './reading/DepthVisual';
 import { getTodaysQuote } from '../constants/dailyQuotes';
-import { useLocalizedPath } from '../hooks/useLocalizedPath';
 
 interface CategorySelectorProps {
   className?: string;
@@ -153,7 +152,6 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
   const quote = getTodaysQuote();
   const navigate = useNavigate();
   const location = useLocation();
-  const signInPath = useLocalizedPath('/sign-in');
   const locationState = location.state as LocationState | null;
 
   const [expandedCategory, setExpandedCategory] = useState<ReadingCategory | null>(null);
@@ -558,7 +556,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (!user) {
-                                    navigate(signInPath);
+                                    navigate('/sign-in');
                                   } else {
                                     setShowCreditShop(true);
                                   }
@@ -663,7 +661,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!user) {
-                                        navigate(signInPath);
+                                        navigate('/sign-in');
                                       } else {
                                         setShowCreditShop(true);
                                       }
