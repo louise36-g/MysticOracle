@@ -106,7 +106,8 @@ if (root) {
       <ClerkProvider
         publishableKey={PUBLISHABLE_KEY}
         afterSignOutUrl="/"
-        localization={detectLanguageFromPath(window.location.pathname) === 'fr'
+        localization={(detectLanguageFromPath(window.location.pathname) === 'fr'
+          || localStorage.getItem('celestiarcana-language') === 'fr')
           ? {
               ...frFR,
               unstable__errors: {
