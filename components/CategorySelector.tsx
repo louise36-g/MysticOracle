@@ -13,6 +13,7 @@ import type { ReadingCategory } from '../types';
 import CreditShop from './CreditShop';
 import DepthVisual from './reading/DepthVisual';
 import { getTodaysQuote } from '../constants/dailyQuotes';
+import { useLocalizedPath } from '../hooks/useLocalizedPath';
 
 interface CategorySelectorProps {
   className?: string;
@@ -152,6 +153,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
   const quote = getTodaysQuote();
   const navigate = useNavigate();
   const location = useLocation();
+  const signInPath = useLocalizedPath('/sign-in');
   const locationState = location.state as LocationState | null;
 
   const [expandedCategory, setExpandedCategory] = useState<ReadingCategory | null>(null);
@@ -499,14 +501,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                             stiffness: 300,
                             damping: 20
                           }}
-                          onClick={() => handleDepthSelect(category, depth)}
+                          onClick={() => canAfford && handleDepthSelect(category, depth)}
                           onMouseEnter={() => setHoveredDepth(depth.cards)}
                           onMouseLeave={() => setHoveredDepth(null)}
-                          disabled={!canAfford}
                           className={`
                             group relative p-3 rounded-xl border backdrop-blur-md
                             border-white/10 bg-white/5
-                            ${!canAfford ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+                            ${!canAfford ? 'opacity-40' : 'cursor-pointer'}
                           `}
                           whileHover={canAfford ? {
                             scale: 1.05,
@@ -557,7 +558,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (!user) {
-                                    navigate('/sign-in');
+                                    navigate(signInPath);
                                   } else {
                                     setShowCreditShop(true);
                                   }
@@ -615,8 +616,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                 stiffness: 300,
                                 damping: 20
                               }}
-                              onClick={() => handleDepthSelect(category, depth)}
-                              disabled={!canAfford}
+                              onClick={() => canAfford && handleDepthSelect(category, depth)}
                               className={`
                                 relative flex-shrink-0 w-[130px] p-3 rounded-xl border transition-all duration-200 backdrop-blur-md
                                 border-white/15 bg-white/5 active:bg-white/15 active:border-white/40
@@ -663,7 +663,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!user) {
-                                        navigate('/sign-in');
+                                        navigate(signInPath);
                                       } else {
                                         setShowCreditShop(true);
                                       }
