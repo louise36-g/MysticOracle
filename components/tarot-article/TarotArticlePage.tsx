@@ -90,6 +90,33 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { language, t } = useApp();
   const { getToken } = useAuth();
 
+  // Intercept internal link clicks for SPA navigation (back button support)
+  const handleContentClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a') as HTMLAnchorElement | null;
+    if (!anchor) return;
+
+    const href = anchor.getAttribute('href');
+    const targetAttr = anchor.getAttribute('target');
+
+    // Let external links open normally in new tab
+    if (targetAttr === '_blank') return;
+
+    // Internal links: use SPA navigation for back button support
+    if (href && href.startsWith('/')) {
+      e.preventDefault();
+      navigate(href);
+    }
+    // Absolute internal links (https://celestiarcana.com/...)
+    if (href && href.includes('celestiarcana.com')) {
+      try {
+        const url = new URL(href);
+        e.preventDefault();
+        navigate(url.pathname);
+      } catch { /* invalid URL, let browser handle */ }
+    }
+  }, [navigate]);
+
   // SSR-lite: check for pre-embedded article data on initial mount
   const hasEmbeddedData = useRef(false);
 
@@ -482,6 +509,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             >
               <div
                 className="max-w-none [&>h2]:text-2xl [&>h2]:md:text-3xl [&>h2]:font-heading [&>h2]:font-bold [&>h2]:text-purple-200 [&>h2]:mb-4 [&>p]:text-lg [&>p]:text-slate-300 [&>p]:leading-relaxed"
+                onClick={handleContentClick}
                 dangerouslySetInnerHTML={overviewHtmlProp}
               />
             </motion.div>
@@ -513,6 +541,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             <div
               ref={contentRef}
               className="prose prose-invert prose-purple max-w-none"
+              onClick={handleContentClick}
               dangerouslySetInnerHTML={contentHtmlProp}
             />
           </motion.div>

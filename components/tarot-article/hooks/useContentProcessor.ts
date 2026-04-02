@@ -14,7 +14,7 @@ const SANITIZE_CONFIG = {
   ALLOWED_ATTR: [
     'href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel',
     'width', 'height', 'loading', 'data-width', 'data-align', 'data-link-type',
-    'data-section-type', 'data-expanded', 'data-faq-index',
+    'data-section-type', 'data-expanded', 'data-faq-index', 'data-reversed',
     'viewBox', 'fill', 'd', 'xmlns', 'stroke', 'stroke-width',
   ],
   ADD_ATTR: ['target', 'rel'],
@@ -28,11 +28,15 @@ function processContent(html: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Make all links open in new tab
+  // External links open in new tab; internal links use SPA navigation
   const links = doc.querySelectorAll('a');
   links.forEach((link) => {
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener noreferrer');
+    const href = link.getAttribute('href') || '';
+    const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
+    if (!isInternal) {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    }
   });
 
   // Optimize Cloudinary images: add auto-format, compression, width limit, and lazy loading

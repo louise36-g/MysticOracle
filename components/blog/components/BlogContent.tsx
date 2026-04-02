@@ -64,19 +64,28 @@ export const BlogContent: React.FC<BlogContentProps> = ({
       return;
     }
 
-    // Handle link clicks
+    // Handle link clicks — use SPA navigation for internal links
     const anchor = target.closest('a') as HTMLAnchorElement | null;
     if (anchor) {
       const href = anchor.getAttribute('href');
       const targetAttr = anchor.getAttribute('target');
 
-      // Skip external links (target="_blank")
+      // Let external links open normally in new tab
       if (targetAttr === '_blank') return;
 
-      // Navigate internal links with SPA routing
+      // Relative internal links
       if (href && href.startsWith('/')) {
         e.preventDefault();
         navigate(href);
+        return;
+      }
+      // Absolute internal links (https://celestiarcana.com/...)
+      if (href && href.includes('celestiarcana.com')) {
+        try {
+          const url = new URL(href);
+          e.preventDefault();
+          navigate(url.pathname);
+        } catch { /* invalid URL, let browser handle */ }
       }
     }
   };
