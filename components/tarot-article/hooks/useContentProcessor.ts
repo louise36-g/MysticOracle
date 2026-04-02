@@ -146,6 +146,10 @@ function processContent(html: string): string {
             nextEl.classList?.contains('article-faq')) {
           break;
         }
+        // Stop before section dividers — they sit between sections, not inside
+        if (nextEl.classList?.contains('section-divider')) {
+          break;
+        }
         const next = nextEl.nextElementSibling;
         wrapper.appendChild(nextEl);
         nextEl = next;
