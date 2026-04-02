@@ -7,10 +7,43 @@ import { useApp } from '../context/AppContext';
 import { MAJOR_ARCANA } from '../constants';
 import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
-import { fetchTarotArticles, TarotArticle } from '../services/api/tarotArticles';
+import { fetchBlogPost } from '../services/api/blog';
 import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
+import { localizedPath } from '../utils/language';
 import Button from './Button';
+
+// Map Major Arcana card ID → astrology blog article slug
+const ASTROLOGY_SLUGS: Record<number, string> = {
+  0: 'tarot-astrology-the-fool-uranus-daily-energy',
+  1: 'tarot-astrology-the-magician-mercury-daily-energy',
+  2: 'tarot-astrology-the-high-priestess-the-moon-daily-energy',
+  3: 'tarot-astrology-the-empress-venus-daily-energy',
+  4: 'tarot-astrology-the-emperor-aries-daily-energy',
+  5: 'tarot-astrology-the-hierophant-taurus-daily-energy',
+  6: 'tarot-astrology-the-lovers-gemini-daily-energy',
+  7: 'tarot-astrology-the-chariot-cancer-daily-energy',
+  8: 'tarot-astrology-strength-leo-daily-energy',
+  9: 'tarot-astrology-the-hermit-virgo-daily-energy',
+  10: 'tarot-astrology-wheel-of-fortune-jupiter-daily-energy',
+  11: 'tarot-astrology-justice-libra-daily-energy',
+  12: 'tarot-astrology-the-hanged-man-neptune-daily-energy',
+  13: 'tarot-astrology-death-scorpio-daily-energy',
+  14: 'tarot-astrology-temperance-sagittarius-daily-energy',
+  15: 'tarot-astrology-the-devil-capricorn-daily-energy',
+  16: 'tarot-astrology-the-tower-mars-daily-energy',
+  17: 'tarot-astrology-the-star-aquarius-daily-energy',
+  18: 'tarot-astrology-the-moon-pisces-daily-energy',
+  19: 'tarot-astrology-the-sun-the-sun-daily-energy',
+  20: 'tarot-astrology-judgement-pluto-daily-energy',
+  21: 'tarot-astrology-the-world-saturn-daily-energy',
+};
+
+/** Extract first N <p> tags as plain text from HTML content */
+function extractParagraphs(html: string, count: number): string[] {
+  const matches = html.match(/<p[^>]*>.*?<\/p>/gs) || [];
+  return matches.slice(0, count).map(p => p.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+}
 
 
 type Phase = 'intro' | 'shuffling' | 'drawing' | 'revealed';
@@ -109,8 +142,8 @@ const DailyTarotEnergy: React.FC = () => {
   const [drawnCard, setDrawnCard] = useState<typeof MAJOR_ARCANA[0] | null>(null);
   const [isCardRevealed, setIsCardRevealed] = useState(false);
   const [articleUrl, setArticleUrl] = useState<string | null>(null);
+  const [astrologyExcerpt, setAstrologyExcerpt] = useState<string[]>([]);
   const [alreadyDrawnToday, setAlreadyDrawnToday] = useState(false);
-  const articlesCache = useRef<TarotArticle[]>([]);
 
   // On mount, check if user already drew today and restore that card
   useEffect(() => {
@@ -126,24 +159,21 @@ const DailyTarotEnergy: React.FC = () => {
     }
   }, []);
 
-  // Fetch Major Arcana tarot articles once
-  useEffect(() => {
-    fetchTarotArticles({ cardType: 'MAJOR_ARCANA', limit: 50 })
-      .then(res => { articlesCache.current = res.articles; })
-      .catch(() => { /* Non-blocking — link just won't appear */ });
-  }, []);
-
-  // When a card is revealed, find matching article
+  // When a card is revealed, fetch its astrology article for the excerpt + link
   useEffect(() => {
     if (!drawnCard || !isCardRevealed) return;
-    const cardNameLower = drawnCard.nameEn.toLowerCase();
-    const match = articlesCache.current.find(article => {
-      const titleLower = article.title.toLowerCase();
-      const slugLower = article.slug.toLowerCase();
-      return titleLower.includes(cardNameLower) || slugLower.includes(cardNameLower.replace(/\s+/g, '-'));
-    });
-    setArticleUrl(match ? `/tarot/${match.slug}` : null);
-  }, [drawnCard, isCardRevealed]);
+    const slug = ASTROLOGY_SLUGS[drawnCard.id];
+    if (!slug) return;
+    setArticleUrl(localizedPath(`/blog/${slug}`, language));
+    fetchBlogPost(slug)
+      .then(res => {
+        const content = language === 'fr' && res.post.contentFr
+          ? res.post.contentFr
+          : res.post.contentEn;
+        setAstrologyExcerpt(extractParagraphs(content, 2));
+      })
+      .catch(() => { /* Non-blocking */ });
+  }, [drawnCard, isCardRevealed, language]);
 
   // Shuffle animation cycling
   useEffect(() => {
@@ -567,12 +597,21 @@ const DailyTarotEnergy: React.FC = () => {
                     <p className="text-lg text-amber-300/90 font-medium mb-3">
                       {cardName}
                     </p>
-                    <p className="text-slate-300/80 text-sm leading-relaxed mb-6">
-                      {language === 'en'
-                        ? `The ${drawnCard.nameEn} carries the energy of ${drawnCard.keywordsEn.join(', ').toLowerCase()}. Let this archetype guide your awareness today — notice where its themes appear in your interactions, decisions, and reflections.`
-                        : `${drawnCard.nameFr} porte l'énergie de ${drawnCard.keywordsFr.join(', ').toLowerCase()}. Laissez cet archétype guider votre conscience aujourd'hui — remarquez où ses thèmes apparaissent dans vos interactions, décisions et réflexions.`
-                      }
-                    </p>
+                    {/* Astrology excerpt — first 2 paragraphs from the article */}
+                    {astrologyExcerpt.length > 0 ? (
+                      <div className="text-slate-300/80 text-sm leading-relaxed mb-6 space-y-3 text-left">
+                        {astrologyExcerpt.map((p, i) => (
+                          <p key={i}>{p}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-slate-300/80 text-sm leading-relaxed mb-6">
+                        {language === 'en'
+                          ? `The ${drawnCard.nameEn} carries the energy of ${drawnCard.keywordsEn.join(', ').toLowerCase()}. Let this archetype guide your awareness today — notice where its themes appear in your interactions, decisions, and reflections.`
+                          : `${drawnCard.nameFr} porte l'énergie de ${drawnCard.keywordsFr.join(', ').toLowerCase()}. Laissez cet archétype guider votre conscience aujourd'hui — remarquez où ses thèmes apparaissent dans vos interactions, décisions et réflexions.`
+                        }
+                      </p>
+                    )}
 
                     {/* Divider */}
                     <div className="flex items-center justify-center gap-4 mb-6">
@@ -581,16 +620,16 @@ const DailyTarotEnergy: React.FC = () => {
                       <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
                     </div>
 
-                    {/* CTA: Read the full article */}
+                    {/* CTA: See the full explanation on the astrology page */}
                     {articleUrl && (
                       <Link
                         to={articleUrl}
-                        className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600/30 to-purple-600/30 border border-amber-500/40 text-amber-200 font-medium hover:border-amber-400/60 hover:from-violet-600/40 hover:to-purple-600/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-500/20 mb-4"
+                        className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-violet-600/30 to-purple-600/30 border border-amber-500/40 text-amber-200 font-medium hover:border-amber-400/60 hover:from-violet-600/40 hover:to-purple-600/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-500/20 mb-4"
                       >
                         <span>
                           {language === 'en'
-                            ? `Read the full energy profile for ${drawnCard.nameEn}`
-                            : `Lire le profil énergétique complet de ${drawnCard.nameFr}`
+                            ? 'See the full explanation'
+                            : 'Voir l\'explication complète'
                           }
                         </span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
