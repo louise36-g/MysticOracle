@@ -39,6 +39,14 @@ function processContent(html: string): string {
     }
   });
 
+  // Auto-detect section divider paragraphs (✦ stars) and add styling class
+  doc.querySelectorAll('p').forEach((p) => {
+    const text = p.textContent?.trim() || '';
+    if (/^[✦\s\u00a0]+$/.test(text) && text.includes('✦')) {
+      p.classList.add('section-divider');
+    }
+  });
+
   // Optimize Cloudinary images: add auto-format, compression, width limit, and lazy loading
   const images = doc.querySelectorAll('img');
   images.forEach((img) => {
