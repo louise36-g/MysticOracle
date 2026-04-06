@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
+import { useLocation } from 'react-router-dom';
 import { getHreflangUrls, stripLanguagePrefix, SITE_URL } from './language';
 
 /**
@@ -17,11 +18,21 @@ export function getCanonicalUrl(path: string): string {
 
 /**
  * SEO head tags — renders canonical URL and hreflang links via Helmet.
- * Correctly links EN and FR versions of the page.
+ * Auto-detects current language from URL so components can pass a base path
+ * (e.g. "/blog") and the canonical will correctly resolve to "/fr/blog" on French pages.
  */
 export const SEOTags: React.FC<{ path: string }> = ({ path }) => {
-  const canonical = getCanonicalUrl(path);
-  const hreflang = getHreflangUrls(path);
+  const location = useLocation();
+  const isFr = location.pathname === '/fr' || location.pathname.startsWith('/fr/');
+
+  // If the path already includes /fr/, use as-is. Otherwise, prefix for French pages.
+  const basePath = stripLanguagePrefix(path);
+  const resolvedPath = isFr
+    ? (basePath === '/' ? '/fr' : `/fr${basePath}`)
+    : basePath;
+
+  const canonical = getCanonicalUrl(resolvedPath);
+  const hreflang = getHreflangUrls(resolvedPath);
   return (
     <Helmet>
       <link rel="canonical" href={canonical} />

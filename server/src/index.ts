@@ -276,8 +276,8 @@ app.use('/api', (req, res, next) => {
     return next();
   }
 
-  // Admin endpoints: no-store
-  if (req.path.includes('/admin')) {
+  // Admin endpoints and taxonomy (admin-only): no-store
+  if (req.path.includes('/admin') || req.path.includes('/taxonomy')) {
     res.setHeader('Cache-Control', 'no-store');
     return next();
   }

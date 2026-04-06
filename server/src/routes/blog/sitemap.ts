@@ -46,11 +46,6 @@ router.get('/sitemap.xml', async (req, res) => {
       select: { slug: true, updatedAt: true },
     });
 
-    // Get all tags
-    const tags = await prisma.blogTag.findMany({
-      select: { slug: true, updatedAt: true },
-    });
-
     const today = new Date().toISOString().split('T')[0];
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -195,16 +190,8 @@ router.get('/sitemap.xml', async (req, res) => {
 `;
     }
 
-    // Add tag pages
-    for (const tag of tags) {
-      xml += `  <url>
-    <loc>${baseUrl}/blog?tag=${tag.slug}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.4</priority>
-  </url>
-`;
-    }
+    // Tags: not included in sitemap (query-parameter URLs are bad for SEO;
+    // tag filtering is a UI feature, not a distinct page worth indexing)
 
     xml += `</urlset>`;
 

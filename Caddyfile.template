@@ -8,6 +8,10 @@
 
 	root * ../app/{$NIXPACKS_SPA_OUTPUT_DIR}
 
+	# --- Strip trailing slashes (prevents duplicate URLs in Google) ---
+	@trailingSlash path_regexp trslash ^(.+)/$
+	redir @trailingSlash {re.trslash.1} 301
+
 	# --- Redirects: consolidate duplicate pages ---
 	redir /tarot /tarot/cards 301
 	redir /fr/tarot /fr/tarot/cards 301
@@ -41,6 +45,22 @@
 		query category=*
 	}
 	redir @blogCatQueryFr /fr/blog/category/{http.request.uri.query.category} 301
+
+	# /blog?tag=X → /blog (strip tag query param — tags don't have clean URLs)
+	@blogTagQuery {
+		path /blog
+		query tag=*
+	}
+	redir @blogTagQuery /blog 301
+	@blogTagQueryFr {
+		path /fr/blog
+		query tag=*
+	}
+	redir @blogTagQueryFr /fr/blog 301
+
+	# Wrong sub-path from old links
+	redir /tarot-card-reading/reading /tarot-card-reading 301
+	redir /fr/tarot-card-reading/reading /fr/tarot-card-reading 301
 
 	# --- Security Headers ---
 	header {
