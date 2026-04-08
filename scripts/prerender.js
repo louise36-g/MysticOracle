@@ -1216,6 +1216,16 @@ async function fetchWithTimeout(url, retries = 3) {
     try {
       const response = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);
+
+      // Retry on 5xx server errors (transient backend issues, e.g. 502)
+      if (response.status >= 500 && attempt < retries) {
+        const delay = 3000 * attempt; // 3s, 6s
+        process.stdout.write(` (retry ${attempt}/${retries - 1} after ${response.status} in ${delay / 1000}s) `);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        lastError = new Error(`Server returned ${response.status}`);
+        continue;
+      }
+
       return response;
     } catch (error) {
       clearTimeout(timeout);
