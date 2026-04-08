@@ -421,7 +421,7 @@ const Header: React.FC = () => {
             aria-label={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english', 'Switch to English')}
             title={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english_fr', 'Passer en anglais')}
           >
-            {language === 'en' ? <FlagEN className="w-7 h-7" aria-hidden="true" /> : <FlagFR className="w-7 h-7" aria-hidden="true" />}
+            {language === 'en' ? <FlagFR className="w-7 h-7" aria-hidden="true" /> : <FlagEN className="w-7 h-7" aria-hidden="true" />}
             <span className="text-sm font-semibold tracking-wide">{language === 'en' ? 'FR' : 'EN'}</span>
           </button>
 
