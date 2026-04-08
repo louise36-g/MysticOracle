@@ -44,7 +44,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto items-stretch"
+        className="grid grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto items-start"
       >
         {/* Daily Tarot Energy Card */}
         <motion.div variants={cardVariants} className="h-full">
