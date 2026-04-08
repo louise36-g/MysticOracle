@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const API_BASE = process.env.API_URL || process.env.VITE_API_URL || 'https://api.celestiarcana.com';
-const API_TIMEOUT = 30000; // 30 seconds
+const API_TIMEOUT = 45000; // 45 seconds
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const SITE_URL = 'https://celestiarcana.com';
 
@@ -1207,18 +1207,27 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-async function fetchWithTimeout(url) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+async function fetchWithTimeout(url, retries = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeout);
-    return response;
-  } catch (error) {
-    clearTimeout(timeout);
-    throw error;
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      return response;
+    } catch (error) {
+      clearTimeout(timeout);
+      lastError = error;
+      if (attempt < retries) {
+        const delay = 3000 * attempt; // 3s, 6s
+        process.stdout.write(` (retry ${attempt}/${retries - 1} in ${delay / 1000}s) `);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
   }
+  throw lastError;
 }
 
 async function generateSitemaps() {
