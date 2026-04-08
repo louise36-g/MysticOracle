@@ -646,6 +646,43 @@ const HoroscopeReading: React.FC = () => {
         </p>
       </motion.div>
 
+      {/* Astrology primer — helps newcomers understand what they're reading */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="max-w-2xl mx-auto mb-8 rounded-2xl px-6 py-5"
+        style={{
+          background: 'rgba(139, 92, 246, 0.06)',
+          border: '1px solid rgba(139, 92, 246, 0.18)',
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <Stars className="w-4 h-4 text-purple-400/70 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-slate-400/90 leading-relaxed space-y-2">
+            {language === 'fr' ? (
+              <>
+                <p>
+                  Les douze signes du zodiaque divisent le ciel le long du parcours annuel du Soleil. Chaque signe couvre une période du calendrier et porte ses propres qualités — ton <strong className="text-slate-300/80 font-medium">signe solaire</strong> est celui que le Soleil occupait à ta naissance, et il forme la base de ton profil astrologique.
+                </p>
+                <p>
+                  Chaque signe appartient à un <strong className="text-slate-300/80 font-medium">élément</strong> (Feu, Terre, Air ou Eau), possède une <strong className="text-slate-300/80 font-medium">planète gouvernante</strong> et une modalité propre. Ton horoscope quotidien reflète comment les mouvements planétaires du jour interagissent avec l'énergie de ton signe — c'est pourquoi une même journée peut se vivre très différemment selon chacun.
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  The twelve zodiac signs divide the sky along the Sun's yearly path. Each sign spans a period of the calendar and carries its own distinct qualities — your <strong className="text-slate-300/80 font-medium">Sun sign</strong> is the one the Sun occupied at the moment of your birth, and it forms the foundation of your astrological profile.
+                </p>
+                <p>
+                  Each sign belongs to an <strong className="text-slate-300/80 font-medium">element</strong> (Fire, Earth, Air or Water), has a <strong className="text-slate-300/80 font-medium">ruling planet</strong>, and a particular modality. Your daily horoscope reflects how today's planetary movements interact with your sign's energy — which is why the same day can feel quite different depending on who you are.
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
       {/* Today's Collective Energy - link to Daily Tarot */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
