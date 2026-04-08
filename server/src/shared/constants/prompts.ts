@@ -557,7 +557,7 @@ TRANSIT DATA FOR TODAY:
 
 CRITICAL REQUIREMENTS:
 
-1. ANCHOR TO REAL ASTROLOGY: Reference 2-3 actual transits or aspects happening today from the transit data provided. Briefly name the transit (e.g., "Venus entering Pisces," "the Moon squaring the nodes"), then immediately translate it into how the reader might feel or what they might experience. The reader wants to understand WHY they're feeling a certain way — that's the whole point of a horoscope.
+1. ANCHOR TO REAL ASTROLOGY: Reference 2-3 actual transits or aspects happening today from the transit data provided. Briefly name the transit (e.g., "Venus entering Pisces," "the Moon squaring the nodes"), then immediately translate it into how the reader might feel or what they might experience. The reader wants to understand WHY they're feeling a certain way, which is the whole point of a horoscope.
 
 2. MAKE IT SPECIFIC TO TODAY: This horoscope should only make sense for THIS date. If you could swap in any other date and it would still work, you've failed. Tie your advice and observations to the actual planetary movements.
 
@@ -568,23 +568,30 @@ CRITICAL REQUIREMENTS:
    (2-3 sentences) Lead with the most impactful transit of the day and how it affects this sign specifically. Hook the reader with something they can immediately recognize in their own life.
 
    ## Love & Relationships
-   (1 paragraph) How today's transits affect their connections — romantic, friendships, family. Reference a specific transit and tie it to a real situation. Be specific: "an old friend reaching out" beats "deeper connections."
+   (1 paragraph) How today's transits affect their connections, whether romantic, friendships, or family. Reference a specific transit and tie it to a real situation. Be specific: "an old friend reaching out" beats "deeper connections."
 
    ## Work & Money
-   (1-2 paragraphs) Career, finances, productivity. Reference at least one transit. Give concrete advice — "hold off on that purchase" or "today's a good day to pitch that idea" — not vague encouragement.
+   (1-2 paragraphs) Career, finances, productivity. Reference at least one transit. Give concrete advice such as "hold off on that purchase" or "today's a good day to pitch that idea", not vague encouragement.
 
    ## Your Wellbeing
    (2-3 sentences) Energy levels, mood, inner world. End with one concrete suggestion or intention for the day. Something actionable, not vague.
 
 4. TONE & LANGUAGE:
-   - Write like a warm, knowledgeable friend who reads charts — not a therapist, not a life coach, not a fortune teller
+   - Write like a warm, knowledgeable friend who reads charts, not a therapist, not a life coach, not a fortune teller
    - Be conversational and direct. Use "you" freely.
    - It's okay to be a little playful or witty
-   - Use accessible language — the reader may not know what a "square" or "trine" means, so briefly explain the energy without dumbing it down (e.g., "Venus clashing with the Moon can stir up tension between what you want and what feels comfortable")
+   - Use accessible language. The reader may not know what a "square" or "trine" means, so briefly explain the energy without dumbing it down (e.g., "Venus clashing with the Moon can stir up tension between what you want and what feels comfortable")
    - Reference real situations: work deadlines, relationship conversations, money decisions, creative blocks, energy dips, social plans
    - Sign-specific traits should feel natural, not forced (don't just list stereotypes)
 
-5. FORBIDDEN WORDS AND PHRASES — do NOT use any of these:
+5. PUNCTUATION RULE (ABSOLUTE):
+   - NEVER use em dashes (—) under ANY circumstances
+   - NEVER use en dashes (–) in flowing prose
+   - Use commas, periods, semicolons, or parentheses instead
+   - Em dashes are a hallmark of AI-generated text and are strictly forbidden
+   - If you feel tempted to write " — ", write ", " instead
+
+6. FORBIDDEN WORDS AND PHRASES, do NOT use any of these:
    - "emotional landscape" / "internal recalibration" / "spaciousness"
    - "gentle awakening" / "profound energy" / "nuanced"
    - "navigate with grace" / "trust the process" / "lean into"
@@ -598,12 +605,12 @@ CRITICAL REQUIREMENTS:
    - Any phrase that sounds like it belongs on a motivational Instagram post
    - Do NOT imply problems the reader may not have
 
-6. WHAT GOOD LOOKS LIKE:
+7. WHAT GOOD LOOKS LIKE:
    - "Venus slides into Pisces today, and for you, Taurus, that softens the edges around your social life. Don't be surprised if an old friend reaches out or a casual conversation turns unexpectedly meaningful."
-   - "The Moon squaring the nodes this afternoon might bring up that nagging feeling that you're overdue for a change — not a dramatic one, just a quiet shift in how you're spending your energy."
+   - "The Moon squaring the nodes this afternoon might bring up that nagging feeling that you're overdue for a change, not a dramatic one, just a quiet shift in how you're spending your energy."
    - "Skip the impulse buy. With Mercury stirring things up in your financial sector, today's 'great deal' might look different by Friday."
 
-7. FORMAT: Output in markdown with ## headers for each section. No bullet points, no bold text within paragraphs. Just clean headers and flowing prose.
+8. FORMAT: Output in markdown with ## headers for each section. No bullet points, no bold text within paragraphs. Just clean headers and flowing prose.
 
 Write ENTIRELY in {{language}}. If French, write everything in French including headers. If English, write everything in English.`,
   },
@@ -643,7 +650,7 @@ IMPORTANT STYLE RULES:
 - DO NOT use pseudo-therapeutic phrases like "you are not broken", "honor your journey"
 - DO NOT imply problems the reader may not have
 - No tables, emojis, or icons
-- NEVER use em dashes (—)
+- NEVER use em dashes (—) or en dashes (–) under ANY circumstances. Use commas, periods, or parentheses instead. Em dashes are strictly forbidden.
 - Write in flowing prose`,
   },
 
