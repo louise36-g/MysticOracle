@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import LocalizedLink from './LocalizedLink';
 import { useApp } from '../context/AppContext';
 import { Layers, Sparkles, Sun, Hand } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -48,7 +48,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
       >
         {/* Daily Tarot Energy Card */}
         <motion.div variants={cardVariants}>
-          <Link
+          <LocalizedLink
             to={ROUTES.DAILY_TAROT}
             className="group relative h-full px-4 py-4 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
@@ -76,12 +76,12 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <span className="block mt-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
               {language === 'en' ? 'Draw your card →' : 'Tirez votre carte →'}
             </span>
-          </Link>
+          </LocalizedLink>
         </motion.div>
 
         {/* Tarot Reading Card — centre, taller, brighter */}
         <motion.div variants={cardVariants}>
-          <Link
+          <LocalizedLink
             to={ROUTES.READING}
             className="group relative h-full px-4 py-5 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
@@ -109,7 +109,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
             <span className="block mt-3 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
               {language === 'en' ? 'Begin your reading →' : 'Commencez votre tirage →'}
             </span>
-          </Link>
+          </LocalizedLink>
         </motion.div>
 
         {/* Horoscope Card */}
@@ -154,7 +154,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
         variants={cardVariants}
         className="mt-4 max-w-md mx-auto"
       >
-        <Link
+        <LocalizedLink
           to={ROUTES.INTERPRET}
           className="group relative block rounded-xl backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-1 overflow-hidden"
           style={{
@@ -189,7 +189,7 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           <span className="absolute bottom-2.5 right-4 text-xs md:text-sm text-amber-400/70 group-hover:text-amber-300 transition-colors font-semibold tracking-wide">
             {language === 'en' ? 'Interpret your spread →' : 'Interprétez votre tirage →'}
           </span>
-        </Link>
+        </LocalizedLink>
       </motion.div>
 
       {/* The Whispered Oracle - Floating Quote Banner */}

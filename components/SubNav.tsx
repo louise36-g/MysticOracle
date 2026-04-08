@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, memo, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import LocalizedLink from './LocalizedLink';
 import { useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { ROUTES } from '../routes/routes';
@@ -180,7 +181,7 @@ const SubNav: React.FC = () => {
     >
       <div className="p-2 max-h-[400px] overflow-y-auto">
         {items.map((item, index) => (
-          <Link
+          <LocalizedLink
             key={item.id}
             to={item.href}
             role="menuitem"
@@ -201,7 +202,7 @@ const SubNav: React.FC = () => {
                 </div>
               )}
             </div>
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
     </motion.div>
@@ -216,7 +217,7 @@ const SubNav: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-1 h-12">
           {/* Home Link */}
-          <Link
+          <LocalizedLink
             to={ROUTES.HOME}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               location.pathname === '/'
@@ -226,10 +227,10 @@ const SubNav: React.FC = () => {
           >
             <Home className="w-4 h-4" />
             <span>{language === 'fr' ? 'Accueil' : 'Home'}</span>
-          </Link>
+          </LocalizedLink>
 
           {/* Tarot Link - simple, no dropdown */}
-          <Link
+          <LocalizedLink
             to={ROUTES.READING}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isTarotActive
@@ -239,10 +240,10 @@ const SubNav: React.FC = () => {
           >
             <Sparkles className="w-4 h-4" />
             <span>{language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}</span>
-          </Link>
+          </LocalizedLink>
 
           {/* Yes/No Reading Link */}
-          <Link
+          <LocalizedLink
             to={ROUTES.YES_NO}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isActive('/tarot-yes-no')
@@ -252,11 +253,11 @@ const SubNav: React.FC = () => {
           >
             <CircleHelp className="w-4 h-4" />
             <span>{language === 'fr' ? 'Oui/Non' : 'Yes/No'}</span>
-          </Link>
+          </LocalizedLink>
 
           {/* Interpret My Cards Link */}
           {isSignedIn ? (
-            <Link
+            <LocalizedLink
               to={ROUTES.INTERPRET}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isActive('/tarot-interpret')
@@ -266,7 +267,7 @@ const SubNav: React.FC = () => {
             >
               <Hand className="w-4 h-4" />
               <span>{language === 'fr' ? 'Mes Cartes' : 'My Cards'}</span>
-            </Link>
+            </LocalizedLink>
           ) : (
             <div className="relative">
               <button
@@ -294,13 +295,13 @@ const SubNav: React.FC = () => {
                         ? 'Pour interpréter vos cartes, veuillez vous connecter.'
                         : 'To interpret your cards, please sign in.'}
                     </p>
-                    <Link
+                    <LocalizedLink
                       to={ROUTES.SIGN_IN}
                       onClick={() => setShowAuthToast(false)}
                       className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
                     >
                       {language === 'fr' ? 'Se connecter' : 'Sign in'}
-                    </Link>
+                    </LocalizedLink>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -308,7 +309,7 @@ const SubNav: React.FC = () => {
           )}
 
           {/* Horoscope Link */}
-          <Link
+          <LocalizedLink
             to={ROUTES.HOROSCOPES}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isHoroscopeActive
@@ -318,7 +319,7 @@ const SubNav: React.FC = () => {
           >
             <Moon className="w-4 h-4" />
             <span>{language === 'fr' ? 'Horoscopes' : 'Horoscopes'}</span>
-          </Link>
+          </LocalizedLink>
 
           {/* Divider */}
           <div className="w-px h-6 bg-white/10 mx-2" />
@@ -351,7 +352,7 @@ const SubNav: React.FC = () => {
           </div>
 
           {/* Contact Link */}
-          <Link
+          <LocalizedLink
             to={ROUTES.CONTACT}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               isActive('/contact')
@@ -361,7 +362,7 @@ const SubNav: React.FC = () => {
           >
             <Mail className="w-4 h-4" />
             <span>Contact</span>
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     </nav>

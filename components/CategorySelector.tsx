@@ -195,7 +195,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
     }
 
     const categoryPath = category.id === 'birth_cards' ? 'birth-cards' : category.id;
-    navigate(`/tarot-card-reading/${categoryPath}/${depth.cards}`);
+    const prefix = language === 'fr' ? '/fr' : '';
+    navigate(`${prefix}/tarot-card-reading/${categoryPath}/${depth.cards}`);
   }, [user?.credits, navigate]);
 
   // Close expanded category

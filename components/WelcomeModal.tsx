@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, BookOpen, Coins, ArrowRight, X, User, Check, AlertCircle, Gift, Loader2 } from 'lucide-react';
 import { useTranslation } from '../context/TranslationContext';
+import { useApp } from '../context/AppContext';
 import { markWelcomeCompleted, checkUsernameAvailability, updateUsername } from '../services/api';
 import { redeemReferralCode } from '../services/api/user';
 import { ROUTES } from '../routes/routes';
@@ -19,6 +20,7 @@ interface WelcomeModalProps {
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCreditShop, onRefreshUser, credits }) => {
   const { t } = useTranslation();
+  const { language } = useApp();
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
@@ -195,7 +197,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose, onOpenCred
     setIsClosing(true);
     await markComplete();
     onClose();
-    navigate(ROUTES.READING);
+    navigate(`${language === 'fr' ? '/fr' : ''}${ROUTES.READING}`);
   }, [markComplete, onClose, navigate]);
 
   const handlePurchase = useCallback(async () => {
