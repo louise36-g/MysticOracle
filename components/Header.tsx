@@ -417,11 +417,12 @@ const Header: React.FC = () => {
 
           <button
             onClick={toggleLanguage}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 transition-colors"
+            className="px-2.5 py-1.5 min-h-[44px] flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-amber-400/20 hover:border-amber-300/50 text-white transition-colors"
             aria-label={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english', 'Switch to English')}
             title={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english_fr', 'Passer en anglais')}
           >
-            {language === 'en' ? <FlagEN className="w-5 h-5" aria-hidden="true" /> : <FlagFR className="w-5 h-5" aria-hidden="true" />}
+            {language === 'en' ? <FlagEN className="w-7 h-7" aria-hidden="true" /> : <FlagFR className="w-7 h-7" aria-hidden="true" />}
+            <span className="text-sm font-semibold tracking-wide">{language === 'en' ? 'FR' : 'EN'}</span>
           </button>
 
           <SignedOut>
@@ -594,18 +595,18 @@ const Header: React.FC = () => {
 
               <div className="border-t border-white/10 pt-4 mt-4">
                 <button
-                  className="flex items-center gap-3 w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 w-full text-left p-3 rounded-lg border border-white/20 bg-white/5 text-white hover:bg-amber-400/20 hover:border-amber-300/50 transition-colors"
                   onClick={handleMobileLanguage}
                 >
                   {language === 'en' ? (
                     <>
-                      <FlagFR className="w-5 h-5" />
-                      <span>{t('header.switch_to_french_label', 'Passer en Français')}</span>
+                      <FlagFR className="w-8 h-8" />
+                      <span className="font-semibold">{t('header.switch_to_french_label', 'Passer en Français')}</span>
                     </>
                   ) : (
                     <>
-                      <FlagEN className="w-5 h-5" />
-                      <span>{t('header.switch_to_english_label', 'Switch to English')}</span>
+                      <FlagEN className="w-8 h-8" />
+                      <span className="font-semibold">{t('header.switch_to_english_label', 'Switch to English')}</span>
                     </>
                   )}
                 </button>

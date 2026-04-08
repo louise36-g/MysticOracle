@@ -22,6 +22,48 @@ if (typeof window !== 'undefined') {
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
+/**
+ * First-visit language redirect.
+ * If the user is on an English path but their saved preference (localStorage) or
+ * browser language is French, redirect them to the /fr/ equivalent.
+ * Runs ONCE before React mounts so there's no flash of English content.
+ *
+ * Respects:
+ * - Explicit English preference in localStorage (no redirect)
+ * - Admin/auth paths (never redirected)
+ * - Current /fr/ paths (already French)
+ */
+(function redirectToPreferredLanguage() {
+  try {
+    const path = window.location.pathname;
+
+    // Already on French path, no redirect needed
+    if (path === '/fr' || path.startsWith('/fr/')) return;
+
+    // Never redirect admin or auth paths (French admin doesn't exist)
+    if (path.startsWith('/admin') || path.startsWith('/sign-in') || path.startsWith('/sign-up')) return;
+
+    const saved = localStorage.getItem('celestiarcana-language');
+
+    // User explicitly chose English, respect it
+    if (saved === 'en') return;
+
+    // Decide whether to redirect to French:
+    // - saved === 'fr' means they previously chose French
+    // - no saved value AND browser is French means first visit from a French user
+    const shouldRedirect =
+      saved === 'fr' ||
+      (saved === null && (navigator.language || '').toLowerCase().startsWith('fr'));
+
+    if (shouldRedirect) {
+      const frPath = path === '/' ? '/fr' : `/fr${path}`;
+      window.location.replace(frPath + window.location.search + window.location.hash);
+    }
+  } catch {
+    // If anything goes wrong (storage disabled, etc.), just continue with the current path
+  }
+})();
+
 // Global error handler to catch render errors
 window.onerror = (message, source, lineno, colno, error) => {
   // Downgrade network errors to warn (expected when API is unavailable)
