@@ -100,7 +100,8 @@ const BirthCardReveal: React.FC = () => {
   // Redirect if no state, load JSON data during loading animation
   useEffect(() => {
     if (!state?.birthDate) {
-      navigate('/reading/birth-cards');
+      const prefix = language === 'fr' ? '/fr' : '';
+      navigate(`${prefix}/tarot-card-reading`);
       return;
     }
 

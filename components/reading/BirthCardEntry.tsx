@@ -83,7 +83,8 @@ const BirthCardEntry: React.FC = () => {
     if (!isValidDate() || !hasCredits) return;
 
     // Navigate to birth card reading with date in state
-    navigate('/reading/birth-cards/reveal', {
+    const prefix = language === 'fr' ? '/fr' : '';
+    navigate(`${prefix}/tarot-card-reading/birth-cards/reveal`, {
       state: {
         birthDate,
         depth,
@@ -92,7 +93,8 @@ const BirthCardEntry: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/tarot-card-reading');
+    const prefix = language === 'fr' ? '/fr' : '';
+    navigate(`${prefix}/tarot-card-reading`);
   };
 
   // What you'll discover based on depth
