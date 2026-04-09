@@ -10,7 +10,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import prisma from '../../db/prisma.js';
-import { requireAuth } from '../../middleware/auth.js';
+import { requireAuth, optionalAuth } from '../../middleware/auth.js';
+import { SpreadType, InterpretationStyle } from '../../generated/prisma/client.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { cacheService, CacheService } from '../../services/cache.js';
 import { CreditService, CREDIT_COSTS } from '../../services/CreditService.js';
@@ -63,6 +64,29 @@ type YesNoCardMap = Record<string, YesNoCardData>;
 
 // Position labels for the 3-card spread
 const THREE_CARD_POSITIONS = ['Energy Around You', 'Obstacle or Opportunity', 'Likely Outcome'];
+
+// Map a cardKey (e.g. "MAJOR_ARCANA:5") to a numeric card ID (0–77)
+function cardKeyToId(cardKey: string): number | null {
+  const colonIdx = cardKey.lastIndexOf(':');
+  if (colonIdx === -1) return null;
+  const cardType = cardKey.substring(0, colonIdx);
+  const n = parseInt(cardKey.substring(colonIdx + 1), 10);
+  if (isNaN(n)) return null;
+  switch (cardType) {
+    case 'MAJOR_ARCANA':
+      return n;
+    case 'SUIT_OF_WANDS':
+      return 21 + n;
+    case 'SUIT_OF_CUPS':
+      return 35 + n;
+    case 'SUIT_OF_SWORDS':
+      return 49 + n;
+    case 'SUIT_OF_PENTACLES':
+      return 63 + n;
+    default:
+      return null;
+  }
+}
 
 // ───────────────────────────────────────────────
 // Helper: build the full card map
@@ -169,6 +193,7 @@ const interpretSchema = z.object({
 router.post(
   '/interpret',
   interpretLimiter,
+  optionalAuth,
   asyncHandler(async (req, res) => {
     const parsed = interpretSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -250,6 +275,28 @@ router.post(
     } catch (error) {
       logger.error('[YesNo] AI interpretation failed for single card:', error);
       // Graceful degradation: return verdict without interpretation
+    }
+
+    // Save to reading history if user is authenticated and we have an interpretation
+    if (req.auth?.userId && interpretation) {
+      const cardId = cardKeyToId(cardKey);
+      if (cardId !== null) {
+        try {
+          await prisma.reading.create({
+            data: {
+              userId: req.auth.userId,
+              spreadType: SpreadType.YES_NO,
+              interpretationStyle: InterpretationStyle.CLASSIC,
+              question,
+              cards: [{ cardId, position: 0, isReversed }],
+              interpretation,
+              creditCost: 0,
+            },
+          });
+        } catch (saveError) {
+          logger.error('[YesNo] Failed to save single-card reading to history:', saveError);
+        }
+      }
     }
 
     res.json({
@@ -409,6 +456,36 @@ router.post(
         temperature: 0.7,
         maxTokens: 600,
       });
+
+      // Save to reading history
+      if (interpretation) {
+        const cards = cardKeys
+          .map((key, i) => {
+            const cardId = cardKeyToId(key);
+            return cardId !== null ? { cardId, position: i, isReversed: reversedFlags[i] } : null;
+          })
+          .filter(
+            (c): c is { cardId: number; position: number; isReversed: boolean } => c !== null
+          );
+
+        if (cards.length === 3) {
+          try {
+            await prisma.reading.create({
+              data: {
+                userId: req.auth.userId,
+                spreadType: SpreadType.YES_NO,
+                interpretationStyle: InterpretationStyle.CLASSIC,
+                question,
+                cards,
+                interpretation,
+                creditCost: CREDIT_COSTS.YES_NO_THREE_CARD,
+              },
+            });
+          } catch (saveError) {
+            logger.error('[YesNo] Failed to save three-card reading to history:', saveError);
+          }
+        }
+      }
 
       res.json({ interpretation });
     } catch (error) {

@@ -136,6 +136,9 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
           : `Transition Annuelle ${(reading.transitionYear || 0) - 1} → ${reading.transitionYear}`;
       }
       default: {
+        if (reading.spreadType === 'YES_NO') {
+          return lang === 'en' ? 'Yes/No Reading' : 'Tirage Oui/Non';
+        }
         const spread = SPREADS[reading.spreadType as SpreadType];
         return spread
           ? (lang === 'en' ? spread.nameEn : spread.nameFr)

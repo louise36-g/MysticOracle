@@ -152,6 +152,7 @@ enum SpreadType {
   CAREER
   HORSESHOE
   CELTIC_CROSS
+  YES_NO
 }
 
 enum InterpretationStyle {
