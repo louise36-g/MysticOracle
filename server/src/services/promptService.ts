@@ -169,6 +169,11 @@ export async function getTarotReadingPrompt(params: {
     // Determine which guidance key to use
     let spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
 
+    // For SINGLE with yes_no layout, use yes/no specific guidance
+    if (params.spreadType.toUpperCase() === 'SINGLE' && params.layoutId === 'yes_no') {
+      spreadGuidanceKey = 'SPREAD_GUIDANCE_SINGLE_YES_NO';
+    }
+
     // For TWO_CARD with layout, use layout-specific guidance
     if (params.spreadType.toUpperCase() === 'TWO_CARD' && params.layoutId) {
       const guidanceKey = TWO_CARD_LAYOUT_GUIDANCE_MAP[params.layoutId];
@@ -338,7 +343,22 @@ export async function getHoroscopePrompt(params: {
       planetaryData: params.planetaryData || '',
     };
 
-    return interpolatePrompt(template, variables);
+    let prompt = interpolatePrompt(template, variables);
+
+    // For French, replace embedded English section names with French equivalents
+    // and add a strong language instruction at the top so the AI cannot miss it.
+    // This works regardless of what version of the template is stored in the DB.
+    if (params.language === 'fr') {
+      prompt = prompt
+        .replace(/## Today's Energy/gi, "## L'Énergie du Jour")
+        .replace(/## Love & Relationships/gi, '## Amour & Relations')
+        .replace(/## Work & Money/gi, '## Travail & Finances')
+        .replace(/## Your Wellbeing/gi, '## Votre Bien-être');
+
+      prompt = `LANGUE: Tu dois écrire cet horoscope ENTIÈREMENT en français. Chaque mot doit être en français. Ne pas écrire en anglais.\n\n${prompt}`;
+    }
+
+    return prompt;
   } catch (error) {
     logger.error('[PromptService] Error assembling horoscope prompt:', error);
     throw error;
@@ -452,6 +472,10 @@ export async function getInterpretMyCardsPrompt(params: {
 
     // Determine spread guidance key (reuse existing guidance)
     let spreadGuidanceKey = `SPREAD_GUIDANCE_${params.spreadType.toUpperCase()}`;
+
+    if (params.spreadType.toUpperCase() === 'SINGLE' && params.layoutId === 'yes_no') {
+      spreadGuidanceKey = 'SPREAD_GUIDANCE_SINGLE_YES_NO';
+    }
 
     if (params.spreadType.toUpperCase() === 'TWO_CARD' && params.layoutId) {
       const guidanceKey = TWO_CARD_LAYOUT_GUIDANCE_MAP[params.layoutId];

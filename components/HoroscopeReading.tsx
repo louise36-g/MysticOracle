@@ -516,26 +516,24 @@ const HoroscopeReading: React.FC = () => {
             {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent mb-3" />
 
-            {/* Extract date and clean horoscope content */}
+            {/* Show date and cleaned horoscope content */}
             {(() => {
-              const dateLine = /\*{0,2}Today.?s Energy\s*[-–—:]\s*(.+?)\*{0,2}\s*\n/i;
-              const dateLineFr = /\*{0,2}[ÉE]nergie du [Jj]our\s*[-–—:]\s*(.+?)\*{0,2}\s*\n/i;
-              const dateHeading = /^#{1,2}\s*Today.?s Energy\s*[-–—:]\s*(.+)/im;
-              const dateHeadingFr = /^#{1,2}\s*[ÉE]nergie du [Jj]our\s*[-–—:]\s*(.+)/im;
-              const dateMatch = horoscope.match(dateLine) || horoscope.match(dateLineFr) || horoscope.match(dateHeading) || horoscope.match(dateHeadingFr);
+              // Display today's date from JS — no server header parsing needed
+              const todayDate = new Date().toLocaleDateString(
+                language === 'fr' ? 'fr-FR' : 'en-GB',
+                { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
+              );
+
+              // Strip any legacy **...** date header that may exist in old cached content
               const cleanedHoroscope = horoscope
-                .replace(dateLine, '\n')
-                .replace(dateLineFr, '\n')
-                .replace(dateHeading, '')
-                .replace(dateHeadingFr, '');
+                .replace(/^\*{1,2}[^\n]*(?:Today.?s Energy|[ÉE]nergie du [Jj]our)[^\n]*\*{1,2}\s*\n+/i, '')
+                .trimStart();
 
               return (
                 <>
-                  {dateMatch && (
-                    <p className="text-center font-heading italic text-base tracking-wide text-amber-200/70 mb-4">
-                      {dateMatch[1].trim()}
-                    </p>
-                  )}
+                  <p className="text-center font-heading italic text-base tracking-wide text-amber-200/70 mb-4">
+                    {todayDate}
+                  </p>
 
                   {/* Horoscope content */}
                   <div className="prose prose-invert prose-sm max-w-none">
@@ -641,9 +639,6 @@ const HoroscopeReading: React.FC = () => {
           {t('horoscope.HoroscopeReading.reading_the_stars', 'Reading the Stars')}
         </p>
 
-        <p className="text-slate-400/90 text-sm max-w-2xl mx-auto leading-relaxed">
-          {t('horoscope.HoroscopeReading.disclaimer', 'Let your daily horoscope offer perspective rather than prediction \u2014 a moment of reflection to start your day with awareness.')}
-        </p>
       </motion.div>
 
       {/* Astrology primer — helps newcomers understand what they're reading */}
@@ -651,7 +646,7 @@ const HoroscopeReading: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="max-w-2xl mx-auto mb-8 rounded-2xl px-6 py-5"
+        className="mb-8 rounded-2xl px-6 py-5"
         style={{
           background: 'rgba(139, 92, 246, 0.06)',
           border: '1px solid rgba(139, 92, 246, 0.18)',

@@ -14,6 +14,7 @@ import { getCategory, getDepthOption } from '../../../constants/categoryConfig';
 import { TWO_CARD_LAYOUTS, TwoCardLayoutId, TwoCardLayout, TWO_CARD_LAYOUT_QUESTIONS } from '../../../constants/twoCardLayouts';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId, ThreeCardLayout } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId, FiveCardLayout } from '../../../constants/fiveCardLayouts';
+import { SINGLE_CARD_LAYOUTS, SingleCardLayoutId } from '../../../constants/singleCardLayouts';
 import { HORSESHOE_LAYOUT_QUESTIONS } from '../../../constants/horseshoeLayouts';
 import { CELTIC_CROSS_QUESTIONS } from '../../../constants/celticCrossLayouts';
 import { getCategoryQuestions } from '../../../constants/categoryQuestions';
@@ -80,8 +81,8 @@ interface CategoryIntroPhaseProps {
   language: 'en' | 'fr';
   category: ReadingCategory;
   depth: ReadingDepth;
-  selectedLayout: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | null;
-  onLayoutSelect: (layoutId: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => void;
+  selectedLayout: SingleCardLayoutId | TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId | null;
+  onLayoutSelect: (layoutId: SingleCardLayoutId | TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => void;
   customQuestion: string;
   onCustomQuestionChange: (text: string) => void;
   isAdvanced: boolean;
@@ -140,6 +141,23 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   // Get layouts filtered by category's available layouts
   const getLayoutsForDepth = (): DisplayLayout[] => {
+    if (depth === 1) {
+      const availableIds = categoryConfig?.availableLayouts?.[1];
+      if (availableIds) {
+        return availableIds
+          .map((id) => SINGLE_CARD_LAYOUTS[id as SingleCardLayoutId])
+          .filter(Boolean)
+          .map((l) => ({
+            id: l.id,
+            labelEn: l.labelEn,
+            labelFr: l.labelFr,
+            taglineEn: l.taglineEn,
+            taglineFr: l.taglineFr,
+            positions: l.positions as { en: string[]; fr: string[] },
+            shortPositions: l.shortPositions as { en: string[]; fr: string[] },
+          }));
+      }
+    }
     if (depth === 2) {
       const availableIds = categoryConfig?.availableLayouts?.[2];
       if (availableIds) {
@@ -264,7 +282,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
 
   // Determine if we can proceed
   const hasValidQuestion = isBirthCards || customQuestion.trim().length > 0;
-  const needsLayout = depth === 2 || depth === 3 || depth === 5;
+  const needsLayout = depth === 1 || depth === 2 || depth === 3 || depth === 5;
   const hasValidLayout = !needsLayout || selectedLayout !== null;
   const canProceed = hasValidQuestion && hasValidLayout && credits >= totalCost;
 
@@ -274,7 +292,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
   };
 
   // Handle layout selection
-  const handleLayoutSelect = (layoutId: TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => {
+  const handleLayoutSelect = (layoutId: SingleCardLayoutId | TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId) => {
     onLayoutSelect(layoutId);
     setLayoutPickerOpen(false);
   };
@@ -409,7 +427,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                           return (
                             <button
                               key={layout.id}
-                              onClick={() => handleLayoutSelect(layout.id as TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId)}
+                              onClick={() => handleLayoutSelect(layout.id as SingleCardLayoutId | TwoCardLayoutId | ThreeCardLayoutId | FiveCardLayoutId)}
                               className={`w-full text-left p-4 rounded-xl border-2 backdrop-blur-sm transition-all ${
                                 isSelected
                                   ? `bg-white/15 ${categoryTheme?.border}`

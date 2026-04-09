@@ -4,6 +4,7 @@
 import React, { createElement } from 'react';
 import { Heart, Briefcase, MessageCircle, Sun, Sprout, Sparkles } from 'lucide-react';
 import type { ReadingCategory, ReadingDepth, BirthCardDepth } from '../types';
+import type { SingleCardLayoutId } from './singleCardLayouts';
 import type { TwoCardLayoutId } from './twoCardLayouts';
 import type { ThreeCardLayoutId, THREE_CARD_LAYOUTS } from './threeCardLayouts';
 import type { FiveCardLayoutId, FIVE_CARD_LAYOUTS } from './fiveCardLayouts';
@@ -28,12 +29,14 @@ export interface CategoryConfig {
   depths: ReadingDepth[] | BirthCardDepth[];
   /** Default layout to pre-select */
   defaultLayouts?: {
+    1?: SingleCardLayoutId;
     2?: TwoCardLayoutId;
     3?: ThreeCardLayoutId;
     5?: FiveCardLayoutId;
   };
   /** Available layouts for this category (2-3 options per depth) */
   availableLayouts?: {
+    1?: SingleCardLayoutId[];
     2?: TwoCardLayoutId[];
     3?: ThreeCardLayoutId[];
     5?: FiveCardLayoutId[];
@@ -85,13 +88,15 @@ export const CATEGORIES: CategoryConfig[] = [
     colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      1: 'focused_insight',
       2: 'situation_guidance',
       3: 'past_present_future',
       5: 'iceberg',
     },
     availableLayouts: {
-      2: ['yes_no', 'situation_guidance', 'question_answer', 'light_shadow'],
-      3: ['past_present_future', 'situation_action_outcome', 'mind_body_spirit'],
+      1: ['focused_insight', 'yes_no'],
+      2: ['situation_guidance', 'question_answer', 'light_shadow'],
+      3: ['yes_no', 'past_present_future', 'situation_action_outcome', 'mind_body_spirit'],
       5: ['iceberg', 'alchemy', 'seasons'],
     },
   },
@@ -105,13 +110,15 @@ export const CATEGORIES: CategoryConfig[] = [
     colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      1: 'focused_insight',
       2: 'inner_outer',
       3: 'you_them_connection',
       5: 'love_relationships',
     },
     availableLayouts: {
-      2: ['yes_no', 'inner_outer', 'light_shadow', 'challenge_strength'],
-      3: ['you_them_connection', 'mind_body_spirit', 'inner_child_love'],
+      1: ['focused_insight', 'yes_no'],
+      2: ['inner_outer', 'light_shadow', 'challenge_strength'],
+      3: ['yes_no', 'you_them_connection', 'mind_body_spirit', 'inner_child_love'],
       5: ['love_relationships', 'inner_child'],
     },
   },
@@ -125,13 +132,15 @@ export const CATEGORIES: CategoryConfig[] = [
     colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      1: 'focused_insight',
       2: 'challenge_strength',
       3: 'situation_action_outcome',
       5: 'career_purpose',
     },
     availableLayouts: {
-      2: ['yes_no', 'challenge_strength', 'situation_guidance', 'question_answer'],
-      3: ['situation_action_outcome', 'situation_obstacle_path', 'inner_child_career'],
+      1: ['focused_insight', 'yes_no'],
+      2: ['challenge_strength', 'situation_guidance', 'question_answer'],
+      3: ['yes_no', 'situation_action_outcome', 'situation_obstacle_path', 'inner_child_career'],
       5: ['career_purpose', 'values', 'inner_child_career'],
     },
   },
@@ -145,13 +154,15 @@ export const CATEGORIES: CategoryConfig[] = [
     colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      1: 'focused_insight',
       2: 'light_shadow',
       3: 'past_present_future',
       5: 'authentic_self',
     },
     availableLayouts: {
-      2: ['yes_no', 'light_shadow', 'inner_outer', 'question_answer'],
-      3: ['past_present_future', 'challenge_support_growth', 'inner_child_life_path'],
+      1: ['focused_insight', 'yes_no'],
+      2: ['light_shadow', 'inner_outer', 'question_answer'],
+      3: ['yes_no', 'past_present_future', 'challenge_support_growth', 'inner_child_life_path'],
       5: ['authentic_self', 'alchemy', 'inner_child_life_path'],
     },
   },
@@ -165,13 +176,15 @@ export const CATEGORIES: CategoryConfig[] = [
     colorTheme: UNIFIED_COLOR_THEME,
     depths: [1, 2, 3, 5, 7, 10] as ReadingDepth[],
     defaultLayouts: {
+      1: 'focused_insight',
       2: 'challenge_strength',
       3: 'challenge_support_growth',
       5: 'authentic_self',
     },
     availableLayouts: {
-      2: ['yes_no', 'challenge_strength', 'light_shadow', 'inner_outer'],
-      3: ['challenge_support_growth', 'mind_body_spirit', 'inner_child_growth'],
+      1: ['focused_insight', 'yes_no'],
+      2: ['challenge_strength', 'light_shadow', 'inner_outer'],
+      3: ['yes_no', 'challenge_support_growth', 'mind_body_spirit', 'inner_child_growth'],
       5: ['authentic_self', 'alchemy', 'values'],
     },
   },

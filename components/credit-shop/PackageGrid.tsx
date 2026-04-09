@@ -28,19 +28,16 @@ function getBadgeStyles(badge: string | null): string {
   }
 }
 
-// Map database labels to display labels
-function getDisplayLabel(label: string, language: string): string {
-  const labelMap: Record<string, Record<string, string>> = {
-    en: {
-      'Most Savings': 'Good Value',
-      'Ultimate Pack': 'Best Value',
-    },
-    fr: {
-      "Plus d'économies": 'Bonne affaire',
-      'Pack Ultime': 'Le plus avantageux',
-    },
-  };
-  return labelMap[language]?.[label] || label;
+// Get badge label via translation key (falls back to DB label if no specific key matches)
+function getBadgeLabel(
+  badge: string | null,
+  dbLabel: string,
+  t: (key: string, fallback: string) => string
+): string {
+  if (badge === 'popular') return t('CreditShop.tsx.CreditShop.badge_popular', dbLabel || '⭐ Most Popular');
+  if (badge === 'enthusiast') return t('CreditShop.tsx.CreditShop.badge_enthusiast', dbLabel || '✨ Enthusiast');
+  if (badge === 'value') return t('CreditShop.tsx.CreditShop.badge_value', dbLabel || '💰 Best Value');
+  return dbLabel;
 }
 
 const PackageGridSkeleton: React.FC = () => (
@@ -133,7 +130,7 @@ const PackageGrid: React.FC<PackageGridProps> = ({
                     <span
                       className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}
                     >
-                      {getDisplayLabel(label, language)}
+                      {getBadgeLabel(pkg.badge, label, t)}
                     </span>
                   )}
                   {pkg.discount > 0 && (
@@ -202,7 +199,7 @@ const PackageGrid: React.FC<PackageGridProps> = ({
                     <span
                       className={`px-2 py-0.5 ${getBadgeStyles(pkg.badge)} rounded text-xs font-bold text-white`}
                     >
-                      {getDisplayLabel(label, language)}
+                      {getBadgeLabel(pkg.badge, label, t)}
                     </span>
                   )}
                   {isBestValue && !pkg.badge && (

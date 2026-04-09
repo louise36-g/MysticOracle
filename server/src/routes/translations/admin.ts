@@ -253,35 +253,35 @@ router.post(
       update: {},
     });
 
-    // Insert all translations in small batches to avoid transaction timeout
-    // with the pg driver adapter on remote databases
-    const BATCH_SIZE = 25;
-    const entries = Object.entries(defaultTranslations);
-    let processedCount = 0;
+    // Fetch all existing (key, languageId) pairs in one query so we only INSERT
+    // keys that are genuinely missing — skipping the expensive upsert loop for
+    // keys already in the DB. This keeps the operation fast even with 1000+ keys.
+    const existingRows = await prisma.translation.findMany({
+      select: { key: true, languageId: true },
+    });
+    const existingSet = new Set(existingRows.map(r => `${r.key}|${r.languageId}`));
 
-    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-      const batch = entries.slice(i, i + BATCH_SIZE);
-      const operations = [];
+    const allEntries = Object.entries(defaultTranslations);
+    const missingEn = allEntries.filter(([key]) => !existingSet.has(`${key}|${enLang.id}`));
+    const missingFr = allEntries.filter(([key]) => !existingSet.has(`${key}|${frLang.id}`));
 
-      for (const [key, values] of batch) {
-        // update: {} means only INSERT new keys — never overwrite admin edits
-        operations.push(
-          prisma.translation.upsert({
-            where: { key_languageId: { key, languageId: enLang.id } },
-            create: { key, value: values.en, language: { connect: { id: enLang.id } } },
-            update: {},
-          }),
-          prisma.translation.upsert({
-            where: { key_languageId: { key, languageId: frLang.id } },
-            create: { key, value: values.fr, language: { connect: { id: frLang.id } } },
-            update: {},
-          })
-        );
-      }
+    debug.log(
+      `[Translations] ${allEntries.length} total keys — ${missingEn.length} new EN, ${missingFr.length} new FR`
+    );
 
-      await prisma.$transaction(operations);
-      processedCount += batch.length;
-      debug.log(`[Translations] Processed ${processedCount}/${entries.length} keys`);
+    // Insert only missing translations in batches
+    const BATCH_SIZE = 50;
+    const toInsert: { key: string; value: string; languageId: string }[] = [
+      ...missingEn.map(([key, values]) => ({ key, value: values.en, languageId: enLang.id })),
+      ...missingFr.map(([key, values]) => ({ key, value: values.fr, languageId: frLang.id })),
+    ];
+
+    let insertedCount = 0;
+    for (let i = 0; i < toInsert.length; i += BATCH_SIZE) {
+      const batch = toInsert.slice(i, i + BATCH_SIZE);
+      await prisma.translation.createMany({ data: batch, skipDuplicates: true });
+      insertedCount += batch.length;
+      debug.log(`[Translations] Inserted ${insertedCount}/${toInsert.length}`);
     }
 
     // Clean up orphaned duplicate keys (e.g. tarot_cards_2, credits_3)
@@ -321,7 +321,8 @@ router.post(
     res.json({
       success: true,
       languages: 2,
-      translations: Object.keys(defaultTranslations).length * 2,
+      totalKeys: allEntries.length,
+      inserted: insertedCount,
       cleanedUp: deletedCount,
     });
   })

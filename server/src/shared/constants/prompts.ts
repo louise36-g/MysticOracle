@@ -98,6 +98,15 @@ IMPORTANT FORMATTING RULES:
       'This single card arrives as a messenger, carrying the precise wisdom you need in this moment. Like a beam of light cutting through fog, it illuminates the heart of your question with focused clarity. There are no surrounding cards to soften or complicate its message; this card speaks directly, intimately, to the core of what you seek to understand. Let its energy resonate fully, for it has chosen to appear for a reason.',
   },
 
+  {
+    key: 'SPREAD_GUIDANCE_SINGLE_YES_NO',
+    description: 'Single card yes/no reading guidance',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This single card has come to answer a yes-or-no question. All cards are drawn upright for this reading. Determine the answer from the card\'s inherent energy and meaning: cards that carry affirming, growth-oriented, or forward-moving energy point toward YES. Cards that carry caution, delay, obstacle, or inward energy lean toward NO. Cards that are inherently balanced or transitional suggest IT DEPENDS. Never base the verdict on orientation — base it on what the card fundamentally represents. Explain what the card reveals about WHY the answer is what it is, then end with a clear direct statement: "The cards point toward YES / NO / IT DEPENDS" — followed by the nuance that makes the answer meaningful.',
+  },
+
   // ==================== TWO-CARD SPREAD GUIDANCE ====================
 
   {
@@ -235,6 +244,15 @@ IMPORTANT FORMATTING RULES:
     variables: [],
     defaultValue:
       'This healing spread honors the alchemy of transformation through difficulty. The first card witnesses your challenge: what you face, what tests you, the struggle that has brought you here seeking guidance. The second card reveals your support: allies seen and unseen, inner resources, sources of comfort and strength available to you now. The third card promises growth: the wisdom being forged, the person you are becoming through this experience, the gift waiting on the other side.',
+  },
+
+  {
+    key: 'SPREAD_GUIDANCE_THREE_CARD_YES_NO',
+    description: 'Yes/No three-card layout guidance — Situation/Action/Outcome',
+    category: 'tarot',
+    variables: [],
+    defaultValue:
+      'This Yes/No spread uses three cards to deliver both a clear answer and meaningful context. All cards are drawn upright — base your verdict on each card\'s inherent meaning, not orientation. The first card (Situation) reveals the current landscape. The second card (Action) shows what is being done or what approach is at play. The third card (Outcome) holds the answer: give this card the most weight. If the Outcome card carries affirming, growth-oriented, or forward-moving energy → the answer is YES. If it carries challenging, blocked, or cautionary energy → the answer is NO. If it is inherently balanced or transitional → the answer DEPENDS on what the first two cards reveal. Weave all three cards together naturally, then close with a direct verdict: "The cards point toward YES / NO / IT DEPENDS" — and explain why, using the Situation and Action as the context that gives the answer its depth.',
   },
 
   {
@@ -489,7 +507,7 @@ Current Question: "{{newQuestion}}"
 Language: {{language}}
 Task: Answer the seeker's follow-up question based *only* on the cards and insights from the original reading. Do not draw new cards. Keep the mystical tone. Be concise but insightful.
 
-IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes (—). Speak as a wise oracle would.
+IMPORTANT: Write naturally without tables, emojis, or icons. NEVER use em dashes (—) or en dashes (–), and NEVER use a hyphen with spaces around it ( - ) as a substitute for an em dash. Use commas, semicolons, colons, or periods instead. Speak as a wise oracle would.
 - NEVER use roleplay actions in asterisks like "*smiles softly*", "*shuffles cards*", "*gazes knowingly*" etc. No stage directions or physical descriptions whatsoever.
 - Do NOT address the reader with titles like "Beloved seeker", "Gentle one", "Dear one" etc.
 - Do NOT use pseudo-therapeutic phrases like "you are not broken" or "honor your journey"

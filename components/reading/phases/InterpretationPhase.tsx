@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Quote, ChevronDown, ChevronUp, Coins, Sparkles, Loader2 } from 'lucide-react';
+import { Quote, ChevronDown, ChevronUp, Coins, Sparkles, Loader2, History } from 'lucide-react';
 import { SpreadConfig, TarotCard, SpreadType, ReadingCategory } from '../../../types';
 import Card from '../../Card';
 import Button from '../../Button';
@@ -12,6 +12,7 @@ import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
 import { getCategory } from '../../../constants/categoryConfig';
+import { ROUTES, localizedRoute } from '../../../routes/routes';
 
 interface DrawnCard {
   card: TarotCard;
@@ -269,8 +270,8 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
 
             {/* Reading primer — explains why position meanings differ from standalone card meanings */}
             <div
-              className="flex items-start gap-3 rounded-xl px-4 py-3 mb-4 text-xs text-slate-400/80 leading-relaxed"
-              style={{ background: 'rgba(139, 92, 246, 0.06)', border: '1px solid rgba(139, 92, 246, 0.15)' }}
+              className="flex items-start gap-3 rounded-xl px-4 py-3 mb-4 text-sm text-slate-300/90 leading-relaxed"
+              style={{ background: 'rgba(139, 92, 246, 0.06)' }}
             >
               <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 opacity-50" style={{ color: theme.primary }} />
               <p>
@@ -289,11 +290,9 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
             >
               {/* Decorative header */}
               <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="h-px w-12" style={{ background: `linear-gradient(to right, transparent, ${theme.primary}50)` }}></div>
                 <span className={`text-xs font-bold ${theme.textAccent} uppercase tracking-[0.2em]`}>
                   {language === 'en' ? 'The Oracle Speaks' : 'L\'Oracle Parle'}
                 </span>
-                <div className="h-px w-12" style={{ background: `linear-gradient(to left, transparent, ${theme.primary}50)` }}></div>
               </div>
 
               {/* Reading content box */}
@@ -554,11 +553,20 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
               onSendMessage={onSendMessage}
             />
 
-            {/* Start New Reading - at the very end so users see reflection + oracle first */}
-            <div className="mt-8 flex justify-center">
+            {/* Start New Reading + Reading History */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button onClick={onFinish} variant="secondary">
                 {language === 'en' ? 'Start New Reading' : 'Nouvelle Lecture'}
               </Button>
+              <a
+                href={localizedRoute(ROUTES.PROFILE, language)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-sm text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all"
+              >
+                <History className="w-4 h-4" />
+                {language === 'en' ? 'See Reading History' : 'Voir l\'Historique'}
+              </a>
             </div>
           </>
         )}

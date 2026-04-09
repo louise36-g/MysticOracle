@@ -409,6 +409,16 @@ export class OpenRouterService {
           });
         }
 
+        // Sanitize em dashes and their common substitutes from AI output.
+        // Replace true em dashes (—) and space-hyphen-space ( - ) used as em dashes with commas.
+        // Space-hyphen-space with real hyphens (e.g. "well-being", "follow-up") never have spaces
+        // around them, so this replacement is safe for flowing prose.
+        content = content
+          .replace(/\s*—\s*/g, ', ') // true em dash → comma
+          .replace(/\s*–\s*/g, ', ') // en dash → comma
+          .replace(/ - /g, ', ') // space-hyphen-space (AI substitute) → comma
+          .replace(/,\s*,/g, ','); // clean up any double commas created above
+
         return content;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');

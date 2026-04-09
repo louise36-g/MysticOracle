@@ -75,9 +75,7 @@ export async function generateHoroscope(sign: string, language: 'en' | 'fr'): Pr
       maxTokens: 2000,
     });
 
-    // Prepend date header so users can see it's today's horoscope
-    const header = formatDateHeader(language);
-    return `${header}\n\n${horoscope}`;
+    return horoscope;
   } catch (error) {
     // If planetary calculations fail, throw explicit error
     // Don't silently fallback to generating without data

@@ -189,8 +189,8 @@ router.post(
       layoutId,
     });
 
-    // Check if this is a single card reading
-    const isSingleCard = spread.id === 'single' && spread.positions === 1;
+    // Check if this is a single card reading (yes_no uses multi-card path to avoid orientation language)
+    const isSingleCard = spread.id === 'single' && spread.positions === 1 && layoutId !== 'yes_no';
 
     let prompt: string;
     let maxTokens: number;

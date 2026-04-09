@@ -12,7 +12,9 @@ export type SingleCardLayoutId =
   | 'hearts_message'
   | 'professional_insight'
   | 'clarity_card'
-  | 'mirror_card';
+  | 'mirror_card'
+  | 'focused_insight'
+  | 'yes_no';
 
 export interface SingleCardLayout {
   id: SingleCardLayoutId;
@@ -21,6 +23,10 @@ export interface SingleCardLayout {
   taglineEn: string;
   taglineFr: string;
   positions: {
+    en: [string];
+    fr: [string];
+  };
+  shortPositions: {
     en: [string];
     fr: [string];
   };
@@ -56,6 +62,10 @@ export const SINGLE_CARD_LAYOUTS: Record<SingleCardLayoutId, SingleCardLayout> =
       en: ['The energy and guidance for your day'],
       fr: ["L'énergie et les conseils pour votre journée"],
     },
+    shortPositions: {
+      en: ['The energy and guidance for your day'],
+      fr: ["L'énergie et les conseils pour votre journée"],
+    },
   },
   hearts_message: {
     id: 'hearts_message',
@@ -64,6 +74,10 @@ export const SINGLE_CARD_LAYOUTS: Record<SingleCardLayoutId, SingleCardLayout> =
     taglineEn: 'When emotions feel tangled, one card cuts through the noise to reveal what your heart truly needs.',
     taglineFr: 'Quand les émotions semblent confuses, une carte traverse le bruit pour révéler ce dont votre coeur a vraiment besoin.',
     positions: {
+      en: ['What your heart is trying to tell you'],
+      fr: ['Ce que votre coeur essaie de vous dire'],
+    },
+    shortPositions: {
       en: ['What your heart is trying to tell you'],
       fr: ['Ce que votre coeur essaie de vous dire'],
     },
@@ -78,6 +92,10 @@ export const SINGLE_CARD_LAYOUTS: Record<SingleCardLayoutId, SingleCardLayout> =
       en: ['The insight you need for your career'],
       fr: ["L'éclairage dont vous avez besoin pour votre carrière"],
     },
+    shortPositions: {
+      en: ['The insight you need for your career'],
+      fr: ["L'éclairage dont vous avez besoin pour votre carrière"],
+    },
   },
   clarity_card: {
     id: 'clarity_card',
@@ -86,6 +104,10 @@ export const SINGLE_CARD_LAYOUTS: Record<SingleCardLayoutId, SingleCardLayout> =
     taglineEn: 'Facing a choice? One card illuminates what you might be overlooking or need to consider.',
     taglineFr: 'Face à un choix? Une carte illumine ce que vous pourriez négliger ou devez considérer.',
     positions: {
+      en: ['What you need to see clearly about this decision'],
+      fr: ['Ce que vous devez voir clairement concernant cette décision'],
+    },
+    shortPositions: {
       en: ['What you need to see clearly about this decision'],
       fr: ['Ce que vous devez voir clairement concernant cette décision'],
     },
@@ -100,6 +122,28 @@ export const SINGLE_CARD_LAYOUTS: Record<SingleCardLayoutId, SingleCardLayout> =
       en: ['What is asking for your attention within'],
       fr: ['Ce qui demande votre attention intérieure'],
     },
+    shortPositions: {
+      en: ['What is asking for your attention within'],
+      fr: ['Ce qui demande votre attention intérieure'],
+    },
+  },
+  focused_insight: {
+    id: 'focused_insight',
+    labelEn: 'Focused Insight',
+    labelFr: 'Aperçu Ciblé',
+    taglineEn: 'One card delivers the most important message you need right now. Open and reflective — ideal for any question.',
+    taglineFr: 'Une carte délivre le message le plus important dont vous avez besoin maintenant. Ouvert et réflexif — idéal pour toute question.',
+    positions: { en: ['Your message'], fr: ['Votre message'] },
+    shortPositions: { en: ['Message'], fr: ['Message'] },
+  },
+  yes_no: {
+    id: 'yes_no',
+    labelEn: 'Yes or No',
+    labelFr: 'Oui ou Non',
+    taglineEn: 'One card answers your yes/no question. The card\'s inherent energy gives the verdict — affirming cards say yes, cautionary cards say no. No reversals: the meaning speaks for itself.',
+    taglineFr: 'Une carte répond à votre question oui/non. L\'énergie propre à la carte donne le verdict — les cartes positives disent oui, les cartes de mise en garde disent non. Sans inversions : le sens parle de lui-même.',
+    positions: { en: ['Your answer'], fr: ['Votre réponse'] },
+    shortPositions: { en: ['Answer'], fr: ['Réponse'] },
   },
 };
 

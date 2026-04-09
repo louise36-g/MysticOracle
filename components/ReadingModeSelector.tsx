@@ -79,14 +79,14 @@ const ReadingModeSelector: React.FC<ReadingModeSelectorProps> = ({ onSelect }) =
           </LocalizedLink>
         </motion.div>
 
-        {/* Tarot Reading Card — centre, taller, brighter */}
-        <motion.div variants={cardVariants} className="h-full">
+        {/* Tarot Reading Card — centre, featured */}
+        <motion.div variants={cardVariants} className="h-full scale-[1.06] origin-bottom">
           <LocalizedLink
             to={ROUTES.READING}
-            className="group relative h-full px-4 py-5 rounded-xl border-[1.5px] border-[#C9A84C] hover:border-[#E8C96A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
+            className="group relative h-full px-4 py-5 rounded-xl border-2 border-[#E8C96A] hover:border-[#F5E09A] text-center backdrop-blur-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 overflow-hidden block"
             style={{
               background: 'linear-gradient(135deg, #4A2570, #6B3A9E)',
-              boxShadow: '0 2px 12px rgba(91, 45, 158, 0.5), inset 0 0 20px rgba(201, 168, 76, 0.08)',
+              boxShadow: '0 0 22px rgba(201, 168, 76, 0.35), 0 2px 14px rgba(91, 45, 158, 0.6), inset 0 0 20px rgba(201, 168, 76, 0.10)',
             }}
           >
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />

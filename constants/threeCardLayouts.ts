@@ -16,6 +16,7 @@ export type ThreeCardLayoutId =
   | 'inner_child_life_path'
   | 'inner_child_growth'
   | 'the_circle'
+  | 'yes_no'
   | 'custom';
 
 export interface ThreeCardLayout {
@@ -247,6 +248,15 @@ export const THREE_CARD_LAYOUTS: Record<ThreeCardLayoutId, ThreeCardLayout> = {
       en: ['My Role', 'Their Role', 'Balance'],
       fr: ['Mon rôle', 'Leur rôle', 'Équilibre'],
     },
+  },
+  yes_no: {
+    id: 'yes_no',
+    labelEn: 'Yes or No',
+    labelFr: 'Oui ou Non',
+    taglineEn: 'Ask a yes/no question and let three cards reveal the answer. No reversals — each card\'s inherent energy speaks. Situation and Action set the scene; Outcome delivers the verdict.',
+    taglineFr: 'Posez une question oui/non et laissez trois cartes révéler la réponse. Sans inversions — l\'énergie propre à chaque carte parle. Situation et Action posent le décor ; Résultat rend le verdict.',
+    positions: { en: ['Situation', 'Action', 'Outcome'], fr: ['Situation', 'Action', 'Résultat'] },
+    shortPositions: { en: ['Context', 'Action', 'Answer'], fr: ['Contexte', 'Action', 'Réponse'] },
   },
   custom: {
     id: 'custom',

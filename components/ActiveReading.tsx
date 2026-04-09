@@ -29,6 +29,7 @@ import {
   InterpretationPhase,
 } from './reading';
 import CategoryIntroPhase from './reading/phases/CategoryIntroPhase';
+import { SingleCardLayoutId } from '../constants/singleCardLayouts';
 import { TwoCardLayoutId } from '../constants/twoCardLayouts';
 import { ThreeCardLayoutId } from '../constants/threeCardLayouts';
 import { FiveCardLayoutId } from '../constants/fiveCardLayouts';
@@ -75,12 +76,16 @@ const LOADING_MESSAGES = {
  */
 function getLayoutId(
   spreadType: SpreadType,
+  singleCardLayout: SingleCardLayoutId | null,
   twoCardLayout: TwoCardLayoutId | null,
   threeCardLayout: ThreeCardLayoutId | null,
   fiveCardLayout: FiveCardLayoutId | null,
   horseshoeLayout: HorseshoeLayoutId | null,
   celticCrossLayout: CelticCrossLayoutId | null
 ): string | undefined {
+  if (spreadType === SpreadType.SINGLE && singleCardLayout) {
+    return singleCardLayout;
+  }
   if (spreadType === SpreadType.TWO_CARD && twoCardLayout) {
     return twoCardLayout;
   }
@@ -222,7 +227,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Guard against multiple save attempts
   const [isSavingReading, setIsSavingReading] = useState(false);
 
-  // Layout state (used for 2-card, 3-card, and 5-card spreads)
+  // Layout state (used for 1-card, 2-card, 3-card, and 5-card spreads)
+  const [singleCardLayout, setSingleCardLayout] = useState<SingleCardLayoutId | null>(null);
   const [twoCardLayout, setTwoCardLayout] = useState<TwoCardLayoutId | null>(null);
   const [threeCardLayout, setThreeCardLayout] = useState<ThreeCardLayoutId | null>(null);
   const [fiveCardLayout, setFiveCardLayout] = useState<FiveCardLayoutId | null>(null);
@@ -281,6 +287,10 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Set default layouts based on category config on mount
   useEffect(() => {
     if (categoryConfig) {
+      // Set default 1-card layout if not already set
+      if (!singleCardLayout && depth === 1 && categoryConfig.defaultLayouts?.[1]) {
+        setSingleCardLayout(categoryConfig.defaultLayouts[1] as SingleCardLayoutId);
+      }
       // Set default 2-card layout if not already set
       if (!twoCardLayout && depth === 2 && categoryConfig.defaultLayouts?.[2]) {
         setTwoCardLayout(categoryConfig.defaultLayouts[2] as TwoCardLayoutId);
@@ -294,7 +304,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         setFiveCardLayout(categoryConfig.defaultLayouts[5] as FiveCardLayoutId);
       }
     }
-  }, [category, depth, categoryConfig, twoCardLayout, threeCardLayout, fiveCardLayout]);
+  }, [category, depth, categoryConfig, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout]);
 
   // Scroll to top when phase changes
   useEffect(() => {
@@ -303,7 +313,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
   const regenerateReading = useCallback(async () => {
     if (!spread) return;
-    const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
+    const layoutId = getLayoutId(spread.id, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -330,7 +340,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
       console.error('Failed to regenerate reading:', error);
       setReadingText(t('reading.error.generateFailed', 'Failed to generate reading. Please try again.'));
     }
-  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
+  }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
 
   // Regenerate reading when language changes (if one is already displayed)
   useEffect(() => {
@@ -420,7 +430,8 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     if (!spread || drawnCards.length >= spread.positions) return;
 
     const newCard = deck[drawnCards.length];
-    const isReversed = Math.random() < 0.10;
+    const isYesNo = singleCardLayout === 'yes_no' || threeCardLayout === 'yes_no';
+    const isReversed = isYesNo ? false : Math.random() < 0.10;
 
     setDrawnCards(prev => [...prev, { card: newCard, isReversed }]);
 
@@ -439,7 +450,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
 
     setPhase('reading');
 
-    const layoutId = getLayoutId(spread.id, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
+    const layoutId = getLayoutId(spread.id, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, celticCrossLayout);
 
     try {
       const result = await generateReading({
@@ -513,7 +524,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     } finally {
       setIsSavingReading(false);
     }
-  }, [spread, generateReading, drawnCards, isAdvanced, selectedStyles, question, language, category, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
+  }, [spread, generateReading, drawnCards, isAdvanced, selectedStyles, question, language, category, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout, addToHistory, getToken, extendedQuestionPaid, refreshUser, t, setPhase, isSavingReading]);
 
   // Handle celebration complete
   const handleCelebrationComplete = useCallback(() => {
@@ -607,10 +618,12 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           language={language}
           category={category}
           depth={depth}
-          selectedLayout={twoCardLayout || threeCardLayout || fiveCardLayout}
+          selectedLayout={singleCardLayout || twoCardLayout || threeCardLayout || fiveCardLayout}
           onLayoutSelect={(layoutId) => {
             // Set appropriate layout state based on depth
-            if (depth === 2) {
+            if (depth === 1) {
+              setSingleCardLayout(layoutId as SingleCardLayoutId);
+            } else if (depth === 2) {
               setTwoCardLayout(layoutId as TwoCardLayoutId);
             } else if (depth === 3) {
               setThreeCardLayout(layoutId as ThreeCardLayoutId);

@@ -258,6 +258,11 @@ export const layoutPositions: Record<string, { en: string[]; fr: string[] }> = {
     en: ['Challenge', 'Support', 'Growth'],
     fr: ['Défi', 'Soutien', 'Croissance'],
   },
+  // Yes/No layouts
+  yes_no: {
+    en: ['Situation', 'Action', 'Outcome'],
+    fr: ['Situation', 'Action', 'Résultat'],
+  },
   // Five-card layouts
   iceberg: {
     en: [

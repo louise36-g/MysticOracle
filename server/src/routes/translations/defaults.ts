@@ -701,7 +701,23 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   },
   'about.cta.button': { en: 'Start Your Reading', fr: 'Commencer Votre Lecture' },
 
-  // Blog
+  // Blog — component-level keys used by BlogList.tsx (must match t() call keys exactly)
+  'blog.BlogList.mystic_insights': { en: 'Mystic Insights', fr: 'Révélations Mystiques' },
+  'blog.BlogList.explore_mystical_world': {
+    en: 'Explore the mystical world of tarot, astrology, and spiritual growth through our curated articles.',
+    fr: "Explorez le monde mystique du tarot, de l'astrologie et de la croissance spirituelle à travers nos articles sélectionnés.",
+  },
+  'blog.BlogList.all': { en: 'All', fr: 'Tous' },
+  'blog.BlogList.featured_articles': { en: 'Featured Articles', fr: 'Articles à la Une' },
+  'blog.BlogList.filtered_articles': { en: 'Filtered Articles', fr: 'Articles Filtrés' },
+  'blog.BlogList.all_articles': { en: 'All Articles', fr: 'Tous les Articles' },
+  'blog.BlogList.no_articles_found': { en: 'No articles found.', fr: 'Aucun article trouvé.' },
+  'blog.BlogList.page_x_of_y': {
+    en: 'Page {{page}} of {{totalPages}}',
+    fr: 'Page {{page}} sur {{totalPages}}',
+  },
+
+  // Blog — legacy/shared keys
   'blog.title': { en: 'Mystic Insights', fr: 'Révélations Mystiques' },
   'blog.subtitle': {
     en: 'Explore the mystical world of tarot, astrology, and spiritual growth.',
@@ -926,6 +942,34 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   }, // components/CreditShop.tsx:790
   'CreditShop.tsx.CreditShop.set_limits': { en: 'Set Limits', fr: 'Définir des Limites' }, // components/CreditShop.tsx:807
   'CreditShop.tsx.CreditShop.continue': { en: 'Continue', fr: 'Continuer' }, // components/CreditShop.tsx:817
+  // Keys added for refactored credit-shop sub-components
+  'CreditShop.tsx.CreditShop.quick_buy': { en: 'Quick Buy', fr: 'Achat Rapide' },
+  'CreditShop.tsx.CreditShop.price_per_credit': { en: '€0.50 per credit', fr: '€0,50 par crédit' },
+  'CreditShop.tsx.CreditShop.better_value': { en: 'Better Value', fr: 'Meilleure Offre' },
+  'CreditShop.tsx.CreditShop.you_have_credits': {
+    en: 'You have {{credits}} credits remaining. Top up to continue your mystical journey!',
+    fr: 'Vous avez {{credits}} crédits restants. Rechargez pour continuer votre voyage mystique !',
+  },
+  'CreditShop.tsx.CreditShop.unable_to_connect': {
+    en: 'Unable to connect to payment server. Please check your connection and try again.',
+    fr: 'Impossible de se connecter au serveur de paiement. Vérifiez votre connexion et réessayez.',
+  },
+  'CreditShop.tsx.CreditShop.select_a_credit': {
+    en: 'Select a credit package above to continue',
+    fr: 'Sélectionnez un forfait de crédits ci-dessus pour continuer',
+  },
+  'CreditShop.tsx.CreditShop.secure_payment_processed': {
+    en: 'Secure payment processed by Stripe & PayPal',
+    fr: 'Paiement sécurisé traité par Stripe & PayPal',
+  },
+  'CreditShop.tsx.CreditShop.youve_made_several': {
+    en: "You've made several purchases recently. Would you like to take a moment before continuing?",
+    fr: 'Vous avez effectué plusieurs achats récemment. Souhaitez-vous prendre un moment avant de continuer ?',
+  },
+  // Badge labels — keyed by badge type so they translate independently of DB package labels
+  'CreditShop.tsx.CreditShop.badge_popular': { en: '⭐ Most Popular', fr: '⭐ Le Plus Populaire' },
+  'CreditShop.tsx.CreditShop.badge_enthusiast': { en: '✨ Enthusiast', fr: '✨ Passionné' },
+  'CreditShop.tsx.CreditShop.badge_value': { en: '💰 Best Value', fr: '💰 Meilleur Prix' },
   'FAQ.tsx.FAQ.credit': { en: 'credit', fr: 'crédit' }, // components/FAQ.tsx:316
   'FAQ.tsx.FAQ.credits': { en: 'credits', fr: 'crédits' }, // components/FAQ.tsx:317
   'FAQ.tsx.FAQ.love_relationships': { en: 'Love & Relationships', fr: 'Amour & Relations' }, // components/FAQ.tsx:318
@@ -1722,17 +1766,8 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'admin.EditorTopBar.publish': { en: 'Publish', fr: 'Publier' }, // components/admin/editor/EditorTopBar.tsx:142
   'admin.TaxonomySelector.none_available': { en: 'None available', fr: 'Aucun disponible' }, // components/admin/editor/TaxonomySelector.tsx:47
   'blog.BlogList.enus': { en: 'en-US', fr: 'fr-FR' }, // components/blog/BlogList.tsx:103
-  'blog.BlogList.mystic_insights': { en: 'Mystic Insights', fr: 'Revelations Mystiques' }, // components/blog/BlogList.tsx:115
-  'blog.BlogList.featured_articles': { en: 'Featured Articles', fr: 'Articles a la Une' }, // components/blog/BlogList.tsx:129
   'blog.BlogList.filtering_by': { en: 'Filtering by:', fr: 'Filtrer par:' }, // components/blog/BlogList.tsx:252
   'blog.BlogList.nameen': { en: 'nameEn', fr: 'nameFr' }, // components/blog/BlogList.tsx:259
-  'blog.BlogList.filtered_articles': { en: 'Filtered Articles', fr: 'Articles Filtres' }, // components/blog/BlogList.tsx:279
-  'blog.BlogList.all_articles': { en: 'All Articles', fr: 'Tous les Articles' }, // components/blog/BlogList.tsx:280
-  'blog.BlogList.no_articles_found': { en: 'No articles found.', fr: 'Aucun article trouve.' }, // components/blog/BlogList.tsx:290
-  'blog.BlogList.page_page_of': {
-    en: 'Page ${page} of ${totalPages}',
-    fr: 'Page ${page} sur ${totalPages}',
-  }, // components/blog/BlogList.tsx:361
   'blog.BlogPost.enus': { en: 'en_US', fr: 'fr_FR' }, // components/blog/BlogPost.tsx:103
   'blog.BlogPost.article_not_found': { en: 'Article Not Found', fr: 'Article Non Trouve' }, // components/blog/BlogPost.tsx:262
   'blog.BlogPost.back_to_blog': { en: 'Back to Blog', fr: 'Retour au Blog' }, // components/blog/BlogPost.tsx:268

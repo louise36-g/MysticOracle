@@ -379,7 +379,7 @@ const CreditShop: React.FC<CreditShopProps> = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-slate-300">
-                      {t('CreditShop.tsx.CreditShop.you_have_credits', `You have ${user?.credits ?? 0} credits remaining. Top up to continue your mystical journey!`)}
+                      {t('CreditShop.tsx.CreditShop.you_have_credits', 'You have {{credits}} credits remaining. Top up to continue your mystical journey!', { credits: user?.credits ?? 0 })}
                     </p>
                   </div>
                 </div>
