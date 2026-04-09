@@ -65,6 +65,12 @@ const SPREAD_CONFIGS: Record<PrismaSpreadType, SpreadConfig> = {
     cost: 10,
     description: 'The most detailed and comprehensive spread',
   },
+  YES_NO: {
+    name: 'Yes/No Reading',
+    cardCount: 1,
+    cost: 1,
+    description: 'A direct yes or no answer to your question',
+  },
 };
 
 const VALID_SPREAD_TYPES = Object.keys(SPREAD_CONFIGS) as PrismaSpreadType[];
