@@ -425,8 +425,18 @@ router.post(
         : cardKeys[i];
       const orientation = reversedFlags[i] ? 'Reversed' : 'Upright';
 
+      // Compute effective verdict (reversed cards flip YES↔NO)
+      const rawVerdict = card?.verdict || 'UNCLEAR';
+      const effectiveVerdict = reversedFlags[i]
+        ? rawVerdict === 'YES'
+          ? 'NO'
+          : rawVerdict === 'NO'
+            ? 'YES'
+            : rawVerdict
+        : rawVerdict;
+
       cardDescParts.push(
-        `Position ${i + 1} (${THREE_CARD_POSITIONS[i]}): ${cardTitle} (${orientation})`
+        `Position ${i + 1} (${THREE_CARD_POSITIONS[i]}): ${cardTitle} (${orientation}) — Verdict: ${effectiveVerdict}`
       );
 
       const articleContent = art
@@ -436,9 +446,6 @@ router.post(
       if (context) {
         contextParts.push(`--- ${cardTitle} (${orientation}) ---\n${context}`);
       }
-
-      // Suppress unused variable warning
-      void card;
     }
 
     const cardDescriptions = cardDescParts.join('\n');

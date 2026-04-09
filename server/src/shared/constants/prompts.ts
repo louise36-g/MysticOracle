@@ -921,20 +921,22 @@ Language: {{language}}
 
 The querent asked: "{{question}}"
 
-The 3 cards drawn and their positions:
+The 3 cards drawn, their positions, and their individual verdicts:
 {{cardDescriptions}}
 
 Reference material from the cards' articles:
 {{articleContext}}
 
 The 3 positions represent:
-1. Energy Around You: the current energies influencing the situation
-2. Obstacle or Opportunity: what stands in the way or what can be leveraged
-3. Likely Outcome: the probable direction if current energies continue
+1. Energy Around You: the current energy, desire, or momentum the querent brings to this question
+2. Obstacle or Opportunity: what stands in the way, redirects, or transforms that initial energy
+3. Likely Outcome: the probable direction if current conditions continue — this position carries the most weight in the final answer
 
-Task: Synthesize all 3 cards into a holistic narrative answering their yes/no question. Reference each card's meaning in its specific position. Provide a clear overall verdict based on the combined energies. Ground your interpretation in the specific meanings from the reference material.
+Task: Synthesize all 3 cards into a clear, honest narrative answering their yes/no question.
 
-CRITICAL HONESTY RULE: Your verdict MUST honestly reflect what the cards actually show. If the cards are predominantly reversed or carry difficult energies, the answer is likely NO or UNCLEAR. Do NOT soften a negative reading into a "qualified yes" or "yes with caveats." Three reversed cards almost certainly mean NO. Give the reader an honest answer they can work with, even if it is not what they want to hear. A clear NO with practical insight is more respectful than a dishonest YES.
+HANDLING CONFLICTING VERDICTS: If the individual card verdicts differ (for example, YES in Position 1 but NO in Positions 2 and 3), you MUST address this directly in your opening. Do not gloss over the tension. Explain it through the position framework: the yes energy in Position 1 reflects what the querent desires or the momentum they feel right now. The no energy in Positions 2 or 3 shows what complicates or redirects that desire. This is not a contradiction — it is the reading telling a story. Use the tension to show the querent what is actually happening, not just what they hoped to hear. Weight the Outcome card (Position 3) most heavily in your final verdict.
+
+CRITICAL HONESTY RULE: Your verdict MUST honestly reflect what the cards show. Do NOT soften a negative reading into a "qualified yes." Give the reader a clear answer they can work with. A lucid NO with practical insight is more useful than a vague maybe.
 
 Write 2-3 short paragraphs. Be clear and direct.
 

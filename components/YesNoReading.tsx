@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -484,6 +484,34 @@ const YesNoReading: React.FC = () => {
   const verdict = isReversed
     ? (rawVerdict === 'YES' ? 'NO' : rawVerdict === 'NO' ? 'YES' : rawVerdict)
     : rawVerdict;
+
+  // ── Three-card overall verdict (computed from 3 effective verdicts) ──
+  const threeCardOverall = useMemo(() => {
+    if (threeCards.length < 3) return null;
+    const effectiveVerdicts = threeCards.map(tc => {
+      const raw = tc.info.verdict;
+      return tc.isReversed
+        ? (raw === 'YES' ? 'NO' : raw === 'NO' ? 'YES' : raw)
+        : raw;
+    });
+    const yes = effectiveVerdicts.filter(v => v === 'YES').length;
+    const no = effectiveVerdicts.filter(v => v === 'NO').length;
+    const outcome = effectiveVerdicts[2];
+    const isMixed = yes > 0 && no > 0;
+    let verdict: string;
+    if (outcome === 'UNCLEAR' || outcome === 'WAIT') {
+      verdict = 'UNCLEAR';
+    } else if (outcome === 'YES' || outcome === 'NO') {
+      verdict = outcome;
+    } else if (yes > no) {
+      verdict = 'YES';
+    } else if (no > yes) {
+      verdict = 'NO';
+    } else {
+      verdict = 'UNCLEAR';
+    }
+    return { verdict, isMixed };
+  }, [threeCards]);
 
   // ─────────────────────────────────────────────
   // Render
@@ -1464,6 +1492,33 @@ const YesNoReading: React.FC = () => {
                   );
                 })}
               </div>
+
+              {/* Overall verdict — shown once all cards are revealed */}
+              {revealedCount >= 3 && threeCardOverall && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="w-full max-w-2xl mx-auto mb-6 text-center"
+                >
+                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">
+                    {language === 'en' ? 'Overall Answer' : 'Réponse Globale'}
+                  </p>
+                  <span className={`inline-block px-8 py-2 rounded-full text-xl font-heading font-bold border ${VERDICT_COLORS[threeCardOverall.verdict]}`}>
+                    {threeCardOverall.verdict === 'YES' && (language === 'en' ? 'YES' : 'OUI')}
+                    {threeCardOverall.verdict === 'NO' && (language === 'en' ? 'NO' : 'NON')}
+                    {threeCardOverall.verdict === 'UNCLEAR' && (language === 'en' ? 'UNCLEAR' : 'INCERTAIN')}
+                    {threeCardOverall.verdict === 'WAIT' && (language === 'en' ? 'WAIT' : 'ATTENDEZ')}
+                  </span>
+                  {threeCardOverall.isMixed && (
+                    <p className="text-xs text-slate-400/80 mt-3 max-w-md mx-auto leading-relaxed">
+                      {language === 'en'
+                        ? 'The cards speak with nuance: your initial energy and desire point one way, but the obstacle and likely outcome redirect the answer. The reading below explains how the cards work together.'
+                        : 'Les cartes s\'expriment avec nuance : votre énergie et vos désirs pointent dans une direction, mais l\'obstacle et le résultat probable réorientent la réponse. La lecture ci-dessous explique comment les cartes s\'articulent.'}
+                    </p>
+                  )}
+                </motion.div>
+              )}
 
               {/* 3-card AI interpretation — loading shimmer */}
               {revealedCount >= 3 && !threeCardInterpretation && (
