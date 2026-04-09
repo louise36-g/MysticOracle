@@ -808,6 +808,13 @@ const InterpretMyCards: React.FC = () => {
                 </div>
               </div>
 
+              {/* Reading primer */}
+              <p className="text-xs text-slate-500/80 text-center leading-relaxed px-2">
+                {language === 'fr'
+                  ? "Chaque carte a sa propre signification, mais dans un tirage son interprétation est façonnée par ta question, sa position et l'énergie des cartes voisines — comme des couleurs qui se transforment au contact les unes des autres."
+                  : "Each card carries its own meaning, but in a reading its interpretation is shaped by your question, its position in the spread, and the energy of the surrounding cards — the way colours shift when placed beside each other."}
+              </p>
+
               {/* Interpretation */}
               <div className="prose prose-invert prose-purple max-w-none bg-slate-800/30 border border-white/5 rounded-xl p-6">
                 <div dangerouslySetInnerHTML={{ __html: interpretation.replace(/\n/g, '<br />') }} />
