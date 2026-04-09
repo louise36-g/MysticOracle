@@ -267,6 +267,19 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
               </AnimatePresence>
             </div>
 
+            {/* Reading primer — explains why position meanings differ from standalone card meanings */}
+            <div
+              className="flex items-start gap-3 rounded-xl px-4 py-3 mb-4 text-xs text-slate-400/80 leading-relaxed"
+              style={{ background: 'rgba(139, 92, 246, 0.06)', border: '1px solid rgba(139, 92, 246, 0.15)' }}
+            >
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 opacity-50" style={{ color: theme.primary }} />
+              <p>
+                {language === 'en'
+                  ? "A card's meaning in a reading is always a blend. Each card carries its own energy, but your question, its position in the spread, and the surrounding cards all act on it — the way neighbouring colours shift each other. What you read below is that combined, nuanced meaning, not the card in isolation."
+                  : "La signification d'une carte dans un tirage est toujours un mélange. Chaque carte porte sa propre énergie, mais ta question, la position qu'elle occupe et les cartes voisines l'influencent mutuellement — comme des couleurs qui se modifient au contact les unes des autres. Ce que tu lis ci-dessous, c'est cette signification combinée et nuancée, et non la carte vue isolément."}
+              </p>
+            </div>
+
             {/* The Oracle's Interpretation - Hero Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
