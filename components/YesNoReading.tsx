@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Sparkles, Star, ArrowRight, Coins } from 'lucide-react';
+import { Hand, Sparkles, Star, ArrowRight, Coins, History } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { FULL_DECK } from '../constants';
@@ -10,7 +10,7 @@ import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
 import { fetchYesNoCards, purchaseThreeCardSpread, interpretYesNoCard, interpretThreeCardSpread } from '../services/api/yesNo';
 import type { YesNoCardMap, YesNoCardData } from '../services/api/yesNo';
-import { ROUTES } from '../routes/routes';
+import { ROUTES, localizedRoute } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
 import Button from './Button';
 
@@ -1237,6 +1237,15 @@ const YesNoReading: React.FC = () => {
                         {language === 'en' ? 'Today\'s horoscope' : 'Horoscope du jour'}
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Link>
+                      <a
+                        href={localizedRoute(ROUTES.PROFILE, language)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                      >
+                        <History className="w-4 h-4 text-amber-400/70" />
+                        {language === 'en' ? 'Reading history' : 'Historique des lectures'}
+                      </a>
                     </div>
                   </motion.div>
                 )}
