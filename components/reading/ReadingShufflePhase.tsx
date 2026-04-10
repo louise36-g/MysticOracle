@@ -19,6 +19,7 @@ interface ReadingShufflePhaseProps {
   minDuration?: number;
   spreadType?: SpreadType;
   category?: ReadingCategory;
+  question?: string;
 }
 
 const NUM_CARDS = 7;
@@ -87,6 +88,7 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
   minDuration = 5000,
   spreadType = SpreadType.THREE_CARD,
   category,
+  question,
 }) => {
   const { t } = useApp();
   const [isShuffling, setIsShuffling] = useState(false);
@@ -431,9 +433,18 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
                   {t('reading.ReadingShufflePhase.shuffling_the_deck', 'Shuffling the deck...')}
                 </motion.h3>
 
-                <p className="text-sm text-slate-400 mb-8 max-w-xs mx-auto">
-                  {t('reading.ReadingShufflePhase.focus_on_your', 'Focus on your question as the cards align with your energy')}
-                </p>
+                {question ? (
+                  <div className="mb-8 max-w-sm mx-auto px-4 py-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                      {language === 'fr' ? 'Votre question' : 'Your question'}
+                    </p>
+                    <p className="text-sm text-slate-200 italic leading-snug">"{question}"</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 mb-8 max-w-xs mx-auto">
+                    {t('reading.ReadingShufflePhase.focus_on_your', 'Focus on your question as the cards align with your energy')}
+                  </p>
+                )}
 
                 <div className="relative">
                   {/* Particle burst when button appears */}

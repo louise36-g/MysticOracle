@@ -606,7 +606,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
   // Render phase content
   const renderPhaseContent = () => {
     if (phase === 'animating_shuffle') {
-      return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} category={category} />;
+      return <ReadingShufflePhase language={language} onStop={handleShuffleStop} spreadType={spread.id} category={category} question={question} />;
     }
 
     if (phase === 'intro') {
@@ -658,6 +658,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
           threeCardLayout={threeCardLayout}
           fiveCardLayout={fiveCardLayout}
           category={category}
+          question={question}
         />
       );
     }
