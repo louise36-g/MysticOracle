@@ -103,14 +103,12 @@ const DrawingPhase: React.FC<DrawingPhaseProps> = ({
         </div>
 
         {/* Question reminder */}
-        {question && (
-          <div className="mt-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">
-              {language === 'fr' ? 'Votre question' : 'Your question'}
-            </p>
-            <p className="text-sm text-slate-200 italic leading-snug">"{question}"</p>
-          </div>
-        )}
+        <div className="mt-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">
+            {language === 'fr' ? 'Votre question' : 'Your question'}
+          </p>
+          <p className="text-sm text-slate-200 italic leading-snug">"{question}"</p>
+        </div>
       </div>
 
       {/* Main drawing area */}
