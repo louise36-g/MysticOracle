@@ -215,18 +215,11 @@ const YesNoReading: React.FC = () => {
         setQuestion(saved.question);
         setIsCardRevealed(true);
         setPhase('revealed');
-        // Only show "cards have spoken" message if the user already saw this reading once
-        setIsRestoredDraw(!!saved.seen);
+        // Always show "cards have spoken" message when restoring — the user is revisiting
+        setIsRestoredDraw(true);
         // Restore cached AI interpretation if available
         if (saved.interpretation) {
           setAiInterpretation(saved.interpretation);
-        }
-        // Mark as seen for next visit
-        if (!saved.seen) {
-          try {
-            saved.seen = true;
-            localStorage.setItem(DAILY_DRAW_KEY, JSON.stringify(saved));
-          } catch { /* non-blocking */ }
         }
       }
     }
@@ -1144,12 +1137,20 @@ const YesNoReading: React.FC = () => {
                         transition={{ delay: 0.3 }}
                         className="mt-2 mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20"
                       >
-                        <p className="text-amber-200/80 text-sm leading-relaxed italic">
+                        <p className="text-amber-200/80 text-sm leading-relaxed italic mb-3">
                           {language === 'en'
                             ? 'The cards have already spoken today. Sit with this answer \u2014 sometimes the truths we resist are the ones we need most. Your next reading will be available tomorrow.'
                             : 'Les cartes ont d\u00e9j\u00e0 parl\u00e9 aujourd\u2019hui. Prenez le temps d\u2019accueillir cette r\u00e9ponse \u2014 parfois les v\u00e9rit\u00e9s que nous refusons sont celles dont nous avons le plus besoin. Votre prochain tirage sera disponible demain.'
                           }
                         </p>
+                        <Link
+                          to={ROUTES.READING}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-medium hover:bg-amber-500/30 hover:border-amber-400/60 transition-all"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          {language === 'en' ? 'Want more depth? Try a full reading' : 'Envie d\u2019aller plus loin\u00a0? Essayez un tirage complet'}
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                       </motion.div>
                     )}
 
