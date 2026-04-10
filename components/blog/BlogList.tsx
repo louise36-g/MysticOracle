@@ -254,8 +254,8 @@ const BlogList: React.FC = () => {
                 onClick={() => handleCategoryChange('')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   !selectedCategory
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 border border-purple-500/20'
+                    ? 'bg-purple-600 text-white shadow-[0_0_14px_rgba(168,85,247,0.5)]'
+                    : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                 }`}
               >
                 {t('blog.BlogList.all', 'All')}
@@ -268,8 +268,8 @@ const BlogList: React.FC = () => {
                     onClick={() => handleCategoryChange(cat.slug)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isActive
-                        ? 'text-white'
-                        : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 border border-purple-500/20'
+                        ? 'text-white shadow-[0_0_14px_rgba(168,85,247,0.4)]'
+                        : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                     }`}
                     style={isActive ? { backgroundColor: cat.color || '#7c3aed' } : undefined}
                   >
@@ -291,17 +291,17 @@ const BlogList: React.FC = () => {
                       onClick={() => handleCategoryChange(child.slug)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                         isChildActive
-                          ? 'text-white border-transparent'
-                          : 'text-slate-300 hover:text-white border-purple-500/30 hover:border-purple-500/50'
+                          ? 'text-white border-transparent shadow-[0_0_12px_rgba(168,85,247,0.35)]'
+                          : 'text-purple-200 border-purple-500/40 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                       }`}
                       style={
                         isChildActive
                           ? { backgroundColor: parentColor }
-                          : { backgroundColor: `${parentColor}15` }
+                          : { backgroundColor: `${parentColor}25` }
                       }
                     >
                       {language === 'en' ? child.nameEn : child.nameFr}
-                      <span className={`ml-1.5 ${isChildActive ? 'text-white/70' : 'text-slate-500'}`}>
+                      <span className={`ml-1.5 ${isChildActive ? 'text-white/70' : 'text-purple-400/60'}`}>
                         ({child.postCount})
                       </span>
                     </button>
