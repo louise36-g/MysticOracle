@@ -11,6 +11,15 @@ const categoryToSlug: Record<string, string> = {
   'Suit of Pentacles': 'pentacles',
 };
 
+// French translations for category names
+const categoryFr: Record<string, string> = {
+  'Major Arcana': 'Arcanes Majeures',
+  'Suit of Wands': 'Bâtons',
+  'Suit of Cups': 'Coupes',
+  'Suit of Swords': 'Épées',
+  'Suit of Pentacles': 'Deniers',
+};
+
 interface BreadcrumbsProps {
   category: string;
   title: string;
@@ -21,10 +30,11 @@ interface BreadcrumbsProps {
  * Shows: Home / The Arcanas / Category / Card Name
  */
 export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const cardName = title.split(':')[0].trim();
   const categorySlug = categoryToSlug[category] || category.toLowerCase().replace(/\s+/g, '-');
   const categoryUrl = buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categorySlug });
+  const categoryLabel = language === 'fr' ? (categoryFr[category] || category) : category;
 
   return (
     <nav aria-label="Breadcrumb" className="text-sm text-slate-400 mb-6">
@@ -34,7 +44,7 @@ export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
             to={ROUTES.HOME}
             className="hover:text-purple-400 transition-colors duration-200"
           >
-            Home
+            {t('tarot.breadcrumbs.home', 'Home')}
           </LocalizedLink>
         </li>
         <li className="text-slate-600">/</li>
@@ -52,7 +62,7 @@ export function Breadcrumbs({ category, title }: BreadcrumbsProps) {
             to={categoryUrl}
             className="hover:text-purple-400 transition-colors duration-200"
           >
-            {category}
+            {categoryLabel}
           </LocalizedLink>
         </li>
         <li className="text-slate-600">/</li>

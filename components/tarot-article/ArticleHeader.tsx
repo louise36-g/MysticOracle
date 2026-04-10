@@ -1,10 +1,26 @@
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Sparkles } from 'lucide-react';
-import { useTranslation } from '../../context/TranslationContext';
+import { useApp } from '../../context/AppContext';
 import { QuickNavChips } from './QuickNavChips';
 import { ArticleHeaderProps } from './types';
 import { AuthorAvatar } from '../shared/AuthorAvatar';
 import { formatDate } from '../../utils/dateFormatters';
+
+const CARD_TYPE_FR: Record<string, string> = {
+  MAJOR_ARCANA: 'ARCANES MAJEURES',
+  SUIT_OF_WANDS: 'BÂTONS',
+  SUIT_OF_CUPS: 'COUPES',
+  SUIT_OF_SWORDS: 'ÉPÉES',
+  SUIT_OF_PENTACLES: 'DENIERS',
+};
+
+const ELEMENT_FR: Record<string, string> = {
+  FIRE: 'FEU',
+  WATER: 'EAU',
+  AIR: 'AIR',
+  EARTH: 'TERRE',
+  SPIRIT: 'ESPRIT',
+};
 
 /**
  * Article header with title, meta info, badges, and quick navigation
@@ -22,7 +38,7 @@ export function ArticleHeader({
   onSectionClick,
   language,
 }: ArticleHeaderProps) {
-  const { t } = useTranslation();
+  const { t } = useApp();
 
   const formattedDate = formatDate(dateModified, language as 'en' | 'fr');
 
@@ -49,20 +65,22 @@ export function ArticleHeader({
         <span className="hidden sm:inline text-slate-600">|</span>
         <time dateTime={dateModified} className="flex items-center gap-1.5">
           <Calendar className="w-4 h-4 text-purple-400/70" />
-          Updated {formattedDate}
+          {t('tarot.ArticleHeader.updated', 'Updated')} {formattedDate}
         </time>
       </div>
 
       {/* Card metadata badges */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">
         <span className="px-4 py-1.5 bg-purple-500/15 text-purple-300 text-xs font-medium rounded-full border border-purple-500/30 backdrop-blur-sm">
-          {cardType.replace(/_/g, ' ')}
+          {language === 'fr'
+            ? (CARD_TYPE_FR[cardType] || cardType.replace(/_/g, ' '))
+            : cardType.replace(/_/g, ' ')}
         </span>
         <span className="px-4 py-1.5 bg-blue-500/15 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30 backdrop-blur-sm">
           {astrologicalCorrespondence}
         </span>
         <span className="px-4 py-1.5 bg-emerald-500/15 text-emerald-300 text-xs font-medium rounded-full border border-emerald-500/30 backdrop-blur-sm">
-          {element}
+          {language === 'fr' ? (ELEMENT_FR[element] || element) : element}
         </span>
         {isCourtCard && (
           <span className="px-4 py-1.5 bg-amber-500/15 text-amber-300 text-xs font-medium rounded-full border border-amber-500/30 backdrop-blur-sm flex items-center gap-1.5">

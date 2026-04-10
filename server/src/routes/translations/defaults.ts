@@ -49,6 +49,10 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'tarot.credit': { en: 'credit', fr: 'crédit' },
   'tarot.credits': { en: 'credits', fr: 'crédits' },
   'tarot.TarotArticlePage.back': { en: 'Back', fr: 'Retour' },
+  'tarot.breadcrumbs.home': { en: 'Home', fr: 'Accueil' },
+  'tarot.breadcrumbs.arcanas': { en: 'The Arcanas', fr: 'Les Arcanes' },
+  'tarot.ArticleHeader.updated': { en: 'Updated', fr: 'Mis à jour' },
+  'tarot.TarotArticlePage.related_blog_posts': { en: 'Related Articles', fr: 'Articles Connexes' },
 
   // Horoscope signs
   'horoscope.title': { en: 'Daily Horoscope', fr: 'Horoscope Quotidien' },

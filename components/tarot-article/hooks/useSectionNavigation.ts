@@ -42,7 +42,7 @@ const FIXED_NAV_SECTIONS = [
     labelFr: 'À l\'endroit',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('upright') || (lower.includes('à l\'endroit') && lower.includes('signification'));
+      return lower.includes('upright') || lower.includes('à l\u2019endroit') || lower.includes('à l\'endroit');
     },
   },
   {
@@ -50,7 +50,7 @@ const FIXED_NAV_SECTIONS = [
     labelFr: 'À l\'envers',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('reversed') || (lower.includes('à l\'envers') && lower.includes('signification'));
+      return lower.includes('reversed') || lower.includes('à l\u2019envers') || lower.includes('à l\'envers');
     },
   },
   {
@@ -104,9 +104,9 @@ export function useSectionNavigation({
     const foundSections: Section[] = [];
 
     for (const navSection of FIXED_NAV_SECTIONS) {
-      // First try H2 headings
+      // First try H2 headings — use raw textContent for matching (preserves French accents/apostrophes)
       let matchIndex = h2Headings.findIndex((h) => {
-        const title = h.textContent?.replace(/[^\w\s&:'-]/g, '').trim() || '';
+        const title = h.textContent?.trim() || '';
         return navSection.match(title);
       });
 
@@ -125,7 +125,7 @@ export function useSectionNavigation({
 
       // If not found in H2, try H3 headings (for Upright, Symbols)
       matchIndex = h3Headings.findIndex((h) => {
-        const title = h.textContent?.replace(/[^\w\s&:'-àâéèêëïîôùûüç]/g, '').trim() || '';
+        const title = h.textContent?.trim() || '';
         return navSection.match(title);
       });
 
