@@ -16,9 +16,6 @@ const API_URL = rawUrl.replace(/\/api$/, '');
 const STORAGE_KEY = 'mystic_translations';
 const VERSION_KEY = 'mystic_translations_version';
 
-// Cache configuration
-const STALE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes - check version after this
-
 // Types
 export interface TranslationData {
   translations: Record<string, string>;
@@ -106,13 +103,6 @@ async function fetchVersionFromServer(): Promise<number> {
 }
 
 /**
- * Check if cache is stale (needs version check)
- */
-function isCacheStale(cached: TranslationData): boolean {
-  return Date.now() - cached.timestamp > STALE_THRESHOLD_MS;
-}
-
-/**
  * Dispatch event when translations are updated
  */
 function dispatchTranslationsUpdated(language: Language): void {
@@ -130,10 +120,9 @@ export async function loadTranslations(language: Language): Promise<Record<strin
 
   // If we have cached data, return it immediately
   if (cached) {
-    // Check for updates in background if cache is stale
-    if (isCacheStale(cached)) {
-      checkForUpdates(language, cached.version);
-    }
+    // Always check version in background — ensures seeded keys are picked up promptly
+    // (lightweight version-only API call; only re-fetches if version actually changed)
+    checkForUpdates(language, cached.version);
     return cached.translations;
   }
 
