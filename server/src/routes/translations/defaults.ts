@@ -1772,6 +1772,7 @@ export const defaultTranslations: Record<string, TranslationValue> = {
   'blog.BlogList.enus': { en: 'en-US', fr: 'fr-FR' }, // components/blog/BlogList.tsx:103
   'blog.BlogList.filtering_by': { en: 'Filtering by:', fr: 'Filtrer par:' }, // components/blog/BlogList.tsx:252
   'blog.BlogList.nameen': { en: 'nameEn', fr: 'nameFr' }, // components/blog/BlogList.tsx:259
+  'blog.BlogList.tarot_card_label': { en: 'Tarot Card', fr: 'Carte de Tarot' }, // components/blog/BlogList.tsx:441
   'blog.BlogPost.enus': { en: 'en_US', fr: 'fr_FR' }, // components/blog/BlogPost.tsx:103
   'blog.BlogPost.article_not_found': { en: 'Article Not Found', fr: 'Article Non Trouve' }, // components/blog/BlogPost.tsx:262
   'blog.BlogPost.back_to_blog': { en: 'Back to Blog', fr: 'Retour au Blog' }, // components/blog/BlogPost.tsx:268
@@ -1828,14 +1829,14 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Clear filters',
     fr: 'Effacer les filtres',
   }, // components/profile/TransactionFilters.tsx:118
-  'profile.TransactionItem.today': { en: 'Today', fr: 'Aujourd' }, // components/profile/TransactionItem.tsx:74
+  'profile.TransactionItem.today': { en: 'Today', fr: "Aujourd'hui" }, // components/profile/TransactionItem.tsx:74
   'profile.TransactionItem.yesterday': { en: 'Yesterday', fr: 'Hier' }, // components/profile/TransactionItem.tsx:75
   'profile.TransactionItem.diffdaysd_ago': {
     en: '${diffDays}d ago',
     fr: 'Il y a ${diffDays}j',
   }, // components/profile/TransactionItem.tsx:76
   'profile.TransactionItem.enus': { en: 'en-US', fr: 'fr-FR' }, // components/profile/TransactionItem.tsx:78
-  'reading.OracleChat.ask_the_oracle': { en: 'Ask the Oracle', fr: 'Demandez à l' }, // components/reading/OracleChat.tsx:47
+  'reading.OracleChat.ask_the_oracle': { en: 'Ask the Oracle', fr: "Demandez à l'Oracle" }, // components/reading/OracleChat.tsx:47
   'reading.OracleChat.balance': { en: 'Balance:', fr: 'Solde:' }, // components/reading/OracleChat.tsx:51
   'reading.OracleChat.ask_a_followup': {
     en: 'Ask a follow-up question...',
@@ -1978,6 +1979,11 @@ export const defaultTranslations: Record<string, TranslationValue> = {
     en: 'Get your reading now',
     fr: 'Obtenez votre tirage maintenant',
   },
+  'tarot.TarotArticlePage.court_card': { en: 'Court Card', fr: 'Carte de Cour' }, // components/tarot-article/ArticleHeader.tsx:88
+  'tarot.TarotArticlePage.not_found': { en: 'Article Not Found', fr: 'Article Introuvable' }, // components/tarot-article/TarotArticlePage.tsx:372
+  'tarot.TarotArticlePage.related_cards': { en: 'Related Cards', fr: 'Cartes Associées' }, // components/tarot-article/RelatedCards.tsx:102
+  'tarot.TarotArticlePage.related_topics': { en: 'Related Topics', fr: 'Thèmes Connexes' }, // components/tarot-article/ArticleTags.tsx:177
+  'tarot.TableOfContents.contents': { en: 'Contents', fr: 'Sommaire' }, // components/tarot-article/TableOfContents.tsx:68
 
   // ============================================
   // HoroscopeReading.tsx

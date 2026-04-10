@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { List, ChevronRight } from 'lucide-react';
 import { TableOfContentsProps } from './types';
+import { useApp } from '../../context/AppContext';
 
 /**
  * Floating Table of Contents (Desktop XL+)
@@ -15,6 +16,7 @@ export function TableOfContents({
   activeSection,
   onSectionClick,
 }: TableOfContentsProps) {
+  const { t } = useApp();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -65,7 +67,7 @@ export function TableOfContents({
                   <div className="flex items-center gap-2 text-purple-300">
                     <List className="w-4 h-4" />
                     <span className="text-xs font-semibold uppercase tracking-wider">
-                      Contents
+                      {t('tarot.TableOfContents.contents', 'Contents')}
                     </span>
                   </div>
                   {/* Progress bar */}

@@ -438,7 +438,7 @@ const BlogList: React.FC = () => {
                       <div className="flex flex-wrap gap-2 mb-3">
                         {article.type === 'tarot' ? (
                           <span className="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-400">
-                            Tarot Card
+                            {t('blog.BlogList.tarot_card_label', 'Tarot Card')}
                           </span>
                         ) : (
                           article.categories.slice(0, 2).map((cat) => (

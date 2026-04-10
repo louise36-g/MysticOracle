@@ -123,7 +123,7 @@ const UserProfile: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950">
-            <Helmet><title>My Profile - CelestiArcana</title></Helmet>
+            <Helmet><title>{language === 'fr' ? 'Mon Profil - CelestiArcana' : 'My Profile - CelestiArcana'}</title></Helmet>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-4 sm:space-y-6">
 
                 {/* Compact Profile Header */}
