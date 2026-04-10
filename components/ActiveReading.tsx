@@ -696,6 +696,7 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
         chatInput={chatInput}
         isChatLoading={isChatLoading}
         questionCost={questionCost}
+        singleCardLayout={singleCardLayout}
         threeCardLayout={threeCardLayout}
         fiveCardLayout={fiveCardLayout}
         category={category}

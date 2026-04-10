@@ -63,10 +63,6 @@ const ThemedBackground: React.FC<ThemedBackgroundProps> = ({ spreadType, categor
         <>
           {/* Horizontal time flow gradient - fuchsia/purple */}
           <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-950/30 via-purple-900/20 to-fuchsia-950/30" />
-          {/* Flowing lines - fuchsia */}
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-fuchsia-500/30 via-purple-400/40 to-fuchsia-500/30" />
-          <div className="absolute top-[48%] left-0 right-0 h-px bg-gradient-to-r from-fuchsia-500/20 via-transparent to-fuchsia-500/20" />
-          <div className="absolute top-[52%] left-0 right-0 h-px bg-gradient-to-r from-fuchsia-500/20 via-transparent to-fuchsia-500/20" />
           {/* Time orbs - fuchsia/magenta tones */}
           <div className="absolute top-1/2 left-[15%] -translate-y-1/2 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-2xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-500/15 rounded-full blur-2xl" />

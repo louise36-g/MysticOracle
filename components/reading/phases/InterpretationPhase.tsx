@@ -11,8 +11,15 @@ import { ReadingCompleteCelebration } from '../../rewards';
 import { SPREAD_THEMES } from '../SpreadThemes';
 import { THREE_CARD_LAYOUTS, ThreeCardLayoutId } from '../../../constants/threeCardLayouts';
 import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCardLayouts';
+import { SingleCardLayoutId } from '../../../constants/singleCardLayouts';
 import { getCategory } from '../../../constants/categoryConfig';
 import { ROUTES, localizedRoute } from '../../../routes/routes';
+
+const VERDICT_COLORS: Record<string, string> = {
+  YES: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+  NO: 'bg-red-500/20 text-red-300 border-red-500/40',
+  MAYBE: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+};
 
 interface DrawnCard {
   card: TarotCard;
@@ -36,6 +43,7 @@ interface InterpretationPhaseProps {
   chatInput: string;
   isChatLoading: boolean;
   questionCost: number;
+  singleCardLayout?: SingleCardLayoutId | null;
   threeCardLayout?: ThreeCardLayoutId | null;
   fiveCardLayout?: FiveCardLayoutId | null;
   category?: ReadingCategory;
@@ -72,6 +80,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   chatInput,
   isChatLoading,
   questionCost,
+  singleCardLayout,
   threeCardLayout,
   fiveCardLayout,
   category,
@@ -119,6 +128,14 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
     setHasStartedDraw(true);
     onDrawClarification?.();
   };
+
+  // Yes/No verdict detection: parse [VERDICT:X] token from readingText
+  const isYesNoSpread = singleCardLayout === 'yes_no' || threeCardLayout === 'yes_no';
+  const verdictMatch = isYesNoSpread ? readingText.match(/\[VERDICT:(YES|NO|MAYBE)\]/) : null;
+  const verdict = verdictMatch ? verdictMatch[1] : null;
+  const displayText = isYesNoSpread && verdictMatch
+    ? readingText.replace(/\[VERDICT:(YES|NO|MAYBE)\]\s*\n?/, '')
+    : readingText;
 
   return (
     <div className="relative min-h-screen">
@@ -295,13 +312,29 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                 </span>
               </div>
 
+              {/* Verdict pill for yes/no spreads */}
+              {isYesNoSpread && verdict && !isGenerating && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex justify-center mb-6"
+                >
+                  <span className={`inline-block px-8 py-2.5 rounded-full text-xl font-heading font-bold border ${VERDICT_COLORS[verdict]}`}>
+                    {verdict === 'YES' && (language === 'en' ? 'YES' : 'OUI')}
+                    {verdict === 'NO' && (language === 'en' ? 'NO' : 'NON')}
+                    {verdict === 'MAYBE' && (language === 'en' ? 'MAYBE' : 'PEUT-ÊTRE')}
+                  </span>
+                </motion.div>
+              )}
+
               {/* Reading content box */}
               <div
                 className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-10"
                 style={{ boxShadow: `0 0 60px ${theme.glow}` }}
               >
                 <div className="max-w-none">
-                  {readingText.split('\n').map((line, i) => {
+                  {displayText.split('\n').map((line, i) => {
                     if (!line.trim()) return null;
                     const trimmedLine = line.trim();
 
