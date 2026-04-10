@@ -22,6 +22,39 @@ const ELEMENT_FR: Record<string, string> = {
   SPIRIT: 'ESPRIT',
 };
 
+const ASTRO_FR: Record<string, string> = {
+  // Celestial bodies (tarot card names used as correspondences)
+  'The Moon': 'La Lune',
+  'The Sun': 'Le Soleil',
+  // Planets
+  Mercury: 'Mercure',
+  Venus: 'Vénus',
+  Mars: 'Mars',
+  Jupiter: 'Jupiter',
+  Saturn: 'Saturne',
+  Uranus: 'Uranus',
+  Neptune: 'Neptune',
+  Pluto: 'Pluton',
+  // Zodiac signs
+  Aries: 'Bélier',
+  Taurus: 'Taureau',
+  Gemini: 'Gémeaux',
+  Cancer: 'Cancer',
+  Leo: 'Lion',
+  Virgo: 'Vierge',
+  Libra: 'Balance',
+  Scorpio: 'Scorpion',
+  Sagittarius: 'Sagittaire',
+  Capricorn: 'Capricorne',
+  Aquarius: 'Verseau',
+  Pisces: 'Poissons',
+  // Elements
+  Fire: 'Feu',
+  Water: 'Eau',
+  Air: 'Air',
+  Earth: 'Terre',
+};
+
 /**
  * Article header with title, meta info, badges, and quick navigation
  */
@@ -77,7 +110,9 @@ export function ArticleHeader({
             : cardType.replace(/_/g, ' ')}
         </span>
         <span className="px-4 py-1.5 bg-blue-500/15 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30 backdrop-blur-sm">
-          {astrologicalCorrespondence}
+          {language === 'fr'
+            ? (ASTRO_FR[astrologicalCorrespondence] || astrologicalCorrespondence)
+            : astrologicalCorrespondence}
         </span>
         <span className="px-4 py-1.5 bg-emerald-500/15 text-emerald-300 text-xs font-medium rounded-full border border-emerald-500/30 backdrop-blur-sm">
           {language === 'fr' ? (ELEMENT_FR[element] || element) : element}
