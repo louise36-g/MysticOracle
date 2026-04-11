@@ -214,7 +214,22 @@ export async function getTarotReadingPrompt(params: {
       sectionHeaders: sectionHeaders,
     };
 
-    return interpolatePrompt(basePrompt, variables);
+    const assembled = interpolatePrompt(basePrompt, variables);
+
+    // For yes/no layouts, prepend the verdict token instruction so it appears
+    // before the section structure — the AI must output [VERDICT:X] as the
+    // absolute first line of its response, before Key Themes or any section.
+    const isYesNoLayout =
+      (params.spreadType.toUpperCase() === 'THREE_CARD' && params.layoutId === 'yes_no') ||
+      (params.spreadType.toUpperCase() === 'SINGLE' && params.layoutId === 'yes_no');
+
+    if (isYesNoLayout) {
+      const verdictPrefix =
+        "ABSOLUTE FIRST LINE REQUIREMENT: Before writing a single word of your reading, output exactly one of the following verdict tokens on its own line — nothing before it, not even a space:\n[VERDICT:YES]\n[VERDICT:NO]\n[VERDICT:MAYBE]\n\nFor a three-card yes/no reading: base the verdict on the first card's inherent energy (the Situation card), since it carries the primary answer. Cards 2 and 3 add context and should not override card 1's verdict. For a single card yes/no reading: base the verdict on that card's inherent energy.\n\nYES = affirming, growth-oriented, or forward-moving energy. NO = caution, obstacle, resistance, or inward-drawing energy. MAYBE = genuinely balanced or transitional energy.\n\nAfter outputting the verdict token, write your reading normally starting with the first section.\n\n";
+      return verdictPrefix + assembled;
+    }
+
+    return assembled;
   } catch (error) {
     logger.error('[PromptService] Error assembling tarot reading prompt:', error);
     throw error;
