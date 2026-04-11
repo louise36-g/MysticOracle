@@ -62,8 +62,8 @@ interface YesNoCardData {
 
 type YesNoCardMap = Record<string, YesNoCardData>;
 
-// Position labels for the 3-card spread
-const THREE_CARD_POSITIONS = ['Energy Around You', 'Obstacle or Opportunity', 'Likely Outcome'];
+// Position labels for the clarifying cards spread
+const CARD_POSITION_LABELS = ["The Oracle's Answer", 'The Deeper Picture', 'The Deeper Picture'];
 
 // Map a cardKey (e.g. "MAJOR_ARCANA:5") to a numeric card ID (0–77)
 function cardKeyToId(cardKey: string): number | null {
@@ -311,7 +311,7 @@ router.post(
 // ───────────────────────────────────────────────
 
 const threeCardSchema = z.object({
-  cardKeys: z.array(z.string()).length(3),
+  cardKeys: z.array(z.string()).length(2),
 });
 
 router.post(
@@ -320,7 +320,9 @@ router.post(
   asyncHandler(async (req, res) => {
     const parsed = threeCardSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ error: 'Invalid request: must provide exactly 3 card keys' });
+      return res
+        .status(400)
+        .json({ error: 'Invalid request: must provide exactly 2 clarifying card keys' });
     }
 
     const { cardKeys } = parsed.data;
@@ -332,7 +334,7 @@ router.post(
       userId,
       amount: CREDIT_COSTS.YES_NO_THREE_CARD,
       type: TransactionType.READING,
-      description: 'Yes/No 3-card spread',
+      description: 'Yes/No clarifying cards',
     });
 
     if (!result.success) {
@@ -352,7 +354,7 @@ router.post(
       await creditService.refundCredits(
         userId,
         CREDIT_COSTS.YES_NO_THREE_CARD,
-        'Yes/No 3-card spread — invalid card key'
+        'Yes/No clarifying cards — invalid card key'
       );
       return res.status(400).json({ error: 'One or more card keys not found' });
     }
@@ -368,6 +370,7 @@ router.post(
 // POST /interpret-three-card — auth required, no credit (AI interpretation only)
 // ───────────────────────────────────────────────
 
+// Receives 3 cards: card 1 (original draw) + 2 clarifying cards
 const interpretThreeCardSchema = z.object({
   question: z.string().min(1).max(500),
   cardKeys: z.array(z.string()).length(3),
@@ -436,7 +439,7 @@ router.post(
         : rawVerdict;
 
       cardDescParts.push(
-        `Position ${i + 1} (${THREE_CARD_POSITIONS[i]}): ${cardTitle} (${orientation}) — Verdict: ${effectiveVerdict}`
+        `Card ${i + 1} (${CARD_POSITION_LABELS[i]}): ${cardTitle} (${orientation}), Verdict: ${effectiveVerdict}`
       );
 
       const articleContent = art

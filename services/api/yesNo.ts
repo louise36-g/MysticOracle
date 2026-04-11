@@ -46,11 +46,11 @@ export async function fetchYesNoCards(): Promise<YesNoCardMap> {
 }
 
 /**
- * Purchase a 3-card yes/no spread (1 credit, fast — no AI)
+ * Purchase 2 clarifying cards (1 credit, fast — no AI)
  */
 export async function purchaseThreeCardSpread(
   token: string,
-  cardKeys: [string, string, string]
+  cardKeys: [string, string]
 ): Promise<ThreeCardResponse> {
   return apiRequest<ThreeCardResponse>('/api/v1/yes-no/three-card', {
     method: 'POST',

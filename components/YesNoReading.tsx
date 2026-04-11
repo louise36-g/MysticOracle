@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,9 +41,14 @@ const SHUFFLE_DURATION = 5000;
 
 const DAILY_DRAW_KEY = 'celestiarcana_yesno_draw';
 
-const THREE_CARD_LABELS = {
-  en: ['Energy Around You', 'Obstacle or Opportunity', 'Likely Outcome'],
-  fr: ['Énergie Autour de Vous', 'Obstacle ou Opportunité', 'Résultat Probable'],
+const DEEPER_PICTURE_LABEL = {
+  en: 'The Deeper Picture',
+  fr: 'La Vue Approfondie',
+};
+
+const ORACLE_ANSWER_LABEL = {
+  en: "The Oracle's Answer",
+  fr: "La Réponse de l'Oracle",
 };
 
 const VERDICT_COLORS: Record<string, string> = {
@@ -365,15 +370,15 @@ const YesNoReading: React.FC = () => {
         return;
       }
 
-      // Draw 3 new cards (excluding the already-drawn card)
+      // Draw 2 clarifying cards (excluding the already-drawn card)
       const available = FULL_DECK.filter(c => c.id !== drawnCard?.id);
       const shuffled = shuffleDeck([...available]);
-      const drawn = shuffled.slice(0, 3).map(card => ({
+      const drawn = shuffled.slice(0, 2).map(card => ({
         card,
         isReversed: Math.random() < 0.10,
       }));
 
-      const cardKeys = drawn.map(d => cardIdToArticleKey(d.card.id)) as [string, string, string];
+      const cardKeys = drawn.map(d => cardIdToArticleKey(d.card.id)) as [string, string];
 
       // Fast API call — just card data + credit deduction, no AI
       const result = await purchaseThreeCardSpread(token, cardKeys);
@@ -393,8 +398,8 @@ const YesNoReading: React.FC = () => {
       console.error('[YesNo 3-card] Error:', message);
       if (message.includes('Insufficient') || message.includes('402') || message.includes('credit')) {
         setThreeCardError(language === 'en'
-          ? 'You need 1 credit for the 3-card spread. Top up your credits to continue.'
-          : 'Vous avez besoin d\'1 crédit pour le tirage à 3 cartes. Rechargez vos crédits pour continuer.');
+          ? 'You need 1 credit to draw the clarifying cards. Top up your credits to continue.'
+          : 'Vous avez besoin d\'1 crédit pour tirer les cartes de clarification. Rechargez vos crédits pour continuer.');
       } else {
         setThreeCardError(language === 'en'
           ? `Something went wrong: ${message}. Please try again.`
@@ -412,29 +417,30 @@ const YesNoReading: React.FC = () => {
     setPhase('three-card-drawing');
   }, []);
 
-  // User taps the deck to draw one card at a time (3-card spread)
+  // User taps the deck to draw one clarifying card at a time
   const handleThreeCardDeckClick = useCallback(() => {
-    if (threeCardDrawCount >= 3) return; // All drawn
+    if (threeCardDrawCount >= 2) return; // All drawn
     const next = threeCardDrawCount + 1;
     setThreeCardDrawCount(next);
 
-    // After 3rd card drawn, wait 1s then reveal all sequentially
-    if (next === 3) {
+    // After 2nd card drawn, wait 1s then reveal both sequentially
+    if (next === 2) {
       setTimeout(() => {
         setPhase('three-card-revealed');
-        // Reveal each card with a delay
-        [0, 1, 2].forEach((i) => {
+        // Reveal each clarifier card with a delay
+        [0, 1].forEach((i) => {
           setTimeout(() => setRevealedCount(i + 1), i * 800);
         });
 
-        // Fetch AI interpretation in background
+        // Fetch AI interpretation in background — passes card 1 + 2 clarifiers
         (async () => {
           try {
             const token = await getToken();
-            if (!token || !question.trim()) return;
+            if (!token || !question.trim() || !drawnCard) return;
 
-            const cardKeys = threeCards.map(tc => cardIdToArticleKey(tc.card.id));
-            const reversedFlags = threeCards.map(tc => tc.isReversed);
+            // Card 1 (original draw) is first, then the 2 clarifiers
+            const cardKeys = [cardIdToArticleKey(drawnCard.id), ...threeCards.map(tc => cardIdToArticleKey(tc.card.id))];
+            const reversedFlags = [isReversed, ...threeCards.map(tc => tc.isReversed)];
 
             const result = await interpretThreeCardSpread(token, {
               question,
@@ -450,7 +456,7 @@ const YesNoReading: React.FC = () => {
         })();
       }, 1000);
     }
-  }, [threeCardDrawCount, getToken, question, threeCards, language]);
+  }, [threeCardDrawCount, getToken, question, threeCards, language, drawnCard, isReversed]);
 
   // ── Derived values ──
 
@@ -478,33 +484,6 @@ const YesNoReading: React.FC = () => {
     ? (rawVerdict === 'YES' ? 'NO' : rawVerdict === 'NO' ? 'YES' : rawVerdict)
     : rawVerdict;
 
-  // ── Three-card overall verdict (computed from 3 effective verdicts) ──
-  const threeCardOverall = useMemo(() => {
-    if (threeCards.length < 3) return null;
-    const effectiveVerdicts = threeCards.map(tc => {
-      const raw = tc.info.verdict;
-      return tc.isReversed
-        ? (raw === 'YES' ? 'NO' : raw === 'NO' ? 'YES' : raw)
-        : raw;
-    });
-    const yes = effectiveVerdicts.filter(v => v === 'YES').length;
-    const no = effectiveVerdicts.filter(v => v === 'NO').length;
-    const outcome = effectiveVerdicts[2];
-    const isMixed = yes > 0 && no > 0;
-    let verdict: string;
-    if (outcome === 'UNCLEAR' || outcome === 'WAIT') {
-      verdict = 'UNCLEAR';
-    } else if (outcome === 'YES' || outcome === 'NO') {
-      verdict = outcome;
-    } else if (yes > no) {
-      verdict = 'YES';
-    } else if (no > yes) {
-      verdict = 'NO';
-    } else {
-      verdict = 'UNCLEAR';
-    }
-    return { verdict, isMixed };
-  }, [threeCards]);
 
   // ─────────────────────────────────────────────
   // Render
@@ -1179,10 +1158,12 @@ const YesNoReading: React.FC = () => {
                       </a>
                     )}
 
-                    {/* Go Deeper CTA */}
+                    {/* See the Full Picture CTA */}
                     <div className="mt-6 mb-4">
                       <p className="text-slate-200/80 text-base mb-3">
-                        {language === 'en' ? 'Want more context? A 3-card spread reveals the full picture.' : 'Envie de plus de contexte ? Un tirage à 3 cartes révèle la situation complète.'}
+                        {language === 'en'
+                          ? 'Draw two clarifying cards to see the energies around this answer.'
+                          : 'Tirez deux cartes de clarification pour voir les énergies autour de cette réponse.'}
                       </p>
                       <motion.button
                         whileHover={{ scale: 1.03, y: -2 }}
@@ -1200,12 +1181,12 @@ const YesNoReading: React.FC = () => {
                           {!isSignedIn ? (
                             <>
                               <Sparkles className="w-4 h-4 text-purple-300" />
-                              {language === 'en' ? 'Sign In for 3-Card Spread' : 'Connectez-vous pour le Tirage à 3 Cartes'}
+                              {language === 'en' ? 'Sign In to See the Full Picture' : 'Connectez-vous pour Voir la Vue Complète'}
                             </>
                           ) : (
                             <>
                               <Sparkles className="w-4 h-4 text-amber-300" />
-                              {language === 'en' ? 'Go Deeper — 3-Card Spread' : 'Approfondir — Tirage à 3 Cartes'}
+                              {language === 'en' ? 'See the Full Picture' : 'Voir la Vue Complète'}
                               <span className="ml-1 flex items-center gap-1 text-xs text-amber-300/80">
                                 <Coins className="w-3 h-3" />1
                               </span>
@@ -1253,8 +1234,8 @@ const YesNoReading: React.FC = () => {
             </motion.div>
           )}
 
-          {/* ══════════ THREE-CARD DRAWING PHASE ══════════ */}
-          {phase === 'three-card-drawing' && threeCards.length === 3 && (
+          {/* ══════════ CLARIFYING CARDS DRAWING PHASE ══════════ */}
+          {phase === 'three-card-drawing' && threeCards.length === 2 && (
             <motion.div
               key="draw-three"
               initial={{ opacity: 0, y: 20 }}
@@ -1264,16 +1245,16 @@ const YesNoReading: React.FC = () => {
             >
               {/* Header */}
               <h2 className="text-xl md:text-2xl font-heading text-purple-200 mb-1 text-center">
-                {language === 'en' ? 'Draw Your Cards' : 'Tirez Vos Cartes'}
+                {language === 'en' ? 'Draw Your Clarifying Cards' : 'Tirez Vos Cartes de Clarification'}
               </h2>
               <p className="text-sm text-amber-300/70 mb-6">
                 {language === 'en'
-                  ? `${3 - threeCardDrawCount} remaining`
-                  : `${3 - threeCardDrawCount} restante${3 - threeCardDrawCount > 1 ? 's' : ''}`}
+                  ? `${2 - threeCardDrawCount} remaining`
+                  : `${2 - threeCardDrawCount} restante${2 - threeCardDrawCount > 1 ? 's' : ''}`}
               </p>
 
               {/* Clickable deck */}
-              {threeCardDrawCount < 3 && (
+              {threeCardDrawCount < 2 && (
                 <motion.button
                   onClick={handleThreeCardDeckClick}
                   className="relative mb-10 cursor-pointer group"
@@ -1301,17 +1282,16 @@ const YesNoReading: React.FC = () => {
                 </motion.button>
               )}
 
-              {/* 3 card slots */}
-              <div className="grid grid-cols-3 gap-3 md:gap-5 w-full max-w-lg">
-                {threeCards.map((tc, i) => {
+              {/* 2 card slots */}
+              <div className="grid grid-cols-2 gap-5 w-full max-w-xs">
+                {threeCards.map((_tc, i) => {
                   const isDrawn = i < threeCardDrawCount;
                   const isActive = i === threeCardDrawCount;
-                  const label = language === 'en' ? THREE_CARD_LABELS.en[i] : THREE_CARD_LABELS.fr[i];
                   return (
                     <div key={i} className="flex flex-col items-center">
                       {/* Slot */}
                       <div
-                        className={`relative w-[90px] h-[150px] md:w-[120px] md:h-[200px] rounded-lg border-2 border-dashed transition-colors duration-300 ${
+                        className={`relative w-[110px] h-[183px] md:w-[130px] md:h-[217px] rounded-lg border-2 border-dashed transition-colors duration-300 ${
                           isActive
                             ? 'border-amber-500/60'
                             : isDrawn
@@ -1347,13 +1327,6 @@ const YesNoReading: React.FC = () => {
                           </motion.div>
                         )}
                       </div>
-
-                      {/* Label */}
-                      <p className={`text-[10px] md:text-xs text-center mt-2 uppercase tracking-wider leading-tight ${
-                        isActive ? 'text-amber-400/80' : 'text-slate-500/70'
-                      }`}>
-                        {label}
-                      </p>
                     </div>
                   );
                 })}
@@ -1362,14 +1335,14 @@ const YesNoReading: React.FC = () => {
               {/* Progress */}
               <p className="text-slate-400/60 text-xs mt-6">
                 {language === 'en'
-                  ? `${threeCardDrawCount} of 3 cards drawn`
-                  : `${threeCardDrawCount} carte${threeCardDrawCount > 1 ? 's' : ''} sur 3 tir\u00e9e${threeCardDrawCount > 1 ? 's' : ''}`}
+                  ? `${threeCardDrawCount} of 2 cards drawn`
+                  : `${threeCardDrawCount} carte${threeCardDrawCount > 1 ? 's' : ''} sur 2 tir\u00e9e${threeCardDrawCount > 1 ? 's' : ''}`}
               </p>
             </motion.div>
           )}
 
-          {/* ══════════ THREE-CARD REVEALED PHASE ══════════ */}
-          {phase === 'three-card-revealed' && threeCards.length === 3 && (
+          {/* ══════════ THE DEEPER PICTURE REVEALED PHASE ══════════ */}
+          {phase === 'three-card-revealed' && threeCards.length === 2 && drawnCard && (
             <motion.div
               key="three-card"
               initial={{ opacity: 0, y: 20 }}
@@ -1377,7 +1350,7 @@ const YesNoReading: React.FC = () => {
               className="flex flex-col items-center"
             >
               <h2 className="text-2xl md:text-3xl font-heading text-purple-200 mb-2 text-center">
-                {language === 'en' ? '3-Card Yes/No Spread' : 'Tirage Oui/Non à 3 Cartes'}
+                {language === 'en' ? DEEPER_PICTURE_LABEL.en : DEEPER_PICTURE_LABEL.fr}
               </h2>
               <p className="text-slate-400 text-sm mb-8 text-center max-w-md">
                 {language === 'en'
@@ -1386,18 +1359,59 @@ const YesNoReading: React.FC = () => {
                 }
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl mb-8">
+              {/* Card 1 — The Oracle's Answer (compact re-display) */}
+              <div className="flex flex-col items-center mb-8">
+                <div className="text-xs uppercase tracking-widest text-amber-400/80 mb-3 font-medium">
+                  {language === 'en' ? ORACLE_ANSWER_LABEL.en : ORACLE_ANSWER_LABEL.fr}
+                </div>
+                <div
+                  className="relative w-[140px] h-[233px] md:w-[160px] md:h-[267px] rounded-lg shadow-xl overflow-hidden mb-3"
+                  style={{ border: '2px solid #fbbf24' }}
+                >
+                  {cardImageUrl && (
+                    <img
+                      src={cardImageUrl}
+                      alt={cardName}
+                      className="w-full h-full object-cover opacity-90"
+                      style={isReversed ? { transform: 'rotate(180deg)' } : undefined}
+                    />
+                  )}
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-2 pt-8 text-center">
+                    <h4 className="text-amber-100 font-heading text-sm font-bold">{cardName}</h4>
+                    {isReversed && (
+                      <p className="text-[10px] text-red-400/80 uppercase tracking-widest">
+                        {language === 'en' ? 'Reversed' : 'Inversée'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <span className={`inline-block px-5 py-1.5 rounded-full text-sm font-heading font-bold border ${VERDICT_COLORS[verdict]}`}>
+                  {verdict === 'YES' && (language === 'en' ? 'YES' : 'OUI')}
+                  {verdict === 'NO' && (language === 'en' ? 'NO' : 'NON')}
+                  {verdict === 'UNCLEAR' && (language === 'en' ? 'UNCLEAR' : 'INCERTAIN')}
+                  {verdict === 'WAIT' && (language === 'en' ? 'WAIT' : 'ATTENDEZ')}
+                </span>
+              </div>
+
+              {/* Divider with "The Deeper Picture" label */}
+              <div className="flex items-center justify-center gap-4 mb-6 w-full max-w-sm">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-500/30" />
+                <span className="text-xs uppercase tracking-widest text-amber-400/70 whitespace-nowrap font-medium">
+                  {language === 'en' ? DEEPER_PICTURE_LABEL.en : DEEPER_PICTURE_LABEL.fr}
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-500/30" />
+              </div>
+
+              {/* 2 clarifying cards */}
+              <div className="grid grid-cols-2 gap-6 w-full max-w-md mb-8">
                 {threeCards.map((tc, i) => {
                   const isVisible = i < revealedCount;
-                  const label = language === 'en' ? THREE_CARD_LABELS.en[i] : THREE_CARD_LABELS.fr[i];
                   const imgUrl = getCardImageUrl(tc.card.id);
                   const name = language === 'en' ? tc.card.nameEn : tc.card.nameFr;
                   const tcYesNo = tc.isReversed ? '' : (language === 'en' ? tc.info.yesNoEn : tc.info.yesNoFr);
                   const tcMeaning = tc.isReversed
                     ? (language === 'en' ? tc.info.reversedEn : tc.info.reversedFr)
                     : (language === 'en' ? tc.info.uprightEn : tc.info.uprightFr);
-                  // Hide upright advice when reversed — it contradicts the reversed meaning
-                  const tcAdvice = tc.isReversed ? '' : (language === 'en' ? tc.info.bestAdviceEn : tc.info.bestAdviceFr);
 
                   return (
                     <motion.div
@@ -1407,18 +1421,13 @@ const YesNoReading: React.FC = () => {
                       transition={{ duration: 0.6, delay: isVisible ? 0.1 : 0 }}
                       className="flex flex-col items-center"
                     >
-                      {/* Position label */}
-                      <div className="text-xs uppercase tracking-widest text-amber-400/80 mb-3 font-medium">
-                        {label}
-                      </div>
-
                       {/* Card */}
                       <div className="relative mb-4" style={{ perspective: '800px' }}>
                         <motion.div
-                          className="relative w-[140px] h-[233px] md:w-[160px] md:h-[267px]"
+                          className="relative w-[130px] h-[217px] md:w-[150px] md:h-[250px]"
                           initial={false}
                           animate={{ rotateY: isVisible ? 180 : 0 }}
-                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
                           style={{ transformStyle: 'preserve-3d' }}
                         >
                           {/* Back */}
@@ -1466,9 +1475,8 @@ const YesNoReading: React.FC = () => {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.4 }}
-                          className="text-center max-w-xs"
+                          className="text-center"
                         >
-                          {/* Show verdict badge under every card — flip YES↔NO when reversed */}
                           {(() => {
                             const v = tc.isReversed
                               ? (tc.info.verdict === 'YES' ? 'NO' : tc.info.verdict === 'NO' ? 'YES' : tc.info.verdict)
@@ -1482,19 +1490,11 @@ const YesNoReading: React.FC = () => {
                               </span>
                             );
                           })()}
-
                           {tcYesNo && (
-                            <p className="text-amber-300/90 text-sm font-medium mb-2">{tcYesNo}</p>
+                            <p className="text-amber-300/90 text-xs font-medium mb-1">{tcYesNo}</p>
                           )}
-
                           {tcMeaning && (
-                            <p className="text-slate-300/70 text-xs leading-relaxed mb-1">
-                              {tcMeaning}
-                            </p>
-                          )}
-
-                          {tcAdvice && (
-                            <p className="text-slate-400/70 text-xs italic">{tcAdvice}</p>
+                            <p className="text-slate-300/70 text-xs leading-relaxed">{tcMeaning}</p>
                           )}
                         </motion.div>
                       )}
@@ -1503,35 +1503,8 @@ const YesNoReading: React.FC = () => {
                 })}
               </div>
 
-              {/* Overall verdict — shown once all cards are revealed */}
-              {revealedCount >= 3 && threeCardOverall && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="w-full max-w-2xl mx-auto mb-6 text-center"
-                >
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">
-                    {language === 'en' ? 'Overall Answer' : 'Réponse Globale'}
-                  </p>
-                  <span className={`inline-block px-8 py-2 rounded-full text-xl font-heading font-bold border ${VERDICT_COLORS[threeCardOverall.verdict]}`}>
-                    {threeCardOverall.verdict === 'YES' && (language === 'en' ? 'YES' : 'OUI')}
-                    {threeCardOverall.verdict === 'NO' && (language === 'en' ? 'NO' : 'NON')}
-                    {threeCardOverall.verdict === 'UNCLEAR' && (language === 'en' ? 'UNCLEAR' : 'INCERTAIN')}
-                    {threeCardOverall.verdict === 'WAIT' && (language === 'en' ? 'WAIT' : 'ATTENDEZ')}
-                  </span>
-                  {threeCardOverall.isMixed && (
-                    <p className="text-xs text-slate-400/80 mt-3 max-w-md mx-auto leading-relaxed">
-                      {language === 'en'
-                        ? 'The cards speak with nuance: your initial energy and desire point one way, but the obstacle and likely outcome redirect the answer. The reading below explains how the cards work together.'
-                        : 'Les cartes s\'expriment avec nuance : votre énergie et vos désirs pointent dans une direction, mais l\'obstacle et le résultat probable réorientent la réponse. La lecture ci-dessous explique comment les cartes s\'articulent.'}
-                    </p>
-                  )}
-                </motion.div>
-              )}
-
-              {/* 3-card AI interpretation — loading shimmer */}
-              {revealedCount >= 3 && !threeCardInterpretation && (
+              {/* AI interpretation — loading shimmer */}
+              {revealedCount >= 2 && !threeCardInterpretation && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1551,8 +1524,8 @@ const YesNoReading: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* 3-card holistic AI interpretation */}
-              {revealedCount >= 3 && threeCardInterpretation && (
+              {/* AI interpretation */}
+              {revealedCount >= 2 && threeCardInterpretation && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1562,7 +1535,7 @@ const YesNoReading: React.FC = () => {
                   <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="w-4 h-4 text-amber-400/70" />
                     <span className="text-sm font-heading text-purple-200 font-medium">
-                      {language === 'en' ? 'Your Complete Reading' : 'Votre Lecture Complète'}
+                      {language === 'en' ? DEEPER_PICTURE_LABEL.en : DEEPER_PICTURE_LABEL.fr}
                     </span>
                   </div>
                   <p className="text-slate-300/90 text-sm leading-relaxed whitespace-pre-line font-normal">
@@ -1572,7 +1545,7 @@ const YesNoReading: React.FC = () => {
               )}
 
               {/* All revealed: secondary links */}
-              {revealedCount >= 3 && (
+              {revealedCount >= 2 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
