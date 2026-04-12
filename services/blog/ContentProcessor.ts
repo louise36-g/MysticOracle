@@ -90,7 +90,7 @@ export class ContentProcessor {
   }
 
   /**
-   * Make all links open in new tab
+   * Process links: external links open in new tab, internal links use SPA navigation
    */
   private processLinks(doc: Document): void {
     const isFr = typeof document !== 'undefined' && document.documentElement.lang === 'fr';
@@ -101,13 +101,18 @@ export class ContentProcessor {
       if (href.startsWith('#')) return;
       // Skip CTA buttons — they should use SPA navigation (same tab)
       if (link.hasAttribute('data-cta')) return;
-      link.setAttribute('target', '_blank');
-      link.setAttribute('rel', 'noopener noreferrer');
+
+      // Only external links open in new tab; internal links use SPA navigation
+      const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
+      if (!isInternal) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
 
       // Prefix internal links with /fr/ on French pages
       if (isFr) {
-        const href = link.getAttribute('href') || '';
-        const match = href.match(/^https:\/\/celestiarcana\.com(\/(?:tarot|blog|horoscopes|daily-tarot|about|faq|contact|tarot-card-reading|privacy|terms|cookies|how-credits-work).*)/);
+        const currentHref = link.getAttribute('href') || '';
+        const match = currentHref.match(/^https:\/\/celestiarcana\.com(\/(?:tarot|blog|horoscopes|daily-tarot|about|faq|contact|tarot-card-reading|privacy|terms|cookies|how-credits-work).*)/);
         if (match && !match[1].startsWith('/fr/')) {
           link.setAttribute('href', `https://celestiarcana.com/fr${match[1]}`);
         }

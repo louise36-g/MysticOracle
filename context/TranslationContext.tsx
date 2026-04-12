@@ -43,7 +43,25 @@ const FALLBACK_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<string>(() => {
-    // Check localStorage first, then browser language
+    // 1. Check URL path — same priority as AppContext's detectInitialLanguage
+    // Ensures French-browser users on English paths start with English translations
+    try {
+      const path = window.location.pathname;
+      if (path !== '/fr' && !path.startsWith('/fr/')) {
+        // On an English path: if localStorage explicitly says 'en', use it
+        // Otherwise, fall through so the redirect function can handle it
+        const saved = localStorage.getItem('celestiarcana-language');
+        if (saved === 'en') return 'en';
+        if (saved === 'fr') return 'fr';
+        // No saved preference on English path — default to 'en'
+        // (redirectToPreferredLanguage already redirected French users to /fr/)
+        return 'en';
+      }
+    } catch {
+      // window/localStorage not available
+    }
+
+    // 2. On /fr/ path, check localStorage then browser language
     const saved = localStorage.getItem('celestiarcana-language');
     if (saved) return saved;
 

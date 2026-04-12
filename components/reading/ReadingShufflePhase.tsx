@@ -310,6 +310,15 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
                 <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
               </motion.div>
 
+              {question && (
+                <div className="mb-5 w-full max-w-sm mx-auto px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 text-center">
+                    {language === 'fr' ? 'Votre question' : 'Your question'}
+                  </p>
+                  <p className="text-sm text-slate-200 italic leading-snug text-center">"{question}"</p>
+                </div>
+              )}
+
               <p className="text-slate-400 text-sm mb-6 text-center max-w-sm">
                 {language === 'en'
                   ? 'Take a breath, set your intention, and shuffle the deck.'

@@ -172,8 +172,8 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
         >
           <p className="text-sm text-slate-300/90 text-center leading-relaxed">
             {language === 'en'
-              ? "Each card carries its own meaning, but in a reading its interpretation is shaped by your question, its position in the spread, and the energy of the surrounding cards — the way colours shift when placed beside each other."
-              : "Chaque carte a sa propre signification, mais dans un tirage, son interprétation est façonnée par ta question, sa position dans le tirage et l'énergie des cartes voisines — comme des couleurs qui se transforment au contact les unes des autres."}
+              ? "Situation and energy set the stage, and each card speaks with its own voice to light the way."
+              : "La situation et l'énergie posent le décor, et chaque carte parle de sa propre voix pour éclairer le chemin."}
           </p>
         </motion.div>
 

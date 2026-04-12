@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback, useMemo } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { Language, ReadingHistoryItem, SpreadType } from '../types';
 import * as api from '../services/api';
@@ -120,6 +120,9 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const { setLanguage: setTranslationLanguage, t, refresh: refreshTranslationContext } = useTranslation();
 
   const [user, setUser] = useState<User | null>(null);
+  const userRef = useRef<User | null>(null);
+  // Keep ref in sync so setLanguage can read current user without it being a dep
+  userRef.current = user;
   const [language, setLanguageState] = useState<Language>(detectInitialLanguage);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
@@ -182,13 +185,6 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       // Don't override language from user profile — URL path is the source of truth.
       // LanguageLayout sets the correct language based on /fr/ prefix.
 
-      // Sync current language to localStorage as a preference hint
-      try {
-        localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-      } catch {
-        // localStorage might not be available
-      }
-
       // Fetch reading history (skip on refreshUser calls to speed up credit updates)
       if (!skipHistory) {
         const result = await api.fetchUserReadings(token);
@@ -243,7 +239,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isSignedIn, getToken, clerkUser, setTranslationLanguage]);
+  }, [isSignedIn, getToken, clerkUser]);
 
   // Fetch user when auth state changes
   useEffect(() => {
@@ -272,19 +268,26 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       // localStorage might not be available
     }
 
-    // For logged-in users, also save to database
-    if (user && isSignedIn) {
+    // For logged-in users, also save to database.
+    // Use userRef so this callback doesn't depend on `user` state —
+    // that would cause LanguageLayout's effect to re-fire on every profile load.
+    if (userRef.current && isSignedIn) {
       try {
         const token = await getToken();
         if (token) {
           await api.updateUserProfile(token, { language: lang });
-          setUser(prev => prev ? { ...prev, language: lang } : null);
+          // Only update state if language actually changed, to avoid unnecessary re-renders
+          setUser(prev => {
+            if (!prev || prev.language === lang) return prev;
+            return { ...prev, language: lang };
+          });
+          userRef.current = userRef.current ? { ...userRef.current, language: lang } : null;
         }
       } catch (error) {
         console.error('Error updating language:', error);
       }
     }
-  }, [user, isSignedIn, getToken, setTranslationLanguage]);
+  }, [isSignedIn, getToken, setTranslationLanguage]);
 
   const logout = useCallback(() => {
     // Clerk handles the actual logout, we just clear local state
