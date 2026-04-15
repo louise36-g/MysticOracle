@@ -113,6 +113,103 @@ export async function generateTarotFollowUp(
 }
 
 // ============================================
+// BIRTH CARD SYNTHESIS (DEPTH 2)
+// ============================================
+
+export async function getCachedBirthCardSynthesis(
+  token: string,
+  language: 'en' | 'fr'
+): Promise<{
+  cached: {
+    interpretation: string;
+    birthDate: string;
+    personalityCardId: number;
+    soulCardId: number;
+    zodiacSign: string;
+    createdAt: string;
+  } | null;
+}> {
+  return apiRequest(`/api/v1/ai/birthcard/synthesis?language=${language}`, {
+    method: 'GET',
+    token,
+  });
+}
+
+export async function generateBirthCardSynthesis(
+  token: string,
+  params: {
+    birthDate: string;
+    personalityCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+      element: string;
+      elementFr: string;
+      planet: string;
+      planetFr: string;
+      keywords: string[];
+    };
+    soulCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      description: string;
+      element: string;
+      elementFr: string;
+      planet: string;
+      planetFr: string;
+      keywords: string[];
+    };
+    zodiac: {
+      name: string;
+      nameFr: string;
+      element: string;
+      elementFr: string;
+      quality: string;
+      qualityFr: string;
+      rulingPlanet: string;
+      rulingPlanetFr: string;
+    };
+    isUnified: boolean;
+    language: 'en' | 'fr';
+  }
+): Promise<{ interpretation: string; creditsUsed: number }> {
+  return apiRequest('/api/v1/ai/birthcard/synthesis', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+// ============================================
+// BIRTH CARD DEPTH 1 RECORDING
+// ============================================
+
+export async function recordBirthCardDepth1(
+  token: string,
+  params: {
+    birthDate: string;
+    personalityCard: {
+      cardId: number;
+      cardName: string;
+      cardNameFr: string;
+      descriptionEn: string;
+      descriptionFr: string;
+      element: string;
+      elementFr: string;
+    };
+    zodiacSign: string;
+  }
+): Promise<{ recorded: boolean; creditsUsed: number }> {
+  return apiRequest('/api/v1/ai/birthcard/record', {
+    method: 'POST',
+    body: params,
+    token,
+  });
+}
+
+// ============================================
 // YEAR ENERGY READING
 // ============================================
 

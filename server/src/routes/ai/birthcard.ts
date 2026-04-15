@@ -18,6 +18,7 @@ import {
   getBirthCardSynthesisPrompt,
   yearEnergySchema,
   birthCardSynthesisSchema,
+  recordBirthCardSchema,
 } from './shared.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { logger } from '../../lib/logger.js';
@@ -416,6 +417,85 @@ ${elementalAnalysis}`;
       interpretation,
       creditsUsed: creditCost,
     });
+  })
+);
+
+// ============================================
+// BIRTH CARD DEPTH 1 RECORDING
+// ============================================
+
+/**
+ * POST /api/v1/ai/birthcard/record
+ * Records a depth-1 birth card reading in history (personality card only).
+ * Idempotent: if the user already has a BirthCardSynthesis, no credits are deducted.
+ * On first call: deducts 1 credit and saves the static personality description.
+ */
+router.post(
+  '/record',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { birthDate, personalityCard, zodiacSign } = recordBirthCardSchema.parse(req.body);
+    const userId = req.auth.userId;
+    const creditCost = 1;
+
+    debug.log('[Birth Card Record] Request:', {
+      userId,
+      personalityCard: personalityCard.cardName,
+      zodiacSign,
+    });
+
+    // Idempotent: if synthesis already exists, skip credit deduction
+    const existing = await prisma.birthCardSynthesis.findUnique({ where: { userId } });
+    if (existing) {
+      debug.log('[Birth Card Record] Already recorded for user:', userId);
+      return res.json({ recorded: true, creditsUsed: 0 });
+    }
+
+    // Check credits
+    const balanceCheck = await creditService.checkSufficientCredits(userId, creditCost);
+    if (balanceCheck.balance === 0 && !balanceCheck.sufficient) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (!balanceCheck.sufficient) {
+      return res.status(400).json({ error: 'Insufficient credits' });
+    }
+
+    // Deduct credit
+    await creditService.deductCredits({
+      userId,
+      amount: creditCost,
+      type: 'READING',
+      description: `Birth Card Reading: ${personalityCard.cardName}`,
+    });
+
+    // Save static description as synthesis so it appears in reading history
+    const parsedBirthDate = new Date(birthDate);
+    await prisma.birthCardSynthesis.create({
+      data: {
+        userId,
+        birthDate: parsedBirthDate,
+        personalityCardId: personalityCard.cardId,
+        soulCardId: personalityCard.cardId, // same card for depth 1
+        zodiacSign,
+        personalityElement: personalityCard.element,
+        soulElement: personalityCard.element,
+        synthesisEn: personalityCard.descriptionEn,
+        synthesisFr: personalityCard.descriptionFr,
+      },
+    });
+
+    // Update user birth date
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { birthDate: parsedBirthDate },
+      });
+    } catch {
+      // Non-fatal
+    }
+
+    debug.log('[Birth Card Record] Recorded depth-1 reading for user:', userId);
+    res.json({ recorded: true, creditsUsed: creditCost });
   })
 );
 

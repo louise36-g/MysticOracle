@@ -60,6 +60,9 @@ export {
   generateTarotFollowUp,
   generateClarificationCard,
   generateYearEnergyReading,
+  getCachedBirthCardSynthesis,
+  generateBirthCardSynthesis,
+  recordBirthCardDepth1,
 } from './ai';
 
 // Year Energy API

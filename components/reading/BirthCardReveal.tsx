@@ -17,6 +17,9 @@ import { getCardImageUrl } from '../../constants/cardImages';
 import {
   getCurrentYearEnergy,
   generatePersonalYearReading,
+  getCachedBirthCardSynthesis,
+  generateBirthCardSynthesis,
+  recordBirthCardDepth1,
   type YearEnergyResponse,
 } from '../../services/api';
 import ThemedBackground from './ThemedBackground';
@@ -32,6 +35,9 @@ import YearTab from './tabs/YearTab';
 import {
   calculatePersonalYearNumber,
 } from './birthCardUtils';
+
+// Minimum synthesis length to consider it a proper AI synthesis (not static fallback)
+const MIN_AI_SYNTHESIS_LENGTH = 800;
 import type {
   LocationState,
   PersonalityCardData,
@@ -90,6 +96,13 @@ const BirthCardReveal: React.FC = () => {
   const [isGeneratingYear, setIsGeneratingYear] = useState(false);
   const [yearError, setYearError] = useState<string | null>(null);
   const [personalYearNumber, setPersonalYearNumber] = useState<number | null>(calculatedPersonalYear);
+
+  // Birth card synthesis state (depth 2)
+  const [synthesisText, setSynthesisText] = useState<string | null>(null);
+  const [isSynthesisLoading, setIsSynthesisLoading] = useState(false);
+  const [synthesisError, setSynthesisError] = useState<string | null>(null);
+  const synthesisFetchedRef = React.useRef(false);
+  const depth1RecordedRef = React.useRef(false);
 
   // Enlarged image modal state
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; alt: string } | null>(null);
@@ -252,6 +265,110 @@ const BirthCardReveal: React.FC = () => {
     }
   }, [activeTab, depth, universalYearEnergy, isLoadingYearEnergy, fetchYearEnergy, yearInterpretation, isGeneratingYear, generateYearInterpretation]);
 
+  // Depth 1: record the reading in history once (after JSON loads)
+  useEffect(() => {
+    if (isLoading || !jsonData || depth !== 1 || !personalityData || !birthDate || depth1RecordedRef.current) return;
+    depth1RecordedRef.current = true;
+
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        await recordBirthCardDepth1(token, {
+          birthDate: birthDateISO,
+          personalityCard: {
+            cardId: personalityData.cardId,
+            cardName: personalityData.cardName,
+            cardNameFr: personalityData.cardNameFr,
+            descriptionEn: personalityData.descriptionEn,
+            descriptionFr: personalityData.descriptionFr,
+            element: personalityAssociation?.element || 'Spirit',
+            elementFr: personalityAssociation?.elementFr || 'Esprit',
+          },
+          zodiacSign: zodiacSign.name,
+        });
+      } catch (err) {
+        console.error('[BirthCardReveal] Failed to record depth-1 reading:', err);
+      }
+    })();
+  }, [isLoading, jsonData, depth, personalityData, birthDate, birthDateISO, zodiacSign, personalityAssociation, getToken]);
+
+  // Depth 2: load synthesis when dynamic tab is activated
+  useEffect(() => {
+    if (activeTab !== 'dynamic' || depth < 2 || isLoading || !jsonData) return;
+    if (synthesisFetchedRef.current || synthesisText || isSynthesisLoading) return;
+    if (!personalityData || !soulData) return;
+    synthesisFetchedRef.current = true;
+
+    (async () => {
+      setIsSynthesisLoading(true);
+      setSynthesisError(null);
+      try {
+        const token = await getToken();
+        if (!token) {
+          setSynthesisError(language === 'en' ? 'Please sign in to view your synthesis' : 'Veuillez vous connecter pour voir votre synthèse');
+          return;
+        }
+
+        // Check cache first
+        const cached = await getCachedBirthCardSynthesis(token, language as 'en' | 'fr');
+        if (cached.cached && cached.cached.interpretation.length >= MIN_AI_SYNTHESIS_LENGTH) {
+          setSynthesisText(cached.cached.interpretation);
+          return;
+        }
+
+        // Generate fresh AI synthesis
+        const result = await generateBirthCardSynthesis(token, {
+          birthDate: birthDateISO,
+          personalityCard: {
+            cardId: personalityData.cardId,
+            cardName: personalityData.cardName,
+            cardNameFr: personalityData.cardNameFr,
+            description: language === 'en' ? personalityData.descriptionEn : personalityData.descriptionFr,
+            element: personalityAssociation?.element || 'Spirit',
+            elementFr: personalityAssociation?.elementFr || 'Esprit',
+            planet: personalityAssociation?.planet || 'Unknown',
+            planetFr: personalityAssociation?.planetFr || 'Inconnu',
+            keywords: personalityAssociation?.keywords || personalityData.keyThemesEn,
+          },
+          soulCard: {
+            cardId: soulCardId,
+            cardName: soulData.cardName,
+            cardNameFr: soulData.cardNameFr,
+            description: language === 'en' ? soulData.descriptionEn : soulData.descriptionFr,
+            element: soulAssociation?.element || 'Spirit',
+            elementFr: soulAssociation?.elementFr || 'Esprit',
+            planet: soulAssociation?.planet || 'Unknown',
+            planetFr: soulAssociation?.planetFr || 'Inconnu',
+            keywords: soulAssociation?.keywords || soulData.keyThemesEn,
+          },
+          zodiac: {
+            name: zodiacSign.name,
+            nameFr: zodiacSign.nameFr,
+            element: zodiacSign.element,
+            elementFr: zodiacSign.elementFr,
+            quality: zodiacSign.quality,
+            qualityFr: zodiacSign.qualityFr,
+            rulingPlanet: zodiacSign.rulingPlanet,
+            rulingPlanetFr: zodiacSign.rulingPlanetFr,
+          },
+          isUnified,
+          language: language as 'en' | 'fr',
+        });
+        setSynthesisText(result.interpretation);
+      } catch (err) {
+        console.error('[BirthCardReveal] Synthesis error:', err);
+        setSynthesisError(
+          language === 'en'
+            ? 'Unable to generate your synthesis. Please try again.'
+            : 'Impossible de générer votre synthèse. Veuillez réessayer.'
+        );
+      } finally {
+        setIsSynthesisLoading(false);
+      }
+    })();
+  }, [activeTab, depth, isLoading, jsonData, synthesisText, isSynthesisLoading, personalityData, soulData, soulCardId, birthDateISO, language, isUnified, zodiacSign, personalityAssociation, soulAssociation, getToken]);
+
   // Early returns AFTER all hooks
   if (!state?.birthDate || !jsonData) {
     return null;
@@ -324,6 +441,12 @@ const BirthCardReveal: React.FC = () => {
   );
 
   // Render Dynamic/Unified Tab (for depth >= 2)
+  const handleRetrySynthesis = () => {
+    synthesisFetchedRef.current = false;
+    setSynthesisError(null);
+    setSynthesisText(null);
+  };
+
   const renderDynamicTab = () => (
     <DynamicTab
       depth={depth}
@@ -338,6 +461,10 @@ const BirthCardReveal: React.FC = () => {
       zodiacSign={zodiacSign}
       personalityAssociation={personalityAssociation}
       soulAssociation={soulAssociation}
+      synthesisText={synthesisText}
+      isSynthesisLoading={isSynthesisLoading}
+      synthesisError={synthesisError}
+      onRetrySynthesis={handleRetrySynthesis}
       onEnlargeImage={openEnlargedImage}
       onImageError={handleImageError}
     />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles, RefreshCw } from 'lucide-react';
 import { formatHtmlContent } from '../birthCardUtils';
 import type { PersonalityCardData, SoulCardData, PairData, UnifiedCardData } from '../birthCardTypes';
 
@@ -28,6 +29,10 @@ interface DynamicTabProps {
   zodiacSign: ZodiacInfo;
   personalityAssociation: ElementAssociation | undefined;
   soulAssociation: ElementAssociation | undefined;
+  synthesisText: string | null;
+  isSynthesisLoading: boolean;
+  synthesisError: string | null;
+  onRetrySynthesis: () => void;
   onEnlargeImage: (url: string, alt: string) => void;
   onImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>, cardName: string) => void;
 }
@@ -45,6 +50,10 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
   zodiacSign,
   personalityAssociation,
   soulAssociation,
+  synthesisText,
+  isSynthesisLoading,
+  synthesisError,
+  onRetrySynthesis,
   onEnlargeImage,
   onImageError,
 }) => {
@@ -175,6 +184,52 @@ const DynamicTab: React.FC<DynamicTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* AI Synthesis Section */}
+      <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-violet-500/20">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5 text-violet-400" />
+          <h4 className="text-white font-heading text-lg">
+            {language === 'en' ? 'Your Personal Reading' : 'Votre Lecture Personnelle'}
+          </h4>
+        </div>
+
+        {isSynthesisLoading && (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            >
+              <Sparkles className="w-8 h-8 text-violet-400" />
+            </motion.div>
+            <p className="text-white/60 text-sm">
+              {language === 'en'
+                ? 'Weaving your personal synthesis...'
+                : 'Tissage de votre synthèse personnelle...'}
+            </p>
+          </div>
+        )}
+
+        {synthesisError && !isSynthesisLoading && (
+          <div className="text-center py-6 space-y-3">
+            <p className="text-white/60 text-sm">{synthesisError}</p>
+            <button
+              onClick={onRetrySynthesis}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600/30 hover:bg-violet-600/50 text-violet-300 text-sm transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              {language === 'en' ? 'Try again' : 'Réessayer'}
+            </button>
+          </div>
+        )}
+
+        {synthesisText && !isSynthesisLoading && (
+          <div
+            className="max-w-none text-white/90 leading-relaxed birth-card-content"
+            dangerouslySetInnerHTML={{ __html: formatHtmlContent(synthesisText) }}
+          />
+        )}
+      </div>
     </motion.div>
   );
 };

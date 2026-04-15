@@ -162,6 +162,21 @@ export const yearEnergySchema = z.object({
   language: z.enum(['en', 'fr']),
 });
 
+// Schema for depth 1 birth card recording (records in history, deducts 1 credit)
+export const recordBirthCardSchema = z.object({
+  birthDate: z.string(),
+  personalityCard: z.object({
+    cardId: z.number(),
+    cardName: z.string(),
+    cardNameFr: z.string(),
+    descriptionEn: z.string(),
+    descriptionFr: z.string(),
+    element: z.string(),
+    elementFr: z.string(),
+  }),
+  zodiacSign: z.string(),
+});
+
 // Schema for birth card synthesis request (depth 2 - Personality + Soul)
 export const birthCardSynthesisSchema = z.object({
   birthDate: z.string(), // ISO date string (YYYY-MM-DD)
