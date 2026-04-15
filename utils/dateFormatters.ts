@@ -93,7 +93,10 @@ export const formatDateTime = (dateString: string, language: 'en' | 'fr'): strin
 };
 
 /**
- * Formats a date string as a relative date (Today, Yesterday, X days ago, or formatted date)
+ * Formats a date string as an absolute date with weekday.
+ * Today/Yesterday use translated labels; all other dates show
+ * weekday + day + month (+ year if different year).
+ * Example: "Wed, April 4" (en) or "mer. 4 avril" (fr)
  * @param dateString - ISO date string to format
  * @param t - Translation function
  * @param language - Current language ('en' | 'fr')
@@ -107,19 +110,17 @@ export const formatRelativeDate = (
   const date = new Date(dateString);
   const now = new Date();
 
-  // Calculate difference in calendar days (not elapsed time)
   const diffDays = getCalendarDaysDiff(now, date);
-
   if (diffDays === 0) return t('common.today', 'Today');
   if (diffDays === 1) return t('common.yesterday', 'Yesterday');
-  if (diffDays < 7) {
-    const daysAgoKey = diffDays === 1 ? 'common.day_ago' : 'common.days_ago';
-    return `${diffDays} ${t(daysAgoKey, 'days ago')}`;
-  }
 
-  return date.toLocaleDateString(getLocale(language), {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  };
+  if (date.getFullYear() !== now.getFullYear()) {
+    options.year = 'numeric';
+  }
+  return date.toLocaleDateString(getLocale(language), options);
 };
