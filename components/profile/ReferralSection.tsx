@@ -88,9 +88,11 @@ export const ReferralSection: React.FC<ReferralSectionProps> = ({
     >
       <h2 className="text-base font-heading text-purple-100 flex items-center gap-2 mb-3">
         <Share2 className="w-4 h-4 text-purple-400" />
-        {t('referral.title', 'Referral & Invite')}
+        {language === 'fr' ? 'Parrainage & Invitations' : 'Referral & Invite'}
         <span className="text-xs text-slate-500 font-normal ml-1">
-          {t('referral.share_description', 'Share your code — you both get +5 credits')}
+          {language === 'fr'
+            ? 'Partagez votre code — vous recevez tous les deux +5 crédits'
+            : 'Share your code — you both get +5 credits'}
         </span>
       </h2>
 
