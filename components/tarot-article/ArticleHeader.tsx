@@ -1,59 +1,10 @@
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Sparkles } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { QuickNavChips } from './QuickNavChips';
 import { ArticleHeaderProps } from './types';
 import { AuthorAvatar } from '../shared/AuthorAvatar';
 import { formatDate } from '../../utils/dateFormatters';
-
-const CARD_TYPE_FR: Record<string, string> = {
-  MAJOR_ARCANA: 'ARCANES MAJEURES',
-  SUIT_OF_WANDS: 'BÂTONS',
-  SUIT_OF_CUPS: 'COUPES',
-  SUIT_OF_SWORDS: 'ÉPÉES',
-  SUIT_OF_PENTACLES: 'DENIERS',
-};
-
-const ELEMENT_FR: Record<string, string> = {
-  FIRE: 'FEU',
-  WATER: 'EAU',
-  AIR: 'AIR',
-  EARTH: 'TERRE',
-  SPIRIT: 'ESPRIT',
-};
-
-const ASTRO_FR: Record<string, string> = {
-  // Celestial bodies (tarot card names used as correspondences)
-  'The Moon': 'La Lune',
-  'The Sun': 'Le Soleil',
-  // Planets
-  Mercury: 'Mercure',
-  Venus: 'Vénus',
-  Mars: 'Mars',
-  Jupiter: 'Jupiter',
-  Saturn: 'Saturne',
-  Uranus: 'Uranus',
-  Neptune: 'Neptune',
-  Pluto: 'Pluton',
-  // Zodiac signs
-  Aries: 'Bélier',
-  Taurus: 'Taureau',
-  Gemini: 'Gémeaux',
-  Cancer: 'Cancer',
-  Leo: 'Lion',
-  Virgo: 'Vierge',
-  Libra: 'Balance',
-  Scorpio: 'Scorpion',
-  Sagittarius: 'Sagittaire',
-  Capricorn: 'Capricorne',
-  Aquarius: 'Verseau',
-  Pisces: 'Poissons',
-  // Elements
-  Fire: 'Feu',
-  Water: 'Eau',
-  Air: 'Air',
-  Earth: 'Terre',
-};
 
 /**
  * Article header with title, meta info, badges, and quick navigation
@@ -63,10 +14,6 @@ export function ArticleHeader({
   author,
   readTime,
   dateModified,
-  cardType,
-  astrologicalCorrespondence,
-  element,
-  isCourtCard,
   sections,
   onSectionClick,
   language,
@@ -100,29 +47,6 @@ export function ArticleHeader({
           <Calendar className="w-4 h-4 text-purple-400/70" />
           {t('tarot.ArticleHeader.updated', 'Updated')} {formattedDate}
         </time>
-      </div>
-
-      {/* Card metadata badges */}
-      <div className="flex flex-wrap justify-center gap-2 mb-6">
-        <span className="px-4 py-1.5 bg-purple-500/15 text-purple-300 text-xs font-medium rounded-full border border-purple-500/30 backdrop-blur-sm">
-          {language === 'fr'
-            ? (CARD_TYPE_FR[cardType] || cardType.replace(/_/g, ' '))
-            : cardType.replace(/_/g, ' ')}
-        </span>
-        <span className="px-4 py-1.5 bg-blue-500/15 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30 backdrop-blur-sm">
-          {language === 'fr'
-            ? (ASTRO_FR[astrologicalCorrespondence] || astrologicalCorrespondence)
-            : astrologicalCorrespondence}
-        </span>
-        <span className="px-4 py-1.5 bg-emerald-500/15 text-emerald-300 text-xs font-medium rounded-full border border-emerald-500/30 backdrop-blur-sm">
-          {language === 'fr' ? (ELEMENT_FR[element] || element) : element}
-        </span>
-        {isCourtCard && (
-          <span className="px-4 py-1.5 bg-amber-500/15 text-amber-300 text-xs font-medium rounded-full border border-amber-500/30 backdrop-blur-sm flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3" />
-            {t('tarot.TarotArticlePage.court_card', 'Court Card')}
-          </span>
-        )}
       </div>
 
       {/* Quick Navigation Chips */}
