@@ -329,28 +329,6 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
       >
         {/* Header */}
         <div className="text-center mb-6">
-          {/* Category Badge with Change Button */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/20 border border-white/10 mb-3">
-            <span className={`text-${categoryTheme?.accent}`}>{categoryConfig?.icon}</span>
-            <span className="text-xs font-medium text-white/60 uppercase tracking-wider">
-              {language === 'en' ? categoryConfig?.labelEn : categoryConfig?.labelFr}
-            </span>
-            <span className="text-white/30">|</span>
-            <span className="text-xs text-white/50">
-              {language === 'en' ? depthOption?.labelEn : depthOption?.labelFr}
-            </span>
-            {onChangeCategory && (
-              <button
-                onClick={onChangeCategory}
-                className="ml-2 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all flex items-center gap-1"
-                title={language === 'en' ? 'Change category' : 'Changer de catégorie'}
-              >
-                <Pencil className="w-3.5 h-3.5 text-white/70" />
-                <span className="text-xs text-white/70">{language === 'en' ? 'Change' : 'Modifier'}</span>
-              </button>
-            )}
-          </div>
-
           {/* Title */}
           <h2 className="text-2xl md:text-3xl font-heading text-white mb-1">
             {language === 'en' ? 'Set Your Intention' : 'Definissez Votre Intention'}
@@ -369,7 +347,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
             {needsLayout && availableLayouts.length > 0 && (
               <div>
                 <label className="block text-xs text-slate-400 uppercase tracking-wider mb-2">
-                  {language === 'en' ? 'Choose Your Reading Layout' : 'Choisissez Votre Disposition'}
+                  {language === 'en' ? 'Choose your layout' : 'Choisissez votre tirage'}
                 </label>
 
                 {/* Collapsed state - shows selected layout name only */}
