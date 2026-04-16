@@ -695,12 +695,12 @@ const YesNoReading: React.FC = () => {
                 <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-500/40" />
               </div>
 
-              {/* Instruction text */}
-              <p className="text-slate-300/90 text-base md:text-lg max-w-sm mx-auto text-center leading-relaxed mb-6">
-                {language === 'en'
-                  ? 'Take a breath, set your intention, and shuffle the deck.'
-                  : 'Prenez une inspiration, fixez votre intention, et m\u00e9langez le jeu.'}
-              </p>
+              {/* Show the question */}
+              {question.trim() && (
+                <p className="text-amber-300/70 text-sm italic mb-6 max-w-sm mx-auto text-center">
+                  &ldquo;{question}&rdquo;
+                </p>
+              )}
 
               {/* Shuffle the Deck button */}
               <Button
@@ -711,13 +711,6 @@ const YesNoReading: React.FC = () => {
                 <Sparkles className="w-4 h-4 mr-2" />
                 {language === 'en' ? 'Shuffle the Deck' : 'M\u00e9langer le Jeu'}
               </Button>
-
-              {/* Show the question */}
-              {question.trim() && (
-                <p className="text-amber-300/70 text-sm italic mt-6 max-w-sm mx-auto text-center">
-                  &ldquo;{question}&rdquo;
-                </p>
-              )}
             </motion.div>
           )}
 
@@ -782,13 +775,6 @@ const YesNoReading: React.FC = () => {
               >
                 {language === 'en' ? 'Shuffling the Deck...' : 'Mélange du Jeu...'}
               </motion.h3>
-              <p className="text-sm text-slate-400 mb-4 max-w-xs mx-auto text-center">
-                {language === 'en'
-                  ? 'Focus on your question as the cards align with your energy'
-                  : 'Concentrez-vous sur votre question tandis que les cartes s\'alignent avec votre énergie'
-                }
-              </p>
-
               {/* Show the question during shuffle */}
               {question.trim() && (
                 <p className="text-amber-300/70 text-sm italic mb-6 max-w-sm mx-auto text-center">
