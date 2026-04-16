@@ -101,14 +101,14 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
     };
   }, [selectedCategory, language, location.pathname]);
 
-  // Category filter options
-  const categoryFilters: { id: CategoryType | null; labelEn: string; labelFr: string; icon: React.ReactNode }[] = [
-    { id: null, labelEn: 'All Cards', labelFr: 'Toutes', icon: <Layers className="w-4 h-4" /> },
-    { id: 'majorArcana', labelEn: 'Major Arcana', labelFr: 'Arcanes Majeurs', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'wands', labelEn: 'Wands', labelFr: 'Bâtons', icon: <Flame className="w-4 h-4" /> },
-    { id: 'cups', labelEn: 'Cups', labelFr: 'Coupes', icon: <Droplets className="w-4 h-4" /> },
-    { id: 'swords', labelEn: 'Swords', labelFr: 'Épées', icon: <Wind className="w-4 h-4" /> },
-    { id: 'pentacles', labelEn: 'Pentacles', labelFr: 'Pentacles', icon: <Mountain className="w-4 h-4" /> },
+  // Category filter options — color matches element associations in CATEGORY_CONFIG
+  const categoryFilters: { id: CategoryType | null; labelEn: string; labelFr: string; icon: React.ReactNode; color: string }[] = [
+    { id: null,          labelEn: 'All Cards',    labelFr: 'Toutes',         icon: <Layers    className="w-4 h-4" />, color: '#a78bfa' },
+    { id: 'majorArcana', labelEn: 'Major Arcana', labelFr: 'Arcanes Majeurs',icon: <Sparkles  className="w-4 h-4" />, color: '#a78bfa' },
+    { id: 'wands',       labelEn: 'Wands',        labelFr: 'Bâtons',         icon: <Flame     className="w-4 h-4" />, color: '#f97316' },
+    { id: 'cups',        labelEn: 'Cups',         labelFr: 'Coupes',         icon: <Droplets  className="w-4 h-4" />, color: '#06b6d4' },
+    { id: 'swords',      labelEn: 'Swords',       labelFr: 'Épées',          icon: <Wind      className="w-4 h-4" />, color: '#94a3b8' },
+    { id: 'pentacles',   labelEn: 'Pentacles',    labelFr: 'Pentacles',      icon: <Mountain  className="w-4 h-4" />, color: '#22c55e' },
   ];
 
   useEffect(() => {
@@ -262,6 +262,7 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
         <div className="flex flex-wrap justify-center gap-2">
           {categoryFilters.map((filter) => {
             const isActive = selectedCategory === filter.id;
+            const { color } = filter;
             const targetPath = filter.id
               ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: CATEGORY_CONFIG[filter.id].slug })
               : ROUTES.TAROT_CARDS;
@@ -269,13 +270,20 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               <LocalizedLink
                 key={filter.id ?? 'all'}
                 to={targetPath}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                style={isActive ? {
+                  background: `linear-gradient(135deg, ${color}28, ${color}14)`,
+                  borderColor: `${color}80`,
+                  boxShadow: `0 0 18px ${color}38, 0 2px 8px ${color}20`,
+                } : {
+                  borderColor: `${color}35`,
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
                   isActive
-                    ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white border border-purple-400/60 shadow-lg shadow-purple-500/40'
-                    : 'bg-slate-800/60 text-slate-300 border border-amber-500/25 hover:border-amber-400/55 hover:text-amber-100 hover:bg-slate-700/80 hover:shadow-md hover:shadow-amber-500/10'
+                    ? 'text-white bg-slate-900/40'
+                    : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 hover:text-white'
                 }`}
               >
-                {filter.icon}
+                <span style={{ color: isActive ? color : `${color}bb` }}>{filter.icon}</span>
                 <span>{language === 'fr' ? filter.labelFr : filter.labelEn}</span>
               </LocalizedLink>
             );
