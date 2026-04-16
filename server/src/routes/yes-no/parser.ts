@@ -32,19 +32,30 @@ export interface KeyTakeaways {
 
 /**
  * Extract a field value from key-takeaways HTML.
- * Pattern: <strong>Label:</strong> value</p>
+ * Accepts multiple label variants (English and French) and handles both
+ * English typography (Label:) and French typography (Label :) where a
+ * space precedes the colon.
+ * Pattern: <strong>Label[space]?:[space]?</strong>[space]?:[space]? value</p>
  */
-function extractField(html: string, label: string): string {
-  const regex = new RegExp(`<strong>${label}:<\\/strong>\\s*(.+?)<\\/p>`, 'is');
-  const match = regex.exec(html);
-  if (!match) return '';
-  // Strip any remaining HTML tags from the value
-  return match[1].replace(/<[^>]+>/g, '').trim();
+function extractField(html: string, ...labels: string[]): string {
+  for (const label of labels) {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Colon may be inside or outside <strong>, with optional surrounding spaces
+    const regex = new RegExp(
+      `<strong>\\s*${escaped}\\s*:?\\s*<\\/strong>\\s*:?\\s*(.+?)<\\/p>`,
+      'is'
+    );
+    const match = regex.exec(html);
+    if (match) {
+      return match[1].replace(/<[^>]+>/g, '').trim();
+    }
+  }
+  return '';
 }
 
 /**
  * Derive the yes/no verdict from the yesNo text.
- * Looks at the first word: YES, NO, UNCLEAR, WAIT, MAYBE → UNCLEAR
+ * Handles both English (YES/NO/WAIT) and French (OUI/NON/ATTENDEZ) first words.
  */
 function parseVerdict(yesNoText: string): Verdict {
   const firstWord = yesNoText
@@ -52,10 +63,10 @@ function parseVerdict(yesNoText: string): Verdict {
     .toUpperCase()
     .trim();
 
-  if (firstWord === 'YES') return 'YES';
-  if (firstWord === 'NO') return 'NO';
-  if (firstWord === 'WAIT') return 'WAIT';
-  // MAYBE, UNCLEAR, NEUTRAL, or anything else
+  if (firstWord === 'YES' || firstWord === 'OUI') return 'YES';
+  if (firstWord === 'NO' || firstWord === 'NON') return 'NO';
+  if (firstWord === 'WAIT' || firstWord === 'ATTENDEZ') return 'WAIT';
+  // MAYBE, UNCLEAR, NEUTRAL, INCERTAIN, or anything else
   return 'UNCLEAR';
 }
 
@@ -69,19 +80,34 @@ function parseVerdict(yesNoText: string): Verdict {
 export function parseKeyTakeaways(htmlContent: string): KeyTakeaways | null {
   // Format 1: wrapped in a <div class="key-takeaways">
   const containerMatch = /<div class="key-takeaways">([\s\S]*?)<\/div>/i.exec(htmlContent);
-  // Format 2: <h2>Key Takeaways...</h2> followed by fields until next <h2> or end
-  const h2Match = /<h2>Key Takeaways[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i.exec(htmlContent);
+  // Format 2: <h2>Key Takeaways...</h2> or French <h2>Points Clés...</h2>
+  const h2Match = /<h2>(?:Key Takeaways|Points\s+Cl[eé]s)[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i.exec(
+    htmlContent
+  );
 
   const block = containerMatch?.[1] ?? h2Match?.[1];
   if (!block) return null;
 
-  const coreMeaning = extractField(block, 'Core Meaning');
-  const upright = extractField(block, 'Upright');
-  const reversed = extractField(block, 'Reversed');
-  const element = extractField(block, 'Element');
-  const zodiac = extractField(block, 'Zodiac');
-  const yesNo = extractField(block, 'Yes/No');
-  const bestAdvice = extractField(block, 'Best Advice');
+  // Try English labels first, then French equivalents
+  const coreMeaning = extractField(
+    block,
+    'Core Meaning',
+    'Signification Centrale',
+    'Signification principale'
+  );
+  const upright = extractField(block, 'Upright', "À l'Endroit", "A l'Endroit", 'Droite');
+  const reversed = extractField(
+    block,
+    'Reversed',
+    "À l'Envers",
+    "A l'Envers",
+    'Renversée',
+    'Inversée'
+  );
+  const element = extractField(block, 'Element', 'Élément');
+  const zodiac = extractField(block, 'Zodiac', 'Zodiaque');
+  const yesNo = extractField(block, 'Yes/No', 'Oui/Non', 'Oui / Non');
+  const bestAdvice = extractField(block, 'Best Advice', 'Meilleur Conseil', 'Conseil');
 
   // Must have at least a yes/no field to be useful
   if (!yesNo) return null;
