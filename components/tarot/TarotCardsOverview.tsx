@@ -269,10 +269,10 @@ const TarotCardsOverview: React.FC<TarotCardsOverviewProps> = ({
               <LocalizedLink
                 key={filter.id ?? 'all'}
                 to={targetPath}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
+                    ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white border border-purple-400/60 shadow-lg shadow-purple-500/40'
+                    : 'bg-slate-800/60 text-slate-300 border border-amber-500/25 hover:border-amber-400/55 hover:text-amber-100 hover:bg-slate-700/80 hover:shadow-md hover:shadow-amber-500/10'
                 }`}
               >
                 {filter.icon}

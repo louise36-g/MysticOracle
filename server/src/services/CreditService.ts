@@ -52,6 +52,7 @@ export const CREDIT_COSTS = {
     CAREER: 5,
     HORSESHOE: 7,
     CELTIC_CROSS: 10,
+    DAILY_ENERGY: 0,
   },
   CLARIFICATION: 1,
   FOLLOW_UP: 1,

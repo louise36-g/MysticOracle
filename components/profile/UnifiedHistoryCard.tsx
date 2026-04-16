@@ -139,6 +139,9 @@ const UnifiedHistoryCard: React.FC<UnifiedHistoryCardProps> = ({
         if (reading.spreadType === 'YES_NO') {
           return lang === 'en' ? 'Yes/No Reading' : 'Tirage Oui/Non';
         }
+        if (reading.spreadType === 'DAILY_ENERGY') {
+          return lang === 'en' ? 'Daily Energy' : 'Énergie du Jour';
+        }
         // DB may store the enum key ('THREE_CARD') or value ('three_card') — normalise both
         const spreadKey = (reading.spreadType?.toLowerCase()) as SpreadType;
         const spread = SPREADS[spreadKey];

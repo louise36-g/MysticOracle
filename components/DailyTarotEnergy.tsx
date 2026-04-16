@@ -3,11 +3,13 @@ import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hand, Sparkles, Star, ArrowRight, RotateCcw } from 'lucide-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { MAJOR_ARCANA } from '../constants';
 import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
 import { fetchBlogPost } from '../services/api/blog';
+import { createReading } from '../services/api';
 import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
 import { localizedPath } from '../utils/language';
@@ -135,6 +137,7 @@ function saveDraw(cardId: number): void {
 
 const DailyTarotEnergy: React.FC = () => {
   const { language } = useApp();
+  const { isSignedIn, getToken } = useAuth();
   const [phase, setPhase] = useState<Phase>('intro');
   const [shufflePhase, setShufflePhase] = useState(0);
   const [canDraw, setCanDraw] = useState(false);
@@ -199,7 +202,7 @@ const DailyTarotEnergy: React.FC = () => {
     setShowParticleBurst(false);
   }, []);
 
-  const handleDraw = useCallback(() => {
+  const handleDraw = useCallback(async () => {
     const shuffled = shuffleDeck([...MAJOR_ARCANA]);
     const card = shuffled[0];
     setDrawnCard(card);
@@ -207,12 +210,29 @@ const DailyTarotEnergy: React.FC = () => {
     saveDraw(card.id);
     setAlreadyDrawnToday(true);
 
+    // Record in reading history if user is signed in (fresh draw only)
+    if (isSignedIn) {
+      try {
+        const token = await getToken();
+        if (token) {
+          await createReading(token, {
+            spreadType: 'DAILY_ENERGY',
+            interpretationStyle: 'CLASSIC',
+            cards: [{ cardId: String(card.id), position: 0, isReversed: false }],
+            interpretation: card.keywordsEn.join(', '),
+          });
+        }
+      } catch {
+        // Non-blocking — don't interrupt the draw experience
+      }
+    }
+
     // Brief pause then reveal
     setTimeout(() => {
       setIsCardRevealed(true);
       setPhase('revealed');
     }, 600);
-  }, []);
+  }, [isSignedIn, getToken]);
 
   const handleReset = useCallback(() => {
     setPhase('intro');

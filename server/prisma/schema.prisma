@@ -153,6 +153,7 @@ enum SpreadType {
   HORSESHOE
   CELTIC_CROSS
   YES_NO
+  DAILY_ENERGY
 }
 
 enum InterpretationStyle {
