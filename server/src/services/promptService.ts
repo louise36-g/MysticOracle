@@ -91,6 +91,18 @@ export function interpolatePrompt(template: string, variables: Record<string, st
 }
 
 /**
+ * Strong French-language enforcement prefix.
+ * Prepended to all French AI prompts to prevent English words being
+ * inserted into French text (including fake "Frenchified" anglicisms
+ * like "purposé", "challengé", etc.).
+ */
+function getFrenchEnforcementPrefix(): string {
+  return `LANGUE ABSOLUE: Tu dois écrire cette réponse ENTIÈREMENT en français. Pas un seul mot en anglais n'est autorisé. N'invente JAMAIS de faux mots français en ajoutant un accent à un mot anglais (par exemple "purposé", "challengé", "focusé" sont INTERDITS). Si tu ne connais pas le terme français exact, utilise une formulation française alternative. Chaque phrase, chaque mot, chaque expression doit être en français authentique.
+
+`;
+}
+
+/**
  * Get language-specific section headers for tarot readings
  */
 function getSectionHeaders(language: 'en' | 'fr', spreadLayoutGuidance: string): string {
@@ -216,6 +228,9 @@ export async function getTarotReadingPrompt(params: {
 
     const assembled = interpolatePrompt(basePrompt, variables);
 
+    // Prepend strong French enforcement for all French readings
+    const langPrefix = params.language === 'fr' ? getFrenchEnforcementPrefix() : '';
+
     // For yes/no layouts, prepend the verdict token instruction so it appears
     // before the section structure — the AI must output [VERDICT:X] as the
     // absolute first line of its response, before Key Themes or any section.
@@ -226,10 +241,10 @@ export async function getTarotReadingPrompt(params: {
     if (isYesNoLayout) {
       const verdictPrefix =
         "ABSOLUTE FIRST LINE REQUIREMENT: Before writing a single word of your reading, output exactly one of the following verdict tokens on its own line — nothing before it, not even a space:\n[VERDICT:YES]\n[VERDICT:NO]\n[VERDICT:MAYBE]\n\nFor a three-card yes/no reading: base the verdict on the first card's inherent energy (the Situation card), since it carries the primary answer. Cards 2 and 3 add context and should not override card 1's verdict. For a single card yes/no reading: base the verdict on that card's inherent energy.\n\nYES = affirming, growth-oriented, or forward-moving energy. NO = caution, obstacle, resistance, or inward-drawing energy. MAYBE = genuinely balanced or transitional energy.\n\nAfter outputting the verdict token, write your reading normally starting with the first section.\n\n";
-      return verdictPrefix + assembled;
+      return langPrefix + verdictPrefix + assembled;
     }
 
-    return assembled;
+    return langPrefix + assembled;
   } catch (error) {
     logger.error('[PromptService] Error assembling tarot reading prompt:', error);
     throw error;
@@ -302,7 +317,8 @@ export async function getSingleCardReadingPrompt(params: {
       reframingGuidance,
     };
 
-    return interpolatePrompt(basePrompt, variables);
+    const result = interpolatePrompt(basePrompt, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling single card prompt:', error);
     throw error;
@@ -330,7 +346,8 @@ export async function getTarotFollowUpPrompt(params: {
       language: languageName,
     };
 
-    return interpolatePrompt(template, variables);
+    const result = interpolatePrompt(template, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling tarot follow-up prompt:', error);
     throw error;
@@ -516,7 +533,8 @@ export async function getInterpretMyCardsPrompt(params: {
       sectionHeaders: sectionHeaders,
     };
 
-    return interpolatePrompt(basePrompt, variables);
+    const result = interpolatePrompt(basePrompt, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling interpret my cards prompt:', error);
     throw error;
@@ -552,7 +570,8 @@ export async function getClarificationCardPrompt(params: {
       previousClarification: previousClarificationText,
     };
 
-    return interpolatePrompt(template, variables);
+    const result = interpolatePrompt(template, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling clarification card prompt:', error);
     throw error;
@@ -588,7 +607,8 @@ export async function getYesNoSinglePrompt(params: {
       articleContext: params.articleContext,
     };
 
-    return interpolatePrompt(template, variables);
+    const result = interpolatePrompt(template, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling yes/no single prompt:', error);
     throw error;
@@ -616,7 +636,8 @@ export async function getYesNoThreeCardPrompt(params: {
       articleContext: params.articleContext,
     };
 
-    return interpolatePrompt(template, variables);
+    const result = interpolatePrompt(template, variables);
+    return params.language === 'fr' ? getFrenchEnforcementPrefix() + result : result;
   } catch (error) {
     logger.error('[PromptService] Error assembling yes/no three-card prompt:', error);
     throw error;
