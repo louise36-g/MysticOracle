@@ -392,7 +392,7 @@ const YesNoReading: React.FC = () => {
       setRevealedCount(0);
       setThreeCardInterpretation(null);
       setThreeCardDrawCount(0);
-      setPhase('three-card-pre-shuffle');
+      setPhase('three-card-drawing');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       console.error('[YesNo 3-card] Error:', message);
@@ -1150,13 +1150,8 @@ const YesNoReading: React.FC = () => {
                       </a>
                     )}
 
-                    {/* See the Full Picture CTA */}
+                    {/* Clarifying cards CTA */}
                     <div className="mt-6 mb-4">
-                      <p className="text-slate-200/80 text-base mb-3">
-                        {language === 'en'
-                          ? 'Draw two clarifying cards to see the energies around this answer.'
-                          : 'Tirez deux cartes de clarification pour voir les énergies autour de cette réponse.'}
-                      </p>
                       <motion.button
                         whileHover={{ scale: 1.03, y: -2 }}
                         whileTap={{ scale: 0.97 }}
@@ -1173,12 +1168,12 @@ const YesNoReading: React.FC = () => {
                           {!isSignedIn ? (
                             <>
                               <Sparkles className="w-4 h-4 text-purple-300" />
-                              {language === 'en' ? 'Sign In to See the Full Picture' : 'Connectez-vous pour Voir la Vue Complète'}
+                              {language === 'en' ? 'Sign in to explore the influences' : 'Connectez-vous pour explorer les influences'}
                             </>
                           ) : (
                             <>
                               <Sparkles className="w-4 h-4 text-amber-300" />
-                              {language === 'en' ? 'See the Full Picture' : 'Voir la Vue Complète'}
+                              {language === 'en' ? 'What influences this outcome?' : 'Qu\'est-ce qui façonne ce résultat\u00a0?'}
                               <span className="ml-1 flex items-center gap-1 text-xs text-amber-300/80">
                                 <Coins className="w-3 h-3" />1
                               </span>
