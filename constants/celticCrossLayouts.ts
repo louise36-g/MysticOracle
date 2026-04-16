@@ -106,7 +106,7 @@ export const CELTIC_CROSS_CATEGORIES: CelticCrossCategoryConfig[] = [
   {
     id: 'general',
     labelEn: 'General Guidance',
-    labelFr: 'Guidance Générale',
+    labelFr: 'Orientation Générale',
     taglineEn: 'Deep insight on any topic',
     taglineFr: 'Éclairage profond sur tout sujet',
     iconName: 'MessageCircle',

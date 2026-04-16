@@ -239,7 +239,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
           ? 'Tirages de Tarot Personnalisés – Amour, Carrière & Guidance Spirituelle | CelestiArcana'
           : 'Personalized Tarot Readings – Love, Career & Spiritual Guidance | CelestiArcana'}</title>
         <meta name="description" content={language === 'fr'
-          ? 'Choisissez parmi six thèmes de tirage de tarot — amour & relations, carrière, croissance spirituelle, développement personnel & plus. Tirages personnalisés avec des spreads classiques du tarot.'
+          ? 'Choisissez parmi six thèmes de tirage de tarot — amour & relations, carrière, croissance spirituelle, développement personnel & plus. Tirages personnalisés avec des tirages classiques du tarot.'
           : 'Choose from six tarot reading themes — love & relationships, career, spiritual growth, personal development & more. Personalized readings with classic tarot spreads. Start your reading now.'} />
         <link rel="canonical" href="https://celestiarcana.com/tarot-card-reading" />
         <meta property="og:title" content={language === 'fr'
@@ -285,7 +285,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
         <p className="text-purple-200/80 text-sm md:text-base max-w-xl mx-auto leading-relaxed mb-8">
           {language === 'fr'
-            ? 'Explorez nos tirages de tarot personnalisés à travers six thèmes. Que vous cherchiez des réponses sur l\'amour, la carrière ou la croissance spirituelle, choisissez le spread qui parle à votre question.'
+            ? 'Explorez nos tirages de tarot personnalisés à travers six thèmes. Que vous cherchiez des réponses sur l\'amour, la carrière ou la croissance spirituelle, choisissez le tirage qui parle à votre question.'
             : 'Explore our personalized tarot card readings across six themes. Whether you\'re seeking insight on love, career, or spiritual growth, choose a spread that speaks to your question.'}
         </p>
 

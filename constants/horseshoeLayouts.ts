@@ -74,7 +74,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Vous explorez une nouvelle connexion ou vous interrogez sur la compatibilité? Ce tirage révèle ce que chaque personne apporte, les dynamiques cachées et le potentiel de la relation.',
     positions: {
       en: ['What you bring to this connection', 'What they bring to this connection', 'The energy between you', 'Hidden factors at play', 'External influences on this potential', 'Guidance for moving forward', 'What this connection could become'],
-      fr: ['Ce que vous apportez à cette connexion', 'Ce qu\'ils apportent à cette connexion', 'L\'énergie entre vous', 'Facteurs cachés en jeu', 'Influences extérieures sur ce potentiel', 'Guidance pour avancer', 'Ce que cette connexion pourrait devenir'],
+      fr: ['Ce que vous apportez à cette connexion', 'Ce qu\'ils apportent à cette connexion', 'L\'énergie entre vous', 'Facteurs cachés en jeu', 'Influences extérieures sur ce potentiel', 'Conseils pour avancer', 'Ce que cette connexion pourrait devenir'],
     },
   },
   relationship_checkin: {
@@ -119,7 +119,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Vous évaluez votre rôle actuel ou envisagez un changement? Comprenez ce qui fonctionne, ce qui ne fonctionne pas, et le chemin vers l\'épanouissement.',
     positions: {
       en: ['The career journey so far', 'Current feelings about this work', 'What\'s fulfilling vs. what\'s draining', 'What\'s blocking progress or satisfaction', 'Workplace dynamics at play', 'Guidance for the next step', 'Likely outcome if changes are made'],
-      fr: ['Le parcours professionnel jusqu\'ici', 'Sentiments actuels envers ce travail', 'Ce qui nourrit vs. ce qui épuise', 'Ce qui bloque le progrès ou la satisfaction', 'Dynamiques professionnelles en jeu', 'Guidance pour la prochaine étape', 'Issue probable si des changements sont faits'],
+      fr: ['Le parcours professionnel jusqu\'ici', 'Sentiments actuels envers ce travail', 'Ce qui nourrit vs. ce qui épuise', 'Ce qui bloque le progrès ou la satisfaction', 'Dynamiques professionnelles en jeu', 'Conseils pour la prochaine étape', 'Issue probable si des changements sont faits'],
     },
   },
   career_purpose: {
@@ -141,7 +141,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Vous naviguez avec des collègues difficiles ou des dynamiques complexes? Voyez sous la surface et trouvez des stratégies pour protéger votre paix et votre progression.',
     positions: {
       en: ['How this situation developed', 'The current dynamic', 'What\'s really driving the conflict', 'Blind spots in this situation', 'The other perspective', 'How to navigate this wisely', 'Understanding the guidance'],
-      fr: ['Comment cette situation s\'est développée', 'La dynamique actuelle', 'Ce qui alimente vraiment le conflit', 'Angles morts dans cette situation', 'L\'autre perspective', 'Comment naviguer cela sagement', 'Comprendre la guidance'],
+      fr: ['Comment cette situation s\'est développée', 'La dynamique actuelle', 'Ce qui alimente vraiment le conflit', 'Angles morts dans cette situation', 'L\'autre perspective', 'Comment naviguer cela sagement', 'Comprendre les conseils'],
     },
   },
   starting_business: {
@@ -186,7 +186,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Face à un choix financier? Pesez les facteurs, comprenez les risques, et trouvez la clarté sur le chemin à suivre.',
     positions: {
       en: ['What led to this decision point', 'The current financial standing', 'What hasn\'t been fully considered', 'Risks to be aware of', 'External factors at play', 'Guidance for this choice', 'Likely outcome if proceeding'],
-      fr: ['Ce qui a mené à ce point de décision', 'La situation financière actuelle', 'Ce qui n\'a pas été pleinement considéré', 'Risques à connaître', 'Facteurs externes en jeu', 'Guidance pour ce choix', 'Issue probable si on avance'],
+      fr: ['Ce qui a mené à ce point de décision', 'La situation financière actuelle', 'Ce qui n\'a pas été pleinement considéré', 'Risques à connaître', 'Facteurs externes en jeu', 'Conseils pour ce choix', 'Issue probable si on avance'],
     },
   },
   financial_recovery: {
@@ -209,7 +209,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Vous doutez de la direction de votre vie? Ce tirage offre une perspective sur où en sont les choses, ce qui est aligné, et ce qui peut nécessiter un ajustement.',
     positions: {
       en: ['The path that led here', 'Where things stand now', 'What the soul is truly seeking', 'What feels misaligned', 'Signs and synchronicities present', 'How to reconnect with inner guidance', 'What alignment could look like'],
-      fr: ['Le chemin qui a mené ici', 'Où en sont les choses maintenant', 'Ce que l\'âme cherche vraiment', 'Ce qui semble désaligné', 'Signes et synchronicités présents', 'Comment se reconnecter à la guidance intérieure', 'À quoi l\'alignement pourrait ressembler'],
+      fr: ['Le chemin qui a mené ici', 'Où en sont les choses maintenant', 'Ce que l\'âme cherche vraiment', 'Ce qui semble désaligné', 'Signes et synchronicités présents', 'Comment se reconnecter à la sagesse intérieure', 'À quoi l\'alignement pourrait ressembler'],
     },
   },
   life_transitions: {
@@ -231,7 +231,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     taglineFr: 'Face à un choix significatif ou envisagez de déménager? Explorez les options, découvrez les facteurs cachés, et trouvez la clarté sur le chemin à suivre.',
     positions: {
       en: ['How this decision point arose', 'What the current situation offers', 'What the new path offers', 'What\'s not being seen clearly', 'External factors influencing the choice', 'What the heart truly wants', 'Guidance for deciding'],
-      fr: ['Comment ce point de décision est apparu', 'Ce que la situation actuelle offre', 'Ce que le nouveau chemin offre', 'Ce qui n\'est pas vu clairement', 'Facteurs externes influençant le choix', 'Ce que le cœur veut vraiment', 'Guidance pour décider'],
+      fr: ['Comment ce point de décision est apparu', 'Ce que la situation actuelle offre', 'Ce que le nouveau chemin offre', 'Ce qui n\'est pas vu clairement', 'Facteurs externes influençant le choix', 'Ce que le cœur veut vraiment', 'Conseils pour décider'],
     },
   },
   whats_ahead: {
@@ -239,10 +239,10 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     labelEn: 'What\'s Ahead',
     labelFr: 'Ce Qui Vient',
     taglineEn: 'Seeking a general life overview? This spread illuminates current energies, upcoming influences, and guidance for the journey ahead.',
-    taglineFr: 'Vous cherchez un aperçu général de votre vie? Ce tirage illumine les énergies actuelles, les influences à venir, et la guidance pour le chemin à parcourir.',
+    taglineFr: 'Vous cherchez un aperçu général de votre vie? Ce tirage illumine les énergies actuelles, les influences à venir, et les conseils pour le chemin à parcourir.',
     positions: {
       en: ['Recent experiences shaping now', 'The current life energy', 'What\'s working beneath the surface', 'Challenges on the horizon', 'Opportunities approaching', 'Guidance for the coming period', 'The overall direction unfolding'],
-      fr: ['Expériences récentes qui façonnent le présent', 'L\'énergie de vie actuelle', 'Ce qui œuvre sous la surface', 'Défis à l\'horizon', 'Opportunités qui approchent', 'Guidance pour la période à venir', 'La direction générale qui se déploie'],
+      fr: ['Expériences récentes qui façonnent le présent', 'L\'énergie de vie actuelle', 'Ce qui œuvre sous la surface', 'Défis à l\'horizon', 'Opportunités qui approchent', 'Conseils pour la période à venir', 'La direction générale qui se déploie'],
     },
   },
   // Category 5: Family & Personal Relationships
@@ -262,7 +262,7 @@ export const HORSESHOE_LAYOUTS: Record<HorseshoeLayoutId, HorseshoeLayout> = {
     labelEn: 'Children & Parenting',
     labelFr: 'Enfants & Parentalité',
     taglineEn: 'Questions about children or the parenting journey? Gain insight into the relationship, challenges, and how to nurture connection.',
-    taglineFr: 'Des questions sur les enfants ou le parcours parental? Obtenez des insights sur la relation, les défis, et comment nourrir la connexion.',
+    taglineFr: 'Des questions sur les enfants ou le parcours parental? Obtenez des aperçus sur la relation, les défis, et comment nourrir la connexion.',
     positions: {
       en: ['The foundation of this bond', 'The current parent-child dynamic', 'What the child may need', 'Challenges in the relationship', 'External pressures on the family', 'How to deepen understanding', 'The relationship\'s potential'],
       fr: ['Les fondations de ce lien', 'La dynamique parent-enfant actuelle', 'Ce dont l\'enfant peut avoir besoin', 'Défis dans la relation', 'Pressions extérieures sur la famille', 'Comment approfondir la compréhension', 'Le potentiel de la relation'],
@@ -364,7 +364,7 @@ export const HORSESHOE_CATEGORIES: HorseshoeCategoryConfig[] = [
   {
     id: 'general',
     labelEn: 'General Guidance',
-    labelFr: 'Guidance Générale',
+    labelFr: 'Orientation Générale',
     taglineEn: 'Insight on any topic',
     taglineFr: 'Éclairage sur tout sujet',
     iconName: 'MessageCircle',

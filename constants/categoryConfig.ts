@@ -81,7 +81,7 @@ export const CATEGORIES: CategoryConfig[] = [
   {
     id: 'general',
     labelEn: 'General Guidance',
-    labelFr: 'Guidance Générale',
+    labelFr: 'Orientation Générale',
     taglineEn: 'Ask about anything on your mind',
     taglineFr: 'Posez toute question qui vous tient à cœur',
     icon: createElement(MessageCircle, { className: 'w-6 h-6' }),
