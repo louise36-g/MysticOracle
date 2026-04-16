@@ -550,12 +550,18 @@ const YesNoReading: React.FC = () => {
             {language === 'en' ? 'Yes/No Tarot Reading' : 'Tirage Tarot Oui/Non'}
           </h1>
 
-          <p className="text-slate-300/90 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-            {language === 'en'
-              ? 'Type your yes or no question, shuffle the deck, and draw a card. The tarot will guide your answer with ancient wisdom from all 78 cards.'
-              : 'Tapez votre question oui ou non, mélangez le jeu et tirez une carte. Le tarot guidera votre réponse avec la sagesse ancestrale des 78 cartes.'
-            }
-          </p>
+          {question.trim() ? (
+            <p className="text-amber-300/80 text-base md:text-lg max-w-xl mx-auto leading-relaxed italic">
+              &ldquo;{question}&rdquo;
+            </p>
+          ) : (
+            <p className="text-slate-300/90 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+              {language === 'en'
+                ? 'Type your yes or no question, shuffle the deck, and draw a card. The tarot will guide your answer with ancient wisdom from all 78 cards.'
+                : 'Tapez votre question oui ou non, mélangez le jeu et tirez une carte. Le tarot guidera votre réponse avec la sagesse ancestrale des 78 cartes.'
+              }
+            </p>
+          )}
 
           <motion.div
             className="flex items-center justify-center gap-4 mt-6"
