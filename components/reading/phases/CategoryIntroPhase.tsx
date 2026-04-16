@@ -346,7 +346,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
             {/* Layout Picker (only for depth 3 or 5) */}
             {needsLayout && availableLayouts.length > 0 && (
               <div>
-                <label className="block text-xs text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">
                   {language === 'en' ? 'Choose your layout' : 'Choisissez votre tirage'}
                 </label>
 
@@ -356,7 +356,7 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                   className={`w-full flex items-center justify-between p-3 rounded-lg border backdrop-blur-sm transition-colors ${
                     layoutPickerOpen
                       ? 'bg-white/15 border-white/30'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                      : 'bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -368,20 +368,20 @@ const CategoryIntroPhase: React.FC<CategoryIntroPhaseProps> = ({
                         </span>
                         {/* Show change indicator when multiple layouts available */}
                         {availableLayouts.length > 1 && !layoutPickerOpen && (
-                          <span className="ml-1 px-1.5 py-0.5 rounded bg-white/10 border border-white/20 flex items-center gap-1">
-                            <Pencil className="w-3 h-3 text-white/60" />
-                            <span className="text-xs text-white/60">{language === 'en' ? 'Change' : 'Modifier'}</span>
+                          <span className="ml-1 px-2 py-0.5 rounded-md bg-purple-500/25 border border-purple-400/50 flex items-center gap-1.5">
+                            <Pencil className="w-3 h-3 text-purple-300" />
+                            <span className="text-xs font-semibold text-purple-200">{language === 'en' ? 'Change' : 'Modifier'}</span>
                           </span>
                         )}
                       </>
                     ) : (
-                      <span className="text-slate-400 text-sm">
+                      <span className="text-slate-300 text-sm">
                         {language === 'en' ? 'Tap to choose...' : 'Appuyez pour choisir...'}
                       </span>
                     )}
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-400 transition-transform ${
+                    className={`w-4 h-4 text-slate-300 transition-transform ${
                       layoutPickerOpen ? 'rotate-180' : ''
                     }`}
                   />
