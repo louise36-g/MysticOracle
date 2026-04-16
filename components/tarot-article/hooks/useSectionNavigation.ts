@@ -23,7 +23,8 @@ const FIXED_NAV_SECTIONS = [
     labelFr: 'À retenir',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('key takeaways') || lower.includes('à retenir');
+      // EN: "Key Takeaways:" | FR: "À retenir" or "Points clés :"
+      return lower.includes('key takeaways') || lower.includes('à retenir') || lower.includes('points cl');
     },
   },
   {
@@ -33,7 +34,7 @@ const FIXED_NAV_SECTIONS = [
     match: (title: string) => {
       const lower = title.toLowerCase();
       const excluded = ['reversed', 'key takeaways', 'faq', 'frequently', 'guidance', 'upright', 'symbol',
-        'à retenir', 'questions', 'à l\'endroit', 'à l\'envers', 'symboli'];
+        'à retenir', 'questions', 'à l\'endroit', 'à l\'envers', 'symboli', 'points cl', 'renvers'];
       return title.includes(':') && !excluded.some(e => lower.includes(e));
     },
   },
@@ -50,7 +51,9 @@ const FIXED_NAV_SECTIONS = [
     labelFr: 'À l\'envers',
     match: (title: string) => {
       const lower = title.toLowerCase();
-      return lower.includes('reversed') || lower.includes('à l\u2019envers') || lower.includes('à l\'envers');
+      // EN: "Reversed" | FR: "À l'Envers" or "Renversé"
+      return lower.includes('reversed') || lower.includes('à l\u2019envers') || lower.includes('à l\'envers')
+        || lower.includes('renvers');
     },
   },
   {
