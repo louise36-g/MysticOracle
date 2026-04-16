@@ -71,6 +71,12 @@ const SPREAD_CONFIGS: Record<PrismaSpreadType, SpreadConfig> = {
     cost: 1,
     description: 'A direct yes or no answer to your question',
   },
+  DAILY_ENERGY: {
+    name: 'Daily Energy',
+    cardCount: 1,
+    cost: 0,
+    description: 'A single card to capture the energy of the day',
+  },
 };
 
 const VALID_SPREAD_TYPES = Object.keys(SPREAD_CONFIGS) as PrismaSpreadType[];
