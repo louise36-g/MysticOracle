@@ -860,29 +860,15 @@ async function prerenderBlogPosts(template) {
         const description = post.metaDescriptionEn || post.excerptEn || post.excerpt || title;
         const image = post.coverImage || post.featuredImage;
 
-        // SSR-lite: fetch full blog post data to embed in HTML (eliminates API round-trip)
-        let blogData = null;
-        try {
-          const postResponse = await fetchWithTimeout(`${API_BASE}/api/blog/posts/${post.slug}`);
-          if (postResponse.ok) {
-            blogData = await postResponse.json();
-          }
-        } catch (fetchErr) {
-          // Non-fatal: page still works without embedded data (falls back to API fetch)
-          process.stdout.write('(no embed) ');
-        }
-
         const html = generateStaticHtml(template, {
           title: `${title} | CelestiArcana Blog`,
           description: description,
-          url: `https://celestiarcana.com/blog/${post.slug}`,
-          path: `/blog/${post.slug}`,
+          url: blogUrl(post.slug),
+          path: blogPath(post.slug),
           image: image,
           type: 'article',
-          blogData,
           blogTitle: title,
           blogExcerpt: post.excerptEn || post.excerpt,
-          blogContent: blogData?.post?.contentEn,
         });
 
         const outputPath = getOutputPath(`/blog/${post.slug}`);
@@ -917,14 +903,12 @@ async function prerenderBlogPosts(template) {
           const frHtml = generateStaticHtml(template, {
             title: `${frTitle} | CelestiArcana Blog`,
             description: frDescription,
-            url: `${SITE_URL}${frPath}`,
-            path: frPath,
+            url: blogUrl(post.slug, 'fr'),
+            path: blogPath(post.slug, 'fr'),
             image: image,
             type: 'article',
-            blogData,
             blogTitle: frTitle,
             blogExcerpt: frExcerpt,
-            blogContent: blogData?.post?.contentFr,
             lang: 'fr',
           });
 
@@ -1028,25 +1012,12 @@ function generateStaticHtml(template, options) {
     );
   }
 
-  // SSR-lite: Embed full blog post data as JSON so React skips the API fetch
-  if (options.blogData) {
-    const safeJson = JSON.stringify(options.blogData).replace(/<\//g, '<\\/');
-    html = html.replace(
-      '</body>',
-      `  <script type="application/json" id="__BLOG_POST_DATA__">${safeJson}</script>\n  </body>`
-    );
-  }
-
-  // SSR-lite: Replace generic shell with blog post content so it paints at FCP (before JS loads)
-  if (options.blogTitle && options.blogData && (options.path?.startsWith('/blog/') || options.path?.startsWith('/fr/blog/'))) {
+  // SSR-lite: Replace generic shell with blog post hero so title/excerpt paint at FCP
+  // Full content is NOT embedded — React fetches fresh from API on load (edits visible immediately)
+  if (options.blogTitle && (options.path?.startsWith('/blog/') || options.path?.startsWith('/fr/blog/'))) {
     const excerptTag = options.blogExcerpt
       ? `<p style="font-size:1rem;color:#cbd5e1;max-width:32rem;margin:0 auto 2rem">${escapeHtml(options.blogExcerpt)}</p>`
       : '';
-
-    let contentHtml = '';
-    if (options.blogContent) {
-      contentHtml = options.blogContent.replace(/<img /g, '<img loading="lazy" ');
-    }
 
     const blogShell = `<main style="position:relative;z-index:10;flex:1">
           <div style="padding:1.5rem 1rem 1rem;position:relative">
@@ -1057,7 +1028,6 @@ function generateStaticHtml(template, options) {
                 </h1>
                 ${excerptTag}
               </div>
-              <div class="prose prose-invert prose-purple max-w-none">${contentHtml}</div>
             </article>
           </div>
         </main>`;

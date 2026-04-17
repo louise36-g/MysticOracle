@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import {
   fetchBlogPost,
@@ -14,23 +14,6 @@ export interface AdjacentPost {
   titleFr: string;
   coverImage: string | null;
   contentType: string;
-}
-
-/**
- * Read pre-rendered blog post data embedded in the HTML by the prerender script.
- * This eliminates the API round-trip on initial page load.
- */
-function getEmbeddedBlogData(slug: string | undefined): { post: BlogPostType; relatedPosts: BlogPostType[]; prevPost?: AdjacentPost | null; nextPost?: AdjacentPost | null } | null {
-  if (typeof document === 'undefined' || !slug) return null;
-  const el = document.getElementById('__BLOG_POST_DATA__');
-  if (!el?.textContent) return null;
-  try {
-    const data = JSON.parse(el.textContent) as { post: BlogPostType; relatedPosts: BlogPostType[]; prevPost?: AdjacentPost | null; nextPost?: AdjacentPost | null };
-    if (data.post?.slug === slug) return data;
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 interface UseBlogPostParams {
@@ -51,28 +34,19 @@ interface UseBlogPostReturn {
 
 /**
  * useBlogPost
- * Handles loading blog post data, related posts, and link registry
+ * Handles loading blog post data, related posts, and link registry.
+ * Always fetches from the API — no embedded static data — so admin edits
+ * are visible within the cache TTL (~2 min) without a redeployment.
  */
 export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPostReturn {
   const { getToken } = useAuth();
 
-  // SSR-lite: read embedded data once to skip API fetch on pre-rendered pages
-  const embeddedRef = useRef(previewId ? null : getEmbeddedBlogData(slug));
-  const hasEmbeddedData = useRef(!!embeddedRef.current);
-  const [post, setPost] = useState<BlogPostType | null>(
-    () => embeddedRef.current?.post || null
-  );
-  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>(
-    () => embeddedRef.current?.relatedPosts || []
-  );
-  const [prevPost, setPrevPost] = useState<AdjacentPost | null>(
-    () => embeddedRef.current?.prevPost || null
-  );
-  const [nextPost, setNextPost] = useState<AdjacentPost | null>(
-    () => embeddedRef.current?.nextPost || null
-  );
+  const [post, setPost] = useState<BlogPostType | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
+  const [prevPost, setPrevPost] = useState<AdjacentPost | null>(null);
+  const [nextPost, setNextPost] = useState<AdjacentPost | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
-  const [loading, setLoading] = useState(!hasEmbeddedData.current);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadPost = useCallback(async () => {
@@ -82,7 +56,6 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
 
       let result;
       if (previewId) {
-        // Admin preview mode - fetch by ID
         const token = await getToken();
         if (!token) {
           setError('Authentication required for preview');
@@ -91,7 +64,6 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
         }
         result = await fetchBlogPostPreview(token, previewId);
       } else if (slug) {
-        // Normal mode - fetch by slug
         result = await fetchBlogPost(slug);
       } else {
         setError('No post specified');
@@ -111,10 +83,7 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
   }, [slug, previewId, getToken]);
 
   useEffect(() => {
-    if (!hasEmbeddedData.current) {
-      loadPost();
-    }
-    // Fetch link registry for shortcode processing (always needed)
+    loadPost();
     fetchLinkRegistry().then(setLinkRegistry).catch(console.error);
   }, [loadPost]);
 
