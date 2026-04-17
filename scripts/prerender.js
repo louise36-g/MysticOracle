@@ -21,6 +21,22 @@ const API_TIMEOUT = 45000; // 45 seconds
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const SITE_URL = 'https://celestiarcana.com';
 
+// ── Canonical URL builders ────────────────────────────────────────────────────
+// Single source of truth: /tarot/{slug}, never /tarot/articles/{slug}, no trailing slash.
+function tarotPath(slug, lang = 'en') {
+  return lang === 'fr' ? `/fr/tarot/${slug}` : `/tarot/${slug}`;
+}
+function tarotUrl(slug, lang = 'en') {
+  return `${SITE_URL}${tarotPath(slug, lang)}`;
+}
+function blogPath(slug, lang = 'en') {
+  return lang === 'fr' ? `/fr/blog/${slug}` : `/blog/${slug}`;
+}
+function contentPath(post, lang = 'en') {
+  return post.contentType === 'TAROT_ARTICLE' ? tarotPath(post.slug, lang) : blogPath(post.slug, lang);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Detect staging environment
 const COOLIFY_FQDN = process.env.COOLIFY_FQDN || '';
 const IS_STAGING = COOLIFY_FQDN.includes('staging');
@@ -149,7 +165,7 @@ async function prerenderStaticPages(template) {
 
   // Add homepage to sitemap (highest priority)
   sitemapData.pages.push({
-    loc: SITE_URL + '/',
+    loc: SITE_URL,
     lastmod: today,
     changefreq: 'daily',
     priority: '1.0',
@@ -281,7 +297,7 @@ function generateTarotCardsShell(overviewData, lang = 'en') {
         ? `<span style="font-weight:700;color:${cat.color}">${escapeHtml(String(card.cardNumber))}</span> - `
         : '';
 
-      cardsHtml += `<a href="${linkPrefix}/tarot/${escapeHtml(card.slug)}" style="display:block;flex-shrink:0;width:220px;text-decoration:none">
+      cardsHtml += `<a href="${tarotPath(escapeHtml(card.slug), lang)}" style="display:block;flex-shrink:0;width:220px;text-decoration:none">
           <div style="background:rgba(30,41,59,0.5);border-radius:0.5rem;overflow:hidden;border:1px solid rgba(168,85,247,0.2)">
             <div style="aspect-ratio:4/3;overflow:hidden;background:#0f172a">
               ${imgSrc ? `<img src="${imgSrc}" alt="${imgAlt}" width="250" height="188" loading="lazy" style="width:100%;height:100%;object-fit:cover" />` : ''}
@@ -489,7 +505,7 @@ async function prerenderTarotArticles(template) {
 
     for (const article of articles) {
       try {
-        process.stdout.write(`  Generating /tarot/${article.slug}... `);
+        process.stdout.write(`  Generating ${tarotPath(article.slug)}... `);
 
         // SSR-lite: fetch full article data to embed in HTML (eliminates API round-trip)
         let articleData = null;
@@ -506,8 +522,8 @@ async function prerenderTarotArticles(template) {
         const html = generateStaticHtml(template, {
           title: `${article.title} | CelestiArcana`,
           description: article.metaDescription || article.excerpt || `Discover the meaning of ${article.title} in tarot readings.`,
-          url: `https://celestiarcana.com/tarot/${article.slug}`,
-          path: `/tarot/${article.slug}`,
+          url: tarotUrl(article.slug),
+          path: tarotPath(article.slug),
           image: article.featuredImage || article.imageUrl,
           type: 'article',
           structuredData: generateTarotArticleSchema(article),
@@ -516,7 +532,7 @@ async function prerenderTarotArticles(template) {
           articleExcerpt: article.excerpt || article.metaDescription,
         });
 
-        const outputPath = getOutputPath(`/tarot/${article.slug}`);
+        const outputPath = getOutputPath(tarotPath(article.slug));
         ensureDirectoryExists(path.dirname(outputPath));
         fs.writeFileSync(outputPath, html);
 
@@ -525,18 +541,18 @@ async function prerenderTarotArticles(template) {
           ? new Date(article.updatedAt).toISOString().split('T')[0]
           : new Date().toISOString().split('T')[0];
         sitemapData.cards.push({
-          loc: `${SITE_URL}/tarot/${article.slug}`,
+          loc: tarotUrl(article.slug),
           lastmod,
           changefreq: 'weekly',
           priority: '0.8',
         });
 
-        results.push({ success: true, path: `/tarot/${article.slug}` });
+        results.push({ success: true, path: tarotPath(article.slug) });
         console.log('✓');
 
         // Generate French version
         try {
-          const frPath = `/fr/tarot/${article.slug}`;
+          const frPath = tarotPath(article.slug, 'fr');
           process.stdout.write(`  Generating ${frPath}... `);
 
           const frTitle = article.titleFr || article.title;
@@ -546,7 +562,7 @@ async function prerenderTarotArticles(template) {
           const frHtml = generateStaticHtml(template, {
             title: `${frTitle} | CelestiArcana`,
             description: frDescription,
-            url: `${SITE_URL}${frPath}`,
+            url: tarotUrl(article.slug, 'fr'),
             path: frPath,
             image: article.featuredImage || article.imageUrl,
             type: 'article',
@@ -563,11 +579,11 @@ async function prerenderTarotArticles(template) {
           results.push({ success: true, path: frPath });
           console.log('✓');
         } catch (frError) {
-          results.push({ success: false, path: `/fr/tarot/${article.slug}`, error: frError.message });
+          results.push({ success: false, path: tarotPath(article.slug, 'fr'), error: frError.message });
           console.log('✗');
         }
       } catch (error) {
-        results.push({ success: false, path: `/tarot/${article.slug}`, error: error.message });
+        results.push({ success: false, path: tarotPath(article.slug), error: error.message });
         console.log('✗');
       }
     }
@@ -625,7 +641,7 @@ async function prerenderBlogListPage(template) {
       const postExcerpt = post.excerptEn || post.excerpt || '';
       const imgSrc = post.coverImage ? buildCloudinaryThumbnailUrl(post.coverImage) : '';
       const imgAlt = escapeHtml(post.coverImageAlt || postTitle);
-      const slug = post.contentType === 'TAROT_ARTICLE' ? `/tarot/${post.slug}` : `/blog/${post.slug}`;
+      const slug = contentPath(post);
 
       cardsHtml += `<a href="${slug}" style="display:block;width:250px;flex-shrink:0;text-decoration:none">
           <div style="background:rgba(15,23,42,0.6);border-radius:0.75rem;overflow:hidden;border:1px solid rgba(168,85,247,0.2)">
@@ -722,7 +738,7 @@ async function prerenderBlogListPage(template) {
         const postExcerpt = post.excerptFr || post.excerptEn || post.excerpt || '';
         const imgSrc = post.coverImage ? buildCloudinaryThumbnailUrl(post.coverImage) : '';
         const imgAlt = escapeHtml(post.coverImageAlt || postTitle);
-        const slug = post.contentType === 'TAROT_ARTICLE' ? `/fr/tarot/${post.slug}` : `/fr/blog/${post.slug}`;
+        const slug = contentPath(post, 'fr');
 
         frCardsHtml += `<a href="${slug}" style="display:block;width:250px;flex-shrink:0;text-decoration:none">
           <div style="background:rgba(15,23,42,0.6);border-radius:0.75rem;overflow:hidden;border:1px solid rgba(168,85,247,0.2)">
@@ -1167,7 +1183,7 @@ function generateTarotArticleSchema(article) {
     dateModified: article.updatedAt || article.createdAt,
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://celestiarcana.com/tarot/${article.slug}`,
+      '@id': tarotUrl(article.slug),
     },
   };
 }

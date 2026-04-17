@@ -16,6 +16,7 @@ import {
 } from '../../services/api';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
+import { tarotUrl } from '../../utils/urls';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 /**
@@ -386,12 +387,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     );
   }
 
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://celestiarcana.com';
-  const canonicalUrl = language === 'fr'
-    ? `${siteUrl}/fr/tarot/${article.slug}`
-    : `${siteUrl}/tarot/${article.slug}`;
-  const enUrl = `${siteUrl}/tarot/${article.slug}`;
-  const frUrl = `${siteUrl}/fr/tarot/${article.slug}`;
+  const canonicalUrl = tarotUrl(article.slug, language);
+  const enUrl = tarotUrl(article.slug, 'en');
+  const frUrl = tarotUrl(article.slug, 'fr');
 
   return (
     <div className="relative min-h-screen">

@@ -8,6 +8,7 @@
 import 'dotenv/config';
 import { PrismaClient, Prisma } from '../src/generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { tarotUrl } from '../src/utils/urls.js';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
@@ -171,7 +172,7 @@ function buildBreadcrumbSchema(article: any, articleUrl: string): BreadcrumbSche
 }
 
 function buildCompleteSchema(article: any) {
-  const articleUrl = `${SITE_URL}/tarot/${article.slug}`;
+  const articleUrl = tarotUrl(article.slug);
   const graph: Array<ArticleSchema | FAQSchema | BreadcrumbSchema> = [];
 
   // Map fields for compatibility

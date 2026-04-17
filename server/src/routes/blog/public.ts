@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import { Prisma } from '../../generated/prisma/client.js';
 import { prisma, cacheService, CacheService, z } from './shared.js';
+import { replaceArticleUrls } from '../../utils/urlReplacer.js';
 import { logger } from '../../lib/logger.js';
 import {
   includeCategoriesAndTags,
@@ -293,6 +294,8 @@ router.get(
     const response = {
       post: {
         ...post,
+        contentEn: replaceArticleUrls(post.contentEn ?? ''),
+        contentFr: post.contentFr ? replaceArticleUrls(post.contentFr) : post.contentFr,
         contentType: post.contentType,
         categories: flattenCategories(post.categories),
         tags: flattenTags(post.tags),

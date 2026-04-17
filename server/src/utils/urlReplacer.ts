@@ -157,6 +157,10 @@ export function replaceArticleUrls(content: string): string {
     return `href="${correctedUrl}"`;
   });
 
+  // Pattern 7: Fix legacy /tarot/articles/ URLs → /tarot/
+  processedContent = processedContent.replace(/href="\/tarot\/articles\//g, 'href="/tarot/');
+  processedContent = processedContent.replace(/href='\/tarot\/articles\//g, "href='/tarot/");
+
   return processedContent;
 }
 

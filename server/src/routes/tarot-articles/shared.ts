@@ -11,6 +11,7 @@ import { prisma } from '../../db/prisma.js';
 import { cacheService, CacheService } from '../../services/cache.js';
 import { sortByCardNumber } from '../../lib/tarot/sorting.js';
 import { includeCategoriesAndTags } from '../shared/queryUtils.js';
+import { replaceArticleUrls } from '../../utils/urlReplacer.js';
 
 // Re-export for use by route modules
 export { prisma, cacheService, CacheService, z, sortByCardNumber };
@@ -196,8 +197,10 @@ export function mapBlogPostToTarotFields(post: Record<string, unknown>) {
     titleFr: post.titleFr,
     excerpt: post.excerptEn,
     excerptFr: post.excerptFr,
-    content: post.contentEn,
-    contentFr: post.contentFr,
+    content:
+      typeof post.contentEn === 'string' ? replaceArticleUrls(post.contentEn) : post.contentEn,
+    contentFr:
+      typeof post.contentFr === 'string' ? replaceArticleUrls(post.contentFr) : post.contentFr,
     author: post.authorName,
     readTime: `${post.readTimeMinutes || 5} min read`,
     datePublished: post.datePublished,

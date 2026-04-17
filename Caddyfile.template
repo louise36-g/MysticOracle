@@ -155,13 +155,13 @@
 		path /fr /fr/*
 	}
 	handle @frPath {
-		try_files {path} {path}/index.html /fr/index.html
+		try_files {path}/index.html {path} /fr/index.html
 		file_server
 	}
 
 	# English SPA fallback: everything else falls back to English shell
 	handle {
-		try_files {path} {path}/index.html /index.html
+		try_files {path}/index.html {path} /index.html
 		file_server
 	}
 }

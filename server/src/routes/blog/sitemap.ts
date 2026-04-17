@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import { prisma } from './shared.js';
 import { logger } from '../../lib/logger.js';
+import { tarotUrl } from '../../utils/urls.js';
 
 const router = Router();
 
@@ -165,7 +166,7 @@ router.get('/sitemap.xml', async (req, res) => {
     for (const article of tarotArticles) {
       const lastmod = article.updatedAt.toISOString().split('T')[0];
       xml += `  <url>
-    <loc>${baseUrl}/tarot/${article.slug}</loc>
+    <loc>${tarotUrl(article.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

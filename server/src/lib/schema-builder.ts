@@ -1,6 +1,8 @@
 // lib/schema-builder.ts
 // JSON-LD Schema Builder for Tarot Articles
 
+import { tarotUrl } from '../utils/urls.js';
+
 // ============================================
 // TYPES
 // ============================================
@@ -226,7 +228,7 @@ function buildBreadcrumbSchema(data: TarotArticleData, articleUrl: string): Brea
  * Build complete schema with @graph
  */
 export function buildSchema(data: TarotArticleData): CompleteSchema {
-  const articleUrl = `${SITE_CONFIG.url}/tarot/${data.slug}`;
+  const articleUrl = tarotUrl(data.slug);
 
   const graph: Array<ArticleSchema | FAQSchema | BreadcrumbSchema> = [];
 
