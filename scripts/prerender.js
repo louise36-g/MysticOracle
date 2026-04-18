@@ -32,6 +32,9 @@ function tarotUrl(slug, lang = 'en') {
 function blogPath(slug, lang = 'en') {
   return lang === 'fr' ? `/fr/blog/${slug}` : `/blog/${slug}`;
 }
+function blogUrl(slug, lang = 'en') {
+  return `${SITE_URL}${blogPath(slug, lang)}`;
+}
 function contentPath(post, lang = 'en') {
   return post.contentType === 'TAROT_ARTICLE' ? tarotPath(post.slug, lang) : blogPath(post.slug, lang);
 }
