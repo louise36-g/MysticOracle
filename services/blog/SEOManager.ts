@@ -51,11 +51,6 @@ export class SEOManager {
     // Canonical URL
     this.updateOrCreateLink('canonical', url);
 
-    // Hreflang alternate links
-    this.updateOrCreateLink('alternate', url, 'en');
-    this.updateOrCreateLink('alternate', url, 'fr');
-    this.updateOrCreateLink('alternate', url, 'x-default');
-
     // Add JSON-LD structured data
     this.addJsonLd(post, url, language);
   }

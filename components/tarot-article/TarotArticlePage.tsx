@@ -388,8 +388,6 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   }
 
   const canonicalUrl = tarotUrl(article.slug, language);
-  const enUrl = tarotUrl(article.slug, 'en');
-  const frUrl = tarotUrl(article.slug, 'fr');
 
   return (
     <div className="relative min-h-screen">
@@ -398,9 +396,6 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <title>{localizedSeoTitle} | CelestiArcana</title>
         <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="en" href={enUrl} />
-        <link rel="alternate" hrefLang="fr" href={frUrl} />
-        <link rel="alternate" hrefLang="x-default" href={enUrl} />
         <meta name="keywords" content={article.tags.join(', ')} />
         <meta name="author" content={article.author} />
         <html lang={language} />

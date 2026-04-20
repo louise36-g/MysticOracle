@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { useLocation } from 'react-router-dom';
-import { getHreflangUrls, stripLanguagePrefix, SITE_URL } from './language';
+import { stripLanguagePrefix, SITE_URL } from './language';
 
 /**
  * Generate canonical URL for the current page.
@@ -32,13 +32,9 @@ export const SEOTags: React.FC<{ path: string }> = ({ path }) => {
     : basePath;
 
   const canonical = getCanonicalUrl(resolvedPath);
-  const hreflang = getHreflangUrls(resolvedPath);
   return (
     <Helmet>
       <link rel="canonical" href={canonical} />
-      <link rel="alternate" hrefLang="en" href={hreflang.en} />
-      <link rel="alternate" hrefLang="fr" href={hreflang.fr} />
-      <link rel="alternate" hrefLang="x-default" href={hreflang.xDefault} />
     </Helmet>
   );
 };

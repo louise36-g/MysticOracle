@@ -56,6 +56,7 @@ const sitemapData = {
 
 // Static pages that don't need API data
 const STATIC_PAGES = [
+  { path: '/', title: 'Personalized Tarot Readings & Daily Horoscopes', description: 'Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads & more. Free daily horoscopes. Discover your destiny now.' },
   { path: '/about', title: 'About CelestiArcana', description: 'Discover the story behind CelestiArcana and our mission to bring tarot wisdom to everyone.' },
   { path: '/faq', title: 'Frequently Asked Questions', description: 'Find answers to common questions about tarot readings and CelestiArcana.' },
   { path: '/privacy', title: 'Privacy Policy', description: 'Learn how CelestiArcana protects your privacy and handles your data.' },
@@ -78,6 +79,7 @@ const STATIC_PAGES = [
 ];
 
 const STATIC_PAGES_FR = {
+  '/': { title: 'Lectures de Tarot Personnalisées & Horoscopes Quotidiens', description: 'Recevez des lectures de tarot personnalisées fondées sur l\'interprétation classique des cartes. Choisissez parmi la Croix Celtique, tirages à 3 cartes et plus encore. Horoscopes quotidiens gratuits.' },
   '/about': { title: 'À Propos de CelestiArcana', description: 'Découvrez l\'histoire de CelestiArcana et notre mission d\'apporter la sagesse du tarot à tous.' },
   '/faq': { title: 'Questions Fréquentes', description: 'Trouvez les réponses aux questions courantes sur les lectures de tarot et CelestiArcana.' },
   '/privacy': { title: 'Politique de Confidentialité', description: 'Découvrez comment CelestiArcana protège votre vie privée et gère vos données.' },
@@ -197,22 +199,24 @@ async function prerenderStaticPages(template) {
       ensureDirectoryExists(path.dirname(outputPath));
       fs.writeFileSync(outputPath, html);
 
-      // Add to sitemap data
-      const priority = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
-        ? '0.3'
-        : page.path === '/tarot' || page.path === '/blog'
-          ? '0.9'
-          : '0.7';
-      const changefreq = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
-        ? 'monthly'
-        : 'weekly';
+      // Add to sitemap data (homepage is already added above)
+      if (page.path !== '/') {
+        const priority = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
+          ? '0.3'
+          : page.path === '/tarot' || page.path === '/blog'
+            ? '0.9'
+            : '0.7';
+        const changefreq = page.path.includes('privacy') || page.path.includes('terms') || page.path.includes('cookies')
+          ? 'monthly'
+          : 'weekly';
 
-      sitemapData.pages.push({
-        loc: SITE_URL + page.path,
-        lastmod: today,
-        changefreq,
-        priority,
-      });
+        sitemapData.pages.push({
+          loc: SITE_URL + page.path,
+          lastmod: today,
+          changefreq,
+          priority,
+        });
+      }
 
       results.push({ success: true, path: page.path });
       console.log('✓');
@@ -228,7 +232,7 @@ async function prerenderStaticPages(template) {
       const frData = STATIC_PAGES_FR[page.path];
       if (!frData) continue; // Skip if no French translation
 
-      const frPath = `/fr${page.path}`;
+      const frPath = page.path === '/' ? '/fr' : `/fr${page.path}`;
       process.stdout.write(`  Generating ${frPath}... `);
 
       const html = generateStaticHtml(template, {
@@ -1116,18 +1120,27 @@ function generateStaticHtml(template, options) {
   const lang = options.lang || 'en';
   if (lang === 'fr') {
     html = html.replace('<html lang="en">', '<html lang="fr">');
+    html = html.replace(
+      /<meta property="og:locale" content="[^"]*"/,
+      '<meta property="og:locale" content="fr_FR"'
+    );
+    html = html.replace(
+      /<meta property="og:locale:alternate" content="[^"]*"/,
+      '<meta property="og:locale:alternate" content="en_US"'
+    );
   }
 
   // Add correct hreflang tags (for both EN and FR pages)
   const basePath = (options.path || '').replace(/^\/fr/, '');
-  const enUrl = `${SITE_URL}${basePath || '/'}`;
-  const frUrl = `${SITE_URL}/fr${basePath || ''}`;
-  // Remove any existing hreflang tags
-  html = html.replace(/<link rel="alternate" hrefLang="[^"]*" href="[^"]*" \/>\n?/g, '');
-  // Add correct hreflang tags
+  // Handle homepage: empty or bare "/" basePath must not produce a trailing slash in the URL
+  const enUrl = (basePath === '' || basePath === '/') ? SITE_URL : `${SITE_URL}${basePath}`;
+  const frUrl = (basePath === '' || basePath === '/') ? `${SITE_URL}/fr` : `${SITE_URL}/fr${basePath}`;
+  // Remove any existing hreflang tags (case-insensitive to handle hreflang and hrefLang)
+  html = html.replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>\n?/gi, '');
+  // Add correct hreflang tags (lowercase hreflang per HTML spec)
   html = html.replace(
     '</head>',
-    `  <link rel="alternate" hrefLang="en" href="${enUrl}" />\n  <link rel="alternate" hrefLang="fr" href="${frUrl}" />\n  <link rel="alternate" hrefLang="x-default" href="${enUrl}" />\n  </head>`
+    `  <link rel="alternate" hreflang="en" href="${enUrl}" />\n  <link rel="alternate" hreflang="fr" href="${frUrl}" />\n  <link rel="alternate" hreflang="x-default" href="${enUrl}" />\n  </head>`
   );
 
   return html;
