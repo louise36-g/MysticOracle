@@ -35,7 +35,7 @@
     "useUnknownInCatchVariables": true
   },
   "exclude": [
-    "server/scripts/archive",
+    "server/scripts",
     "server/src/**/*.example.ts"
   ]
 }
