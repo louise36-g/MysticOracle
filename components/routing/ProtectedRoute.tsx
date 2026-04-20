@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useUser } from '@clerk/clerk-react';
 import { ROUTES } from '../../routes/routes';
 
@@ -20,5 +21,10 @@ export function ProtectedRoute() {
     return <Navigate to={ROUTES.HOME} state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Outlet />
+    </>
+  );
 }

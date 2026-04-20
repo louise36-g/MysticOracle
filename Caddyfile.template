@@ -82,6 +82,17 @@
 		CDN-Cache-Control "no-store"
 	}
 
+	# --- Admin, auth, payment, protected routes: noindex at server level ---
+	# Belt-and-suspenders: robots.txt blocks crawlers, but X-Robots-Tag works even
+	# if robots.txt is ignored, and fires before React hydration overrides index.html default.
+	@noindexRoutes {
+		path /admin /admin/* /payment/* /sign-in /sign-up /profile /tarot-interpret /fr/tarot-interpret /tarot-card-reading/* /fr/tarot-card-reading/*
+		path /fr/admin /fr/admin/* /fr/payment/* /fr/sign-in /fr/sign-up /fr/profile
+	}
+	header @noindexRoutes {
+		X-Robots-Tag "noindex, nofollow"
+	}
+
 	# --- Hashed assets: immutable forever, noindex ---
 	@hashedAssets {
 		path /assets/*.js /assets/*.css

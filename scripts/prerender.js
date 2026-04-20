@@ -1019,6 +1019,15 @@ function generateStaticHtml(template, options) {
     );
   }
 
+  // Preload hero background image for homepage (LCP optimisation)
+  // Desktop: full 1024×1536 WebP; mobile: 768px-wide version to save bandwidth
+  if (options.path === '/' || options.path === '/fr') {
+    html = html.replace(
+      '</head>',
+      `  <link rel="preload" as="image" href="/background-celestiarcana.webp" fetchpriority="high" media="(min-width: 769px)" />\n  <link rel="preload" as="image" href="/background-celestiarcana-mobile.webp" fetchpriority="high" media="(max-width: 768px)" />\n  </head>`
+    );
+  }
+
   // SSR-lite: Replace generic shell with blog post hero so title/excerpt paint at FCP
   // Full content is NOT embedded — React fetches fresh from API on load (edits visible immediately)
   if (options.blogTitle && (options.path?.startsWith('/blog/') || options.path?.startsWith('/fr/blog/'))) {
@@ -1114,6 +1123,19 @@ function generateStaticHtml(template, options) {
       );
       html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
     }
+  }
+
+  // Defer JS loading for ALL pages that haven't already had it applied above.
+  // For tarot articles and blog posts the script tag was already replaced, so
+  // scriptMatch will be null and this is a safe no-op for those pages.
+  const deferScriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+  if (deferScriptMatch) {
+    const mainSrc = deferScriptMatch[1];
+    html = html.replace(
+      deferScriptMatch[0],
+      `<meta name="app-entry" content="${mainSrc}">\n    <script src="/deferred-loader.js"></script>`
+    );
+    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, '');
   }
 
   // Language-specific overrides
@@ -1338,11 +1360,22 @@ Disallow: /admin/*
 Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
-Disallow: /reading/
+Disallow: /tarot-interpret
+Disallow: /tarot-card-reading/
 
 # Auth pages (Clerk) — no value in search results
 Disallow: /sign-in
 Disallow: /sign-up
+
+# French equivalents of protected routes
+Disallow: /fr/admin
+Disallow: /fr/admin/*
+Disallow: /fr/payment/
+Disallow: /fr/sign-in
+Disallow: /fr/sign-up
+Disallow: /fr/profile
+Disallow: /fr/tarot-interpret
+Disallow: /fr/tarot-card-reading/
 
 # Static assets — don't waste crawl budget
 Disallow: /fonts/

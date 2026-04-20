@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useUser } from '@clerk/clerk-react';
 import { useApp } from '../../context/AppContext';
 import { ROUTES } from '../../routes/routes';
@@ -41,5 +42,10 @@ export function AdminRoute() {
     );
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <Outlet />
+    </>
+  );
 }

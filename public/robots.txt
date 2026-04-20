@@ -16,11 +16,22 @@ Disallow: /admin/*
 Disallow: /api/
 Disallow: /payment/
 Disallow: /profile
+Disallow: /tarot-interpret
 Disallow: /tarot-card-reading/
 
 # Auth pages (Clerk) — no value in search results
 Disallow: /sign-in
 Disallow: /sign-up
+
+# French equivalents of protected routes
+Disallow: /fr/admin
+Disallow: /fr/admin/*
+Disallow: /fr/payment/
+Disallow: /fr/sign-in
+Disallow: /fr/sign-up
+Disallow: /fr/profile
+Disallow: /fr/tarot-interpret
+Disallow: /fr/tarot-card-reading/
 
 # Static assets — don't waste crawl budget
 Disallow: /fonts/

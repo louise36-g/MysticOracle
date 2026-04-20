@@ -95,6 +95,10 @@ const PaymentResult: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <Helmet>
+          <title>Payment - CelestiArcana</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -116,6 +120,10 @@ const PaymentResult: React.FC = () => {
   if (type === 'cancelled') {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <Helmet>
+          <title>Payment - CelestiArcana</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -154,7 +162,10 @@ const PaymentResult: React.FC = () => {
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-      <Helmet><title>Payment - CelestiArcana</title></Helmet>
+      <Helmet>
+        <title>Payment - CelestiArcana</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {isSuccess ? (
         <>
           <motion.div
