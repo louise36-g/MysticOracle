@@ -414,7 +414,7 @@ const Header: React.FC = () => {
           {isAdmin && (
             <Link
               to={ROUTES.ADMIN}
-              className={`text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
+              className={`hidden 2xl:block text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
                 isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
