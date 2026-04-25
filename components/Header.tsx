@@ -414,11 +414,13 @@ const Header: React.FC = () => {
           {isAdmin && (
             <Link
               to={ROUTES.ADMIN}
-              className={`hidden 2xl:block text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
-                isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
+              className={`p-1.5 rounded-md transition-colors ${
+                isActive(ROUTES.ADMIN) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-amber-400 hover:bg-white/5'
               }`}
+              title="Admin"
+              aria-label="Admin dashboard"
             >
-              Admin
+              <Shield className="w-4 h-4" />
             </Link>
           )}
 
