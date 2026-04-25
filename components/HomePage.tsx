@@ -76,7 +76,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="relative z-10 flex-grow flex flex-col py-12 md:py-16">
+    <div className="relative z-10 flex-grow flex flex-col py-6 md:py-8">
       <Helmet>
         <title>Personalized Tarot Readings & Daily Horoscopes - CelestiArcana</title>
         <meta name="description" content="Receive personalized tarot readings grounded in classical card interpretation. Choose from Celtic Cross, 3-card spreads and more. Free daily horoscopes." />
@@ -145,7 +145,7 @@ const HomePage: React.FC = () => {
 
       {/* Header */}
       <div
-          className="relative py-8 px-4"
+          className="relative py-4 px-4"
         >
           {/* Tarot card silhouettes in background */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">

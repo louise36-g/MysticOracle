@@ -26,6 +26,7 @@ interface DropdownItem {
   icon: React.ReactNode;
   iconBg: string;
   href: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const Header: React.FC = () => {
@@ -38,9 +39,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [showAuthToast, setShowAuthToast] = useState(false);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const authToastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const displayName = user?.username || clerkUser?.username || clerkUser?.firstName || 'User';
   const userCredits = user?.credits ?? 3;
@@ -48,7 +47,6 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     };
   }, []);
@@ -150,6 +148,44 @@ const Header: React.FC = () => {
     }
   };
 
+  // --- Readings dropdown items ---
+
+  const readingsItems: DropdownItem[] = [
+    {
+      id: 'readings',
+      labelEn: 'Tarot Readings',
+      labelFr: 'Tirages de Tarot',
+      descriptionEn: 'Full card spreads',
+      descriptionFr: 'Tirages complets',
+      icon: <Sparkles className="w-4 h-4 text-purple-400" />,
+      iconBg: 'bg-purple-500/20',
+      href: ROUTES.READING,
+      onClick: handleNewReading,
+    },
+    {
+      id: 'yes-no',
+      labelEn: 'Yes/No',
+      labelFr: 'Oui/Non',
+      descriptionEn: 'Quick answer',
+      descriptionFr: 'Réponse rapide',
+      icon: <CircleHelp className="w-4 h-4 text-blue-400" />,
+      iconBg: 'bg-blue-500/20',
+      href: ROUTES.YES_NO,
+    },
+    {
+      id: 'my-cards',
+      labelEn: 'My Cards',
+      labelFr: 'Mes Cartes',
+      descriptionEn: 'Interpret your cards',
+      descriptionFr: 'Interprétez vos cartes',
+      icon: <Hand className="w-4 h-4 text-amber-400" />,
+      iconBg: 'bg-amber-500/20',
+      href: ROUTES.INTERPRET,
+    },
+  ];
+
+  const isReadingsActive = isActive('/tarot-card-reading') || isActive('/tarot-yes-no') || isActive('/tarot-interpret');
+
   // --- Learn dropdown items ---
 
   const learnItems: DropdownItem[] = [
@@ -225,7 +261,7 @@ const Header: React.FC = () => {
             key={item.id}
             to={item.href}
             role="menuitem"
-            onClick={handleItemClick}
+            onClick={(e) => { item.onClick?.(e); handleItemClick(); }}
             onKeyDown={handleDropdownItemKeyDown(name, index, items.length)}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all hover:bg-white/5 hover:scale-[1.02] cursor-pointer"
           >
@@ -250,7 +286,7 @@ const Header: React.FC = () => {
 
   // Nav link style helper
   const linkClass = (active: boolean) =>
-    `relative px-3 h-full flex items-center text-sm font-medium transition-colors ${
+    `relative px-3 h-full flex items-center text-base font-medium transition-colors ${
       active ? 'text-white' : 'text-slate-400 hover:text-white'
     }`;
 
@@ -259,90 +295,58 @@ const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-purple-500/20 bg-[#0f0c29]/90 backdrop-blur-md" role="banner">
       <div className="container mx-auto px-4 h-14 flex items-center">
-        {/* Logo */}
-        <LocalizedLink
-          to={ROUTES.HOME}
-          className="flex items-center gap-2 flex-shrink-0"
-          aria-label="CelestiArcana - Go to homepage"
-        >
-          <img
-            src="/logos/celestiarcana-moon.webp"
-            alt=""
-            width={36}
-            height={36}
-            className="h-9 w-9 object-cover"
-            aria-hidden="true"
-          />
-          <span className="text-lg font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
-            CelestiArcana
-          </span>
-        </LocalizedLink>
+        {/* Left: Logo */}
+        <div className="flex-1 flex items-center">
+          <LocalizedLink
+            to={ROUTES.HOME}
+            className="flex items-center gap-2"
+            aria-label="CelestiArcana - Go to homepage"
+          >
+            <img
+              src="/logos/celestiarcana-moon.webp"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 object-cover"
+              aria-hidden="true"
+            />
+            <span className="text-lg font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-purple-200">
+              CelestiArcana
+            </span>
+          </LocalizedLink>
+        </div>
 
-        {/* Desktop Nav Links — text only, no icons */}
-        <nav className="hidden lg:flex items-center justify-center flex-1 h-full gap-0.5 mx-4" role="navigation" aria-label="Main navigation">
+        {/* Centre: Desktop Nav Links */}
+        <nav className="hidden lg:flex items-center h-full gap-0.5" role="navigation" aria-label="Main navigation">
           <LocalizedLink to={ROUTES.HOME} className={linkClass(isActive(ROUTES.HOME))}>
             {language === 'fr' ? 'Accueil' : 'Home'}
             {isActive(ROUTES.HOME) && activeBar}
           </LocalizedLink>
 
-          <LocalizedLink
-            to={ROUTES.READING}
-            onClick={handleNewReading}
-            className={linkClass(isActive('/tarot-card-reading'))}
+          {/* Readings / Tirages Dropdown */}
+          <div
+            className="relative h-full"
+            onMouseEnter={() => handleMouseEnter('readings')}
+            onMouseLeave={handleMouseLeave}
           >
-            {language === 'fr' ? 'Tirages de Tarot' : 'Tarot Readings'}
-            {isActive('/tarot-card-reading') && activeBar}
-          </LocalizedLink>
-
-          <LocalizedLink to={ROUTES.YES_NO} className={linkClass(isActive('/tarot-yes-no'))}>
-            {language === 'fr' ? 'Oui/Non' : 'Yes/No'}
-            {isActive('/tarot-yes-no') && activeBar}
-          </LocalizedLink>
-
-          {/* My Cards — auth-gated */}
-          {isSignedIn ? (
-            <LocalizedLink to={ROUTES.INTERPRET} className={linkClass(isActive('/tarot-interpret'))}>
-              {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
-              {isActive('/tarot-interpret') && activeBar}
-            </LocalizedLink>
-          ) : (
-            <div className="relative h-full">
-              <button
-                onClick={() => {
-                  setShowAuthToast(true);
-                  if (authToastTimeoutRef.current) clearTimeout(authToastTimeoutRef.current);
-                  authToastTimeoutRef.current = setTimeout(() => setShowAuthToast(false), 4000);
-                }}
-                className={`${linkClass(false)} cursor-pointer`}
-              >
-                {language === 'fr' ? 'Mes Cartes' : 'My Cards'}
-              </button>
-              <AnimatePresence>
-                {showAuthToast && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-2xl p-3 text-center z-[100]"
-                  >
-                    <p className="text-sm text-slate-300 mb-2">
-                      {language === 'fr'
-                        ? 'Pour interpréter vos cartes, veuillez vous connecter.'
-                        : 'To interpret your cards, please sign in.'}
-                    </p>
-                    <Link
-                      to={ROUTES.SIGN_IN}
-                      onClick={() => setShowAuthToast(false)}
-                      className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
-                    >
-                      {language === 'fr' ? 'Se connecter' : 'Sign in'}
-                    </Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
+            <button
+              id="readings-trigger"
+              aria-expanded={openDropdown === 'readings'}
+              aria-controls="readings-dropdown"
+              aria-haspopup="true"
+              onKeyDown={handleDropdownKeyDown('readings')}
+              className={`relative px-3 h-full flex items-center gap-1 text-base font-medium transition-colors cursor-pointer ${
+                isReadingsActive || openDropdown === 'readings' ? 'text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {language === 'fr' ? 'Tirages' : 'Readings'}
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === 'readings' ? 'rotate-180' : ''}`} />
+              {isReadingsActive && activeBar}
+            </button>
+            <AnimatePresence>
+              {openDropdown === 'readings' && renderDropdown('readings', readingsItems)}
+            </AnimatePresence>
+          </div>
 
           <LocalizedLink to={ROUTES.HOROSCOPES} className={linkClass(isActive('/horoscopes'))}>
             Horoscopes
@@ -364,11 +368,11 @@ const Header: React.FC = () => {
               aria-controls="learn-dropdown"
               aria-haspopup="true"
               onKeyDown={handleDropdownKeyDown('learn')}
-              className={`relative px-3 h-full flex items-center gap-1 text-sm font-medium transition-colors cursor-pointer ${
+              className={`relative px-3 h-full flex items-center gap-1 text-base font-medium transition-colors cursor-pointer ${
                 isLearnActive || openDropdown === 'learn' ? 'text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {language === 'fr' ? 'Apprendre' : 'Learn'}
+              {language === 'fr' ? 'Découvrir' : 'Discover'}
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === 'learn' ? 'rotate-180' : ''}`} />
               {isLearnActive && activeBar}
             </button>
@@ -383,8 +387,11 @@ const Header: React.FC = () => {
           </LocalizedLink>
         </nav>
 
+        {/* Right: Desktop Utility + Mobile Toggle */}
+        <div className="flex-1 flex items-center justify-end gap-2">
+
         {/* Desktop Utility Items */}
-        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-2">
           <SignedIn>
             <button
               onClick={() => setShowCreditShop(true)}
@@ -396,7 +403,7 @@ const Header: React.FC = () => {
             </button>
             <LocalizedLink
               to={ROUTES.PROFILE}
-              className={`text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
+              className={`hidden 2xl:block text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
                 isActive(ROUTES.PROFILE) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -422,7 +429,7 @@ const Header: React.FC = () => {
             title={language === 'en' ? t('header.switch_to_french', 'Switch to French') : t('header.switch_to_english_fr', 'Passer en anglais')}
           >
             {language === 'en' ? <FlagFR className="w-7 h-7" aria-hidden="true" /> : <FlagEN className="w-7 h-7" aria-hidden="true" />}
-            <span className="text-sm font-semibold tracking-wide">{language === 'en' ? 'FR' : 'EN'}</span>
+            <span className="hidden xl:inline text-sm font-semibold tracking-wide">{language === 'en' ? 'FR' : 'EN'}</span>
           </button>
 
           <SignedOut>
@@ -445,7 +452,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="lg:hidden ml-auto p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300"
+          className="lg:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300"
           onClick={toggleMobileMenu}
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-menu"
@@ -453,6 +460,8 @@ const Header: React.FC = () => {
         >
           {isMobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
+
+        </div>{/* end right column */}
       </div>
 
       {/* Mobile Menu */}
