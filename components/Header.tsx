@@ -403,7 +403,7 @@ const Header: React.FC = () => {
             </button>
             <LocalizedLink
               to={ROUTES.PROFILE}
-              className={`hidden 2xl:block text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
+              className={`hidden xl:block text-sm font-medium transition-colors px-2.5 py-1.5 rounded-md ${
                 isActive(ROUTES.PROFILE) ? 'text-amber-400 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -441,6 +441,7 @@ const Header: React.FC = () => {
           </SignedOut>
           <SignedIn>
             <UserButton
+              userProfileUrl={`${language === 'fr' ? '/fr' : ''}${ROUTES.PROFILE}`}
               appearance={{
                 elements: {
                   avatarBox: 'w-8 h-8'
