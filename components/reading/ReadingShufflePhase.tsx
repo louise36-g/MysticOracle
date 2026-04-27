@@ -319,13 +319,6 @@ const ReadingShufflePhase: React.FC<ReadingShufflePhaseProps> = ({
                 </div>
               )}
 
-              <p className="text-slate-400 text-sm mb-6 text-center max-w-sm">
-                {language === 'en'
-                  ? 'Take a breath, set your intention, and shuffle the deck.'
-                  : 'Prenez une respiration, posez votre intention, et mélangez le jeu.'
-                }
-              </p>
-
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}

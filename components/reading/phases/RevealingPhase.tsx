@@ -79,27 +79,15 @@ const RevealingPhase: React.FC<RevealingPhaseProps> = ({
           <span className="text-[10px] text-white/50 uppercase tracking-wider">{theme.name}</span>
         </motion.div>
 
-        {/* Title and tagline - tighter spacing */}
+        {/* Title */}
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl md:text-3xl font-heading text-white mb-1"
+          className="text-2xl md:text-3xl font-heading text-white mb-4 md:mb-6"
         >
           {language === 'en' ? 'The cards are laid.' : 'Les cartes sont posées.'}
         </motion.h2>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className={`text-xs md:text-sm ${theme.textAccent} mb-4 md:mb-6 italic`}
-        >
-          {spread.id === SpreadType.THREE_CARD && threeCardLayout && THREE_CARD_LAYOUTS[threeCardLayout]
-            ? (language === 'en' ? THREE_CARD_LAYOUTS[threeCardLayout].taglineEn : THREE_CARD_LAYOUTS[threeCardLayout].taglineFr)
-            : spread.id === SpreadType.FIVE_CARD && fiveCardLayout && FIVE_CARD_LAYOUTS[fiveCardLayout]
-              ? (language === 'en' ? FIVE_CARD_LAYOUTS[fiveCardLayout].taglineEn : FIVE_CARD_LAYOUTS[fiveCardLayout].taglineFr)
-              : (language === 'en' ? theme.taglineEn : theme.taglineFr)}
-        </motion.p>
 
         {/* Cards container - responsive sizing */}
         {spread.id === SpreadType.CELTIC_CROSS ? (
