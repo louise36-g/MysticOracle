@@ -114,9 +114,28 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
 
   // Map from card name (en/fr, lowercase) → article slug — includes drawn + clarification cards
   const cardNameToSlug = React.useMemo(() => {
+    // Number words to digits (slug format uses digits for all suits except the one exception below)
+    const numberWords: Record<string, string> = {
+      two: '2', three: '3', four: '4', five: '5',
+      six: '6', seven: '7', eight: '8', nine: '9', ten: '10',
+    };
+    // Slugs that don't follow the simple derivation rule
+    const exceptions: Record<string, string> = {
+      'the high priestess': 'high-priestess-tarot-card-meaning',
+      'four of pentacles': 'four-of-pentacles-tarot-card-meaning',
+    };
+    const toSlug = (nameEn: string): string => {
+      const lower = nameEn.toLowerCase();
+      if (exceptions[lower]) return exceptions[lower];
+      let s = lower;
+      Object.entries(numberWords).forEach(([word, digit]) => {
+        s = s.replace(new RegExp(`\\b${word}\\b`), digit);
+      });
+      return s.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-tarot-card-meaning';
+    };
     const map = new Map<string, string>();
     const addCard = (card: TarotCard) => {
-      const slug = card.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const slug = toSlug(card.nameEn);
       map.set(card.nameEn.toLowerCase(), slug);
       map.set(card.nameFr.toLowerCase(), slug);
     };
@@ -132,6 +151,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   );
 
   const LINK_CLASS = 'text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors';
+  const LINK_PROPS = { className: LINK_CLASS, target: '_blank', rel: 'noopener noreferrer' } as const;
 
   // Splits a plain-text string on known card names and returns mixed text/link nodes
   const splitOnCardNames = (text: string, baseKey: string): React.ReactNode => {
@@ -144,7 +164,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
       const slug = cardNameToSlug.get(part.toLowerCase());
       if (slug) {
         return (
-          <LocalizedLink key={`${baseKey}-n${i}`} to={`/tarot/${slug}`} className={LINK_CLASS}>
+          <LocalizedLink key={`${baseKey}-n${i}`} to={`/tarot/${slug}`} {...LINK_PROPS}>
             {part}
           </LocalizedLink>
         );
@@ -164,7 +184,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
         const slug = cardNameToSlug.get(inner.toLowerCase());
         if (slug) {
           nodes.push(
-            <LocalizedLink key={`b${idx}`} to={`/tarot/${slug}`} className={LINK_CLASS}>
+            <LocalizedLink key={`b${idx}`} to={`/tarot/${slug}`} {...LINK_PROPS}>
               {inner}
             </LocalizedLink>
           );
@@ -493,8 +513,10 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                           </motion.div>
                           <div className="flex-1 text-center sm:text-left">
                             <LocalizedLink
-                              to={`/tarot/${cCard.card.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                              to={`/tarot/${cardNameToSlug.get(cCard.card.nameEn.toLowerCase()) ?? ''}`}
                               className="text-white font-medium text-lg hover:text-amber-300 transition-colors underline decoration-white/30 hover:decoration-amber-300/50"
+                              target="_blank"
+                              rel="noopener noreferrer"
                             >
                               {language === 'en' ? cCard.card.nameEn : cCard.card.nameFr}
                             </LocalizedLink>
