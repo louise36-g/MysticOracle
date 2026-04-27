@@ -112,41 +112,71 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
     secondary: spreadTheme.secondary,
   };
 
-  // Map from card name (en/fr, lowercase) → article slug for linking within interpretation text
+  // Map from card name (en/fr, lowercase) → article slug — includes drawn + clarification cards
   const cardNameToSlug = React.useMemo(() => {
     const map = new Map<string, string>();
-    drawnCards.forEach(({ card }) => {
+    const addCard = (card: TarotCard) => {
       const slug = card.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       map.set(card.nameEn.toLowerCase(), slug);
       map.set(card.nameFr.toLowerCase(), slug);
-    });
+    };
+    drawnCards.forEach(({ card }) => addCard(card));
+    clarificationCards?.forEach(({ card }) => addCard(card));
     return map;
-  }, [drawnCards]);
+  }, [drawnCards, clarificationCards]);
 
-  // Renders a paragraph line, turning **CardName** patterns into tarot article links
-  const renderParagraph = (text: string): React.ReactNode => {
-    const parts = text.split(/(\*\*[^*]+\*\*)/);
+  // Sorted card names longest-first so multi-word names match before single words
+  const sortedCardNames = React.useMemo(
+    () => Array.from(cardNameToSlug.keys()).sort((a, b) => b.length - a.length),
+    [cardNameToSlug]
+  );
+
+  const LINK_CLASS = 'text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors';
+
+  // Splits a plain-text string on known card names and returns mixed text/link nodes
+  const splitOnCardNames = (text: string, baseKey: string): React.ReactNode => {
+    if (sortedCardNames.length === 0 || !text) return text;
+    const escaped = sortedCardNames.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const pattern = new RegExp(`(${escaped.join('|')})`, 'gi');
+    const parts = text.split(pattern);
     if (parts.length === 1) return text;
-    return parts.map((part, idx) => {
+    return parts.map((part, i) => {
+      const slug = cardNameToSlug.get(part.toLowerCase());
+      if (slug) {
+        return (
+          <LocalizedLink key={`${baseKey}-n${i}`} to={`/tarot/${slug}`} className={LINK_CLASS}>
+            {part}
+          </LocalizedLink>
+        );
+      }
+      return <React.Fragment key={`${baseKey}-t${i}`}>{part}</React.Fragment>;
+    });
+  };
+
+  // Renders a paragraph line: detects **CardName** bold markers AND plain card names
+  const renderParagraph = (text: string): React.ReactNode => {
+    const boldParts = text.split(/(\*\*[^*]+\*\*)/);
+    const nodes: React.ReactNode[] = [];
+    boldParts.forEach((part, idx) => {
       const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
       if (boldMatch) {
-        const innerText = boldMatch[1];
-        const slug = cardNameToSlug.get(innerText.toLowerCase());
+        const inner = boldMatch[1];
+        const slug = cardNameToSlug.get(inner.toLowerCase());
         if (slug) {
-          return (
-            <LocalizedLink
-              key={idx}
-              to={`/tarot/${slug}`}
-              className="text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors"
-            >
-              {innerText}
+          nodes.push(
+            <LocalizedLink key={`b${idx}`} to={`/tarot/${slug}`} className={LINK_CLASS}>
+              {inner}
             </LocalizedLink>
           );
+        } else {
+          nodes.push(<React.Fragment key={`b${idx}`}>{inner}</React.Fragment>);
         }
-        return <React.Fragment key={idx}>{innerText}</React.Fragment>;
+      } else {
+        // Plain text — scan for card names
+        nodes.push(<React.Fragment key={`p${idx}`}>{splitOnCardNames(part, `p${idx}`)}</React.Fragment>);
       }
-      return <React.Fragment key={idx}>{part}</React.Fragment>;
     });
+    return nodes;
   };
 
   // Clarification card draw state
@@ -462,11 +492,14 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             />
                           </motion.div>
                           <div className="flex-1 text-center sm:text-left">
-                            <p className="text-white font-medium text-lg">
+                            <LocalizedLink
+                              to={`/tarot/${cCard.card.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                              className="text-white font-medium text-lg hover:text-amber-300 transition-colors underline decoration-white/30 hover:decoration-amber-300/50"
+                            >
                               {language === 'en' ? cCard.card.nameEn : cCard.card.nameFr}
-                            </p>
+                            </LocalizedLink>
                             {cCard.isReversed && (
-                              <span className="text-xs text-slate-400">
+                              <span className="text-xs text-slate-400 block mt-0.5">
                                 ({language === 'en' ? 'Reversed' : 'Renversée'})
                               </span>
                             )}
@@ -479,7 +512,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             if (!line.trim()) return null;
                             return (
                               <p key={`clar-${idx}-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
-                                {line.replace(/\*\*/g, '')}
+                                {renderParagraph(line)}
                               </p>
                             );
                           })}
