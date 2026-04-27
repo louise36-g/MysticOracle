@@ -14,7 +14,60 @@ import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCard
 import { SingleCardLayoutId } from '../../../constants/singleCardLayouts';
 import { getCategory } from '../../../constants/categoryConfig';
 import { ROUTES, localizedRoute } from '../../../routes/routes';
-import LocalizedLink from '../../LocalizedLink';
+
+const CARD_LINK_CLASS =
+  'text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors';
+
+// Renders text with first-mention-only card name links (plain <a> for reliable new-tab).
+// `linked` is mutated in-place — callers share one Set across all paragraphs so each
+// card name is only linked on its first appearance in the entire reading.
+function renderTextWithLinks(
+  text: string,
+  slugMap: Map<string, string>,
+  patternStr: string,
+  linked: Set<string>,
+  langPrefix: string
+): React.ReactNode[] {
+  const boldParts = text.split(/(\*\*[^*]+\*\*)/);
+  return boldParts.map((part, bIdx) => {
+    const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
+    if (boldMatch) {
+      const inner = boldMatch[1];
+      const lower = inner.toLowerCase();
+      const slug = slugMap.get(lower);
+      if (slug && !linked.has(lower)) {
+        linked.add(lower);
+        return (
+          <a key={`b${bIdx}`} href={`${langPrefix}/tarot/${slug}`} target="_blank" rel="noopener noreferrer" className={CARD_LINK_CLASS}>
+            {inner}
+          </a>
+        );
+      }
+      return <React.Fragment key={`b${bIdx}`}>{inner}</React.Fragment>;
+    }
+    if (!patternStr || !part) return <React.Fragment key={`p${bIdx}`}>{part}</React.Fragment>;
+    const subParts = part.split(new RegExp(`(${patternStr})`, 'gi'));
+    if (subParts.length === 1) return <React.Fragment key={`p${bIdx}`}>{part}</React.Fragment>;
+    return (
+      <React.Fragment key={`p${bIdx}`}>
+        {subParts.map((sub, sIdx) => {
+          if (!sub) return null;
+          const lower = sub.toLowerCase();
+          const slug = slugMap.get(lower);
+          if (slug && !linked.has(lower)) {
+            linked.add(lower);
+            return (
+              <a key={`s${sIdx}`} href={`${langPrefix}/tarot/${slug}`} target="_blank" rel="noopener noreferrer" className={CARD_LINK_CLASS}>
+                {sub}
+              </a>
+            );
+          }
+          return <React.Fragment key={`s${sIdx}`}>{sub}</React.Fragment>;
+        })}
+      </React.Fragment>
+    );
+  });
+}
 
 const VERDICT_COLORS: Record<string, string> = {
   YES: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
@@ -150,54 +203,15 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
     [cardNameToSlug]
   );
 
-  const LINK_CLASS = 'text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors';
-  const LINK_PROPS = { className: LINK_CLASS, target: '_blank', rel: 'noopener noreferrer' } as const;
+  // Regex pattern string for splitting text on card names (longest first to avoid prefix matches)
+  const cardNamesPatternStr = React.useMemo(() => {
+    if (sortedCardNames.length === 0) return '';
+    return sortedCardNames
+      .map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+  }, [sortedCardNames]);
 
-  // Splits a plain-text string on known card names and returns mixed text/link nodes
-  const splitOnCardNames = (text: string, baseKey: string): React.ReactNode => {
-    if (sortedCardNames.length === 0 || !text) return text;
-    const escaped = sortedCardNames.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    const pattern = new RegExp(`(${escaped.join('|')})`, 'gi');
-    const parts = text.split(pattern);
-    if (parts.length === 1) return text;
-    return parts.map((part, i) => {
-      const slug = cardNameToSlug.get(part.toLowerCase());
-      if (slug) {
-        return (
-          <LocalizedLink key={`${baseKey}-n${i}`} to={`/tarot/${slug}`} {...LINK_PROPS}>
-            {part}
-          </LocalizedLink>
-        );
-      }
-      return <React.Fragment key={`${baseKey}-t${i}`}>{part}</React.Fragment>;
-    });
-  };
-
-  // Renders a paragraph line: detects **CardName** bold markers AND plain card names
-  const renderParagraph = (text: string): React.ReactNode => {
-    const boldParts = text.split(/(\*\*[^*]+\*\*)/);
-    const nodes: React.ReactNode[] = [];
-    boldParts.forEach((part, idx) => {
-      const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
-      if (boldMatch) {
-        const inner = boldMatch[1];
-        const slug = cardNameToSlug.get(inner.toLowerCase());
-        if (slug) {
-          nodes.push(
-            <LocalizedLink key={`b${idx}`} to={`/tarot/${slug}`} {...LINK_PROPS}>
-              {inner}
-            </LocalizedLink>
-          );
-        } else {
-          nodes.push(<React.Fragment key={`b${idx}`}>{inner}</React.Fragment>);
-        }
-      } else {
-        // Plain text — scan for card names
-        nodes.push(<React.Fragment key={`p${idx}`}>{splitOnCardNames(part, `p${idx}`)}</React.Fragment>);
-      }
-    });
-    return nodes;
-  };
+  const langPrefix = language === 'fr' ? '/fr' : '';
 
   // Clarification card draw state
   const [hasStartedDraw, setHasStartedDraw] = React.useState(false);
@@ -224,6 +238,39 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
   const displayText = isYesNoSpread && verdictMatch
     ? readingText.replace(/\[VERDICT:(YES|NO|MAYBE)\]\s*\n?/, '')
     : readingText;
+
+  // Pre-render main reading content: shared `linked` Set enforces first-mention-only card links
+  const mainContent = React.useMemo(() => {
+    const lp = language === 'fr' ? '/fr' : '';
+    const linked = new Set<string>();
+    return displayText.split('\n').map((line, i) => {
+      if (!line.trim()) return null;
+      const t = line.trim();
+      const isHeader =
+        /^\d+\.\s*\*\*/.test(t) ||
+        t.startsWith('#') ||
+        (t.startsWith('**') && (t.endsWith('**') || t.includes('** -') || t.includes('**:') || /\*\*\s*\(/.test(t)));
+      if (isHeader) {
+        const clean = t
+          .replace(/^\d+\.\s*/, '')
+          .replace(/^#{1,6}\s*/, '')
+          .replace(/\*\*/g, '')
+          .replace(/\s*-\s*$/, '')
+          .trim();
+        if (!clean) return null;
+        return (
+          <p key={`line-${i}`} className={`text-lg md:text-xl font-bold ${theme.textAccent} mt-6 mb-3 first:mt-0`}>
+            {clean}
+          </p>
+        );
+      }
+      return (
+        <p key={`line-${i}`} className="text-slate-300 leading-relaxed mb-4 text-base md:text-lg">
+          {renderTextWithLinks(line, cardNameToSlug, cardNamesPatternStr, linked, lp)}
+        </p>
+      );
+    });
+  }, [displayText, cardNameToSlug, cardNamesPatternStr, language, theme.textAccent]);
 
   return (
     <div className="relative min-h-screen">
@@ -422,48 +469,7 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                 style={{ boxShadow: `0 0 60px ${theme.glow}` }}
               >
                 <div className="max-w-none">
-                  {displayText.split('\n').map((line, i) => {
-                    if (!line.trim()) return null;
-                    const trimmedLine = line.trim();
-
-                    // Headers: lines starting with **, #, or numbered lists with ** (e.g., "1. **Header**")
-                    // Also detect lines that are entirely bold (card names like "**The Fool** (Position)")
-                    const isNumberedHeader = /^\d+\.\s*\*\*/.test(trimmedLine);
-                    const isMarkdownHeader = trimmedLine.startsWith('#');
-                    const isBoldHeader = trimmedLine.startsWith('**') && (
-                      trimmedLine.endsWith('**') ||
-                      trimmedLine.includes('** -') ||
-                      trimmedLine.includes('**:') ||
-                      /\*\*\s*\(/.test(trimmedLine) // Card name with position like "**The Fool** (Present)"
-                    );
-
-                    const isHeader = isNumberedHeader || isMarkdownHeader || isBoldHeader;
-
-                    if (isHeader) {
-                      // Remove all markdown header syntax: ##, ###, **, numbered prefixes, etc.
-                      const cleanText = trimmedLine
-                        .replace(/^\d+\.\s*/, '')     // Remove numbered list prefix (1. 2. etc.)
-                        .replace(/^#{1,6}\s*/, '')    // Remove # headers
-                        .replace(/\*\*/g, '')         // Remove all ** markers
-                        .replace(/\s*-\s*$/, '')      // Remove trailing dash
-                        .trim();
-
-                      // Skip if the cleaned text is empty
-                      if (!cleanText) return null;
-
-                      return (
-                        <p key={`line-${i}`} className={`text-lg md:text-xl font-bold ${theme.textAccent} mt-6 mb-3 first:mt-0`}>
-                          {cleanText}
-                        </p>
-                      );
-                    }
-
-                    return (
-                      <p key={`line-${i}`} className="text-slate-300 leading-relaxed mb-4 text-base md:text-lg">
-                        {renderParagraph(line)}
-                      </p>
-                    );
-                  })}
+                  {mainContent}
                 </div>
 
                 {/* Clarification Card Section - inside reading box, above actions */}
@@ -512,14 +518,14 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                             />
                           </motion.div>
                           <div className="flex-1 text-center sm:text-left">
-                            <LocalizedLink
-                              to={`/tarot/${cardNameToSlug.get(cCard.card.nameEn.toLowerCase()) ?? ''}`}
-                              className="text-white font-medium text-lg hover:text-amber-300 transition-colors underline decoration-white/30 hover:decoration-amber-300/50"
+                            <a
+                              href={`${langPrefix}/tarot/${cardNameToSlug.get(cCard.card.nameEn.toLowerCase()) ?? ''}`}
                               target="_blank"
                               rel="noopener noreferrer"
+                              className="text-white font-medium text-lg hover:text-amber-300 transition-colors underline decoration-white/30 hover:decoration-amber-300/50"
                             >
                               {language === 'en' ? cCard.card.nameEn : cCard.card.nameFr}
-                            </LocalizedLink>
+                            </a>
                             {cCard.isReversed && (
                               <span className="text-xs text-slate-400 block mt-0.5">
                                 ({language === 'en' ? 'Reversed' : 'Renversée'})
@@ -530,14 +536,21 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
 
                         {/* Interpretation */}
                         <div className="border-t border-white/10 pt-4">
-                          {cCard.interpretation.split('\n').map((line, i) => {
-                            if (!line.trim()) return null;
-                            return (
-                              <p key={`clar-${idx}-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
-                                {renderParagraph(line)}
-                              </p>
-                            );
-                          })}
+                          {(() => {
+                            // Pre-seed with the card's own names so the heading link counts as the first mention
+                            const clarLinked = new Set([
+                              cCard.card.nameEn.toLowerCase(),
+                              cCard.card.nameFr.toLowerCase(),
+                            ]);
+                            return cCard.interpretation.split('\n').map((line, i) => {
+                              if (!line.trim()) return null;
+                              return (
+                                <p key={`clar-${idx}-${i}`} className="text-slate-300 leading-relaxed mb-3 text-sm md:text-base">
+                                  {renderTextWithLinks(line, cardNameToSlug, cardNamesPatternStr, clarLinked, langPrefix)}
+                                </p>
+                              );
+                            });
+                          })()}
                         </div>
                       </motion.div>
                     ))}
