@@ -150,6 +150,13 @@ function processContent(html: string): string {
         if (nextEl.classList?.contains('section-divider')) {
           break;
         }
+        // Stop at Yes/No H3 heading — it is a standalone section, not part of Reversed
+        if (nextEl.tagName === 'H3') {
+          const h3Text = (nextEl as HTMLElement).textContent?.toLowerCase() || '';
+          if (h3Text.includes('yes or no') || h3Text.includes('oui ou non')) {
+            break;
+          }
+        }
         const next = nextEl.nextElementSibling;
         wrapper.appendChild(nextEl);
         nextEl = next;

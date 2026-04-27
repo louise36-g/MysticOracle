@@ -214,6 +214,17 @@ const AdminPrompts: React.FC = () => {
             </p>
           </div>
         </div>
+        <button
+          onClick={handleSeed}
+          disabled={seeding}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm disabled:opacity-50 transition-colors"
+          title={language === 'en' ? 'Push latest defaults from code to database' : 'Appliquer les derniers défauts du code à la base de données'}
+        >
+          <Download className="w-4 h-4" />
+          {seeding
+            ? (language === 'en' ? 'Syncing…' : 'Synchronisation…')
+            : (language === 'en' ? 'Sync Defaults' : 'Sync. les défauts')}
+        </button>
       </div>
 
       {error && (

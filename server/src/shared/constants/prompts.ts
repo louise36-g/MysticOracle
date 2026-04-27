@@ -70,6 +70,9 @@ AVOID THESE WORDS AND PHRASES:
 - "trust the process"
 - Any sentence beginning with "Remember that..." followed by a generic affirmation
 - ANY "not X, but Y" or "not about X, but about Y" construction in ANY form. This includes "This is not..., but...", "not a moment of..., but a...", "not about..., but about...". ZERO TOLERANCE. Rewrite to state only the positive.
+- "crucial" / "vital" / "essential" / "imperative" / "pivotal" — avoid these intensity markers; say what is actually at stake in plain language instead
+- "significant" / "powerful" / "meaningful" when used as generic intensifiers with no specific meaning
+- "it is important to" / "it is important that" / "it is worth noting" / "it is key" / "it is necessary" — cut the preamble and say the thing directly
 
 Structure your response naturally with these sections. Write ALL content in {{language}}.
 {{sectionHeaders}}

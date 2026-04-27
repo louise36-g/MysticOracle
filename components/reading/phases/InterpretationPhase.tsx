@@ -14,6 +14,7 @@ import { FIVE_CARD_LAYOUTS, FiveCardLayoutId } from '../../../constants/fiveCard
 import { SingleCardLayoutId } from '../../../constants/singleCardLayouts';
 import { getCategory } from '../../../constants/categoryConfig';
 import { ROUTES, localizedRoute } from '../../../routes/routes';
+import LocalizedLink from '../../LocalizedLink';
 
 const VERDICT_COLORS: Record<string, string> = {
   YES: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
@@ -109,6 +110,43 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
     name: categoryConfig ? (language === 'en' ? categoryConfig.labelEn : categoryConfig.labelFr) : spreadTheme.name,
     primary: spreadTheme.primary,
     secondary: spreadTheme.secondary,
+  };
+
+  // Map from card name (en/fr, lowercase) → article slug for linking within interpretation text
+  const cardNameToSlug = React.useMemo(() => {
+    const map = new Map<string, string>();
+    drawnCards.forEach(({ card }) => {
+      const slug = card.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      map.set(card.nameEn.toLowerCase(), slug);
+      map.set(card.nameFr.toLowerCase(), slug);
+    });
+    return map;
+  }, [drawnCards]);
+
+  // Renders a paragraph line, turning **CardName** patterns into tarot article links
+  const renderParagraph = (text: string): React.ReactNode => {
+    const parts = text.split(/(\*\*[^*]+\*\*)/);
+    if (parts.length === 1) return text;
+    return parts.map((part, idx) => {
+      const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
+      if (boldMatch) {
+        const innerText = boldMatch[1];
+        const slug = cardNameToSlug.get(innerText.toLowerCase());
+        if (slug) {
+          return (
+            <LocalizedLink
+              key={idx}
+              to={`/tarot/${slug}`}
+              className="text-amber-300/90 hover:text-amber-200 underline decoration-amber-400/50 hover:decoration-amber-300 transition-colors"
+            >
+              {innerText}
+            </LocalizedLink>
+          );
+        }
+        return <React.Fragment key={idx}>{innerText}</React.Fragment>;
+      }
+      return <React.Fragment key={idx}>{part}</React.Fragment>;
+    });
   };
 
   // Clarification card draw state
@@ -370,12 +408,9 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
                       );
                     }
 
-                    // Regular paragraph - strip all ** markers
-                    const cleanParagraph = line.replace(/\*\*/g, '');
-
                     return (
                       <p key={`line-${i}`} className="text-slate-300 leading-relaxed mb-4 text-base md:text-lg">
-                        {cleanParagraph}
+                        {renderParagraph(line)}
                       </p>
                     );
                   })}
