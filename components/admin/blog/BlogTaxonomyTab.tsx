@@ -180,9 +180,8 @@ const SortableParentBlock: React.FC<{
   onEdit: (cat: CategoryFormData) => void;
   onDelete: (id: string) => void;
   onChildDragEnd: (event: DragEndEvent, parentId: string) => void;
-  sensors: ReturnType<typeof useSensors>;
   childDndKey: number;
-}> = ({ parent, children, language, onEdit, onDelete, onChildDragEnd, sensors, childDndKey }) => {
+}> = ({ parent, children, language, onEdit, onDelete, onChildDragEnd, childDndKey }) => {
   const {
     attributes,
     listeners,
@@ -191,6 +190,12 @@ const SortableParentBlock: React.FC<{
     transition,
     isDragging,
   } = useSortable({ id: parent.id });
+
+  // Own sensors for the child DndContext — must NOT share with the outer parent context
+  const childSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -262,7 +267,7 @@ const SortableParentBlock: React.FC<{
         <div className="ml-6 mt-1 border-l-2 border-purple-500/15 pl-4">
           <DndContext
             key={`child-${parent.id}-${childDndKey}`}
-            sensors={sensors}
+            sensors={childSensors}
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
             onDragEnd={(event) => onChildDragEnd(event, parent.id)}
@@ -626,7 +631,6 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
                     onEdit={handleEditCategory}
                     onDelete={handleDeleteCategory}
                     onChildDragEnd={handleChildDragEnd}
-                    sensors={sensors}
                     childDndKey={dndKey}
                   />
                 ))}
