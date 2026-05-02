@@ -205,6 +205,20 @@ const BlogList: React.FC = () => {
     setPage(1);
   };
 
+  // Compute parent/child hierarchy for nav and empty-state messaging
+  const parentCategories = categories.filter(
+    (cat) => !cat.parentId && (
+      (cat.postCount ?? 0) > 0 ||
+      (cat.children || []).some(child => (child.postCount ?? 0) > 0)
+    )
+  );
+  const activeParent = parentCategories.find(p =>
+    p.slug === selectedCategory || p.children?.some(c => c.slug === selectedCategory)
+  );
+  const activeChildren = (activeParent?.children || []).filter(
+    child => (child.postCount ?? 0) > 0
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <Helmet>
@@ -223,95 +237,84 @@ const BlogList: React.FC = () => {
       </div>
 
       {/* Category Navigation — parent categories as pills, children as sub-tabs */}
-      {(() => {
-        // Show parent categories that have at least one published post (or a child with posts)
-        const parentCategories = categories.filter(
-          (cat) => !cat.parentId && (
-            (cat.postCount ?? 0) > 0 ||
-            (cat.children || []).some(child => (child.postCount ?? 0) > 0)
-          )
-        );
+      {parentCategories.length > 0 && (
+        <section className="mb-10 space-y-4">
+          {/* Parent category pills */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <Folder className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            <button
+              onClick={() => handleCategoryChange('')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                !selectedCategory
+                  ? 'bg-purple-600 text-white shadow-[0_0_14px_rgba(168,85,247,0.5)]'
+                  : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+              }`}
+            >
+              {t('blog.BlogList.all', 'All')}
+            </button>
+            {parentCategories.map((cat) => {
+              const isActive = cat.slug === selectedCategory || cat.children?.some(c => c.slug === selectedCategory);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.slug)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? 'text-white shadow-[0_0_14px_rgba(168,85,247,0.4)]'
+                      : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                  }`}
+                  style={isActive ? { backgroundColor: cat.color || '#7c3aed' } : undefined}
+                >
+                  {language === 'en' ? cat.nameEn : cat.nameFr}
+                </button>
+              );
+            })}
+          </div>
 
-        if (parentCategories.length === 0) return null;
-
-        // Find the active parent: either directly selected, or a parent whose child is selected
-        const activeParent = parentCategories.find(p => {
-          if (p.slug === selectedCategory) return true;
-          return p.children?.some(c => c.slug === selectedCategory);
-        });
-
-        // Get children of the active parent (only those with posts)
-        const activeChildren = (activeParent?.children || []).filter(
-          child => (child.postCount ?? 0) > 0
-        );
-
-        return (
-          <section className="mb-10 space-y-4">
-            {/* Parent category pills */}
-            <div className="flex flex-wrap gap-2 items-center">
-              <Folder className="w-5 h-5 text-purple-400 flex-shrink-0" />
-              <button
-                onClick={() => handleCategoryChange('')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  !selectedCategory
-                    ? 'bg-purple-600 text-white shadow-[0_0_14px_rgba(168,85,247,0.5)]'
-                    : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                }`}
-              >
-                {t('blog.BlogList.all', 'All')}
-              </button>
-              {parentCategories.map((cat) => {
-                const isActive = cat.slug === selectedCategory || cat.children?.some(c => c.slug === selectedCategory);
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategoryChange(cat.slug)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      isActive
-                        ? 'text-white shadow-[0_0_14px_rgba(168,85,247,0.4)]'
-                        : 'bg-purple-900/50 text-purple-200 border border-purple-500/40 hover:bg-purple-800/60 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                    }`}
-                    style={isActive ? { backgroundColor: cat.color || '#7c3aed' } : undefined}
-                  >
-                    {language === 'en' ? cat.nameEn : cat.nameFr}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Child category sub-tabs (when a parent with children is selected) */}
-            {activeParent && activeChildren.length > 0 && (
-              <div className="flex flex-wrap gap-2 pl-8">
-                {activeChildren.map((child) => {
+          {/* Child category sub-tabs */}
+          {activeParent && activeChildren.length > 0 && (
+            <div className="pl-8">
+              {/* Hierarchy label */}
+              <div className="flex items-center gap-1.5 mb-2">
+                <ChevronRight className="w-3.5 h-3.5 text-purple-400/70" />
+                <span className="text-xs text-purple-400/70 uppercase tracking-wider">
+                  {language === 'en' ? 'Subcategories' : 'Sous-catégories'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {activeChildren.map((child, idx) => {
                   const isChildActive = selectedCategory === child.slug;
                   const parentColor = activeParent.color || '#7c3aed';
                   return (
-                    <button
+                    <motion.button
                       key={child.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.06, type: 'spring', stiffness: 300 }}
                       onClick={() => handleCategoryChange(child.slug)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                         isChildActive
-                          ? 'text-white border-transparent shadow-[0_0_12px_rgba(168,85,247,0.35)]'
-                          : 'text-purple-200 border-purple-500/40 hover:border-purple-400/70 hover:shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                          ? 'text-white border-transparent shadow-[0_0_14px_rgba(168,85,247,0.55)]'
+                          : 'text-purple-100 border-purple-400/60 hover:border-purple-300/80 hover:text-white hover:shadow-[0_0_12px_rgba(168,85,247,0.4)]'
                       }`}
                       style={
                         isChildActive
                           ? { backgroundColor: parentColor }
-                          : { backgroundColor: `${parentColor}25` }
+                          : { backgroundColor: `${parentColor}40` }
                       }
                     >
                       {language === 'en' ? child.nameEn : child.nameFr}
-                      <span className={`ml-1.5 ${isChildActive ? 'text-white/70' : 'text-purple-400/60'}`}>
+                      <span className={`ml-1.5 ${isChildActive ? 'text-white/70' : 'text-purple-300/80'}`}>
                         ({child.postCount})
                       </span>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
-            )}
-          </section>
-        );
-      })()}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Featured Posts */}
       {featuredPosts.length > 0 && !selectedCategory && page === 1 && (
@@ -402,7 +405,22 @@ const BlogList: React.FC = () => {
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
-            <p>{t('blog.BlogList.no_articles_found', 'No articles found.')}</p>
+            {activeParent && activeChildren.length > 0 ? (
+              <>
+                <p className="text-slate-300 mb-1">
+                  {language === 'en'
+                    ? 'Select a subcategory above to explore articles in this collection.'
+                    : 'Sélectionnez une sous-catégorie ci-dessus pour explorer les articles de cette collection.'}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {language === 'en'
+                    ? `${activeChildren.length} subcategor${activeChildren.length === 1 ? 'y' : 'ies'} available`
+                    : `${activeChildren.length} sous-catégorie${activeChildren.length === 1 ? '' : 's'} disponible${activeChildren.length === 1 ? '' : 's'}`}
+                </p>
+              </>
+            ) : (
+              <p>{t('blog.BlogList.no_articles_found', 'No articles found.')}</p>
+            )}
           </div>
         ) : (
           <div className="flex flex-wrap gap-6 justify-center">
