@@ -38,7 +38,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
   // Custom hooks handle all complex logic
   const { post, relatedPosts, prevPost, nextPost, linkRegistry, loading, error } = useBlogPost({ slug, previewId });
-  const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs, contentRef } = useBlogContent({ post, linkRegistry, language });
+  const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs, contentRef, aboveFoldHtml } = useBlogContent({ post, linkRegistry, language });
   useBlogMeta({ post, language, isPreview });
 
   // Scroll depth tracking
@@ -191,6 +191,18 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         t={t}
       />
 
+      {/* Above-fold intro (content before <!-- fold --> marker) */}
+      {aboveFoldHtml && !isYesNoHub && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
+          dangerouslySetInnerHTML={{ __html: aboveFoldHtml }}
+          style={{ lineHeight: '1.8' }}
+        />
+      )}
+
       {/* Overview above the fold (yes-or-no hub article only) */}
       {isYesNoHub && overviewHtml && (
         <motion.div
@@ -212,11 +224,11 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           className="mb-10 rounded-2xl overflow-hidden border border-purple-500/20 group cursor-pointer"
           onClick={() => setLightboxImage(post.coverImage!)}
         >
-          <div className="relative">
+          <div className="relative h-[55vh]">
             <img
               src={optimizeCloudinaryUrl(post.coverImage, IMAGE_SIZES.cover)}
               alt={post.coverImageAlt || title}
-              className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-150"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-150"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">

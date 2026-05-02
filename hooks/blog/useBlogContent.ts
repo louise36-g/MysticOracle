@@ -13,6 +13,7 @@ interface UseBlogContentReturn {
   contentAfterFAQ: string;
   extractedFAQs: FAQItem[];
   contentRef: React.RefObject<HTMLDivElement>;
+  aboveFoldHtml: string;
 }
 
 /**
@@ -35,16 +36,28 @@ export function useBlogContent({
   // Get stored FAQs from database
   const storedFAQs = (post?.faq as FAQItem[]) || [];
 
+  // Split on <!-- fold --> marker: content before it renders above the cover image
+  const FOLD_MARKER = '<!-- fold -->';
+  const { aboveFoldHtml, belowFoldContent } = useMemo(() => {
+    if (!rawContent) return { aboveFoldHtml: '', belowFoldContent: '' };
+    const idx = rawContent.indexOf(FOLD_MARKER);
+    if (idx === -1) return { aboveFoldHtml: '', belowFoldContent: rawContent };
+    return {
+      aboveFoldHtml: rawContent.substring(0, idx).trim(),
+      belowFoldContent: rawContent.substring(idx + FOLD_MARKER.length).trim(),
+    };
+  }, [rawContent]);
+
   // Process content using ContentProcessor service
   const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs } = useMemo(() => {
     const processor = new ContentProcessor();
     return processor.processContent(
-      rawContent,
+      belowFoldContent,
       linkRegistry,
       isTarotNumerology,
       storedFAQs
     );
-  }, [rawContent, linkRegistry, isTarotNumerology, storedFAQs]);
+  }, [belowFoldContent, linkRegistry, isTarotNumerology, storedFAQs]);
 
   // Adjust portrait image sizes after they load (using ImageLayoutManager)
   useEffect(() => {
@@ -123,6 +136,7 @@ export function useBlogContent({
     contentBeforeFAQ,
     contentAfterFAQ,
     extractedFAQs,
-    contentRef
+    contentRef,
+    aboveFoldHtml,
   };
 }
