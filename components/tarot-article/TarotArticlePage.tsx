@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
@@ -88,6 +88,8 @@ interface TarotArticlePageProps {
 export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromBlogCategory = searchParams.get('from') || '';
   const { language, t } = useApp();
   const { getToken } = useAuth();
 
@@ -455,13 +457,17 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             transition={{ duration: 0.3 }}
           >
             <LocalizedLink
-              to={article.breadcrumbCategory
-                ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categoryToSlug[article.breadcrumbCategory] || article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
-                : ROUTES.TAROT_CARDS}
+              to={fromBlogCategory
+                ? (language === 'fr' ? `/fr/blog/category/${fromBlogCategory}` : `/blog/category/${fromBlogCategory}`)
+                : article.breadcrumbCategory
+                  ? buildRoute(ROUTES.TAROT_CARDS_CATEGORY, { category: categoryToSlug[article.breadcrumbCategory] || article.breadcrumbCategory.toLowerCase().replace(/\s+/g, '-') })
+                  : ROUTES.TAROT_CARDS}
               className="mb-6 text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2 group text-sm"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              {t('tarot.TarotArticlePage.back', 'Back')}
+              {fromBlogCategory
+                ? t('tarot.TarotArticlePage.back_to_blog', 'Back to Blog')
+                : t('tarot.TarotArticlePage.back', 'Back')}
             </LocalizedLink>
           </motion.div>
 

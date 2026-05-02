@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/api';
@@ -26,10 +26,13 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
   // Get slug from URL params
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const isPreview = !!previewId;
 
-  // Get category from navigation state (for back button)
-  const fromCategory = (location.state as { fromCategory?: string } | null)?.fromCategory || '';
+  // Get category for back button — prefer URL param (survives refresh) over state
+  const fromCategory = searchParams.get('from')
+    || (location.state as { fromCategory?: string } | null)?.fromCategory
+    || '';
 
   // Local UI state
   const [copied, setCopied] = useState(false);

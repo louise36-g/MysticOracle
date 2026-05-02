@@ -426,9 +426,10 @@ const BlogList: React.FC = () => {
           <div className="flex flex-wrap gap-6 justify-center">
             {articles.map((article, index) => {
               // Determine navigation path based on content type
-              const articlePath = article.type === 'tarot'
+              const basePath = article.type === 'tarot'
                 ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })
                 : buildRoute(ROUTES.BLOG_POST, { slug: article.slug });
+              const articlePath = selectedCategory ? `${basePath}?from=${selectedCategory}` : basePath;
 
               return (
                 <LocalizedLink
