@@ -103,8 +103,8 @@ async function main() {
     ssl: { rejectUnauthorized: false },
   });
 
-  // Fetch all non-deleted articles in the major-arcana-deep-dives category
-  // that are missing the fold marker (regardless of publication status)
+  // Fetch ALL non-deleted articles in the major-arcana-deep-dives category tree
+  // (parent + any child subcategory) that are missing the fold marker.
   const { rows } = await pool.query<{
     id: string;
     slug: string;
@@ -119,13 +119,9 @@ async function main() {
     JOIN "BlogCategory" c ON c.id = pc."categoryId"
     WHERE p."deletedAt" IS NULL
       AND p."contentEn" NOT LIKE '%<!-- fold -->%'
-      AND c.slug = 'major-arcana-deep-dives'
       AND (
-        p.slug LIKE '%the-fool%'
-        OR p.slug LIKE '%the-tower%'
-        OR p.slug LIKE '%the-moon%'
-        OR p.slug LIKE '%the-star%'
-        OR p.slug LIKE '%death%'
+        c.slug = 'major-arcana-deep-dives'
+        OR c."parentId" = (SELECT id FROM "BlogCategory" WHERE slug = 'major-arcana-deep-dives')
       )
     ORDER BY p.slug
   `);

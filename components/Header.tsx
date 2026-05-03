@@ -55,7 +55,12 @@ const Header: React.FC = () => {
 
   const toggleLanguage = useCallback(() => {
     const alternatePath = getAlternatePath(location.pathname);
-    navigate(alternatePath + location.search + location.hash);
+    // Strip ?from= — it's a transient navigation hint that replaceState may not
+    // have propagated to React Router's location yet, so drop it explicitly here.
+    const params = new URLSearchParams(location.search);
+    params.delete('from');
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    navigate(alternatePath + qs + location.hash);
   }, [location, navigate]);
 
   const toggleMobileMenu = useCallback(() => {
