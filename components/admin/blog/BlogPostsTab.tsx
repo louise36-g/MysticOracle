@@ -532,8 +532,8 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 mb-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
@@ -591,6 +591,10 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
           <option value="PUBLISHED">{language === 'en' ? 'Published' : 'Publie'}</option>
           <option value="ARCHIVED">{language === 'en' ? 'Archived' : 'Archive'}</option>
         </select>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap gap-3 mb-6 justify-end">
         <button
           onClick={onShowImportModal}
           className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600"
