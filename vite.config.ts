@@ -32,13 +32,21 @@ export default defineConfig(() => {
               '**/vendor-tiptap*.js',   // Rich text editor — admin only
             ],
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
+            // Disable VitePWA's default navigateFallback — this site uses pre-rendered
+            // HTML per route, not a single SPA shell. The default `createHandlerBoundToURL`
+            // it generates requires index.html to be precached (it isn't), causing
+            // "non-precached-uri" errors on every navigation and blocking SW installation
+            // when it tries to precache a stale index.html from a previous deploy.
+            navigateFallback: null,
             runtimeCaching: [
               {
-                // HTML pages — always fetch from network, cache as fallback for offline
+                // HTML pages — always fetch from network, cache as fallback for offline.
+                // Cache name bumped to v2 to abandon stale html-cache entries (old builds
+                // had wrong JS bundle hashes cached here, breaking deferred-loader).
                 urlPattern: ({ request }) => request.mode === 'navigate',
                 handler: 'NetworkFirst',
                 options: {
-                  cacheName: 'html-cache',
+                  cacheName: 'html-cache-v2',
                   expiration: {
                     maxEntries: 30,
                     maxAgeSeconds: 60 * 60 * 24, // 1 day

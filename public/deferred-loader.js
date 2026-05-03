@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // Deferred app loader for pre-rendered pages — loads the React app on first
 // user interaction (or after 10s fallback). Keeps content readable as static
 // HTML while deferring JS execution for better LCP scores.
