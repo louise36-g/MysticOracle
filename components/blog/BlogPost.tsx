@@ -43,6 +43,25 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // SPA navigation handler for above-fold content (mirrors BlogContent.handleContentClick)
+  const handleAboveFoldClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const anchor = (e.target as HTMLElement).closest('a') as HTMLAnchorElement | null;
+    if (!anchor) return;
+    const href = anchor.getAttribute('href');
+    if (!href || href.startsWith('#')) return;
+    if (anchor.getAttribute('target') === '_blank') return;
+    if (href.startsWith('/')) {
+      e.preventDefault();
+      navigate(href);
+    } else if (href.includes('celestiarcana.com')) {
+      try {
+        const url = new URL(href);
+        e.preventDefault();
+        navigate(url.pathname);
+      } catch { /* let browser handle */ }
+    }
+  };
+
   // Local UI state
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -212,6 +231,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
           dangerouslySetInnerHTML={{ __html: aboveFoldHtml }}
           style={{ lineHeight: '1.8' }}
+          onClick={handleAboveFoldClick}
         />
       )}
 

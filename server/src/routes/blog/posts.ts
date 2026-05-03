@@ -41,9 +41,14 @@ router.get(
       throw new NotFoundError('Post');
     }
 
+    // Apply URL replacement so preview matches what the published post will look like
+    const { contentEn, contentFr } = processBlogContent(post.contentEn ?? '', post.contentFr ?? '');
+
     // Transform to flat structure
     const transformedPost = {
       ...post,
+      contentEn,
+      contentFr,
       categories: flattenCategories(post.categories),
       tags: flattenTags(post.tags),
     };
