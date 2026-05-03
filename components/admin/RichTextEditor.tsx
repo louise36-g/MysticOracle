@@ -134,6 +134,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             class: 'list-decimal',
           },
         },
+        // Disabled — added below with custom config (TipTap v3 StarterKit now bundles these)
+        link: false,
+        underline: false,
       }),
       Link.configure({
         openOnClick: false,

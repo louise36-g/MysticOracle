@@ -91,6 +91,13 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const [searchParams] = useSearchParams();
   const fromBlogCategory = searchParams.get('from') || '';
   const { language, t } = useApp();
+
+  // Remove ?from= from the visible URL immediately after reading it.
+  useEffect(() => {
+    if (searchParams.get('from')) {
+      window.history.replaceState(window.history.state, '', window.location.pathname);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { getToken } = useAuth();
 
   // Intercept internal link clicks for SPA navigation (back button support)

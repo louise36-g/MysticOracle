@@ -34,6 +34,15 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
     || (location.state as { fromCategory?: string } | null)?.fromCategory
     || '';
 
+  // Remove ?from= from the visible URL immediately after reading it.
+  // The value is already captured above; keeping it in the URL would pollute
+  // analytics, Sentry, and shared/copied links.
+  useEffect(() => {
+    if (searchParams.get('from')) {
+      window.history.replaceState(window.history.state, '', window.location.pathname);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Local UI state
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
