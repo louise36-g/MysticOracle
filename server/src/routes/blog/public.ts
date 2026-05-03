@@ -212,84 +212,97 @@ router.get(
     // Increment view count (batched, flushes every 60s)
     incrementViewCount(post.id);
 
-    // Get related posts (same category, excluding current and deleted)
-    const relatedPosts = await prisma.blogPost.findMany({
-      where: {
-        status: 'PUBLISHED',
-        publishedAt: { not: null },
-        deletedAt: null,
-        id: { not: post.id },
-        categories: {
-          some: {
-            categoryId: { in: extractCategoryIds(post.categories) },
+    // Fetch related posts, prev, and next all in parallel
+    const primaryCategoryId = post.categories[0]?.categoryId;
+    const publishedAt = post.publishedAt;
+    const categoryFilter = primaryCategoryId
+      ? { categories: { some: { categoryId: primaryCategoryId } } }
+      : {};
+
+    const [relatedPosts, prev, next] = await Promise.all([
+      prisma.blogPost.findMany({
+        where: {
+          status: 'PUBLISHED',
+          publishedAt: { not: null },
+          deletedAt: null,
+          id: { not: post.id },
+          categories: {
+            some: {
+              categoryId: { in: extractCategoryIds(post.categories) },
+            },
           },
         },
-      },
-      select: {
-        slug: true,
-        titleEn: true,
-        titleFr: true,
-        excerptEn: true,
-        excerptFr: true,
-        coverImage: true,
-        publishedAt: true,
-        readTimeMinutes: true,
-      },
-      take: 3,
-      orderBy: { publishedAt: 'desc' },
-    });
+        select: {
+          slug: true,
+          titleEn: true,
+          titleFr: true,
+          excerptEn: true,
+          excerptFr: true,
+          coverImage: true,
+          publishedAt: true,
+          readTimeMinutes: true,
+        },
+        take: 3,
+        orderBy: { publishedAt: 'desc' },
+      }),
+      primaryCategoryId && publishedAt
+        ? prisma.blogPost.findFirst({
+            where: {
+              status: 'PUBLISHED',
+              publishedAt: { not: null, lt: publishedAt },
+              deletedAt: null,
+              id: { not: post.id },
+              ...categoryFilter,
+            },
+            select: {
+              slug: true,
+              titleEn: true,
+              titleFr: true,
+              coverImage: true,
+              contentType: true,
+            },
+            orderBy: { publishedAt: 'desc' },
+          })
+        : Promise.resolve(null),
+      primaryCategoryId && publishedAt
+        ? prisma.blogPost.findFirst({
+            where: {
+              status: 'PUBLISHED',
+              publishedAt: { not: null, gt: publishedAt },
+              deletedAt: null,
+              id: { not: post.id },
+              ...categoryFilter,
+            },
+            select: {
+              slug: true,
+              titleEn: true,
+              titleFr: true,
+              coverImage: true,
+              contentType: true,
+            },
+            orderBy: { publishedAt: 'asc' },
+          })
+        : Promise.resolve(null),
+    ]);
 
-    // Get prev/next posts in the same primary category
-    const primaryCategoryId = post.categories[0]?.categoryId;
-    let prevPost = null;
-    let nextPost = null;
-
-    const publishedAt = post.publishedAt;
-    if (primaryCategoryId && publishedAt) {
-      const categoryFilter = { categories: { some: { categoryId: primaryCategoryId } } };
-      const [prev, next] = await Promise.all([
-        prisma.blogPost.findFirst({
-          where: {
-            status: 'PUBLISHED',
-            publishedAt: { not: null, lt: publishedAt },
-            deletedAt: null,
-            id: { not: post.id },
-            ...categoryFilter,
-          },
-          select: { slug: true, titleEn: true, titleFr: true, coverImage: true, contentType: true },
-          orderBy: { publishedAt: 'desc' },
-        }),
-        prisma.blogPost.findFirst({
-          where: {
-            status: 'PUBLISHED',
-            publishedAt: { not: null, gt: publishedAt },
-            deletedAt: null,
-            id: { not: post.id },
-            ...categoryFilter,
-          },
-          select: { slug: true, titleEn: true, titleFr: true, coverImage: true, contentType: true },
-          orderBy: { publishedAt: 'asc' },
-        }),
-      ]);
-      if (prev) {
-        prevPost = {
+    const prevPost = prev
+      ? {
           slug: prev.slug,
           title: prev.titleEn,
           titleFr: prev.titleFr,
           coverImage: prev.coverImage,
           contentType: prev.contentType,
-        };
-      }
-      if (next) {
-        nextPost = {
+        }
+      : null;
+    const nextPost = next
+      ? {
           slug: next.slug,
           title: next.titleEn,
           titleFr: next.titleFr,
           coverImage: next.coverImage,
           contentType: next.contentType,
-        };
-      }
-    }
+        }
+      : null;
 
     const response = {
       post: {

@@ -7,6 +7,7 @@
 
 import { Router } from 'express';
 import prisma from '../db/prisma.js';
+import { cacheService } from '../services/cache.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { SPREADS, ZODIAC_SIGNS } from '../shared/constants/index.js';
 
@@ -79,6 +80,13 @@ const router = Router();
 router.get(
   '/registry',
   asyncHandler(async (_req, res) => {
+    const cacheKey = 'internal-links:registry';
+    const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
+
     // Fetch tarot articles and blog posts in parallel
     // NOTE:
     // - We intentionally include DRAFT and PUBLISHED content here (exclude only soft-deleted / archived)
@@ -137,12 +145,15 @@ router.get(
       sign: z.sign,
     }));
 
-    res.json({
+    const response = {
       tarot: tarotArticles,
       blog: blogPosts,
       spread: spreads,
       horoscope: horoscopes,
-    });
+    };
+
+    await cacheService.set(cacheKey, response, 600); // 10 min
+    res.json(response);
   })
 );
 

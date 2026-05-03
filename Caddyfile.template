@@ -152,6 +152,16 @@
 		Content-Type "text/html; charset=utf-8"
 	}
 
+	# --- Blog & tarot content pages: allow Cloudflare to cache for 2 min ---
+	# Overrides the CDN-Cache-Control: no-store set above for these paths.
+	# 2-minute TTL means stale HTML after a deploy is replaced quickly.
+	@contentPage {
+		path_regexp ^/(fr/)?(blog|tarot)
+	}
+	header @contentPage {
+		CDN-Cache-Control "max-age=120, stale-while-revalidate=30"
+	}
+
 	# Static assets: serve directly, NO SPA fallback
 	# Prevents Cloudflare from caching index.html as a JS file during deploys
 	handle /assets/* {
