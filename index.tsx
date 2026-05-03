@@ -120,6 +120,21 @@ window.onunhandledrejection = (event) => {
 // The SW uses skipWaiting + clientsClaim so new versions take effect immediately.
 // We check for updates every hour so mobile users don't get stuck on stale cache.
 if ('serviceWorker' in navigator) {
+  // Self-healing: if the active SW has a broken cache entry for the JS bundle
+  // (returns non-2xx), unregister all SWs and reload so the fresh network
+  // response is used. This recovers from deployment race conditions where a
+  // SW precached a 404 during a container switchover.
+  const entryMeta = document.querySelector<HTMLMetaElement>('meta[name="app-entry"]');
+  if (entryMeta && navigator.serviceWorker.controller) {
+    fetch(entryMeta.content, { cache: 'no-store' }).then((r) => {
+      if (!r.ok) {
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          Promise.all(regs.map((reg) => reg.unregister())).then(() => location.reload());
+        });
+      }
+    }).catch(() => {});
+  }
+
   // Reload once when a new service worker takes control
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
