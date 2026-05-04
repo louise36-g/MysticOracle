@@ -116,18 +116,26 @@ export function useContentInteractions({
       const href = link.getAttribute('href');
       const target_attr = link.getAttribute('target');
 
-      // If link has target="_blank", let it open in new tab (don't intercept)
-      if (target_attr === '_blank') {
-        // Don't prevent default - let browser handle new tab
-        return;
-      }
-
-      // Internal links (starting with /) - use SPA navigation
+      // Relative internal links — always SPA navigate (check BEFORE target attr,
+      // since DB content may store internal links with target="_blank")
       if (href?.startsWith('/')) {
         e.preventDefault();
         onNavigate(href);
+        return;
       }
-      return;
+
+      // Absolute internal links (https://celestiarcana.com/...)
+      if (href?.includes('celestiarcana.com')) {
+        try {
+          const url = new URL(href);
+          e.preventDefault();
+          onNavigate(url.pathname);
+        } catch { /* let browser handle */ }
+        return;
+      }
+
+      // Genuinely external links — let browser open in new tab
+      if (target_attr === '_blank') return;
     }
   }, [onNavigate, onImageClick]);
 
