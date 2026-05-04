@@ -70,23 +70,23 @@ export const BlogContent: React.FC<BlogContentProps> = ({
       const href = anchor.getAttribute('href');
       const targetAttr = anchor.getAttribute('target');
 
-      // Let external links open normally in new tab
-      if (targetAttr === '_blank') return;
-
-      // Relative internal links
+      // Relative internal links — always SPA navigate, even if target="_blank" is set in the DB
       if (href && href.startsWith('/')) {
         e.preventDefault();
         navigate(href);
         return;
       }
-      // Absolute internal links (https://celestiarcana.com/...)
+      // Absolute internal links (https://celestiarcana.com/...) — always SPA navigate
       if (href && href.includes('celestiarcana.com')) {
         try {
           const url = new URL(href);
           e.preventDefault();
           navigate(url.pathname);
         } catch { /* invalid URL, let browser handle */ }
+        return;
       }
+      // Let genuinely external links open in new tab
+      if (targetAttr === '_blank') return;
     }
   };
 

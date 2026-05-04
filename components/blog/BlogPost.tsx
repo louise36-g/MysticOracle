@@ -49,7 +49,8 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
     if (!anchor) return;
     const href = anchor.getAttribute('href');
     if (!href || href.startsWith('#')) return;
-    if (anchor.getAttribute('target') === '_blank') return;
+    // Check internal links BEFORE target="_blank" — the DB may store internal links with
+    // target="_blank", which must still use SPA navigation to avoid popup-blocker kills.
     if (href.startsWith('/')) {
       e.preventDefault();
       navigate(href);
@@ -60,6 +61,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         navigate(url.pathname);
       } catch { /* let browser handle */ }
     }
+    // else: genuinely external link — let browser open in new tab, no preventDefault
   };
 
   // Local UI state

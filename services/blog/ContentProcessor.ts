@@ -107,6 +107,10 @@ export class ContentProcessor {
       if (!isInternal) {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
+      } else {
+        // Strip any target="_blank" that was stored in the DB — internal links
+        // must stay in the same tab so SPA navigation works correctly.
+        link.removeAttribute('target');
       }
 
       // Prefix internal links with /fr/ on French pages
