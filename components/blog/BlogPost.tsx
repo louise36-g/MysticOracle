@@ -26,7 +26,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
   // Get slug from URL params
   const { slug } = useParams<{ slug: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isPreview = !!previewId;
 
   // Get category for back button — prefer URL param (survives refresh) over state
@@ -34,12 +34,12 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
     || (location.state as { fromCategory?: string } | null)?.fromCategory
     || '';
 
-  // Remove ?from= from the visible URL immediately after reading it.
-  // The value is already captured above; keeping it in the URL would pollute
-  // analytics, Sentry, and shared/copied links.
+  // Remove ?from= from the URL after reading it. Uses setSearchParams (not
+  // window.history.replaceState) so React Router's internal history state stays
+  // in sync — direct replaceState calls desync the router and break all subsequent navigate() calls.
   useEffect(() => {
     if (searchParams.get('from')) {
-      window.history.replaceState(window.history.state, '', window.location.pathname);
+      setSearchParams({}, { replace: true });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

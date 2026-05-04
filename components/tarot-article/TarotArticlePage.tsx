@@ -88,14 +88,16 @@ interface TarotArticlePageProps {
 export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const fromBlogCategory = searchParams.get('from') || '';
   const { language, t } = useApp();
 
-  // Remove ?from= from the visible URL immediately after reading it.
+  // Remove ?from= from the URL after reading it. Uses setSearchParams (not
+  // window.history.replaceState) so React Router's internal history state stays
+  // in sync — direct replaceState calls desync the router and break all subsequent navigate() calls.
   useEffect(() => {
     if (searchParams.get('from')) {
-      window.history.replaceState(window.history.state, '', window.location.pathname);
+      setSearchParams({}, { replace: true });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { getToken } = useAuth();
