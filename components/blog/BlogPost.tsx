@@ -43,26 +43,35 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // SPA navigation handler for above-fold content (mirrors BlogContent.handleContentClick)
-  const handleAboveFoldClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const anchor = (e.target as HTMLElement).closest('a') as HTMLAnchorElement | null;
-    if (!anchor) return;
-    const href = anchor.getAttribute('href');
-    if (!href || href.startsWith('#')) return;
-    // Check internal links BEFORE target="_blank" — the DB may store internal links with
-    // target="_blank", which must still use SPA navigation to avoid popup-blocker kills.
-    if (href.startsWith('/')) {
-      e.preventDefault();
-      navigate(href);
-    } else if (href.includes('celestiarcana.com')) {
-      try {
-        const url = new URL(href);
+  // Native click handler for above-fold and overview sections.
+  // Uses a ref + useEffect (not React onClick) so e.preventDefault() fires reliably
+  // for <a> elements inside dangerouslySetInnerHTML content.
+  const aboveFoldRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = aboveFoldRef.current;
+    if (!container) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest('a') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      if (href.startsWith('/')) {
         e.preventDefault();
-        navigate(url.pathname);
-      } catch { /* let browser handle */ }
-    }
-    // else: genuinely external link — let browser open in new tab, no preventDefault
-  };
+        navigate(href);
+      } else if (href.includes('celestiarcana.com')) {
+        try {
+          const url = new URL(href);
+          e.preventDefault();
+          navigate(url.pathname);
+        } catch { /* let browser handle */ }
+      }
+    };
+
+    container.addEventListener('click', handleClick);
+    return () => container.removeEventListener('click', handleClick);
+  }, [navigate]);
 
   // Local UI state
   const [copied, setCopied] = useState(false);
@@ -224,30 +233,30 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
         t={t}
       />
 
-      {/* Above-fold intro (content before <!-- fold --> marker) */}
-      {aboveFoldHtml && !isYesNoHub && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
-          dangerouslySetInnerHTML={{ __html: aboveFoldHtml }}
-          style={{ lineHeight: '1.8' }}
-          onClick={handleAboveFoldClick}
-        />
-      )}
+      {/* Above-fold intro and yes-or-no hub overview — wrapped in a ref div for native click handling */}
+      <div ref={aboveFoldRef}>
+        {aboveFoldHtml && !isYesNoHub && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
+            dangerouslySetInnerHTML={{ __html: aboveFoldHtml }}
+            style={{ lineHeight: '1.8' }}
+          />
+        )}
 
-      {/* Overview above the fold (yes-or-no hub article only) */}
-      {isYesNoHub && overviewHtml && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
-          dangerouslySetInnerHTML={{ __html: overviewHtml }}
-          style={{ lineHeight: '1.8' }}
-        />
-      )}
+        {isYesNoHub && overviewHtml && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="prose prose-invert prose-purple max-w-none mb-8 blog-content-images"
+            dangerouslySetInnerHTML={{ __html: overviewHtml }}
+            style={{ lineHeight: '1.8' }}
+          />
+        )}
+      </div>
 
       {/* Cover Image */}
       {post.coverImage && (

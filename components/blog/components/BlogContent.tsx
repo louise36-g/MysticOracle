@@ -1,6 +1,30 @@
 import React, { RefObject, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavigateFunction } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
+function buildContentClickHandler(navigate: NavigateFunction, onImageClick: (src: string) => void) {
+  return (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'IMG') {
+      onImageClick((target as HTMLImageElement).src);
+      return;
+    }
+    const anchor = target.closest('a') as HTMLAnchorElement | null;
+    if (!anchor) return;
+    const href = anchor.getAttribute('href');
+    if (!href || href.startsWith('#')) return;
+    if (href.startsWith('/')) {
+      e.preventDefault();
+      navigate(href);
+    } else if (href.includes('celestiarcana.com')) {
+      try {
+        const url = new URL(href);
+        e.preventDefault();
+        navigate(url.pathname);
+      } catch { /* let browser handle */ }
+    }
+  };
+}
 
 interface BlogContentProps {
   contentBeforeFAQ: string;
@@ -28,67 +52,34 @@ export const BlogContent: React.FC<BlogContentProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Handle suit-nav pill clicks (span[data-scroll-to] elements)
-  // Uses vanilla DOM listener because these are injected via dangerouslySetInnerHTML
+  // Single native listener handles scroll-pill clicks, image clicks, and link navigation.
+  // Native addEventListener fires reliably for content inside dangerouslySetInnerHTML,
+  // avoiding the React synthetic event delegation issues that affected onClick on motion.div.
   useEffect(() => {
     const container = contentRef.current;
     if (!container) return;
 
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = buildContentClickHandler(navigate, onImageClick);
+
+    const handleScrollPill = (e: MouseEvent) => {
       const pill = (e.target as HTMLElement).closest('[data-scroll-to]') as HTMLElement | null;
       if (!pill) return;
-
       e.preventDefault();
-      e.stopPropagation();
-
+      e.stopImmediatePropagation();
       const targetId = pill.getAttribute('data-scroll-to');
       if (!targetId) return;
-
       const el = document.getElementById(targetId)
         || document.querySelector(`[data-section-id="${targetId}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
+    container.addEventListener('click', handleScrollPill);
     container.addEventListener('click', handleClick);
-    return () => container.removeEventListener('click', handleClick);
-  }, [contentBeforeFAQ, contentAfterFAQ, contentRef]);
-
-  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-
-    // Handle image clicks for lightbox
-    if (target.tagName === 'IMG') {
-      onImageClick((target as HTMLImageElement).src);
-      return;
-    }
-
-    // Handle link clicks — use SPA navigation for internal links
-    const anchor = target.closest('a') as HTMLAnchorElement | null;
-    if (anchor) {
-      const href = anchor.getAttribute('href');
-      const targetAttr = anchor.getAttribute('target');
-
-      // Relative internal links — always SPA navigate, even if target="_blank" is set in the DB
-      if (href && href.startsWith('/')) {
-        e.preventDefault();
-        navigate(href);
-        return;
-      }
-      // Absolute internal links (https://celestiarcana.com/...) — always SPA navigate
-      if (href && href.includes('celestiarcana.com')) {
-        try {
-          const url = new URL(href);
-          e.preventDefault();
-          navigate(url.pathname);
-        } catch { /* invalid URL, let browser handle */ }
-        return;
-      }
-      // Let genuinely external links open in new tab
-      if (targetAttr === '_blank') return;
-    }
-  };
+    return () => {
+      container.removeEventListener('click', handleScrollPill);
+      container.removeEventListener('click', handleClick);
+    };
+  }, [navigate, onImageClick, contentRef]);
 
   return (
     <div ref={contentRef}>
@@ -100,7 +91,6 @@ export const BlogContent: React.FC<BlogContentProps> = ({
         className="prose prose-invert prose-purple max-w-none blog-content-images"
         dangerouslySetInnerHTML={{ __html: contentBeforeFAQ }}
         style={{ lineHeight: '1.8' }}
-        onClick={handleContentClick}
       />
 
       {/* Content Part 2 - After FAQ (if exists) */}
@@ -112,7 +102,6 @@ export const BlogContent: React.FC<BlogContentProps> = ({
           className="prose prose-invert prose-purple max-w-none mb-12 blog-content-images"
           dangerouslySetInnerHTML={{ __html: contentAfterFAQ }}
           style={{ lineHeight: '1.8' }}
-          onClick={handleContentClick}
         />
       )}
     </div>
