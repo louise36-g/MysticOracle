@@ -13,17 +13,23 @@ function buildContentClickHandler(navigate: NavigateFunction, onImageClick: (src
     if (!anchor) return;
     const href = anchor.getAttribute('href');
     if (!href || href.startsWith('#')) return;
-    // External links — return immediately so the browser handles them (opens new tab
-    // when target="_blank" is set by ContentProcessor). Do NOT call preventDefault.
+    // External links — let browser handle (new tab when target="_blank" is set)
     if (!href.startsWith('/') && !href.includes('celestiarcana.com')) return;
+    // CTA buttons — SPA navigate in same tab
+    if (anchor.hasAttribute('data-cta')) {
+      e.preventDefault();
+      navigate(href.startsWith('/') ? href : (() => { try { return new URL(href).pathname; } catch { return href; } })());
+      return;
+    }
+    // Internal article links — open in new tab so readers don't lose their place
     if (href.startsWith('/')) {
       e.preventDefault();
-      navigate(href);
+      window.open(href, '_blank', 'noopener,noreferrer');
     } else if (href.includes('celestiarcana.com')) {
       try {
         const url = new URL(href);
         e.preventDefault();
-        navigate(url.pathname);
+        window.open(url.pathname, '_blank', 'noopener,noreferrer');
       } catch { /* let browser handle */ }
     }
   };

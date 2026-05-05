@@ -116,25 +116,33 @@ export function useContentInteractions({
       const href = link.getAttribute('href');
       const target_attr = link.getAttribute('target');
 
-      // Relative internal links — always SPA navigate (check BEFORE target attr,
-      // since DB content may store internal links with target="_blank")
-      if (href?.startsWith('/')) {
-        e.preventDefault();
-        onNavigate(href);
+      // CTA buttons — SPA navigate in same tab (data-cta marks intent-to-convert links)
+      if (link.hasAttribute('data-cta')) {
+        if (href?.startsWith('/')) {
+          e.preventDefault();
+          onNavigate(href);
+        }
         return;
       }
 
-      // Absolute internal links (https://celestiarcana.com/...)
+      // Internal article links — open in new tab so readers don't lose their place.
+      // Absolute celestiarcana.com links are treated the same as relative paths.
+      if (href?.startsWith('/')) {
+        e.preventDefault();
+        window.open(href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
       if (href?.includes('celestiarcana.com')) {
         try {
           const url = new URL(href);
           e.preventDefault();
-          onNavigate(url.pathname);
+          window.open(url.pathname, '_blank', 'noopener,noreferrer');
         } catch { /* let browser handle */ }
         return;
       }
 
-      // Genuinely external links — let browser open in new tab
+      // External links — let browser handle (opens new tab when target="_blank" is set)
       if (target_attr === '_blank') return;
     }
   }, [onNavigate, onImageClick]);

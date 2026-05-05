@@ -47,16 +47,17 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       if (!anchor) return;
       const href = anchor.getAttribute('href');
       if (!href || href.startsWith('#')) return;
-      // External links — return so browser handles them (opens new tab when target="_blank")
+      // External links — let browser handle
       if (!href.startsWith('/') && !href.includes('celestiarcana.com')) return;
+      // Internal links — open in new tab
       if (href.startsWith('/')) {
         e.preventDefault();
-        navigate(href);
+        window.open(href, '_blank', 'noopener,noreferrer');
       } else if (href.includes('celestiarcana.com')) {
         try {
           const url = new URL(href);
           e.preventDefault();
-          navigate(url.pathname);
+          window.open(url.pathname, '_blank', 'noopener,noreferrer');
         } catch { /* let browser handle */ }
       }
     };
