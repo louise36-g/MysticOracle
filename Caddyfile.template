@@ -82,6 +82,17 @@
 		CDN-Cache-Control "no-store"
 	}
 
+	# --- deferred-loader.js: never CDN-cache — it controls whether React loads
+	# immediately or on interaction; caching the old version at the CDN breaks
+	# admin pages when the file is updated.
+	@deferredLoader {
+		path /deferred-loader.js
+	}
+	header @deferredLoader {
+		Cache-Control "no-cache, must-revalidate"
+		CDN-Cache-Control "no-store"
+	}
+
 	# --- Admin, auth, payment, protected routes: noindex at server level ---
 	# Belt-and-suspenders: robots.txt blocks crawlers, but X-Robots-Tag works even
 	# if robots.txt is ignored, and fires before React hydration overrides index.html default.
