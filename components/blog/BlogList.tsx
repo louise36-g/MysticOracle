@@ -429,7 +429,7 @@ const BlogList: React.FC = () => {
               const basePath = article.type === 'tarot'
                 ? buildRoute(ROUTES.TAROT_ARTICLE, { slug: article.slug })
                 : buildRoute(ROUTES.BLOG_POST, { slug: article.slug });
-              const articlePath = selectedCategory ? `${basePath}?from=${selectedCategory}` : basePath;
+              const articlePath = basePath;
 
               return (
                 <LocalizedLink

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import LocalizedLink from '../LocalizedLink';
 import { useApp } from '../../context/AppContext';
 import { FAQItem, CTAItem } from '../../services/api';
@@ -26,22 +26,12 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
   // Get slug from URL params
   const { slug } = useParams<{ slug: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
   const isPreview = !!previewId;
 
-  // Get category for back button — prefer URL param (survives refresh) over state
-  const fromCategory = searchParams.get('from')
-    || (location.state as { fromCategory?: string } | null)?.fromCategory
-    || '';
-
-  // Remove ?from= from the URL after reading it. Uses setSearchParams (not
-  // window.history.replaceState) so React Router's internal history state stays
-  // in sync — direct replaceState calls desync the router and break all subsequent navigate() calls.
-  useEffect(() => {
-    if (searchParams.get('from')) {
-      setSearchParams({}, { replace: true });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Read category from navigation state (set by BlogList when navigating to an article).
+  // State-only approach keeps URLs clean. If user refreshes the article page, state is
+  // lost and the back button returns to the full blog list — acceptable behaviour.
+  const fromCategory = (location.state as { fromCategory?: string } | null)?.fromCategory || '';
 
   // Native click handler for above-fold and overview sections.
   // Uses a ref + useEffect (not React onClick) so e.preventDefault() fires reliably
@@ -57,6 +47,8 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       if (!anchor) return;
       const href = anchor.getAttribute('href');
       if (!href || href.startsWith('#')) return;
+      // External links — return so browser handles them (opens new tab when target="_blank")
+      if (!href.startsWith('/') && !href.includes('celestiarcana.com')) return;
       if (href.startsWith('/')) {
         e.preventDefault();
         navigate(href);

@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { BlogPost as BlogPostType, LinkRegistry, FAQItem } from '../../services/api';
 import { ContentProcessor, ImageLayoutManager } from '../../services/blog';
 
@@ -41,11 +42,36 @@ export function useBlogContent({
   const { aboveFoldHtml, belowFoldContent } = useMemo(() => {
     if (!rawContent) return { aboveFoldHtml: '', belowFoldContent: '' };
     const idx = rawContent.indexOf(FOLD_MARKER);
-    if (idx === -1) return { aboveFoldHtml: '', belowFoldContent: rawContent };
-    return {
-      aboveFoldHtml: rawContent.substring(0, idx).trim(),
-      belowFoldContent: rawContent.substring(idx + FOLD_MARKER.length).trim(),
-    };
+    const rawAbove = idx === -1 ? '' : rawContent.substring(0, idx).trim();
+    const below = idx === -1 ? rawContent : rawContent.substring(idx + FOLD_MARKER.length).trim();
+
+    // Sanitize and process links in the above-fold section so external links
+    // get target="_blank" (the main belowFold content goes through ContentProcessor,
+    // but aboveFold was previously returned as raw DB HTML — missing link processing).
+    let processedAbove = '';
+    if (rawAbove) {
+      const sanitized = DOMPurify.sanitize(rawAbove, {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'],
+        ALLOWED_ATTR: ['href', 'class', 'id', 'target', 'rel', 'style'],
+        ADD_ATTR: ['target', 'rel'],
+        FORCE_BODY: true,
+      });
+      const doc = new DOMParser().parseFromString(sanitized, 'text/html');
+      doc.querySelectorAll('a').forEach((link) => {
+        const href = link.getAttribute('href') || '';
+        if (href.startsWith('#')) return;
+        const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
+        if (!isInternal) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        } else {
+          link.removeAttribute('target');
+        }
+      });
+      processedAbove = doc.body.innerHTML;
+    }
+
+    return { aboveFoldHtml: processedAbove, belowFoldContent: below };
   }, [rawContent]);
 
   // Process content using ContentProcessor service

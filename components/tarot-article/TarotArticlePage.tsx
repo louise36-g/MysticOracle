@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
@@ -88,18 +88,9 @@ interface TarotArticlePageProps {
 export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const fromBlogCategory = searchParams.get('from') || '';
+  const location = useLocation();
+  const fromBlogCategory = (location.state as { fromCategory?: string } | null)?.fromCategory || '';
   const { language, t } = useApp();
-
-  // Remove ?from= from the URL after reading it. Uses setSearchParams (not
-  // window.history.replaceState) so React Router's internal history state stays
-  // in sync — direct replaceState calls desync the router and break all subsequent navigate() calls.
-  useEffect(() => {
-    if (searchParams.get('from')) {
-      setSearchParams({}, { replace: true });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { getToken } = useAuth();
 
   // Native listener for the overview section (dangerouslySetInnerHTML — React onClick is unreliable here)
@@ -112,6 +103,8 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
       if (!anchor) return;
       const href = anchor.getAttribute('href');
       if (!href || href.startsWith('#')) return;
+      // External links — return so browser handles them (opens new tab when target="_blank")
+      if (!href.startsWith('/') && !href.includes('celestiarcana.com')) return;
       if (href.startsWith('/')) {
         e.preventDefault();
         navigate(href);

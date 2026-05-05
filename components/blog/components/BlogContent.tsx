@@ -13,6 +13,9 @@ function buildContentClickHandler(navigate: NavigateFunction, onImageClick: (src
     if (!anchor) return;
     const href = anchor.getAttribute('href');
     if (!href || href.startsWith('#')) return;
+    // External links — return immediately so the browser handles them (opens new tab
+    // when target="_blank" is set by ContentProcessor). Do NOT call preventDefault.
+    if (!href.startsWith('/') && !href.includes('celestiarcana.com')) return;
     if (href.startsWith('/')) {
       e.preventDefault();
       navigate(href);

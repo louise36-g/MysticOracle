@@ -156,13 +156,15 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ className = '' }) =
 
   const [expandedCategory, setExpandedCategory] = useState<ReadingCategory | null>(null);
 
-  // Auto-expand category if passed in location state (from SubNav dropdown)
+  // Auto-expand category if passed in location state (from SubNav dropdown).
+  // Clear expandCategory from location state via navigate (not replaceState) so
+  // React Router's internal {idx, key} state stays intact.
   useEffect(() => {
     if (locationState?.expandCategory) {
       setExpandedCategory(locationState.expandCategory);
-      window.history.replaceState({}, document.title);
+      navigate(location.pathname + location.search, { replace: true, state: null });
     }
-  }, [locationState?.expandCategory]);
+  }, [locationState?.expandCategory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [showCreditShop, setShowCreditShop] = useState(false);
   const [hoveredDepth, setHoveredDepth] = useState<number | null>(null);

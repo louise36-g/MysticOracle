@@ -1,4 +1,4 @@
-import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
+import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import Header from '../Header';
@@ -32,6 +32,7 @@ function PageLoader() {
 export function RootLayout() {
   const { user, refreshUser, t } = useApp();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Initialize GA immediately if user has previously consented (don't wait for lazy CookieConsent)
   useEffect(() => {
@@ -53,7 +54,7 @@ export function RootLayout() {
       params.delete('ref');
       const newSearch = params.toString();
       const newUrl = location.pathname + (newSearch ? `?${newSearch}` : '');
-      window.history.replaceState({}, '', newUrl);
+      navigate(newUrl, { replace: true });
     }
   }, [location.search]);
 
