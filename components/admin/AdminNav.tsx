@@ -120,6 +120,7 @@ const AdminNav: React.FC = () => {
             href={item.to}
             className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
             aria-current={isActive ? 'page' : undefined}
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.assign(item.to); }}
           >
             {item.icon}
             <span className="hidden sm:inline">

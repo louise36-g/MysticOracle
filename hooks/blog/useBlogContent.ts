@@ -60,13 +60,11 @@ export function useBlogContent({
       doc.querySelectorAll('a').forEach((link) => {
         const href = link.getAttribute('href') || '';
         if (href.startsWith('#')) return;
-        const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
-        if (!isInternal) {
-          link.setAttribute('target', '_blank');
-          link.setAttribute('rel', 'noopener noreferrer');
-        } else {
-          link.removeAttribute('target');
-        }
+        // All above-fold links open in new tab — the click handler calls
+        // e.preventDefault() for internal links so there's no double tab,
+        // but setting target here ensures new-tab even if the handler misses.
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
       });
       processedAbove = doc.body.innerHTML;
     }
