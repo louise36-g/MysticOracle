@@ -115,18 +115,18 @@ const AdminNav: React.FC = () => {
           ? currentPath === ROUTES.ADMIN
           : currentPath.startsWith(item.to);
         return (
-          <a
+          <button
             key={item.to}
-            href={item.to}
+            type="button"
+            onClick={() => window.location.assign(item.to)}
             className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
             aria-current={isActive ? 'page' : undefined}
-            onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.assign(item.to); }}
           >
             {item.icon}
             <span className="hidden sm:inline">
               {t(item.labelKey, item.labelDefault)}
             </span>
-          </a>
+          </button>
         );
       })}
     </nav>
