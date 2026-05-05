@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
 import {
   LayoutDashboard,
@@ -26,6 +25,7 @@ interface NavItem {
 
 const AdminNav: React.FC = () => {
   const { t } = useApp();
+  const currentPath = window.location.pathname;
 
   const navItems: NavItem[] = [
     {
@@ -110,21 +110,24 @@ const AdminNav: React.FC = () => {
 
   return (
     <nav aria-label="Admin navigation" className="flex flex-wrap gap-2 mb-8 border-b border-purple-500/20 pb-4">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.to === ROUTES.ADMIN}
-          className={({ isActive }) =>
-            `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
-          }
-        >
-          {item.icon}
-          <span className="hidden sm:inline">
-            {t(item.labelKey, item.labelDefault)}
-          </span>
-        </NavLink>
-      ))}
+      {navItems.map((item) => {
+        const isActive = item.to === ROUTES.ADMIN
+          ? currentPath === ROUTES.ADMIN
+          : currentPath.startsWith(item.to);
+        return (
+          <a
+            key={item.to}
+            href={item.to}
+            className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {item.icon}
+            <span className="hidden sm:inline">
+              {t(item.labelKey, item.labelDefault)}
+            </span>
+          </a>
+        );
+      })}
     </nav>
   );
 };
