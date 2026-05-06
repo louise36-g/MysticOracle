@@ -257,7 +257,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="mb-10 w-2/5 mx-auto"
+          className="mb-10 w-3/5 mx-auto"
           onClick={() => setLightboxImage(post.coverImage!)}
         >
           <div className="relative aspect-video rounded-2xl overflow-hidden border border-purple-500/20 group cursor-pointer">
