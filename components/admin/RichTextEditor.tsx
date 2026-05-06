@@ -139,7 +139,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         underline: false,
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,
         HTMLAttributes: {
           class: 'text-purple-400 underline hover:text-purple-300',
         },

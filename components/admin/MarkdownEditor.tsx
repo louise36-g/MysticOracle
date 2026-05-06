@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { marked } from 'marked';
 import { useMediaLibrary } from '../../hooks/admin/useMediaLibrary';
 import {
@@ -38,6 +38,49 @@ marked.setOptions({
   breaks: true,
   gfm: true,
 });
+
+// Renders markdown preview HTML with links that open in new tabs.
+// Uses a native click listener so React Router's anchor interceptor can't block them.
+const PreviewContent: React.FC<{ html: string }> = ({ html }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = ref.current;
+    if (!container) return;
+    const handler = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest('a') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.open(href, '_blank', 'noopener,noreferrer');
+    };
+    container.addEventListener('click', handler, { capture: true });
+    return () => container.removeEventListener('click', handler, { capture: true });
+  }, [html]);
+  return (
+    <div
+      ref={ref}
+      className="prose prose-invert prose-purple max-w-none
+        prose-headings:text-slate-200
+        prose-p:text-slate-300
+        prose-a:text-purple-400
+        prose-strong:text-slate-200
+        prose-code:text-pink-400
+        prose-code:bg-slate-900
+        prose-code:px-1.5
+        prose-code:py-0.5
+        prose-code:rounded
+        prose-pre:bg-slate-900
+        prose-blockquote:border-purple-500
+        prose-blockquote:text-slate-400
+        prose-li:text-slate-300
+        prose-img:rounded-lg
+      "
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+};
 
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   content,
@@ -435,25 +478,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         {viewMode !== 'edit' && (
           <div className={viewMode === 'split' ? 'w-1/2' : 'w-full'}>
             <div className="p-4 min-h-[400px] overflow-auto">
-              <div
-                className="prose prose-invert prose-purple max-w-none
-                  prose-headings:text-slate-200
-                  prose-p:text-slate-300
-                  prose-a:text-purple-400
-                  prose-strong:text-slate-200
-                  prose-code:text-pink-400
-                  prose-code:bg-slate-900
-                  prose-code:px-1.5
-                  prose-code:py-0.5
-                  prose-code:rounded
-                  prose-pre:bg-slate-900
-                  prose-blockquote:border-purple-500
-                  prose-blockquote:text-slate-400
-                  prose-li:text-slate-300
-                  prose-img:rounded-lg
-                "
-                dangerouslySetInnerHTML={{ __html: htmlOutput }}
-              />
+              <PreviewContent html={htmlOutput} />
             </div>
           </div>
         )}
