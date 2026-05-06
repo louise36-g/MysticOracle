@@ -189,12 +189,6 @@ const BlogList: React.FC = () => {
     }
   }, [loadCategories, loadFeatured]);
 
-  // Sync selectedCategory with URL category param
-  useEffect(() => {
-    setSelectedCategory(categoryFromUrl);
-    setPage(1);
-  }, [categoryFromUrl]);
-
   const handleCategoryChange = (slug: string) => {
     if (slug) {
       const path = language === 'fr' ? `/fr/blog/category/${slug}` : `/blog/category/${slug}`;

@@ -114,7 +114,6 @@ export function useContentInteractions({
     const link = target.closest('a') as HTMLAnchorElement | null;
     if (link) {
       const href = link.getAttribute('href');
-      const target_attr = link.getAttribute('target');
 
       // CTA buttons — SPA navigate in same tab (data-cta marks intent-to-convert links)
       if (link.hasAttribute('data-cta')) {
@@ -142,8 +141,6 @@ export function useContentInteractions({
         return;
       }
 
-      // External links — let browser handle (opens new tab when target="_blank" is set)
-      if (target_attr === '_blank') return;
     }
   }, [onNavigate, onImageClick]);
 

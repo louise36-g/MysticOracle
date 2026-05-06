@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../../routes/routes';
 import {
   LayoutDashboard,
@@ -25,7 +26,7 @@ interface NavItem {
 
 const AdminNav: React.FC = () => {
   const { t } = useApp();
-  const currentPath = window.location.pathname;
+  const { pathname: currentPath } = useLocation();
 
   const navItems: NavItem[] = [
     {

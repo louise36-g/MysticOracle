@@ -64,7 +64,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
 
     container.addEventListener('click', handleClick);
     return () => container.removeEventListener('click', handleClick);
-  }, [navigate]);
+  }, []);
 
   // Local UI state
   const [copied, setCopied] = useState(false);

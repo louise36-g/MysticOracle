@@ -2,6 +2,11 @@ import React, { RefObject, useEffect } from 'react';
 import { useNavigate, NavigateFunction } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+function toInternalPath(href: string): string {
+  if (href.startsWith('/')) return href;
+  try { return new URL(href).pathname; } catch { return href; }
+}
+
 function buildContentClickHandler(navigate: NavigateFunction, onImageClick: (src: string) => void) {
   return (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -18,20 +23,12 @@ function buildContentClickHandler(navigate: NavigateFunction, onImageClick: (src
     // CTA buttons — SPA navigate in same tab
     if (anchor.hasAttribute('data-cta')) {
       e.preventDefault();
-      navigate(href.startsWith('/') ? href : (() => { try { return new URL(href).pathname; } catch { return href; } })());
+      navigate(toInternalPath(href));
       return;
     }
     // Internal article links — open in new tab so readers don't lose their place
-    if (href.startsWith('/')) {
-      e.preventDefault();
-      window.open(href, '_blank', 'noopener,noreferrer');
-    } else if (href.includes('celestiarcana.com')) {
-      try {
-        const url = new URL(href);
-        e.preventDefault();
-        window.open(url.pathname, '_blank', 'noopener,noreferrer');
-      } catch { /* let browser handle */ }
-    }
+    e.preventDefault();
+    window.open(toInternalPath(href), '_blank', 'noopener,noreferrer');
   };
 }
 

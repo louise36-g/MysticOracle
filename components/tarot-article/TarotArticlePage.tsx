@@ -119,7 +119,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     };
     el.addEventListener('click', handler);
     return () => el.removeEventListener('click', handler);
-  }, [navigate]);
+  }, []);
 
   // SSR-lite: check for pre-embedded article data on initial mount
   const hasEmbeddedData = useRef(false);

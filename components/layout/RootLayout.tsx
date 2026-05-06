@@ -56,7 +56,7 @@ export function RootLayout() {
       const newUrl = location.pathname + (newSearch ? `?${newSearch}` : '');
       navigate(newUrl, { replace: true });
     }
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   // Modal states
   const [showCreditShop, setShowCreditShop] = useState(false);
