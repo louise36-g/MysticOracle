@@ -260,7 +260,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
           className="mb-10 rounded-2xl overflow-hidden border border-purple-500/20 group cursor-pointer"
           onClick={() => setLightboxImage(post.coverImage!)}
         >
-          <div className="relative h-[55vh]">
+          <div className="relative aspect-video">
             <img
               src={optimizeCloudinaryUrl(post.coverImage, IMAGE_SIZES.cover)}
               alt={post.coverImageAlt || title}
