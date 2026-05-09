@@ -868,7 +868,7 @@ async function prerenderBlogPosts(template) {
         const image = post.coverImage || post.featuredImage;
 
         const html = generateStaticHtml(template, {
-          title: `${title} | CelestiArcana Blog`,
+          title: `${title} | CelestiArcana`,
           description: description,
           url: blogUrl(post.slug),
           path: blogPath(post.slug),
@@ -908,7 +908,7 @@ async function prerenderBlogPosts(template) {
           const frExcerpt = post.excerptFr || post.excerptEn || post.excerpt;
 
           const frHtml = generateStaticHtml(template, {
-            title: `${frTitle} | CelestiArcana Blog`,
+            title: `${frTitle} | CelestiArcana`,
             description: frDescription,
             url: blogUrl(post.slug, 'fr'),
             path: blogPath(post.slug, 'fr'),
