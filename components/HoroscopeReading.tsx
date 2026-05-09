@@ -539,14 +539,14 @@ const HoroscopeReading: React.FC = () => {
                   <div className="prose prose-invert prose-sm max-w-none">
                     <ReactMarkdown
                       components={{
-                        h1: ({ children }) => <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal mt-0 mb-4">{children}</p>,
-                        h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 mt-3 mb-1 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 mt-2 mb-0.5">{children}</h3>,
-                        p: ({ children }) => <p className="mb-2.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
+                        h1: ({ children }) => <p className="text-center text-sm font-heading tracking-[0.2em] text-purple-200/60 font-normal !mt-0 !mb-2">{children}</p>,
+                        h2: ({ children }) => <h2 className="text-base font-heading font-bold text-amber-200/90 !mt-3 !mb-0.5 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-amber-400/60" />{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-semibold text-amber-100/80 !mt-2 !mb-0">{children}</h3>,
+                        p: ({ children }) => <p className="!mb-1.5 text-slate-300/90 leading-relaxed text-sm">{children}</p>,
                         strong: ({ children }) => <strong className="text-amber-200 font-semibold">{children}</strong>,
                         em: ({ children }) => <em className="text-purple-200 italic">{children}</em>,
-                        ul: ({ children }) => <ul className="mb-2.5 space-y-1 text-slate-300/90">{children}</ul>,
-                        ol: ({ children }) => <ol className="mb-2.5 space-y-1 text-slate-300/90 list-decimal list-inside">{children}</ol>,
+                        ul: ({ children }) => <ul className="!mb-1.5 space-y-1 text-slate-300/90">{children}</ul>,
+                        ol: ({ children }) => <ol className="!mb-1.5 space-y-1 text-slate-300/90 list-decimal list-inside">{children}</ol>,
                         li: ({ children }) => <li className="text-slate-300/90 text-sm flex items-start gap-2"><span className="text-amber-400 mt-1">•</span><span>{children}</span></li>,
                       }}
                     >
