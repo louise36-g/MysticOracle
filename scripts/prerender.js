@@ -189,7 +189,7 @@ async function prerenderStaticPages(template) {
       process.stdout.write(`  Generating ${page.path}... `);
 
       const html = generateStaticHtml(template, {
-        title: `${page.title} | CelestiArcana`,
+        title: page.path === '/' ? `${page.title} | CelestiArcana` : page.title,
         description: page.description,
         url: `https://celestiarcana.com${page.path}`,
         path: page.path,
@@ -236,7 +236,7 @@ async function prerenderStaticPages(template) {
       process.stdout.write(`  Generating ${frPath}... `);
 
       const html = generateStaticHtml(template, {
-        title: `${frData.title} | CelestiArcana`,
+        title: page.path === '/' ? `${frData.title} | CelestiArcana` : frData.title,
         description: frData.description,
         url: `${SITE_URL}${frPath}`,
         path: frPath,
@@ -371,7 +371,7 @@ async function prerenderTarotCardsPage(template) {
     process.stdout.write(`  Generating ${pagePath}... `);
 
     let html = generateStaticHtml(template, {
-      title: 'All 78 Tarot Card Meanings – Complete Guide | CelestiArcana',
+      title: 'All 78 Tarot Card Meanings – Complete Guide',
       description: 'Explore all 78 tarot card meanings: Major Arcana, Wands, Cups, Swords, and Pentacles. Complete guide with symbolism and reading guidance.',
       url: `${SITE_URL}${pagePath}`,
       path: pagePath,
@@ -424,7 +424,7 @@ async function prerenderTarotCardsPage(template) {
     // Fallback: generate without overview data (basic static page)
     try {
       const html = generateStaticHtml(template, {
-        title: 'All 78 Tarot Card Meanings – Complete Guide | CelestiArcana',
+        title: 'All 78 Tarot Card Meanings – Complete Guide',
         description: 'Explore all 78 tarot card meanings.',
         url: `${SITE_URL}${pagePath}`,
         path: pagePath,
@@ -452,7 +452,7 @@ async function prerenderTarotCardsPage(template) {
     }
 
     let html = generateStaticHtml(template, {
-      title: 'Les 78 Cartes du Tarot – Guide Complet | CelestiArcana',
+      title: 'Les 78 Cartes du Tarot – Guide Complet',
       description: 'Explorez la signification des 78 cartes du tarot : Arcanes Majeurs, Bâtons, Coupes, Épées et Pentacles. Guide complet avec symbolisme et conseils de lecture.',
       url: `${SITE_URL}${frPagePath}`,
       path: frPagePath,
@@ -527,7 +527,7 @@ async function prerenderTarotArticles(template) {
         }
 
         const html = generateStaticHtml(template, {
-          title: `${article.title} | CelestiArcana`,
+          title: article.title,
           description: article.metaDescription || article.excerpt || `Discover the meaning of ${article.title} in tarot readings.`,
           url: tarotUrl(article.slug),
           path: tarotPath(article.slug),
@@ -567,7 +567,7 @@ async function prerenderTarotArticles(template) {
           const frDescription = article.metaDescriptionFr || frExcerpt || `Découvrez la signification de ${frTitle} dans les lectures de tarot.`;
 
           const frHtml = generateStaticHtml(template, {
-            title: `${frTitle} | CelestiArcana`,
+            title: frTitle,
             description: frDescription,
             url: tarotUrl(article.slug, 'fr'),
             path: frPath,
@@ -622,7 +622,7 @@ async function prerenderBlogListPage(template) {
     process.stdout.write(`  Generating ${pagePath}... `);
 
     let html = generateStaticHtml(template, {
-      title: 'Mystic Insights Blog | CelestiArcana',
+      title: 'Mystic Insights Blog',
       description: 'Explore the mystical world of tarot, astrology, and spiritual growth through curated articles on card meanings, spreads, and celestial guidance.',
       url: `${SITE_URL}${pagePath}`,
       path: pagePath,
@@ -725,7 +725,7 @@ async function prerenderBlogListPage(template) {
       process.stdout.write(`  Generating ${frPagePath}... `);
 
       let frHtml = generateStaticHtml(template, {
-        title: 'Blog Mystic Insights | CelestiArcana',
+        title: 'Blog Mystic Insights',
         description: 'Explorez le monde mystique du tarot, de l\'astrologie et de la croissance spirituelle à travers des articles sur les significations des cartes, les tirages et la guidance céleste.',
         url: `${SITE_URL}${frPagePath}`,
         path: frPagePath,
@@ -819,7 +819,7 @@ async function prerenderBlogListPage(template) {
     // Fallback: basic static page
     try {
       const html = generateStaticHtml(template, {
-        title: 'Mystic Insights Blog | CelestiArcana',
+        title: 'Mystic Insights Blog',
         description: 'Explore articles about tarot reading, card meanings, and spiritual guidance.',
         url: `${SITE_URL}${pagePath}`,
         path: pagePath,
@@ -868,7 +868,7 @@ async function prerenderBlogPosts(template) {
         const image = post.coverImage || post.featuredImage;
 
         const html = generateStaticHtml(template, {
-          title: `${title} | CelestiArcana`,
+          title: title,
           description: description,
           url: blogUrl(post.slug),
           path: blogPath(post.slug),
@@ -908,7 +908,7 @@ async function prerenderBlogPosts(template) {
           const frExcerpt = post.excerptFr || post.excerptEn || post.excerpt;
 
           const frHtml = generateStaticHtml(template, {
-            title: `${frTitle} | CelestiArcana`,
+            title: frTitle,
             description: frDescription,
             url: blogUrl(post.slug, 'fr'),
             path: blogPath(post.slug, 'fr'),
