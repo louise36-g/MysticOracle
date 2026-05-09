@@ -854,7 +854,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   color: #C9A84C !important;
   font-size: 22px;
   letter-spacing: 16px;
-  margin: 50px auto;
+  margin: 24px auto;
   display: block;
   width: 100%;
 }
@@ -1088,7 +1088,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   border: none;
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(139, 92, 246, 0.5), transparent);
-  margin: 3rem 0;
+  margin: 1.5rem 0;
 }
 
 /* Tables */
@@ -1350,8 +1350,8 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin: 3rem 0 2rem 0;
-  padding: 1rem 0;
+  margin: 1.5rem 0 1rem 0;
+  padding: 0.5rem 0;
 }
 .numerology-section-break .section-break-line {
   flex: 1;

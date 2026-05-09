@@ -422,7 +422,7 @@ const HoroscopeReading: React.FC = () => {
         {/* Back button */}
         <motion.button
           onClick={handleBack}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mt-4 mb-4 group"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all mt-2 mb-2 group"
           whileHover={{ x: -4 }}
         >
           <ChevronLeft className="w-4 h-4" />
@@ -470,7 +470,7 @@ const HoroscopeReading: React.FC = () => {
           <CornerDecoration position="br" />
 
           {/* Inner content */}
-          <div className="relative px-6 sm:px-8 md:px-10 pt-8 pb-5">
+          <div className="relative px-4 sm:px-5 md:px-6 pt-4 pb-3">
             {/* Header with icon */}
             <div className="text-center mb-1">
               <motion.div
@@ -558,7 +558,7 @@ const HoroscopeReading: React.FC = () => {
             })()}
 
             {/* Footer */}
-            <div className="mt-5 pt-4 border-t border-white/10 text-center">
+            <div className="mt-3 pt-2 border-t border-white/10 text-center">
               <Button onClick={handleBack} variant="outline">
                 {t('horoscope.HoroscopeReading.choose_another_sign', 'Choose another sign')}
               </Button>

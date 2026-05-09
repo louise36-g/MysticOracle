@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Sparkles, Star, ArrowRight, Coins, History } from 'lucide-react';
+import { Hand, Sparkles, Star, ArrowRight, Coins, ChevronLeft } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import { FULL_DECK } from '../constants';
@@ -10,7 +10,7 @@ import { shuffleDeck } from '../utils/shuffle';
 import { getCardImageUrl } from '../constants/cardImages';
 import { fetchYesNoCards, purchaseThreeCardSpread, interpretYesNoCard, interpretThreeCardSpread } from '../services/api/yesNo';
 import type { YesNoCardMap, YesNoCardData } from '../services/api/yesNo';
-import { ROUTES, localizedRoute } from '../routes/routes';
+import { ROUTES } from '../routes/routes';
 import { SEOTags } from '../utils/seo';
 import Button from './Button';
 
@@ -409,6 +409,15 @@ const YesNoReading: React.FC = () => {
       setIsLoadingThreeCard(false);
     }
   }, [isSignedIn, drawnCard, getToken, navigate, language, refreshUser]);
+
+  const handleNewReading = useCallback(() => {
+    setPhase('question');
+    setDrawnCard(null);
+    setIsCardRevealed(false);
+    setAiInterpretation(null);
+    setIsRestoredDraw(false);
+    setCardInfo(null);
+  }, []);
 
   // Transition to drawing phase where user taps the deck
   const handleDrawThreeCards = useCallback(() => {
@@ -926,6 +935,20 @@ const YesNoReading: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center"
             >
+              {/* Back button */}
+              <div className="w-full mb-4">
+                <motion.button
+                  onClick={handleNewReading}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 hover:text-amber-200 hover:bg-white/15 hover:border-amber-400/40 transition-all group"
+                  whileHover={{ x: -4 }}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {language === 'en' ? 'New reading' : 'Nouvelle question'}
+                  </span>
+                </motion.button>
+              </div>
+
               {/* Card with flip animation */}
               <motion.div
                 className="relative mb-8"
@@ -1100,121 +1123,80 @@ const YesNoReading: React.FC = () => {
                       </motion.div>
                     )}
 
-                    {/* Returning user message */}
+                    {/* Reflection — contemplative, no CTA, only shown for returning users */}
                     {isRestoredDraw && (
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="mt-2 mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20"
+                        className="mt-6 mb-2 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-center"
                       >
-                        <p className="text-amber-200/80 text-sm leading-relaxed italic mb-3">
+                        <p className="text-amber-200/55 text-sm leading-relaxed italic">
                           {language === 'en'
                             ? 'The cards have already spoken today. Sit with this answer \u2014 sometimes the truths we resist are the ones we need most. Your next reading will be available tomorrow.'
                             : 'Les cartes ont d\u00e9j\u00e0 parl\u00e9 aujourd\u2019hui. Prenez le temps d\u2019accueillir cette r\u00e9ponse \u2014 parfois les v\u00e9rit\u00e9s que nous refusons sont celles dont nous avons le plus besoin. Votre prochain tirage sera disponible demain.'
                           }
                         </p>
-                        <Link
-                          to={ROUTES.READING}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-medium hover:bg-amber-500/30 hover:border-amber-400/60 transition-all"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          {language === 'en' ? 'Want more depth? Try a full reading' : 'Envie d\u2019aller plus loin\u00a0? Essayez un tirage complet'}
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
                       </motion.div>
                     )}
 
-                    {/* Divider */}
-                    <div className="flex items-center justify-center gap-4 mb-6">
-                      <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/30" />
-                      <Sparkles className="w-3 h-3 text-amber-400/50" />
-                      <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/30" />
-                    </div>
-
-                    {/* Link to full article */}
-                    {cardInfo?.slug && (
-                      <a
-                        href={`/tarot/${cardInfo.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5 mb-4"
-                      >
-                        <span>
-                          {language === 'en'
-                            ? `Read full meaning of ${drawnCard.nameEn}`
-                            : `Lire la signification complète de ${drawnCard.nameFr}`
-                          }
-                        </span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                    )}
-
-                    {/* Clarifying cards CTA */}
-                    <div className="mt-6 mb-4">
-                      <motion.button
-                        whileHover={{ scale: 1.03, y: -2 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={handleGoDeeper}
-                        disabled={isLoadingThreeCard}
-                        className={`group relative px-8 py-3.5 rounded-xl text-white font-bold transition-all duration-300 overflow-hidden shadow-lg disabled:opacity-50 ${
-                          isSignedIn
-                            ? 'bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 hover:from-purple-500 hover:via-violet-500 hover:to-indigo-500 shadow-purple-900/50 border border-purple-400/30'
-                            : 'bg-slate-700/80 hover:bg-slate-600/80 shadow-slate-900/30 border border-slate-500/30'
-                        }`}
-                      >
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                        <span className="relative flex items-center gap-2">
-                          {!isSignedIn ? (
-                            <>
-                              <Sparkles className="w-4 h-4 text-purple-300" />
-                              {language === 'en' ? 'Sign in to explore the influences' : 'Connectez-vous pour explorer les influences'}
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-4 h-4 text-amber-300" />
-                              {language === 'en' ? 'What influences this outcome?' : 'Qu\'est-ce qui façonne ce résultat\u00a0?'}
-                              <span className="ml-1 flex items-center gap-1 text-xs text-amber-300/80">
-                                <Coins className="w-3 h-3" />1
-                              </span>
-                            </>
-                          )}
-                        </span>
-                      </motion.button>
-
-                      {threeCardError && (
-                        <p className="text-red-400/90 text-sm mt-3">{threeCardError}</p>
-                      )}
-                    </div>
-
-                    {/* Secondary links — styled as buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+                    {/* Primary CTA */}
+                    <div className="mt-10 mb-10 flex flex-col items-center w-full">
                       <Link
                         to={ROUTES.READING}
-                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
+                        className="group relative w-full max-w-xs flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl text-white font-semibold transition-all duration-300 overflow-hidden"
+                        style={{
+                          background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #6d28d9 100%)',
+                          boxShadow: '0 12px 32px rgba(139,92,246,0.4), 0 0 0 1px rgba(167,139,250,0.25)',
+                        }}
                       >
-                        <Sparkles className="w-4 h-4 text-amber-400/70" />
-                        {language === 'en' ? 'Full tarot reading' : 'Tirage complet'}
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                        <Sparkles className="w-4 h-4 text-amber-300 relative z-10 shrink-0" />
+                        <span className="relative z-10 text-base">
+                          {language === 'en' ? 'Go deeper with a full reading' : 'Approfondir avec un tirage complet'}
+                        </span>
+                        <ArrowRight className="w-4 h-4 relative z-10 shrink-0 group-hover:translate-x-1 transition-transform" />
                       </Link>
-                      <Link
-                        to={ROUTES.HOROSCOPES}
-                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
-                      >
-                        <Star className="w-4 h-4 text-amber-400/70" />
-                        {language === 'en' ? 'Today\'s horoscope' : 'Horoscope du jour'}
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                      <a
-                        href={localizedRoute(ROUTES.PROFILE, language)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-purple-500/30 text-purple-200 text-sm font-medium hover:border-purple-400/50 hover:from-violet-600/30 hover:to-purple-600/30 transition-all duration-300 hover:-translate-y-0.5"
-                      >
-                        <History className="w-4 h-4 text-amber-400/70" />
-                        {language === 'en' ? 'Reading history' : 'Historique des lectures'}
-                      </a>
                     </div>
+
+                    {/* Secondary actions — lower visual weight, no competing glow */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pb-6">
+                      {cardInfo?.slug && (
+                        <a
+                          href={`/tarot/${cardInfo.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-400/80 text-xs hover:text-slate-300 hover:border-white/15 transition-all duration-200"
+                        >
+                          <ArrowRight className="w-3 h-3 shrink-0" />
+                          {language === 'en' ? `Explore ${drawnCard.nameEn}` : `Explorer ${drawnCard.nameFr}`}
+                        </a>
+                      )}
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleGoDeeper}
+                        disabled={isLoadingThreeCard}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-400/80 text-xs hover:text-slate-300 hover:border-white/15 transition-all duration-200 disabled:opacity-40"
+                      >
+                        {!isSignedIn ? (
+                          <>
+                            <Sparkles className="w-3 h-3 shrink-0" />
+                            {language === 'en' ? 'Sign in to explore influences' : 'Se connecter pour explorer les influences'}
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3 shrink-0" />
+                            {language === 'en' ? 'What influences this outcome?' : 'Qu\'est-ce qui fa\u00e7onne ce r\u00e9sultat\u00a0?'}
+                            <span className="flex items-center gap-0.5 text-amber-400/50 ml-0.5"><Coins className="w-2.5 h-2.5" />1</span>
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+
+                    {threeCardError && (
+                      <p className="text-red-400/80 text-xs mt-1 mb-4 text-center">{threeCardError}</p>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
