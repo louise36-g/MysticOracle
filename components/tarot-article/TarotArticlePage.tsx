@@ -270,66 +270,57 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     return article.featuredImageAlt;
   }, [article, language]);
 
-  // Process content with hooks - SANITIZED via DOMPurify
-  const sanitizedContent = useContentProcessor({
-    content: localizedContent,
-    linkRegistry,
-  });
+  // Extract overview from RAW content before any processing.
+  // Running extraction after DOMPurify/processContent can break regex matching
+  // due to DOM serialisation differences. Raw extraction is reliable.
+  const { rawOverviewHtml, rawRemainingContent } = useMemo(() => {
+    if (!localizedContent) return { rawOverviewHtml: '', rawRemainingContent: localizedContent };
 
-  // Extract overview section to render before the image (SEO/featured snippets)
-  // Articles have varying HTML structures — handle all patterns:
-  // 1. <h2|h3>overview</h2|h3><blockquote><p>...</p></blockquote>
-  // 2. <blockquote><h2|h3>overview</h2|h3><p>...</p></blockquote>
-  // 3. <h2|h3>overview</h2|h3><h2|h3>description</h2|h3>
-  const { overviewHtml, remainingHtml } = useMemo(() => {
-    if (!sanitizedContent) return { overviewHtml: '', remainingHtml: sanitizedContent };
-
-    // Match heading text in English or French:
-    // EN: "XXX Tarot Meaning (Overview)" or "What Does XXX Mean"
-    // FR: "Signification de XXX (Aperçu)" or similar with (Aperçu)
     const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean|\\(aperçu\\)|\\(Aperçu\\))';
-    // Accept both h2 and h3 for the overview heading
     const h = 'h[23]';
 
-    // Pattern 1: <blockquote><h2|h3>overview</h2|h3><p>...</p></blockquote>
     const p1 = new RegExp(`<blockquote[^>]*>\\s*<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<p[\\s\\S]*?)<\\/blockquote>`, 'i');
-    // Pattern 2: <h2|h3>overview</h2|h3><blockquote>...</blockquote>
     const p2 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<blockquote[\\s\\S]*?<\\/blockquote>)`, 'i');
-    // Pattern 3: <h2|h3>overview</h2|h3><h2|h3>description</h2|h3>
     const p3 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*<${h}[^>]*>([^<]+)<\\/${h}>`, 'i');
+    const p4 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>((?:\\s*<p[^>]*>[\\s\\S]*?<\\/p>)+)`, 'i');
 
     let headingText = '';
     let bodyHtml = '';
     let fullMatch = '';
 
-    const m1 = sanitizedContent.match(p1);
-    const m2 = sanitizedContent.match(p2);
-    const m3 = sanitizedContent.match(p3);
+    const m1 = localizedContent.match(p1);
+    const m2 = localizedContent.match(p2);
+    const m3 = localizedContent.match(p3);
+    const m4 = localizedContent.match(p4);
 
     if (m1) {
-      fullMatch = m1[0];
-      headingText = m1[1].trim();
-      bodyHtml = m1[2].trim();
+      fullMatch = m1[0]; headingText = m1[1].trim(); bodyHtml = m1[2].trim();
     } else if (m2) {
-      fullMatch = m2[0];
-      headingText = m2[1].trim();
-      bodyHtml = m2[2]
-        .replace(/<blockquote[^>]*>/i, '')
-        .replace(/<\/blockquote>/i, '')
-        .trim();
+      fullMatch = m2[0]; headingText = m2[1].trim();
+      bodyHtml = m2[2].replace(/<blockquote[^>]*>/i, '').replace(/<\/blockquote>/i, '').trim();
+    } else if (m4) {
+      fullMatch = m4[0]; headingText = m4[1].trim(); bodyHtml = m4[2].trim();
     } else if (m3) {
-      fullMatch = m3[0];
-      headingText = m3[1].trim();
-      bodyHtml = `<p>${m3[2].trim()}</p>`;
+      fullMatch = m3[0]; headingText = m3[1].trim(); bodyHtml = `<p>${m3[2].trim()}</p>`;
     }
 
-    if (!fullMatch) return { overviewHtml: '', remainingHtml: sanitizedContent };
+    if (!fullMatch) return { rawOverviewHtml: '', rawRemainingContent: localizedContent };
 
-    const overviewOut = `<h2>${headingText}</h2>${bodyHtml}`;
-    const remaining = sanitizedContent.replace(fullMatch, '');
+    return {
+      rawOverviewHtml: `<h2>${headingText}</h2>${bodyHtml}`,
+      rawRemainingContent: localizedContent.replace(fullMatch, ''),
+    };
+  }, [localizedContent]);
 
-    return { overviewHtml: overviewOut, remainingHtml: remaining };
-  }, [sanitizedContent]);
+  // Process the remaining content (overview already extracted)
+  const sanitizedContent = useContentProcessor({
+    content: rawRemainingContent || localizedContent,
+    linkRegistry,
+  });
+
+  // Overview is already extracted; alias for rendering clarity
+  const overviewHtml = rawOverviewHtml;
+  const remainingHtml = sanitizedContent;
 
   // Memoize the prop objects to prevent React from replacing DOM on re-renders
   // Content is sanitized via DOMPurify in useContentProcessor

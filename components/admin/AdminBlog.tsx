@@ -17,6 +17,7 @@ import {
   BlogImportModal,
 } from './blog';
 import ImportArticle from './ImportArticle';
+import SeoUpdateModal from './SeoUpdateModal';
 import type { TabType, ConfirmModalState } from './blog/types';
 
 const AdminBlog: React.FC = () => {
@@ -35,6 +36,7 @@ const AdminBlog: React.FC = () => {
   const [trashCount, setTrashCount] = useState(0);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showTarotImportModal, setShowTarotImportModal] = useState(false);
+  const [showSeoUpdateModal, setShowSeoUpdateModal] = useState(false);
   const [postsRefreshKey, setPostsRefreshKey] = useState(0);
 
   // Confirmation modal state
@@ -79,6 +81,7 @@ const AdminBlog: React.FC = () => {
 
   const handleShowImportModal = useCallback(() => setShowImportModal(true), []);
   const handleShowTarotImportModal = useCallback(() => setShowTarotImportModal(true), []);
+  const handleShowSeoUpdateModal = useCallback(() => setShowSeoUpdateModal(true), []);
 
   const showConfirmModal = useCallback(
     (config: Omit<ConfirmModalState, 'show'>) => {
@@ -151,6 +154,7 @@ const AdminBlog: React.FC = () => {
           onLoadTrash={loadTrash}
           onShowImportModal={handleShowImportModal}
           onShowTarotImportModal={handleShowTarotImportModal}
+          onShowSeoUpdateModal={handleShowSeoUpdateModal}
           onShowConfirmModal={showConfirmModal}
           onError={setError}
         />
@@ -219,6 +223,12 @@ const AdminBlog: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* SEO Update Modal */}
+      <SeoUpdateModal
+        isOpen={showSeoUpdateModal}
+        onClose={() => setShowSeoUpdateModal(false)}
+      />
 
       {/* Confirmation Modal */}
       <AnimatePresence>

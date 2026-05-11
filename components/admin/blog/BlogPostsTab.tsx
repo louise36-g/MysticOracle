@@ -57,6 +57,7 @@ interface BlogPostsTabProps {
   onLoadTrash: () => Promise<void>;
   onShowImportModal: () => void;
   onShowTarotImportModal?: () => void;
+  onShowSeoUpdateModal?: () => void;
   onShowConfirmModal: (config: {
     title: string;
     message: string;
@@ -74,6 +75,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
   onLoadTrash,
   onShowImportModal,
   onShowTarotImportModal,
+  onShowSeoUpdateModal,
   onShowConfirmModal,
   onError,
 }) => {
@@ -611,6 +613,16 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
           >
             <FileJson className="w-4 h-4" />
             {language === 'en' ? 'Import Tarot' : 'Importer Tarot'}
+          </button>
+        )}
+        {onShowSeoUpdateModal && (
+          <button
+            onClick={onShowSeoUpdateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600"
+            title={language === 'en' ? 'Update SEO metadata via JSON' : 'Mettre à jour les métadonnées SEO'}
+          >
+            <FileJson className="w-4 h-4" />
+            {language === 'en' ? 'Update SEO' : 'Mettre à jour SEO'}
           </button>
         )}
         <button

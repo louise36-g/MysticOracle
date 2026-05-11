@@ -254,6 +254,120 @@ router.post(
 // NOTE: Reorder endpoint removed — use PATCH /api/v1/blog/admin/posts/reorder with contentType instead
 
 /**
+ * POST /admin/update-seo
+ * Update SEO metadata for existing articles by slug, with auto-translation to French.
+ * Accepts an array of { slug, seoMetaTitle, seoMetaDescription, seoFocusKeyword }.
+ */
+router.post(
+  '/update-seo',
+  asyncHandler(async (req, res) => {
+    const entries: unknown = req.body;
+
+    if (!Array.isArray(entries) || entries.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Request body must be a non-empty array of SEO entries',
+      });
+    }
+
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    if (!anthropicKey) {
+      return res.status(500).json({ success: false, error: 'ANTHROPIC_API_KEY not configured' });
+    }
+
+    const results: Array<{
+      slug: string;
+      status: 'updated' | 'not_found' | 'error';
+      message?: string;
+    }> = [];
+
+    for (const entry of entries as Array<Record<string, string>>) {
+      const { slug, seoMetaTitle, seoMetaDescription, seoFocusKeyword } = entry;
+
+      if (!slug) {
+        results.push({ slug: '(missing)', status: 'error', message: 'No slug provided' });
+        continue;
+      }
+
+      const article = await prisma.blogPost.findFirst({
+        where: { slug, contentType: 'TAROT_ARTICLE', deletedAt: null },
+      });
+
+      if (!article) {
+        results.push({ slug, status: 'not_found', message: `No article with slug "${slug}"` });
+        continue;
+      }
+
+      try {
+        const translateRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 300,
+            system: `You are an expert translator for a French tarot website (celestiarcana.com).
+Translate English SEO metadata into natural, fluent French.
+RULES:
+- Never use em dashes (—) or en dashes (–) — use commas or semicolons instead
+- Use proper French tarot card names (Le Fou, Le Magicien, La Papesse, etc.)
+- Meta titles must stay under 60 characters, descriptions under 155 characters
+- Output ONLY a raw JSON object, no explanation, no code fences`,
+            messages: [
+              {
+                role: 'user',
+                content: `Translate to French:\n${JSON.stringify({ seoMetaTitle, seoMetaDescription, seoFocusKeyword })}\n\nReturn JSON with keys: seoMetaTitleFr, seoMetaDescriptionFr, seoFocusKeywordFr`,
+              },
+            ],
+          }),
+        });
+
+        if (!translateRes.ok) {
+          throw new Error(`Anthropic API ${translateRes.status}`);
+        }
+
+        const translateData = (await translateRes.json()) as { content: Array<{ text: string }> };
+        const rawText = translateData.content[0].text.trim();
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        const fr = JSON.parse(jsonMatch ? jsonMatch[0] : rawText) as Record<string, string>;
+
+        await prisma.blogPost.update({
+          where: { id: article.id },
+          data: {
+            ...(seoMetaTitle && { metaTitleEn: seoMetaTitle }),
+            ...(seoMetaDescription && { metaDescEn: seoMetaDescription }),
+            ...(seoFocusKeyword && { seoFocusKeyword }),
+            ...(fr.seoMetaTitleFr && { metaTitleFr: fr.seoMetaTitleFr }),
+            ...(fr.seoMetaDescriptionFr && { metaDescFr: fr.seoMetaDescriptionFr }),
+            ...(fr.seoFocusKeywordFr && { seoFocusKeywordFr: fr.seoFocusKeywordFr }),
+            updatedAt: new Date(),
+          },
+        });
+
+        await cacheService.invalidateTarotArticle(slug);
+        results.push({ slug, status: 'updated' });
+      } catch (err) {
+        results.push({
+          slug,
+          status: 'error',
+          message: err instanceof Error ? err.message : 'Unknown error',
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      updated: results.filter(r => r.status === 'updated').length,
+      total: entries.length,
+      results,
+    });
+  })
+);
+
+/**
  * GET /admin/preview/:id
  * Preview any article (bypasses published status check)
  */
