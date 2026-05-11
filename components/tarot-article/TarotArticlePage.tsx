@@ -270,15 +270,24 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     return article.featuredImageAlt;
   }, [article, language]);
 
-  // Extract overview from RAW content before any processing.
-  // Running extraction after DOMPurify/processContent can break regex matching
-  // due to DOM serialisation differences. Raw extraction is reliable.
+  // Split on <!-- fold --> marker first (explicit, reliable).
+  // If not present, fall back to heading-pattern regex on raw content.
+  // Both run on localizedContent (raw) to avoid DOMPurify serialisation differences.
   const { rawOverviewHtml, rawRemainingContent } = useMemo(() => {
     if (!localizedContent) return { rawOverviewHtml: '', rawRemainingContent: localizedContent };
 
+    const FOLD = '<!-- fold -->';
+    const foldIdx = localizedContent.indexOf(FOLD);
+    if (foldIdx !== -1) {
+      return {
+        rawOverviewHtml: localizedContent.substring(0, foldIdx).trim(),
+        rawRemainingContent: localizedContent.substring(foldIdx + FOLD.length).trim(),
+      };
+    }
+
+    // Fallback: regex patterns
     const headingPattern = '(?:tarot meaning \\(overview\\)|what does[^<]*mean|\\(aperçu\\)|\\(Aperçu\\))';
     const h = 'h[23]';
-
     const p1 = new RegExp(`<blockquote[^>]*>\\s*<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<p[\\s\\S]*?)<\\/blockquote>`, 'i');
     const p2 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*(<blockquote[\\s\\S]*?<\\/blockquote>)`, 'i');
     const p3 = new RegExp(`<${h}[^>]*>([^<]*${headingPattern}[^<]*)<\\/${h}>\\s*<${h}[^>]*>([^<]+)<\\/${h}>`, 'i');
@@ -287,7 +296,6 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     let headingText = '';
     let bodyHtml = '';
     let fullMatch = '';
-
     const m1 = localizedContent.match(p1);
     const m2 = localizedContent.match(p2);
     const m3 = localizedContent.match(p3);
@@ -305,20 +313,18 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     }
 
     if (!fullMatch) return { rawOverviewHtml: '', rawRemainingContent: localizedContent };
-
     return {
       rawOverviewHtml: `<h2>${headingText}</h2>${bodyHtml}`,
       rawRemainingContent: localizedContent.replace(fullMatch, ''),
     };
   }, [localizedContent]);
 
-  // Process the remaining content (overview already extracted)
+  // Process the remaining content (overview already extracted above)
   const sanitizedContent = useContentProcessor({
     content: rawRemainingContent || localizedContent,
     linkRegistry,
   });
 
-  // Overview is already extracted; alias for rendering clarity
   const overviewHtml = rawOverviewHtml;
   const remainingHtml = sanitizedContent;
 
