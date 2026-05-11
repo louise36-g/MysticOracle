@@ -500,6 +500,16 @@ const TarotArticleEditor: React.FC<TarotArticleEditorProps> = ({
         <div className="space-y-3">
           <div>
             <SidebarLabel>
+              {language === 'en' ? 'URL Slug' : 'Slug URL'}
+            </SidebarLabel>
+            <SidebarInput
+              value={article.slug || ''}
+              onChange={(value) => handleFieldChange('slug', value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
+              placeholder="e.g. the-tower-tarot-meaning"
+            />
+          </div>
+          <div>
+            <SidebarLabel>
               {language === 'en' ? 'Meta Title' : 'Meta Titre'} ({editLanguage.toUpperCase()})
             </SidebarLabel>
             <SidebarInput
