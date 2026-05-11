@@ -62,6 +62,10 @@
 	redir /tarot-card-reading/reading /tarot-card-reading 301
 	redir /fr/tarot-card-reading/reading /fr/tarot-card-reading 301
 
+	# Slug renames — old URL → new canonical URL
+	redir /tarot/the-tower /tarot/the-tower-tarot-card-meaning 301
+	redir /fr/tarot/the-tower /fr/tarot/the-tower-tarot-card-meaning 301
+
 	# --- Security Headers ---
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
