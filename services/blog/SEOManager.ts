@@ -97,17 +97,29 @@ export class SEOManager {
    * Update or create a link element
    */
   private updateOrCreateLink(rel: string, href: string, hreflang?: string): void {
-    const selector = hreflang
+    // First look for a link we already own (marked with data-seo-blog)
+    const ownedSelector = hreflang
       ? `link[rel="${rel}"][hreflang="${hreflang}"][data-seo-blog]`
       : `link[rel="${rel}"][data-seo-blog]`;
-    let link = document.querySelector(selector) as HTMLLinkElement;
+    let link = document.querySelector(ownedSelector) as HTMLLinkElement;
+
+    if (!link) {
+      // Take over any existing unmarked link (e.g. the canonical from the HTML template)
+      // rather than creating a duplicate alongside it.
+      const unmarkedSelector = hreflang
+        ? `link[rel="${rel}"][hreflang="${hreflang}"]:not([data-seo-blog])`
+        : `link[rel="${rel}"]:not([data-seo-blog])`;
+      link = document.querySelector(unmarkedSelector) as HTMLLinkElement;
+    }
+
     if (!link) {
       link = document.createElement('link');
       link.rel = rel;
       if (hreflang) link.hreflang = hreflang;
-      link.setAttribute('data-seo-blog', 'true');
       document.head.appendChild(link);
     }
+
+    link.setAttribute('data-seo-blog', 'true');
     link.href = href;
   }
 
