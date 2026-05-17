@@ -553,6 +553,24 @@ const Header: React.FC = () => {
               </LocalizedLink>
 
               <LocalizedLink
+                to={ROUTES.ABOUT}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.ABOUT) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                <User className="w-5 h-5" />
+                {language === 'fr' ? 'À Propos de Moi' : 'About Me'}
+              </LocalizedLink>
+
+              <LocalizedLink
+                to={ROUTES.TAROT_CARDS}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.TAROT_CARDS) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                <Layers className="w-5 h-5" />
+                {language === 'fr' ? 'Les Arcanes' : 'The Arcanas'}
+              </LocalizedLink>
+
+              <LocalizedLink
                 to={ROUTES.BLOG}
                 onClick={closeMobileMenu}
                 className={`flex items-center gap-3 w-full text-left p-3 rounded-lg transition-colors ${isActive(ROUTES.BLOG) ? 'bg-white/5 text-amber-400' : 'text-slate-300 hover:bg-white/5'}`}
