@@ -132,6 +132,9 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     return data;
   });
   const [loading, setLoading] = useState(!hasEmbeddedData.current);
+
+  // Capture at mount whether we served from embedded HTML (for background revalidation below)
+  const startedWithEmbedded = useRef(hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
@@ -174,6 +177,15 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   useEffect(() => {
     loadArticle();
   }, [loadArticle]);
+
+  // SWR: when the page was served from pre-rendered HTML, silently fetch fresh data
+  // in the background so admin edits appear without a full redeploy.
+  useEffect(() => {
+    if (!startedWithEmbedded.current || previewId || !slug) return;
+    fetchTarotArticle(slug)
+      .then(fresh => setArticle(fresh))
+      .catch(() => {}); // keep embedded data if API is unreachable
+  }, [slug, previewId]);
 
   // Fetch link registry once on mount (separate from article load to avoid re-fetching on token refresh)
   useEffect(() => {

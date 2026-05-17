@@ -26,6 +26,7 @@ import {
   mapBlogPostToTarotFields,
 } from './shared.js';
 import { notifyTarotArticle } from '../../services/indexNowService.js';
+import { purgeTarotArticle } from '../../services/cloudflare.js';
 
 const router = Router();
 
@@ -535,6 +536,7 @@ router.patch(
         existingArticle.slug,
         sanitizedUpdates.slug as string | undefined
       );
+      purgeTarotArticle(existingArticle.slug, sanitizedUpdates.slug as string | undefined);
 
       // Re-fetch with relations so categories/tags are included in response
       const refreshedArticle = await prisma.blogPost.findFirst({
@@ -579,6 +581,7 @@ router.patch(
         });
 
         await cacheService.invalidateTarotArticle(existingArticle.slug, blogPostData.slug);
+        purgeTarotArticle(existingArticle.slug, blogPostData.slug);
 
         return res.json({
           ...mapBlogPostToTarotFields(updatedArticle as unknown as Record<string, unknown>),
@@ -628,6 +631,7 @@ router.patch(
       });
 
       await cacheService.invalidateTarotArticle(existingArticle.slug, blogPostData.slug);
+      purgeTarotArticle(existingArticle.slug, blogPostData.slug);
 
       // Notify search engines via IndexNow if published
       if (updatedArticle.status === 'PUBLISHED' && updatedArticle.slug) {
@@ -661,6 +665,7 @@ router.patch(
     });
 
     await cacheService.invalidateTarotArticle(existingArticle.slug);
+    purgeTarotArticle(existingArticle.slug);
 
     // Notify search engines via IndexNow if published
     if (updatedArticle.status === 'PUBLISHED' && updatedArticle.slug) {

@@ -25,6 +25,7 @@ import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { NotFoundError } from '../../shared/errors/ApplicationError.js';
 import { parsePaginationParams, createPaginationMeta } from '../../shared/pagination/pagination.js';
 import { notifyBlogPost } from '../../services/indexNowService.js';
+import { purgeBlogPost } from '../../services/cloudflare.js';
 
 const router = Router();
 
@@ -364,6 +365,7 @@ router.patch(
     if (categoryIds !== undefined || tagIds !== undefined) {
       await taxonomyService.invalidateAll();
     }
+    purgeBlogPost(current.slug, post.slug);
 
     // Notify search engines via IndexNow if published
     if (post.status === 'PUBLISHED' && post.slug) {
