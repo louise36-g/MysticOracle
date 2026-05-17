@@ -106,9 +106,11 @@ function processContent(html: string): string {
     h2.parentNode?.insertBefore(wrapper, h2);
     wrapper.appendChild(h2);
 
-    // Collect following P elements until we hit another H2 or non-P element
+    // Collect following P elements that are labelled takeaway items (<strong>Label:</strong>).
+    // Stop at any P without a <strong> — that's body text or a section divider, not a list item.
     let nextEl = wrapper.nextElementSibling;
     while (nextEl && nextEl.tagName === 'P') {
+      if (!(nextEl as HTMLElement).querySelector('strong')) break;
       const next = nextEl.nextElementSibling;
       wrapper.appendChild(nextEl);
       nextEl = next;
