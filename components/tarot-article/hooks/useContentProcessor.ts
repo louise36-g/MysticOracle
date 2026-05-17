@@ -107,10 +107,18 @@ function processContent(html: string): string {
     wrapper.appendChild(h2);
 
     // Collect following P elements that are labelled takeaway items (<strong>Label:</strong>).
-    // Stop at any P without a <strong> — that's body text or a section divider, not a list item.
+    // Items start directly with <strong> as the first child node.
+    // Body paragraphs like "The <strong>Card Name</strong>..." start with a text node first,
+    // so we stop there.
     let nextEl = wrapper.nextElementSibling;
     while (nextEl && nextEl.tagName === 'P') {
-      if (!(nextEl as HTMLElement).querySelector('strong')) break;
+      // Walk past any leading whitespace-only text nodes
+      let cursor: ChildNode | null = nextEl.firstChild;
+      while (cursor && cursor.nodeType === Node.TEXT_NODE && !cursor.textContent?.trim()) {
+        cursor = cursor.nextSibling;
+      }
+      // Stop if the first meaningful child is not a <strong> element
+      if (!cursor || cursor.nodeType !== Node.ELEMENT_NODE || (cursor as Element).tagName !== 'STRONG') break;
       const next = nextEl.nextElementSibling;
       wrapper.appendChild(nextEl);
       nextEl = next;
