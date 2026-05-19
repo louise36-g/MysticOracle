@@ -49,18 +49,30 @@ const AdminBlog: React.FC = () => {
 
   // Reload functions for cross-tab updates (use getTokenRef to keep stable)
   const loadCategories = useCallback(async () => {
-    const token = await getTokenRef.current();
-    if (token) await fetchUnifiedCategories(token);
+    try {
+      const token = await getTokenRef.current();
+      if (token) await fetchUnifiedCategories(token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load categories');
+    }
   }, []);
 
   const loadTags = useCallback(async () => {
-    const token = await getTokenRef.current();
-    if (token) await fetchUnifiedTags(token);
+    try {
+      const token = await getTokenRef.current();
+      if (token) await fetchUnifiedTags(token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load tags');
+    }
   }, []);
 
   const loadMedia = useCallback(async () => {
-    const token = await getTokenRef.current();
-    if (token) await fetchAdminBlogMedia(token);
+    try {
+      const token = await getTokenRef.current();
+      if (token) await fetchAdminBlogMedia(token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load media');
+    }
   }, []);
 
   const loadPosts = useCallback(async () => {
@@ -69,10 +81,14 @@ const AdminBlog: React.FC = () => {
   }, []);
 
   const loadTrash = useCallback(async () => {
-    const token = await getTokenRef.current();
-    if (token) {
-      const result = await fetchAdminBlogPosts(token, { deleted: true });
-      setTrashCount(result.pagination.total);
+    try {
+      const token = await getTokenRef.current();
+      if (token) {
+        const result = await fetchAdminBlogPosts(token, { deleted: true });
+        setTrashCount(result.pagination.total);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load trash count');
     }
   }, []);
 

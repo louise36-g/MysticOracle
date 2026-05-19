@@ -119,7 +119,7 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
   } catch (error) {
     logger.error('Admin auth error:', error);
     logger.error('User ID:', req.auth?.userId);
-    return res.status(403).json({
+    return res.status(500).json({
       error: 'Admin verification failed',
     });
   }
