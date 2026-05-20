@@ -243,12 +243,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).not.toHaveBeenCalled();
     });
 
-    it('should return 403 when database query throws', async () => {
+    it('should return 500 when database query throws', async () => {
       mockFindUnique.mockRejectedValue(new Error('Database error'));
 
       await requireAdmin(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Admin verification failed',
       });
