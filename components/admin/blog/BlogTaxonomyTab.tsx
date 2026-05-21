@@ -458,8 +458,8 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
         return;
       }
       await reorderUnifiedCategory(token, String(active.id), newIndex);
-      // Force DndContext to remount so it remeasures item positions
       setDndKey(k => k + 1);
+      await loadCategories();
     } catch (err) {
       setCategories(original);
       const message = err instanceof Error ? err.message : 'Failed to reorder';
@@ -517,6 +517,7 @@ const BlogTaxonomyTab: React.FC<BlogTaxonomyTabProps> = ({ type, onShowConfirmMo
       }
       await reorderUnifiedCategory(token, String(active.id), newIndex);
       setDndKey(k => k + 1);
+      await loadCategories();
     } catch (err) {
       setCategories(original);
       const message = err instanceof Error ? err.message : 'Failed to reorder';

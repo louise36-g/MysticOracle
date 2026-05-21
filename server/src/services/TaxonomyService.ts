@@ -71,7 +71,7 @@ class TaxonomyService {
     if (cached) return cached;
 
     const categories = await prisma.blogCategory.findMany({
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       include: {
         _count: {
           select: {
@@ -159,6 +159,10 @@ class TaxonomyService {
    * Create a new category
    */
   async createCategory(input: CreateCategoryInput): Promise<Category> {
+    const siblingCount = await prisma.blogCategory.count({
+      where: { parentId: input.parentId ?? null },
+    });
+
     const category = await prisma.blogCategory.create({
       data: {
         nameEn: input.name,
@@ -169,6 +173,7 @@ class TaxonomyService {
         color: input.color,
         icon: input.icon,
         parentId: input.parentId ?? null,
+        sortOrder: siblingCount,
       },
       include: {
         _count: {
