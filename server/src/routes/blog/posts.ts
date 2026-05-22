@@ -201,6 +201,12 @@ router.post(
     // Process content to replace placeholder URLs
     const processedContent = processBlogContent(data.contentEn, data.contentFr);
 
+    const maxSortOrderResult = await prisma.blogPost.aggregate({
+      where: { deletedAt: null },
+      _max: { sortOrder: true },
+    });
+    const nextSortOrder = (maxSortOrderResult._max.sortOrder ?? -1) + 1;
+
     const post = await prisma.blogPost.create({
       data: {
         slug: data.slug,
@@ -225,6 +231,7 @@ router.post(
         publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
         faq: faq ?? undefined,
         cta: cta ?? undefined,
+        sortOrder: nextSortOrder,
         categories: {
           create: categoryIds.map(categoryId => ({ categoryId })),
         },
