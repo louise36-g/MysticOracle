@@ -141,6 +141,19 @@ router.post(
         const isPartOne = /part\s*1/i.test(article.title);
         const cta = article.cta || (isPartOne ? undefined : DEFAULT_BLOG_CTA);
 
+        // Place imported article at the bottom of its categories
+        const lastInCategory = await prisma.blogPost.findFirst({
+          where: {
+            deletedAt: null,
+            ...(categoryIds.length > 0
+              ? { categories: { some: { categoryId: { in: categoryIds } } } }
+              : {}),
+          },
+          orderBy: { sortOrder: 'desc' },
+          select: { sortOrder: true },
+        });
+        const nextSortOrder = (lastInCategory?.sortOrder ?? -1) + 1;
+
         // Create the post
         await prisma.blogPost.create({
           data: {
@@ -161,6 +174,7 @@ router.post(
             metaDescEn: metaDesc,
             faq,
             cta,
+            sortOrder: nextSortOrder,
             categories: {
               create: categoryIds.map(categoryId => ({ categoryId })),
             },

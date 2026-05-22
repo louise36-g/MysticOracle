@@ -201,19 +201,17 @@ router.post(
     // Process content to replace placeholder URLs
     const processedContent = processBlogContent(data.contentEn, data.contentFr);
 
-    // Use the max sortOrder within the same categories so the new article
-    // lands at the bottom of its specific category views, not behind a
-    // completely unrelated article in a different part of the site.
-    const maxSortOrderResult = await prisma.blogPost.aggregate({
+    const lastInCategory = await prisma.blogPost.findFirst({
       where: {
         deletedAt: null,
         ...(categoryIds.length > 0
           ? { categories: { some: { categoryId: { in: categoryIds } } } }
           : {}),
       },
-      _max: { sortOrder: true },
+      orderBy: { sortOrder: 'desc' },
+      select: { sortOrder: true },
     });
-    const nextSortOrder = (maxSortOrderResult._max.sortOrder ?? -1) + 1;
+    const nextSortOrder = (lastInCategory?.sortOrder ?? -1) + 1;
 
     const post = await prisma.blogPost.create({
       data: {
