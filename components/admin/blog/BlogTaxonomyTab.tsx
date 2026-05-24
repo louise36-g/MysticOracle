@@ -14,7 +14,7 @@ import {
   deleteUnifiedTag,
 } from '../../../services/api';
 import type { UnifiedCategory, UnifiedTag } from '../../../services/api/taxonomy';
-import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight, GripVertical } from 'lucide-react';
+import { Plus, Folder, FolderOpen, Tag, Edit2, Trash2, CornerDownRight, GripVertical, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
@@ -172,7 +172,7 @@ const SortableChildItem: React.FC<{
   );
 };
 
-/** A draggable parent category block (card + its children) */
+/** A draggable parent category block (card + its children as accordion) */
 const SortableParentBlock: React.FC<{
   parent: CategoryFormData;
   children: CategoryFormData[];
@@ -182,6 +182,8 @@ const SortableParentBlock: React.FC<{
   onChildDragEnd: (event: DragEndEvent, parentId: string) => void;
   childDndKey: number;
 }> = ({ parent, children, language, onEdit, onDelete, onChildDragEnd, childDndKey }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -203,92 +205,119 @@ const SortableParentBlock: React.FC<{
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const FolderIcon = children.length > 0 ? FolderOpen : Folder;
+  const FolderIcon = isExpanded && children.length > 0 ? FolderOpen : Folder;
 
   return (
     <div ref={setNodeRef} style={style}>
       {/* Parent card */}
       <div className={`bg-slate-900/60 rounded-xl border border-purple-500/20 p-4 ${isDragging ? 'shadow-2xl shadow-purple-500/20' : ''}`}>
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3">
           {/* Drag handle */}
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-purple-400 transition-colors"
+            className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-purple-400 transition-colors flex-shrink-0"
           >
             <GripVertical className="w-5 h-5" />
           </div>
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: `${parent.color}20` }}
+
+          {/* Clickable accordion toggle */}
+          <button
+            onClick={() => children.length > 0 && setIsExpanded(v => !v)}
+            className={`flex items-center gap-3 flex-1 min-w-0 text-left ${children.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
           >
-            <FolderIcon className="w-5 h-5" style={{ color: parent.color }} />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-slate-200 font-medium">
-              {language === 'en' ? parent.nameEn : parent.nameFr}
-            </h4>
-            <p className="text-slate-500 text-sm">{parent.slug}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
-              {parent.blogPostCount || 0} posts
-            </span>
-            {children.length > 0 && (
-              <span className="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">
-                {children.length} {language === 'en' ? 'sub' : 'sous'}
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: `${parent.color}20` }}
+            >
+              <FolderIcon className="w-5 h-5" style={{ color: parent.color }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-slate-200 font-medium truncate">
+                {language === 'en' ? parent.nameEn : parent.nameFr}
+              </h4>
+              <p className="text-slate-500 text-sm truncate">{parent.slug}</p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs text-slate-300">
+                {parent.blogPostCount || 0} posts
               </span>
-            )}
+              {children.length > 0 && (
+                <span className="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">
+                  {children.length} {language === 'en' ? 'sub' : 'sous'}
+                </span>
+              )}
+              {children.length > 0 && (
+                <ChevronDown
+                  className="w-4 h-4 text-slate-400 transition-transform duration-200"
+                  style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                />
+              )}
+            </div>
+          </button>
+
+          {/* Action buttons — always visible */}
+          <div className="flex gap-1 flex-shrink-0 ml-1">
+            <button
+              onClick={() => onEdit(parent)}
+              className="py-1.5 px-3 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
+            >
+              {language === 'en' ? 'Edit' : 'Modifier'}
+            </button>
+            <button
+              onClick={() => onDelete(parent.id)}
+              className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         </div>
-        {(parent.descEn || parent.descFr) && (
-          <p className="text-slate-400 text-sm mb-3 line-clamp-2">
+
+        {/* Description — only when expanded */}
+        {isExpanded && (parent.descEn || parent.descFr) && (
+          <p className="text-slate-400 text-sm mt-3 line-clamp-2">
             {language === 'en' ? parent.descEn : parent.descFr}
           </p>
         )}
-        <div className="flex gap-2">
-          <button
-            onClick={() => onEdit(parent)}
-            className="flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 text-sm"
-          >
-            {language === 'en' ? 'Edit' : 'Modifier'}
-          </button>
-          <button
-            onClick={() => onDelete(parent.id)}
-            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
       </div>
 
-      {/* Children indented underneath — draggable within parent */}
-      {children.length > 0 && (
-        <div className="ml-6 mt-1 border-l-2 border-purple-500/15 pl-4">
-          <DndContext
-            key={`child-${parent.id}-${childDndKey}`}
-            sensors={childSensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={(event) => onChildDragEnd(event, parent.id)}
+      {/* Children — animated accordion */}
+      <AnimatePresence initial={false}>
+        {isExpanded && children.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
           >
-            <SortableContext items={children.map(c => c.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-1">
-                {children.map(child => (
-                  <SortableChildItem
-                    key={child.id}
-                    child={child}
-                    parentColor={parent.color}
-                    language={language}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-      )}
+            <div className="ml-6 mt-1 border-l-2 border-purple-500/15 pl-4 pb-1">
+              <DndContext
+                key={`child-${parent.id}-${childDndKey}`}
+                sensors={childSensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis]}
+                onDragEnd={(event) => onChildDragEnd(event, parent.id)}
+              >
+                <SortableContext items={children.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-1">
+                    {children.map(child => (
+                      <SortableChildItem
+                        key={child.id}
+                        child={child}
+                        parentColor={parent.color}
+                        language={language}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
