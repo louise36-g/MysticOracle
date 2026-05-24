@@ -63,23 +63,24 @@ const CTA_DEFINITIONS: Record<string, { url: string; textEn: string; textFr: str
 const CATEGORY_SLUGS = new Set(['wands', 'cups', 'swords', 'pentacles', 'major-arcana', 'minor-arcana']);
 
 /**
- * Spread type slugs that map to reading routes
- * Maps slug used in content -> URL slug for /reading/{slug}
+ * Spread type slugs — all map to the reading selector page.
+ * /reading/* was renamed to /tarot-card-reading during an SEO refactor;
+ * individual spread sub-routes no longer exist in the router.
  */
-const SPREAD_SLUG_MAP: Record<string, string> = {
-  'single': 'single',
-  'single-card': 'single',
-  'single-card-reading': 'single',
-  'three-card': 'three-card',
-  'three-card-reading': 'three-card',
-  'love': 'love',
-  'love-reading': 'love',
-  'career': 'career',
-  'career-reading': 'career',
-  'horseshoe': 'horseshoe',
-  'horseshoe-reading': 'horseshoe',
-  'celtic-cross': 'celtic-cross',
-  'celtic-cross-reading': 'celtic-cross',
+const SPREAD_SLUG_MAP: Record<string, true> = {
+  'single': true,
+  'single-card': true,
+  'single-card-reading': true,
+  'three-card': true,
+  'three-card-reading': true,
+  'love': true,
+  'love-reading': true,
+  'career': true,
+  'career-reading': true,
+  'horseshoe': true,
+  'horseshoe-reading': true,
+  'celtic-cross': true,
+  'celtic-cross-reading': true,
 };
 
 /**
@@ -97,13 +98,8 @@ export function getUrlForType(type: LinkType, slug: string): string {
       if (CATEGORY_SLUGS.has(slug)) {
         return `/tarot/cards/${slug}`;
       }
-      // Spread/reading types route to /reading/{slug}
-      const readingSlug = SPREAD_SLUG_MAP[slug];
-      if (readingSlug) {
-        return `/reading/${readingSlug}`;
-      }
-      // Fallback for unknown spread slugs
-      return `/reading`;
+      // All spread/reading types go to the reading selector
+      return '/tarot-card-reading';
     }
     case 'horoscope':
       return `/horoscopes/${slug}`;

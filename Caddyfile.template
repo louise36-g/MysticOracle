@@ -8,11 +8,54 @@
 
 	root * ../app/{$NIXPACKS_SPA_OUTPUT_DIR}
 
+	# -----------------------------------------------------------------------
+	# REDIRECTS
+	# Order matters in Caddy — first match wins.
+	# Old-URL and slug-rename rules come BEFORE @trailingSlash so that a URL
+	# with a trailing slash on an old path resolves in a single 301 hop rather
+	# than two (trailing-slash strip + old-URL rewrite).
+	# -----------------------------------------------------------------------
+
+	# Old /tarot-card-meanings/suit-of-X → /tarot/cards/X
+	# [^/]+ prevents capturing a trailing slash into the group
+	@oldSuitPages path_regexp suitpage ^/tarot-card-meanings/suit-of-([^/]+)/?$
+	redir @oldSuitPages /tarot/cards/{re.suitpage.1} 301
+	@oldSuitPagesFr path_regexp suitpagefr ^/fr/tarot-card-meanings/suit-of-([^/]+)/?$
+	redir @oldSuitPagesFr /fr/tarot/cards/{re.suitpagefr.1} 301
+	redir /tarot-card-meanings/major-arcana /tarot/cards/major-arcana 301
+	redir /fr/tarot-card-meanings/major-arcana /fr/tarot/cards/major-arcana 301
+	redir /major-arcana-guide /tarot/cards/major-arcana 301
+	redir /fr/major-arcana-guide /fr/tarot/cards/major-arcana 301
+	redir /tarot/pentacles /tarot/cards/pentacles 301
+	redir /fr/tarot/pentacles /fr/tarot/cards/pentacles 301
+
+	# Slug renames — old short slugs to current canonical form
+	redir /tarot/the-tower /tarot/the-tower-tarot-card-meaning 301
+	redir /fr/tarot/the-tower /fr/tarot/the-tower-tarot-card-meaning 301
+	redir /tarot/5-of-cups-meaning /tarot/5-of-cups-tarot-card-meaning 301
+	redir /fr/tarot/5-of-cups-meaning /fr/tarot/5-of-cups-tarot-card-meaning 301
+	redir /tarot/the-hermit-meaning /tarot/the-hermit-tarot-card-meaning 301
+	redir /fr/tarot/the-hermit-meaning /fr/tarot/the-hermit-tarot-card-meaning 301
+
+	# Bad-slug articles: slugs that contained '/' split into nested paths.
+	# Must come BEFORE @legacyTarot so the generic /tarot/articles/(.+) rule
+	# doesn't capture them first and redirect to another invalid URL.
+	redir /tarot/articles/card-tarot-card-meaning/page-of-swords /tarot/page-of-swords-tarot-card-meaning 301
+	redir /tarot/articles/card-tarot-card-meaning/four-of-wands /tarot/four-of-wands-tarot-card-meaning 301
+	redir /tarot/articles/card-tarot-card-meaning/ten-of-wands /tarot/ten-of-wands-tarot-card-meaning 301
+	redir /fr/tarot/articles/card-tarot-card-meaning/page-of-swords /fr/tarot/page-of-swords-tarot-card-meaning 301
+	redir /fr/tarot/articles/card-tarot-card-meaning/four-of-wands /fr/tarot/four-of-wands-tarot-card-meaning 301
+	redir /fr/tarot/articles/card-tarot-card-meaning/ten-of-wands /fr/tarot/ten-of-wands-tarot-card-meaning 301
+	# Without /articles/ prefix (in case the intermediate URL was crawled)
+	redir /tarot/card-tarot-card-meaning/page-of-swords /tarot/page-of-swords-tarot-card-meaning 301
+	redir /tarot/card-tarot-card-meaning/four-of-wands /tarot/four-of-wands-tarot-card-meaning 301
+	redir /tarot/card-tarot-card-meaning/ten-of-wands /tarot/ten-of-wands-tarot-card-meaning 301
+
 	# --- Strip trailing slashes (prevents duplicate URLs in Google) ---
 	@trailingSlash path_regexp trslash ^(.+)/$
 	redir @trailingSlash {re.trslash.1} 301
 
-	# --- Redirects: consolidate duplicate pages ---
+	# --- Consolidate duplicate pages ---
 	redir /tarot /tarot/cards 301
 	redir /fr/tarot /fr/tarot/cards 301
 	@legacyTarot path_regexp slug ^/tarot/articles/(.+)$
@@ -21,10 +64,11 @@
 	redir @legacyTarotFr /fr/tarot/{re.slugfr.1} 301
 
 	# /reading → /tarot-card-reading (SEO rename, preserve rankings)
-	@oldReading path /reading /reading/*
-	redir @oldReading /tarot-card-reading{uri} 301
-	@oldReadingFr path /fr/reading /fr/reading/*
-	redir @oldReadingFr /fr/tarot-card-reading{uri} 301
+	# Use path_regexp to capture the suffix so {uri} isn't prepended wholesale.
+	@oldReading path_regexp oldread ^/reading(/.*)?$
+	redir @oldReading /tarot-card-reading{re.oldread.1} 301
+	@oldReadingFr path_regexp oldreadfr ^/fr/reading(/.*)?$
+	redir @oldReadingFr /fr/tarot-card-reading{re.oldreadfr.1} 301
 
 	# /yes-no → /tarot-yes-no (SEO rename)
 	redir /yes-no /tarot-yes-no 301
@@ -57,14 +101,6 @@
 		query tag=*
 	}
 	redir @blogTagQueryFr /fr/blog 301
-
-	# Wrong sub-path from old links
-	redir /tarot-card-reading/reading /tarot-card-reading 301
-	redir /fr/tarot-card-reading/reading /fr/tarot-card-reading 301
-
-	# Slug renames — old URL → new canonical URL
-	redir /tarot/the-tower /tarot/the-tower-tarot-card-meaning 301
-	redir /fr/tarot/the-tower /fr/tarot/the-tower-tarot-card-meaning 301
 
 	# --- Security Headers ---
 	header {

@@ -151,6 +151,11 @@ async function main() {
   console.log('[Phase 2.5] Blog listing page...');
   await prerenderBlogListPage(template);
 
+  // Phase 2.7: Blog category pages (canonical tags in initial HTML — prevents GSC "alternate canonical" issues)
+  console.log('');
+  console.log('[Phase 2.7] Blog category pages...');
+  await prerenderBlogCategoryPages(template);
+
   // Phase 3: Blog posts (requires API)
   console.log('');
   console.log('[Phase 3] Blog posts...');
@@ -828,6 +833,84 @@ async function prerenderBlogListPage(template) {
       ensureDirectoryExists(path.dirname(outputPath));
       fs.writeFileSync(outputPath, html);
     } catch { /* ignore fallback error */ }
+  }
+}
+
+async function prerenderBlogCategoryPages(template) {
+  try {
+    process.stdout.write('  Fetching categories from API... ');
+
+    const response = await fetchWithTimeout(`${API_BASE}/api/blog/categories`);
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Only top-level categories that have posts (directly or in children)
+    const categories = (data.categories || []).filter(
+      c => !c.parentId && (c.postCount > 0 || (c.children || []).some(ch => ch.postCount > 0))
+    );
+    console.log(`fetched ${categories.length} categories`);
+
+    for (const cat of categories) {
+      try {
+        const catPath = `/blog/category/${cat.slug}`;
+        process.stdout.write(`  Generating ${catPath}... `);
+
+        const title = `${cat.nameEn} – Tarot Articles & Blog | CelestiArcana`;
+        const description =
+          cat.descriptionEn ||
+          `Explore ${cat.nameEn} tarot articles and guides. In-depth card meanings, spreads, and spiritual insights on CelestiArcana.`;
+
+        const html = generateStaticHtml(template, {
+          title,
+          description,
+          url: `${SITE_URL}${catPath}`,
+          path: catPath,
+          type: 'website',
+        });
+
+        const outputPath = getOutputPath(catPath);
+        ensureDirectoryExists(path.dirname(outputPath));
+        fs.writeFileSync(outputPath, html);
+        results.push({ success: true, path: catPath });
+        console.log('✓');
+
+        // French version
+        try {
+          const frPath = `/fr/blog/category/${cat.slug}`;
+          process.stdout.write(`  Generating ${frPath}... `);
+
+          const frName = cat.nameFr || cat.nameEn;
+          const frTitle = `${frName} – Articles de Tarot & Blog | CelestiArcana`;
+          const frDescription =
+            cat.descriptionFr ||
+            `Découvrez nos articles de tarot sur ${frName} sur CelestiArcana. Significations approfondies, tirages et insights spirituels.`;
+
+          const frHtml = generateStaticHtml(template, {
+            title: frTitle,
+            description: frDescription,
+            url: `${SITE_URL}${frPath}`,
+            path: frPath,
+            type: 'website',
+            lang: 'fr',
+          });
+
+          const frOutputPath = getOutputPath(frPath);
+          ensureDirectoryExists(path.dirname(frOutputPath));
+          fs.writeFileSync(frOutputPath, frHtml);
+          results.push({ success: true, path: frPath });
+          console.log('✓');
+        } catch (frErr) {
+          console.log(`✗ (FR: ${frErr.message})`);
+        }
+      } catch (catErr) {
+        console.log(`✗ ${catErr.message}`);
+        results.push({ success: false, path: `/blog/category/${cat.slug}`, error: catErr.message });
+      }
+    }
+  } catch (error) {
+    console.error(`  Error prerendering category pages: ${error.message}`);
   }
 }
 

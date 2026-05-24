@@ -50,7 +50,10 @@ export const TarotArticleCoreSchema = z.object({
   author: z.string({ required_error: 'Author is required' }).min(1, 'Author is required'),
 
   // Optional slug (will be auto-generated if not provided)
-  slug: z.string().optional(),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens only')
+    .optional(),
 
   // All other fields are optional in core schema
   excerpt: z.string().optional(),
@@ -476,7 +479,10 @@ export const TarotArticleLenientSchema = z.object({
   title: z.string().optional(),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  slug: z.string().optional(),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens only')
+    .optional(),
   author: z.string().optional(),
   readTime: z.string().optional(),
 
