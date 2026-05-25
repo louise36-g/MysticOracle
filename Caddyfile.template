@@ -37,6 +37,10 @@
 	redir /tarot/the-hermit-meaning /tarot/the-hermit-tarot-card-meaning 301
 	redir /fr/tarot/the-hermit-meaning /fr/tarot/the-hermit-tarot-card-meaning 301
 
+	# Blog article slug renames
+	redir /blog/major-arcana-tarot-guide /blog/major-arcana-the-fools-journey 301
+	redir /fr/blog/major-arcana-tarot-guide /fr/blog/major-arcana-the-fools-journey 301
+
 	# Bad-slug articles: slugs that contained '/' split into nested paths.
 	# Must come BEFORE @legacyTarot so the generic /tarot/articles/(.+) rule
 	# doesn't capture them first and redirect to another invalid URL.
