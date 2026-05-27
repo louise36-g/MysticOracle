@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
 
 export interface LightboxProps {
-  image: string | { url: string; alt: string } | null;
+  image: string | { url: string; alt?: string; reversed?: boolean } | null;
   onClose: () => void;
   alt?: string;
   optimizeImage?: boolean;
@@ -59,6 +59,7 @@ export function Lightbox({
             src={src}
             alt={normalized.alt}
             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            style={normalized.reversed ? { transform: 'rotate(180deg)' } : undefined}
             onClick={(e) => e.stopPropagation()}
           />
           {showCaption && normalized.alt && (

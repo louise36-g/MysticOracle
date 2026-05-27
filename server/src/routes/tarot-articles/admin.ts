@@ -30,6 +30,69 @@ import { purgeTarotArticle } from '../../services/cloudflare.js';
 
 const router = Router();
 
+// ─── Image sync helpers ───────────────────────────────────────────────────────
+
+/**
+ * Extract every unique image src URL from an HTML string, in order of first
+ * appearance (Set preserves insertion order).
+ */
+function extractImageUrls(html: string): string[] {
+  const seen = new Set<string>();
+  const regex = /<img[^>]+src="([^"]+)"/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(html)) !== null) {
+    seen.add(match[1]);
+  }
+  return [...seen];
+}
+
+/**
+ * When contentEn images change, replay the same URL swaps onto contentFr.
+ *
+ * Strategy:
+ *   - Find URLs present in old EN but absent from new EN  → "removed"
+ *   - Find URLs present in new EN but absent from old EN  → "added"
+ *   - If counts match, pair them by order of first appearance and replace
+ *     every occurrence of each old URL in contentFr with the new one.
+ *
+ * If the request is already explicitly setting contentFr (user edited the
+ * French tab), this function is not called — the explicit value wins.
+ */
+function syncImagesEnToFr(
+  oldContentEn: string,
+  newContentEn: string,
+  contentFr: string
+): { updatedContentFr: string; swaps: Array<{ from: string; to: string }> } {
+  const oldUrls = extractImageUrls(oldContentEn);
+  const newUrls = extractImageUrls(newContentEn);
+  const newUrlSet = new Set(newUrls);
+  const oldUrlSet = new Set(oldUrls);
+
+  const removed = oldUrls.filter(u => !newUrlSet.has(u));
+  const added = newUrls.filter(u => !oldUrlSet.has(u));
+
+  const swaps: Array<{ from: string; to: string }> = [];
+
+  // Only proceed when counts match — unambiguous 1-to-1 mapping
+  if (removed.length === 0 || removed.length !== added.length) {
+    return { updatedContentFr: contentFr, swaps };
+  }
+
+  let updatedContentFr = contentFr;
+
+  for (let i = 0; i < removed.length; i++) {
+    const from = removed[i];
+    const to = added[i];
+    if (updatedContentFr.includes(from)) {
+      // Replace ALL occurrences (upright + reversed use the same src)
+      updatedContentFr = updatedContentFr.split(from).join(to);
+      swaps.push({ from, to });
+    }
+  }
+
+  return { updatedContentFr, swaps };
+}
+
 /**
  * Convert validated tarot article data to BlogPost create/update format.
  * Takes the output of convertToPrismaFormatLenient (TarotArticle field names)
@@ -493,6 +556,23 @@ router.patch(
         return res.status(400).json({ error: 'Invalid status value' });
       }
 
+      // ── Image sync: EN → FR ──────────────────────────────────────────────
+      // When contentEn is being saved, auto-propagate any image URL swaps to
+      // contentFr — but only when the request isn't already explicitly updating
+      // contentFr (i.e. the user is editing the French tab directly).
+      let imageSyncSwaps: Array<{ from: string; to: string }> = [];
+      if (typeof sanitizedUpdates.contentEn === 'string' && !('contentFr' in sanitizedUpdates)) {
+        const oldEn = existingArticle.contentEn ?? '';
+        const newEn = sanitizedUpdates.contentEn;
+        const currentFr = existingArticle.contentFr ?? '';
+        const { updatedContentFr, swaps } = syncImagesEnToFr(oldEn, newEn, currentFr);
+        if (swaps.length > 0) {
+          sanitizedUpdates.contentFr = updatedContentFr;
+          imageSyncSwaps = swaps;
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────
+
       // Extract category/tag name arrays before the main update
       const categoryNames: string[] | undefined = updates.categories;
       const tagNames: string[] | undefined = updates.tags;
@@ -548,7 +628,14 @@ router.patch(
         throw new NotFoundError('Article');
       }
 
-      return res.json(transformArticleResponse(refreshedArticle));
+      const responseData = transformArticleResponse(refreshedArticle);
+      if (imageSyncSwaps.length > 0) {
+        return res.json({
+          ...responseData,
+          _imageSyncApplied: imageSyncSwaps,
+        });
+      }
+      return res.json(responseData);
     }
 
     // Full validation mode

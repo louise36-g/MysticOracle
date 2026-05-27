@@ -136,7 +136,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   // Capture at mount whether we served from embedded HTML (for background revalidation below)
   const startedWithEmbedded = useRef(hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string; reversed?: boolean } | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
 
   // Refs
@@ -361,7 +361,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
     contentRef: contentRef as React.RefObject<HTMLDivElement>,
     sanitizedContent,
     onNavigate: (path: string) => navigate(path),
-    onImageClick: setLightboxImage,
+    onImageClick: (src: string, reversed: boolean) => setLightboxImage({ url: src, reversed }),
   });
 
   // Loading state
@@ -534,7 +534,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
               <FeaturedImage
                 src={article.featuredImage}
                 alt={localizedImageAlt}
-                onClick={() => setLightboxImage(article.featuredImage)}
+                onClick={() => setLightboxImage({ url: article.featuredImage! })}
               />
             </motion.div>
           )}

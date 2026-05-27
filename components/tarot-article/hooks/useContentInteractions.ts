@@ -4,7 +4,7 @@ interface UseContentInteractionsProps {
   contentRef: RefObject<HTMLDivElement>;
   sanitizedContent: string;
   onNavigate: (path: string) => void;
-  onImageClick: (src: string) => void;
+  onImageClick: (src: string, reversed: boolean) => void;
 }
 
 /**
@@ -103,9 +103,11 @@ export function useContentInteractions({
     // === IMAGE LIGHTBOX ===
     if (target.tagName === 'IMG') {
       e.preventDefault();
-      const src = (target as HTMLImageElement).src;
+      const imgEl = target as HTMLImageElement;
+      const src = imgEl.src;
       if (src) {
-        onImageClick(src);
+        const reversed = imgEl.dataset.reversed === 'true' || imgEl.classList.contains('reversed');
+        onImageClick(src, reversed);
       }
       return;
     }
