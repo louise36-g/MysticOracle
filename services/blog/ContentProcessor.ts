@@ -102,16 +102,13 @@ export class ContentProcessor {
       // Skip CTA buttons — they should use SPA navigation (same tab)
       if (link.hasAttribute('data-cta')) return;
 
-      // Only external links open in new tab; internal links use SPA navigation
-      const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
-      if (!isInternal) {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-      } else {
-        // Strip any target="_blank" that was stored in the DB — internal links
-        // must stay in the same tab so SPA navigation works correctly.
-        link.removeAttribute('target');
-      }
+      // All non-CTA links open in new tab. target="_blank" is set in the DOM so the
+      // browser handles it natively even before React hydrates on deferred-loader pages
+      // (first click loads the bundle async; without this, same-tab navigation fires).
+      // The click handler also calls window.open() once React is ready — e.preventDefault()
+      // cancels the native behaviour so only one tab opens.
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
 
       // Prefix internal links with /fr/ on French pages
       if (isFr) {

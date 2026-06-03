@@ -60,13 +60,11 @@ export function useBlogContent({
       doc.querySelectorAll('a').forEach((link) => {
         const href = link.getAttribute('href') || '';
         if (href.startsWith('#')) return;
-        const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
-        if (!isInternal) {
-          link.setAttribute('target', '_blank');
-          link.setAttribute('rel', 'noopener noreferrer');
-        } else {
-          link.removeAttribute('target');
-        }
+        if (link.hasAttribute('data-cta')) return;
+        // Always open in new tab — set in DOM so the browser handles it natively
+        // even before React hydrates (matches ContentProcessor.processLinks behaviour).
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
       });
       processedAbove = doc.body.innerHTML;
     }

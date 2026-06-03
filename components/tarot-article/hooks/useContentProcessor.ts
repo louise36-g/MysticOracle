@@ -28,15 +28,15 @@ function processContent(html: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // External links open in new tab; internal links use SPA navigation
+  // All non-CTA, non-anchor links open in new tab. target="_blank" is set in the DOM
+  // so the browser handles it natively even before React hydrates on deferred-loader pages.
   const links = doc.querySelectorAll('a');
   links.forEach((link) => {
     const href = link.getAttribute('href') || '';
-    const isInternal = href.startsWith('/') || href.includes('celestiarcana.com');
-    if (!isInternal) {
-      link.setAttribute('target', '_blank');
-      link.setAttribute('rel', 'noopener noreferrer');
-    }
+    if (href.startsWith('#')) return;
+    if (link.hasAttribute('data-cta')) return;
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
   });
 
   // Auto-detect section divider paragraphs (✦ stars) and add styling class
