@@ -316,6 +316,62 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
     }
   }
 
+  // Normalize ChatGPT output to the expected tarot article schema
+  function normalizeChatGPTJson(raw: any): any {
+    const n = { ...raw };
+
+    // suit: "Swords" → cardType: "Suit of Swords"
+    if (!n.cardType && n.suit) {
+      const suitMap: Record<string, string> = {
+        'swords': 'Suit of Swords',
+        'wands': 'Suit of Wands',
+        'cups': 'Suit of Cups',
+        'pentacles': 'Suit of Pentacles',
+        'major arcana': 'Major Arcana',
+        'major': 'Major Arcana',
+      };
+      const mapped = suitMap[n.suit.toLowerCase()];
+      if (mapped) n.cardType = mapped;
+    }
+
+    // Flatten nested seo object → flat seoFocusKeyword / seoMetaTitle / seoMetaDescription
+    if (n.seo && typeof n.seo === 'object') {
+      if (n.seo.focusKeyword && !n.seoFocusKeyword) n.seoFocusKeyword = n.seo.focusKeyword;
+      if (n.seo.metaTitle && !n.seoMetaTitle) n.seoMetaTitle = n.seo.metaTitle;
+      if (n.seo.metaDescription && !n.seoMetaDescription) n.seoMetaDescription = n.seo.metaDescription;
+      delete n.seo;
+    }
+
+    // Default author if missing
+    if (!n.author) n.author = 'Louise Griffin';
+
+    // Strip leading "- " or "– " from category names
+    if (Array.isArray(n.categories)) {
+      n.categories = n.categories.map((c: unknown) =>
+        typeof c === 'string' ? c.replace(/^[-–—]\s*/, '').trim() : c
+      );
+    }
+
+    // Drop ChatGPT-only fields not in schema
+    for (const field of ['internalLinks', 'suit', 'cardName', 'articleType', 'position']) {
+      delete n[field];
+    }
+
+    return n;
+  }
+
+  function handleNormalize() {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      const normalized = normalizeChatGPTJson(parsed);
+      setJsonInput(JSON.stringify(normalized, null, 2));
+      setValidationResult(null);
+      setResult(null);
+    } catch {
+      // Invalid JSON, leave as-is
+    }
+  }
+
   // Preview article
   function handlePreview() {
     try {
@@ -470,12 +526,22 @@ const ImportArticle: React.FC<ImportArticleProps> = ({ editingArticleId, onCance
               <Code className="w-4 h-4" />
               {language === 'en' ? 'Article JSON' : 'JSON de l\'Article'}
             </label>
-            <button
-              onClick={handleFormat}
-              className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
-            >
-              {language === 'en' ? 'Format JSON' : 'Formater JSON'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleNormalize}
+                disabled={!jsonInput.trim()}
+                className="text-xs text-amber-400 hover:text-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title={language === 'en' ? 'Convert ChatGPT format to import schema' : 'Convertir le format ChatGPT'}
+              >
+                {language === 'en' ? 'Normalize (ChatGPT)' : 'Normaliser (ChatGPT)'}
+              </button>
+              <button
+                onClick={handleFormat}
+                className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                {language === 'en' ? 'Format JSON' : 'Formater JSON'}
+              </button>
+            </div>
           </div>
 
           <textarea
