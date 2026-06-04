@@ -846,11 +846,21 @@ async function prerenderBlogCategoryPages(template) {
     }
 
     const data = await response.json();
-    // Only top-level categories that have posts (directly or in children)
-    const categories = (data.categories || []).filter(
-      c => !c.parentId && (c.postCount > 0 || (c.children || []).some(ch => ch.postCount > 0))
-    );
-    console.log(`fetched ${categories.length} categories`);
+    // Collect all categories with posts: top-level and child categories.
+    // Child categories (e.g. "how-someone-sees-you", "career-advice") have parentId set
+    // and were previously skipped, causing them to be served as SPA shell with wrong canonical.
+    const categories = [];
+    for (const root of (data.categories || [])) {
+      if (root.postCount > 0 || (root.children || []).some(ch => ch.postCount > 0)) {
+        categories.push(root);
+      }
+      for (const child of (root.children || [])) {
+        if (child.postCount > 0) {
+          categories.push(child);
+        }
+      }
+    }
+    console.log(`fetched ${categories.length} categories (including children)`);
 
     for (const cat of categories) {
       try {

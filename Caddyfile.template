@@ -54,6 +54,18 @@
 	redir /tarot/card-tarot-card-meaning/page-of-swords /tarot/page-of-swords-tarot-card-meaning 301
 	redir /tarot/card-tarot-card-meaning/four-of-wands /tarot/four-of-wands-tarot-card-meaning 301
 	redir /tarot/card-tarot-card-meaning/ten-of-wands /tarot/ten-of-wands-tarot-card-meaning 301
+	# Bad slug root URLs (the nested-path articles above had a parent URL that Googlebot crawled)
+	redir /tarot/card-tarot-card-meaning /tarot/cards 301
+	redir /fr/tarot/card-tarot-card-meaning /fr/tarot/cards 301
+	# Slugs where "-tarot-card-meaning" was appended to a non-article slug
+	redir /tarot/card-meaning-tarot-card-meaning /tarot/cards 301
+	redir /fr/tarot/card-meaning-tarot-card-meaning /fr/tarot/cards 301
+	# /tarot/cards/X-tarot-card-meanings variant → canonical /tarot/cards/X
+	redir /tarot/cards/major-arcana-tarot-card-meanings /tarot/cards/major-arcana 301
+	redir /fr/tarot/cards/major-arcana-tarot-card-meanings /fr/tarot/cards/major-arcana 301
+	# "the-high-priestess" slug variant → canonical without "the-" prefix
+	redir /tarot/the-high-priestess-tarot-card-meaning /tarot/high-priestess-tarot-card-meaning 301
+	redir /fr/tarot/the-high-priestess-tarot-card-meaning /fr/tarot/high-priestess-tarot-card-meaning 301
 
 	# --- Strip trailing slashes (prevents duplicate URLs in Google) ---
 	@trailingSlash path_regexp trslash ^(.+)/$
