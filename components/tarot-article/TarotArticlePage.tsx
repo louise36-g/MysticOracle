@@ -11,9 +11,11 @@ import {
   fetchTarotArticle,
   previewTarotArticle,
   TarotArticle,
+  ComingSoonInfo,
   fetchLinkRegistry,
   LinkRegistry,
 } from '../../services/api';
+import ComingSoon from '../shared/ComingSoon';
 import { ROUTES, buildRoute } from '../../routes/routes';
 import { trackTarotCardView, trackScrollDepth } from '../../utils/analytics';
 import { tarotUrl } from '../../utils/urls';
@@ -136,6 +138,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   // Capture at mount whether we served from embedded HTML (for background revalidation below)
   const startedWithEmbedded = useRef(hasEmbeddedData.current);
   const [error, setError] = useState<string | null>(null);
+  const [comingSoon, setComingSoon] = useState<ComingSoonInfo | null>(null);
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string; reversed?: boolean } | null>(null);
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
 
@@ -154,7 +157,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
       setLoading(true);
       setError(null);
 
-      let result: TarotArticle;
+      let result: TarotArticle | ComingSoonInfo;
       if (previewId) {
         const token = await getToken();
         if (!token) throw new Error('Authentication required');
@@ -165,7 +168,12 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         throw new Error('No slug or preview ID provided');
       }
 
-      setArticle(result);
+      if ('comingSoon' in result && result.comingSoon) {
+        setComingSoon(result as ComingSoonInfo);
+        return;
+      }
+
+      setArticle(result as TarotArticle);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load article');
     } finally {
@@ -183,7 +191,14 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   useEffect(() => {
     if (!startedWithEmbedded.current || previewId || !slug) return;
     fetchTarotArticle(slug)
-      .then(fresh => setArticle(fresh))
+      .then(fresh => {
+        if ('comingSoon' in fresh && fresh.comingSoon) {
+          setComingSoon(fresh as ComingSoonInfo);
+          setArticle(null);
+        } else {
+          setArticle(fresh as TarotArticle);
+        }
+      })
       .catch(() => {}); // keep embedded data if API is unreachable
   }, [slug, previewId]);
 
@@ -367,6 +382,20 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
   // Loading state
   if (loading) {
     return <ArticleSkeleton />;
+  }
+
+  // Coming soon — article exists but is not yet published
+  if (comingSoon) {
+    return (
+      <ComingSoon
+        titleEn={comingSoon.titleEn}
+        titleFr={comingSoon.titleFr}
+        categorySlug={comingSoon.categorySlug}
+        categoryNameEn={comingSoon.categoryNameEn}
+        categoryNameFr={comingSoon.categoryNameFr}
+        language={language}
+      />
+    );
   }
 
   // Error state

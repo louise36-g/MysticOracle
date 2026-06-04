@@ -170,6 +170,7 @@ const DailyTarotEnergy: React.FC = () => {
     setArticleUrl(localizedPath(`/blog/${slug}`, language));
     fetchBlogPost(slug)
       .then(res => {
+        if ('comingSoon' in res) return;
         const content = language === 'fr' && res.post.contentFr
           ? res.post.contentFr
           : res.post.contentEn;

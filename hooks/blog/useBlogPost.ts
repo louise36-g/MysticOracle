@@ -5,6 +5,7 @@ import {
   fetchBlogPostPreview,
   fetchLinkRegistry,
   BlogPost as BlogPostType,
+  ComingSoonInfo,
   LinkRegistry
 } from '../../services/api';
 
@@ -29,6 +30,7 @@ interface UseBlogPostReturn {
   linkRegistry: LinkRegistry | null;
   loading: boolean;
   error: string | null;
+  comingSoon: ComingSoonInfo | null;
   reload: () => void;
 }
 
@@ -48,6 +50,7 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
   const [linkRegistry, setLinkRegistry] = useState<LinkRegistry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [comingSoon, setComingSoon] = useState<ComingSoonInfo | null>(null);
 
   const loadPost = useCallback(async () => {
     try {
@@ -71,10 +74,17 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
         return;
       }
 
-      setPost(result.post);
-      setRelatedPosts(result.relatedPosts || []);
-      setPrevPost(result.prevPost || null);
-      setNextPost(result.nextPost || null);
+      if ('comingSoon' in result && result.comingSoon) {
+        setComingSoon(result as ComingSoonInfo);
+        setLoading(false);
+        return;
+      }
+
+      const published = result as { post: BlogPostType; relatedPosts: BlogPostType[]; prevPost?: AdjacentPost | null; nextPost?: AdjacentPost | null };
+      setPost(published.post);
+      setRelatedPosts(published.relatedPosts || []);
+      setPrevPost(published.prevPost || null);
+      setNextPost(published.nextPost || null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load article');
     } finally {
@@ -95,6 +105,7 @@ export function useBlogPost({ slug, previewId }: UseBlogPostParams): UseBlogPost
     linkRegistry,
     loading,
     error,
+    comingSoon,
     reload: loadPost
   };
 }

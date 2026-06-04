@@ -3,6 +3,8 @@
  */
 
 import { apiRequest, apiEndpoint, type ParamValue } from './client';
+import type { ComingSoonInfo } from './blog';
+export type { ComingSoonInfo };
 
 // ============================================
 // TYPES
@@ -110,7 +112,7 @@ export interface TarotOverviewData {
 /**
  * Fetch a single tarot article by slug
  */
-export async function fetchTarotArticle(slug: string): Promise<TarotArticle> {
+export async function fetchTarotArticle(slug: string): Promise<TarotArticle | ComingSoonInfo> {
   return apiRequest(`/api/v1/tarot-articles/${slug}`);
 }
 

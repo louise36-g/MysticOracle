@@ -191,6 +191,7 @@ export type {
   ImportArticle,
   ImportOptions,
   ImportResult,
+  ComingSoonInfo,
 } from './blog';
 
 // Taxonomy API

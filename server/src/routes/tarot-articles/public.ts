@@ -139,7 +139,6 @@ router.get(
       where: {
         slug,
         contentType: 'TAROT_ARTICLE',
-        status: 'PUBLISHED',
         deletedAt: null,
       },
       include: articleFullInclude,
@@ -147,6 +146,21 @@ router.get(
 
     if (!article) {
       throw new NotFoundError('Article');
+    }
+
+    // Draft / unpublished — return a coming-soon stub (never cached)
+    if (article.status !== 'PUBLISHED' || !article.publishedAt) {
+      const primaryCategory = article.categories[0]?.category ?? null;
+      res.json({
+        comingSoon: true,
+        slug: article.slug,
+        titleEn: article.titleEn,
+        titleFr: article.titleFr ?? null,
+        categorySlug: primaryCategory?.slug ?? null,
+        categoryNameEn: primaryCategory?.nameEn ?? null,
+        categoryNameFr: primaryCategory?.nameFr ?? null,
+      });
+      return;
     }
 
     const { prevCard, nextCard } = await getAdjacentTarotCards(slug);

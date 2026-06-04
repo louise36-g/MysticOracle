@@ -10,6 +10,7 @@ import { BlogHeader, BlogContent, BlogFAQ, BlogCTA, BlogRelated, RelatedTarotArt
 import { Lightbox } from '../ui/Lightbox';
 import { ScrollToTop } from '../tarot-article/ScrollToTop';
 import ArticleNavigation from '../shared/ArticleNavigation';
+import ComingSoon from '../shared/ComingSoon';
 import { ROUTES } from '../../routes/routes';
 import { trackArticleView, trackScrollDepth } from '../../utils/analytics';
 import { optimizeCloudinaryUrl, IMAGE_SIZES } from '../../utils/cloudinaryUrl';
@@ -72,7 +73,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
   const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
 
   // Custom hooks handle all complex logic
-  const { post, relatedPosts, prevPost, nextPost, linkRegistry, loading, error } = useBlogPost({ slug, previewId });
+  const { post, relatedPosts, prevPost, nextPost, linkRegistry, loading, error, comingSoon } = useBlogPost({ slug, previewId });
   const { contentBeforeFAQ, contentAfterFAQ, extractedFAQs, contentRef, aboveFoldHtml } = useBlogContent({ post, linkRegistry, language });
   useBlogMeta({ post, language, isPreview });
 
@@ -155,6 +156,20 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
       <div className="max-w-4xl mx-auto px-4 py-20 flex items-center justify-center">
         <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
       </div>
+    );
+  }
+
+  // Coming soon — article exists but is not yet published
+  if (comingSoon) {
+    return (
+      <ComingSoon
+        titleEn={comingSoon.titleEn}
+        titleFr={comingSoon.titleFr}
+        categorySlug={comingSoon.categorySlug}
+        categoryNameEn={comingSoon.categoryNameEn}
+        categoryNameFr={comingSoon.categoryNameFr}
+        language={language}
+      />
     );
   }
 

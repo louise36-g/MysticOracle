@@ -199,14 +199,28 @@ router.get(
     const post = await prisma.blogPost.findFirst({
       where: {
         slug,
-        status: 'PUBLISHED',
-        publishedAt: { not: null },
+        deletedAt: null,
       },
       include: includeCategoriesAndTags,
     });
 
     if (!post) {
       throw new NotFoundError('Post');
+    }
+
+    // Draft / unpublished — return a coming-soon stub (never cached)
+    if (post.status !== 'PUBLISHED' || !post.publishedAt) {
+      const primaryCategory = post.categories[0]?.category ?? null;
+      res.json({
+        comingSoon: true,
+        slug: post.slug,
+        titleEn: post.titleEn,
+        titleFr: post.titleFr ?? null,
+        categorySlug: primaryCategory?.slug ?? null,
+        categoryNameEn: primaryCategory?.nameEn ?? null,
+        categoryNameFr: primaryCategory?.nameFr ?? null,
+      });
+      return;
     }
 
     // Increment view count (batched, flushes every 60s)

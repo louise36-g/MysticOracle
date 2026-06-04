@@ -128,6 +128,16 @@ export interface BlogPostListResponse {
   };
 }
 
+export interface ComingSoonInfo {
+  comingSoon: true;
+  slug: string;
+  titleEn: string;
+  titleFr: string | null;
+  categorySlug: string | null;
+  categoryNameEn: string | null;
+  categoryNameFr: string | null;
+}
+
 export interface ImportArticle {
   title: string;
   excerpt?: string;
@@ -179,7 +189,7 @@ export async function fetchBlogPosts(params: {
   return apiRequest(apiEndpoint('/api/v1/blog/posts', params as Record<string, ParamValue>));
 }
 
-export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[] }> {
+export async function fetchBlogPost(slug: string): Promise<{ post: BlogPost; relatedPosts: BlogPost[]; prevPost?: unknown; nextPost?: unknown } | ComingSoonInfo> {
   return apiRequest(`/api/v1/blog/posts/${encodeURIComponent(slug)}`);
 }
 
