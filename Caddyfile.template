@@ -63,12 +63,121 @@
 	# /tarot/cards/X-tarot-card-meanings variant → canonical /tarot/cards/X
 	redir /tarot/cards/major-arcana-tarot-card-meanings /tarot/cards/major-arcana 301
 	redir /fr/tarot/cards/major-arcana-tarot-card-meanings /fr/tarot/cards/major-arcana 301
-	# "the-high-priestess" slug variant → canonical without "the-" prefix
-	redir /tarot/the-high-priestess-tarot-card-meaning /tarot/high-priestess-tarot-card-meaning 301
-	redir /fr/tarot/the-high-priestess-tarot-card-meaning /fr/tarot/high-priestess-tarot-card-meaning 301
-	# "wheel-of-fortune" → "the-wheel-of-fortune" (DB slug has "the-" prefix; card name in constants does not)
+	# high-priestess: canonical IS the-high-priestess (previous redirect was backwards)
+	redir /tarot/high-priestess-tarot-card-meaning /tarot/the-high-priestess-tarot-card-meaning 301
+	redir /fr/tarot/high-priestess-tarot-card-meaning /fr/tarot/the-high-priestess-tarot-card-meaning 301
+	# wheel-of-fortune: DB slug has "the-" prefix; card name in constants does not
 	redir /tarot/wheel-of-fortune-tarot-card-meaning /tarot/the-wheel-of-fortune-tarot-card-meaning 301
 	redir /fr/tarot/wheel-of-fortune-tarot-card-meaning /fr/tarot/the-wheel-of-fortune-tarot-card-meaning 301
+	# Other major arcana missing "the-" prefix in generated links
+	redir /tarot/fool-tarot-card-meaning /tarot/the-fool-tarot-card-meaning 301
+	redir /fr/tarot/fool-tarot-card-meaning /fr/tarot/the-fool-tarot-card-meaning 301
+	redir /tarot/devil-tarot-card-meaning /tarot/the-devil-tarot-card-meaning 301
+	redir /fr/tarot/devil-tarot-card-meaning /fr/tarot/the-devil-tarot-card-meaning 301
+	redir /tarot/hanged-man-tarot-card-meaning /tarot/the-hanged-man-tarot-card-meaning 301
+	redir /fr/tarot/hanged-man-tarot-card-meaning /fr/tarot/the-hanged-man-tarot-card-meaning 301
+	redir /tarot/moon-tarot-card-meaning /tarot/the-moon-tarot-card-meaning 301
+	redir /fr/tarot/moon-tarot-card-meaning /fr/tarot/the-moon-tarot-card-meaning 301
+	redir /tarot/star-tarot-card-meaning /tarot/the-star-tarot-card-meaning 301
+	redir /fr/tarot/star-tarot-card-meaning /fr/tarot/the-star-tarot-card-meaning 301
+	redir /tarot/sun-tarot-card-meaning /tarot/the-sun-tarot-card-meaning 301
+	redir /fr/tarot/sun-tarot-card-meaning /fr/tarot/the-sun-tarot-card-meaning 301
+	redir /tarot/tower-tarot-card-meaning /tarot/the-tower-tarot-card-meaning 301
+	redir /fr/tarot/tower-tarot-card-meaning /fr/tarot/the-tower-tarot-card-meaning 301
+	# Minor arcana: word-form slugs → numeric slugs (cups articles use word form)
+	redir /tarot/two-of-cups-tarot-card-meaning /tarot/2-of-cups-tarot-card-meaning 301
+	redir /tarot/three-of-cups-tarot-card-meaning /tarot/3-of-cups-tarot-card-meaning 301
+	redir /tarot/four-of-cups-tarot-card-meaning /tarot/4-of-cups-tarot-card-meaning 301
+	redir /tarot/five-of-cups-tarot-card-meaning /tarot/5-of-cups-tarot-card-meaning 301
+	redir /tarot/six-of-cups-tarot-card-meaning /tarot/6-of-cups-tarot-card-meaning 301
+	redir /tarot/seven-of-cups-tarot-card-meaning /tarot/7-of-cups-tarot-card-meaning 301
+	redir /tarot/eight-of-cups-tarot-card-meaning /tarot/8-of-cups-tarot-card-meaning 301
+	redir /tarot/nine-of-cups-tarot-card-meaning /tarot/9-of-cups-tarot-card-meaning 301
+	redir /tarot/ten-of-cups-tarot-card-meaning /tarot/10-of-cups-tarot-card-meaning 301
+	# Catch-all: tarot articles incorrectly linked with /blog/ prefix
+	@blogAsTarot path_regexp blog2tarot ^/blog/([a-z0-9-]+-tarot-card-meanings?)$
+	redir @blogAsTarot /tarot/{re.blog2tarot.1} 301
+	@blogAsTarotFr path_regexp blog2tarotfr ^/fr/blog/([a-z0-9-]+-tarot-card-meanings?)$
+	redir @blogAsTarotFr /fr/tarot/{re.blog2tarotfr.1} 301
+	# Blog posts with /tarot/ prefix (complete guide articles link to blog sub-articles wrong)
+	redir /tarot/major-arcana-deep-dives /blog/major-arcana-deep-dives 301
+	redir /tarot/cups-numerology-guide /blog/cups-numerology-guide 301
+	redir /tarot/swords-numerology-guide /blog/swords-numerology-guide 301
+	redir /tarot/tarot-numerology-complete-guide /blog/tarot-numerology-complete-guide 301
+	redir /tarot/the-chariot-as-a-person /blog/the-chariot-as-a-person 301
+	redir /tarot/the-chariot-as-feelings /blog/the-chariot-as-feelings 301
+	redir /tarot/the-chariot-breakup /blog/the-chariot-breakup 301
+	redir /tarot/the-chariot-career-advice /blog/the-chariot-career-advice 301
+	redir /tarot/the-chariot-current-situation /blog/the-chariot-current-situation 301
+	redir /tarot/the-chariot-how-someone-sees-you /blog/the-chariot-how-someone-sees-you 301
+	redir /tarot/the-chariot-love-advice /blog/the-chariot-love-advice 301
+	redir /tarot/the-chariot-love-outcome /blog/the-chariot-love-outcome 301
+	redir /tarot/the-chariot-obstacle-challenge /blog/the-chariot-obstacle-challenge 301
+	redir /tarot/the-chariot-reconciliation /blog/the-chariot-reconciliation 301
+	redir /tarot/the-chariot-spirituality /blog/the-chariot-spirituality 301
+	redir /tarot/the-chariot-yes-or-no /blog/the-chariot-yes-or-no 301
+	redir /tarot/the-moon-breakup /blog/the-moon-breakup 301
+	redir /tarot/the-moon-love-advice /blog/the-moon-love-advice 301
+	redir /tarot/the-moon-obstacle-challenge /blog/the-moon-obstacle-challenge 301
+	redir /tarot/the-moon-yes-or-no /blog/the-moon-yes-or-no 301
+	redir /tarot/the-star-as-a-person /blog/the-star-as-a-person 301
+	redir /tarot/the-star-as-feelings /blog/the-star-as-feelings 301
+	redir /tarot/the-star-breakup /blog/the-star-breakup 301
+	redir /tarot/the-star-career-advice /blog/the-star-career-advice 301
+	redir /tarot/the-star-current-situation /blog/the-star-current-situation 301
+	redir /tarot/the-star-how-someone-sees-you /blog/the-star-how-someone-sees-you 301
+	redir /tarot/the-star-love-advice /blog/the-star-love-advice 301
+	redir /tarot/the-star-love-outcome /blog/the-star-love-outcome 301
+	redir /tarot/the-star-obstacle-challenge /blog/the-star-obstacle-challenge 301
+	redir /tarot/the-star-reconciliation /blog/the-star-reconciliation 301
+	redir /tarot/the-star-spirituality /blog/the-star-spirituality 301
+	redir /tarot/the-star-yes-or-no /blog/the-star-yes-or-no 301
+	redir /tarot/the-empress-current-situation /blog/the-empress-current-situation 301
+	redir /tarot/the-world-love-advice /blog/the-world-love-advice 301
+	redir /tarot/the-world-love-outcome /blog/the-world-love-outcome 301
+	redir /tarot/death-breakup /blog/death-breakup 301
+	redir /tarot/death-obstacle-challenge /blog/death-obstacle-challenge 301
+	# Wheel of Fortune sub-articles: linked with "the-" but blog slugs don't have it
+	redir /blog/the-wheel-of-fortune-as-a-person /blog/wheel-of-fortune-as-a-person 301
+	redir /blog/the-wheel-of-fortune-as-feelings /blog/wheel-of-fortune-as-feelings 301
+	redir /blog/the-wheel-of-fortune-as-yes-or-no /blog/wheel-of-fortune-as-yes-or-no 301
+	redir /blog/the-wheel-of-fortune-breakup /blog/wheel-of-fortune-breakup 301
+	redir /blog/the-wheel-of-fortune-career-advice /blog/wheel-of-fortune-career-advice 301
+	redir /blog/the-wheel-of-fortune-complete-guide /blog/wheel-of-fortune-complete-guide 301
+	redir /blog/the-wheel-of-fortune-current-situation /blog/wheel-of-fortune-current-situation 301
+	redir /blog/the-wheel-of-fortune-how-someone-sees-you /blog/wheel-of-fortune-how-someone-sees-you 301
+	redir /blog/the-wheel-of-fortune-love-advice /blog/wheel-of-fortune-love-advice 301
+	redir /blog/the-wheel-of-fortune-love-outcome /blog/wheel-of-fortune-love-outcome 301
+	redir /blog/the-wheel-of-fortune-obstacle-challenge /blog/wheel-of-fortune-obstacle-challenge 301
+	redir /blog/the-wheel-of-fortune-reconciliation /blog/wheel-of-fortune-reconciliation 301
+	redir /blog/the-wheel-of-fortune-spirituality /blog/wheel-of-fortune-spirituality 301
+	# Blog articles with "the-" prefix that don't match published slugs
+	redir /blog/the-strength-complete-guide /blog/strength-complete-guide 301
+	redir /blog/the-justice-complete-guide /blog/justice-complete-guide 301
+	redir /blog/the-temperance-complete-guide /blog/temperance-complete-guide 301
+	redir /blog/the-major-arcana-tarot-guide /blog/major-arcana-the-fools-journey 301
+	redir /tarot/major-arcana-deep-dives /blog/major-arcana-deep-dives 301
+	# Typo: "emporer" instead of "emperor" in content
+	redir /blog/the-emporer-breakup /blog/the-emperor-breakup 301
+	redir /blog/the-emporer-current-situation /blog/the-emperor-current-situation 301
+	redir /blog/the-emporer-how-someone-sees-you /blog/the-emperor-how-someone-sees-you 301
+	redir /blog/the-emporer-love-advice /blog/the-emperor-love-advice 301
+	redir /blog/the-emporer-love-outcome /blog/the-emperor-love-outcome 301
+	redir /blog/the-emporer-obstacle-challenge /blog/the-emperor-obstacle-challenge 301
+	redir /tarot/the-emporer-as-feelings /blog/the-emperor-as-feelings 301
+	redir /tarot/the-emporer-current-situation /blog/the-emperor-current-situation 301
+	# Typo: extra "c" prefix on hierophant and magician
+	redir /blog/cthe-hierophant-current-situation /blog/the-hierophant-current-situation 301
+	redir /blog/cthe-hierophant-obstacle-challenge /blog/the-hierophant-obstacle-challenge 301
+	redir /blog/cthe-magician-current-situation /blog/the-magician-current-situation 301
+	redir /blog/cthe-magician-obstacle-challenge /blog/the-magician-obstacle-challenge 301
+	# FR: French card names used as slugs instead of English slugs
+	redir /tarot/la-force-tarot-card-meaning /tarot/strength-tarot-card-meaning 301
+	redir /fr/tarot/la-force-tarot-card-meaning /fr/tarot/strength-tarot-card-meaning 301
+	redir /tarot/la-papesse-tarot-card-meaning /tarot/the-high-priestess-tarot-card-meaning 301
+	redir /fr/tarot/la-papesse-tarot-card-meaning /fr/tarot/the-high-priestess-tarot-card-meaning 301
+	redir /tarot/la-roue-de-fortune-tarot-card-meaning /tarot/the-wheel-of-fortune-tarot-card-meaning 301
+	redir /fr/tarot/la-roue-de-fortune-tarot-card-meaning /fr/tarot/the-wheel-of-fortune-tarot-card-meaning 301
 
 	# --- Strip trailing slashes (prevents duplicate URLs in Google) ---
 	@trailingSlash path_regexp trslash ^(.+)/$
