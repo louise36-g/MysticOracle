@@ -30,6 +30,15 @@
 	redir /fr/tarot/pentacles /fr/tarot/cards/pentacles 301
 
 	# Slug renames — old short slugs to current canonical form
+	# Suit overview pages: shortened/malformed variants → canonical -tarot-card-meanings
+	redir /tarot/suit-of-wands-meaning /tarot/suit-of-wands-tarot-card-meanings 301
+	redir /fr/tarot/suit-of-wands-meaning /fr/tarot/suit-of-wands-tarot-card-meanings 301
+	redir /tarot/suit-of-cups-meaning /tarot/suit-of-cups-tarot-card-meanings 301
+	redir /fr/tarot/suit-of-cups-meaning /fr/tarot/suit-of-cups-tarot-card-meanings 301
+	redir /tarot/suit-of-swords-meaning /tarot/suit-of-swords-tarot-card-meanings 301
+	redir /fr/tarot/suit-of-swords-meaning /fr/tarot/suit-of-swords-tarot-card-meanings 301
+	redir /tarot/suit-of-pentacles-meaning /tarot/suit-of-pentacles-tarot-card-meanings 301
+	redir /fr/tarot/suit-of-pentacles-meaning /fr/tarot/suit-of-pentacles-tarot-card-meanings 301
 	redir /tarot/the-tower /tarot/the-tower-tarot-card-meaning 301
 	redir /fr/tarot/the-tower /fr/tarot/the-tower-tarot-card-meaning 301
 	redir /tarot/5-of-cups-meaning /tarot/5-of-cups-tarot-card-meaning 301
