@@ -359,12 +359,13 @@ describe('Tarot Articles Public Routes', () => {
 
       await request(app).get('/the-fool');
 
+      // status is no longer in the WHERE clause — the route fetches any status and
+      // checks post-query so draft articles can return a comingSoon stub instead of 404.
       expect(mockedPrisma.blogPost.findFirst).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             slug: 'the-fool',
             contentType: 'TAROT_ARTICLE',
-            status: 'PUBLISHED',
             deletedAt: null,
           }),
         })

@@ -112,6 +112,7 @@ const createMockPost = (overrides = {}) => ({
   featured: false,
   viewCount: 10,
   readTimeMinutes: 5,
+  status: 'PUBLISHED',
   publishedAt: new Date('2025-01-15'),
   categories: [
     {

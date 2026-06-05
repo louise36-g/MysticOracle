@@ -14,15 +14,28 @@
 
 import { debug } from '../lib/logger.js';
 
+// Cards where the DB slug differs from what a naive name→slug conversion would produce.
+// Key: lowercased card name (with or without "the"); Value: slug base before "-tarot-card-meaning".
+const SLUG_OVERRIDES: Record<string, string> = {
+  // DB slug is "the-wheel-of-fortune-..." but the card name in constants omits "The"
+  'wheel of fortune': 'the-wheel-of-fortune',
+  'the wheel of fortune': 'the-wheel-of-fortune',
+  // DB slug is "high-priestess-..." (no "the-"); the Caddyfile redirect handles the reverse
+  'the high priestess': 'high-priestess',
+  'high priestess': 'high-priestess',
+};
+
 /**
  * Converts a card name to a URL-friendly slug
  * @param cardName - The card name (e.g., "THE EMPEROR", "ACE OF SWORDS")
  * @returns The slug (e.g., "the-emperor-tarot-card-meaning")
  */
 function cardNameToSlug(cardName: string): string {
-  return cardName
-    .toLowerCase()
-    .trim()
+  const normalized = cardName.toLowerCase().trim();
+  if (SLUG_OVERRIDES[normalized]) {
+    return `${SLUG_OVERRIDES[normalized]}-tarot-card-meaning`;
+  }
+  return normalized
     .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
     .replace(/\s+/g, '-') // Replace spaces with hyphens
     .replace(/-+/g, '-') // Replace multiple hyphens with single

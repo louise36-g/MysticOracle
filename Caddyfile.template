@@ -66,6 +66,9 @@
 	# "the-high-priestess" slug variant → canonical without "the-" prefix
 	redir /tarot/the-high-priestess-tarot-card-meaning /tarot/high-priestess-tarot-card-meaning 301
 	redir /fr/tarot/the-high-priestess-tarot-card-meaning /fr/tarot/high-priestess-tarot-card-meaning 301
+	# "wheel-of-fortune" → "the-wheel-of-fortune" (DB slug has "the-" prefix; card name in constants does not)
+	redir /tarot/wheel-of-fortune-tarot-card-meaning /tarot/the-wheel-of-fortune-tarot-card-meaning 301
+	redir /fr/tarot/wheel-of-fortune-tarot-card-meaning /fr/tarot/the-wheel-of-fortune-tarot-card-meaning 301
 
 	# --- Strip trailing slashes (prevents duplicate URLs in Google) ---
 	@trailingSlash path_regexp trslash ^(.+)/$
