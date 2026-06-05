@@ -99,44 +99,6 @@
 	redir @blogAsTarot /tarot/{re.blog2tarot.1} 301
 	@blogAsTarotFr path_regexp blog2tarotfr ^/fr/blog/([a-z0-9-]+-tarot-card-meanings?)$
 	redir @blogAsTarotFr /fr/tarot/{re.blog2tarotfr.1} 301
-	# Blog posts with /tarot/ prefix (complete guide articles link to blog sub-articles wrong)
-	redir /tarot/major-arcana-deep-dives /blog/major-arcana-deep-dives 301
-	redir /tarot/cups-numerology-guide /blog/cups-numerology-guide 301
-	redir /tarot/swords-numerology-guide /blog/swords-numerology-guide 301
-	redir /tarot/tarot-numerology-complete-guide /blog/tarot-numerology-complete-guide 301
-	redir /tarot/the-chariot-as-a-person /blog/the-chariot-as-a-person 301
-	redir /tarot/the-chariot-as-feelings /blog/the-chariot-as-feelings 301
-	redir /tarot/the-chariot-breakup /blog/the-chariot-breakup 301
-	redir /tarot/the-chariot-career-advice /blog/the-chariot-career-advice 301
-	redir /tarot/the-chariot-current-situation /blog/the-chariot-current-situation 301
-	redir /tarot/the-chariot-how-someone-sees-you /blog/the-chariot-how-someone-sees-you 301
-	redir /tarot/the-chariot-love-advice /blog/the-chariot-love-advice 301
-	redir /tarot/the-chariot-love-outcome /blog/the-chariot-love-outcome 301
-	redir /tarot/the-chariot-obstacle-challenge /blog/the-chariot-obstacle-challenge 301
-	redir /tarot/the-chariot-reconciliation /blog/the-chariot-reconciliation 301
-	redir /tarot/the-chariot-spirituality /blog/the-chariot-spirituality 301
-	redir /tarot/the-chariot-yes-or-no /blog/the-chariot-as-yes-or-no 301
-	redir /tarot/the-moon-breakup /blog/the-moon-breakup 301
-	redir /tarot/the-moon-love-advice /blog/the-moon-love-advice 301
-	redir /tarot/the-moon-obstacle-challenge /blog/the-moon-obstacle-challenge 301
-	redir /tarot/the-moon-yes-or-no /blog/the-moon-as-yes-or-no 301
-	redir /tarot/the-star-as-a-person /blog/the-star-as-a-person 301
-	redir /tarot/the-star-as-feelings /blog/the-star-as-feelings 301
-	redir /tarot/the-star-breakup /blog/the-star-breakup 301
-	redir /tarot/the-star-career-advice /blog/the-star-career-advice 301
-	redir /tarot/the-star-current-situation /blog/the-star-current-situation 301
-	redir /tarot/the-star-how-someone-sees-you /blog/the-star-how-someone-sees-you 301
-	redir /tarot/the-star-love-advice /blog/the-star-love-advice 301
-	redir /tarot/the-star-love-outcome /blog/the-star-love-outcome 301
-	redir /tarot/the-star-obstacle-challenge /blog/the-star-obstacle-challenge 301
-	redir /tarot/the-star-reconciliation /blog/the-star-reconciliation 301
-	redir /tarot/the-star-spirituality /blog/the-star-spirituality 301
-	redir /tarot/the-star-yes-or-no /blog/the-star-as-yes-or-no 301
-	redir /tarot/the-empress-current-situation /blog/the-empress-current-situation 301
-	redir /tarot/the-world-love-advice /blog/the-world-love-advice 301
-	redir /tarot/the-world-love-outcome /blog/the-world-love-outcome 301
-	redir /tarot/death-breakup /blog/death-breakup 301
-	redir /tarot/death-obstacle-challenge /blog/death-obstacle-challenge 301
 	# Wheel of Fortune sub-articles: linked with "the-" but blog slugs don't have it
 	redir /blog/the-wheel-of-fortune-as-a-person /blog/wheel-of-fortune-as-a-person 301
 	redir /blog/the-wheel-of-fortune-as-feelings /blog/wheel-of-fortune-as-feelings 301
@@ -156,7 +118,6 @@
 	redir /blog/the-justice-complete-guide /blog/justice-complete-guide 301
 	redir /blog/the-temperance-complete-guide /blog/temperance-complete-guide 301
 	redir /blog/the-major-arcana-tarot-guide /blog/major-arcana-the-fools-journey 301
-	redir /tarot/major-arcana-deep-dives /blog/major-arcana-deep-dives 301
 	# Typo: "emporer" instead of "emperor" in content
 	redir /blog/the-emporer-breakup /blog/the-emperor-breakup 301
 	redir /blog/the-emporer-current-situation /blog/the-emperor-current-situation 301
@@ -164,8 +125,6 @@
 	redir /blog/the-emporer-love-advice /blog/the-emperor-love-advice 301
 	redir /blog/the-emporer-love-outcome /blog/the-emperor-love-outcome 301
 	redir /blog/the-emporer-obstacle-challenge /blog/the-emperor-obstacle-challenge 301
-	redir /tarot/the-emporer-as-feelings /blog/the-emperor-as-feelings 301
-	redir /tarot/the-emporer-current-situation /blog/the-emperor-current-situation 301
 	# Typo: extra "c" prefix on hierophant and magician
 	redir /blog/cthe-hierophant-current-situation /blog/the-hierophant-current-situation 301
 	redir /blog/cthe-hierophant-obstacle-challenge /blog/the-hierophant-obstacle-challenge 301
