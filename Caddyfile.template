@@ -115,11 +115,11 @@
 	redir /tarot/the-chariot-obstacle-challenge /blog/the-chariot-obstacle-challenge 301
 	redir /tarot/the-chariot-reconciliation /blog/the-chariot-reconciliation 301
 	redir /tarot/the-chariot-spirituality /blog/the-chariot-spirituality 301
-	redir /tarot/the-chariot-yes-or-no /blog/the-chariot-yes-or-no 301
+	# the-chariot-yes-or-no: blog post not yet published, no redirect until it exists
 	redir /tarot/the-moon-breakup /blog/the-moon-breakup 301
 	redir /tarot/the-moon-love-advice /blog/the-moon-love-advice 301
 	redir /tarot/the-moon-obstacle-challenge /blog/the-moon-obstacle-challenge 301
-	redir /tarot/the-moon-yes-or-no /blog/the-moon-yes-or-no 301
+	# the-moon-yes-or-no: blog post not yet published, no redirect until it exists
 	redir /tarot/the-star-as-a-person /blog/the-star-as-a-person 301
 	redir /tarot/the-star-as-feelings /blog/the-star-as-feelings 301
 	redir /tarot/the-star-breakup /blog/the-star-breakup 301
@@ -131,7 +131,7 @@
 	redir /tarot/the-star-obstacle-challenge /blog/the-star-obstacle-challenge 301
 	redir /tarot/the-star-reconciliation /blog/the-star-reconciliation 301
 	redir /tarot/the-star-spirituality /blog/the-star-spirituality 301
-	redir /tarot/the-star-yes-or-no /blog/the-star-yes-or-no 301
+	# the-star-yes-or-no: blog post not yet published, no redirect until it exists
 	redir /tarot/the-empress-current-situation /blog/the-empress-current-situation 301
 	redir /tarot/the-world-love-advice /blog/the-world-love-advice 301
 	redir /tarot/the-world-love-outcome /blog/the-world-love-outcome 301
