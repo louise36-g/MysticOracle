@@ -31,9 +31,9 @@ function getEmbeddedArticleData(slug: string | undefined): TarotArticle | null {
   const el = document.getElementById('__ARTICLE_DATA__');
   if (!el?.textContent) return null;
   try {
-    const data = JSON.parse(el.textContent) as TarotArticle;
-    // Only use if the slug matches (prevents stale data on client-side navigation)
-    if (data.slug === slug) return data;
+    const data = JSON.parse(el.textContent) as TarotArticle & { comingSoon?: boolean };
+    // Only use if the slug matches and it's a full article (not a comingSoon stub)
+    if (data.slug === slug && !data.comingSoon) return data as TarotArticle;
     return null;
   } catch {
     return null;
@@ -437,7 +437,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <title>{localizedSeoTitle} | CelestiArcana</title>
         <meta name="description" content={localizedSeoDescription} />
         <link rel="canonical" href={canonicalUrl} />
-        <meta name="keywords" content={article.tags.join(', ')} />
+        <meta name="keywords" content={(article.tags ?? []).join(', ')} />
         <meta name="author" content={article.author} />
         <html lang={language} />
 
@@ -452,7 +452,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
         <meta property="article:published_time" content={article.datePublished} />
         <meta property="article:modified_time" content={article.dateModified} />
         <meta property="article:author" content={article.author} />
-        {article.tags.map((tag) => (
+        {(article.tags ?? []).map((tag) => (
           <meta key={tag} property="article:tag" content={tag} />
         ))}
 
@@ -624,7 +624,7 @@ export function TarotArticlePage({ previewId }: TarotArticlePageProps) {
             />
 
             {/* Tags Section */}
-            <ArticleTags tags={article.tags} />
+            <ArticleTags tags={article.tags ?? []} />
 
             {/* Related Cards Section */}
             <RelatedCards cards={article.relatedCards} />
