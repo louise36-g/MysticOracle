@@ -149,7 +149,8 @@ router.get(
     }
 
     // Draft / unpublished — return a coming-soon stub (never cached)
-    if (article.status !== 'PUBLISHED' || !article.publishedAt) {
+    // Note: publishedAt is nullable for old articles; status is the authoritative flag.
+    if (article.status !== 'PUBLISHED') {
       const primaryCategory = article.categories[0]?.category ?? null;
       res.json({
         comingSoon: true,
