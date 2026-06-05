@@ -84,12 +84,17 @@ export function replaceArticleUrls(content: string): string {
   processedContent = processedContent.replace(simplePattern, (match, cardName) => {
     const cleanName = cardName.trim();
 
-    // Skip if it's not a card (contains MAJOR ARCANA, GUIDE, READING, etc.)
+    // Skip if it's not a card (contains MAJOR ARCANA, GUIDE, READING, TAROT FOR, FOR, etc.)
     if (
       cleanName.includes('MAJOR ARCANA') ||
       cleanName.includes('GUIDE') ||
       cleanName.includes('READING') ||
-      cleanName.includes('IMAGE')
+      cleanName.includes('IMAGE') ||
+      cleanName.includes('TAROT FOR') ||
+      cleanName.includes('TAROT AND') ||
+      cleanName.startsWith('FOR ') ||
+      cleanName.includes(' FOR ') ||
+      cleanName.includes(' AND ')
     ) {
       debug.log(`Skipping non-card placeholder: "${match}"`);
       return match; // Return unchanged

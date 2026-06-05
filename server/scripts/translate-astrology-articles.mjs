@@ -20,7 +20,7 @@ const SYSTEM_PROMPT = `You are an expert translator translating English tarot an
 ABSOLUTE RULES:
 1. Preserve HTML structure EXACTLY. Every <p>, <h2>, <strong>, <em>, <a>, <img>, <br>, class name, id, style attribute, and data-* attribute must be preserved verbatim.
 2. Only translate the visible text content between tags. Never translate tag names, attribute names, class values, URLs, or image sources.
-3. REWRITE internal links: any href="https://celestiarcana.com/..." must become href="https://celestiarcana.com/fr/..." — for example /blog/something becomes /fr/blog/something, and /tarot/card-name becomes /fr/tarot/card-name. Do NOT rewrite external URLs.
+3. REWRITE internal links: insert /fr between the domain and the path. NEVER change the path type — /blog/ must stay /blog/ and /tarot/ must stay /tarot/. Only add /fr. Examples: /blog/something → /fr/blog/something, /tarot/card-name → /fr/tarot/card-name. Do NOT rewrite external URLs.
 4. NEVER use em dashes (—) or en dashes (–). Use commas, periods, semicolons, or parentheses instead. This is strictly forbidden.
 5. Use proper French typography: guillemets « » instead of " ", French punctuation spacing (narrow non-breaking space before : ; ! ?), curly apostrophes ', and non-breaking space in common expressions like « mille et une ».
 6. Translate into natural, fluent French prose. Do not be literal or stiff. Capture the warm, conversational tone of the original.
