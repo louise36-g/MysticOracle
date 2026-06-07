@@ -111,6 +111,8 @@ export {
   fetchAdminHealth,
   fetchAdminErrorLogs,
   clearAdminErrorLogs,
+  fetchDeployConfigured,
+  triggerDeploy,
   fetchAdminPrompts,
   fetchAdminPrompt,
   updateAdminPrompt,

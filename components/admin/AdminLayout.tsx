@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import AdminNav from './AdminNav';
+import DeployButton from './DeployButton';
 
 // Loading fallback for nested route content
 const AdminContentLoader: React.FC = () => (
@@ -16,16 +17,19 @@ const AdminLayout: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-heading text-amber-400 mb-2">
-          {t('admin.AdminDashboard.admin_dashboard', 'Admin Dashboard')}
-        </h1>
-        <p className="text-purple-300/70">
-          {t(
-            'admin.AdminDashboard.manage_users_view_analytics',
-            'Manage users, view analytics, and configure the platform'
-          )}
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-heading text-amber-400 mb-2">
+            {t('admin.AdminDashboard.admin_dashboard', 'Admin Dashboard')}
+          </h1>
+          <p className="text-purple-300/70">
+            {t(
+              'admin.AdminDashboard.manage_users_view_analytics',
+              'Manage users, view analytics, and configure the platform'
+            )}
+          </p>
+        </div>
+        <DeployButton />
       </div>
 
       {/* Tab Navigation */}

@@ -388,6 +388,20 @@ export async function clearAdminErrorLogs(token: string): Promise<{ success: boo
 }
 
 // ============================================
+// DEPLOY TRIGGER (Coolify)
+// ============================================
+
+export async function fetchDeployConfigured(token: string): Promise<{ configured: boolean }> {
+  return apiRequest('/api/v1/admin/deploy/configured', { token });
+}
+
+export async function triggerDeploy(
+  token: string
+): Promise<{ success: boolean; deploymentUuid: string | null; message: string }> {
+  return apiRequest('/api/v1/admin/deploy/trigger', { method: 'POST', token });
+}
+
+// ============================================
 // AI PROMPTS
 // ============================================
 
