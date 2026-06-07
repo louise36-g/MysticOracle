@@ -60,6 +60,15 @@ const FIXES: Fix[] = [
       'https://res.cloudinary.com/dvt3q1p1c/image/upload/v1779910656/celestiarcana/tarot/16-the-tower-ok.jpg',
     fields: ['contentFr'],
   },
+  // ── 7 of Swords: original public ID overwritten with reversed card; new upright uploaded ──
+  {
+    slug: '7-of-swords-tarot-card-meaning',
+    broken:
+      'https://res.cloudinary.com/dvt3q1p1c/image/upload/v1772478314/celestiarcana/tarot/07-of-swords.jpg',
+    working:
+      'https://res.cloudinary.com/dvt3q1p1c/image/upload/v1780213057/celestiarcana/tarot/07-of-swords-ok.jpg',
+    fields: ['contentFr'],
+  },
 ];
 
 async function main() {
