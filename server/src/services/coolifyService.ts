@@ -8,9 +8,14 @@
  * rather than waiting for the next scheduled/incidental deploy.
  *
  * Requires env vars:
- *   COOLIFY_URL          — base URL of the Coolify instance (e.g. http://46.224.16.4:8000)
+ *   COOLIFY_DEPLOY_HOST  — base URL of the Coolify instance (e.g. http://46.224.16.4:8000)
  *   COOLIFY_API_TOKEN    — token scoped to "deploy" permission only
  *   COOLIFY_APP_UUID     — UUID of the front-end application resource
+ *
+ * NOTE: deliberately named COOLIFY_DEPLOY_HOST (not COOLIFY_URL) —
+ * Coolify auto-injects its own "magic" variables like COOLIFY_URL and
+ * COOLIFY_FQDN into the app environment, and a name collision there
+ * broke the deployment.
  *
  * The token is intentionally scoped to "deploy" only (not "read"), so
  * this service only triggers deploys — it can't poll for completion
@@ -19,7 +24,10 @@
 
 import { logger } from '../lib/logger.js';
 
-const COOLIFY_URL = (process.env.COOLIFY_URL || 'http://46.224.16.4:8000').replace(/\/$/, '');
+const COOLIFY_URL = (process.env.COOLIFY_DEPLOY_HOST || 'http://46.224.16.4:8000').replace(
+  /\/$/,
+  ''
+);
 const API_TOKEN = process.env.COOLIFY_API_TOKEN;
 const APP_UUID = process.env.COOLIFY_APP_UUID;
 
