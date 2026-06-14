@@ -380,7 +380,7 @@ const BlogPostsTab: React.FC<BlogPostsTabProps> = React.memo(({
         {/* Image */}
         <td className="px-4 py-3">
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
-            {post.coverImage && post.coverImage.startsWith('http') ? (
+            {post.coverImage ? (
               <img
                 src={optimizeCloudinaryUrl(post.coverImage, { width: 64 })}
                 alt={post.coverImageAlt || (language === 'en' ? post.titleEn : post.titleFr)}
