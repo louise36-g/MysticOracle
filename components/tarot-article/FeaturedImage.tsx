@@ -46,6 +46,7 @@ export function FeaturedImage({ src, alt, onClick }: FeaturedImageProps) {
         className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-150"
         loading="lazy"
         decoding="async"
+        onError={(e) => { (e.currentTarget as HTMLImageElement).src = src; (e.currentTarget as HTMLImageElement).srcset = ''; }}
       />
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

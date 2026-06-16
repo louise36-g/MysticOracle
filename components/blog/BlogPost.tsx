@@ -281,6 +281,7 @@ const BlogPostView: React.FC<BlogPostProps> = ({ previewId }) => {
               alt={post.coverImageAlt || title}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-150"
               loading="lazy"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = post.coverImage!; }}
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
