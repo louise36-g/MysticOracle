@@ -153,7 +153,7 @@ router.get(
           },
         },
         orderBy: filters.category
-          ? [{ sortOrder: 'asc' }, { publishedAt: 'desc' }]
+          ? [{ sortOrder: 'asc' }, { createdAt: 'asc' }]
           : [{ featured: 'desc' }, { publishedAt: 'desc' }],
         skip: paginationParams.skip,
         take: paginationParams.take,
