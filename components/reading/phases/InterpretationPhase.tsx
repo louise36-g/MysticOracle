@@ -428,8 +428,8 @@ const InterpretationPhase: React.FC<InterpretationPhaseProps> = ({
               <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 opacity-50" style={{ color: theme.primary }} />
               <p>
                 {language === 'en'
-                  ? "A card's meaning in a reading is always a blend. Each card carries its own energy, but your question, its position in the spread, and the surrounding cards all act on it — the way neighbouring colours shift each other. What you read below is that combined, nuanced meaning, not the card in isolation."
-                  : "La signification d'une carte dans un tirage est toujours un mélange. Chaque carte porte sa propre énergie, mais ta question, la position qu'elle occupe et les cartes voisines l'influencent mutuellement — comme des couleurs qui se modifient au contact les unes des autres. Ce que tu lis ci-dessous, c'est cette signification combinée et nuancée, et non la carte vue isolément."}
+                  ? "A card's meaning in a reading is always a blend. Each card carries its own energy, but your question, its position in the spread, and the surrounding cards all act on it, the way neighbouring colours shift each other. What you read below is that combined, nuanced meaning, not the card in isolation."
+                  : "La signification d'une carte dans un tirage est toujours un mélange. Chaque carte porte sa propre énergie, mais ta question, la position qu'elle occupe et les cartes voisines l'influencent mutuellement, comme des couleurs qui se modifient au contact les unes des autres. Ce que tu lis ci-dessous, c'est cette signification combinée et nuancée, et non la carte vue isolément."}
               </p>
             </div>
 
