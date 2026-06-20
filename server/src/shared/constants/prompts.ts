@@ -550,7 +550,7 @@ Guidelines:
 - Connect the clarification card to themes from the original reading AND any previous clarification cards
 - If the card is reversed, interpret its reversed meaning
 - Show what new insight or nuance this card adds beyond what was already revealed
-- End with one clear, actionable takeaway
+- Close with one sentence that distills the essential insight this card brings, in the same mystical oracle voice as the rest of the reading. No summaries, no "takeaway" language.
 
 VOICE AND TONE:
 - Warm and grounded, not theatrical
