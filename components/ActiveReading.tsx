@@ -342,9 +342,11 @@ const ActiveReading: React.FC<ActiveReadingProps> = ({ spread: propSpread, onFin
     }
   }, [generateReading, spread, isAdvanced, selectedStyles, drawnCards, question, language, category, singleCardLayout, twoCardLayout, threeCardLayout, fiveCardLayout, horseshoeLayout, t]);
 
-  // Regenerate reading when language changes (if one is already displayed)
+  // Regenerate reading when language changes (only after a successful reading)
+  // readingLanguage is null until the first successful generation, so this
+  // guard prevents the effect from firing in a loop after a failed API call.
   useEffect(() => {
-    if (phase === 'reading' && readingText && readingLanguage !== language && !isGenerating) {
+    if (phase === 'reading' && readingText && readingLanguage && readingLanguage !== language && !isGenerating) {
       regenerateReading();
     }
   }, [language, phase, readingText, readingLanguage, isGenerating, regenerateReading]);

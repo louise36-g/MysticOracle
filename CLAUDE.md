@@ -473,7 +473,7 @@ PAYPAL_CLIENT_SECRET=xxxxx
 PAYPAL_MODE=sandbox
 BREVO_API_KEY=xkeysib-xxxxx
 OPENROUTER_API_KEY=sk-or-xxxxx
-AI_MODEL=openai/gpt-oss-120b:free  # Optional, defaults to free tier
+AI_MODEL=meta-llama/llama-3.3-70b-instruct:free  # Optional, defaults to free tier
 ```
 
 ## Commands

@@ -128,7 +128,7 @@ export class OpenRouterService {
   private circuitBreaker = new CircuitBreaker(5, 60000);
 
   constructor(retryConfig: Partial<RetryConfig> = {}) {
-    this.model = 'openai/gpt-oss-120b:free'; // Default model
+    this.model = 'meta-llama/llama-3.3-70b-instruct:free';
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG, ...retryConfig };
   }
 
