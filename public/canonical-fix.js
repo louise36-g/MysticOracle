@@ -1,0 +1,1 @@
+(function(){var c=document.querySelector('link[rel="canonical"]');if(!c)return;var p=(c.getAttribute('href')||'').replace(/^https?:\/\/[^/]+/,'');if((p===''||p==='/')&&location.pathname!=='/')c.setAttribute('href','https://celestiarcana.com'+location.pathname);}());

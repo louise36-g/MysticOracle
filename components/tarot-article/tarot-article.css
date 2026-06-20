@@ -374,6 +374,14 @@
   transform: rotate(180deg);
 }
 
+/* Hover on reversed images must combine both transforms; the rotate rule above
+   has equal specificity to .prose img:hover, so without this explicit override
+   the scale is silently dropped when both apply. */
+.prose img.reversed:hover,
+.prose img[data-reversed='true']:hover {
+  transform: rotate(180deg) scale(1.25);
+}
+
 /* Center images with align-center class */
 .prose img.align-center,
 .prose .editor-image.align-center {

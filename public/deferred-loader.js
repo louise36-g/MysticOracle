@@ -14,8 +14,13 @@ if (src) {
   var l = function() {
     if (d) return;
     d = 1;
-    import(s).catch(function() {
+    import(s).then(function() {
+      // Import succeeded — clear the reload guard so future stale-bundle
+      // reloads are allowed again (one per new deployment).
+      sessionStorage.removeItem('_rl');
+    }).catch(function() {
       // Bundle URL changed (new deployment) — reload to get fresh HTML.
+      // Guard prevents an infinite reload loop if the new bundle also 404s.
       if (!sessionStorage.getItem('_rl')) {
         sessionStorage.setItem('_rl', '1');
         location.reload();
@@ -49,5 +54,4 @@ if (src) {
     });
     setTimeout(l, 1e4);
   }
-  sessionStorage.removeItem('_rl');
 }

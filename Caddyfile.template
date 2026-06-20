@@ -204,8 +204,8 @@
 		X-Frame-Options "DENY"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-aWlcEuReX+GS/yvW+HVxUrAI34DGEA0HWqnBUNdtq+o=' https://clerk.celestiarcana.com https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://api.celestiarcana.com https://res.cloudinary.com https://img.clerk.com https://clerk.celestiarcana.com https://www.googletagmanager.com; connect-src 'self' https://clerk.celestiarcana.com https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev wss://clerk.celestiarcana.com https://api.celestiarcana.com https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.de.sentry.io https://static.cloudflareinsights.com https://www.googletagmanager.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev https://clerk.celestiarcana.com; worker-src 'self' blob:; manifest-src 'self'; report-uri https://api.celestiarcana.com/api/v1/health/csp-report;"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://clerk.celestiarcana.com https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://api.celestiarcana.com https://res.cloudinary.com https://img.clerk.com https://clerk.celestiarcana.com https://www.googletagmanager.com; connect-src 'self' https://clerk.celestiarcana.com https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.accounts.dev wss://clerk.celestiarcana.com https://api.celestiarcana.com https://www.google-analytics.com https://region1.google-analytics.com https://*.ingest.de.sentry.io https://static.cloudflareinsights.com https://www.googletagmanager.com; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev https://clerk.celestiarcana.com; worker-src 'self' blob:; manifest-src 'self'; report-uri https://api.celestiarcana.com/api/v1/health/csp-report;"
 		-Server
 	}
 
@@ -218,13 +218,13 @@
 		CDN-Cache-Control "no-store"
 	}
 
-	# --- deferred-loader.js: never CDN-cache — it controls whether React loads
-	# immediately or on interaction; caching the old version at the CDN breaks
-	# admin pages when the file is updated.
-	@deferredLoader {
-		path /deferred-loader.js
+	# --- Root scripts: never CDN-cache — stale versions break page behaviour.
+	# deferred-loader.js controls React load timing; canonical-fix.js patches
+	# canonical tags on non-pre-rendered pages (SEO). Both must always be fresh.
+	@rootScripts {
+		path /deferred-loader.js /canonical-fix.js
 	}
-	header @deferredLoader {
+	header @rootScripts {
 		Cache-Control "no-cache, must-revalidate"
 		CDN-Cache-Control "no-store"
 	}
@@ -291,7 +291,7 @@
 		not path /assets/* /fonts/* /logos/* /icons/* /screenshots/*
 		not path /background-celestiarcana.* /favicon.png /apple-touch-icon.png
 		not path /og-image.jpg /manifest.json /robots.txt /sitemap.xml
-		not path /sw.js /workbox-*.js /deferred-loader.js
+		not path /sw.js /workbox-*.js /deferred-loader.js /canonical-fix.js
 	}
 	header @notStaticFile {
 		Cache-Control "public, max-age=0, must-revalidate"
